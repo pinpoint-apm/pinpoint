@@ -142,12 +142,12 @@
         <httpcomponents-core.version>4.4.14</httpcomponents-core.version>
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
-        <spring5.version>5.3.13</spring5.version>
+        <spring5.version>5.3.18</spring5.version>
         <spring.version>${spring5.version}</spring.version>
         <spring.batch.version>4.3.3</spring.batch.version>
 
         <spring.security.version>5.5.3</spring.security.version>
-        <spring.boot.version>2.5.7</spring.boot.version>
+        <spring.boot.version>2.5.12</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
         <!--        https://www.lunasec.io/docs/blog/log4j-zero-day/#who-is-impacted
