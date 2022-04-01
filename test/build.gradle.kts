@@ -33,3 +33,9 @@ dependencies {
 }
 
 description = "pinpoint-test"
+
+tasks {
+    processResources {
+        expand("version" to version)
+    }
+}
