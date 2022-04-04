@@ -29,6 +29,7 @@ dependencies {
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
     testImplementation("org.springframework:spring-test:${Versions.spring}")
     testImplementation("org.springframework.batch:spring-batch-test:4.3.3")
+    testImplementation("org.apache.commons:commons-lang3:3.8.1")
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
 }
 
