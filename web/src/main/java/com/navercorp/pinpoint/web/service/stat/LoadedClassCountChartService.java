@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.LoadedClassCountChart;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +46,6 @@ public class LoadedClassCountChartService implements AgentStatChartService{
     @Override
     public List<StatChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
         StatChart agentStatChart = selectAgentChart(agentId, timeWindow);
-        return List.of(agentStatChart);
+        return Collections.singletonList(agentStatChart);
     }
 }
