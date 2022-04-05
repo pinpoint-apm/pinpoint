@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.metric.common.model.json.Tags;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.TypeHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -39,7 +39,7 @@ import java.util.List;
 @MappedJdbcTypes({JdbcType.VARCHAR})
 public class TagListTypeHandler implements TypeHandler<List<Tag>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final static ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
 

@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.metric.common.model.validation;
 
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Set;
 
 public class TelegrafMetricsValidatorTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testMetrics() {

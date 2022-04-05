@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.LongMetric;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +28,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.doAnswer;
 public class PinotSystemMetricDaoTest {
 
     private final static String TOPIC = "test-topic";
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final Random random = new Random(System.currentTimeMillis());
     private final SendCount sendCount = new SendCount();
 

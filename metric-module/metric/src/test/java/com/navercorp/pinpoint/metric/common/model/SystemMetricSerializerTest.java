@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +31,7 @@ import java.util.Collections;
  */
 public class SystemMetricSerializerTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
