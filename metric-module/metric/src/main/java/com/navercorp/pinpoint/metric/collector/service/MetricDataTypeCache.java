@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ import java.util.Objects;
 @Component
 public class MetricDataTypeCache {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final SystemMetricDataTypeDao systemMetricDataTypeDao;
 
     public MetricDataTypeCache(SystemMetricDataTypeDao systemMetricDataTypeDao) {

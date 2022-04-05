@@ -39,8 +39,8 @@ import com.navercorp.pinpoint.metric.web.util.metric.DoubleUncollectedDataCreato
 import com.navercorp.pinpoint.metric.web.util.metric.LongUncollectedDataCreator;
 import com.navercorp.pinpoint.metric.web.util.metric.TimeSeriesBuilder;
 import com.navercorp.pinpoint.metric.web.util.metric.UncollectedDataCreator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SystemMetricDataServiceImpl implements SystemMetricDataService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SystemMetricDao<Long> systemMetricLongDao;
     private final SystemMetricDao<Double> systemMetricDoubleDao;
