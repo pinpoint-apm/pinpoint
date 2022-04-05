@@ -23,13 +23,7 @@
       "dataType": "STRING"
     },
     {
-      "name": "tagName",
-      "dataType": "STRING",
-      "singleValueField": false,
-      "defaultNullValue": "null"
-    },
-    {
-      "name": "tagValue",
+      "name": "tags",
       "dataType": "STRING",
       "singleValueField": false,
       "defaultNullValue": "null"
