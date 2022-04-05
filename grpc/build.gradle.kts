@@ -1,14 +1,5 @@
 import com.google.protobuf.gradle.*
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        "classpath"(group = "com.google.protobuf", name = "protobuf-gradle-plugin", version = Versions.protobufPlugin)
-    }
-}
-
 plugins {
     id("pinpoint.java7-conventions")
     id("pinpoint.grpc-conventions")
