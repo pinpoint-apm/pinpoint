@@ -28,7 +28,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActiveTraceBo> {
+public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActiveTraceBo, AggreJoinActiveTraceBo> {
 
     @Override
     public AggreJoinActiveTraceBo sampleDataPoints(int index, long timestamp, List<JoinActiveTraceBo> joinActiveTraceBoList, JoinActiveTraceBo previousDataPoint) {
@@ -42,7 +42,6 @@ public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActive
         short version = joinActiveTraceBo.getVersion();
         JoinIntFieldBo totalCountValue = joinActiveTraceBo.getTotalCountJoinValue();
 
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo = new AggreJoinActiveTraceBo(id, histogramSchemaType, version, totalCountValue, timestamp);
-        return aggreJoinActiveTraceBo;
+        return new AggreJoinActiveTraceBo(id, histogramSchemaType, version, totalCountValue, timestamp);
     }
 }

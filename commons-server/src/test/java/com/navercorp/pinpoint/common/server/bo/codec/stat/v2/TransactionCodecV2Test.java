@@ -36,7 +36,7 @@ import java.util.List;
 public class TransactionCodecV2Test extends AgentStatCodecTestBase<TransactionBo> {
 
     @Autowired
-    private TransactionCodecV2 transactionCodecV2;
+    private AgentStatCodecV2<TransactionBo> codec;
 
     @Override
     protected List<TransactionBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +45,7 @@ public class TransactionCodecV2Test extends AgentStatCodecTestBase<TransactionBo
 
     @Override
     protected AgentStatCodec<TransactionBo> getCodec() {
-        return transactionCodecV2;
+        return codec;
     }
 
     @Override

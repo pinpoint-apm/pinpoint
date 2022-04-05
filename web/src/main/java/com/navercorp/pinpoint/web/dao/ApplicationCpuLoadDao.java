@@ -15,14 +15,11 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
-
-import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public interface ApplicationCpuLoadDao {
-    List<AggreJoinCpuLoadBo> getApplicationStatList(String applicationId, TimeWindow timeWindow);
+public interface ApplicationCpuLoadDao extends ApplicationMetricDao<AggreJoinCpuLoadBo> {
+
 }

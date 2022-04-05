@@ -18,13 +18,14 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
@@ -84,12 +85,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentDownloadInfoDao agentDownloadInfoDao;
 
-    private final JvmGcDao jvmGcDao;
+    private final AgentStatDao<JvmGcBo> jvmGcDao;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
-                                AgentDownloadInfoDao agentDownloadInfoDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao) {
+                                AgentDownloadInfoDao agentDownloadInfoDao, @Qualifier("jvmGcDaoFactory") AgentStatDao<JvmGcBo> jvmGcDao) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");

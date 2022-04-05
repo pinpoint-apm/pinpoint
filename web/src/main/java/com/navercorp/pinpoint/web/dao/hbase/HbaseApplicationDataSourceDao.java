@@ -15,20 +15,19 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationDataSourceDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,14 +37,15 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationDataSourceDao implements ApplicationDataSourceDao {
 
-    private final DataSourceDecoder dataSourceDecoder;
+    private final ApplicationStatDecoder<JoinDataSourceListBo> dataSourceDecoder;
 
-    private final ApplicationStatSampler<JoinDataSourceListBo> dataSourceSampler;
+    private final ApplicationStatSampler<JoinDataSourceListBo, AggreJoinDataSourceListBo> dataSourceSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationDataSourceDao(DataSourceDecoder dataSourceDecoder,
-                                         ApplicationStatSampler<JoinDataSourceListBo> dataSourceSampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationDataSourceDao(ApplicationStatDecoder<JoinDataSourceListBo> dataSourceDecoder,
+                                         ApplicationStatSampler<JoinDataSourceListBo, AggreJoinDataSourceListBo> dataSourceSampler,
+                                         HbaseApplicationStatDaoOperations operations) {
         this.dataSourceDecoder = Objects.requireNonNull(dataSourceDecoder, "dataSourceDecoder");
         this.dataSourceSampler = Objects.requireNonNull(dataSourceSampler, "dataSourceSampler");
         this.operations = Objects.requireNonNull(operations, "operations");
@@ -55,19 +55,9 @@ public class HbaseApplicationDataSourceDao implements ApplicationDataSourceDao {
     public List<AggreJoinDataSourceListBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(dataSourceDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, dataSourceSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_DATA_SOURCE, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinDataSourceListBo>> mapper = operations.createRowMapper(dataSourceDecoder, range);
+        ResultsExtractor<List<AggreJoinDataSourceListBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, dataSourceSampler);
+        return operations.getSampledStatList(StatType.APP_DATA_SOURCE, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinDataSourceListBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinDataSourceListBo> aggreJoinDataSourceListBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinDataSourceListBoList.add((AggreJoinDataSourceListBo) aggregationStatData);
-        }
-
-        return aggreJoinDataSourceListBoList;
-    }
 }

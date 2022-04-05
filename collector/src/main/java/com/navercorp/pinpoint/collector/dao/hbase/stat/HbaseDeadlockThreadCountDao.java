@@ -16,66 +16,26 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.DeadlockThreadCountSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Repository
-public class HbaseDeadlockThreadCountDao implements AgentStatDaoV2<DeadlockThreadCountBo> {
-    private final HbaseOperations2 hbaseTemplate;
-
-    private final TableNameProvider tableNameProvider;
-
-    private final AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
-
-    private final DeadlockThreadCountSerializer deadlockThreadCountSerializer;
+public class HbaseDeadlockThreadCountDao extends AbstractHBaseDao<DeadlockThreadCountBo> {
 
     public HbaseDeadlockThreadCountDao(HbaseOperations2 hbaseTemplate,
-                                       TableNameProvider tableNameProvider,
-                                       AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
-                                       DeadlockThreadCountSerializer deadlockThreadCountSerializer) {
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");
-        this.deadlockThreadCountSerializer = Objects.requireNonNull(deadlockThreadCountSerializer, "deadlockThreadCountSerializer");
-    }
-
-    @Override
-    public void insert(String agentId, List<DeadlockThreadCountBo> deadlockThreadCountBos) {
-        Objects.requireNonNull(agentId, "agentId");
-        // Assert agentId
-        CollectorUtils.checkAgentId(agentId);
-
-        if (CollectionUtils.isEmpty(deadlockThreadCountBos)) {
-            return;
-        }
-        List<Put> deadlockPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.DEADLOCK, deadlockThreadCountBos, this.deadlockThreadCountSerializer);
-        if (!deadlockPuts.isEmpty()) {
-            TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
-            this.hbaseTemplate.asyncPut(agentStatTableName, deadlockPuts);
-        }
-    }
-
-    @Override
-    public void dispatch(AgentStatBo agentStatBo) {
-        insert(agentStatBo.getAgentId(), agentStatBo.getDeadlockThreadCountBos());
+                               TableNameProvider tableNameProvider,
+                               AgentStatHbaseOperationFactory operationFactory,
+                               AgentStatSerializer<DeadlockThreadCountBo> serializer) {
+        super(AgentStatType.DEADLOCK, HbaseTable.AGENT_STAT_VER2, AgentStatBo::getDeadlockThreadCountBos, hbaseTemplate, tableNameProvider, operationFactory, serializer);
     }
 }

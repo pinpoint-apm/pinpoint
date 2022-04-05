@@ -16,11 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 
-import java.util.List;
-
-public interface ApplicationTotalThreadCountDao {
-    List<AggreJoinTotalThreadCountBo> getApplicationStatList(String applicationId, TimeWindow timewindow);
+public interface ApplicationTotalThreadCountDao extends ApplicationMetricDao<AggreJoinTotalThreadCountBo> {
 }

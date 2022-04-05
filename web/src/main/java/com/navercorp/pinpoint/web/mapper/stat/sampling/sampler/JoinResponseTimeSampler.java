@@ -28,7 +28,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinResponseTimeSampler implements ApplicationStatSampler<JoinResponseTimeBo> {
+public class JoinResponseTimeSampler implements ApplicationStatSampler<JoinResponseTimeBo, AggreJoinResponseTimeBo> {
 
     @Override
     public AggreJoinResponseTimeBo sampleDataPoints(int index, long timestamp, List<JoinResponseTimeBo> joinResponseTimeBoList, JoinResponseTimeBo previousDataPoint) {
@@ -40,7 +40,6 @@ public class JoinResponseTimeSampler implements ApplicationStatSampler<JoinRespo
         String id = joinResponseTimeBo.getId();
         JoinLongFieldBo responseTimeJoinValue = joinResponseTimeBo.getResponseTimeJoinValue();
 
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo = new AggreJoinResponseTimeBo(id, timestamp, responseTimeJoinValue);
-        return aggreJoinResponseTimeBo;
+        return new AggreJoinResponseTimeBo(id, timestamp, responseTimeJoinValue);
     }
 }

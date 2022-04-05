@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author minwoo.jung
  */
-public class TransactionEncoder extends ApplicationStatEncoder {
+public class TransactionEncoder extends ApplicationStatEncoder<JoinTransactionBo> {
 
-    public TransactionEncoder(@Qualifier("joinTransactionCodec") ApplicationStatCodec transactionCodec) {
+    public TransactionEncoder(@Qualifier("joinTransactionCodec") ApplicationStatCodec<JoinTransactionBo> transactionCodec) {
         super(transactionCodec);
     }
 }

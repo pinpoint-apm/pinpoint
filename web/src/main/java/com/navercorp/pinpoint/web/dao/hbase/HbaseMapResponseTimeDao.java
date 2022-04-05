@@ -88,11 +88,11 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
 
-        if (!responseTimeList.isEmpty()) {
-            return responseTimeList;
+        if (responseTimeList.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        return new ArrayList<>();
+        return responseTimeList;
     }
 
     private Scan createScan(Application application, Range range, byte[] family) {

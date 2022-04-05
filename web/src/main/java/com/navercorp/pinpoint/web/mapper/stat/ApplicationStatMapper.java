@@ -37,23 +37,23 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
+public class ApplicationStatMapper<T extends JoinStatBo> implements RowMapper<List<T>> {
 
     public final static Comparator<JoinStatBo> REVERSE_TIMESTAMP_COMPARATOR
             = Comparator.comparingLong(JoinStatBo::getTimestamp).reversed();
 
     private final ApplicationStatHbaseOperationFactory hbaseOperationFactory;
-    private final ApplicationStatDecoder decoder;
+    private final ApplicationStatDecoder<T> decoder;
     private final TimestampFilter filter;
 
-    public ApplicationStatMapper(ApplicationStatHbaseOperationFactory hbaseOperationFactory, ApplicationStatDecoder decoder, TimestampFilter filter) {
+    public ApplicationStatMapper(ApplicationStatHbaseOperationFactory hbaseOperationFactory, ApplicationStatDecoder<T> decoder, TimestampFilter filter) {
         this.hbaseOperationFactory = hbaseOperationFactory;
         this.decoder = decoder;
         this.filter = filter;
     }
 
     @Override
-    public List<JoinStatBo> mapRow(Result result, int rowNum) throws Exception {
+    public List<T> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
@@ -61,7 +61,7 @@ public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
         final String applicationId = this.hbaseOperationFactory.getApplicationId(distributedRowKey);
         final long baseTimestamp = this.hbaseOperationFactory.getBaseTimestamp(distributedRowKey);
 
-        List<JoinStatBo> dataPoints = new ArrayList<>();
+        List<T> dataPoints = new ArrayList<>();
 
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HbaseColumnFamily.APPLICATION_STAT_STATISTICS.getName())) {
@@ -74,8 +74,8 @@ public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
                 decodingContext.setApplicationId(applicationId);
                 decodingContext.setBaseTimestamp(baseTimestamp);
                 decodingContext.setTimestampDelta(timestampDelta);
-                List<JoinStatBo> candidates = this.decoder.decodeValue(valueBuffer, decodingContext);
-                for (JoinStatBo candidate : candidates) {
+                List<T> candidates = this.decoder.decodeValue(valueBuffer, decodingContext);
+                for (T candidate : candidates) {
                     long timestamp = candidate.getTimestamp();
                     if (this.filter.filter(timestamp)) {
                         continue;

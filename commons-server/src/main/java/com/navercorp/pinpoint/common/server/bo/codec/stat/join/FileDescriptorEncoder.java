@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author Roy Kim
  */
-public class FileDescriptorEncoder extends ApplicationStatEncoder {
+public class FileDescriptorEncoder extends ApplicationStatEncoder<JoinFileDescriptorBo> {
 
-    private FileDescriptorEncoder(@Qualifier("joinFileDescriptorCodec") ApplicationStatCodec fileDescriptorCodec) {
+    private FileDescriptorEncoder(@Qualifier("joinFileDescriptorCodec") ApplicationStatCodec<JoinFileDescriptorBo> fileDescriptorCodec) {
         super(fileDescriptorCodec);
     }
 }

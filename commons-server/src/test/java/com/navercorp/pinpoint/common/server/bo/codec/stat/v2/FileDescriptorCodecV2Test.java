@@ -36,7 +36,7 @@ import java.util.List;
 public class FileDescriptorCodecV2Test extends AgentStatCodecTestBase<FileDescriptorBo> {
 
     @Autowired
-    private FileDescriptorCodecV2 fileDescriptorCodecV2;
+    private AgentStatCodecV2<FileDescriptorBo> codec;
 
     @Override
     protected List<FileDescriptorBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +45,7 @@ public class FileDescriptorCodecV2Test extends AgentStatCodecTestBase<FileDescri
 
     @Override
     protected AgentStatCodec<FileDescriptorBo> getCodec() {
-        return fileDescriptorCodecV2;
+        return codec;
     }
 
     @Override

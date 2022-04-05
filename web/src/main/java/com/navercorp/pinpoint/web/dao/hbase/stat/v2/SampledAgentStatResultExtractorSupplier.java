@@ -11,17 +11,17 @@ import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import java.util.List;
 import java.util.Objects;
 
-public class SampledAgentStatResultExtractorSupplier<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint>
-        implements AbstractSampledAgentStatDao.ResultsExtractorSupplier<T, S> {
+public class SampledAgentStatResultExtractorSupplier<IN extends AgentStatDataPoint, OUT extends SampledAgentStatDataPoint>
+        implements AbstractSampledAgentStatDao.ResultsExtractorSupplier<IN, OUT> {
 
-    private final AgentStatSampler<T, S> sampler;
+    private final AgentStatSampler<IN, OUT> sampler;
 
-    public SampledAgentStatResultExtractorSupplier(AgentStatSampler<T, S> sampler) {
+    public SampledAgentStatResultExtractorSupplier(AgentStatSampler<IN, OUT> sampler) {
         this.sampler = Objects.requireNonNull(sampler, "sampler");
     }
 
     @Override
-    public ResultsExtractor<List<S>> apply(TimeWindow timeWindow, AgentStatMapperV2<T> mapper) {
+    public ResultsExtractor<List<OUT>> apply(TimeWindow timeWindow, AgentStatMapperV2<IN> mapper) {
         return new SampledAgentStatResultExtractor<>(timeWindow, mapper, sampler);
     }
 }

@@ -36,7 +36,7 @@ import java.util.List;
 public class DirectBufferCodecV2Test extends AgentStatCodecTestBase<DirectBufferBo> {
 
     @Autowired
-    private DirectBufferCodecV2 directBufferCodecV2;
+    private AgentStatCodecV2<DirectBufferBo> codec;
 
     @Override
     protected List<DirectBufferBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +45,7 @@ public class DirectBufferCodecV2Test extends AgentStatCodecTestBase<DirectBuffer
 
     @Override
     protected AgentStatCodec<DirectBufferBo> getCodec() {
-        return directBufferCodecV2;
+        return codec;
     }
 
     @Override

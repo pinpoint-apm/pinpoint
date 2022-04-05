@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component("joinTransactionDecoder")
-public class TransactionDecoder extends ApplicationStatDecoder {
+public class TransactionDecoder extends ApplicationStatDecoder<JoinTransactionBo> {
 
-    public TransactionDecoder(List<TransactionCodec> transactionCodecList) {
+    public TransactionDecoder(List<ApplicationStatCodec<JoinTransactionBo>> transactionCodecList) {
         super(transactionCodecList);
     }
 }

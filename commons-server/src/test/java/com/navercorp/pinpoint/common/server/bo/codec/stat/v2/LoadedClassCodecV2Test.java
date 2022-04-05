@@ -33,7 +33,7 @@ import java.util.List;
 public class LoadedClassCodecV2Test extends AgentStatCodecTestBase<LoadedClassBo> {
 
     @Autowired
-    private LoadedClassCodecV2 loadedClassCodecV2;
+    private AgentStatCodecV2<LoadedClassBo> codec;
 
     @Override
     protected List<LoadedClassBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -42,7 +42,7 @@ public class LoadedClassCodecV2Test extends AgentStatCodecTestBase<LoadedClassBo
 
     @Override
     protected AgentStatCodec<LoadedClassBo> getCodec() {
-        return loadedClassCodecV2;
+        return codec;
     }
 
     @Override

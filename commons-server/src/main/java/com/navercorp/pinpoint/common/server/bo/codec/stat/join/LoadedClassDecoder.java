@@ -17,14 +17,16 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component("joinLoadedClassDecoder")
-public class LoadedClassDecoder extends ApplicationStatDecoder {
-    public LoadedClassDecoder(List<LoadedClassCodec> codecs) {
+public class LoadedClassDecoder extends ApplicationStatDecoder<JoinLoadedClassBo> {
+    public LoadedClassDecoder(List<ApplicationStatCodec<JoinLoadedClassBo>> codecs) {
         super(codecs);
     }
 }

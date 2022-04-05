@@ -27,7 +27,7 @@ import java.util.List;
  * @author Roy Kim
  */
 @Component
-public class JoinDirectBufferSampler implements ApplicationStatSampler<JoinDirectBufferBo> {
+public class JoinDirectBufferSampler implements ApplicationStatSampler<JoinDirectBufferBo, AggreJoinDirectBufferBo> {
 
     @Override
     public AggreJoinDirectBufferBo sampleDataPoints(int timeWindowIndex, long timestamp, List<JoinDirectBufferBo> joinDirectBufferBoList, JoinDirectBufferBo previousDataPoint) {
@@ -43,7 +43,6 @@ public class JoinDirectBufferSampler implements ApplicationStatSampler<JoinDirec
         final JoinLongFieldBo mappedCountJoinValue = joinDirectBufferBo.getMappedCountJoinValue();
         final JoinLongFieldBo mappedMemoryUsedJoinValue = joinDirectBufferBo.getMappedMemoryUsedJoinValue();
 
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo = new AggreJoinDirectBufferBo(id, directCountJoinValue, directMemoryUsedJoinValue, mappedCountJoinValue, mappedMemoryUsedJoinValue, timestamp);
-        return aggreJoinDirectBufferBo;
+        return new AggreJoinDirectBufferBo(id, directCountJoinValue, directMemoryUsedJoinValue, mappedCountJoinValue, mappedMemoryUsedJoinValue, timestamp);
     }
 }

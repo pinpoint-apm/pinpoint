@@ -36,7 +36,7 @@ import java.util.List;
 public class ActiveTraceCodecV2Test extends AgentStatCodecTestBase<ActiveTraceBo> {
 
     @Autowired
-    private ActiveTraceCodecV2 activeTraceCodecV2;
+    private AgentStatCodecV2<ActiveTraceBo> codec;
 
     @Override
     protected List<ActiveTraceBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +45,7 @@ public class ActiveTraceCodecV2Test extends AgentStatCodecTestBase<ActiveTraceBo
 
     @Override
     protected AgentStatCodec<ActiveTraceBo> getCodec() {
-        return activeTraceCodecV2;
+        return codec;
     }
 
     @Override

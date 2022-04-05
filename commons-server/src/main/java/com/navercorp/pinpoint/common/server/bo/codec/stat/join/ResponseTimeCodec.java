@@ -27,9 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @Component("joinResponseTimeCodec")
-public class ResponseTimeCodec implements ApplicationStatCodec {
+public class ResponseTimeCodec implements ApplicationStatCodec<JoinResponseTimeBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
@@ -56,7 +54,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinResponseTimeBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinResponseTimeBo> joinResponseTimeBoList) {
         if (CollectionUtils.isEmpty(joinResponseTimeBoList)) {
             throw new IllegalArgumentException("joinResponseTimeBoList must not be empty");
         }
@@ -66,8 +64,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
         List<Long> timestamps = new ArrayList<Long>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder responseTimeAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinResponseTimeBoList) {
-            JoinResponseTimeBo joinResponseTimeBo = (JoinResponseTimeBo) joinStatBo;
+        for (JoinResponseTimeBo joinResponseTimeBo : joinResponseTimeBoList) {
             timestamps.add(joinResponseTimeBo.getTimestamp());
             responseTimeAnalyzerBuilder.addValue(joinResponseTimeBo.getResponseTimeJoinValue());
         }
@@ -91,7 +88,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinResponseTimeBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -106,7 +103,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
 
         final List<JoinLongFieldBo> responseTimeList = this.codec.decodeValues(valueBuffer, responseTimeEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinResponseTimeBoList = new ArrayList<JoinStatBo>();
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>();
         for (int i = 0 ; i < numValues ; i++) {
             JoinResponseTimeBo joinResponseTimeBo = new JoinResponseTimeBo();
             joinResponseTimeBo.setId(id);

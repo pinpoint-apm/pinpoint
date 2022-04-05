@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 
 /**
  * @author Roy Kim
  */
-public class FileDescriptorSerializer extends ApplicationStatSerializer {
+public class FileDescriptorSerializer extends ApplicationStatSerializer<JoinFileDescriptorBo> {
 
-    public FileDescriptorSerializer(FileDescriptorEncoder fileDescriptorEncoder) {
+    public FileDescriptorSerializer(ApplicationStatEncoder<JoinFileDescriptorBo> fileDescriptorEncoder) {
         super(fileDescriptorEncoder);
     }
 }

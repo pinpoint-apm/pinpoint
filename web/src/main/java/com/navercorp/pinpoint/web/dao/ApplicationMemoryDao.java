@@ -15,14 +15,10 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
-
-import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public interface ApplicationMemoryDao {
-    List<AggreJoinMemoryBo> getApplicationStatList(String applicationId, TimeWindow timeWindow);
+public interface ApplicationMemoryDao extends ApplicationMetricDao<AggreJoinMemoryBo> {
 }

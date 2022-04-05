@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.hbase.HBaseUtils;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
@@ -116,17 +116,8 @@ public class HbaseAgentStatDaoOperationsV2 {
     }
 
     private Scan createScan(AgentStatType agentStatType, String agentId, Range range) {
-        long scanRange = range.getTo() - range.getFrom();
-        long expectedNumRows = ((scanRange - 1) / DESCRIPTOR.TIMESPAN_MS) + 1;
-        if (range.getFrom() != AgentStatUtils.getBaseTimestamp(range.getFrom())) {
-            expectedNumRows++;
-        }
-        if (expectedNumRows > MAX_SCAN_CACHE_SIZE) {
-            return this.createScan(agentStatType, agentId, range, MAX_SCAN_CACHE_SIZE);
-        } else {
-            // expectedNumRows guaranteed to be within integer range at this point
-            return this.createScan(agentStatType, agentId, range, (int) expectedNumRows);
-        }
+        int scanCacheSize = HBaseUtils.getScanCacheSize(range, DESCRIPTOR.TIMESPAN_MS, MAX_SCAN_CACHE_SIZE);
+        return this.createScan(agentStatType, agentId, range, scanCacheSize);
     }
 
     private Scan createScan(AgentStatType agentStatType, String agentId, Range range, int scanCacheSize) {

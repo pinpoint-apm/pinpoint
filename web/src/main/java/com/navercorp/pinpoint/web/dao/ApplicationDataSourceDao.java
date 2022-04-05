@@ -15,15 +15,11 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
-
-import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public interface ApplicationDataSourceDao {
+public interface ApplicationDataSourceDao extends ApplicationMetricDao<AggreJoinDataSourceListBo> {
 
-    List<AggreJoinDataSourceListBo> getApplicationStatList(String applicationId, TimeWindow timeWindow);
 }

@@ -15,14 +15,10 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
-
-import java.util.List;
 
 /**
  * @author minwoo.jung
  */
-public interface ApplicationResponseTimeDao {
-    List<AggreJoinResponseTimeBo> getApplicationStatList(String applicationId, TimeWindow timeWindow);
+public interface ApplicationResponseTimeDao extends ApplicationMetricDao<AggreJoinResponseTimeBo> {
 }

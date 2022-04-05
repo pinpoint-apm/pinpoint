@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 
-public class LoadedClassSerializer extends ApplicationStatSerializer{
+public class LoadedClassSerializer extends ApplicationStatSerializer<JoinLoadedClassBo> {
 
-    public LoadedClassSerializer(LoadedClassEncoder encoder) {
+    public LoadedClassSerializer(ApplicationStatEncoder<JoinLoadedClassBo> encoder) {
         super(encoder);
     }
 }

@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 
 /**
  * @author minwoo.jung
  */
-public class TransactionSerializer extends ApplicationStatSerializer {
+public class TransactionSerializer extends ApplicationStatSerializer<JoinTransactionBo> {
 
-    protected TransactionSerializer(TransactionEncoder encoder) {
+    protected TransactionSerializer(ApplicationStatEncoder<JoinTransactionBo> encoder) {
         super(encoder);
     }
 }

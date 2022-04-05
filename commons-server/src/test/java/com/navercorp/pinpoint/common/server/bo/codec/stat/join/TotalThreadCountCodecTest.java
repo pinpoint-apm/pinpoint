@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import org.junit.Test;
 
@@ -39,9 +39,9 @@ public class TotalThreadCountCodecTest {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
-        final TotalThreadCountCodec totalThreadCountCodec = new TotalThreadCountCodec(agentStatDataPointCodec);
+        final ApplicationStatCodec<JoinTotalThreadCountBo> totalThreadCountCodec = new TotalThreadCountCodec(agentStatDataPointCodec);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
-        final List<JoinStatBo> joinTotalThreadCountBoList = createJoinTotalThreadCountBoList(currentTime);
+        final List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = createJoinTotalThreadCountBoList(currentTime);
         encodedValueBuffer.putByte(totalThreadCountCodec.getVersion());
         totalThreadCountCodec.encodeValues(encodedValueBuffer, joinTotalThreadCountBoList);
 
@@ -54,15 +54,15 @@ public class TotalThreadCountCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), totalThreadCountCodec.getVersion());
-        List<JoinStatBo> decodedJoinTotalThreadCountBoList = totalThreadCountCodec.decodeValues(valueBuffer, decodingContext);
+        List<JoinTotalThreadCountBo> decodedJoinTotalThreadCountBoList = totalThreadCountCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinTotalThreadCountBoList.size(); i++) {
             assertEquals(decodedJoinTotalThreadCountBoList.get(i), joinTotalThreadCountBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinTotalThreadCountBoList(long currentTime) {
+    private List<JoinTotalThreadCountBo> createJoinTotalThreadCountBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinTotalThreadCountBoList = new ArrayList<>();
+        final List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>();
         JoinTotalThreadCountBo joinTotalThreadCountBo1 = new JoinTotalThreadCountBo(id, currentTime, 80, 1000, "agent1_1", 30, "agent1_2");
         JoinTotalThreadCountBo joinTotalThreadCountBo2 = new JoinTotalThreadCountBo(id, currentTime+5000, 70, 900, "agent2_1", 20, "agent2_2");
         JoinTotalThreadCountBo joinTotalThreadCountBo3 = new JoinTotalThreadCountBo(id, currentTime+15000, 60, 800, "agent4_1", 15, "agent4_2");

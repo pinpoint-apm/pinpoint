@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component("joinCpuLoadDecoder")
-public class CpuLoadDecoder extends ApplicationStatDecoder {
+public class CpuLoadDecoder extends ApplicationStatDecoder<JoinCpuLoadBo> {
 
-    public CpuLoadDecoder(List<CpuLoadCodec> cpuLoadCodecList) {
+    public CpuLoadDecoder(List<ApplicationStatCodec<JoinCpuLoadBo>> cpuLoadCodecList) {
         super(cpuLoadCodecList);
     }
 }

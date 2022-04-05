@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component("joinLoadedClassCodec")
-public class LoadedClassCodec implements ApplicationStatCodec {
+public class LoadedClassCodec implements ApplicationStatCodec<JoinLoadedClassBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
@@ -47,19 +46,18 @@ public class LoadedClassCodec implements ApplicationStatCodec {
     public byte getVersion() { return VERSION; }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinStatBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinLoadedClassBo> joinStatBoList) {
         if (CollectionUtils.isEmpty(joinStatBoList)) {
             throw new IllegalArgumentException("directBufferBoList must not be empty");
         }
 
         final int numValues = joinStatBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder loadedClassAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         JoinLongFieldStrategyAnalyzer.Builder unloadedClassAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinStatBoList) {
-            JoinLoadedClassBo joinLoadedClassBo = (JoinLoadedClassBo) joinStatBo;
+        for (JoinLoadedClassBo joinLoadedClassBo : joinStatBoList) {
             timestamps.add(joinLoadedClassBo.getTimestamp());
             loadedClassAnalyzerBuilder.addValue(joinLoadedClassBo.getLoadedClassJoinValue());
             unloadedClassAnalyzerBuilder.addValue(joinLoadedClassBo.getUnloadedClassJoinValue());
@@ -92,7 +90,7 @@ public class LoadedClassCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinLoadedClassBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -111,7 +109,7 @@ public class LoadedClassCodec implements ApplicationStatCodec {
         List<JoinLongFieldBo> loadedClassList = this.codec.decodeValues(valueBuffer, loadedClassEncodingStrategy, numValues);
         List<JoinLongFieldBo> unloadedClassList = this.codec.decodeValues(valueBuffer, unloadedClassEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinLoadedClassBoList = new ArrayList<JoinStatBo>(numValues);
+        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinLoadedClassBo joinLoadedClassBo = new JoinLoadedClassBo();
             joinLoadedClassBo.setId(id);

@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 
 /**
  * @author minwoo.jung
  */
-public class ActiveTraceSerializer extends ApplicationStatSerializer {
+public class ActiveTraceSerializer extends ApplicationStatSerializer<JoinActiveTraceBo> {
 
-    protected ActiveTraceSerializer(ActiveTraceEncoder encoder) {
+    protected ActiveTraceSerializer(ApplicationStatEncoder<JoinActiveTraceBo> encoder) {
         super(encoder);
     }
 }

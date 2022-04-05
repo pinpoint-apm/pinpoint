@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatSampler<T extends AgentStatDataPoint, S extends SampledAgentStatDataPoint> {
+public interface AgentStatSampler<IN extends AgentStatDataPoint, OUT extends SampledAgentStatDataPoint> {
 
-    S sampleDataPoints(int index, long timestamp, List<T> dataPoints, T previousDataPoint);
+    OUT sampleDataPoints(int index, long timestamp, List<IN> dataPoints, IN previousDataPoint);
 }

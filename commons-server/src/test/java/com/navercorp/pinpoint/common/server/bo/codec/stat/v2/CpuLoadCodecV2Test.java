@@ -39,7 +39,7 @@ public class CpuLoadCodecV2Test extends AgentStatCodecTestBase<CpuLoadBo> {
     private static final double DOUBLE_COMPARISON_DELTA = (double) 1 / AgentStatUtils.CONVERT_VALUE;
 
     @Autowired
-    private CpuLoadCodecV2 cpuLoadCodecV2;
+    private AgentStatCodecV2<CpuLoadBo> codec;
 
     @Override
     protected List<CpuLoadBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -48,7 +48,7 @@ public class CpuLoadCodecV2Test extends AgentStatCodecTestBase<CpuLoadBo> {
 
     @Override
     protected AgentStatCodec<CpuLoadBo> getCodec() {
-        return cpuLoadCodecV2;
+        return codec;
     }
 
     @Override

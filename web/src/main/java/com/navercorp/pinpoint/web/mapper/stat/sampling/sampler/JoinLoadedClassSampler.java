@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class JoinLoadedClassSampler implements ApplicationStatSampler<JoinLoadedClassBo> {
+public class JoinLoadedClassSampler implements ApplicationStatSampler<JoinLoadedClassBo, AggreJoinLoadedClassBo> {
 
     @Override
     public AggreJoinLoadedClassBo sampleDataPoints(int timeWindowIndex, long timestamp, List<JoinLoadedClassBo> joinLoadedClassBoList, JoinLoadedClassBo previousDataPoint) {
@@ -38,8 +38,7 @@ public class JoinLoadedClassSampler implements ApplicationStatSampler<JoinLoaded
         String id = joinLoadedClassBo.getId();
         JoinLongFieldBo loadedClassJoinValue = joinLoadedClassBo.getLoadedClassJoinValue();
         JoinLongFieldBo unloadedClassJoinValue = joinLoadedClassBo.getUnloadedClassJoinValue();
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo = new AggreJoinLoadedClassBo(id, loadedClassJoinValue, unloadedClassJoinValue, timestamp);
 
-        return aggreJoinLoadedClassBo;
+        return new AggreJoinLoadedClassBo(id, loadedClassJoinValue, unloadedClassJoinValue, timestamp);
     }
 }

@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public class TotalThreadCountEncoder extends ApplicationStatEncoder {
-    public TotalThreadCountEncoder(@Qualifier("joinTotalThreadCountCodec") ApplicationStatCodec codec) {
+public class TotalThreadCountEncoder extends ApplicationStatEncoder<JoinTotalThreadCountBo> {
+    public TotalThreadCountEncoder(@Qualifier("joinTotalThreadCountCodec") ApplicationStatCodec<JoinTotalThreadCountBo> codec) {
         super(codec);
     }
 }

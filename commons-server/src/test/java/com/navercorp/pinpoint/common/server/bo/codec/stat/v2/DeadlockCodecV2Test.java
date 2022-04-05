@@ -36,7 +36,7 @@ import java.util.List;
 public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockThreadCountBo> {
 
     @Autowired
-    private DeadlockCodecV2 deadlockCodecV2;
+    private AgentStatCodecV2<DeadlockThreadCountBo> codec;
 
     @Override
     protected List<DeadlockThreadCountBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +45,7 @@ public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockThreadCo
 
     @Override
     protected AgentStatCodec<DeadlockThreadCountBo> getCodec() {
-        return deadlockCodecV2;
+        return codec;
     }
 
     @Override

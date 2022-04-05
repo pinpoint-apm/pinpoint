@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author Roy Kim
  */
 @Component("joinDirectBufferDecoder")
-public class DirectBufferDecoder extends ApplicationStatDecoder {
+public class DirectBufferDecoder extends ApplicationStatDecoder<JoinDirectBufferBo> {
 
-    public DirectBufferDecoder(List<DirectBufferCodec> directBufferCodecList) {
+    public DirectBufferDecoder(List<ApplicationStatCodec<JoinDirectBufferBo>> directBufferCodecList) {
         super(directBufferCodecList);
     }
 }

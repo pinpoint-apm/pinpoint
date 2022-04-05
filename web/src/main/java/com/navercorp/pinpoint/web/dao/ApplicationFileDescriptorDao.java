@@ -15,14 +15,10 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
-
-import java.util.List;
 
 /**
  * @author Roy Kim
  */
-public interface ApplicationFileDescriptorDao {
-    List<AggreJoinFileDescriptorBo> getApplicationStatList(String applicationId, TimeWindow timeWindow);
+public interface ApplicationFileDescriptorDao extends ApplicationMetricDao<AggreJoinFileDescriptorBo> {
 }

@@ -27,7 +27,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransactionBo> {
+public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransactionBo, AggreJoinTransactionBo> {
 
     @Override
     public AggreJoinTransactionBo sampleDataPoints(int index, long timestamp, List<JoinTransactionBo> joinTransactionBoList, JoinTransactionBo previousDataPoint) {
@@ -40,7 +40,6 @@ public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransa
         long collectInterval = joinTransactionBo.getCollectInterval();
         final JoinLongFieldBo totalCountJoinValue = joinTransactionBo.getTotalCountJoinValue();
 
-        AggreJoinTransactionBo aggreJoinTransactionBo = new AggreJoinTransactionBo(id, collectInterval, totalCountJoinValue, timestamp);
-        return aggreJoinTransactionBo;
+        return new AggreJoinTransactionBo(id, collectInterval, totalCountJoinValue, timestamp);
     }
 }

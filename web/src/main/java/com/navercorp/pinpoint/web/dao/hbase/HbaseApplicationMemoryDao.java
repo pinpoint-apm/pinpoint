@@ -15,21 +15,20 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationMemoryDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,13 +38,15 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationMemoryDao implements ApplicationMemoryDao {
 
-    private final MemoryDecoder memoryDecoder;
+    private final ApplicationStatDecoder<JoinMemoryBo> memoryDecoder;
 
-    private final ApplicationStatSampler<JoinMemoryBo> memorySampler;
+    private final ApplicationStatSampler<JoinMemoryBo, AggreJoinMemoryBo> memorySampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationMemoryDao(MemoryDecoder memoryDecoder, ApplicationStatSampler<JoinMemoryBo> memorySampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationMemoryDao(ApplicationStatDecoder<JoinMemoryBo> memoryDecoder,
+                                     ApplicationStatSampler<JoinMemoryBo, AggreJoinMemoryBo> memorySampler,
+                                     HbaseApplicationStatDaoOperations operations) {
         this.memoryDecoder = Objects.requireNonNull(memoryDecoder, "memoryDecoder");
         this.memorySampler = Objects.requireNonNull(memorySampler, "memorySampler");
         this.operations = Objects.requireNonNull(operations, "operations");
@@ -55,19 +56,9 @@ public class HbaseApplicationMemoryDao implements ApplicationMemoryDao {
     public List<AggreJoinMemoryBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(memoryDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, memorySampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_MEMORY_USED, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinMemoryBo>> mapper = operations.createRowMapper(memoryDecoder, range);
+        ResultsExtractor<List<AggreJoinMemoryBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, memorySampler);
+        return operations.getSampledStatList(StatType.APP_MEMORY_USED, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinMemoryBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinMemoryBo> aggreJoinMemoryBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinMemoryBoList.add((AggreJoinMemoryBo) aggregationStatData);
-        }
-
-        return aggreJoinMemoryBoList;
-    }
 }

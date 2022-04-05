@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component("joinTotalThreadCountDecoder")
-public class TotalThreadCountDecoder extends ApplicationStatDecoder {
-    public TotalThreadCountDecoder(List<TotalThreadCountCodec> codecs) {
+public class TotalThreadCountDecoder extends ApplicationStatDecoder<JoinTotalThreadCountBo> {
+    public TotalThreadCountDecoder(List<ApplicationStatCodec<JoinTotalThreadCountBo>> codecs) {
         super(codecs);
     }
 }

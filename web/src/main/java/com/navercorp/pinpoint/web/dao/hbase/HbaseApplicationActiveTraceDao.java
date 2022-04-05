@@ -15,21 +15,20 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationActiveTraceDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,13 +38,15 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationActiveTraceDao implements ApplicationActiveTraceDao {
 
-    private final ActiveTraceDecoder activeTraceDecoder;
+    private final ApplicationStatDecoder<JoinActiveTraceBo> activeTraceDecoder;
 
-    private final ApplicationStatSampler<JoinActiveTraceBo> activeTraceSampler;
+    private final ApplicationStatSampler<JoinActiveTraceBo, AggreJoinActiveTraceBo> activeTraceSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationActiveTraceDao(ActiveTraceDecoder activeTraceDecoder, ApplicationStatSampler<JoinActiveTraceBo> activeTraceSampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationActiveTraceDao(ApplicationStatDecoder<JoinActiveTraceBo> activeTraceDecoder,
+                                          ApplicationStatSampler<JoinActiveTraceBo, AggreJoinActiveTraceBo> activeTraceSampler,
+                                          HbaseApplicationStatDaoOperations operations) {
         this.activeTraceDecoder = Objects.requireNonNull(activeTraceDecoder, "activeTraceDecoder");
         this.activeTraceSampler = Objects.requireNonNull(activeTraceSampler, "activeTraceSampler");
         this.operations = Objects.requireNonNull(operations, "operations");
@@ -55,19 +56,9 @@ public class HbaseApplicationActiveTraceDao implements ApplicationActiveTraceDao
     public List<AggreJoinActiveTraceBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(activeTraceDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, activeTraceSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_ACTIVE_TRACE_COUNT, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinActiveTraceBo>> mapper = operations.createRowMapper(activeTraceDecoder, range);
+        ResultsExtractor<List<AggreJoinActiveTraceBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, activeTraceSampler);
+        return operations.getSampledStatList(StatType.APP_ACTIVE_TRACE_COUNT, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinActiveTraceBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinActiveTraceBo> aggreJoinTransactionBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinTransactionBoList.add((AggreJoinActiveTraceBo) aggregationStatData);
-        }
-
-        return aggreJoinTransactionBoList;
-    }
 }
