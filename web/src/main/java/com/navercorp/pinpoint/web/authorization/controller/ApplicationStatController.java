@@ -15,17 +15,17 @@
  */
 package com.navercorp.pinpoint.web.authorization.controller;
 
-import com.navercorp.pinpoint.web.service.stat.ApplicationActiveTraceService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationCpuLoadService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationDataSourceService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationDirectBufferService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationMemoryService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationResponseTimeService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationStatChartService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationFileDescriptorService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationTotalThreadCountService;
-import com.navercorp.pinpoint.web.service.stat.ApplicationLoadedClassService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationActiveTraceService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationCpuLoadService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationDirectBufferService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationMemoryService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationResponseTimeService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationTransactionService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationFileDescriptorService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationTotalThreadCountService;
+import com.navercorp.pinpoint.web.service.appmetric.ApplicationLoadedClassService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.common.server.util.time.Range;
