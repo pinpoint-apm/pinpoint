@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author Roy Kim
  */
-public class DirectBufferEncoder extends ApplicationStatEncoder {
+public class DirectBufferEncoder extends ApplicationStatEncoder<JoinDirectBufferBo> {
 
-    private DirectBufferEncoder(@Qualifier("joinDirectBufferCodec") ApplicationStatCodec directBufferCodec) {
+    private DirectBufferEncoder(@Qualifier("joinDirectBufferCodec") ApplicationStatCodec<JoinDirectBufferBo> directBufferCodec) {
         super(directBufferCodec);
     }
 }

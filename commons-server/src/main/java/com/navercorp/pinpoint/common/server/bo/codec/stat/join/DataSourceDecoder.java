@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component("joinDataSourceDecoder")
-public class DataSourceDecoder extends ApplicationStatDecoder {
+public class DataSourceDecoder extends ApplicationStatDecoder<JoinDataSourceListBo> {
 
-    public DataSourceDecoder(List<DataSourceCodec> dataSourceCodecList) {
+    public DataSourceDecoder(List<ApplicationStatCodec<JoinDataSourceListBo>> dataSourceCodecList) {
         super(dataSourceCodecList);
     }
 }

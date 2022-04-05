@@ -28,7 +28,7 @@ import java.util.List;
  * @author Roy Kim
  */
 @Component
-public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFileDescriptorBo> {
+public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFileDescriptorBo, AggreJoinFileDescriptorBo> {
 
     @Override
     public AggreJoinFileDescriptorBo sampleDataPoints(int timeWindowIndex, long timestamp, List<JoinFileDescriptorBo> joinFileDescriptorBoList, JoinFileDescriptorBo previousDataPoint) {
@@ -41,7 +41,6 @@ public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFil
         String id = joinFileDescriptorBo.getId();
         final JoinLongFieldBo openFdCountJoinValue = joinFileDescriptorBo.getOpenFdCountJoinValue();
 
-        AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = new AggreJoinFileDescriptorBo(id, openFdCountJoinValue, timestamp);
-        return aggreJoinFileDescriptorBo;
+        return new AggreJoinFileDescriptorBo(id, openFdCountJoinValue, timestamp);
     }
 }

@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public class LoadedClassEncoder extends ApplicationStatEncoder {
-    public LoadedClassEncoder(@Qualifier("joinLoadedClassCodec")ApplicationStatCodec codec) {
+public class LoadedClassEncoder extends ApplicationStatEncoder<JoinLoadedClassBo> {
+    public LoadedClassEncoder(@Qualifier("joinLoadedClassCodec")ApplicationStatCodec<JoinLoadedClassBo> codec) {
         super(codec);
     }
 }

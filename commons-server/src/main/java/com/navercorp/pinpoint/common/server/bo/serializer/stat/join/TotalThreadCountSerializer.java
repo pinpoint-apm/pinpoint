@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 
-public class TotalThreadCountSerializer extends ApplicationStatSerializer{
+public class TotalThreadCountSerializer extends ApplicationStatSerializer<JoinTotalThreadCountBo> {
 
-    public TotalThreadCountSerializer(TotalThreadCountEncoder encoder) {
+    public TotalThreadCountSerializer(ApplicationStatEncoder<JoinTotalThreadCountBo> encoder) {
         super(encoder);
     }
 }

@@ -29,7 +29,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinCpuLoadSampler implements ApplicationStatSampler<JoinCpuLoadBo> {
+public class JoinCpuLoadSampler implements ApplicationStatSampler<JoinCpuLoadBo, AggreJoinCpuLoadBo> {
 
     @Override
     public AggreJoinCpuLoadBo sampleDataPoints(int timeWindowIndex, long timestamp, List<JoinCpuLoadBo> joinCpuLoadBoList, JoinCpuLoadBo previousDataPoint) {
@@ -55,8 +55,7 @@ public class JoinCpuLoadSampler implements ApplicationStatSampler<JoinCpuLoadBo>
         double maxSysCpuLoad = roundToScale(systemCpuLoadJoinValue.getMax() * 100);
         String maxSysCpuAgentId = systemCpuLoadJoinValue.getMaxAgentId();
 
-        AggreJoinCpuLoadBo aggreJoinCpuLoadBo = new AggreJoinCpuLoadBo(id, jvmCpuLoad, maxJvmCpuLoad, maxJvmCpuAgentId, minJvmCpuLoad, minJvmCpuAgentId, sysCpuLoad, maxSysCpuLoad, maxSysCpuAgentId, minSysCpuLoad, minSysCpuAgentId, timestamp);
-        return aggreJoinCpuLoadBo;
+        return new AggreJoinCpuLoadBo(id, jvmCpuLoad, maxJvmCpuLoad, maxJvmCpuAgentId, minJvmCpuLoad, minJvmCpuAgentId, sysCpuLoad, maxSysCpuLoad, maxSysCpuAgentId, minSysCpuLoad, minSysCpuAgentId, timestamp);
     }
 
     private double roundToScale(double value) {

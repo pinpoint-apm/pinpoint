@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -36,7 +37,8 @@ import java.util.List;
 public class JvmGcCodecV2Test extends AgentStatCodecTestBase<JvmGcBo> {
 
     @Autowired
-    private JvmGcCodecV2 jvmGcCodecV2;
+    @Qualifier("jvmGcCodecV2")
+    private AgentStatCodec<JvmGcBo> codec;
 
     @Override
     protected List<JvmGcBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +47,7 @@ public class JvmGcCodecV2Test extends AgentStatCodecTestBase<JvmGcBo> {
 
     @Override
     protected AgentStatCodec<JvmGcBo> getCodec() {
-        return jvmGcCodecV2;
+        return codec;
     }
 
     @Override

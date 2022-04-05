@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author minwoo.jung
  */
-public class DataSourceEncoder extends ApplicationStatEncoder {
+public class DataSourceEncoder extends ApplicationStatEncoder<JoinDataSourceListBo> {
 
-    private DataSourceEncoder(@Qualifier("joinDataSourceCodec") ApplicationStatCodec dataSourceCodec) {
+    private DataSourceEncoder(@Qualifier("joinDataSourceCodec") ApplicationStatCodec<JoinDataSourceListBo> dataSourceCodec) {
         super(dataSourceCodec);
     }
 }

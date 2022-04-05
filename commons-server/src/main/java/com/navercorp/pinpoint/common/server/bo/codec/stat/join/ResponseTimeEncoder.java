@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author minwoo.jung
  */
-public class ResponseTimeEncoder extends ApplicationStatEncoder {
+public class ResponseTimeEncoder extends ApplicationStatEncoder<JoinResponseTimeBo> {
 
-    private ResponseTimeEncoder(@Qualifier("joinResponseTimeCodec") ApplicationStatCodec responseTimeCodec) {
+    private ResponseTimeEncoder(@Qualifier("joinResponseTimeCodec") ApplicationStatCodec<JoinResponseTimeBo> responseTimeCodec) {
         super(responseTimeCodec);
     }
 }

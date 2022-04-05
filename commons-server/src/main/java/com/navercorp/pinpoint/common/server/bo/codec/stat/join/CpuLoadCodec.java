@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @Component("joincpuLoadCodec")
-public class CpuLoadCodec implements ApplicationStatCodec {
+public class CpuLoadCodec implements ApplicationStatCodec<JoinCpuLoadBo> {
 
     private static final byte VERSION = 1;
 
@@ -56,7 +54,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinCpuLoadBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinCpuLoadBo> joinCpuLoadBoList) {
         if (CollectionUtils.isEmpty(joinCpuLoadBoList)) {
             throw new IllegalArgumentException("cpuLoadBoList must not be empty");
         }
@@ -66,8 +64,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
         List<Long> timestamps = new ArrayList<>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder jvmCpuLoadAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         JoinLongFieldStrategyAnalyzer.Builder systemCpuLoadAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
-        for (JoinStatBo joinStatBo : joinCpuLoadBoList) {
-            JoinCpuLoadBo joinCpuLoadBo = (JoinCpuLoadBo) joinStatBo;
+        for (JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
             timestamps.add(joinCpuLoadBo.getTimestamp());
             jvmCpuLoadAnalyzerBuilder.addValue(joinCpuLoadBo.getJvmCpuLoadJoinValue().toLongFieldBo());
             systemCpuLoadAnalyzerBuilder.addValue(joinCpuLoadBo.getSystemCpuLoadJoinValue().toLongFieldBo());
@@ -96,7 +93,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinCpuLoadBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -115,7 +112,7 @@ public class CpuLoadCodec implements ApplicationStatCodec {
         final List<JoinLongFieldBo> jvmCpuLoadList = this.codec.decodeValues(valueBuffer, jvmCpuLoadEncodingStrategy, numValues);
         final List<JoinLongFieldBo> systemCpuLoadList = this.codec.decodeValues(valueBuffer, systemCpuLoadEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinCpuLoadBoList = new ArrayList<>(numValues);
+        List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();
             joinCpuLoadBo.setId(id);

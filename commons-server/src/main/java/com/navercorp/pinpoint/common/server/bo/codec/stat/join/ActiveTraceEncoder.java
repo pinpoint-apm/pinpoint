@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author minwoo.jung
  */
-public class ActiveTraceEncoder extends ApplicationStatEncoder {
+public class ActiveTraceEncoder extends ApplicationStatEncoder<JoinActiveTraceBo> {
 
-    public ActiveTraceEncoder(@Qualifier("joinActiveTraceCodec")ApplicationStatCodec activeTraceCodec) {
+    public ActiveTraceEncoder(@Qualifier("joinActiveTraceCodec")ApplicationStatCodec<JoinActiveTraceBo> activeTraceCodec) {
         super(activeTraceCodec);
     }
 }

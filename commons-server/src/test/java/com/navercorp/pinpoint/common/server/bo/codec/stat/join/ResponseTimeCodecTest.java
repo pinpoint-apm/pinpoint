@@ -23,14 +23,13 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -44,7 +43,7 @@ public class ResponseTimeCodecTest {
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
         final ResponseTimeCodec responseTimeCodec = new ResponseTimeCodec(agentStatDataPointCodec);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
-        final List<JoinStatBo> joinResponseTimeBoList = createJoinResponseTimeBoList(currentTime);
+        final List<JoinResponseTimeBo> joinResponseTimeBoList = createJoinResponseTimeBoList(currentTime);
         encodedValueBuffer.putByte(responseTimeCodec.getVersion());
         responseTimeCodec.encodeValues(encodedValueBuffer, joinResponseTimeBoList);
 
@@ -57,15 +56,15 @@ public class ResponseTimeCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), responseTimeCodec.getVersion());
-        List<JoinStatBo> decodedJoinResponseTimeBoList = responseTimeCodec.decodeValues(valueBuffer, decodingContext);
+        List<JoinResponseTimeBo> decodedJoinResponseTimeBoList = responseTimeCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0 ; i < decodedJoinResponseTimeBoList.size(); i++) {
             assertEquals(decodedJoinResponseTimeBoList.get(i), joinResponseTimeBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinResponseTimeBoList(long currentTime) {
+    private List<JoinResponseTimeBo> createJoinResponseTimeBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinStatBo> joinResponseTimeBoList = new ArrayList<>();
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>();
         JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2");
         JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2");
         JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2");

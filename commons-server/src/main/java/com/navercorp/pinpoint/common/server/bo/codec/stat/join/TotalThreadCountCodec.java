@@ -27,17 +27,15 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldStrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component("joinTotalThreadCountCodec")
-public class TotalThreadCountCodec implements ApplicationStatCodec {
+public class TotalThreadCountCodec implements ApplicationStatCodec<JoinTotalThreadCountBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
@@ -50,17 +48,16 @@ public class TotalThreadCountCodec implements ApplicationStatCodec {
     public byte getVersion() { return VERSION; }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinTotalThreadCountBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
         if (CollectionUtils.isEmpty(joinTotalThreadCountBoList)) {
             throw new IllegalArgumentException("joinTotalThreadCountBoList must not be empty");
         }
         final int numValues = joinTotalThreadCountBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder totalThreadCountAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinTotalThreadCountBoList) {
-            JoinTotalThreadCountBo joinTotalThreadCountBo = (JoinTotalThreadCountBo) joinStatBo;
+        for (JoinTotalThreadCountBo joinTotalThreadCountBo : joinTotalThreadCountBoList) {
             timestamps.add(joinTotalThreadCountBo.getTimestamp());
             totalThreadCountAnalyzerBuilder.addValue(joinTotalThreadCountBo.getTotalThreadCountJoinValue());
 
@@ -84,7 +81,7 @@ public class TotalThreadCountCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinTotalThreadCountBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -99,7 +96,7 @@ public class TotalThreadCountCodec implements ApplicationStatCodec {
 
         final List<JoinLongFieldBo> totalThreadCountList = this.codec.decodeValues(valueBuffer, totalThreadCountEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinTotalThreadCountBoList = new ArrayList<JoinStatBo>();
+        List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>();
         for (int i = 0 ; i < numValues ; i++) {
             JoinTotalThreadCountBo joinTotalThreadCountBo = new JoinTotalThreadCountBo();
             joinTotalThreadCountBo.setId(id);

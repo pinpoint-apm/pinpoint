@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,17 +40,16 @@ import java.util.List;
 public class AgentUriStatCodecV2Test extends AgentStatCodecTestBase<AgentUriStatBo> {
 
     @Autowired
-    private AgentUriStatCodecV2 agentUriStatCodecV2;
+    private AgentStatCodec<AgentUriStatBo> codec;
 
     @Override
     protected List<AgentUriStatBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
-        List<AgentUriStatBo> agentUriStatBo = TestAgentStatFactory.createAgentUriStatBo(agentId, startTimestamp, initialTimestamp);
-        return agentUriStatBo;
+        return TestAgentStatFactory.createAgentUriStatBo(agentId, startTimestamp, initialTimestamp);
     }
 
     @Override
     protected AgentStatCodec<AgentUriStatBo> getCodec() {
-        return agentUriStatCodecV2;
+        return codec;
     }
 
     @Override

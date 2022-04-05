@@ -29,7 +29,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSourceListBo> {
+public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSourceListBo, AggreJoinDataSourceListBo> {
 
     @Override
     public AggreJoinDataSourceListBo sampleDataPoints(int index, long timestamp, List<JoinDataSourceListBo> joinDataSourceListBoList, JoinDataSourceListBo previousJoinDataSourceListBo) {
@@ -42,8 +42,7 @@ public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSou
         List<JoinDataSourceBo> joinDataSourceBoList = joinDataSourceListBo.getJoinDataSourceBoList();
         List<JoinDataSourceBo> aggreJoinDataSourceBoList = getJoinDataSourceBoList(timestamp, joinDataSourceBoList);
 
-        AggreJoinDataSourceListBo aggreJoinDataSourceListBo = new AggreJoinDataSourceListBo(id, aggreJoinDataSourceBoList, timestamp);
-        return aggreJoinDataSourceListBo;
+        return new AggreJoinDataSourceListBo(id, aggreJoinDataSourceBoList, timestamp);
     }
 
     public List<JoinDataSourceBo> getJoinDataSourceBoList(long timestamp, List<JoinDataSourceBo> joinDataSourceBoList) {

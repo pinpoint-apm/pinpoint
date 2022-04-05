@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component("joinActiveTraceDecoder")
-public class ActiveTraceDecoder extends ApplicationStatDecoder {
+public class ActiveTraceDecoder extends ApplicationStatDecoder<JoinActiveTraceBo> {
 
-    public ActiveTraceDecoder(List<ActiveTraceCodec> activeTraceCodecList) {
+    public ActiveTraceDecoder(List<ApplicationStatCodec<JoinActiveTraceBo>> activeTraceCodecList) {
         super(activeTraceCodecList);
     }
 }

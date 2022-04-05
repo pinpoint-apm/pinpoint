@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component("joinMemoryDecoder")
-public class MemoryDecoder extends ApplicationStatDecoder {
+public class MemoryDecoder extends ApplicationStatDecoder<JoinMemoryBo> {
 
-    public MemoryDecoder(List<MemoryCodec> memoryCodecs) {
+    public MemoryDecoder(List<ApplicationStatCodec<JoinMemoryBo>> memoryCodecs) {
         super(memoryCodecs);
     }
 }

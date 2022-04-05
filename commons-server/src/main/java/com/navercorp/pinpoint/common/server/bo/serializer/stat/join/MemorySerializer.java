@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 
 /**
  * @author minwoo.jung
  */
-public class MemorySerializer extends ApplicationStatSerializer {
+public class MemorySerializer extends ApplicationStatSerializer<JoinMemoryBo> {
 
-    public MemorySerializer(MemoryEncoder memoryEncoder) {
+    public MemorySerializer(ApplicationStatEncoder<JoinMemoryBo> memoryEncoder) {
         super(memoryEncoder);
     }
 }

@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component("joinResponseTimeDecoder")
-public class ResponseTimeDecoder extends ApplicationStatDecoder {
+public class ResponseTimeDecoder extends ApplicationStatDecoder<JoinResponseTimeBo> {
 
-    public ResponseTimeDecoder(List<ResponseTimeCodec> responseTimeCodecs) {
+    public ResponseTimeDecoder(List<ApplicationStatCodec<JoinResponseTimeBo>> responseTimeCodecs) {
         super(responseTimeCodecs);
     }
 }

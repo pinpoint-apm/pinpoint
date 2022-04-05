@@ -16,14 +16,15 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 
 /**
  * @author Roy Kim
  */
-public class DirectBufferSerializer extends ApplicationStatSerializer {
+public class DirectBufferSerializer extends ApplicationStatSerializer<JoinDirectBufferBo> {
 
-    public DirectBufferSerializer(DirectBufferEncoder directBufferEncoder) {
+    public DirectBufferSerializer(ApplicationStatEncoder<JoinDirectBufferBo> directBufferEncoder) {
         super(directBufferEncoder);
     }
 }

@@ -24,11 +24,11 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public abstract class ApplicationStatDecoder<T extends ApplicationStatCodec> {
+public abstract class ApplicationStatDecoder<T extends JoinStatBo> {
 
-    private final List<T> codecs;
+    private final List<ApplicationStatCodec<T>> codecs;
 
-    public ApplicationStatDecoder(List<T> codecs) {
+    public ApplicationStatDecoder(List<ApplicationStatCodec<T>> codecs) {
         this.codecs = codecs;
     }
 
@@ -36,9 +36,9 @@ public abstract class ApplicationStatDecoder<T extends ApplicationStatCodec> {
         return qualifierBuffer.readVLong();
     }
 
-    public List<JoinStatBo> decodeValue(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<T> decodeValue(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         byte version = valueBuffer.readByte();
-        for (ApplicationStatCodec codec : this.codecs) {
+        for (ApplicationStatCodec<T> codec : this.codecs) {
             if (version == codec.getVersion()) {
                 return codec.decodeValues(valueBuffer, decodingContext);
             }

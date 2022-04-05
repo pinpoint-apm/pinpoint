@@ -15,20 +15,19 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationDirectBufferDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,13 +37,15 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationDirectBufferDao implements ApplicationDirectBufferDao {
 
-    private final DirectBufferDecoder directBufferDecoder;
+    private final ApplicationStatDecoder<JoinDirectBufferBo> directBufferDecoder;
 
-    private final ApplicationStatSampler<JoinDirectBufferBo> directBufferSampler;
+    private final ApplicationStatSampler<JoinDirectBufferBo, AggreJoinDirectBufferBo> directBufferSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationDirectBufferDao(DirectBufferDecoder directBufferDecoder, ApplicationStatSampler<JoinDirectBufferBo> directBufferSampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationDirectBufferDao(ApplicationStatDecoder<JoinDirectBufferBo> directBufferDecoder,
+                                           ApplicationStatSampler<JoinDirectBufferBo, AggreJoinDirectBufferBo> directBufferSampler,
+                                           HbaseApplicationStatDaoOperations operations) {
         this.directBufferDecoder = Objects.requireNonNull(directBufferDecoder, "directBufferDecoder");
         this.directBufferSampler = Objects.requireNonNull(directBufferSampler, "directBufferSampler");
         this.operations = Objects.requireNonNull(operations, "operations");
@@ -52,21 +53,11 @@ public class HbaseApplicationDirectBufferDao implements ApplicationDirectBufferD
 
     @Override
     public List<AggreJoinDirectBufferBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowSlotRange();;
+        Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(directBufferDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, directBufferSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_DIRECT_BUFFER, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinDirectBufferBo>> mapper = operations.createRowMapper(directBufferDecoder, range);
+        ResultsExtractor<List<AggreJoinDirectBufferBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, directBufferSampler);
+        return operations.getSampledStatList(StatType.APP_DIRECT_BUFFER, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinDirectBufferBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinDirectBufferBo> aggreJoinDirectBufferBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinDirectBufferBoList.add((AggreJoinDirectBufferBo) aggregationStatData);
-        }
-
-        return aggreJoinDirectBufferBoList;
-    }
 }

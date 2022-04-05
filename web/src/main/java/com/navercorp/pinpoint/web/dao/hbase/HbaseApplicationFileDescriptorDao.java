@@ -15,20 +15,19 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationFileDescriptorDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,14 +37,14 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationFileDescriptorDao implements ApplicationFileDescriptorDao {
 
-    private final FileDescriptorDecoder fileDescriptorDecoder;
+    private final ApplicationStatDecoder<JoinFileDescriptorBo> fileDescriptorDecoder;
 
-    private final ApplicationStatSampler<JoinFileDescriptorBo> fileDescriptorSampler;
+    private final ApplicationStatSampler<JoinFileDescriptorBo, AggreJoinFileDescriptorBo> fileDescriptorSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationFileDescriptorDao(FileDescriptorDecoder fileDescriptorDecoder,
-                                             ApplicationStatSampler<JoinFileDescriptorBo> fileDescriptorSampler,
+    public HbaseApplicationFileDescriptorDao(ApplicationStatDecoder<JoinFileDescriptorBo> fileDescriptorDecoder,
+                                             ApplicationStatSampler<JoinFileDescriptorBo, AggreJoinFileDescriptorBo> fileDescriptorSampler,
                                              HbaseApplicationStatDaoOperations operations) {
         this.fileDescriptorDecoder = Objects.requireNonNull(fileDescriptorDecoder, "fileDescriptorDecoder");
         this.fileDescriptorSampler = Objects.requireNonNull(fileDescriptorSampler, "fileDescriptorSampler");
@@ -56,19 +55,9 @@ public class HbaseApplicationFileDescriptorDao implements ApplicationFileDescrip
     public List<AggreJoinFileDescriptorBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(fileDescriptorDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, fileDescriptorSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_FILE_DESCRIPTOR, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinFileDescriptorBo>> mapper = operations.createRowMapper(fileDescriptorDecoder, range);
+        ResultsExtractor<List<AggreJoinFileDescriptorBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, fileDescriptorSampler);
+        return operations.getSampledStatList(StatType.APP_FILE_DESCRIPTOR, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinFileDescriptorBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinFileDescriptorBo> aggreJoinFileDescriptorBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinFileDescriptorBoList.add((AggreJoinFileDescriptorBo) aggregationStatData);
-        }
-
-        return aggreJoinFileDescriptorBoList;
-    }
 }

@@ -43,23 +43,23 @@ public class HbaseSampledDataSourceDaoV2 implements SampledDataSourceDao {
     private final AgentStatType statType = AgentStatType.DATASOURCE;
     private final HbaseAgentStatDaoOperationsV2 operations;
 
-    private final AgentStatDecoder<DataSourceListBo> dataSourceDecoder;
-    private final AgentStatSampler<DataSourceBo, SampledDataSource> dataSourceSampler;
+    private final AgentStatDecoder<DataSourceListBo> decoder;
+    private final AgentStatSampler<DataSourceBo, SampledDataSource> sampler;
 
     public HbaseSampledDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations,
-                                       AgentStatDecoder<DataSourceListBo> dataSourceDecoder,
-                                       AgentStatSampler<DataSourceBo, SampledDataSource> dataSourceSampler) {
+                                       AgentStatDecoder<DataSourceListBo> decoder,
+                                       AgentStatSampler<DataSourceBo, SampledDataSource> sampler) {
         this.operations = Objects.requireNonNull(operations, "operations");
-        this.dataSourceDecoder = Objects.requireNonNull(dataSourceDecoder, "dataSourceDecoder");
-        this.dataSourceSampler = Objects.requireNonNull(dataSourceSampler, "dataSourceSampler");
+        this.decoder = Objects.requireNonNull(decoder, "decoder");
+        this.sampler = Objects.requireNonNull(sampler, "sampler");
     }
 
     @Override
     public List<SampledDataSourceList> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        AgentStatMapperV2<DataSourceListBo> mapper = operations.createRowMapper(dataSourceDecoder, range);
-        ResultsExtractor<List<SampledDataSourceList>> resultExtractor = new SampledDataSourceResultExtractor(timeWindow, mapper, dataSourceSampler);
+        AgentStatMapperV2<DataSourceListBo> mapper = operations.createRowMapper(decoder, range);
+        ResultsExtractor<List<SampledDataSourceList>> resultExtractor = new SampledDataSourceResultExtractor(timeWindow, mapper, sampler);
         return operations.getSampledAgentStatList(statType, resultExtractor, agentId, range);
     }
 

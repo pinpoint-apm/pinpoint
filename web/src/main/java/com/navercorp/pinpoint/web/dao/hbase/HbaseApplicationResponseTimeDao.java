@@ -15,20 +15,19 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationResponseTimeDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,13 +37,15 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationResponseTimeDao implements ApplicationResponseTimeDao {
 
-    private final ResponseTimeDecoder responseTimeDecoder;
+    private final ApplicationStatDecoder<JoinResponseTimeBo> responseTimeDecoder;
 
-    private final ApplicationStatSampler<JoinResponseTimeBo> joinResponseTimeSampler;
+    private final ApplicationStatSampler<JoinResponseTimeBo, AggreJoinResponseTimeBo> joinResponseTimeSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationResponseTimeDao(ResponseTimeDecoder responseTimeDecoder, ApplicationStatSampler<JoinResponseTimeBo> joinResponseTimeSampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationResponseTimeDao(ApplicationStatDecoder<JoinResponseTimeBo> responseTimeDecoder,
+                                           ApplicationStatSampler<JoinResponseTimeBo, AggreJoinResponseTimeBo> joinResponseTimeSampler,
+                                           HbaseApplicationStatDaoOperations operations) {
         this.responseTimeDecoder = Objects.requireNonNull(responseTimeDecoder, "responseTimeDecoder");
         this.joinResponseTimeSampler = Objects.requireNonNull(joinResponseTimeSampler, "joinResponseTimeSampler");
         this.operations = Objects.requireNonNull(operations, "operations");
@@ -54,19 +55,9 @@ public class HbaseApplicationResponseTimeDao implements ApplicationResponseTimeD
     public List<AggreJoinResponseTimeBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(responseTimeDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, joinResponseTimeSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_RESPONSE_TIME, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinResponseTimeBo>> mapper = operations.createRowMapper(responseTimeDecoder, range);
+        ResultsExtractor<List<AggreJoinResponseTimeBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, joinResponseTimeSampler);
+        return operations.getSampledStatList(StatType.APP_RESPONSE_TIME, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinResponseTimeBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinResponseTimeBoList.add((AggreJoinResponseTimeBo) aggregationStatData);
-        }
-
-        return aggreJoinResponseTimeBoList;
-    }
 }

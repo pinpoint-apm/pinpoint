@@ -17,14 +17,15 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author minwoo.jung
  */
-public class CpuLoadEncoder extends ApplicationStatEncoder {
+public class CpuLoadEncoder extends ApplicationStatEncoder<JoinCpuLoadBo> {
 
-    private CpuLoadEncoder(@Qualifier("joinCpuLoadCodec") ApplicationStatCodec cpuLoadCodec) {
+    private CpuLoadEncoder(@Qualifier("joinCpuLoadCodec") ApplicationStatCodec<JoinCpuLoadBo> cpuLoadCodec) {
         super(cpuLoadCodec);
     }
 }

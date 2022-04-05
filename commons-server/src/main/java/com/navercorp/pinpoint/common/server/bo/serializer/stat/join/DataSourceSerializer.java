@@ -15,13 +15,14 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 
 /**
  * @author minwoo.jung
  */
-public class DataSourceSerializer extends ApplicationStatSerializer {
-    public DataSourceSerializer(DataSourceEncoder dataSourceEncoder) {
+public class DataSourceSerializer extends ApplicationStatSerializer<JoinDataSourceListBo> {
+    public DataSourceSerializer(ApplicationStatEncoder<JoinDataSourceListBo> dataSourceEncoder) {
         super(dataSourceEncoder);
     }
 }

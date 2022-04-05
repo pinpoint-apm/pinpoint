@@ -39,7 +39,7 @@ public class JvmGcDetailedCodecV2Test extends AgentStatCodecTestBase<JvmGcDetail
     private static final double DOUBLE_COMPARISON_DELTA = (double) 1 / AgentStatUtils.CONVERT_VALUE;
 
     @Autowired
-    private JvmGcDetailedCodecV2 jvmGcDetailedCodecV2;
+    private AgentStatCodecV2<JvmGcDetailedBo> codec;
 
     @Override
     protected List<JvmGcDetailedBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -48,7 +48,7 @@ public class JvmGcDetailedCodecV2Test extends AgentStatCodecTestBase<JvmGcDetail
 
     @Override
     protected AgentStatCodec<JvmGcDetailedBo> getCodec() {
-        return jvmGcDetailedCodecV2;
+        return codec;
     }
 
     @Override

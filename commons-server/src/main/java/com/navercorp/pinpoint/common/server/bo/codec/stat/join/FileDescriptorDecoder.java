@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.common.server.bo.codec.stat.join;
 
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,9 +26,9 @@ import java.util.List;
  * @author Roy Kim
  */
 @Component("joinFileDescriptorDecoder")
-public class FileDescriptorDecoder extends ApplicationStatDecoder {
+public class FileDescriptorDecoder extends ApplicationStatDecoder<JoinFileDescriptorBo> {
 
-    public FileDescriptorDecoder(List<FileDescriptorCodec> fileDescriptorCodecList) {
+    public FileDescriptorDecoder(List<ApplicationStatCodec<JoinFileDescriptorBo>> fileDescriptorCodecList) {
         super(fileDescriptorCodecList);
     }
 }

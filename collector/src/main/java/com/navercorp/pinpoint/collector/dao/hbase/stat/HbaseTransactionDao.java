@@ -16,66 +16,28 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.TransactionSerializer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseTransactionDao implements AgentStatDaoV2<TransactionBo> {
-    private final HbaseOperations2 hbaseTemplate;
-
-    private final TableNameProvider tableNameProvider;
-
-    private final AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
-
-    private final TransactionSerializer transactionSerializer;
+public class HbaseTransactionDao extends AbstractHBaseDao<TransactionBo> {
 
     public HbaseTransactionDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,
-                               AgentStatHbaseOperationFactory agentStatHbaseOperationFactory,
-                               TransactionSerializer transactionSerializer) {
-        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");
-        this.transactionSerializer = Objects.requireNonNull(transactionSerializer, "transactionSerializer");
+                               AgentStatHbaseOperationFactory operationFactory,
+                               AgentStatSerializer<TransactionBo> serializer) {
+        super(AgentStatType.TRANSACTION, HbaseTable.AGENT_STAT_VER2, AgentStatBo::getTransactionBos,
+                hbaseTemplate, tableNameProvider, operationFactory, serializer);
     }
 
-    @Override
-    public void insert(String agentId, List<TransactionBo> transactionBos) {
-        Objects.requireNonNull(agentId, "agentId");
-        // Assert agentId
-        CollectorUtils.checkAgentId(agentId);
-
-        if (CollectionUtils.isEmpty(transactionBos)) {
-            return;
-        }
-        List<Put> transactionPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.TRANSACTION, transactionBos, this.transactionSerializer);
-        if (!transactionPuts.isEmpty()) {
-            TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
-            this.hbaseTemplate.asyncPut(agentStatTableName, transactionPuts);
-        }
-    }
-
-    @Override
-    public void dispatch(AgentStatBo agentStatBo) {
-        insert(agentStatBo.getAgentId(), agentStatBo.getTransactionBos());
-    }
 }

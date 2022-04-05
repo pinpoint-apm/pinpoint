@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class LoadedClassCountCodecTest {
 
@@ -40,9 +39,9 @@ public class LoadedClassCountCodecTest {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
-        final LoadedClassCodec loadedClassCodec = new LoadedClassCodec(agentStatDataPointCodec);
+        final ApplicationStatCodec<JoinLoadedClassBo> loadedClassCodec = new LoadedClassCodec(agentStatDataPointCodec);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
-        final List<JoinStatBo> joinLoadedClassBoList = createJoinLoadedClassCountBoList(currentTime);
+        final List<JoinLoadedClassBo> joinLoadedClassBoList = createJoinLoadedClassCountBoList(currentTime);
         encodedValueBuffer.putByte(loadedClassCodec.getVersion());
         loadedClassCodec.encodeValues(encodedValueBuffer, joinLoadedClassBoList);
 
@@ -55,15 +54,15 @@ public class LoadedClassCountCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), loadedClassCodec.getVersion());
-        List<JoinStatBo> decodedJoinLoadedClassBoList = loadedClassCodec.decodeValues(valueBuffer, decodingContext);
+        List<JoinLoadedClassBo> decodedJoinLoadedClassBoList = loadedClassCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinLoadedClassBoList.size(); i++) {
             assertEquals(decodedJoinLoadedClassBoList.get(i), joinLoadedClassBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinLoadedClassCountBoList(long currentTime) {
+    private List<JoinLoadedClassBo> createJoinLoadedClassCountBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinLoadedClassBoList = new ArrayList<>();
+        final List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>();
         JoinLoadedClassBo joinLoadedClassBo1 = new JoinLoadedClassBo(id, 80, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime);
         JoinLoadedClassBo joinLoadedClassBo2 = new JoinLoadedClassBo(id, 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime+5000);
         JoinLoadedClassBo joinLoadedClassBo3 = new JoinLoadedClassBo(id, 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", currentTime+15000);

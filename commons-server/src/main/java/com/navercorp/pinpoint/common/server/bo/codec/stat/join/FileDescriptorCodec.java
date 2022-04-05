@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author Roy Kim
  */
 @Component("joinFileDescriptorCodec")
-public class FileDescriptorCodec implements ApplicationStatCodec {
+public class FileDescriptorCodec implements ApplicationStatCodec<JoinFileDescriptorBo> {
 
     private static final byte VERSION = 1;
 
@@ -56,7 +54,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinFileDescriptorBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinFileDescriptorBo> joinFileDescriptorBoList) {
         if (CollectionUtils.isEmpty(joinFileDescriptorBoList)) {
             throw new IllegalArgumentException("fileDescriptorBoList must not be empty");
         }
@@ -66,8 +64,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec {
         List<Long> timestamps = new ArrayList<>(numValues);
         JoinLongFieldStrategyAnalyzer.Builder openFileDescriptorCountAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinFileDescriptorBoList) {
-            JoinFileDescriptorBo joinFileDescriptorBo = (JoinFileDescriptorBo) joinStatBo;
+        for (JoinFileDescriptorBo joinFileDescriptorBo : joinFileDescriptorBoList) {
             timestamps.add(joinFileDescriptorBo.getTimestamp());
             openFileDescriptorCountAnalyzerBuilder.addValue(joinFileDescriptorBo.getOpenFdCountJoinValue());
         }
@@ -91,7 +88,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinFileDescriptorBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -108,7 +105,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec {
         // decode values
         final List<JoinLongFieldBo> openFileDescriptorCounts = this.codec.decodeValues(valueBuffer, openFileDescriptorCountEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinFileDescriptorBoList = new ArrayList<>(numValues);
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinFileDescriptorBo joinFileDescriptorBo = new JoinFileDescriptorBo();
             joinFileDescriptorBo.setId(id);

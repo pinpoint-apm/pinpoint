@@ -15,20 +15,19 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationCpuLoadDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,13 +37,15 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationCpuLoadDao implements ApplicationCpuLoadDao {
 
-    private final CpuLoadDecoder cpuLoadDecoder;
+    private final ApplicationStatDecoder<JoinCpuLoadBo> cpuLoadDecoder;
 
-    private final ApplicationStatSampler<JoinCpuLoadBo> cpuLoadSampler;
+    private final ApplicationStatSampler<JoinCpuLoadBo, AggreJoinCpuLoadBo> cpuLoadSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationCpuLoadDao(CpuLoadDecoder cpuLoadDecoder, ApplicationStatSampler<JoinCpuLoadBo> cpuLoadSampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationCpuLoadDao(ApplicationStatDecoder<JoinCpuLoadBo> cpuLoadDecoder,
+                                      ApplicationStatSampler<JoinCpuLoadBo, AggreJoinCpuLoadBo> cpuLoadSampler,
+                                      HbaseApplicationStatDaoOperations operations) {
         this.cpuLoadDecoder = Objects.requireNonNull(cpuLoadDecoder, "cpuLoadDecoder");
         this.cpuLoadSampler = Objects.requireNonNull(cpuLoadSampler, "cpuLoadSampler");
         this.operations = Objects.requireNonNull(operations, "operations");
@@ -54,19 +55,9 @@ public class HbaseApplicationCpuLoadDao implements ApplicationCpuLoadDao {
     public List<AggreJoinCpuLoadBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(cpuLoadDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, cpuLoadSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_CPU_LOAD, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinCpuLoadBo>> mapper = operations.createRowMapper(cpuLoadDecoder, range);
+        ResultsExtractor<List<AggreJoinCpuLoadBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, cpuLoadSampler);
+        return operations.getSampledStatList(StatType.APP_CPU_LOAD, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinCpuLoadBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinCpuLoadBo> aggreJoinCpuLoadBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinCpuLoadBoList.add((AggreJoinCpuLoadBo) aggregationStatData);
-        }
-
-        return aggreJoinCpuLoadBoList;
-    }
 }

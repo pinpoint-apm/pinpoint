@@ -37,7 +37,7 @@ import java.util.List;
 public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceListBo> {
 
     @Autowired
-    private DataSourceCodecV2 dataSourceCodecV2;
+    private AgentStatCodec<DataSourceListBo> codec;
 
     @Override
     protected List<DataSourceListBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -46,7 +46,7 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
 
     @Override
     protected AgentStatCodec<DataSourceListBo> getCodec() {
-        return dataSourceCodecV2;
+        return codec;
     }
 
     @Override

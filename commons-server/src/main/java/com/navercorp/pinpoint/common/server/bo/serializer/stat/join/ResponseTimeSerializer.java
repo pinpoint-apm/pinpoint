@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 
 /**
  * @author minwoo.jung
  */
-public class ResponseTimeSerializer  extends ApplicationStatSerializer {
+public class ResponseTimeSerializer extends ApplicationStatSerializer<JoinResponseTimeBo> {
 
-    public ResponseTimeSerializer(ResponseTimeEncoder responseTimeEncoder) {
+    public ResponseTimeSerializer(ApplicationStatEncoder<JoinResponseTimeBo> responseTimeEncoder) {
         super(responseTimeEncoder);
     }
 }

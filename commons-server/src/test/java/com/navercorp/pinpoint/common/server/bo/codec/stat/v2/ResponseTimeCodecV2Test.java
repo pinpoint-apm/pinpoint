@@ -36,7 +36,7 @@ import java.util.List;
 public class ResponseTimeCodecV2Test extends AgentStatCodecTestBase<ResponseTimeBo> {
 
     @Autowired
-    private ResponseTimeCodecV2 responseTimeCodecV2;
+    private AgentStatCodecV2<ResponseTimeBo> codec;
 
     @Override
     protected List<ResponseTimeBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,7 +45,7 @@ public class ResponseTimeCodecV2Test extends AgentStatCodecTestBase<ResponseTime
 
     @Override
     protected AgentStatCodec<ResponseTimeBo> getCodec() {
-        return responseTimeCodecV2;
+        return codec;
     }
 
     @Override

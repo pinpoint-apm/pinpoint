@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @Component("joinMemoryCodec")
-public class MemoryCodec implements ApplicationStatCodec {
+public class MemoryCodec implements ApplicationStatCodec<JoinMemoryBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
@@ -54,7 +52,7 @@ public class MemoryCodec implements ApplicationStatCodec {
         return VERSION;
     }
 
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinMemoryBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinMemoryBo> joinMemoryBoList) {
         if (CollectionUtils.isEmpty(joinMemoryBoList)) {
             throw new IllegalArgumentException("MemoryBoList must not be empty");
         }
@@ -65,8 +63,7 @@ public class MemoryCodec implements ApplicationStatCodec {
         JoinLongFieldStrategyAnalyzer.Builder heapUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         JoinLongFieldStrategyAnalyzer.Builder nonHeapUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinMemoryBoList) {
-            JoinMemoryBo joinMemoryBo = (JoinMemoryBo) joinStatBo;
+        for (JoinMemoryBo joinMemoryBo : joinMemoryBoList) {
             timestamps.add(joinMemoryBo.getTimestamp());
             heapUsedAnalyzerBuilder.addValue(joinMemoryBo.getHeapUsedJoinValue());
             nonHeapUsedAnalyzerBuilder.addValue(joinMemoryBo.getNonHeapUsedJoinValue());
@@ -98,7 +95,7 @@ public class MemoryCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinMemoryBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -117,7 +114,7 @@ public class MemoryCodec implements ApplicationStatCodec {
         final List<JoinLongFieldBo> heapUsedList = this.codec.decodeValues(valueBuffer, heapUsedEncodingStrategy, numValues);
         final List<JoinLongFieldBo> nonHeapUsedList = this.codec.decodeValues(valueBuffer, nonHeapUsedEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinMemoryBoList = new ArrayList<>(numValues);
+        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinMemoryBo joinMemoryBo = new JoinMemoryBo();
             joinMemoryBo.setId(id);

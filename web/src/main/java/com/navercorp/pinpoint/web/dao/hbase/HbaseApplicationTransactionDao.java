@@ -15,21 +15,20 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionDecoder;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationTransactionDao;
-import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
-import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,13 +37,15 @@ import java.util.List;
 @Repository
 public class HbaseApplicationTransactionDao implements ApplicationTransactionDao {
 
-    private final TransactionDecoder transactionDecoder;
+    private final ApplicationStatDecoder<JoinTransactionBo> transactionDecoder;
 
-    private final ApplicationStatSampler<JoinTransactionBo> transactionSampler;
+    private final ApplicationStatSampler<JoinTransactionBo, AggreJoinTransactionBo> transactionSampler;
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public HbaseApplicationTransactionDao(TransactionDecoder transactionDecoder, ApplicationStatSampler<JoinTransactionBo> transactionSampler, HbaseApplicationStatDaoOperations operations) {
+    public HbaseApplicationTransactionDao(ApplicationStatDecoder<JoinTransactionBo> transactionDecoder,
+                                          ApplicationStatSampler<JoinTransactionBo, AggreJoinTransactionBo> transactionSampler,
+                                          HbaseApplicationStatDaoOperations operations) {
         this.transactionDecoder = transactionDecoder;
         this.transactionSampler = transactionSampler;
         this.operations = operations;
@@ -54,19 +55,9 @@ public class HbaseApplicationTransactionDao implements ApplicationTransactionDao
     public List<AggreJoinTransactionBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         Range range = timeWindow.getWindowSlotRange();
 
-        ApplicationStatMapper mapper = operations.createRowMapper(transactionDecoder, range);
-        SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, transactionSampler);
-        List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_TRANSACTION_COUNT, resultExtractor, applicationId, range);
-        return cast(aggregationStatDataList);
+        RowMapper<List<JoinTransactionBo>> mapper = operations.createRowMapper(transactionDecoder, range);
+        ResultsExtractor<List<AggreJoinTransactionBo>> resultExtractor = new SampledApplicationStatResultExtractor<>(timeWindow, mapper, transactionSampler);
+        return operations.getSampledStatList(StatType.APP_TRANSACTION_COUNT, resultExtractor, applicationId, range);
     }
 
-    private List<AggreJoinTransactionBo> cast(List<AggregationStatData> aggregationStatDataList) {
-        List<AggreJoinTransactionBo> aggreJoinTransactionBoList = new ArrayList<>(aggregationStatDataList.size());
-
-        for (AggregationStatData aggregationStatData : aggregationStatDataList) {
-            aggreJoinTransactionBoList.add((AggreJoinTransactionBo) aggregationStatData);
-        }
-
-        return aggreJoinTransactionBoList;
-    }
 }

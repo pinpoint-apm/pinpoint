@@ -28,7 +28,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo> {
+public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo, AggreJoinMemoryBo> {
 
     @Override
     public AggreJoinMemoryBo sampleDataPoints(int index, long timestamp, List<JoinMemoryBo> joinMemoryBoList, JoinMemoryBo previousDataPoint) {
@@ -41,7 +41,6 @@ public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo> {
         final JoinLongFieldBo heapUsedJoinValue = joinMemoryBo.getHeapUsedJoinValue();
         final JoinLongFieldBo nonHeapUsedJoinValue = joinMemoryBo.getNonHeapUsedJoinValue();
 
-        AggreJoinMemoryBo aggreJoinMemoryBo = new AggreJoinMemoryBo(id, timestamp, heapUsedJoinValue, nonHeapUsedJoinValue);
-        return aggreJoinMemoryBo;
+        return new AggreJoinMemoryBo(id, timestamp, heapUsedJoinValue, nonHeapUsedJoinValue);
     }
 }

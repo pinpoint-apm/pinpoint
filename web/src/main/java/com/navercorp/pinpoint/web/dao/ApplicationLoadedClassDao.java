@@ -15,11 +15,7 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinLoadedClassBo;
 
-import java.util.List;
-
-public interface ApplicationLoadedClassDao {
-    List<AggreJoinLoadedClassBo> getApplicationStatList(String applicationId, TimeWindow timeWindow);
+public interface ApplicationLoadedClassDao extends ApplicationMetricDao<AggreJoinLoadedClassBo> {
 }

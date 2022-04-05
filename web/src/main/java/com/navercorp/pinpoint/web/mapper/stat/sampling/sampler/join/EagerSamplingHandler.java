@@ -26,36 +26,36 @@ import java.util.*;
 /**
  * @author minwoo.jung
  */
-public class EagerSamplingHandler implements ApplicationStatSamplingHandler {
+public class EagerSamplingHandler<IN extends JoinStatBo, OUT extends AggregationStatData> implements ApplicationStatSamplingHandler<IN, OUT> {
 
     private final TimeWindow timeWindow;
-    private final ApplicationStatSampler sampler;
+    private final ApplicationStatSampler<IN, OUT> sampler;
 
-    private final Map<String, SamplingPartitionContext> samplingContexts = new HashMap<>();
-    private final Map<Long, SortedMap<String, AggregationStatData>> sampledPointProjection = new TreeMap<>();
+    private final Map<String, SamplingPartitionContext<IN, OUT>> samplingContexts = new HashMap<>();
+    private final Map<Long, SortedMap<String, OUT>> sampledPointProjection = new TreeMap<>();
 
-    public EagerSamplingHandler(TimeWindow timeWindow, ApplicationStatSampler sampler) {
+    public EagerSamplingHandler(TimeWindow timeWindow, ApplicationStatSampler<IN, OUT> sampler) {
         this.timeWindow = timeWindow;
         this.sampler = sampler;
     }
 
-    public void addDataPoint(JoinStatBo dataPoint) {
+    public void addDataPoint(IN dataPoint) {
         String id = dataPoint.getId();
         long timestamp = dataPoint.getTimestamp();
         long timeslotTimestamp = timeWindow.refineTimestamp(timestamp);
-        SamplingPartitionContext samplingContext = samplingContexts.get(id);
+        SamplingPartitionContext<IN, OUT> samplingContext = samplingContexts.get(id);
         if (samplingContext == null) {
-            samplingContext = new SamplingPartitionContext(timeslotTimestamp, dataPoint);
+            samplingContext = new SamplingPartitionContext<>(timeslotTimestamp, dataPoint, timeWindow, sampler);
             samplingContexts.put(id, samplingContext);
         } else {
             long timeslotTimestampToSample = samplingContext.getTimeslotTimestamp();
             if (timeslotTimestampToSample == timeslotTimestamp) {
                 samplingContext.addDataPoint(dataPoint);
             } else if (timeslotTimestampToSample > timeslotTimestamp) {
-                AggregationStatData sampledPoint = samplingContext.sampleDataPoints(dataPoint);
-                SortedMap<String, AggregationStatData> sampledPoints = sampledPointProjection.computeIfAbsent(timeslotTimestampToSample, k -> new TreeMap<>());
+                OUT sampledPoint = samplingContext.sampleDataPoints(dataPoint);
+                SortedMap<String, OUT> sampledPoints = sampledPointProjection.computeIfAbsent(timeslotTimestampToSample, k -> new TreeMap<>());
                 sampledPoints.put(id, sampledPoint);
-                samplingContext = new SamplingPartitionContext(timeslotTimestamp, dataPoint);
+                samplingContext = new SamplingPartitionContext<>(timeslotTimestamp, dataPoint, timeWindow, sampler);
                 samplingContexts.put(id, samplingContext);
             } else {
                 // Results should be sorted in a descending order of their actual timestamp values
@@ -65,46 +65,49 @@ public class EagerSamplingHandler implements ApplicationStatSamplingHandler {
         }
     }
 
-    public List<AggregationStatData> getSampledDataPoints() {
+    public List<OUT> getSampledDataPoints() {
         // sample remaining data point projections
-        for (Map.Entry<String, SamplingPartitionContext> e : samplingContexts.entrySet()) {
+        for (Map.Entry<String, SamplingPartitionContext<IN, OUT>> e : samplingContexts.entrySet()) {
             String id = e.getKey();
-            SamplingPartitionContext samplingPartitionContext = e.getValue();
+            SamplingPartitionContext<IN, OUT> samplingPartitionContext = e.getValue();
             long timeslotTimestamp = samplingPartitionContext.getTimeslotTimestamp();
-            AggregationStatData sampledDataPoint = samplingPartitionContext.sampleDataPoints();
-            SortedMap<String, AggregationStatData> reduceCandidates = sampledPointProjection.computeIfAbsent(timeslotTimestamp, k -> new TreeMap<>());
+            OUT sampledDataPoint = samplingPartitionContext.sampleDataPoints();
+            SortedMap<String, OUT> reduceCandidates = sampledPointProjection.computeIfAbsent(timeslotTimestamp, k -> new TreeMap<>());
             reduceCandidates.put(id, sampledDataPoint);
         }
         // reduce projection
         if (sampledPointProjection.isEmpty()) {
             return Collections.emptyList();
         } else {
-            List<AggregationStatData> sampledDataPoints = new ArrayList<>(sampledPointProjection.size());
-            for (SortedMap<String, AggregationStatData> sampledPointCandidates : sampledPointProjection.values()) {
+            List<OUT> sampledDataPoints = new ArrayList<>(sampledPointProjection.size());
+            for (SortedMap<String, OUT> sampledPointCandidates : sampledPointProjection.values()) {
                 sampledDataPoints.add(reduceSampledPoints(sampledPointCandidates));
             }
             return sampledDataPoints;
         }
     }
 
-    private AggregationStatData reduceSampledPoints(SortedMap<String, AggregationStatData> sampledPointCandidates) {
+    private OUT reduceSampledPoints(SortedMap<String, OUT> sampledPointCandidates) {
         String lastKey = sampledPointCandidates.lastKey();
         return sampledPointCandidates.get(lastKey);
     }
 
-    private class SamplingPartitionContext {
+    private static class SamplingPartitionContext<IN extends JoinStatBo, OUT extends AggregationStatData> {
 
         private final int timeslotIndex;
         private final long timeslotTimestamp;
-        private final List<JoinStatBo> dataPoints = new ArrayList<>();
+        private final List<IN> dataPoints = new ArrayList<>();
+        private final ApplicationStatSampler<IN, OUT> sampler;
 
-        private SamplingPartitionContext(long timeslotTimestamp, JoinStatBo initialDataPoint) {
+        private SamplingPartitionContext(long timeslotTimestamp, IN initialDataPoint,
+                                         TimeWindow timeWindow, ApplicationStatSampler<IN, OUT> sampler) {
             this.timeslotTimestamp = timeslotTimestamp;
             this.dataPoints.add(initialDataPoint);
             this.timeslotIndex = timeWindow.getWindowIndex(this.timeslotTimestamp);
+            this.sampler = sampler;
         }
 
-        private void addDataPoint(JoinStatBo dataPoint) {
+        private void addDataPoint(IN dataPoint) {
             this.dataPoints.add(dataPoint);
         }
 
@@ -112,11 +115,11 @@ public class EagerSamplingHandler implements ApplicationStatSamplingHandler {
             return timeslotTimestamp;
         }
 
-        private AggregationStatData sampleDataPoints() {
+        private OUT sampleDataPoints() {
             return sampleDataPoints(null);
         }
 
-        private AggregationStatData sampleDataPoints(JoinStatBo previousDataPoint) {
+        private OUT sampleDataPoints(IN previousDataPoint) {
             return sampler.sampleDataPoints(timeslotIndex, timeslotTimestamp, dataPoints, previousDataPoint);
         }
 

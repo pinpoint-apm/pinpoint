@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 
 /**
  * @author minwoo.jung
  */
-public class CpuLoadSerializer extends ApplicationStatSerializer {
+public class CpuLoadSerializer extends ApplicationStatSerializer<JoinCpuLoadBo> {
 
-    public CpuLoadSerializer(CpuLoadEncoder cpuLoadEncoder) {
+    public CpuLoadSerializer(ApplicationStatEncoder<JoinCpuLoadBo> cpuLoadEncoder) {
         super(cpuLoadEncoder);
     }
 }

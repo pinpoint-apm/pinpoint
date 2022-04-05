@@ -20,18 +20,18 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -43,8 +43,8 @@ public class DataSourceCodecTest {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
-        final DataSourceCodec dataSourceCodec = new DataSourceCodec(agentStatDataPointCodec);
-        final List<JoinStatBo> joinDataSourceListBoList = createJoinDataSourceListBoList(currentTime);
+        final ApplicationStatCodec<JoinDataSourceListBo> dataSourceCodec = new DataSourceCodec(agentStatDataPointCodec);
+        final List<JoinDataSourceListBo> joinDataSourceListBoList = createJoinDataSourceListBoList(currentTime);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
         encodedValueBuffer.putByte(dataSourceCodec.getVersion());
         dataSourceCodec.encodeValues(encodedValueBuffer, joinDataSourceListBoList);
@@ -58,15 +58,15 @@ public class DataSourceCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), dataSourceCodec.getVersion());
-        List<JoinStatBo> decodedJoinDataSourceListBoList = dataSourceCodec.decodeValues(valueBuffer, decodingContext);
+        List<JoinDataSourceListBo> decodedJoinDataSourceListBoList = dataSourceCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0 ; i < decodedJoinDataSourceListBoList.size(); ++i) {
             assertEquals(decodedJoinDataSourceListBoList.get(i), joinDataSourceListBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinDataSourceListBoList(long currentTime) {
+    private List<JoinDataSourceListBo> createJoinDataSourceListBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinStatBo> joinDataSourceListBoList = new ArrayList<>();
+        List<JoinDataSourceListBo> joinDataSourceListBoList = new ArrayList<>();
 
         JoinDataSourceListBo joinDataSourceListBo1 = new JoinDataSourceListBo(id, createJoinDataSourceBoList(10), currentTime);
         JoinDataSourceListBo joinDataSourceListBo2 = new JoinDataSourceListBo(id, createJoinDataSourceBoList(20), currentTime + 5000);

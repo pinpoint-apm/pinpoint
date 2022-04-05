@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongField
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author Roy Kim
  */
 @Component("joinDirectBufferCodec")
-public class DirectBufferCodec implements ApplicationStatCodec {
+public class DirectBufferCodec implements ApplicationStatCodec<JoinDirectBufferBo> {
 
     private static final byte VERSION = 1;
 
@@ -56,7 +54,7 @@ public class DirectBufferCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinDirectBufferBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinDirectBufferBo> joinDirectBufferBoList) {
         if (CollectionUtils.isEmpty(joinDirectBufferBoList)) {
             throw new IllegalArgumentException("directBufferBoList must not be empty");
         }
@@ -69,8 +67,7 @@ public class DirectBufferCodec implements ApplicationStatCodec {
         JoinLongFieldStrategyAnalyzer.Builder mappedCountAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         JoinLongFieldStrategyAnalyzer.Builder mappedMemoryUsedAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinDirectBufferBoList) {
-            JoinDirectBufferBo joinDirectBufferBo = (JoinDirectBufferBo) joinStatBo;
+        for (JoinDirectBufferBo joinDirectBufferBo : joinDirectBufferBoList) {
             timestamps.add(joinDirectBufferBo.getTimestamp());
             directCountAnalyzerBuilder.addValue(joinDirectBufferBo.getDirectCountJoinValue());
             directMemoryUsedAnalyzerBuilder.addValue(joinDirectBufferBo.getDirectMemoryUsedJoinValue());
@@ -121,7 +118,7 @@ public class DirectBufferCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinDirectBufferBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -145,7 +142,7 @@ public class DirectBufferCodec implements ApplicationStatCodec {
         List<JoinLongFieldBo> mappedCountList = this.codec.decodeValues(valueBuffer, mappedCountEncodingStrategy, numValues);
         List<JoinLongFieldBo> mappedMemoryUsedList = this.codec.decodeValues(valueBuffer, mappedMemoryUsedEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinDirectBufferBoList = new ArrayList<>(numValues);
+        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JoinDirectBufferBo joinDirectBufferBo = new JoinDirectBufferBo();
             joinDirectBufferBo.setId(id);

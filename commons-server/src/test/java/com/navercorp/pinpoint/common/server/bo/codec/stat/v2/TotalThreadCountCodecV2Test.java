@@ -33,7 +33,7 @@ import java.util.List;
 public class TotalThreadCountCodecV2Test extends AgentStatCodecTestBase<TotalThreadCountBo> {
 
     @Autowired
-    private TotalThreadCountCodecV2 totalThreadCountCodecV2;
+    private AgentStatCodecV2<TotalThreadCountBo> codec;
 
     @Override
     protected List<TotalThreadCountBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -42,7 +42,7 @@ public class TotalThreadCountCodecV2Test extends AgentStatCodecTestBase<TotalThr
 
     @Override
     protected AgentStatCodec<TotalThreadCountBo> getCodec() {
-        return totalThreadCountCodecV2;
+        return codec;
     }
 
     @Override

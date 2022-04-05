@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
@@ -64,7 +66,10 @@ public class HbaseApplicationStatDaoOperations {
         this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
     }
 
-    List<AggregationStatData> getSampledStatList(StatType statType, SampledApplicationStatResultExtractor resultExtractor, String applicationId, Range range) {
+    <OUT extends AggregationStatData>
+    List<OUT> getSampledStatList(StatType statType,
+                                 ResultsExtractor<List<OUT>> resultExtractor,
+                                 String applicationId, Range range) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(range, "range");
         Objects.requireNonNull(resultExtractor, "resultExtractor");
@@ -75,23 +80,14 @@ public class HbaseApplicationStatDaoOperations {
         return hbaseOperations2.findParallel(applicationStatAggreTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, APPLICATION_STAT_NUM_PARTITIONS);
     }
 
-    ApplicationStatMapper createRowMapper(ApplicationStatDecoder decoder, Range range) {
+    <IN extends JoinStatBo> RowMapper<List<IN>> createRowMapper(ApplicationStatDecoder<IN> decoder, Range range) {
         TimestampFilter filter = new RangeTimestampFilter(range);
-        return new ApplicationStatMapper(this.operationFactory, decoder, filter);
+        return new ApplicationStatMapper<>(this.operationFactory, decoder, filter);
     }
 
     private Scan createScan(StatType statType, String applicationId, Range range) {
-        long scanRange = range.getTo() - range.getFrom();
-        long expectedNumRows = ((scanRange - 1) / DESCRIPTOR.TIMESPAN_MS) + 1;
-        if (range.getFrom() != AgentStatUtils.getBaseTimestamp(range.getFrom())) {
-            expectedNumRows++;
-        }
-        if (expectedNumRows > MAX_SCAN_CACHE_SIZE) {
-            return this.createScan(statType, applicationId, range, MAX_SCAN_CACHE_SIZE);
-        } else {
-            // expectedNumRows guaranteed to be within integer range at this point
-            return this.createScan(statType, applicationId, range, (int) expectedNumRows);
-        }
+        int scanCacheSize = HBaseUtils.getScanCacheSize(range, DESCRIPTOR.TIMESPAN_MS, MAX_SCAN_CACHE_SIZE);
+        return this.createScan(statType, applicationId, range, scanCacheSize);
     }
 
     private Scan createScan(StatType statType, String applicationId, Range range, int scanCacheSize) {

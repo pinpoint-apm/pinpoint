@@ -23,8 +23,8 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public interface ApplicationStatSampler <T extends JoinStatBo> {
+public interface ApplicationStatSampler <IN extends JoinStatBo, OUT extends AggregationStatData> {
 
-    AggregationStatData sampleDataPoints(int index, long timestamp, List<T> dataPoints, T previousDataPoint);
+    OUT sampleDataPoints(int index, long timestamp, List<IN> dataPoints, IN previousDataPoint);
 
 }

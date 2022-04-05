@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
@@ -33,16 +32,16 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public abstract class ApplicationStatSerializer implements HbaseSerializer<List<JoinStatBo>, Put> {
+public abstract class ApplicationStatSerializer<T extends JoinStatBo> implements HbaseSerializer<List<T>, Put> {
 
-    private final ApplicationStatEncoder encoder;
+    private final ApplicationStatEncoder<T> encoder;
 
-    protected ApplicationStatSerializer(ApplicationStatEncoder encoder) {
+    protected ApplicationStatSerializer(ApplicationStatEncoder<T> encoder) {
         this.encoder = Objects.requireNonNull(encoder, "encoder");
     }
 
     @Override
-    public void serialize(List<JoinStatBo> joinStatBoList, Put put, SerializationContext context) {
+    public void serialize(List<T> joinStatBoList, Put put, SerializationContext context) {
         if (CollectionUtils.isEmpty(joinStatBoList)) {
             throw new IllegalArgumentException("agentStatBos should not be empty");
         }
