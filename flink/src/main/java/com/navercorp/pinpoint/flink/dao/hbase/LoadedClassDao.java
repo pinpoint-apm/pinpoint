@@ -20,44 +20,19 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.LoadedClassSerializer;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+public class LoadedClassDao extends DefaultApplicationMetricDao<JoinLoadedClassBo> {
 
-public class LoadedClassDao {
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    private final HbaseTemplate2 hbaseTemplate2;
-    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
-    private final LoadedClassSerializer loadedClassSerializer;
-    private final TableNameProvider tableNameProvider;
-
-    public LoadedClassDao(HbaseTemplate2 hbaseTemplate2,
-                          ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
-                          LoadedClassSerializer loadedClassSerializer,
+    public LoadedClassDao(ApplicationStatSerializer<JoinLoadedClassBo> serializer,
+                          HbaseTemplate2 hbaseTemplate2,
+                          ApplicationStatHbaseOperationFactory operationFactory,
                           TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
-        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
-        this.loadedClassSerializer = Objects.requireNonNull(loadedClassSerializer, "loadedClassSerializer");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        super(StatType.APP_LOADED_CLASS, JoinApplicationStatBo::getJoinLoadedClassBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
+                hbaseTemplate2, operationFactory, tableNameProvider);
     }
 
-    public void insert(String id, long timestamp, List<JoinStatBo> joinLoadedClassBoList, StatType statType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("[insert] {} : ({})", new Date(timestamp), joinLoadedClassBoList);
-        }
-        List<Put> fileDescriptorPuts = applicationStatHbaseOperationFactory.createPuts(id, joinLoadedClassBoList, statType, loadedClassSerializer);
-        if (!fileDescriptorPuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            hbaseTemplate2.asyncPut(applicationStatAggreTableName, fileDescriptorPuts);
-        }
-    }
 }

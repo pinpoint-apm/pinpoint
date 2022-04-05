@@ -19,49 +19,22 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DirectBufferSerializer;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Roy Kim
  */
-public class DirectBufferDao {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+public class DirectBufferDao extends DefaultApplicationMetricDao<JoinDirectBufferBo> {
 
-    private final HbaseTemplate2 hbaseTemplate2;
-    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
-    private final DirectBufferSerializer directBufferSerializer;
-    private final TableNameProvider tableNameProvider;
-
-    public DirectBufferDao(HbaseTemplate2 hbaseTemplate2,
-                           ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
-                           DirectBufferSerializer directBufferSerializer,
+    public DirectBufferDao(ApplicationStatSerializer<JoinDirectBufferBo> serializer,
+                           HbaseTemplate2 hbaseTemplate2,
+                           ApplicationStatHbaseOperationFactory operationFactory,
                            TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
-        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
-        this.directBufferSerializer = Objects.requireNonNull(directBufferSerializer, "directBufferSerializer");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        super(StatType.APP_DIRECT_BUFFER, JoinApplicationStatBo::getJoinDirectBufferBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
+                hbaseTemplate2, operationFactory, tableNameProvider);
     }
 
-    public void insert(String id, long timestamp, List<JoinStatBo> joinDirectBufferBoList, StatType statType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("[insert] {} : ({})", new Date(timestamp), joinDirectBufferBoList);
-        }
-        List<Put> directBufferPuts = applicationStatHbaseOperationFactory.createPuts(id, joinDirectBufferBoList, statType, directBufferSerializer);
-        if (!directBufferPuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            hbaseTemplate2.asyncPut(applicationStatAggreTableName, directBufferPuts);
-        }
-    }
 }

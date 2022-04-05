@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.flink;
 
 import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
 import com.navercorp.pinpoint.flink.dao.hbase.*;
@@ -35,6 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,16 +58,9 @@ public class Bootstrap {
     private final TcpDispatchHandler tcpDispatchHandler;
     private final TcpSourceFunction tcpSourceFunction;
     private final ApplicationCache applicationCache;
-    private final CpuLoadDao cpuLoadDao;
-    private final MemoryDao memoryDao;
-    private final TransactionDao transactionDao;
-    private final ActiveTraceDao activeTraceDao;
-    private final ResponseTimeDao responseTimeDao;
-    private final DataSourceDao dataSourceDao;
-    private final FileDescriptorDao fileDescriptorDao;
-    private final DirectBufferDao directBufferDao;
-    private final TotalThreadCountDao totalThreadCountDao;
-    private final LoadedClassDao loadedClassDao;
+
+    private final List<ApplicationMetricDao<JoinStatBo>> applicationMetricDaoList;
+
     private final TBaseFlatMapperInterceptor tBaseFlatMapperInterceptor;
     private final StatisticsDaoInterceptor statisticsDaoInterceptor;
     private final ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
@@ -79,24 +75,23 @@ public class Bootstrap {
         tcpSourceFunction = applicationContext.getBean("tcpSourceFunction", TcpSourceFunction.class);
         applicationCache = applicationContext.getBean("applicationCache", ApplicationCache.class);
         statisticsDao = applicationContext.getBean("statisticsDao", StatisticsDao.class);
-        cpuLoadDao = applicationContext.getBean("cpuLoadDao", CpuLoadDao.class);
-        memoryDao = applicationContext.getBean("memoryDao", MemoryDao.class);
-        transactionDao = applicationContext.getBean("transactionDao", TransactionDao.class);
-        activeTraceDao = applicationContext.getBean("activeTraceDao", ActiveTraceDao.class);
-        responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
-        dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
-        totalThreadCountDao = applicationContext.getBean("totalThreadCountDao", TotalThreadCountDao.class);
-        fileDescriptorDao = applicationContext.getBean("fileDescriptorDao", FileDescriptorDao.class);
-        directBufferDao = applicationContext.getBean("directBufferDao", DirectBufferDao.class);
-        loadedClassDao = applicationContext.getBean("loadedClassDao", LoadedClassDao.class);
+
+        this.applicationMetricDaoList = getApplicationMetricDao();
+
         tBaseFlatMapperInterceptor = applicationContext.getBean("tBaseFlatMapperInterceptor", TBaseFlatMapperInterceptor.class);
         statisticsDaoInterceptor =  applicationContext.getBean("statisticsDaoInterceptor", StatisticsDaoInterceptor.class);
         applicationStatBoWindowInterceptor = applicationContext.getBean("applicationStatBoWindowInterceptor", ApplicationStatBoWindowInterceptor.class);
         agentStatHandler = applicationContext.getBean("agentStatHandler", AgentStatHandler.class);
     }
 
-    public FileDescriptorDao getFileDescriptorDao() {
-        return fileDescriptorDao;
+    @SuppressWarnings("unchecked")
+    private List<ApplicationMetricDao<JoinStatBo>> getApplicationMetricDao() {
+        Map<String, ApplicationMetricDao> metricDaoMap = applicationContext.getBeansOfType(ApplicationMetricDao.class);
+
+        metricDaoMap.forEach((beanName, applicationMetricDao) -> logger.info("ApplicationMetricDao BeanName:{}", beanName));
+
+        List<ApplicationMetricDao> values = new ArrayList<>(metricDaoMap.values());
+        return (List<ApplicationMetricDao<JoinStatBo>>) (List<?>) values;
     }
 
     public static Bootstrap getInstance(Map<String, String> jobParameters) {
@@ -122,37 +117,9 @@ public class Bootstrap {
         return statisticsDao;
     }
 
-    public CpuLoadDao getCpuLoadDao() {
-        return cpuLoadDao;
+    public List<ApplicationMetricDao<JoinStatBo>> getApplicationMetricDaoList() {
+        return applicationMetricDaoList;
     }
-
-    public MemoryDao getMemoryDao() {
-        return memoryDao;
-    }
-
-    public TransactionDao getTransactionDao() {
-        return transactionDao;
-    }
-
-    public ActiveTraceDao getActiveTraceDao() {
-        return activeTraceDao;
-    }
-
-    public ResponseTimeDao getResponseTimeDao() {
-        return responseTimeDao;
-    }
-
-    public DataSourceDao getDataSourceDao() {
-        return dataSourceDao;
-    }
-
-    public DirectBufferDao getDirectBufferDao() {
-        return directBufferDao;
-    }
-
-    public TotalThreadCountDao getTotalThreadCountDao() { return totalThreadCountDao; }
-
-    public LoadedClassDao getLoadedClassDao() { return loadedClassDao; }
 
     public TBaseFlatMapper getTbaseFlatMapper() {
         return tbaseFlatMapper;
