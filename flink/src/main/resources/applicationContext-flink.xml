@@ -76,72 +76,72 @@
     <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao"/>
 
     <bean id="cpuLoadDao" class="com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="cpuLoadSerializer"/>
+        <constructor-arg index="0" ref="cpuLoadSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="memoryDao" class="com.navercorp.pinpoint.flink.dao.hbase.MemoryDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="memorySerializer"/>
+        <constructor-arg index="0" ref="memorySerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="transactionDao" class="com.navercorp.pinpoint.flink.dao.hbase.TransactionDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="transactionSerializer"/>
+        <constructor-arg index="0" ref="transactionSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="activeTraceDao" class="com.navercorp.pinpoint.flink.dao.hbase.ActiveTraceDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="activeTraceSerializer"/>
+        <constructor-arg index="0" ref="activeTraceSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="responseTimeDao" class="com.navercorp.pinpoint.flink.dao.hbase.ResponseTimeDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="responseTimeSerializer"/>
+        <constructor-arg index="0" ref="responseTimeSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="dataSourceDao" class="com.navercorp.pinpoint.flink.dao.hbase.DataSourceDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="dataSourceSerializer"/>
+        <constructor-arg index="0" ref="dataSourceSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="fileDescriptorDao" class="com.navercorp.pinpoint.flink.dao.hbase.FileDescriptorDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="fileDescriptorSerializer"/>
+        <constructor-arg index="0" ref="fileDescriptorSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="directBufferDao" class="com.navercorp.pinpoint.flink.dao.hbase.DirectBufferDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="directBufferSerializer"/>
+        <constructor-arg index="0" ref="directBufferSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="totalThreadCountDao" class="com.navercorp.pinpoint.flink.dao.hbase.TotalThreadCountDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="totalThreadCountSerializer"/>
+        <constructor-arg index="0" ref="totalThreadCountSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
     <bean id="loadedClassDao" class="com.navercorp.pinpoint.flink.dao.hbase.LoadedClassDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="loadedClassSerializer"/>
+        <constructor-arg index="0" ref="loadedClassSerializer"/>
+        <constructor-arg index="1" ref="hbaseTemplate"/>
+        <constructor-arg index="2" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
@@ -178,7 +178,7 @@
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 
     <bean id="addressFilter" class="com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter">
-        <constructor-arg value="#{flinkConfiguration.l4IpList}"/>
+        <constructor-arg index="0" value="#{flinkConfiguration.l4IpList}"/>
     </bean>
 
 

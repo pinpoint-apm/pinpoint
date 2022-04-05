@@ -19,48 +19,22 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.FileDescriptorSerializer;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Roy Kim
  */
-public class FileDescriptorDao {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+public class FileDescriptorDao extends DefaultApplicationMetricDao<JoinFileDescriptorBo> {
 
-    private final HbaseTemplate2 hbaseTemplate2;
-    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
-    private final FileDescriptorSerializer fileDescriptorSerializer;
-    private final TableNameProvider tableNameProvider;
-
-    public FileDescriptorDao(HbaseTemplate2 hbaseTemplate2,
-                             ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
-                             FileDescriptorSerializer fileDescriptorSerializer,
+    public FileDescriptorDao(ApplicationStatSerializer<JoinFileDescriptorBo> serializer,
+                             HbaseTemplate2 hbaseTemplate2,
+                             ApplicationStatHbaseOperationFactory operationFactory,
                              TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
-        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
-        this.fileDescriptorSerializer = Objects.requireNonNull(fileDescriptorSerializer, "fileDescriptorSerializer");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        super(StatType.APP_FILE_DESCRIPTOR, JoinApplicationStatBo::getJoinFileDescriptorBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
+                hbaseTemplate2, operationFactory, tableNameProvider);
     }
 
-    public void insert(String id, long timestamp, List<JoinStatBo> joinFileDescriptorBoList, StatType statType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("[insert] {} : ({})", new Date(timestamp), joinFileDescriptorBoList);
-        }
-        List<Put> fileDescriptorPuts = applicationStatHbaseOperationFactory.createPuts(id, joinFileDescriptorBoList, statType, fileDescriptorSerializer);
-        if (!fileDescriptorPuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            hbaseTemplate2.asyncPut(applicationStatAggreTableName, fileDescriptorPuts);
-        }
-    }
 }

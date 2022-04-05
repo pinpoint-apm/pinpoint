@@ -19,48 +19,22 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-public class MemoryDao {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+public class MemoryDao extends DefaultApplicationMetricDao<JoinMemoryBo> {
 
-    private final HbaseTemplate2 hbaseTemplate2;
-    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
-    private final MemorySerializer memorySerializer;
-    private final TableNameProvider tableNameProvider;
-
-    public MemoryDao(HbaseTemplate2 hbaseTemplate2,
-                     ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
-                     MemorySerializer memorySerializer,
+    public MemoryDao(ApplicationStatSerializer<JoinMemoryBo> serializer,
+                     HbaseTemplate2 hbaseTemplate2,
+                     ApplicationStatHbaseOperationFactory operationFactory,
                      TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
-        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
-        this.memorySerializer = Objects.requireNonNull(memorySerializer, "memorySerializer");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        super(StatType.APP_MEMORY_USED, JoinApplicationStatBo::getJoinMemoryBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
+                hbaseTemplate2, operationFactory, tableNameProvider);
     }
 
-    public void insert(String id, long timestamp, List<JoinStatBo> joinMemoryBoList, StatType statType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("[insert] {} : ({})", new Date(timestamp), joinMemoryBoList);
-        }
-        List<Put> memoryPuts = applicationStatHbaseOperationFactory.createPuts(id, joinMemoryBoList, statType, memorySerializer);
-        if (!memoryPuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            this.hbaseTemplate2.asyncPut(applicationStatAggreTableName, memoryPuts);
-        }
-    }
 }

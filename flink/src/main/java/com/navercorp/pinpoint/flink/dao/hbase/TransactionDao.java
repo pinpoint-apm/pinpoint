@@ -19,49 +19,22 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionSerializer;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-public class TransactionDao {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+public class TransactionDao extends DefaultApplicationMetricDao<JoinTransactionBo> {
 
-
-    private final HbaseTemplate2 hbaseTemplate2;
-    private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
-    private final TransactionSerializer transactionSerializer;
-    private final TableNameProvider tableNameProvider;
-
-    public TransactionDao(HbaseTemplate2 hbaseTemplate2,
-                          ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
-                          TransactionSerializer transactionSerializer,
+    public TransactionDao(ApplicationStatSerializer<JoinTransactionBo> serializer,
+                          HbaseTemplate2 hbaseTemplate2,
+                          ApplicationStatHbaseOperationFactory operationFactory,
                           TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
-        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
-        this.transactionSerializer = Objects.requireNonNull(transactionSerializer, "transactionSerializer");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        super(StatType.APP_TRANSACTION_COUNT, JoinApplicationStatBo::getJoinTransactionBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
+                hbaseTemplate2, operationFactory, tableNameProvider);
     }
 
-    public void insert(String id, long timestamp, List<JoinStatBo> joinTransactionBoList, StatType statType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("[insert] {} : ({})", new Date(timestamp), joinTransactionBoList);
-        }
-        List<Put> transactionPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
-        if (!transactionPuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            hbaseTemplate2.asyncPut(applicationStatAggreTableName, transactionPuts);
-        }
-    }
 }
