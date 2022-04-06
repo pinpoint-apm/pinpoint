@@ -48,6 +48,7 @@ public class GrpcStatReceiverConfigurationTest {
         assertEquals(2, configuration.getStreamConfiguration().getSchedulerThreadSize());
         assertEquals(2, configuration.getStreamConfiguration().getSchedulerPeriodMillis());
         assertEquals(2, configuration.getStreamConfiguration().getCallInitRequestCount());
+        assertEquals(2, configuration.getStreamConfiguration().getThrottledLoggerRatio());
 
     }
 

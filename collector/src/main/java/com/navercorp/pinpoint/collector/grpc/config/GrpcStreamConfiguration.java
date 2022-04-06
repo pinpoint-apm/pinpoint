@@ -23,15 +23,17 @@ public class GrpcStreamConfiguration {
     private final int schedulerRecoveryMessageCount;
 
     private final long idleTimeout;
+    private final long throttledLoggerRatio;
 
     GrpcStreamConfiguration(int schedulerThreadSize, int callInitRequestCount,
-                                   int schedulerPeriodMillis, int schedulerRecoveryMessageCount,
-                                   long idleTimeout) {
+                            int schedulerPeriodMillis, int schedulerRecoveryMessageCount,
+                            long idleTimeout, long throttledLoggerRatio) {
         this.schedulerThreadSize = schedulerThreadSize;
         this.callInitRequestCount = callInitRequestCount;
         this.schedulerPeriodMillis = schedulerPeriodMillis;
         this.schedulerRecoveryMessageCount = schedulerRecoveryMessageCount;
         this.idleTimeout = idleTimeout;
+        this.throttledLoggerRatio = throttledLoggerRatio;
     }
 
     public int getSchedulerThreadSize() {
@@ -54,6 +56,10 @@ public class GrpcStreamConfiguration {
         return idleTimeout;
     }
 
+    public long getThrottledLoggerRatio() {
+        return throttledLoggerRatio;
+    }
+
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -64,6 +70,7 @@ public class GrpcStreamConfiguration {
         private int schedulerPeriodMillis =  64;
         private int schedulerRecoveryMessageCount = 10;
         private long idleTimeout = -1;
+        private long throttledLoggerRatio = 1;
 
 
         public int getSchedulerThreadSize() {
@@ -106,9 +113,17 @@ public class GrpcStreamConfiguration {
             this.idleTimeout = idleTimeout;
         }
 
+        public long getThrottledLoggerRatio() {
+            return throttledLoggerRatio;
+        }
+
+        public void setThrottledLoggerRatio(long throttledLoggerRatio) {
+            this.throttledLoggerRatio = throttledLoggerRatio;
+        }
+
         public GrpcStreamConfiguration build() {
             return new GrpcStreamConfiguration(this.schedulerThreadSize, this.callInitRequestCount,
-                    this.schedulerPeriodMillis, this.schedulerRecoveryMessageCount, this.idleTimeout);
+                    this.schedulerPeriodMillis, this.schedulerRecoveryMessageCount, this.idleTimeout, this.throttledLoggerRatio);
         }
     }
 
@@ -120,6 +135,7 @@ public class GrpcStreamConfiguration {
                 ", schedulerPeriodMillis=" + schedulerPeriodMillis +
                 ", schedulerRecoveryMessageCount=" + schedulerRecoveryMessageCount +
                 ", idleTimeout=" + idleTimeout +
+                ", throttledLoggerRatio=" + throttledLoggerRatio +
                 '}';
     }
 }
