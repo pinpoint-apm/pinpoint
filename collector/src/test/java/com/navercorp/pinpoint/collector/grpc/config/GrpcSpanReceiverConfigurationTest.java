@@ -55,6 +55,7 @@ public class GrpcSpanReceiverConfigurationTest {
         assertEquals(3, configuration.getStreamConfiguration().getSchedulerThreadSize());
         assertEquals(3, configuration.getStreamConfiguration().getSchedulerPeriodMillis());
         assertEquals(3, configuration.getStreamConfiguration().getCallInitRequestCount());
+        assertEquals(3, configuration.getStreamConfiguration().getThrottledLoggerRatio());
 
     }
 

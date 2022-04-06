@@ -43,6 +43,7 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
     private final int periodMillis;
     private final int recoveryMessagesCount;
     private final long idleTimeout;
+    private final long throttledLoggerRatio;
 
     public StreamExecutorServerInterceptorFactory(Executor executor,
                                                   ScheduledExecutorService scheduledExecutorService,
@@ -57,6 +58,7 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
         Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
         this.recoveryMessagesCount = streamConfiguration.getSchedulerRecoveryMessageCount();
         this.idleTimeout = streamConfiguration.getIdleTimeout();
+        this.throttledLoggerRatio = streamConfiguration.getThrottledLoggerRatio();
     }
 
     @Override
@@ -71,7 +73,7 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
         RejectedExecutionListenerFactory listenerFactory = new RejectedExecutionListenerFactory(this.beanName, recoveryMessagesCount, idleTimeoutFactory);
 
         return new StreamExecutorServerInterceptor(this.beanName, this.executor, initRequestCount,
-                scheduledExecutor, listenerFactory);
+                scheduledExecutor, listenerFactory, throttledLoggerRatio);
     }
 
     @Override

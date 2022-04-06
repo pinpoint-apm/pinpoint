@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.logging;
+package com.navercorp.pinpoint.common.profiler.logging;
 
 import org.apache.logging.log4j.Logger;
 
@@ -36,6 +36,9 @@ public class ThrottledLogger {
 
     private ThrottledLogger(Logger logger, long ratio) {
         this.logger = Objects.requireNonNull(logger, "logger");
+        if (ratio < 1) {
+            ratio = 1;
+        }
         this.ratio = ratio;
     }
 

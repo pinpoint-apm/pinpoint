@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.logging.ThrottledLogger;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
