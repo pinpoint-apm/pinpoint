@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author Taejin Koo
  */
 @Repository
-public class HbaseResponseTimeDao extends AbstractHBaseDao<ResponseTimeBo> {
+public class HbaseResponseTimeDao extends DefaultAgentStatDao<ResponseTimeBo> {
 
     public HbaseResponseTimeDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

@@ -19,8 +19,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationCpuLoadDao;
-import com.navercorp.pinpoint.web.dao.hbase.DefaultAgentMetricDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationStatDaoOperations;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
 import org.springframework.stereotype.Repository;
@@ -30,7 +28,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class HbaseApplicationCpuLoadDao
-        extends DefaultAgentMetricDao<JoinCpuLoadBo, AggreJoinCpuLoadBo>
+        extends DefaultApplicationMetricDao<JoinCpuLoadBo, AggreJoinCpuLoadBo>
         implements ApplicationCpuLoadDao {
 
     public HbaseApplicationCpuLoadDao(ApplicationStatDecoder<JoinCpuLoadBo> decoder,

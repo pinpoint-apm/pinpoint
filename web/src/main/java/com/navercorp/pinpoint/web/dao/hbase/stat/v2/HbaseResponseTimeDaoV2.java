@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author Taejin Koo
  */
 @Repository("responseTimeDaoV2")
-public class HbaseResponseTimeDaoV2 extends AbstractAgentStatDao<ResponseTimeBo> implements ResponseTimeDao {
+public class HbaseResponseTimeDaoV2 extends DefaultAgentStatDao<ResponseTimeBo> implements ResponseTimeDao {
 
     public HbaseResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<ResponseTimeBo> decoder) {
         super(AgentStatType.RESPONSE_TIME, operations, decoder);

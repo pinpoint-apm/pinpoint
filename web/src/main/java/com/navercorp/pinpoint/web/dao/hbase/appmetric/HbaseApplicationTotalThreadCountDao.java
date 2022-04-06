@@ -20,15 +20,13 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationTotalThreadCountDao;
-import com.navercorp.pinpoint.web.dao.hbase.DefaultAgentMetricDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationStatDaoOperations;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class HbaseApplicationTotalThreadCountDao
-        extends DefaultAgentMetricDao<JoinTotalThreadCountBo, AggreJoinTotalThreadCountBo>
+        extends DefaultApplicationMetricDao<JoinTotalThreadCountBo, AggreJoinTotalThreadCountBo>
         implements ApplicationTotalThreadCountDao {
 
     public HbaseApplicationTotalThreadCountDao(ApplicationStatDecoder<JoinTotalThreadCountBo> decoder,

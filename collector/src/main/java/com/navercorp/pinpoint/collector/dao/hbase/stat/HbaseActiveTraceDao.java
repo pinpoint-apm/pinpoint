@@ -31,7 +31,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseActiveTraceDao extends AbstractHBaseDao<ActiveTraceBo> {
+public class HbaseActiveTraceDao extends DefaultAgentStatDao<ActiveTraceBo> {
 
     public HbaseActiveTraceDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

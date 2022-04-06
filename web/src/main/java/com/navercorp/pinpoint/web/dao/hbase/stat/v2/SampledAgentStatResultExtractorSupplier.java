@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class SampledAgentStatResultExtractorSupplier<IN extends AgentStatDataPoint, OUT extends SampledAgentStatDataPoint>
-        implements AbstractSampledAgentStatDao.ResultsExtractorSupplier<IN, OUT> {
+        implements SampledResultsExtractorSupplier<IN, OUT> {
 
     private final AgentStatSampler<IN, OUT> sampler;
 

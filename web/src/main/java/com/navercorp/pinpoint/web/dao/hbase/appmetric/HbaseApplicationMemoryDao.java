@@ -19,8 +19,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMemoryDao;
-import com.navercorp.pinpoint.web.dao.hbase.DefaultAgentMetricDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationStatDaoOperations;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import org.springframework.stereotype.Repository;
@@ -30,7 +28,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class HbaseApplicationMemoryDao
-        extends DefaultAgentMetricDao<JoinMemoryBo, AggreJoinMemoryBo>
+        extends DefaultApplicationMetricDao<JoinMemoryBo, AggreJoinMemoryBo>
         implements ApplicationMemoryDao {
 
     public HbaseApplicationMemoryDao(ApplicationStatDecoder<JoinMemoryBo> decoder,

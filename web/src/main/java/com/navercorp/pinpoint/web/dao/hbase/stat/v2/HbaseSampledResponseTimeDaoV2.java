@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledResponseTimeDaoV2")
 public class HbaseSampledResponseTimeDaoV2
-        extends AbstractSampledAgentStatDao<ResponseTimeBo, SampledResponseTime> implements SampledResponseTimeDao {
+        extends DefaultSampledAgentStatDao<ResponseTimeBo, SampledResponseTime> implements SampledResponseTimeDao {
 
     public HbaseSampledResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                          AgentStatDecoder<ResponseTimeBo> decoder,

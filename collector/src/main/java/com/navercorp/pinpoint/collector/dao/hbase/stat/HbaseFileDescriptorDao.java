@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author Roy Kim
  */
 @Repository
-public class HbaseFileDescriptorDao extends AbstractHBaseDao<FileDescriptorBo> {
+public class HbaseFileDescriptorDao extends DefaultAgentStatDao<FileDescriptorBo> {
 
     public HbaseFileDescriptorDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

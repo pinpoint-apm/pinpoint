@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledFileDescriptorDaoV2")
 public class HbaseSampledFileDescriptorDaoV2
-        extends AbstractSampledAgentStatDao<FileDescriptorBo, SampledFileDescriptor> implements SampledFileDescriptorDao {
+        extends DefaultSampledAgentStatDao<FileDescriptorBo, SampledFileDescriptor> implements SampledFileDescriptorDao {
 
     public HbaseSampledFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                            AgentStatDecoder<FileDescriptorBo> decoder,

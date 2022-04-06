@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author Taejin Koo
  */
 @Repository("dataSourceDaoV2")
-public class HbaseDataSourceDaoV2 extends AbstractAgentStatDao<DataSourceListBo> implements DataSourceDao {
+public class HbaseDataSourceDaoV2 extends DefaultAgentStatDao<DataSourceListBo> implements DataSourceDao {
 
     public HbaseDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<DataSourceListBo> decoder) {
         super(AgentStatType.DATASOURCE, operations, decoder);

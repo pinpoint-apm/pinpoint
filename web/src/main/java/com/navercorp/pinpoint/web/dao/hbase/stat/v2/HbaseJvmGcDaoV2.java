@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository("jvmGcDaoV2")
-public class HbaseJvmGcDaoV2 extends AbstractAgentStatDao<JvmGcBo> implements JvmGcDao {
+public class HbaseJvmGcDaoV2 extends DefaultAgentStatDao<JvmGcBo> implements JvmGcDao {
 
     public HbaseJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<JvmGcBo> decoder) {
         super(AgentStatType.JVM_GC, operations, decoder);

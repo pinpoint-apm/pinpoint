@@ -31,10 +31,10 @@ public class ActiveTraceDao extends DefaultApplicationMetricDao<JoinActiveTraceB
 
     public ActiveTraceDao(ApplicationStatSerializer<JoinActiveTraceBo> serializer,
                           HbaseTemplate2 hbaseTemplate2,
-                          ApplicationStatHbaseOperationFactory operationFactory,
+                          ApplicationStatHbaseOperationFactory operations,
                           TableNameProvider tableNameProvider) {
         super(StatType.APP_ACTIVE_TRACE_COUNT, JoinApplicationStatBo::getJoinActiveTraceBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
-                hbaseTemplate2, operationFactory, tableNameProvider);
+                hbaseTemplate2, operations, tableNameProvider);
     }
 
 }

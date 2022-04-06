@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledActiveTraceDaoV2")
 public class HbaseSampledActiveTraceDaoV2
-        extends AbstractSampledAgentStatDao<ActiveTraceBo, SampledActiveTrace> implements SampledActiveTraceDao {
+        extends DefaultSampledAgentStatDao<ActiveTraceBo, SampledActiveTrace> implements SampledActiveTraceDao {
 
     public HbaseSampledActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                         AgentStatDecoder<ActiveTraceBo> decoder,

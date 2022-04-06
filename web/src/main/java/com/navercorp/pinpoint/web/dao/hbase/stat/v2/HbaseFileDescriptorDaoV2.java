@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author Roy Kim
  */
 @Repository("fileDescriptorDaoV2")
-public class HbaseFileDescriptorDaoV2 extends AbstractAgentStatDao<FileDescriptorBo> implements FileDescriptorDao {
+public class HbaseFileDescriptorDaoV2 extends DefaultAgentStatDao<FileDescriptorBo> implements FileDescriptorDao {
 
     public HbaseFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<FileDescriptorBo> decoder) {
         super(AgentStatType.FILE_DESCRIPTOR, operations, decoder);

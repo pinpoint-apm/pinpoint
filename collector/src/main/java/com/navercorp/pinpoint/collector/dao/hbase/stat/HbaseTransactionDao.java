@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseTransactionDao extends AbstractHBaseDao<TransactionBo> {
+public class HbaseTransactionDao extends DefaultAgentStatDao<TransactionBo> {
 
     public HbaseTransactionDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

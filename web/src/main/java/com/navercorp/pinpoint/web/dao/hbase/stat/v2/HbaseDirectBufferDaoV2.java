@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author Roy Kim
  */
 @Repository("directBufferDaoV2")
-public class HbaseDirectBufferDaoV2 extends AbstractAgentStatDao<DirectBufferBo> implements DirectBufferDao {
+public class HbaseDirectBufferDaoV2 extends DefaultAgentStatDao<DirectBufferBo> implements DirectBufferDao {
 
     public HbaseDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<DirectBufferBo> decoder) {
         super(AgentStatType.DIRECT_BUFFER, operations, decoder);

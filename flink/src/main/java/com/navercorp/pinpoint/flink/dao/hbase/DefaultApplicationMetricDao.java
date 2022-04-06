@@ -27,7 +27,7 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
 
     private final HbaseTable tableName;
     private final HbaseTemplate2 hbaseTemplate2;
-    private final ApplicationStatHbaseOperationFactory operationFactory;
+    private final ApplicationStatHbaseOperationFactory operations;
     private final TableNameProvider tableNameProvider;
 
     public DefaultApplicationMetricDao(StatType statType,
@@ -36,7 +36,7 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
 
                                        HbaseTable tableName,
                                        HbaseTemplate2 hbaseTemplate2,
-                                       ApplicationStatHbaseOperationFactory operationFactory,
+                                       ApplicationStatHbaseOperationFactory operations,
                                        TableNameProvider tableNameProvider) {
         this.statType = Objects.requireNonNull(statType, "statType");
         this.appStatFunction = Objects.requireNonNull(appStatFunction, "dataPointFunction");
@@ -44,15 +44,18 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
 
         this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
-        this.operationFactory = Objects.requireNonNull(operationFactory, "applicationStatHbaseOperationFactory");
+        this.operations = Objects.requireNonNull(operations, "operations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
     public void insert(String id, long timestamp, List<T> appStatBoList) {
+        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(appStatBoList, "appStatBoList");
+
         if (logger.isDebugEnabled()) {
             logger.debug("[insert] {} : ({})", DateTimeFormatUtils.format(timestamp), appStatBoList);
         }
-        List<Put> activeTracePuts = operationFactory.createPuts(id, appStatBoList, statType, serializer);
+        List<Put> activeTracePuts = operations.createPuts(id, appStatBoList, statType, serializer);
         if (!activeTracePuts.isEmpty()) {
             TableName applicationStatAggreTableName = tableNameProvider.getTableName(tableName);
             hbaseTemplate2.asyncPut(applicationStatAggreTableName, activeTracePuts);
@@ -61,6 +64,8 @@ public class DefaultApplicationMetricDao<T extends JoinStatBo> implements Applic
 
     @Override
     public void insert(JoinApplicationStatBo applicationStatBo) {
+        Objects.requireNonNull(applicationStatBo, "applicationStatBo");
+
         List<T> statBo = appStatFunction.apply(applicationStatBo);
         insert(applicationStatBo.getId(), applicationStatBo.getTimestamp(), statBo);
     }

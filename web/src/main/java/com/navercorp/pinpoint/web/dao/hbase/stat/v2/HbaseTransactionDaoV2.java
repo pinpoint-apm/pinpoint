@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository("transactionDaoV2")
-public class HbaseTransactionDaoV2 extends AbstractAgentStatDao<TransactionBo> implements TransactionDao {
+public class HbaseTransactionDaoV2 extends DefaultAgentStatDao<TransactionBo> implements TransactionDao {
 
     public HbaseTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<TransactionBo> decoder) {
         super(AgentStatType.TRANSACTION, operations, decoder);

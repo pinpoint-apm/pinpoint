@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author Roy Kim
  */
 @Repository
-public class HbaseDirectBufferDao extends AbstractHBaseDao<DirectBufferBo> {
+public class HbaseDirectBufferDao extends DefaultAgentStatDao<DirectBufferBo> {
 
     public HbaseDirectBufferDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledDirectBufferDaoV2")
 public class HbaseSampledDirectBufferDaoV2
-        extends AbstractSampledAgentStatDao<DirectBufferBo, SampledDirectBuffer> implements SampledDirectBufferDao {
+        extends DefaultSampledAgentStatDao<DirectBufferBo, SampledDirectBuffer> implements SampledDirectBufferDao {
 
 
     public HbaseSampledDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations,

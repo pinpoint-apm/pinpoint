@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author Taejin Koo
  */
 @Repository
-public class HbaseDeadlockThreadCountDao extends AbstractHBaseDao<DeadlockThreadCountBo> {
+public class HbaseDeadlockThreadCountDao extends DefaultAgentStatDao<DeadlockThreadCountBo> {
 
     public HbaseDeadlockThreadCountDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository("sampledTotalThreadCountDaoV2")
 public class HBaseSampledTotalThreadCountDaoV2
-        extends AbstractSampledAgentStatDao<TotalThreadCountBo, SampledTotalThreadCount> implements SampledTotalThreadCountDao {
+        extends DefaultSampledAgentStatDao<TotalThreadCountBo, SampledTotalThreadCount> implements SampledTotalThreadCountDao {
 
     public HBaseSampledTotalThreadCountDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                              AgentStatDecoder<TotalThreadCountBo> decoder,

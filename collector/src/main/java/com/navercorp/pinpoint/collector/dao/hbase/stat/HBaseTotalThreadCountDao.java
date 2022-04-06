@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class HBaseTotalThreadCountDao extends AbstractHBaseDao<TotalThreadCountBo> {
+public class HBaseTotalThreadCountDao extends DefaultAgentStatDao<TotalThreadCountBo> {
 
     public HBaseTotalThreadCountDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

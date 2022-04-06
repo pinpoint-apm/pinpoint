@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledCpuLoadDaoV2")
 public class HbaseSampledCpuLoadDaoV2
-        extends AbstractSampledAgentStatDao<CpuLoadBo, SampledCpuLoad> implements SampledCpuLoadDao {
+        extends DefaultSampledAgentStatDao<CpuLoadBo, SampledCpuLoad> implements SampledCpuLoadDao {
 
     public HbaseSampledCpuLoadDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                     AgentStatDecoder<CpuLoadBo> decoder,

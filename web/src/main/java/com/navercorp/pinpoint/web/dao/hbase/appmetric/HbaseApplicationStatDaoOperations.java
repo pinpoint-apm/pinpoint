@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.dao.hbase.appmetric;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -25,10 +25,10 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
+import com.navercorp.pinpoint.web.dao.hbase.HBaseUtils;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
-import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
@@ -36,7 +36,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +44,7 @@ import java.util.Objects;
 /**
  * @author Minwoo Jung
  */
-@Repository
+@Component
 public class HbaseApplicationStatDaoOperations {
 
     private static final int APPLICATION_STAT_NUM_PARTITIONS = 32;
@@ -66,13 +66,12 @@ public class HbaseApplicationStatDaoOperations {
         this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
     }
 
-    <OUT extends AggregationStatData>
-    List<OUT> getSampledStatList(StatType statType,
+    <OUT extends AggregationStatData> List<OUT> getSampledStatList(StatType statType,
                                  ResultsExtractor<List<OUT>> resultExtractor,
                                  String applicationId, Range range) {
         Objects.requireNonNull(applicationId, "applicationId");
-        Objects.requireNonNull(range, "range");
         Objects.requireNonNull(resultExtractor, "resultExtractor");
+        Objects.requireNonNull(range, "range");
 
         Scan scan = this.createScan(statType, applicationId, range);
 
