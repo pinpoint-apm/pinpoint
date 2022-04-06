@@ -11,7 +11,7 @@ plugins {
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.springframework:spring-webflux:${Versions.spring}")
-    compileOnly("org.springframework:spring-web:${Versions.spring}")
+    compileOnly("org.springframework:spring-web")
 }
 
 description = "pinpoint-spring-webflux-plugin"

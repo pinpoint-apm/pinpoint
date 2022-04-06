@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.springframework:spring-beans:${Versions.spring}")
+    implementation("org.springframework:spring-beans")
     api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.mybatis:mybatis:3.5.7")
     testImplementation("org.mybatis:mybatis-spring:2.0.6")
