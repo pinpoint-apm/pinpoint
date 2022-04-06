@@ -16,8 +16,8 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
-    testImplementation("mysql:mysql-connector-java:8.0.27")
-    testImplementation("commons-io:commons-io:2.6")
+    testImplementation("mysql:mysql-connector-java")
+    testImplementation("commons-io:commons-io")
 }
 
 description = "pinpoint-bootstrap-java9"

@@ -15,8 +15,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     implementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     implementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
-    runtimeOnly("org.slf4j:slf4j-api:1.7.30")
-    testImplementation("commons-lang:commons-lang:2.6")
+    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    testImplementation("commons-lang:commons-lang")
 }
 
 description = "pinpoint-thrift"

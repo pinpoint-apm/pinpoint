@@ -12,10 +12,10 @@ dependencies {
     api(project(":pinpoint-annotations"))
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-profiler"))
-    implementation("io.netty:netty:${Versions.netty3}")
+    implementation("io.netty:netty")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     implementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
-    runtimeOnly("org.slf4j:slf4j-api:1.7.30")
+    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
     testImplementation(project(":pinpoint-testcase"))
     testImplementation("org.awaitility:awaitility:3.1.5")
 }

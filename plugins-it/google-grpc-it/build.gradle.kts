@@ -13,7 +13,7 @@ dependencies {
     testImplementation("io.grpc:grpc-protobuf:1.14.0")
     testImplementation("io.grpc:grpc-stub:1.14.0")
     testImplementation("io.grpc:grpc-netty:1.14.0")
-    testImplementation("io.netty:netty-all:4.1.63.Final")
+    testImplementation("io.netty:netty-all")
 }
 
 description = "pinpoint-grpc-plugin-it"

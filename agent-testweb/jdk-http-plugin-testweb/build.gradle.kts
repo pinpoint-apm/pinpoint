@@ -13,7 +13,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-logging:${Versions.springBoot}")
     implementation("org.springframework.boot:spring-boot-starter-actuator:${Versions.springBoot}")
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
-    implementation("commons-io:commons-io:2.6")
+    implementation("commons-io:commons-io")
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
 }
 

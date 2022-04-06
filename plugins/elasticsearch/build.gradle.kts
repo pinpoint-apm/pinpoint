@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.slf4j:slf4j-api:1.7.30")
+    testImplementation("org.slf4j:slf4j-api:${Versions.slf4j}")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     compileOnly(project(":pinpoint-bootstrap-core"))

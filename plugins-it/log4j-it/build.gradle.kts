@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("log4j:log4j:1.2.17")
+    testImplementation("log4j:log4j")
 }
 
 description = "pinpoint-log4j-plugin-it"

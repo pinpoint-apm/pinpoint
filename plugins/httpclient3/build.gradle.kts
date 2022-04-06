@@ -13,7 +13,7 @@ dependencies {
     compileOnly("org.apache.httpcomponents:httpcore:4.4.14")
     compileOnly("org.apache.httpcomponents:httpasyncclient:4.1.4")
     compileOnly("org.apache.httpcomponents:httpcore-nio:4.4.14")
-    compileOnly("org.apache.httpcomponents:httpclient:4.5.13")
+    compileOnly("org.apache.httpcomponents:httpclient")
     compileOnly("commons-httpclient:commons-httpclient:3.1")
 }
 

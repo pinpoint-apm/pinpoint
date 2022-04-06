@@ -10,9 +10,9 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("com.fasterxml.jackson.core:jackson-core:2.12.5")
-    testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.12.5")
-    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+    testImplementation("com.fasterxml.jackson.core:jackson-core")
+    testImplementation("com.fasterxml.jackson.core:jackson-annotations")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind")
 }
 
 description = "pinpoint-log4j2-plugin-it"

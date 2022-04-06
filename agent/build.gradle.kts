@@ -22,7 +22,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
     runtimeOnly(project(":pinpoint-bootstrap-java8"))
     runtimeOnly(project(":pinpoint-tools"))
-    runtimeOnly("org.slf4j:slf4j-api:1.7.30")
+    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
 }

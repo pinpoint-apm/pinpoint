@@ -15,7 +15,7 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
-    testImplementation("org.apache.commons:commons-lang3:3.8.1")
+    testImplementation("org.apache.commons:commons-lang3")
 }
 
 description = "pinpoint-commons-profiler"

@@ -13,7 +13,7 @@ dependencies {
     testImplementation("org.apache.httpcomponents:httpcore:4.4.14")
     testImplementation("org.apache.httpcomponents:httpasyncclient:4.1.4")
     testImplementation("org.apache.httpcomponents:httpcore-nio:4.4.14")
-    testImplementation("org.apache.httpcomponents:httpclient:4.5.13")
+    testImplementation("org.apache.httpcomponents:httpclient")
 }
 
 description = "pinpoint-httpclient4-plugin-it"
