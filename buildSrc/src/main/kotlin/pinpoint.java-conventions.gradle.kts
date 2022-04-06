@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    id("io.spring.dependency-management")
 }
 
 repositories {
@@ -35,4 +36,24 @@ publishing {
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
+}
+
+dependencyManagement {
+    dependencies {
+        dependency("org.springframework:spring-core:${Versions.spring}") {
+            exclude("commons-logging:commons-logging")
+        }
+        dependency("org.springframework:spring-beans:${Versions.spring}")
+        dependency("org.springframework:spring-context:${Versions.spring}")
+        dependency("org.springframework:spring-orm:${Versions.spring}")
+        dependency("org.springframework:spring-web:${Versions.spring}")
+        dependency("com.jayway.jsonpath:json-path:1.2.0")
+    }
+
+// TODO: https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/320 can't build precompiled script with testImplementation.
+//    testImplementation {
+//        dependencies {
+//            dependency("org.springframework:spring-test:${Versions.spring}")
+//        }
+//    }
 }

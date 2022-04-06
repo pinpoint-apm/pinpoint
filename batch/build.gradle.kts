@@ -15,7 +15,7 @@ dependencies {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
     implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
-    implementation("org.springframework:spring-web:${Versions.spring}")
+    implementation("org.springframework:spring-web")
     implementation("org.springframework:spring-context-support:${Versions.spring}")
     implementation("org.springframework:spring-jdbc:${Versions.spring}")
     implementation("com.sun.mail:jakarta.mail:1.6.7")

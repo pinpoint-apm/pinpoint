@@ -11,7 +11,7 @@ plugins {
 
 dependencies {
     implementation("org.apache.zookeeper:zookeeper:${Versions.zookeeper}")
-    implementation("org.springframework:spring-context:${Versions.spring}")
+    implementation("org.springframework:spring-context")
     implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
     runtimeOnly("org.slf4j:slf4j-api:1.7.30")
