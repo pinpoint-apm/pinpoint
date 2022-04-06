@@ -23,11 +23,11 @@ dependencies {
     implementation("com.google.inject:guice:4.2.2")
     implementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     implementation("junit:junit:${Versions.junit}")
-    runtimeOnly("org.slf4j:slf4j-api:1.7.30")
+    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
-    testImplementation("org.apache.commons:commons-lang3:3.8.1")
+    testImplementation("org.apache.commons:commons-lang3")
 }
 
 description = "pinpoint-profiler-test"

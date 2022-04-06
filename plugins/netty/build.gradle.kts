@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("io.netty:netty-all:4.1.63.Final")
+    compileOnly("io.netty:netty-all")
 }
 
 description = "pinpoint-netty-plugin"

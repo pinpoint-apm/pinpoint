@@ -15,7 +15,7 @@ dependencies {
     testImplementation(project(":pinpoint-test"))
     testImplementation("org.springframework:spring-test:${Versions.spring}")
     testImplementation("org.springframework:spring-context")
-    testImplementation("commons-io:commons-io:2.6")
+    testImplementation("commons-io:commons-io")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
 }

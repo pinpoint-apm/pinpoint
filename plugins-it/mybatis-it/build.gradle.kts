@@ -11,8 +11,8 @@ plugins {
 dependencies {
     implementation("org.springframework:spring-beans")
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("org.mybatis:mybatis:3.5.7")
-    testImplementation("org.mybatis:mybatis-spring:2.0.6")
+    testImplementation("org.mybatis:mybatis")
+    testImplementation("org.mybatis:mybatis-spring")
 }
 
 description = "pinpoint-mybatis-plugin-it"

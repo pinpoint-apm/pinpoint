@@ -10,11 +10,11 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("org.codehaus.jackson:jackson-core-asl:1.9.13")
-    testImplementation("org.codehaus.jackson:jackson-mapper-asl:1.9.13")
-    testImplementation("com.fasterxml.jackson.core:jackson-core:2.12.5")
-    testImplementation("com.fasterxml.jackson.core:jackson-annotations:2.12.5")
-    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+    testImplementation("org.codehaus.jackson:jackson-core-asl")
+    testImplementation("org.codehaus.jackson:jackson-mapper-asl")
+    testImplementation("com.fasterxml.jackson.core:jackson-core")
+    testImplementation("com.fasterxml.jackson.core:jackson-annotations")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind")
 }
 
 description = "pinpoint-jdk-http-plugin-it"
