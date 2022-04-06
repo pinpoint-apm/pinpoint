@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository("sampledLoadedClassDaoV2")
 public class HbaseSampledLoadedClassDaoV2
-        extends AbstractSampledAgentStatDao<LoadedClassBo, SampledLoadedClassCount> implements SampledLoadedClassCountDao {
+        extends DefaultSampledAgentStatDao<LoadedClassBo, SampledLoadedClassCount> implements SampledLoadedClassCountDao {
 
     public HbaseSampledLoadedClassDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                         AgentStatDecoder<LoadedClassBo> decoder,

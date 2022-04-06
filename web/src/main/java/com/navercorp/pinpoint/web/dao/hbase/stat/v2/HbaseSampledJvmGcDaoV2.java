@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledJvmGcDaoV2")
 public class HbaseSampledJvmGcDaoV2
-        extends AbstractSampledAgentStatDao<JvmGcBo, SampledJvmGc> implements SampledJvmGcDao {
+        extends DefaultSampledAgentStatDao<JvmGcBo, SampledJvmGc> implements SampledJvmGcDao {
 
     public HbaseSampledJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                   AgentStatDecoder<JvmGcBo> decoder,

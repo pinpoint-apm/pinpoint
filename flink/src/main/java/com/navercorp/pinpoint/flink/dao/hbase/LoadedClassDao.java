@@ -29,10 +29,10 @@ public class LoadedClassDao extends DefaultApplicationMetricDao<JoinLoadedClassB
 
     public LoadedClassDao(ApplicationStatSerializer<JoinLoadedClassBo> serializer,
                           HbaseTemplate2 hbaseTemplate2,
-                          ApplicationStatHbaseOperationFactory operationFactory,
+                          ApplicationStatHbaseOperationFactory operations,
                           TableNameProvider tableNameProvider) {
         super(StatType.APP_LOADED_CLASS, JoinApplicationStatBo::getJoinLoadedClassBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
-                hbaseTemplate2, operationFactory, tableNameProvider);
+                hbaseTemplate2, operations, tableNameProvider);
     }
 
 }

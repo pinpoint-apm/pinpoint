@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.dao.hbase.appmetric;
 
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class DefaultAgentMetricDao<IN extends JoinStatBo, OUT extends AggregationStatData> implements ApplicationMetricDao<OUT> {
+public class DefaultApplicationMetricDao<IN extends JoinStatBo, OUT extends AggregationStatData> implements ApplicationMetricDao<OUT> {
 
     private final StatType statType;
     private final ApplicationStatDecoder<IN> decoder;
@@ -42,10 +42,10 @@ public class DefaultAgentMetricDao<IN extends JoinStatBo, OUT extends Aggregatio
 
     private final HbaseApplicationStatDaoOperations operations;
 
-    public DefaultAgentMetricDao(StatType statType,
-                                 ApplicationStatDecoder<IN> decoder,
-                                 ApplicationStatSampler<IN, OUT> sampler,
-                                 HbaseApplicationStatDaoOperations operations) {
+    public DefaultApplicationMetricDao(StatType statType,
+                                       ApplicationStatDecoder<IN> decoder,
+                                       ApplicationStatSampler<IN, OUT> sampler,
+                                       HbaseApplicationStatDaoOperations operations) {
         this.statType = Objects.requireNonNull(statType, "statType");
         this.decoder = Objects.requireNonNull(decoder, "decoder");
         this.sampler = Objects.requireNonNull(sampler, "sampler");
@@ -54,6 +54,9 @@ public class DefaultAgentMetricDao<IN extends JoinStatBo, OUT extends Aggregatio
 
     @Override
     public List<OUT> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
+        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         Range range = timeWindow.getWindowSlotRange();
 
         RowMapper<List<IN>> mapper = operations.createRowMapper(decoder, range);

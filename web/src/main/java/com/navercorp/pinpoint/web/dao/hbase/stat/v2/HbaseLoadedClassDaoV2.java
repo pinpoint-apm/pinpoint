@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.dao.stat.LoadedClassCountDao;
 import org.springframework.stereotype.Repository;
 
 @Repository("loadedClassDaoV2")
-public class HbaseLoadedClassDaoV2 extends AbstractAgentStatDao<LoadedClassBo> implements LoadedClassCountDao {
+public class HbaseLoadedClassDaoV2 extends DefaultAgentStatDao<LoadedClassBo> implements LoadedClassCountDao {
 
     public HbaseLoadedClassDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<LoadedClassBo> decoder) {
         super(AgentStatType.LOADED_CLASS, operations, decoder);

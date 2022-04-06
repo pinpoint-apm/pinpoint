@@ -37,7 +37,7 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Repository
-public class HbaseDataSourceListDao extends AbstractHBaseDao<DataSourceListBo> {
+public class HbaseDataSourceListDao extends DefaultAgentStatDao<DataSourceListBo> {
 
     public HbaseDataSourceListDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

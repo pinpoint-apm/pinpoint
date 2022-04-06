@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseCpuLoadDao extends AbstractHBaseDao<CpuLoadBo> {
+public class HbaseCpuLoadDao extends DefaultAgentStatDao<CpuLoadBo> {
 
     public HbaseCpuLoadDao(HbaseOperations2 hbaseTemplate,
                            TableNameProvider tableNameProvider,

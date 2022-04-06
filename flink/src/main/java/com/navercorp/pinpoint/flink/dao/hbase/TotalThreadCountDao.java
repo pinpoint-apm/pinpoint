@@ -29,10 +29,10 @@ public class TotalThreadCountDao extends DefaultApplicationMetricDao<JoinTotalTh
 
     public TotalThreadCountDao(ApplicationStatSerializer<JoinTotalThreadCountBo> serializer,
                                HbaseTemplate2 hbaseTemplate2,
-                               ApplicationStatHbaseOperationFactory operationFactory,
+                               ApplicationStatHbaseOperationFactory operations,
                                TableNameProvider tableNameProvider) {
         super(StatType.APP_TOTAL_THREAD_COUNT, JoinApplicationStatBo::getJoinTotalThreadCountBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
-                hbaseTemplate2, operationFactory, tableNameProvider);
+                hbaseTemplate2, operations, tableNameProvider);
     }
 
 

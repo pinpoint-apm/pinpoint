@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseJvmGcDetailedDao extends AbstractHBaseDao<JvmGcDetailedBo> {
+public class HbaseJvmGcDetailedDao extends DefaultAgentStatDao<JvmGcDetailedBo> {
 
     public HbaseJvmGcDetailedDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

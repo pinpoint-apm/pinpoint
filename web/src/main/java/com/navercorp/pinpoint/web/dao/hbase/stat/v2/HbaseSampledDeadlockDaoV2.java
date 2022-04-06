@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("sampledDeadlockDaoV2")
 public class HbaseSampledDeadlockDaoV2
-        extends AbstractSampledAgentStatDao<DeadlockThreadCountBo, SampledDeadlock> implements SampledDeadlockDao {
+        extends DefaultSampledAgentStatDao<DeadlockThreadCountBo, SampledDeadlock> implements SampledDeadlockDao {
 
     public HbaseSampledDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations,
                                      AgentStatDecoder<DeadlockThreadCountBo> decoder,

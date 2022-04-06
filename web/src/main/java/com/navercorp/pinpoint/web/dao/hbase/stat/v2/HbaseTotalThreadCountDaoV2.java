@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.dao.stat.TotalThreadCountDao;
 import org.springframework.stereotype.Repository;
 
 @Repository("totalThreadCountDaoV2")
-public class HbaseTotalThreadCountDaoV2 extends AbstractAgentStatDao<TotalThreadCountBo> implements TotalThreadCountDao {
+public class HbaseTotalThreadCountDaoV2 extends DefaultAgentStatDao<TotalThreadCountBo> implements TotalThreadCountDao {
 
     public HbaseTotalThreadCountDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<TotalThreadCountBo> decoder) {
         super(AgentStatType.TOTAL_THREAD, operations, decoder);

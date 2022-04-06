@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository("activeTraceDaoV2")
-public class HbaseActiveTraceDaoV2 extends AbstractAgentStatDao<ActiveTraceBo> implements ActiveTraceDao {
+public class HbaseActiveTraceDaoV2 extends DefaultAgentStatDao<ActiveTraceBo> implements ActiveTraceDao {
 
     public HbaseActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<ActiveTraceBo> decoder) {
         super(AgentStatType.ACTIVE_TRACE, operations, decoder);

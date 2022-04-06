@@ -18,32 +18,32 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class AbstractHBaseDao<T extends AgentStatDataPoint> implements AgentStatDaoV2<T> {
+public abstract class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentStatDaoV2<T> {
 
     private final AgentStatType agentStatType;
     private final HbaseTable tableName;
     private final Function<AgentStatBo, List<T>> dataPointFunction;
     private final HbaseOperations2 hbaseTemplate;
     private final TableNameProvider tableNameProvider;
-    private final AgentStatHbaseOperationFactory operationFactory;
+    private final AgentStatHbaseOperationFactory operations;
     private final AgentStatSerializer<T> serializer;
 
     protected Function<List<T>, List<T>> preprocessor = Function.identity();
 
-    public AbstractHBaseDao(AgentStatType agentStatType,
-                            HbaseTable tableName,
-                            Function<AgentStatBo, List<T>> dataPointFunction,
-                            HbaseOperations2 hbaseTemplate,
-                            TableNameProvider tableNameProvider,
-                            AgentStatHbaseOperationFactory operationFactory,
-                            AgentStatSerializer<T> serializer) {
+    public DefaultAgentStatDao(AgentStatType agentStatType,
+                               HbaseTable tableName,
+                               Function<AgentStatBo, List<T>> dataPointFunction,
+                               HbaseOperations2 hbaseTemplate,
+                               TableNameProvider tableNameProvider,
+                               AgentStatHbaseOperationFactory operations,
+                               AgentStatSerializer<T> serializer) {
         this.agentStatType = Objects.requireNonNull(agentStatType, "agentStatType");
         this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.dataPointFunction = Objects.requireNonNull(dataPointFunction, "dataPointFunction");
 
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
+        this.operations = Objects.requireNonNull(operations, "operations");
         this.serializer = Objects.requireNonNull(serializer, "serializer");
     }
 
@@ -62,19 +62,17 @@ public abstract class AbstractHBaseDao<T extends AgentStatDataPoint> implements 
         }
 
         dataPoints = preprocessor.apply(dataPoints);
-        List<Put> puts = this.operationFactory.createPuts(agentId, agentStatType, dataPoints, this.serializer);
+        List<Put> puts = this.operations.createPuts(agentId, agentStatType, dataPoints, this.serializer);
         if (!puts.isEmpty()) {
             TableName tableName = tableNameProvider.getTableName(this.tableName);
             this.hbaseTemplate.asyncPut(tableName, puts);
         }
     }
 
-    protected List<T> preprocess(List<T> dataPoints) {
-        return dataPoints;
-    }
-
     @Override
     public void dispatch(AgentStatBo agentStatBo) {
+        Objects.requireNonNull(agentStatBo, "agentStatBo");
+
         List<T> dataPoints = this.dataPointFunction.apply(agentStatBo);
         insert(agentStatBo.getAgentId(), dataPoints);
     }

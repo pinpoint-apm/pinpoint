@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository("cpuLoadDaoV2")
-public class HbaseCpuLoadDaoV2 extends AbstractAgentStatDao<CpuLoadBo> implements CpuLoadDao {
+public class HbaseCpuLoadDaoV2 extends DefaultAgentStatDao<CpuLoadBo> implements CpuLoadDao {
     public HbaseCpuLoadDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<CpuLoadBo> decoder) {
         super(AgentStatType.CPU_LOAD, operations, decoder);
     }

@@ -31,10 +31,10 @@ public class DirectBufferDao extends DefaultApplicationMetricDao<JoinDirectBuffe
 
     public DirectBufferDao(ApplicationStatSerializer<JoinDirectBufferBo> serializer,
                            HbaseTemplate2 hbaseTemplate2,
-                           ApplicationStatHbaseOperationFactory operationFactory,
+                           ApplicationStatHbaseOperationFactory operations,
                            TableNameProvider tableNameProvider) {
         super(StatType.APP_DIRECT_BUFFER, JoinApplicationStatBo::getJoinDirectBufferBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
-                hbaseTemplate2, operationFactory, tableNameProvider);
+                hbaseTemplate2, operations, tableNameProvider);
     }
 
 }

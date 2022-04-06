@@ -31,10 +31,10 @@ public class CpuLoadDao extends DefaultApplicationMetricDao<JoinCpuLoadBo> {
 
     public CpuLoadDao(ApplicationStatSerializer<JoinCpuLoadBo> serializer,
                       HbaseTemplate2 hbaseTemplate2,
-                      ApplicationStatHbaseOperationFactory operationFactory,
+                      ApplicationStatHbaseOperationFactory operations,
                       TableNameProvider tableNameProvider) {
         super(StatType.APP_CPU_LOAD, JoinApplicationStatBo::getJoinCpuLoadBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
-                hbaseTemplate2, operationFactory, tableNameProvider);
+                hbaseTemplate2, operations, tableNameProvider);
     }
 
 }

@@ -31,10 +31,10 @@ public class MemoryDao extends DefaultApplicationMetricDao<JoinMemoryBo> {
 
     public MemoryDao(ApplicationStatSerializer<JoinMemoryBo> serializer,
                      HbaseTemplate2 hbaseTemplate2,
-                     ApplicationStatHbaseOperationFactory operationFactory,
+                     ApplicationStatHbaseOperationFactory operations,
                      TableNameProvider tableNameProvider) {
         super(StatType.APP_MEMORY_USED, JoinApplicationStatBo::getJoinMemoryBoList, serializer, HbaseTable.APPLICATION_STAT_AGGRE,
-                hbaseTemplate2, operationFactory, tableNameProvider);
+                hbaseTemplate2, operations, tableNameProvider);
     }
 
 }

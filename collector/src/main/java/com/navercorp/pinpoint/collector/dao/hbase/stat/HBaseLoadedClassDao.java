@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class HBaseLoadedClassDao extends AbstractHBaseDao<LoadedClassBo> {
+public class HBaseLoadedClassDao extends DefaultAgentStatDao<LoadedClassBo> {
 
     public HBaseLoadedClassDao(HbaseOperations2 hbaseTemplate,
                                TableNameProvider tableNameProvider,

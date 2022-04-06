@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * @author Taejin Koo
  */
 @Repository("deadlockDaoV2")
-public class HbaseDeadlockDaoV2 extends AbstractAgentStatDao<DeadlockThreadCountBo> implements DeadlockDao {
+public class HbaseDeadlockDaoV2 extends DefaultAgentStatDao<DeadlockThreadCountBo> implements DeadlockDao {
 
     public HbaseDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations, AgentStatDecoder<DeadlockThreadCountBo> decoder) {
         super(AgentStatType.DEADLOCK, operations, decoder);

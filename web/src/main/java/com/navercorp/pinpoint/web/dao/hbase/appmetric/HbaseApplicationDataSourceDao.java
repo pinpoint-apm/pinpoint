@@ -19,8 +19,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationDataSourceDao;
-import com.navercorp.pinpoint.web.dao.hbase.DefaultAgentMetricDao;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationStatDaoOperations;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
 import org.springframework.stereotype.Repository;
@@ -30,7 +28,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class HbaseApplicationDataSourceDao
-        extends DefaultAgentMetricDao<JoinDataSourceListBo, AggreJoinDataSourceListBo>
+        extends DefaultApplicationMetricDao<JoinDataSourceListBo, AggreJoinDataSourceListBo>
         implements ApplicationDataSourceDao {
 
     public HbaseApplicationDataSourceDao(ApplicationStatDecoder<JoinDataSourceListBo> decoder,
