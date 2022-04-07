@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author minwoo.jung
  */
 @Service
+@MetricName("appmetric.responseTime")
 public class ApplicationResponseTimeService extends DefaultApplicationStatChartService<AggreJoinResponseTimeBo> {
 
     public ApplicationResponseTimeService(ApplicationResponseTimeDao metricDao) {

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author minwoo.jung
  */
 @Service
+@MetricName("appmetric.activeTrace")
 public class ApplicationActiveTraceService extends DefaultApplicationStatChartService<AggreJoinActiveTraceBo> {
 
     public ApplicationActiveTraceService(ApplicationMetricDao<AggreJoinActiveTraceBo> metricDao) {

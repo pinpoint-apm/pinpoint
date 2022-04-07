@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationTotalThre
 import org.springframework.stereotype.Service;
 
 @Service
+@MetricName("appmetric.totalThreadCount")
 public class ApplicationTotalThreadCountService extends DefaultApplicationStatChartService<AggreJoinTotalThreadCountBo> {
 
     public ApplicationTotalThreadCountService(ApplicationMetricDao<AggreJoinTotalThreadCountBo> metricDao) {
