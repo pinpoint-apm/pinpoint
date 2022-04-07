@@ -16,33 +16,18 @@
 package com.navercorp.pinpoint.web.service.appmetric;
 
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationMemoryChart;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service
-public class ApplicationMemoryService implements ApplicationStatChartService {
-
-    private final ApplicationMetricDao<AggreJoinMemoryBo> metricDao;
+public class ApplicationMemoryService extends DefaultApplicationStatChartService<AggreJoinMemoryBo> {
 
     public ApplicationMemoryService(ApplicationMetricDao<AggreJoinMemoryBo> metricDao) {
-        this.metricDao = Objects.requireNonNull(metricDao, "metricDao");
+        super(metricDao, ApplicationMemoryChart::new);
     }
 
-    @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        Objects.requireNonNull(applicationId, "applicationId");
-        Objects.requireNonNull(timeWindow, "timeWindow");
-
-        List<AggreJoinMemoryBo> aggreJoinMemoryBoList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationMemoryChart(timeWindow, aggreJoinMemoryBoList);
-    }
 }

@@ -16,32 +16,15 @@
 package com.navercorp.pinpoint.web.service.appmetric;
 
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinLoadedClassBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationLoadedClassChart;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-
 @Service
-public class ApplicationLoadedClassService implements ApplicationStatChartService {
-
-    private final ApplicationMetricDao<AggreJoinLoadedClassBo> metricDao;
+public class ApplicationLoadedClassService extends DefaultApplicationStatChartService<AggreJoinLoadedClassBo> {
 
     public ApplicationLoadedClassService(ApplicationMetricDao<AggreJoinLoadedClassBo> metricDao) {
-        this.metricDao = Objects.requireNonNull(metricDao, "metricDao");
+        super(metricDao, ApplicationLoadedClassChart::new);
     }
 
-
-    @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        Objects.requireNonNull(applicationId, "applicationId");
-        Objects.requireNonNull(timeWindow, "timeWindow");
-
-        List<AggreJoinLoadedClassBo> aggreJoinLoadedClassCountBoList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
-
-        return new ApplicationLoadedClassChart(timeWindow, aggreJoinLoadedClassCountBoList);
-    }
 }
