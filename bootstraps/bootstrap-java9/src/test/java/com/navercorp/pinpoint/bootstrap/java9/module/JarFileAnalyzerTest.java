@@ -19,16 +19,15 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 import com.navercorp.pinpoint.bootstrap.module.Providers;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -43,20 +42,7 @@ import static org.mockito.Mockito.when;
 public class JarFileAnalyzerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Set<String> COMMONS_IO_PACKAGE = getCommonsLangPackage();
-
-    private Set<String> getCommonsLangPackage() {
-        String packagePrefix = "org.apache.commons.io";
-        Set<String> set = new HashSet<>();
-        set.add(packagePrefix);
-        set.add(packagePrefix + ".comparator");
-        set.add(packagePrefix + ".filefilter");
-        set.add(packagePrefix + ".input");
-        set.add(packagePrefix + ".monitor");
-        set.add(packagePrefix + ".output");
-        set.add(packagePrefix + ".serialization");
-        return set;
-    }
+    private static final String PACKAGE_PREFIX = "org.apache.commons.io.";
 
     @Test
     public void packageAnalyzer() throws IOException {
@@ -71,7 +57,21 @@ public class JarFileAnalyzerTest {
 
         logger.debug("package:{}", packageSet);
 
-        Assert.assertEquals(packageSet, COMMONS_IO_PACKAGE);
+        long packageCount = jarFile.stream()
+                .filter(this::packageFilter)
+                .count();
+
+        Assert.assertEquals(packageCount, packageSet.size());
+    }
+
+    private boolean packageFilter(JarEntry jarEntry) {
+        String directoryPrefix = PACKAGE_PREFIX.replace(".", "/");
+        if (jarEntry.isDirectory()) {
+            if (jarEntry.getName().startsWith(directoryPrefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Test
@@ -108,7 +108,7 @@ public class JarFileAnalyzerTest {
         PackageInfo analyze = analyzer.analyze();
         List<Providers> providers = analyze.getProviders();
         Providers first = providers.get(0);
-        Assert.assertEquals(first.getService(), "java.sql.Driver");
+        Assert.assertEquals("java.sql.Driver", first.getService());
         Assert.assertTrue(first.getProviders().contains("com.mysql.cj.jdbc.Driver"));
 
 
