@@ -16,34 +16,18 @@
 package com.navercorp.pinpoint.web.service.appmetric;
 
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationCpuLoadChart;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service
-public class ApplicationCpuLoadService implements ApplicationStatChartService {
-
-    private final ApplicationMetricDao<AggreJoinCpuLoadBo> metricDao;
+public class ApplicationCpuLoadService extends DefaultApplicationStatChartService<AggreJoinCpuLoadBo> {
 
     public ApplicationCpuLoadService(ApplicationMetricDao<AggreJoinCpuLoadBo> metricDao) {
-        this.metricDao = Objects.requireNonNull(metricDao, "metricDao");
+        super(metricDao, ApplicationCpuLoadChart::new);
     }
 
-
-    @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        Objects.requireNonNull(applicationId, "applicationId");
-        Objects.requireNonNull(timeWindow, "timeWindow");
-
-        List<AggreJoinCpuLoadBo> aggreJoinCpuLoadBoList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationCpuLoadChart(timeWindow, aggreJoinCpuLoadBoList);
-    }
 }

@@ -16,33 +16,18 @@
 package com.navercorp.pinpoint.web.service.appmetric;
 
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationActiveTraceChart;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service
-public class ApplicationActiveTraceService implements ApplicationStatChartService {
-
-    private final ApplicationMetricDao<AggreJoinActiveTraceBo> metricDao;
+public class ApplicationActiveTraceService extends DefaultApplicationStatChartService<AggreJoinActiveTraceBo> {
 
     public ApplicationActiveTraceService(ApplicationMetricDao<AggreJoinActiveTraceBo> metricDao) {
-        this.metricDao = Objects.requireNonNull(metricDao, "metricDao");
+        super(metricDao, ApplicationActiveTraceChart::new);
     }
 
-    @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        Objects.requireNonNull(applicationId, "applicationId");
-        Objects.requireNonNull(timeWindow, "timeWindow");
-
-        List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationActiveTraceChart(timeWindow, aggreJoinActiveTraceBoList);
-    }
 }

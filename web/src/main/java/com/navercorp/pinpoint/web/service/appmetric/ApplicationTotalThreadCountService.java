@@ -17,30 +17,15 @@
 package com.navercorp.pinpoint.web.service.appmetric;
 
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationTotalThreadCountChart;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-
 @Service
-public class ApplicationTotalThreadCountService implements ApplicationStatChartService {
-    private final ApplicationMetricDao<AggreJoinTotalThreadCountBo> metricDao;
+public class ApplicationTotalThreadCountService extends DefaultApplicationStatChartService<AggreJoinTotalThreadCountBo> {
 
-    public ApplicationTotalThreadCountService(ApplicationMetricDao<AggreJoinTotalThreadCountBo> applicationTotalThreadCountDao) {
-        this.metricDao = Objects.requireNonNull(applicationTotalThreadCountDao, "metricDao");
+    public ApplicationTotalThreadCountService(ApplicationMetricDao<AggreJoinTotalThreadCountBo> metricDao) {
+        super(metricDao, ApplicationTotalThreadCountChart::new);
     }
 
-    @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        Objects.requireNonNull(applicationId);
-        Objects.requireNonNull(timeWindow);
-
-        List<AggreJoinTotalThreadCountBo> aggreJoinTotalThreadCountBoList =
-                this.metricDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationTotalThreadCountChart(timeWindow, aggreJoinTotalThreadCountBoList);
-    }
 }

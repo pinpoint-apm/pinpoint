@@ -15,36 +15,19 @@
  */
 package com.navercorp.pinpoint.web.service.appmetric;
 
-import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
 import com.navercorp.pinpoint.web.dao.appmetric.ApplicationResponseTimeDao;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationResponseTimeChart;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @Service
-public class ApplicationResponseTimeService implements ApplicationStatChartService {
-
-    private final ApplicationMetricDao<AggreJoinResponseTimeBo> metricDao;
+public class ApplicationResponseTimeService extends DefaultApplicationStatChartService<AggreJoinResponseTimeBo> {
 
     public ApplicationResponseTimeService(ApplicationResponseTimeDao metricDao) {
-        this.metricDao = Objects.requireNonNull(metricDao, "metricDao");
+        super(metricDao, ApplicationResponseTimeChart::new);
     }
 
-    @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        Objects.requireNonNull(applicationId, "applicationId");
-        Objects.requireNonNull(timeWindow, "timeWindow");
-
-
-        List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
-        return new ApplicationResponseTimeChart(timeWindow, aggreJoinResponseTimeBoList);
-    }
 }
