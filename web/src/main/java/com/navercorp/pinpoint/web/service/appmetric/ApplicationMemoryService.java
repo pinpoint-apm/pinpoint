@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author minwoo.jung
  */
 @Service
+@MetricName("appmetric.memory")
 public class ApplicationMemoryService extends DefaultApplicationStatChartService<AggreJoinMemoryBo> {
 
     public ApplicationMemoryService(ApplicationMetricDao<AggreJoinMemoryBo> metricDao) {

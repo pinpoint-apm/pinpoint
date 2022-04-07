@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author Roy Kim
  */
 @Service
+@MetricName("appmetric.directBuffer")
 public class ApplicationDirectBufferService extends DefaultApplicationStatChartService<AggreJoinDirectBufferBo> {
 
     public ApplicationDirectBufferService(ApplicationMetricDao<AggreJoinDirectBufferBo> metricDao) {

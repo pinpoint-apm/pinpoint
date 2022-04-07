@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author minwoo.jung
  */
 @Service
+@MetricName("appmetric.transaction")
 public class ApplicationTransactionService extends DefaultApplicationStatChartService<AggreJoinTransactionBo> {
 
     public ApplicationTransactionService(ApplicationMetricDao<AggreJoinTransactionBo> metricDao) {

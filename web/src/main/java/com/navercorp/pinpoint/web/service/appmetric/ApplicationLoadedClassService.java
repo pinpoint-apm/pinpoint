@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationLoadedCla
 import org.springframework.stereotype.Service;
 
 @Service
+@MetricName("appmetric.loadedClass")
 public class ApplicationLoadedClassService extends DefaultApplicationStatChartService<AggreJoinLoadedClassBo> {
 
     public ApplicationLoadedClassService(ApplicationMetricDao<AggreJoinLoadedClassBo> metricDao) {

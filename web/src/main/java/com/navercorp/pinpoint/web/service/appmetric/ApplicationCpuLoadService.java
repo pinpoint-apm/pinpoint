@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author minwoo.jung
  */
 @Service
+@MetricName("appmetric.cpuLoad")
 public class ApplicationCpuLoadService extends DefaultApplicationStatChartService<AggreJoinCpuLoadBo> {
 
     public ApplicationCpuLoadService(ApplicationMetricDao<AggreJoinCpuLoadBo> metricDao) {

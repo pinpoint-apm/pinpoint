@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @author Roy Kim
  */
 @Service
+@MetricName("appmetric.fileDescriptor")
 public class ApplicationFileDescriptorService extends DefaultApplicationStatChartService<AggreJoinFileDescriptorBo> {
 
     public ApplicationFileDescriptorService(ApplicationMetricDao<AggreJoinFileDescriptorBo> metricDao) {
