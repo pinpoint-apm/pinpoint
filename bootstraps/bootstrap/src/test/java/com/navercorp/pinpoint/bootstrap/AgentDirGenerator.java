@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.common.Version;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -116,14 +115,17 @@ public class AgentDirGenerator {
 
     public void remove() throws IOException {
         File file = agentDirPath.toFile();
-        try {
-            FileUtils.deleteDirectory(file);
-        } catch (IOException e) {
-            logger.warn("unable to deleteDirectory. path:{}", file.getPath(), e);
-            // Boot directory is not deleted.
-            // Perhaps JarFile is not closed.
-            FileUtils.forceDeleteOnExit(file);
-        }
+        deleteDirectory(file);
     }
 
+    // https://www.baeldung.com/java-delete-directory
+    private boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
+    }
 }
