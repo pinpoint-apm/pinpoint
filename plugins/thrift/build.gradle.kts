@@ -14,7 +14,7 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.apache.thrift:libthrift:0.12.0")
+    compileOnly("org.apache.thrift:libthrift")
 }
 
 description = "pinpoint-thrift-plugin"

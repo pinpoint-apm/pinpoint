@@ -18,7 +18,7 @@ dependencies {
     implementation("org.springframework:spring-web")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework:spring-jdbc")
-    implementation("com.sun.mail:jakarta.mail:1.6.7")
+    implementation("com.sun.mail:jakarta.mail")
     implementation("org.springframework.batch:spring-batch-core:4.3.3")
     implementation("com.zaxxer:HikariCP")
     implementation("org.mybatis:mybatis")

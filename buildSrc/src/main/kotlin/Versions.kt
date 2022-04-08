@@ -19,4 +19,5 @@ object Versions {
     const val codehausJackson = "1.9.13"
     const val slf4j = "1.7.30"
     const val log4jv1 = "1.2.17"
+    const val asm = "9.2"
 }

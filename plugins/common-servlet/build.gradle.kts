@@ -11,7 +11,7 @@ plugins {
 dependencies {
     compileOnly(project(":pinpoint-commons"))
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("javax.servlet:javax.servlet-api:3.0.1")
+    compileOnly("javax.servlet:javax.servlet-api")
 }
 
 description = "pinpoint-common-servlet"

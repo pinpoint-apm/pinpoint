@@ -13,7 +13,7 @@ dependencies {
     api(project(":pinpoint-annotations"))
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-profiler"))
-    implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("org.apache.commons:commons-collections4")
     implementation("org.codehaus.jackson:jackson-core-asl")
     implementation("org.springframework:spring-core")
     implementation("org.springframework:spring-tx")
