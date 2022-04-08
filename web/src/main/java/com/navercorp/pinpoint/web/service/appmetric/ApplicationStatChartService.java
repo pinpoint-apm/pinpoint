@@ -15,14 +15,15 @@
  */
 package com.navercorp.pinpoint.web.service.appmetric;
 
+import com.navercorp.pinpoint.web.service.stat.ChartTypeSupport;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import org.springframework.stereotype.Service;
 
 /**
  * @author minwoo.jung
  */
-public interface ApplicationStatChartService {
-    String APP_METRIC_PREFIX = "appmetric.";
-
-    StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow);
+@Service
+public interface ApplicationStatChartService<OUT extends StatChart> extends ChartTypeSupport {
+    OUT selectApplicationChart(String applicationId, TimeWindow timeWindow);
 }

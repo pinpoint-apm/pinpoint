@@ -22,57 +22,59 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
  * @author minwoo.jung
  */
 public enum StatType {
-    UNKNOWN(0, "Unknown"),
+    UNKNOWN(0, "Unknown", null),
 
-    APP_STST(1, "Application stat"),
-    APP_CPU_LOAD(2, "Application Cpu Usage"),
-    APP_MEMORY_USED(3, "Application Memory Usage"),
-    APP_TRANSACTION_COUNT(4, "Application Transaction Count"),
-    APP_ACTIVE_TRACE_COUNT(5, "Application Active trace Count"),
-    APP_RESPONSE_TIME(6, "Application Response Time"),
-    APP_DATA_SOURCE(7, "Application data Source"),
-    APP_FILE_DESCRIPTOR(8, "Application File Descriptor Count"),
-    APP_DIRECT_BUFFER(9, "Application Direct Buffer"),
-    APP_TOTAL_THREAD_COUNT(10, "Application Total Thread Count"),
-    APP_LOADED_CLASS(11, "Application Loaded Class"),
+    APP_STST(1, "Application stat", null),
+    APP_CPU_LOAD(2, "Application Cpu Usage", "cpuLoad"),
+    APP_MEMORY_USED(3, "Application Memory Usage", "memory"),
+    APP_TRANSACTION_COUNT(4, "Application Transaction Count", "transaction"),
+    APP_ACTIVE_TRACE_COUNT(5, "Application Active trace Count", "activeTrace"),
+    APP_RESPONSE_TIME(6, "Application Response Time", "responseTime"),
+    APP_DATA_SOURCE(7, "Application data Source", "dataSource"),
+    APP_FILE_DESCRIPTOR(8, "Application File Descriptor Count", "fileDescriptor"),
+    APP_DIRECT_BUFFER(9, "Application Direct Buffer", "directBuffer"),
+    APP_TOTAL_THREAD_COUNT(10, "Application Total Thread Count", "totalThreadCount"),
+    APP_LOADED_CLASS(11, "Application Loaded Class", "loadedClass"),
 
-    APP_STST_AGGRE(51, "Application stst aggregation"),
-    APP_CPU_LOAD_AGGRE(52, "Application Cpu Usage aggregation"),
-    APP_MEMORY_USED_AGGRE(53, "Application Memory Usage aggregation"),
-    APP_TRANSACTION_COUNT_AGGRE(54, "Application Transaction count aggregation"),
-    APP_ACTIVE_TRACE_COUNT_AGGRE(55, "Application Active trace count aggregation"),
-    APP_RESPONSE_TIME_AGGRE(56, "Application Response Time aggregation"),
-    APP_DATA_SOURCE_AGGRE(57, "Application Data Source aggregation"),
-    APP_FILE_DESCRIPTOR_AGGRE(58, "Application File Descriptor count aggregation"),
-    APP_DIRECT_BUFFER_AGGRE(59, "Application Direct Buffer aggregation"),
-    APP_TOTAL_THREAD_COUNT_AGGRE(60, "Application Total Thread count aggregation"),
-    APP_LOADED_CLASS_AGGRE(61, "Application Loaded Class aggregation"),
+    APP_STST_AGGRE(51, "Application stst aggregation", null),
+    APP_CPU_LOAD_AGGRE(52, "Application Cpu Usage aggregation", "cpuLoad"),
+    APP_MEMORY_USED_AGGRE(53, "Application Memory Usage aggregation", "memory"),
+    APP_TRANSACTION_COUNT_AGGRE(54, "Application Transaction count aggregation", "transaction"),
+    APP_ACTIVE_TRACE_COUNT_AGGRE(55, "Application Active trace count aggregation", "activeTrace"),
+    APP_RESPONSE_TIME_AGGRE(56, "Application Response Time aggregation", "responseTime"),
+    APP_DATA_SOURCE_AGGRE(57, "Application Data Source aggregation", "dataSource"),
+    APP_FILE_DESCRIPTOR_AGGRE(58, "Application File Descriptor count aggregation", "fileDescriptor"),
+    APP_DIRECT_BUFFER_AGGRE(59, "Application Direct Buffer aggregation", "directBuffer"),
+    APP_TOTAL_THREAD_COUNT_AGGRE(60, "Application Total Thread count aggregation", "totalThreadCount"),
+    APP_LOADED_CLASS_AGGRE(61, "Application Loaded Class aggregation", "loadedClass"),
 
-    AGENT_STST_AGGRE(101, "Agent stst aggregation"),
-    AGENT_CPU_LOAD_AGGRE(102, "Agent Cpu Usage aggregation"),
-    AGENT_MEMORY_USED_AGGRE(103, "Agent Memory Usage aggregation"),
-    AGENT_TRANSACTION_COUNT_AGGRE(104, "Agent Transaction count aggregation"),
-    AGENT_ACTIVE_TRACE_COUNT_AGGRE(105, "Agent Active trace count aggregation"),
-    AGENT_RESPONSE_TIME_AGGRE(106, "Agent response time aggregation"),
-    AGENT_DATA_SOURCE_AGGRE(107, "Agent data source aggregation"),
-    AGENT_FILE_DESCRIPTOR_AGGRE(108, "Agent File Descriptor count aggregation"),
-    AGENT_DIRECT_BUFFER_AGGRE(109, "Agent Direct Buffer aggregation"),
-    AGENT_TOTAL_THREAD_AGGRE(110, "Agent Total Thread count aggregation"),
-    AGENT_LOADED_CLASS_AGGRE(111, "Agent Loaded Class aggregation");
+    AGENT_STST_AGGRE(101, "Agent stst aggregation", null),
+    AGENT_CPU_LOAD_AGGRE(102, "Agent Cpu Usage aggregation", "cpuLoad"),
+    AGENT_MEMORY_USED_AGGRE(103, "Agent Memory Usage aggregation", "memory"),
+    AGENT_TRANSACTION_COUNT_AGGRE(104, "Agent Transaction count aggregation", "transaction"),
+    AGENT_ACTIVE_TRACE_COUNT_AGGRE(105, "Agent Active trace count aggregation", "activeTrace"),
+    AGENT_RESPONSE_TIME_AGGRE(106, "Agent response time aggregation", "responseTime"),
+    AGENT_DATA_SOURCE_AGGRE(107, "Agent data source aggregation", "dataSource"),
+    AGENT_FILE_DESCRIPTOR_AGGRE(108, "Agent File Descriptor count aggregation", "fileDescriptor"),
+    AGENT_DIRECT_BUFFER_AGGRE(109, "Agent Direct Buffer aggregation", "directBuffer"),
+    AGENT_TOTAL_THREAD_AGGRE(110, "Agent Total Thread count aggregation", "totalThreadCount"),
+    AGENT_LOADED_CLASS_AGGRE(111, "Agent Loaded Class aggregation", "loadedClass");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 
     private final byte typeCode;
     private final String name;
+    private final String chartType;
 
     private static final IntHashMap<StatType> STAT_TYPE_MAP = toStatTypeMap();
 
-    StatType(int typeCode, String name) {
+    StatType(int typeCode, String name, String chartType) {
         if (typeCode < 0 || typeCode > 255) {
             throw new IllegalArgumentException("type code out of range (0~255)");
         }
         this.typeCode = (byte) (typeCode & 0xFF);
         this.name = name;
+        this.chartType = chartType;
     }
 
     public int getTypeCode() {
@@ -85,6 +87,10 @@ public enum StatType {
 
     public String getName() {
         return name;
+    }
+
+    public String getChartType() {
+        return chartType;
     }
 
     @Override

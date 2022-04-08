@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.web;
 
-import com.fasterxml.jackson.core.type.ResolvedType;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentWarningStatDataPoint;
 import com.navercorp.pinpoint.web.authorization.controller.AdminController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentCommandController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentInfoController;
@@ -27,7 +25,6 @@ import com.navercorp.pinpoint.web.authorization.controller.AgentStatController;
 import com.navercorp.pinpoint.web.authorization.controller.AlarmController;
 import com.navercorp.pinpoint.web.authorization.controller.ApplicationDataSourceController;
 import com.navercorp.pinpoint.web.authorization.controller.ApplicationStatController;
-import com.navercorp.pinpoint.web.authorization.controller.ApplicationStatDispatchController;
 import com.navercorp.pinpoint.web.authorization.controller.HeatMapController;
 import com.navercorp.pinpoint.web.authorization.controller.ScatterChartController;
 import com.navercorp.pinpoint.web.authorization.controller.UserController;
@@ -49,14 +46,11 @@ import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ResolvableType;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -107,8 +101,8 @@ public class AuthorizationConfig {
     }
 
     @Bean
-    public ApplicationStatController getApplicationStatControllerV2(List<ApplicationStatChartService> list) {
-        return new ApplicationStatDispatchController(list);
+    public ApplicationStatController getApplicationStatControllerV2(List<ApplicationStatChartService<? extends StatChart>> list) {
+        return new ApplicationStatController(list);
     }
 
 

@@ -64,4 +64,8 @@ public class DefaultApplicationMetricDao<IN extends JoinStatBo, OUT extends Aggr
         return operations.getSampledStatList(statType, resultExtractor, applicationId, range);
     }
 
+    @Override
+    public String getChartType() {
+        return this.statType.getChartType();
+    }
 }
