@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
@@ -45,18 +46,24 @@ public class HeapUsageRateCheckerTest {
     private static final String SERVICE_TYPE = "tomcat";
 
     private static ApplicationIndexDao applicationIndexDao;
-    
+
     private static AgentStatDao<JvmGcBo> jvmGcDao;
 
     private static AgentStatDao<CpuLoadBo> cpuLoadDao;
-    
+
     @BeforeClass
-    public static void before() {jvmGcDao = new AgentStatDao<JvmGcBo>() {
+    public static void before() {
+        jvmGcDao = new AgentStatDao<>() {
+
+            @Override
+            public String getChartType() {
+                return AgentStatType.JVM_GC.getChartType();
+            }
 
             @Override
             public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
                 List<JvmGcBo> jvmGcs = new LinkedList<>();
-                
+
                 for (int i = 0; i < 36; i++) {
                     JvmGcBo jvmGcBo = new JvmGcBo();
                     jvmGcBo.setHeapUsed(70L);
@@ -64,7 +71,7 @@ public class HeapUsageRateCheckerTest {
 
                     jvmGcs.add(jvmGcBo);
                 }
-                
+
                 return jvmGcs;
             }
 
@@ -74,7 +81,12 @@ public class HeapUsageRateCheckerTest {
             }
         };
 
-        cpuLoadDao = new AgentStatDao<CpuLoadBo>() {
+        cpuLoadDao = new AgentStatDao<>() {
+
+            @Override
+            public String getChartType() {
+                return AgentStatType.CPU_LOAD.getChartType();
+            }
 
             @Override
             public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
@@ -106,7 +118,7 @@ public class HeapUsageRateCheckerTest {
                     agentIds.add("local_tomcat");
                     return agentIds;
                 }
-                
+
                 throw new IllegalArgumentException();
             }
 
@@ -124,40 +136,40 @@ public class HeapUsageRateCheckerTest {
             public void deleteAgentId(String applicationName, String agentId) {
                 throw new UnsupportedOperationException();
             }
-            
+
         };
     }
 
-    
+
     @Test
     public void checkTest1() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 70, "testGroup", false, false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new HeapUsageRateChecker(collector, rule);
-        
+
         checker.check();
         assertTrue(checker.isDetected());
     }
-    
+
     @Test
     public void checkTest2() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 71, "testGroup", false, false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new HeapUsageRateChecker(collector, rule);
-        
+
         checker.check();
         assertFalse(checker.isDetected());
     }
 
-    
+
 //    @Autowired
 //    private HbaseAgentStatDao hbaseAgentStatDao ;
-    
+
 //    @Autowired
 //    private HbaseApplicationIndexDao applicationIndexDao;
-    
+
 //    @Test
 //    public void checkTest1() {
 //        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.HEAP_USAGE_RATE.getName(), 60, "testGroup", false, false);

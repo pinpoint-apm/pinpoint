@@ -47,7 +47,6 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -90,7 +89,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
-                                AgentDownloadInfoDao agentDownloadInfoDao, @Qualifier("jvmGcDaoFactory") AgentStatDao<JvmGcBo> jvmGcDao) {
+                                AgentDownloadInfoDao agentDownloadInfoDao,
+                                AgentStatDao<JvmGcBo> jvmGcDao) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");

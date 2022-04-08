@@ -17,15 +17,35 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.springframework.stereotype.Service;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
+public class DefaultStatService<T extends AgentStatDataPoint> implements AgentStatService<T> {
 
-public interface AgentStatService<T extends AgentStatDataPoint> extends ChartTypeSupport {
-    List<T> selectAgentStatList(String agentId, Range range);
+    private final AgentStatDao<T> statDao;
+
+    public DefaultStatService(AgentStatDao<T> statDao) {
+        this.statDao = Objects.requireNonNull(statDao, "activeTraceDao");
+    }
+
+    @Override
+    public List<T> selectAgentStatList(String agentId, Range range) {
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
+        
+        return this.statDao.getAgentStatList(agentId, range);
+    }
+
+    @Override
+    public String getChartType() {
+        return this.statDao.getChartType();
+    }
+
 }

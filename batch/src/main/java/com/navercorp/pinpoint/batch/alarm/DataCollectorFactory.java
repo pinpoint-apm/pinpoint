@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataColle
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
@@ -33,9 +34,7 @@ import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -58,7 +57,7 @@ public class DataCollectorFactory {
 
     private final AgentStatDao<DataSourceListBo> dataSourceDao;
 
-    private final FileDescriptorDao fileDescriptorDao;
+    private final AgentStatDao<FileDescriptorBo> fileDescriptorDao;
 
     private final AgentEventDao agentEventDao;
 
@@ -67,10 +66,10 @@ public class DataCollectorFactory {
     private final HbaseMapStatisticsCallerDao mapStatisticsCallerDao;
 
     public DataCollectorFactory(HbaseMapResponseTimeDao hbaseMapResponseTimeDao,
-                                @Qualifier("jvmGcDaoFactory") AgentStatDao<JvmGcBo> jvmGcDao,
-                                @Qualifier("cpuLoadDaoFactory") AgentStatDao<CpuLoadBo> cpuLoadDao,
-                                @Qualifier("dataSourceDaoFactory") AgentStatDao<DataSourceListBo> dataSourceDao,
-                                @Qualifier("fileDescriptorDaoFactory") FileDescriptorDao fileDescriptorDao,
+                                AgentStatDao<JvmGcBo> jvmGcDao,
+                                AgentStatDao<CpuLoadBo> cpuLoadDao,
+                                AgentStatDao<DataSourceListBo> dataSourceDao,
+                                AgentStatDao<FileDescriptorBo> fileDescriptorDao,
                                 AgentEventDao agentEventDao,
                                 HbaseApplicationIndexDao hbaseApplicationIndexDao,
                                 HbaseMapStatisticsCallerDao mapStatisticsCallerDao) {

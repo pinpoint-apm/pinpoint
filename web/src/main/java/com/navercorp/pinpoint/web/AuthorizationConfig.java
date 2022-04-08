@@ -16,23 +16,14 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.fasterxml.jackson.core.type.ResolvedType;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentWarningStatDataPoint;
 import com.navercorp.pinpoint.web.authorization.controller.AdminController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentCommandController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentInfoController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.ActiveTraceController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.CpuLoadController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.DataSourceController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.DeadlockController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.DirectBufferController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.FileDescriptorController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.JvmGcController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.JvmGcDetailedController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.LoadedClassCountController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.ResponseTimeController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.TotalThreadCountController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.TransactionController;
-import com.navercorp.pinpoint.web.authorization.controller.AgentStatController.UriStatController;
+import com.navercorp.pinpoint.web.authorization.controller.AgentStatController;
 import com.navercorp.pinpoint.web.authorization.controller.AlarmController;
 import com.navercorp.pinpoint.web.authorization.controller.ApplicationDataSourceController;
 import com.navercorp.pinpoint.web.authorization.controller.ApplicationStatController;
@@ -56,36 +47,16 @@ import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.service.WebhookSendInfoService;
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService;
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
-import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
-import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
-import com.navercorp.pinpoint.web.service.stat.AgentUriStatChartService;
-import com.navercorp.pinpoint.web.service.stat.AgentUriStatService;
-import com.navercorp.pinpoint.web.service.stat.CpuLoadChartService;
-import com.navercorp.pinpoint.web.service.stat.CpuLoadService;
-import com.navercorp.pinpoint.web.service.stat.DataSourceChartService;
-import com.navercorp.pinpoint.web.service.stat.DataSourceService;
-import com.navercorp.pinpoint.web.service.stat.DeadlockChartService;
-import com.navercorp.pinpoint.web.service.stat.DeadlockService;
-import com.navercorp.pinpoint.web.service.stat.DirectBufferChartService;
-import com.navercorp.pinpoint.web.service.stat.DirectBufferService;
-import com.navercorp.pinpoint.web.service.stat.FileDescriptorChartService;
-import com.navercorp.pinpoint.web.service.stat.FileDescriptorService;
-import com.navercorp.pinpoint.web.service.stat.JvmGcChartService;
-import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedChartService;
-import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedService;
-import com.navercorp.pinpoint.web.service.stat.JvmGcService;
-import com.navercorp.pinpoint.web.service.stat.LoadedClassCountChartService;
-import com.navercorp.pinpoint.web.service.stat.LoadedClassCountService;
-import com.navercorp.pinpoint.web.service.stat.ResponseTimeChartService;
-import com.navercorp.pinpoint.web.service.stat.ResponseTimeService;
-import com.navercorp.pinpoint.web.service.stat.TotalThreadCountChartService;
-import com.navercorp.pinpoint.web.service.stat.TotalThreadCountService;
-import com.navercorp.pinpoint.web.service.stat.TransactionChartService;
-import com.navercorp.pinpoint.web.service.stat.TransactionService;
+import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
+import com.navercorp.pinpoint.web.service.stat.AgentStatService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ResolvableType;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author minwoo.jung
@@ -102,70 +73,12 @@ public class AuthorizationConfig {
     public AgentInfoController createAgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
         return new AgentInfoController(agentInfoService, agentEventService);
     }
-
     @Bean
-    public JvmGcController createJvmGcController(JvmGcService jvmGcService, JvmGcChartService jvmGcChartService) {
-        return new JvmGcController(jvmGcService, jvmGcChartService);
-    }
+    public AgentStatController<AgentStatDataPoint> createAgentStatController(List<AgentStatService> agentStatServiceList,
+                                                                             List<AgentStatChartService> agentStatChartServiceList) {
 
-    @Bean
-    public JvmGcDetailedController createJvmGcDetailedController(JvmGcDetailedService jvmGcDetailedService, JvmGcDetailedChartService jvmGcDetailedChartService) {
-        return new JvmGcDetailedController(jvmGcDetailedService, jvmGcDetailedChartService);
-    }
-
-    @Bean
-    public CpuLoadController createCpuLoadController(CpuLoadService cpuLoadService, CpuLoadChartService cpuLoadChartService) {
-        return new CpuLoadController(cpuLoadService, cpuLoadChartService);
-    }
-
-    @Bean
-    public TransactionController createTransactionController(TransactionService transactionService, TransactionChartService transactionChartService) {
-        return new TransactionController(transactionService, transactionChartService);
-    }
-
-    @Bean
-    public ActiveTraceController createActiveTraceController(ActiveTraceService activeTraceService, ActiveTraceChartService activeTraceChartService) {
-        return new ActiveTraceController(activeTraceService, activeTraceChartService);
-    }
-
-    @Bean
-    public DataSourceController createDataSourceController(DataSourceService dataSourceService, DataSourceChartService dataSourceChartService) {
-        return new DataSourceController(dataSourceService, dataSourceChartService);
-    }
-
-    @Bean
-    public ResponseTimeController createResponseTimeController(ResponseTimeService responseTimeService, ResponseTimeChartService responseTimeChartService) {
-        return new ResponseTimeController(responseTimeService, responseTimeChartService);
-    }
-
-    @Bean
-    public DeadlockController createDeadlockController(DeadlockService deadlockService, DeadlockChartService deadlockChartService) {
-        return new DeadlockController(deadlockService, deadlockChartService);
-    }
-
-    @Bean
-    public FileDescriptorController createFileDescriptorController(FileDescriptorService fileDescriptorService, FileDescriptorChartService fileDescriptorChartService) {
-        return new FileDescriptorController(fileDescriptorService, fileDescriptorChartService);
-    }
-
-    @Bean
-    public DirectBufferController createDirectBufferController(DirectBufferService directBufferService, DirectBufferChartService directBufferChartService) {
-        return new DirectBufferController(directBufferService, directBufferChartService);
-    }
-
-    @Bean
-    public TotalThreadCountController createTotalThreadCountController(TotalThreadCountService totalThreadCountService, TotalThreadCountChartService totalThreadCountChartService) {
-        return new TotalThreadCountController(totalThreadCountService, totalThreadCountChartService);
-    }
-
-    @Bean
-    public LoadedClassCountController createLoadedClassCountController(LoadedClassCountService loadedClassCountService, LoadedClassCountChartService loadedClassCountChartService) {
-        return new LoadedClassCountController(loadedClassCountService, loadedClassCountChartService);
-    }
-
-    @Bean
-    public UriStatController createUriStatController(AgentUriStatService agentUriStatService, AgentUriStatChartService agentUriStatChartService) {
-        return new UriStatController(agentUriStatService, agentUriStatChartService);
+        List<AgentStatService<AgentStatDataPoint>> service = (List<AgentStatService<AgentStatDataPoint>>) (List<?>) agentStatServiceList;
+        return new AgentStatController<>(service, agentStatChartServiceList);
     }
 
     @Bean

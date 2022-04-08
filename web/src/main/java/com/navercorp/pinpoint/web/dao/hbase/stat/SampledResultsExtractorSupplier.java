@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao.hbase.stat;
 
-import com.navercorp.pinpoint.web.service.stat.ChartTypeSupport;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
- * @author HyunGil Jeong
+ * @author Woonduk Kang(emeroad)
  */
-@Repository
-public interface SampledAgentStatDao<S extends SampledAgentStatDataPoint> extends ChartTypeSupport {
-
-    List<S> getSampledAgentStatList(String agentId, TimeWindow timeWindow);
+@FunctionalInterface
+public interface SampledResultsExtractorSupplier<IN extends AgentStatDataPoint, OUT> {
+    ResultsExtractor<List<OUT>> apply(TimeWindow timeWindow, AgentStatMapperV2<IN> mapper);
 }

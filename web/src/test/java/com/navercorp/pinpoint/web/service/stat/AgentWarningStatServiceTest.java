@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.junit.Assert;
@@ -45,7 +45,7 @@ public class AgentWarningStatServiceTest {
     private static final long TIME = 60000 * 5;
 
     @Mock
-    private DeadlockDao deadlockDao;
+    private AgentStatDao<DeadlockThreadCountBo> deadlockDao;
 
     private AgentWarningStatService agentWarningStatService;
 

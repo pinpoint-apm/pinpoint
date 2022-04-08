@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -43,7 +45,12 @@ public class GcCountCheckerTest {
 
     @BeforeClass
     public static void before() {
-        jvmGcDao = new AgentStatDao<JvmGcBo>() {
+        jvmGcDao = new AgentStatDao<>() {
+
+            @Override
+            public String getChartType() {
+                return AgentStatType.JVM_GC.getChartType();
+            }
 
             @Override
             public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
@@ -64,7 +71,12 @@ public class GcCountCheckerTest {
             }
         };
 
-        cpuLoadDao = new AgentStatDao<CpuLoadBo>() {
+        cpuLoadDao = new AgentStatDao<>() {
+
+            @Override
+            public String getChartType() {
+                return AgentStatType.CPU_LOAD.getChartType();
+            }
 
             @Override
             public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {

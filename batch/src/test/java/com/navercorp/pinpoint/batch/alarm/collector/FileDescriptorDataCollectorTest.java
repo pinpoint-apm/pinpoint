@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class FileDescriptorDataCollectorTest {
         ApplicationIndexDao applicationIndexDao = mock(ApplicationIndexDao.class);
         when(applicationIndexDao.selectAgentIds(applicationId)).thenReturn(agentList);
 
-        FileDescriptorDao fileDescriptorDao = mock(FileDescriptorDao.class);
+        AgentStatDao<FileDescriptorBo> fileDescriptorDao = mock(AgentStatDao.class);
         long timeStamp = 1558936971494L;
         Range range = Range.newUncheckedRange(timeStamp - DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN, timeStamp);
 

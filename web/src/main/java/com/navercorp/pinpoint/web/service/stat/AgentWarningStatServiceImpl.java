@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -44,7 +43,7 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
 
     private final AgentStatDao<DeadlockThreadCountBo> deadlockDao;
 
-    public AgentWarningStatServiceImpl(@Qualifier("deadlockDaoV2") AgentStatDao<DeadlockThreadCountBo> deadlockDao) {
+    public AgentWarningStatServiceImpl(AgentStatDao<DeadlockThreadCountBo> deadlockDao) {
         this.deadlockDao = Objects.requireNonNull(deadlockDao, "deadlockDao");
     }
 
