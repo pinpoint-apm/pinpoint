@@ -4,12 +4,12 @@
 
 div {
     cursor: pointer;
-    margin-left: 15px;
 }
 
 .title {
     position: relative;
     margin-right: 15px;
+    color: var(--text-primary);
 }
 
 .score {
@@ -21,7 +21,7 @@ button {
     top: 1px;
     right: -6.5px;
     font-size: 0.6em;
-    opacity: 0.7;
+    color: var(--icon-default);
 }
 
 .excellent {
