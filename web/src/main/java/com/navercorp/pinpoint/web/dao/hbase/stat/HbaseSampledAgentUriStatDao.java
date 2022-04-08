@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 import com.navercorp.pinpoint.web.vo.stat.SampledEachUriStatBo;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -41,12 +42,12 @@ import java.util.Objects;
 public class HbaseSampledAgentUriStatDao implements SampledAgentStatDao<SampledAgentUriStat> {
 
     private final AgentStatType statType = AgentStatType.URI;
-    private final HbaseAgentUriStatDaoOperations operations;
+    private final HbaseAgentStatDaoOperations operations;
 
     private final AgentStatDecoder<AgentUriStatBo> decoder;
     private final AgentStatSampler<EachUriStatBo, SampledEachUriStatBo> sampler;
 
-    public HbaseSampledAgentUriStatDao(HbaseAgentUriStatDaoOperations operations,
+    public HbaseSampledAgentUriStatDao(@Qualifier("agentUriDaoOperations") HbaseAgentStatDaoOperations operations,
                                        AgentStatDecoder<AgentUriStatBo> decoder,
                                        AgentStatSampler<EachUriStatBo, SampledEachUriStatBo> sampler) {
         this.operations = Objects.requireNonNull(operations, "operations");

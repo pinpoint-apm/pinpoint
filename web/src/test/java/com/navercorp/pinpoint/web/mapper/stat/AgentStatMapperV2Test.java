@@ -103,7 +103,7 @@ public class AgentStatMapperV2Test {
         Result result = Result.create(cellsToPut);
 
         // When
-        AgentStatMapperV2<TestAgentStat> mapper = new AgentStatMapperV2<>(this.hbaseOperationFactory, this.decoder, TEST_FILTER);
+        AgentStatMapperV2<TestAgentStat> mapper = new AgentStatMapperV2<>(this.hbaseOperationFactory, this.decoder, TEST_FILTER, HbaseColumnFamily.AGENT_STAT_STATISTICS);
         List<TestAgentStat> mappedAgentStats = mapper.mapRow(result, 0);
 
         // Then
