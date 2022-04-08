@@ -17,7 +17,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
     testImplementation(project(":pinpoint-testcase"))
-    testImplementation("org.awaitility:awaitility:3.1.5")
+    testImplementation("org.awaitility:awaitility")
 }
 
 description = "pinpoint-rpc"

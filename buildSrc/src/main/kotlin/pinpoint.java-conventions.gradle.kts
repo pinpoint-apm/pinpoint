@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("junit:junit:${Versions.junit}")
+    testImplementation("junit:junit")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("org.mockito:mockito-core:2.28.2")
 }
@@ -95,6 +95,44 @@ dependencyManagement {
 //      <!-- Lang 3.9 and onwards now targets Java 8, making use of features that arrived with Java 8.-->
         dependency("org.apache.commons:commons-lang3:3.8.1")
         dependency("commons-lang:commons-lang:2.6")
+        dependency("org.apache.commons:commons-collections4:4.4")
+//      <!-- Codec 1.14 (mirrors) requires Java 7-->
+        dependency("commons-codec:commons-codec:1.14")
+        dependency("com.sun.mail:jakarta.mail:1.6.7")
+
+        dependency("org.ow2.asm:asm:${Versions.asm}")
+        dependency("org.ow2.asm:asm-commons:${Versions.asm}")
+        dependency("org.ow2.asm:asm-util:${Versions.asm}")
+        dependency("org.ow2.asm:asm-tree:${Versions.asm}")
+        dependency("org.ow2.asm:asm-analysis:${Versions.asm}")
+
+        dependency("javax.servlet:javax.servlet-api:3.0.1")
+
+        //TODO: https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/320 can't build precompiled script with testImplementation.
+        dependency("junit:junit:${Versions.junit}") {
+            exclude("org.hamcrest:hamcrest-core")
+        }
+        dependency("org.awaitility:awaitility:3.1.5")
+
+        dependency("org.apache.zookeeper:zookeeper:${Versions.zookeeper}") {
+            exclude("org.jboss.netty:netty")
+            exclude("org.slf4j:slf4j-log4j12")
+            exclude("log4j:log4j")
+        }
+        dependency("org.apache.curator:curator-test:2.13.0") {
+            exclude("org.apache.zookeeper:zookeeper")
+        }
+
+        dependency("org.apache.thrift:libthrift:0.12.0") {
+            exclude("org.apache.httpcomponents:httpclient")
+            exclude("org.apache.httpcomponents:httpcore")
+            exclude("org.slf4j:slf4j-api")
+        }
+
+        dependency("com.google.guava:guava:30.1-android") {
+            exclude("com.google.guava:listenablefuture")
+        }
+        dependency("com.google.inject:guice:4.2.2")
     }
 
 // TODO: https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/320 can't build precompiled script with testImplementation.

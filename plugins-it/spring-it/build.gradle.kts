@@ -13,7 +13,7 @@ dependencies {
     testImplementation("org.springframework:spring-test:${Versions.spring4}")
     testImplementation("org.springframework:spring-context:${Versions.spring4}")
     testImplementation("org.springframework:spring-webmvc:${Versions.spring4}")
-    testImplementation("javax.servlet:javax.servlet-api:3.0.1")
+    testImplementation("javax.servlet:javax.servlet-api")
 }
 
 description = "pinpoint-spring-plugin-it"

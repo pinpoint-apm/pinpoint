@@ -28,7 +28,7 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-core")
     implementation("io.dropwizard.metrics:metrics-jvm")
     implementation("io.dropwizard.metrics:metrics-servlets")
-    implementation("org.apache.zookeeper:zookeeper:${Versions.zookeeper}")
+    implementation("org.apache.zookeeper:zookeeper")
     runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")

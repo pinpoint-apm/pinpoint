@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-common-servlet"))
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("javax.servlet:javax.servlet-api:3.0.1")
+    compileOnly("javax.servlet:javax.servlet-api")
     compileOnly("io.undertow:undertow-core:2.0.1.Final")
 }
 

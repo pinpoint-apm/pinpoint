@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.apache.zookeeper:zookeeper:${Versions.zookeeper}")
+    implementation("org.apache.zookeeper:zookeeper")
     implementation("org.springframework:spring-context")
     implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
@@ -19,9 +19,9 @@ dependencies {
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     testImplementation("org.springframework:spring-test:${Versions.spring}")
-    testImplementation("org.apache.curator:curator-test:2.13.0")
+    testImplementation("org.apache.curator:curator-test")
     testImplementation(project(":pinpoint-testcase"))
-    testImplementation("org.awaitility:awaitility:3.1.5")
+    testImplementation("org.awaitility:awaitility")
 }
 
 description = "pinpoint-commons-server-cluster"
