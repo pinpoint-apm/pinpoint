@@ -20,4 +20,5 @@ object Versions {
     const val slf4j = "1.7.30"
     const val log4jv1 = "1.2.17"
     const val asm = "9.2"
+    const val tinylog = "2.2.1"
 }
