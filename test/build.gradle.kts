@@ -22,14 +22,27 @@ dependencies {
     implementation("org.apache.maven:maven-resolver-provider:3.6.3")
     implementation("org.apache.commons:commons-lang3")
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
-    implementation("org.tinylog:tinylog-api:2.2.1")
-    implementation("org.tinylog:tinylog-impl:2.2.1")
-    implementation("org.tinylog:slf4j-tinylog:2.2.1")
+    implementation("org.tinylog:tinylog-api:${Versions.tinylog}")
+    implementation("org.tinylog:tinylog-impl:${Versions.tinylog}") {
+        exclude(group = "org.tinylog", module = "tinylog-api")
+    }
+    implementation("org.tinylog:slf4j-tinylog:${Versions.tinylog}") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "org.tinylog", module = "tinylog-api")
+    }
     implementation("junit:junit:${Versions.junit}")
     runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
-    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
-    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+        exclude(group = "org.apache.logging.log4j", module = "log4j-core")
+    }
+    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}") {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+    }
+    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}") {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+    }
 }
 
 description = "pinpoint-test"
