@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentStatDaoV2<T> {
+public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentStatDao<T> {
 
     private final AgentStatType agentStatType;
     private final HbaseTable tableName;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.thrift;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
@@ -47,40 +47,40 @@ public class ThriftAgentStatHandlerV2Test {
     private ThriftAgentStatBatchMapper agentStatBatchMapper;
 
     @Mock
-    private AgentStatDaoV2<JvmGcBo> jvmGcDao;
+    private AgentStatDao<JvmGcBo> jvmGcDao;
 
     @Mock
-    private AgentStatDaoV2<JvmGcDetailedBo> jvmGcDetailedDao;
+    private AgentStatDao<JvmGcDetailedBo> jvmGcDetailedDao;
 
     @Mock
-    private AgentStatDaoV2<CpuLoadBo> cpuLoadDao;
+    private AgentStatDao<CpuLoadBo> cpuLoadDao;
 
     @Mock
-    private AgentStatDaoV2<TransactionBo> transactionDao;
+    private AgentStatDao<TransactionBo> transactionDao;
 
     @Mock
-    private AgentStatDaoV2<ActiveTraceBo> activeTraceDao;
+    private AgentStatDao<ActiveTraceBo> activeTraceDao;
 
     @Mock
-    private AgentStatDaoV2<DataSourceListBo> dataSourceDao;
+    private AgentStatDao<DataSourceListBo> dataSourceDao;
 
     @Mock
-    private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
+    private AgentStatDao<ResponseTimeBo> responseTimeDao;
 
     @Mock
-    private AgentStatDaoV2<DeadlockThreadCountBo> deadlockDao;
+    private AgentStatDao<DeadlockThreadCountBo> deadlockDao;
 
     @Mock
-    private AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao;
+    private AgentStatDao<FileDescriptorBo> fileDescriptorDao;
 
     @Mock
-    private AgentStatDaoV2<DirectBufferBo> directBufferDao;
+    private AgentStatDao<DirectBufferBo> directBufferDao;
 
     @Mock
-    private AgentStatDaoV2<TotalThreadCountBo> totalThreadCountDao;
+    private AgentStatDao<TotalThreadCountBo> totalThreadCountDao;
 
     @Mock
-    private AgentStatDaoV2<LoadedClassBo> loadedClassDao;
+    private AgentStatDao<LoadedClassBo> loadedClassDao;
 
     @Spy
     private List<AgentStatService> agentStatServiceList = new ArrayList<>();
@@ -91,7 +91,7 @@ public class ThriftAgentStatHandlerV2Test {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        hBaseAgentStatService = new HBaseAgentStatService(new AgentStatDaoV2[] {jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
+        hBaseAgentStatService = new HBaseAgentStatService(new AgentStatDao[] {jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
                 activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao,
                 directBufferDao, totalThreadCountDao, loadedClassDao});
         agentStatServiceList.add(hBaseAgentStatService);
