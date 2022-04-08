@@ -38,7 +38,7 @@ public final class HBaseUtils {
         return new FilterList(nonNullFilters);
     }
 
-    public static int getScanCacheSize(Range range, int timespan, int maxCacheSize) {
+    public static int getScanCacheSize(Range range, long timespan, int maxCacheSize) {
         Objects.requireNonNull(range, "range");
 
         long scanRange = range.durationMillis();

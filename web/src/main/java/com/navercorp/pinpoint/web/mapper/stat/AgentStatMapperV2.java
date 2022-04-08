@@ -49,10 +49,6 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
     private final TimestampFilter filter;
     private final HbaseColumnFamily targetHbaseColumnFamily;
 
-    public AgentStatMapperV2(AgentStatHbaseOperationFactory hbaseOperationFactory, AgentStatDecoder<T> decoder, TimestampFilter filter) {
-        this(hbaseOperationFactory, decoder, filter, HbaseColumnFamily.AGENT_STAT_STATISTICS);
-    }
-
     public AgentStatMapperV2(AgentStatHbaseOperationFactory hbaseOperationFactory, AgentStatDecoder<T> decoder, TimestampFilter filter, HbaseColumnFamily targetHbaseColumnFamily) {
         this.hbaseOperationFactory = hbaseOperationFactory;
         this.decoder = decoder;

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.DefaultSampledAgentStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseAgentStatDaoOperations;
-import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseAgentUriStatDaoOperations;
 import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseSampledAgentUriStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseSampledDataSourceDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.SampledAgentStatResultExtractorSupplier;
@@ -43,6 +42,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -146,7 +146,7 @@ public class SampledAgentStatDaoConfiguration {
     }
 
 //    @Bean
-    public SampledAgentStatDao<SampledAgentUriStat> getSampledAgentUriStatDao(HbaseAgentUriStatDaoOperations operations,
+    public SampledAgentStatDao<SampledAgentUriStat> getSampledAgentUriStatDao(@Qualifier("agentUriDaoOperations") HbaseAgentStatDaoOperations operations,
                                                                               AgentStatDecoder<AgentUriStatBo> decoder,
                                                                               AgentStatSampler<EachUriStatBo, SampledEachUriStatBo> sampler) {
         return new HbaseSampledAgentUriStatDao(operations, decoder, sampler);

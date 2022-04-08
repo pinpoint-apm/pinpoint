@@ -35,7 +35,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,14 +42,14 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class HbaseAgentStatDaoOperations {
 
     private static final int AGENT_STAT_VER2_NUM_PARTITIONS = 32;
     private static final int MAX_SCAN_CACHE_SIZE = 256;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private static final HbaseColumnFamily.AgentStatStatistics DESCRIPTOR = HbaseColumnFamily.AGENT_STAT_STATISTICS;
+    private final HbaseColumnFamily columnFamily;
+    private final long timespan;
 
     private final HbaseOperations2 hbaseOperations2;
     private final TableNameProvider tableNameProvider;
@@ -58,10 +57,13 @@ public class HbaseAgentStatDaoOperations {
     private final AgentStatHbaseOperationFactory operationFactory;
 
 
-    public HbaseAgentStatDaoOperations(HbaseOperations2 hbaseOperations2,
+    public HbaseAgentStatDaoOperations(HbaseColumnFamily columnFamily, long timespan,
+                                       HbaseOperations2 hbaseOperations2,
                                        TableNameProvider tableNameProvider,
                                        AgentStatHbaseOperationFactory operationFactory) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.columnFamily = Objects.requireNonNull(columnFamily, "columnFamily");
+        this.timespan = timespan;
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
     }
@@ -72,9 +74,9 @@ public class HbaseAgentStatDaoOperations {
 
         Scan scan = this.createScan(agentStatType, agentId, range);
 
-        TableName agentStatTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
         List<List<T>> intermediate = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
-        int expectedSize = (int) (range.durationMillis() / DESCRIPTOR.TIMESPAN_MS);
+        int expectedSize = (int) (range.durationMillis() / timespan);
 
         return ListListUtils.toList(intermediate, expectedSize);
     }
@@ -90,7 +92,7 @@ public class HbaseAgentStatDaoOperations {
         int resultLimit = 20;
         Scan scan = this.createScan(agentStatType, agentId, range, resultLimit);
 
-        TableName agentStatTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
         List<List<T>> result = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultLimit, mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
         if (result.isEmpty()) {
             return false;
@@ -106,25 +108,25 @@ public class HbaseAgentStatDaoOperations {
 
         Scan scan = this.createScan(agentStatType, agentId, range);
 
-        TableName agentStatTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName agentStatTableName = tableNameProvider.getTableName(columnFamily.getTable());
         return hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, AGENT_STAT_VER2_NUM_PARTITIONS);
     }
 
     <T extends AgentStatDataPoint> AgentStatMapperV2<T> createRowMapper(AgentStatDecoder<T> decoder, Range range) {
         TimestampFilter filter = new RangeTimestampFilter(range);
-        return new AgentStatMapperV2<>(this.operationFactory, decoder, filter);
+        return new AgentStatMapperV2<>(this.operationFactory, decoder, filter, columnFamily);
     }
 
     private Scan createScan(AgentStatType agentStatType, String agentId, Range range) {
-        int scanCacheSize = HBaseUtils.getScanCacheSize(range, DESCRIPTOR.TIMESPAN_MS, MAX_SCAN_CACHE_SIZE);
+        int scanCacheSize = HBaseUtils.getScanCacheSize(range, timespan, MAX_SCAN_CACHE_SIZE);
         return this.createScan(agentStatType, agentId, range, scanCacheSize);
     }
 
     private Scan createScan(AgentStatType agentStatType, String agentId, Range range, int scanCacheSize) {
         Scan scan = this.operationFactory.createScan(agentId, agentStatType, range.getFrom(), range.getTo());
         scan.setCaching(scanCacheSize);
-        scan.setId("AgentStat_" + agentStatType);
-        scan.addFamily(DESCRIPTOR.getName());
+        scan.setId(agentStatType.getChartType());
+        scan.addFamily(columnFamily.getName());
         return scan;
     }
 
