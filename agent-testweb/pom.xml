@@ -69,6 +69,7 @@
         <module>reactor-plugin-testweb</module>
         <module>thrift-plugin-testweb</module>
         <module>elasticsearch-plugin-testweb</module>
+        <module>elasticsearch-8-plugin-testweb</module>
         <module>postgresql-plugin-testweb</module>
     </modules>
 

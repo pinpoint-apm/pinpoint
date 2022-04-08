@@ -100,6 +100,7 @@
         <module>elasticsearch-bboss</module>
         <module>apache-dubbo</module>
         <module>elasticsearch</module>
+        <module>elasticsearch8</module>
         <module>reactor</module>
         <module>reactor-netty</module>
         <module>jdk-completable-future</module>
