@@ -112,6 +112,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>174</td><td>es.action</td></tr>
  * <tr><td>175</td><td>es.responseHandle</td></tr>
  * <tr><td>176</td><td>es.version</td></tr>
+ * <tr><td>177</td><td>es.dsl</td></tr>
+ * <tr><td>178</td><td>es.version</td></tr>
  * <tr><td>180</td><td>process.command</td></tr>
  * <tr><td>181</td><td>process.pid</td></tr>
  *
