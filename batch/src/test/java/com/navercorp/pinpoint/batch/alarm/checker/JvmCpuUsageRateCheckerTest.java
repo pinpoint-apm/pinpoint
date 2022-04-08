@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
@@ -52,7 +53,12 @@ public class JvmCpuUsageRateCheckerTest {
     
     @BeforeClass
     public static void before() {
-        jvmGcDao = new AgentStatDao<JvmGcBo>() {
+        jvmGcDao = new AgentStatDao<>() {
+
+            @Override
+            public String getChartType() {
+                return AgentStatType.JVM_GC.getChartType();
+            }
 
             @Override
             public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
@@ -65,7 +71,11 @@ public class JvmCpuUsageRateCheckerTest {
             }
         };
 
-        cpuLoadDao = new AgentStatDao<CpuLoadBo>() {
+        cpuLoadDao = new AgentStatDao<>() {
+            @Override
+            public String getChartType() {
+                return AgentStatType.CPU_LOAD.getChartType();
+            }
 
             public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
                 List<CpuLoadBo> cpuLoads = new LinkedList<>();

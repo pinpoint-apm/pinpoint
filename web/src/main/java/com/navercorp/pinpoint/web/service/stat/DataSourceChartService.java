@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -36,19 +35,19 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 @Service
-public class DataSourceChartService implements AgentStatChartService {
+public class DataSourceChartService implements AgentStatChartService<DataSourceChart> {
 
     private final SampledAgentStatDao<SampledDataSourceList> sampledDataSourceDao;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    public DataSourceChartService(@Qualifier("sampledDataSourceDaoFactory") SampledAgentStatDao<SampledDataSourceList> sampledDataSourceDao,
+    public DataSourceChartService(SampledAgentStatDao<SampledDataSourceList> sampledDataSourceDao,
                                   ServiceTypeRegistryService serviceTypeRegistryService) {
         this.sampledDataSourceDao = Objects.requireNonNull(sampledDataSourceDao, "sampledDataSourceDao");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @Override
-    public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
+    public DataSourceChart selectAgentChart(String agentId, TimeWindow timeWindow) {
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
@@ -62,17 +61,17 @@ public class DataSourceChartService implements AgentStatChartService {
     }
 
     @Override
-    public List<StatChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
+    public List<DataSourceChart> selectAgentChartList(String agentId, TimeWindow timeWindow) {
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
         List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
-            List<StatChart> result = new ArrayList<>(1);
+            List<DataSourceChart> result = new ArrayList<>(1);
             result.add(new DataSourceChart(timeWindow, Collections.emptyList(), serviceTypeRegistryService));
             return result;
         } else {
-            List<StatChart> result = new ArrayList<>(sampledAgentStatList.size());
+            List<DataSourceChart> result = new ArrayList<>(sampledAgentStatList.size());
             for (SampledDataSourceList sampledDataSourceList : sampledAgentStatList) {
                 result.add(new DataSourceChart(timeWindow, sampledDataSourceList.getSampledDataSourceList(), serviceTypeRegistryService));
             }
@@ -80,4 +79,8 @@ public class DataSourceChartService implements AgentStatChartService {
         }
     }
 
+    @Override
+    public String getChartType() {
+        return AgentStatType.DATASOURCE.getChartType();
+    }
 }
