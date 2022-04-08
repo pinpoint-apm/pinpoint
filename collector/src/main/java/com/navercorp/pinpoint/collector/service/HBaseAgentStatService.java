@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -31,19 +31,19 @@ public class HBaseAgentStatService implements AgentStatService {
 
     private final Logger logger = LogManager.getLogger(HBaseAgentStatService.class.getName());
 
-    private final AgentStatDaoV2<?>[] agentStatDaoList;
+    private final AgentStatDao<?>[] agentStatDaoList;
 
-    public HBaseAgentStatService(AgentStatDaoV2<?>[] agentStatDaoList) {
+    public HBaseAgentStatService(AgentStatDao<?>[] agentStatDaoList) {
         this.agentStatDaoList = Objects.requireNonNull(agentStatDaoList, "agentStatDaoList");
 
-        for (AgentStatDaoV2<?> agentStatDaoV2 : agentStatDaoList) {
-            logger.info("AgentStatDaoV2:{}", agentStatDaoV2.getClass().getSimpleName());
+        for (AgentStatDao<?> agentStatDao : agentStatDaoList) {
+            logger.info("AgentStatDaoV2:{}", agentStatDao.getClass().getSimpleName());
         }
     }
 
     @Override
     public void save(AgentStatBo agentStatBo) {
-        for (AgentStatDaoV2<?> agentStatDao : agentStatDaoList) {
+        for (AgentStatDao<?> agentStatDao : agentStatDaoList) {
             try {
                 agentStatDao.dispatch(agentStatBo);
             } catch (Exception e) {
