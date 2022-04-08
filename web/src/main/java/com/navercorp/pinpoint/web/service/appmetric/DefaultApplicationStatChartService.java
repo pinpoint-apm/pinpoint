@@ -8,22 +8,27 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import java.util.List;
 import java.util.Objects;
 
-public class DefaultApplicationStatChartService<T extends AggregationStatData> implements ApplicationStatChartService {
+public class DefaultApplicationStatChartService<IN extends AggregationStatData, OUT extends StatChart> implements ApplicationStatChartService<OUT> {
 
-    private final ApplicationMetricDao<T> metricDao;
-    private final ChartFunction<T> chartFunction;
+    private final ApplicationMetricDao<IN> metricDao;
+    private final ChartFunction<IN, OUT> chartFunction;
 
-    public DefaultApplicationStatChartService(ApplicationMetricDao<T> metricDao, ChartFunction<T> chartFunction) {
+    public DefaultApplicationStatChartService(ApplicationMetricDao<IN> metricDao, ChartFunction<IN, OUT> chartFunction) {
         this.metricDao = Objects.requireNonNull(metricDao, "metricDao");
         this.chartFunction = Objects.requireNonNull(chartFunction, "chartFunction");
     }
 
     @Override
-    public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
+    public OUT selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         Objects.requireNonNull(applicationId, "applicationId");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
-        List<T> applicationStatList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
+        List<IN> applicationStatList = this.metricDao.getApplicationStatList(applicationId, timeWindow);
         return chartFunction.apply(timeWindow, applicationStatList);
+    }
+
+    @Override
+    public String getChartType() {
+        return metricDao.getChartType();
     }
 }

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.service.appmetric;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.dao.appmetric.ApplicationDataSourceDao;
+import com.navercorp.pinpoint.web.dao.appmetric.ApplicationMetricDao;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class ApplicationDataSourceServiceTest {
         final String id = "test_app";
         long timestamp = new Date().getTime();
 
-        final ApplicationDataSourceDao applicationDataSourceDao = mock(ApplicationDataSourceDao.class);
+        final ApplicationMetricDao<AggreJoinDataSourceListBo> applicationDataSourceDao = mock(ApplicationMetricDao.class);
         final ServiceTypeRegistryService serviceTypeRegistryService = mock(ServiceTypeRegistryService.class);
         ApplicationDataSourceService applicationDataSourceService = new ApplicationDataSourceService(applicationDataSourceDao, serviceTypeRegistryService);
 

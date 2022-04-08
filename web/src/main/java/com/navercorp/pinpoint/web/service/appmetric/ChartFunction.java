@@ -7,6 +7,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import java.util.List;
 
 @FunctionalInterface
-public interface ChartFunction<T extends AggregationStatData> {
-    StatChart apply(TimeWindow timeWindow, List<T> applicationStatList);
+public interface ChartFunction<IN extends AggregationStatData, OUT extends StatChart> {
+    OUT apply(TimeWindow timeWindow, List<IN> applicationStatList);
 }
