@@ -9,6 +9,7 @@ plugins {
     id("pinpoint.profiler-optional-conventions")
     id("pinpoint.plugins-assembly-conventions")
     id("pinpoint.agent-plugins-conventions")
+    `java-library-distribution`
 }
 
 dependencies {
@@ -28,3 +29,7 @@ dependencies {
 }
 
 description = "pinpoint-agent-distribution"
+
+distributions {
+
+}

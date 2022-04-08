@@ -10,6 +10,7 @@ plugins {
     id("pinpoint.agent-plugins-conventions")
     id("pinpoint.hbase-conventions")
     id("pinpoint.curator-conventions")
+    id("org.siouan.frontend-jdk8") version "6.0.0"
 }
 
 dependencies {
@@ -72,3 +73,10 @@ dependencies {
 }
 
 description = "pinpoint-web"
+
+//frontend {
+//    nodeVersion.set("14.18.1")
+//    assembleScript.set("run build:real")
+//    cleanScript.set("run clean")
+//    checkScript.set("run check")
+//}
