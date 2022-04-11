@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * @author Roy Kim
  */
-@Component("joinDirectBufferCodec")
+@Component
 public class DirectBufferCodec implements ApplicationStatCodec<JoinDirectBufferBo> {
 
     private static final byte VERSION = 1;
@@ -45,7 +45,7 @@ public class DirectBufferCodec implements ApplicationStatCodec<JoinDirectBufferB
     private final AgentStatDataPointCodec codec;
 
     public DirectBufferCodec(AgentStatDataPointCodec codec) {
-        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override

@@ -42,35 +42,18 @@
 
     <bean id="agentStatDataPointCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec"/>
     <bean id="joinCpuLoadCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadCodec"/>
-    <bean id="cpuLoadEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadEncoder"/>
-    <bean id="cpuLoadSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer"/>
     <bean id="joinMemoryCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryCodec"/>
-    <bean id="memoryEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryEncoder"/>
-    <bean id="memorySerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer"/>
     <bean id="joinTransactionCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionCodec"/>
-    <bean id="transactionEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionEncoder"/>
-    <bean id="transactionSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionSerializer"/>
     <bean id="joinActiveTraceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceCodec"/>
-    <bean id="activeTraceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder"/>
-    <bean id="activeTraceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ActiveTraceSerializer"/>
     <bean id="joinResponseTimeCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeCodec"/>
-    <bean id="responseTimeEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeEncoder"/>
-    <bean id="responseTimeSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ResponseTimeSerializer"/>
     <bean id="joinDataSourceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceCodec"/>
-    <bean id="dataSourceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceEncoder"/>
-    <bean id="dataSourceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DataSourceSerializer"/>
     <bean id="joinFileDescriptorCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorCodec"/>
-    <bean id="fileDescriptorEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorEncoder"/>
-    <bean id="fileDescriptorSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.FileDescriptorSerializer"/>
     <bean id="joinDirectBufferCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferCodec"/>
-    <bean id="directBufferEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferEncoder"/>
-    <bean id="directBufferSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DirectBufferSerializer"/>
     <bean id="joinTotalThreadCountCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountCodec"/>
-    <bean id="totalThreadCountEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountEncoder"/>
-    <bean id="totalThreadCountSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TotalThreadCountSerializer"/>
     <bean id="joinLoadedClassCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassCodec"/>
-    <bean id="loadedClassEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassEncoder"/>
-    <bean id="loadedClassSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.LoadedClassSerializer"/>
+
+    <bean class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ApplicationCoderConfiguration"/>
+    <bean class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializerConfiguration"/>
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
 

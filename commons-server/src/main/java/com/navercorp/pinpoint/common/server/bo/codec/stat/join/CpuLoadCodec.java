@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Component("joincpuLoadCodec")
+@Component
 public class CpuLoadCodec implements ApplicationStatCodec<JoinCpuLoadBo> {
 
     private static final byte VERSION = 1;
@@ -45,7 +45,7 @@ public class CpuLoadCodec implements ApplicationStatCodec<JoinCpuLoadBo> {
     private final AgentStatDataPointCodec codec;
 
     public CpuLoadCodec(AgentStatDataPointCodec codec) {
-        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override

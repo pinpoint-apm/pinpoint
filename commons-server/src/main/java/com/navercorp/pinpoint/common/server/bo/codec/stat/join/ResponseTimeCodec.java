@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Component("joinResponseTimeCodec")
+@Component
 public class ResponseTimeCodec implements ApplicationStatCodec<JoinResponseTimeBo> {
     private static final byte VERSION = 1;
 

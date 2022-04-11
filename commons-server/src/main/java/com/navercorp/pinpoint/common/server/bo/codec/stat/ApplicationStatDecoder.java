@@ -25,12 +25,14 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public abstract class ApplicationStatDecoder<T extends JoinStatBo> {
+public class ApplicationStatDecoder<T extends JoinStatBo> {
 
-    private final List<ApplicationStatCodec<T>> codecs;
+    private final ApplicationStatCodec<T>[] codecs;
 
+    @SuppressWarnings("unchecked")
     public ApplicationStatDecoder(List<ApplicationStatCodec<T>> codecs) {
-        this.codecs = Objects.requireNonNull(codecs, "codecs");
+        Objects.requireNonNull(codecs, "codecs");
+        this.codecs = codecs.toArray(new ApplicationStatCodec[0]);
     }
 
     public long decodeQualifier(Buffer qualifierBuffer) {

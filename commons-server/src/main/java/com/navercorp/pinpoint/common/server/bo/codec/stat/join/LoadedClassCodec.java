@@ -33,17 +33,22 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Component("joinLoadedClassCodec")
+@Component
 public class LoadedClassCodec implements ApplicationStatCodec<JoinLoadedClassBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
 
-    public LoadedClassCodec(AgentStatDataPointCodec codec) { this.codec = codec; }
+    public LoadedClassCodec(AgentStatDataPointCodec codec) {
+        this.codec = Objects.requireNonNull(codec, "codec");
+    }
 
     @Override
-    public byte getVersion() { return VERSION; }
+    public byte getVersion() {
+        return VERSION;
+    }
 
     @Override
     public void encodeValues(Buffer valueBuffer, List<JoinLoadedClassBo> joinStatBoList) {
