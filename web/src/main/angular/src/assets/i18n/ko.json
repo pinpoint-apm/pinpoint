@@ -24,7 +24,7 @@
         "VISIBILITY_HIDDEN": "페이지가 비활성화 되었습니다. <br>다시 이용하려면, 페이지를 새로고침해주세요."
     },
     "INSPECTOR": {
-        "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
+        "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://pinpoint-apm.gitbook.io/pinpoint/documents/application-inspector\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
         "APPLICAITION_NAME_ISSUE": {
             "ISSUE_MESSAGE": "해당 agent는 !{0}이 아닌 !{1}에 포함되어 있습니다.<br><br> 원인은 다음 중 하나입니다:",
             "ISSUE_CAUSES": [

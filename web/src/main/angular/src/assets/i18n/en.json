@@ -24,7 +24,7 @@
         "VISIBILITY_HIDDEN": "The page has been deactivated. <br>You may want to refresh to back on it."
     },
     "INSPECTOR": {
-        "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector is not enabled.<br> To enable Application Inspector, please refer to}|[LINK]:{href=https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md\\target=blank\\style=color:#428bca\\linkText=this link}",
+        "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector is not enabled.<br> To enable Application Inspector, please refer to}|[LINK]:{href=https://pinpoint-apm.gitbook.io/pinpoint/documents/application-inspector\\target=blank\\style=color:#428bca\\linkText=this link}",
         "APPLICAITION_NAME_ISSUE": {
             "ISSUE_MESSAGE": "The agent is currently registered under !{1} due to the following:",
             "ISSUE_CAUSES": [
