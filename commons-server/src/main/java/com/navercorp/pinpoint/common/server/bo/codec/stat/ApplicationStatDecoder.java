@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -29,7 +30,7 @@ public abstract class ApplicationStatDecoder<T extends JoinStatBo> {
     private final List<ApplicationStatCodec<T>> codecs;
 
     public ApplicationStatDecoder(List<ApplicationStatCodec<T>> codecs) {
-        this.codecs = codecs;
+        this.codecs = Objects.requireNonNull(codecs, "codecs");
     }
 
     public long decodeQualifier(Buffer qualifierBuffer) {

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

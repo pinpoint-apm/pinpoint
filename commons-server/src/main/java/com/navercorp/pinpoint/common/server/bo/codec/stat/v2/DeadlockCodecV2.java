@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Component("deadlockCodecV2")
+@Component
 public class DeadlockCodecV2 extends AgentStatCodecV2<DeadlockThreadCountBo> {
 
     public DeadlockCodecV2(AgentStatDataPointCodec codec) {

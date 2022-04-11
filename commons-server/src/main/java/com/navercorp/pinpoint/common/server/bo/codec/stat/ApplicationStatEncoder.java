@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -31,7 +32,7 @@ public class ApplicationStatEncoder<T extends JoinStatBo> {
     private final ApplicationStatCodec<T> codec;
 
     public ApplicationStatEncoder(ApplicationStatCodec<T> codec) {
-        this.codec = codec;
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     public ByteBuffer encodeQualifier(long timestampDelta) {

@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("jvmGcDetailedCodecV2")
+@Component
 public class JvmGcDetailedCodecV2 extends AgentStatCodecV2<JvmGcDetailedBo> {
 
     public JvmGcDetailedCodecV2(AgentStatDataPointCodec codec) {

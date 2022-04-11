@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("cpuLoadCodecV2")
+@Component
 public class CpuLoadCodecV2 extends AgentStatCodecV2<CpuLoadBo> {
 
     public CpuLoadCodecV2(AgentStatDataPointCodec codec) {

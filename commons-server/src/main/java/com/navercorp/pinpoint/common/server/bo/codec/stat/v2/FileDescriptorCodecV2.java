@@ -34,7 +34,7 @@ import java.util.Objects;
 /**
  * @author Roy Kim
  */
-@Component("fileDescriptorCodecV2")
+@Component
 public class FileDescriptorCodecV2 extends AgentStatCodecV2<FileDescriptorBo> {
 
     public FileDescriptorCodecV2(AgentStatDataPointCodec codec) {

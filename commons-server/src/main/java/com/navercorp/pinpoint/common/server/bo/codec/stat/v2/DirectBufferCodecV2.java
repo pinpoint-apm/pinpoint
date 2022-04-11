@@ -34,7 +34,7 @@ import java.util.Objects;
 /**
  * @author Roy Kim
  */
-@Component("directBufferCodecV2")
+@Component
 public class DirectBufferCodecV2 extends AgentStatCodecV2<DirectBufferBo> {
 
     public DirectBufferCodecV2(AgentStatDataPointCodec codec) {
