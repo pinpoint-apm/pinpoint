@@ -36,18 +36,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-@Component("joinActiveTraceCodec")
+@Component
 public class ActiveTraceCodec implements ApplicationStatCodec<JoinActiveTraceBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
 
     public ActiveTraceCodec(AgentStatDataPointCodec codec) {
-        this.codec = codec;
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override

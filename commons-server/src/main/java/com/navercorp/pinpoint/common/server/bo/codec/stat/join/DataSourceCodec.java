@@ -43,7 +43,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Component("joinDataSourceCodec")
+@Component
 public class DataSourceCodec implements ApplicationStatCodec<JoinDataSourceListBo> {
 
     private static final byte VERSION = 1;
@@ -51,7 +51,7 @@ public class DataSourceCodec implements ApplicationStatCodec<JoinDataSourceListB
     private final AgentStatDataPointCodec codec;
 
     public DataSourceCodec(AgentStatDataPointCodec codec) {
-        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public abstract class ApplicationStatSerializer<T extends JoinStatBo> implements HbaseSerializer<List<T>, Put> {
+public class ApplicationStatSerializer<T extends JoinStatBo> implements HbaseSerializer<List<T>, Put> {
 
     private final ApplicationStatEncoder<T> encoder;
 

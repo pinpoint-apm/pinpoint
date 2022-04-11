@@ -40,14 +40,14 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Component("joinTransactionCodec")
+@Component
 public class TransactionCodec implements ApplicationStatCodec<JoinTransactionBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
 
     public TransactionCodec(AgentStatDataPointCodec codec) {
-        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override

@@ -33,15 +33,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Component("joinTotalThreadCountCodec")
+@Component
 public class TotalThreadCountCodec implements ApplicationStatCodec<JoinTotalThreadCountBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
 
     public TotalThreadCountCodec(AgentStatDataPointCodec codec) {
-        this.codec = codec;
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override

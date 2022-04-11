@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * @author Roy Kim
  */
-@Component("joinFileDescriptorCodec")
+@Component
 public class FileDescriptorCodec implements ApplicationStatCodec<JoinFileDescriptorBo> {
 
     private static final byte VERSION = 1;
@@ -45,7 +45,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec<JoinFileDescrip
     private final AgentStatDataPointCodec codec;
 
     public FileDescriptorCodec(AgentStatDataPointCodec codec) {
-        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     @Override
