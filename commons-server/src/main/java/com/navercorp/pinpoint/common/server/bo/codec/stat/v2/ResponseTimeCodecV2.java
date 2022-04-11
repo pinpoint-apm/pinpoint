@@ -35,7 +35,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Component("responseTimeCodecV2")
+@Component
 public class ResponseTimeCodecV2 extends AgentStatCodecV2<ResponseTimeBo> {
 
     public ResponseTimeCodecV2(AgentStatDataPointCodec codec) {

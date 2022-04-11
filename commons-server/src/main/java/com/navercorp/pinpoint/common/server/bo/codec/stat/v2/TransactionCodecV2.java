@@ -35,7 +35,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("transactionCodecV2")
+@Component
 public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
 
     public TransactionCodecV2(AgentStatDataPointCodec codec) {

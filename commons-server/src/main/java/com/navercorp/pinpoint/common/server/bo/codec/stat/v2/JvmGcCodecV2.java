@@ -39,7 +39,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("jvmGcCodecV2")
+@Component
 public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
 
     private static final byte VERSION = 2;

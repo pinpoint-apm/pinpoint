@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentUriStatEncoder;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
@@ -37,9 +36,9 @@ import java.util.Objects;
 @Component
 public class AgentUriStatSerializer implements HbaseSerializer<List<AgentUriStatBo>, Put> {
 
-    private final AgentUriStatEncoder agentUriStatEncoder;
+    private final AgentStatEncoder<AgentUriStatBo> agentUriStatEncoder;
 
-    public AgentUriStatSerializer(AgentUriStatEncoder agentUriStatEncoder) {
+    public AgentUriStatSerializer(AgentStatEncoder<AgentUriStatBo> agentUriStatEncoder) {
         this.agentUriStatEncoder = Objects.requireNonNull(agentUriStatEncoder, "agentUriStatEncoder");
     }
 

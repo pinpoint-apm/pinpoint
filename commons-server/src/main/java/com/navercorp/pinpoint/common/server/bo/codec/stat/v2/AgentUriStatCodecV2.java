@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Component("agentUriStatCodecV2")
+@Component
 public class AgentUriStatCodecV2 implements AgentStatCodec<AgentUriStatBo> {
 
     private static final byte VERSION = 2;

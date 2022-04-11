@@ -42,7 +42,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Component("dataSourceCodecV2")
+@Component
 public class DataSourceCodecV2 implements AgentStatCodec<DataSourceListBo> {
 
     private static final byte VERSION = 2;

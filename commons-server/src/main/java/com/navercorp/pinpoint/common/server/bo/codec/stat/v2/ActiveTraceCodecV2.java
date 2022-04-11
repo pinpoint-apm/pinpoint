@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("activeTraceCodecV2")
+@Component
 public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
 
     public ActiveTraceCodecV2(AgentStatDataPointCodec codec) {

@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
-@Component("loadedClassCodecV2")
+@Component
 public class LoadedClassCodecV2 extends AgentStatCodecV2<LoadedClassBo> {
     public LoadedClassCodecV2(AgentStatDataPointCodec codec) {
         super(new LoadedClassCodecV2.LoadedClassCodecFactory(codec));

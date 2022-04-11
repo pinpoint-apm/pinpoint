@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
-@Component("totalThreadCountCodecV2")
+@Component
 public class TotalThreadCountCodecV2 extends AgentStatCodecV2<TotalThreadCountBo> {
 
     public TotalThreadCountCodecV2(AgentStatDataPointCodec codec) {
