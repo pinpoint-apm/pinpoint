@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.starter.multi.application;
 
+import com.navercorp.pinpoint.common.server.banner.PinpointSpringBanner;
 import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
@@ -27,6 +28,7 @@ public class MultiApplication {
         builder.bannerMode(Banner.Mode.OFF);
 
         builder.sources(MultiApplication.class);
+        builder.listeners(new ProfileResolveListener());
 
         SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 1111);
         SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 8081);
@@ -42,6 +44,7 @@ public class MultiApplication {
                 .listeners(new ProfileResolveListener())
                 .listeners(new EnvironmentLoggingListener())
                 .listeners(new ExternalEnvironmentListener(EXTERNAL_PROPERTY_SOURCE_NAME, EXTERNAL_CONFIGURATION_KEY))
+                .listeners(new PinpointSpringBanner())
                 .properties(String.format("server.port:%1s", port));
 
         return collectorAppBuilder;
