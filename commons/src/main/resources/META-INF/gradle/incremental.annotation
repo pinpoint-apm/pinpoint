@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.VersionProcessor,isolating
+com.navercorp.pinpoint.common.processor.VersionProcessor,isolating
