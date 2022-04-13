@@ -19,72 +19,43 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 
 /**
  * @author minwoo.jung
  */
-public class ApplicationActiveTraceChart implements StatChart {
+public class ApplicationActiveTraceChart extends DefaultApplicationChart<AggreJoinActiveTraceBo, Integer> {
 
-    private final ApplicationActiveTraceChartGroup activeTraceChartGroup;
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Integer>> UNCOLLECTED_POINT
+            = new IntApplicationStatPoint.UncollectedCreator(JoinActiveTraceBo.UNCOLLECTED_VALUE);
 
-    public ApplicationActiveTraceChart(TimeWindow timeWindow, List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBos) {
-        this.activeTraceChartGroup = new ApplicationActiveTraceChartGroup(timeWindow, aggreJoinActiveTraceBos);
+    public enum ActiveTraceChartType implements StatChartGroup.ApplicationChartType {
+        ACTIVE_TRACE_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return activeTraceChartGroup;
+    private static final ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_COUNT, ApplicationActiveTraceChart::newActiveTracePoint);
+        return builder;
     }
 
-    public static class ApplicationActiveTraceChartGroup implements StatChartGroup {
-
-        private static final IntApplicationStatPoint.UncollectedCreator UNCOLLECTED_ACTIVE_TRACE_POINT = new IntApplicationStatPoint.UncollectedCreator(JoinActiveTraceBo.UNCOLLECTED_VALUE);
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> activeTraceChartMap;
-
-        public enum ActiveTraceChartType implements ApplicationChartType {
-            ACTIVE_TRACE_COUNT
-        }
-
-        public ApplicationActiveTraceChartGroup(TimeWindow timeWindow, List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList) {
-            this.timeWindow = timeWindow;
-            this.activeTraceChartMap = newChart(aggreJoinActiveTraceBoList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList) {
-
-            TimeSeriesChartBuilder<IntApplicationStatPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_ACTIVE_TRACE_POINT);
-            Chart<IntApplicationStatPoint> chart = chartBuilder.build(aggreJoinActiveTraceBoList, this::newActiveTracePoint);
-
-
-            return Collections.singletonMap(ActiveTraceChartType.ACTIVE_TRACE_COUNT, chart);
-        }
-
-        private IntApplicationStatPoint newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
-            final JoinIntFieldBo totalCountValue = activeTrace.getTotalCountJoinValue();
-            return new IntApplicationStatPoint(activeTrace.getTimestamp(), totalCountValue.getMin(),
-                    totalCountValue.getMinAgentId(), totalCountValue.getMax(), totalCountValue.getMaxAgentId(), totalCountValue.getAvg());
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return activeTraceChartMap;
-        }
+    public ApplicationActiveTraceChart(TimeWindow timeWindow, List<AggreJoinActiveTraceBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Integer> newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
+        final JoinIntFieldBo totalCountValue = activeTrace.getTotalCountJoinValue();
+        long timestamp = activeTrace.getTimestamp();
+
+        return StatPointUtils.toIntStatPoint(timestamp, totalCountValue);
+    }
+
 }

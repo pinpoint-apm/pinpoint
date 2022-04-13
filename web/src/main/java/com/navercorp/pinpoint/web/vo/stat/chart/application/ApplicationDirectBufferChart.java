@@ -18,99 +18,65 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author Roy Kim
  */
-public class ApplicationDirectBufferChart implements StatChart {
+public class ApplicationDirectBufferChart extends DefaultApplicationChart<AggreJoinDirectBufferBo, Long> {
 
-    private final ApplicationDirectBufferChartGroup directBufferChartGroup;
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Long>> UNCOLLECTED_POINT
+            = new LongApplicationStatPoint.UncollectedCreator(JoinDirectBufferBo.UNCOLLECTED_VALUE);
 
-    public ApplicationDirectBufferChart(TimeWindow timeWindow, List<AggreJoinDirectBufferBo> aggreJoinDirectBufferBoList) {
-        this.directBufferChartGroup = new ApplicationDirectBufferChartGroup(timeWindow, aggreJoinDirectBufferBoList);
+    private static final ChartGroupBuilder<AggreJoinDirectBufferBo, ApplicationStatPoint<Long>> BUILDER = newChartBuilder();
+
+    public enum DirectBufferChartType implements StatChartGroup.ApplicationChartType {
+        DIRECT_COUNT,
+        DIRECT_MEMORY_USED,
+        MAPPED_COUNT,
+        MAPPED_MEMORY_USED
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return directBufferChartGroup;
+    static ChartGroupBuilder<AggreJoinDirectBufferBo, ApplicationStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinDirectBufferBo, ApplicationStatPoint<Long>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(DirectBufferChartType.DIRECT_COUNT, ApplicationDirectBufferChart::newDirectCount);
+        builder.addPointFunction(DirectBufferChartType.DIRECT_MEMORY_USED, ApplicationDirectBufferChart::newDirectMemoryUsed);
+        builder.addPointFunction(DirectBufferChartType.MAPPED_COUNT, ApplicationDirectBufferChart::newMappedCount);
+        builder.addPointFunction(DirectBufferChartType.MAPPED_MEMORY_USED, ApplicationDirectBufferChart::newMappedMemoryUsed);
+        return builder;
     }
 
-    public static class ApplicationDirectBufferChartGroup implements StatChartGroup {
-
-        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_FILE_DESCRIPTOR_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinDirectBufferBo.UNCOLLECTED_VALUE);
-
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> directBufferChartMap;
-
-        public enum DirectBufferChartType implements ApplicationChartType {
-            DIRECT_COUNT,
-            DIRECT_MEMORY_USED,
-            MAPPED_COUNT,
-            MAPPED_MEMORY_USED
-        }
-
-        public ApplicationDirectBufferChartGroup(TimeWindow timeWindow, List<AggreJoinDirectBufferBo> aggreDirectBufferList) {
-            this.timeWindow = timeWindow;
-            this.directBufferChartMap = newChart(aggreDirectBufferList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinDirectBufferBo> aggreDirectBufferList) {
-            Chart<LongApplicationStatPoint> directCountChart = newChart(aggreDirectBufferList, this::newDirectCount);
-            Chart<LongApplicationStatPoint> directMemoryUsedChart = newChart(aggreDirectBufferList, this::newDirectMemoryUsed);
-            Chart<LongApplicationStatPoint> mappedCountChart = newChart(aggreDirectBufferList, this::newMappedCount);
-            Chart<LongApplicationStatPoint> mappedMemoryUsedChart = newChart(aggreDirectBufferList, this::newMappedMemoryUsed);
-            return ImmutableMap.of(DirectBufferChartType.DIRECT_COUNT, directCountChart
-                    , DirectBufferChartType.DIRECT_MEMORY_USED, directMemoryUsedChart
-                    , DirectBufferChartType.MAPPED_COUNT, mappedCountChart
-                    , DirectBufferChartType.MAPPED_MEMORY_USED, mappedMemoryUsedChart);
-        }
-
-        private Chart<LongApplicationStatPoint> newChart(List<AggreJoinDirectBufferBo> directBufferList, Function<AggreJoinDirectBufferBo, LongApplicationStatPoint> filter) {
-
-            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_FILE_DESCRIPTOR_POINT);
-            return builder.build(directBufferList, filter);
-        }
-
-        private LongApplicationStatPoint newDirectCount(AggreJoinDirectBufferBo directBuffer) {
-            final JoinLongFieldBo directCountJoinValue = directBuffer.getDirectCountJoinValue();
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directCountJoinValue.getMin(), directCountJoinValue.getMinAgentId(), directCountJoinValue.getMax(), directCountJoinValue.getMaxAgentId(), directCountJoinValue.getAvg());
-        }
-
-        private LongApplicationStatPoint newDirectMemoryUsed(AggreJoinDirectBufferBo directBuffer) {
-            final JoinLongFieldBo directMemoryUsedJoinValue = directBuffer.getDirectMemoryUsedJoinValue();
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), directMemoryUsedJoinValue.getMin(), directMemoryUsedJoinValue.getMinAgentId(), directMemoryUsedJoinValue.getMax(), directMemoryUsedJoinValue.getMaxAgentId(), directMemoryUsedJoinValue.getAvg());
-        }
-
-        private LongApplicationStatPoint newMappedCount(AggreJoinDirectBufferBo directBuffer) {
-            final JoinLongFieldBo mappedCountJoinValue = directBuffer.getMappedCountJoinValue();
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), mappedCountJoinValue.getMin(), mappedCountJoinValue.getMinAgentId(), mappedCountJoinValue.getMax(), mappedCountJoinValue.getMaxAgentId(), mappedCountJoinValue.getAvg());
-        }
-
-        private LongApplicationStatPoint newMappedMemoryUsed(AggreJoinDirectBufferBo directBuffer) {
-            final JoinLongFieldBo mappedMemoryUsedJoinValue = directBuffer.getMappedMemoryUsedJoinValue();
-            return new LongApplicationStatPoint(directBuffer.getTimestamp(), mappedMemoryUsedJoinValue.getMin(), mappedMemoryUsedJoinValue.getMinAgentId(), mappedMemoryUsedJoinValue.getMax(), mappedMemoryUsedJoinValue.getMaxAgentId(), mappedMemoryUsedJoinValue.getAvg());
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.directBufferChartMap;
-        }
+    public ApplicationDirectBufferChart(TimeWindow timeWindow, List<AggreJoinDirectBufferBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Long> newDirectCount(AggreJoinDirectBufferBo directBuffer) {
+        final JoinLongFieldBo directCountJoinValue = directBuffer.getDirectCountJoinValue();
+        long timestamp = directBuffer.getTimestamp();
+        return StatPointUtils.toLongStatPoint(timestamp, directCountJoinValue);
+    }
+
+    private static ApplicationStatPoint<Long> newDirectMemoryUsed(AggreJoinDirectBufferBo directBuffer) {
+        final JoinLongFieldBo directMemoryUsedJoinValue = directBuffer.getDirectMemoryUsedJoinValue();
+        long timestamp = directBuffer.getTimestamp();
+        return StatPointUtils.toLongStatPoint(timestamp, directMemoryUsedJoinValue);
+    }
+
+    private static ApplicationStatPoint<Long> newMappedCount(AggreJoinDirectBufferBo directBuffer) {
+        final JoinLongFieldBo mappedCountJoinValue = directBuffer.getMappedCountJoinValue();
+        long timestamp = directBuffer.getTimestamp();
+        return StatPointUtils.toLongStatPoint(timestamp, mappedCountJoinValue);
+    }
+
+    private static ApplicationStatPoint<Long> newMappedMemoryUsed(AggreJoinDirectBufferBo directBuffer) {
+        final JoinLongFieldBo mappedMemoryUsedJoinValue = directBuffer.getMappedMemoryUsedJoinValue();
+        long timestamp = directBuffer.getTimestamp();
+        return StatPointUtils.toLongStatPoint(timestamp, mappedMemoryUsedJoinValue);
+    }
+
 }

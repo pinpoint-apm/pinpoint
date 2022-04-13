@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 /**
  * @author Taejin Koo
  */
-public class AgentUriStatChart implements StatChart {
+public class AgentUriStatChart implements StatChart<Point> {
 
     private static final String UNCOLLECTED_STRING = null;
 
@@ -83,7 +83,7 @@ public class AgentUriStatChart implements StatChart {
     }
 
     @Override
-    public StatChartGroup getCharts() {
+    public StatChartGroup<Point> getCharts() {
         return agentUriChartGroup;
     }
 
@@ -91,7 +91,7 @@ public class AgentUriStatChart implements StatChart {
 //        return failedAgentUriChartGroup;
 //    }
 
-    public static class AgentUriChartGroup implements StatChartGroup {
+    public static class AgentUriChartGroup implements StatChartGroup<Point> {
 
         private final TimeWindow timeWindow;
 
@@ -99,7 +99,7 @@ public class AgentUriStatChart implements StatChart {
         private final long maxTime;
         private final double avgTime;
 
-        private final Map<ChartType, Chart<? extends Point>> charts;
+        private final Map<ChartType, Chart<Point>> charts;
 
 
         private AgentUriChartGroup(TimeWindow timeWindow, List<SampledUriStatHistogramBo> sampledUriStatHistogramBoList) {
@@ -123,7 +123,7 @@ public class AgentUriStatChart implements StatChart {
 
 
         @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
+        public Map<ChartType, Chart<Point>> getCharts() {
             return charts;
         }
 
@@ -150,7 +150,7 @@ public class AgentUriStatChart implements StatChart {
             }
         }
 
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledUriStatHistogramBo> sampledEachUriStatHistogramBoList) {
+        private Map<ChartType, Chart<Point>> newChart(List<SampledUriStatHistogramBo> sampledEachUriStatHistogramBoList) {
             Map<ChartType, Chart<? extends Point>> totalCharts = new HashMap<>();
 
             Chart<AgentStatPoint<Integer>> totalCountChart = newIntChart(sampledEachUriStatHistogramBoList, SampledUriStatHistogramBo::getCountPoint);
@@ -169,7 +169,7 @@ public class AgentUriStatChart implements StatChart {
             }
             totalCharts.put(AgentUriHistogramType.HISTOGRAM_BUCKET, newHistogramPointChart(histogramPoints));
 
-            return totalCharts;
+            return (Map<ChartType, Chart<Point>>)(Map<ChartType, ?>) totalCharts;
         }
 
         private UriStatHistogramPoint createUriStatHistogramPoint(SampledUriStatHistogramBo sampledUriStatHistogramBo) {
@@ -180,23 +180,23 @@ public class AgentUriStatChart implements StatChart {
         }
 
         private Chart<AgentStatPoint<Integer>> newIntChart(List<SampledUriStatHistogramBo> sampledEachUriStatBoList, Function<SampledUriStatHistogramBo, AgentStatPoint<Integer>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, DEFAULT_STAT_POINT_FACTORY.getUncollectedIntValuePointCreator());
-            return builder.build(sampledEachUriStatBoList, function);
+            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(DEFAULT_STAT_POINT_FACTORY.getUncollectedIntValuePointCreator());
+            return builder.build(this.timeWindow, sampledEachUriStatBoList, function);
         }
 
         private Chart<AgentStatPoint<Long>> newLongChart(List<SampledUriStatHistogramBo> sampledEachUriStatBoList, Function<SampledUriStatHistogramBo, AgentStatPoint<Long>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, DEFAULT_STAT_POINT_FACTORY.getUncollectedLongValuePointCreator());
-            return builder.build(sampledEachUriStatBoList, function);
+            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(DEFAULT_STAT_POINT_FACTORY.getUncollectedLongValuePointCreator());
+            return builder.build(this.timeWindow, sampledEachUriStatBoList, function);
         }
 
         private Chart<AgentStatPoint<Double>> newDoubleChart(List<SampledUriStatHistogramBo> sampledEachUriStatBoList, Function<SampledUriStatHistogramBo, AgentStatPoint<Double>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, DEFAULT_STAT_POINT_FACTORY.getUncollectedDoubleValuePointCreator());
-            return builder.build(sampledEachUriStatBoList, function);
+            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(DEFAULT_STAT_POINT_FACTORY.getUncollectedDoubleValuePointCreator());
+            return builder.build(this.timeWindow, sampledEachUriStatBoList, function);
         }
 
         private Chart<UriStatHistogramPoint> newHistogramPointChart(List<UriStatHistogramPoint> histogramPointList) {
-            TimeSeriesChartBuilder<UriStatHistogramPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_POINT_CREATOR);
-            return builder.build(histogramPointList);
+            TimeSeriesChartBuilder<UriStatHistogramPoint> builder = new TimeSeriesChartBuilder<>(UNCOLLECTED_POINT_CREATOR);
+            return builder.build(this.timeWindow, histogramPointList);
         }
 
     }

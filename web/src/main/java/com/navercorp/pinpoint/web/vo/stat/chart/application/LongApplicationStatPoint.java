@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.view.LongApplicationStatSerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Taejin Koo
@@ -33,7 +32,7 @@ public class LongApplicationStatPoint extends ApplicationStatPoint<Long> {
         super(xVal, yValForMin, agentIdForMin, yValForMax, agentIdForMax, yValForAvg);
     }
 
-    public static class UncollectedCreator implements UncollectedPointCreator<LongApplicationStatPoint> {
+    public static class UncollectedCreator implements UncollectedPointCreator<ApplicationStatPoint<Long>> {
 
         private final long uncollectedValue;
 
@@ -46,7 +45,7 @@ public class LongApplicationStatPoint extends ApplicationStatPoint<Long> {
         }
 
         @Override
-        public LongApplicationStatPoint createUnCollectedPoint(long xVal) {
+        public ApplicationStatPoint<Long> createUnCollectedPoint(long xVal) {
             return new LongApplicationStatPoint(xVal, uncollectedValue,
                     JoinStatBo.UNKNOWN_AGENT, uncollectedValue,
                     JoinStatBo.UNKNOWN_AGENT, uncollectedValue);

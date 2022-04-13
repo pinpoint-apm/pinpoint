@@ -19,72 +19,42 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class ApplicationResponseTimeChart implements StatChart {
+public class ApplicationResponseTimeChart extends DefaultApplicationChart<AggreJoinResponseTimeBo, Double> {
 
-    private final ApplicationResponseTimeChartGroup applicationResponseTimeChartGroup;
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+            = new DoubleApplicationStatPoint.UncollectedCreator(JoinResponseTimeBo.UNCOLLECTED_VALUE);
 
-    public ApplicationResponseTimeChart(TimeWindow timeWindow, List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList) {
-        this.applicationResponseTimeChartGroup = new ApplicationResponseTimeChartGroup(timeWindow, aggreJoinResponseTimeBoList);
+
+    private static final ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+
+    public enum ResponseTimeChartType implements StatChartGroup.ApplicationChartType {
+        RESPONSE_TIME;
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return applicationResponseTimeChartGroup;
+    static ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(ResponseTimeChartType.RESPONSE_TIME, ApplicationResponseTimeChart::newResponseTime);
+        return builder;
     }
 
-    public static class ApplicationResponseTimeChartGroup implements StatChartGroup {
-
-        private static final DoubleApplicationStatPoint.UncollectedCreator UNCOLLECTED_RESPONSE_TIME_POINT = new DoubleApplicationStatPoint.UncollectedCreator(JoinResponseTimeBo.UNCOLLECTED_VALUE);
-
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> responseTimeChartMap;
-
-        public enum ResponseTimeChartType implements ApplicationChartType {
-            RESPONSE_TIME
-        }
-
-        public ApplicationResponseTimeChartGroup(TimeWindow timeWindow, List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList) {
-            this.timeWindow = timeWindow;
-            this.responseTimeChartMap = newChart(aggreJoinResponseTimeBoList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinResponseTimeBo> responseTimeBoList) {
-
-            TimeSeriesChartBuilder<DoubleApplicationStatPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_RESPONSE_TIME_POINT);
-            Chart<DoubleApplicationStatPoint> chart = chartBuilder.build(responseTimeBoList, this::newResponseTime);
-
-            return Collections.singletonMap(ResponseTimeChartType.RESPONSE_TIME, chart);
-        }
-
-
-        private DoubleApplicationStatPoint newResponseTime(AggreJoinResponseTimeBo time) {
-            final JoinLongFieldBo responseTimeJoinValue = time.getResponseTimeJoinValue();
-            return new DoubleApplicationStatPoint(time.getTimestamp(), (double) responseTimeJoinValue.getMin(), responseTimeJoinValue.getMinAgentId(),
-                    (double) responseTimeJoinValue.getMax(), responseTimeJoinValue.getMaxAgentId(), (double) responseTimeJoinValue.getAvg());
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return responseTimeChartMap;
-        }
+    public ApplicationResponseTimeChart(TimeWindow timeWindow, List<AggreJoinResponseTimeBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Double> newResponseTime(AggreJoinResponseTimeBo time) {
+        final JoinLongFieldBo responseTimeJoinValue = time.getResponseTimeJoinValue();
+        long timestamp = time.getTimestamp();
+        return StatPointUtils.longToDoubleStatPoint(timestamp, responseTimeJoinValue);
+    }
+
 }

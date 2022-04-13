@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DeadlockSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
@@ -48,9 +48,9 @@ public class DeadlockChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDeadlock> sampledDeadlockList = createSampledResponseTimeList(timeWindow);
-        StatChartGroup deadlockChartGroup = new DeadlockChart.DeadlockChartGroup(timeWindow, sampledDeadlockList);
+        StatChart<AgentStatPoint<Integer>> deadlockChartGroup = new DeadlockChart(timeWindow, sampledDeadlockList);
 
-        assertEquals(sampledDeadlockList, deadlockChartGroup);
+        assertEquals(sampledDeadlockList, deadlockChartGroup.getCharts());
     }
 
     private List<SampledDeadlock> createSampledResponseTimeList(TimeWindow timeWindow) {
@@ -81,15 +81,15 @@ public class DeadlockChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, deadlockThreadCountBoList, null);
     }
 
-    private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup deadlockChartGroup) {
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = deadlockChartGroup.getCharts();
+    private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup<AgentStatPoint<Integer>> deadlockChartGroup) {
+        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> charts = deadlockChartGroup.getCharts();
 
-        Chart deadlockCountChart = charts.get(DeadlockChart.DeadlockChartGroup.DeadlockChartType.DEADLOCK_COUNT);
-        List<Point> deadlockCountChartPointList = deadlockCountChart.getPoints();
+        Chart<AgentStatPoint<Integer>> deadlockCountChart = charts.get(DeadlockChart.DeadlockChartType.DEADLOCK_COUNT);
+        List<AgentStatPoint<Integer>> deadlockCountChartPointList = deadlockCountChart.getPoints();
 
         for (int i = 0; i < sampledDeadlockList.size(); i++) {
             SampledDeadlock sampledDeadlock = sampledDeadlockList.get(i);
-            Point point = sampledDeadlock.getDeadlockedThreadCount();
+            AgentStatPoint<Integer> point = sampledDeadlock.getDeadlockedThreadCount();
 
             Assert.assertEquals(deadlockCountChartPointList.get(i), point);
         }

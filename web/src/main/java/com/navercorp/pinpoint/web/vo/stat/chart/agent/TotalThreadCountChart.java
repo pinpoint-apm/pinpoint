@@ -16,54 +16,29 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
-public class TotalThreadCountChart implements StatChart {
-    private final TotalThreadCountChartGroup totalThreadCountChartGroup;
+public class TotalThreadCountChart extends DefaultAgentChart<SampledTotalThreadCount, Long> {
 
-    public TotalThreadCountChart(TimeWindow timeWindow, List<SampledTotalThreadCount> sampledTotalThreadCounts) {
-        this.totalThreadCountChartGroup = new TotalThreadCountChartGroup(timeWindow, sampledTotalThreadCounts);
+    public enum TotalThreadCountChartType implements StatChartGroup.AgentChartType {
+        TOTAL_THREAD_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() { return totalThreadCountChartGroup; }
+    private static final ChartGroupBuilder<SampledTotalThreadCount, AgentStatPoint<Long>> BUILDER = newChartBuilder();
 
-    public static class TotalThreadCountChartGroup implements StatChartGroup{
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> totalThreadCountCharts;
-        public enum TotalThreadCountChartType implements AgentChartType {
-            TOTAL_THREAD_COUNT
-        }
-
-            public TotalThreadCountChartGroup(TimeWindow timeWindow, List<SampledTotalThreadCount> sampledTotalThreadCounts) {
-            this.timeWindow = timeWindow;
-            this.totalThreadCountCharts = newChart(sampledTotalThreadCounts);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledTotalThreadCount> sampledTotalThreadCounts) {
-            Chart<AgentStatPoint<Long>> totalThreadCountChart = newChart(sampledTotalThreadCounts, SampledTotalThreadCount::getTotalThreadCount);
-            return ImmutableMap.of(TotalThreadCountChartType.TOTAL_THREAD_COUNT, totalThreadCountChart);
-        }
-
-        private Chart<AgentStatPoint<Long>> newChart(List<SampledTotalThreadCount> sampledTotalThreadCounts, Function<SampledTotalThreadCount, AgentStatPoint<Long>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR);
-            return builder.build(sampledTotalThreadCounts, function);
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() { return timeWindow; }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() { return totalThreadCountCharts; }
+    static ChartGroupBuilder<SampledTotalThreadCount, AgentStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<SampledTotalThreadCount, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(TotalThreadCountChartType.TOTAL_THREAD_COUNT, SampledTotalThreadCount::getTotalThreadCount);
+        return builder;
     }
+
+    public TotalThreadCountChart(TimeWindow timeWindow, List<SampledTotalThreadCount> statList) {
+        super(timeWindow, statList, BUILDER);
+    }
+
 }

@@ -15,86 +15,52 @@
  */
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinLoadedClassBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
-public class ApplicationLoadedClassChart implements StatChart {
-    private final ApplicationLoadedClassChartGroup loadedClassChartGroup;
+public class ApplicationLoadedClassChart extends DefaultApplicationChart<AggreJoinLoadedClassBo, Long> {
 
-    public ApplicationLoadedClassChart(TimeWindow timeWindow, List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList) {
-        this.loadedClassChartGroup = new ApplicationLoadedClassChartGroup(timeWindow, aggreJoinLoadedClassBoList);
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Long>> UNCOLLECTED_POINT
+            = new LongApplicationStatPoint.UncollectedCreator(JoinLoadedClassBo.UNCOLLECTED_VALUE);
+
+    private static final ChartGroupBuilder<AggreJoinLoadedClassBo, ApplicationStatPoint<Long>> BUILDER = newChartBuilder();
+
+
+
+    public enum LoadedClassChartType implements StatChartGroup.ApplicationChartType {
+        LOADED_CLASS_COUNT,
+        UNLOADED_CLASS_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return loadedClassChartGroup;
+    static ChartGroupBuilder<AggreJoinLoadedClassBo, ApplicationStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinLoadedClassBo, ApplicationStatPoint<Long>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(LoadedClassChartType.LOADED_CLASS_COUNT, ApplicationLoadedClassChart::newLoadedClassCount);
+        builder.addPointFunction(LoadedClassChartType.UNLOADED_CLASS_COUNT, ApplicationLoadedClassChart::newUnloadedClassCount);
+        return builder;
     }
 
-    public static class ApplicationLoadedClassChartGroup implements StatChartGroup {
-        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_LOADED_CLASS_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinLoadedClassBo.UNCOLLECTED_VALUE);
-
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> loadedClassChartMap;
-
-        public enum LoadedClassChartType implements ApplicationChartType {
-            LOADED_CLASS_COUNT,
-            UNLOADED_CLASS_COUNT
-        }
-
-        public ApplicationLoadedClassChartGroup(TimeWindow timeWindow, List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList) {
-            this.timeWindow = timeWindow;
-            this.loadedClassChartMap = newChart(aggreJoinLoadedClassBoList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList) {
-            Chart<LongApplicationStatPoint> loadedClassCount = newChart(aggreJoinLoadedClassBoList, this::newLoadedClassCount);
-            Chart<LongApplicationStatPoint> unloadedClassCount = newChart(aggreJoinLoadedClassBoList, this::newUnloadedClassCount);
-
-
-            return ImmutableMap.of(LoadedClassChartType.LOADED_CLASS_COUNT, loadedClassCount
-                    , LoadedClassChartType.UNLOADED_CLASS_COUNT, unloadedClassCount);
-        }
-
-        private Chart<LongApplicationStatPoint> newChart(List<AggreJoinLoadedClassBo> LoadedClassList, Function<AggreJoinLoadedClassBo, LongApplicationStatPoint> filter) {
-            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_LOADED_CLASS_POINT);
-            return builder.build(LoadedClassList, filter);
-        }
-
-        private LongApplicationStatPoint newLoadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
-            final JoinLongFieldBo loadedClassJoinValue = loadedClassBo.getLoadedClassJoinValue();
-            return new LongApplicationStatPoint(loadedClassBo.getTimestamp(),
-                    loadedClassJoinValue.getMin(), loadedClassJoinValue.getMinAgentId(),
-                    loadedClassJoinValue.getMax(), loadedClassJoinValue.getMaxAgentId(), loadedClassJoinValue.getAvg());
-        }
-
-        private LongApplicationStatPoint newUnloadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
-            final JoinLongFieldBo unloadedClassJoinValue = loadedClassBo.getUnloadedClassJoinValue();
-            return new LongApplicationStatPoint(loadedClassBo.getTimestamp(),
-                    unloadedClassJoinValue.getMin(), unloadedClassJoinValue.getMinAgentId(),
-                    unloadedClassJoinValue.getMax(), unloadedClassJoinValue.getMaxAgentId(),
-                    unloadedClassJoinValue.getAvg());
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.loadedClassChartMap;
-        }
+    public ApplicationLoadedClassChart(TimeWindow timeWindow, List<AggreJoinLoadedClassBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Long> newLoadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
+        final JoinLongFieldBo loadedClassJoinValue = loadedClassBo.getLoadedClassJoinValue();
+        long timestamp = loadedClassBo.getTimestamp();
+        return StatPointUtils.toLongStatPoint(timestamp, loadedClassJoinValue);
+    }
+
+    private static ApplicationStatPoint<Long> newUnloadedClassCount(AggreJoinLoadedClassBo loadedClassBo) {
+        final JoinLongFieldBo unloadedClassJoinValue = loadedClassBo.getUnloadedClassJoinValue();
+        long timestamp = loadedClassBo.getTimestamp();
+
+        return StatPointUtils.toLongStatPoint(timestamp, unloadedClassJoinValue);
+    }
+
 }

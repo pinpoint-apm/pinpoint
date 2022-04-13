@@ -17,13 +17,11 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -55,21 +53,21 @@ public class ApplicationDataSourceChartGroupTest {
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo4);
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo5);
 
-        StatChartGroup applicationDataSourceChartGroup = new ApplicationDataSourceChart.ApplicationDataSourceChartGroup(timeWindow, "jdbc:mysql", "dbcp2", aggreJoinDataSourceBoList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationDataSourceChartGroup.getCharts();
+        StatChartGroup<ApplicationStatPoint<Integer>> applicationDataSourceChartGroup = new ApplicationDataSourceChart.ApplicationDataSourceChartGroup(timeWindow, "jdbc:mysql", "dbcp2", aggreJoinDataSourceBoList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Integer>>> charts = applicationDataSourceChartGroup.getCharts();
         assertEquals(1, charts.size());
 
-        Chart dataSourceChart = charts.get(ApplicationDataSourceChart.ApplicationDataSourceChartGroup.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
-        List<Point> dataSourcePoints = dataSourceChart.getPoints();
+        Chart<ApplicationStatPoint<Integer>> dataSourceChart = charts.get(ApplicationDataSourceChart.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
+        List<ApplicationStatPoint<Integer>> dataSourcePoints = dataSourceChart.getPoints();
         assertEquals(5, dataSourcePoints.size());
         int index = dataSourcePoints.size();
 
-        for (Point point : dataSourcePoints) {
-            testDataSource((IntApplicationStatPoint) point, aggreJoinDataSourceBoList.get(--index));
+        for (ApplicationStatPoint<Integer> point : dataSourcePoints) {
+            testDataSource(point, aggreJoinDataSourceBoList.get(--index));
         }
     }
 
-    private void testDataSource(IntApplicationStatPoint dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
+    private void testDataSource(ApplicationStatPoint<Integer> dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
         assertEquals(dataSourcePoint.getXVal(), aggreJoinDataSourceBo.getTimestamp());
         final JoinIntFieldBo activeConnectionSizeJoinValue = aggreJoinDataSourceBo.getActiveConnectionSizeJoinValue();
         assertEquals(dataSourcePoint.getYValForAvg(), activeConnectionSizeJoinValue.getAvg(), 0);
