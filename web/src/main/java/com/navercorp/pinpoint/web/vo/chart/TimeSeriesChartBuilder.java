@@ -31,24 +31,29 @@ import java.util.function.Function;
  */
 public class TimeSeriesChartBuilder<P extends Point> {
 
-    private final TimeWindow timeWindow;
     private final Point.UncollectedPointCreator<P> uncollectedPointCreator;
 
-    public TimeSeriesChartBuilder(TimeWindow timeWindow, Point.UncollectedPointCreator<P> uncollectedPointCreator) {
-        if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("range yields too many timeslots");
-        }
-        this.timeWindow = timeWindow;
+    public TimeSeriesChartBuilder(Point.UncollectedPointCreator<P> uncollectedPointCreator) {
         this.uncollectedPointCreator = Objects.requireNonNull(uncollectedPointCreator, "uncollectedPointCreator");
     }
 
-    public Chart<P> build(List<P> sampledPoints) {
+    private void checkTimeWindow(TimeWindow timeWindow) {
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
+        if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("range yields too many timeslots");
+        }
+    }
+
+    public Chart<P> build(TimeWindow timeWindow, List<P> sampledPoints) {
+        checkTimeWindow(timeWindow);
+
         if (CollectionUtils.isEmpty(sampledPoints)) {
             return new Chart<>(Collections.emptyList());
         }
-        List<P> points = createInitialPoints();
+        List<P> points = createInitialPoints(timeWindow);
         for (P sampledPoint : sampledPoints) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(sampledPoint.getXVal());
+            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getXVal());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
             }
@@ -57,11 +62,11 @@ public class TimeSeriesChartBuilder<P extends Point> {
         return new Chart<>(points);
     }
 
-    public <S> Chart<P> build(List<S> sourceList, Function<S, P> function) {
+    public <S> Chart<P> build(TimeWindow timeWindow, List<S> sourceList, Function<S, P> function) {
         Objects.requireNonNull(function, "function");
 
         List<P> filter = applyFilter(sourceList, function);
-        return build(filter);
+        return build(timeWindow, filter);
     }
 
     private <S> List<P> applyFilter(List<S> sourceList, Function<S, P> filter) {
@@ -77,10 +82,10 @@ public class TimeSeriesChartBuilder<P extends Point> {
         return result;
     }
 
-    private List<P> createInitialPoints() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+    private List<P> createInitialPoints(TimeWindow timeWindow) {
+        int numTimeslots = (int) timeWindow.getWindowRangeCount();
         List<P> points = new ArrayList<>(numTimeslots);
-        for (long timestamp : this.timeWindow) {
+        for (long timestamp : timeWindow) {
             points.add(uncollectedPointCreator.createUnCollectedPoint(timestamp));
         }
         return points;

@@ -16,70 +16,35 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
+import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
-public class ResponseTimeChart implements StatChart {
+public class ResponseTimeChart extends DefaultAgentChart<SampledResponseTime, Long> {
 
-    private final ResponseTimeChartGroup responseTimeChartGroup;
-
-    public ResponseTimeChart(TimeWindow timeWindow, List<SampledResponseTime> sampledResponseTimes) {
-        this.responseTimeChartGroup = new ResponseTimeChartGroup(timeWindow, sampledResponseTimes);
+    public enum ResponseTimeChartType implements StatChartGroup.AgentChartType {
+        AVG,
+        MAX
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return responseTimeChartGroup;
+    private static final ChartGroupBuilder<SampledResponseTime, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledResponseTime, AgentStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<SampledResponseTime, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(ResponseTimeChartType.AVG, SampledResponseTime::getAvg);
+        builder.addPointFunction(ResponseTimeChartType.MAX, SampledResponseTime::getMax);
+        return builder;
     }
 
-    public static class ResponseTimeChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> responseTimeCharts;
-
-        public enum ResponseTimeChartType implements AgentChartType {
-            AVG,
-            MAX
-        }
-
-        public ResponseTimeChartGroup(TimeWindow timeWindow, List<SampledResponseTime> sampledResponseTimes) {
-            this.timeWindow = timeWindow;
-            this.responseTimeCharts = newChart(sampledResponseTimes);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledResponseTime> sampledResponseTimes) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledResponseTime.UNCOLLECTED_POINT_CREATOR);
-            Chart<AgentStatPoint<Long>> avgChart = chartBuilder.build(sampledResponseTimes, SampledResponseTime::getAvg);
-            Chart<AgentStatPoint<Long>> maxChart = chartBuilder.build(sampledResponseTimes, SampledResponseTime::getMax);
-
-            ImmutableMap.Builder<ChartType, Chart<? extends Point>> builder = ImmutableMap.builder();
-            builder.put(ResponseTimeChartType.AVG, avgChart);
-            builder.put(ResponseTimeChartType.MAX, maxChart);
-            return builder.build();
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.responseTimeCharts;
-        }
+    public ResponseTimeChart(TimeWindow timeWindow, List<SampledResponseTime> statList) {
+        super(timeWindow, statList, BUILDER);
     }
 
 }

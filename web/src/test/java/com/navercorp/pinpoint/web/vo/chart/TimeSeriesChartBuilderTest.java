@@ -72,10 +72,10 @@ public class TimeSeriesChartBuilderTest {
         // Given
         int numSlots = 10;
         TimeWindow timeWindow = new TimeWindow(Range.between(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
-        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(timeWindow, TestPoint.UNCOLLECTED_POINT_CREATOR);
+        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(TestPoint.UNCOLLECTED_POINT_CREATOR);
         List<TestPoint> points = Collections.emptyList();
         // When
-        Chart<TestPoint> chart = builder.build(points);
+        Chart<TestPoint> chart = builder.build(timeWindow, points);
         // Then
         List<TestPoint> sampledPoints = chart.getPoints();
         Assert.assertTrue(sampledPoints.isEmpty());
@@ -86,13 +86,13 @@ public class TimeSeriesChartBuilderTest {
         // Given
         int numSlots = 100;
         TimeWindow timeWindow = new TimeWindow(Range.between(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
-        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(timeWindow, TestPoint.UNCOLLECTED_POINT_CREATOR);
+        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(TestPoint.UNCOLLECTED_POINT_CREATOR);
         List<TestPoint> points = new ArrayList<>(TIME_WINDOW_SIZE * numSlots);
         for (int i = 0; i <= TIME_WINDOW_SIZE * numSlots; i++) {
             points.add(new TestPoint(i, i / TIME_WINDOW_SIZE));
         }
         // When
-        Chart<TestPoint> chart = builder.build(points);
+        Chart<TestPoint> chart = builder.build(timeWindow, points);
         // Then
         List<TestPoint> sampledPoints = chart.getPoints();
         for (int i = 0; i < sampledPoints.size(); i++) {

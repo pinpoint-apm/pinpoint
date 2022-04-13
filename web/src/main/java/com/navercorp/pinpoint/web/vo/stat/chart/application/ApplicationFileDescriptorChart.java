@@ -18,75 +18,41 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author Roy Kim
  */
-public class ApplicationFileDescriptorChart implements StatChart {
+public class ApplicationFileDescriptorChart extends DefaultApplicationChart<AggreJoinFileDescriptorBo, Long> {
 
-    private final ApplicationFileDescriptorChartGroup fileDescriptorChartGroup;
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Long>> UNCOLLECTED_POINT
+            = new LongApplicationStatPoint.UncollectedCreator(JoinFileDescriptorBo.UNCOLLECTED_VALUE);
 
-    public ApplicationFileDescriptorChart(TimeWindow timeWindow, List<AggreJoinFileDescriptorBo> aggreJoinFileDescriptorBoList) {
-        this.fileDescriptorChartGroup = new ApplicationFileDescriptorChartGroup(timeWindow, aggreJoinFileDescriptorBoList);
+    private static final ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> BUILDER = newChartBuilder();
+
+    public enum FileDescriptorChartType implements StatChartGroup.ApplicationChartType {
+        OPEN_FILE_DESCRIPTOR_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return fileDescriptorChartGroup;
+    static ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, ApplicationFileDescriptorChart::newOpenFileDescriptorCount);
+        return builder;
     }
 
-    public static class ApplicationFileDescriptorChartGroup implements StatChartGroup {
-
-        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_FILE_DESCRIPTOR_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinFileDescriptorBo.UNCOLLECTED_VALUE);
-
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> fileDescriptorChartMap;
-
-        public enum FileDescriptorChartType implements ApplicationChartType {
-            OPEN_FILE_DESCRIPTOR_COUNT
-        }
-
-        public ApplicationFileDescriptorChartGroup(TimeWindow timeWindow, List<AggreJoinFileDescriptorBo> aggreFileDescriptorList) {
-            this.timeWindow = timeWindow;
-            this.fileDescriptorChartMap = newChart(aggreFileDescriptorList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinFileDescriptorBo> aggreFileDescriptorList) {
-            Chart<LongApplicationStatPoint> openFileDescriptorCountChart = newChart(aggreFileDescriptorList, this::newOpenFileDescriptorCount);
-            return ImmutableMap.of(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, openFileDescriptorCountChart);
-        }
-
-        private Chart<LongApplicationStatPoint> newChart(List<AggreJoinFileDescriptorBo> fileDescriptorList, Function<AggreJoinFileDescriptorBo, LongApplicationStatPoint> filter) {
-            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_FILE_DESCRIPTOR_POINT);
-            return builder.build(fileDescriptorList, filter);
-        }
-
-        private LongApplicationStatPoint newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
-            final JoinLongFieldBo openFdCountJoinValue = fileDescriptor.getOpenFdCountJoinValue();
-            return new LongApplicationStatPoint(fileDescriptor.getTimestamp(), openFdCountJoinValue.getMin(), openFdCountJoinValue.getMinAgentId(),
-                    openFdCountJoinValue.getMax(), openFdCountJoinValue.getMaxAgentId(), openFdCountJoinValue.getAvg());
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.fileDescriptorChartMap;
-        }
+    public ApplicationFileDescriptorChart(TimeWindow timeWindow, List<AggreJoinFileDescriptorBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Long> newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
+        final JoinLongFieldBo openFdCountJoinValue = fileDescriptor.getOpenFdCountJoinValue();
+        long timestamp = fileDescriptor.getTimestamp();
+        return StatPointUtils.toLongStatPoint(timestamp, openFdCountJoinValue);
+    }
+
 }

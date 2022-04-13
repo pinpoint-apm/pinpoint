@@ -16,98 +16,72 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.DefaultStatChartGroup;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class JvmGcDetailedChart implements StatChart {
 
-    private final JvmGcDetailedChartGroup jvmGcDetailedChartGroup;
+    public enum JvmGcDetailedChartType implements StatChartGroup.AgentChartType {
+        JVM_DETAILED_GC_NEW_COUNT,
+        JVM_DETAILED_GC_NEW_TIME,
+        JVM_DETAILED_CODE_CACHE_USED,
+        JVM_DETAILED_NEW_GEN_USED,
+        JVM_DETAILED_OLD_GEN_USED,
+        JVM_DETAILED_SURVIVOR_SPACE_USED,
+        JVM_DETAILED_PERM_GEN_USED,
+        JVM_DETAILED_METASPACE_USED
+    }
 
-    public JvmGcDetailedChart(TimeWindow timeWindow, List<SampledJvmGcDetailed> sampledJvmGcDetaileds) {
-        this.jvmGcDetailedChartGroup = new JvmGcDetailedChartGroup(timeWindow, sampledJvmGcDetaileds);
+    private static final ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Long>> LONG_BUILDER = newLongChartBuilder();
+    private static final ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Double>> DOUBLE_BUILDER = newDoubleChartBuilder();
+
+    static ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Long>> newLongChartBuilder() {
+        ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_COUNT, SampledJvmGcDetailed::getGcNewCount);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_TIME, SampledJvmGcDetailed::getGcNewTime);
+        return builder;
+    }
+    static ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Double>> newDoubleChartBuilder() {
+        ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Double>> builder = new ChartGroupBuilder<>(SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_CODE_CACHE_USED, SampledJvmGcDetailed::getCodeCacheUsed);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_NEW_GEN_USED, SampledJvmGcDetailed::getNewGenUsed);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_OLD_GEN_USED, SampledJvmGcDetailed::getOldGenUsed);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_SURVIVOR_SPACE_USED, SampledJvmGcDetailed::getSurvivorSpaceUsed);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_PERM_GEN_USED, SampledJvmGcDetailed::getPermGenUsed);
+        builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_METASPACE_USED, SampledJvmGcDetailed::getMetaspaceUsed);
+        return builder;
+    }
+
+    private final TimeWindow timeWindow;
+    private final List<SampledJvmGcDetailed> statList;
+
+    public JvmGcDetailedChart(TimeWindow timeWindow, List<SampledJvmGcDetailed> statList) {
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
+        this.statList = Objects.requireNonNull(statList, "statList");
     }
 
     @Override
     public StatChartGroup getCharts() {
-        return jvmGcDetailedChartGroup;
+        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Long>>> longMap = LONG_BUILDER.buildMap(timeWindow, statList);
+        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Double>>> doubleMap = DOUBLE_BUILDER.buildMap(timeWindow, statList);
+
+        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<?>>> merge = new HashMap<>();
+        merge.putAll((Map<StatChartGroup.ChartType, Chart<AgentStatPoint<?>>>) (Map<StatChartGroup.ChartType, ?>) longMap);
+        merge.putAll((Map<StatChartGroup.ChartType, Chart<AgentStatPoint<?>>>) (Map<StatChartGroup.ChartType, ?>) doubleMap);
+        return new DefaultStatChartGroup<>(timeWindow, merge);
     }
 
-    public static class JvmGcDetailedChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> jvmGcDetailedCharts;
-
-        public enum JvmGcDetailedChartType implements AgentChartType {
-            JVM_DETAILED_GC_NEW_COUNT,
-            JVM_DETAILED_GC_NEW_TIME,
-            JVM_DETAILED_CODE_CACHE_USED,
-            JVM_DETAILED_NEW_GEN_USED,
-            JVM_DETAILED_OLD_GEN_USED,
-            JVM_DETAILED_SURVIVOR_SPACE_USED,
-            JVM_DETAILED_PERM_GEN_USED,
-            JVM_DETAILED_METASPACE_USED
-        }
-
-        public JvmGcDetailedChartGroup(TimeWindow timeWindow, List<SampledJvmGcDetailed> sampledJvmGcDetailedList) {
-            this.timeWindow = timeWindow;
-            this.jvmGcDetailedCharts = newChart(sampledJvmGcDetailedList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledJvmGcDetailed> gcDetailedList) {
-            // TODO Refactor generic cast
-            Chart<AgentStatPoint<Long>> gcNewCounts = newLongChart(gcDetailedList, SampledJvmGcDetailed::getGcNewCount);
-            Chart<AgentStatPoint<Long>> gcNewTimes = newLongChart(gcDetailedList, SampledJvmGcDetailed::getGcNewTime);
-            Chart<AgentStatPoint<Double>> codeCacheUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getCodeCacheUsed);
-            Chart<AgentStatPoint<Double>> newGenUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getNewGenUsed);
-            Chart<AgentStatPoint<Double>> oldGenUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getOldGenUsed);
-            Chart<AgentStatPoint<Double>> survivorSpaceUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getSurvivorSpaceUsed);
-            Chart<AgentStatPoint<Double>> permGenUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getPermGenUsed);
-            Chart<AgentStatPoint<Double>> metaspaceUseds = newDoubleChart(gcDetailedList, SampledJvmGcDetailed::getMetaspaceUsed);
-
-            ImmutableMap.Builder<ChartType, Chart<? extends Point>> builder = ImmutableMap.builder();
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_COUNT, gcNewCounts);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_TIME, gcNewTimes);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_CODE_CACHE_USED, codeCacheUseds);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_NEW_GEN_USED, newGenUseds);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_OLD_GEN_USED, oldGenUseds);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_SURVIVOR_SPACE_USED, survivorSpaceUseds);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_PERM_GEN_USED, permGenUseds);
-            builder.put(JvmGcDetailedChartType.JVM_DETAILED_METASPACE_USED, metaspaceUseds);
-            return builder.build();
-        }
-
-        private Chart<AgentStatPoint<Double>> newDoubleChart(List<SampledJvmGcDetailed> sampledDataSourceList, Function<SampledJvmGcDetailed, AgentStatPoint<Double>> filter) {
-            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
-            return builder.build(sampledDataSourceList, filter);
-        }
-
-        private Chart<AgentStatPoint<Long>> newLongChart(List<SampledJvmGcDetailed> sampledDataSourceList, Function<SampledJvmGcDetailed, AgentStatPoint<Long>> filter) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR);
-            return builder.build(sampledDataSourceList, filter);
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return jvmGcDetailedCharts;
-        }
-    }
 }

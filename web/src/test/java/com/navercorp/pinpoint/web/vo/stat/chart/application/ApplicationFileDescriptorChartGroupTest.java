@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -55,21 +54,22 @@ public class ApplicationFileDescriptorChartGroupTest {
         aggreFileDescriptorList.add(aggreJoinFileDescriptorBo4);
         aggreFileDescriptorList.add(aggreJoinFileDescriptorBo5);
 
-        StatChartGroup applicationFileDescriptorChartGroup = new ApplicationFileDescriptorChart.ApplicationFileDescriptorChartGroup(timeWindow, aggreFileDescriptorList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationFileDescriptorChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> builder = ApplicationFileDescriptorChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Long>> applicationFileDescriptorChartGroup = builder.build(timeWindow, aggreFileDescriptorList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = applicationFileDescriptorChartGroup.getCharts();
         assertEquals(1, charts.size());
 
-        Chart fileDescriptorChart = charts.get(ApplicationFileDescriptorChart.ApplicationFileDescriptorChartGroup.FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT);
-        List<Point> fileDescriptorPoints = fileDescriptorChart.getPoints();
+        Chart<ApplicationStatPoint<Long>> fileDescriptorChart = charts.get(ApplicationFileDescriptorChart.FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT);
+        List<ApplicationStatPoint<Long>> fileDescriptorPoints = fileDescriptorChart.getPoints();
         assertEquals(5, fileDescriptorPoints.size());
         int index = fileDescriptorPoints.size();
 
-        for (Point point : fileDescriptorPoints) {
-            testOpenFileDescriptor((LongApplicationStatPoint) point, aggreFileDescriptorList.get(--index));
+        for (ApplicationStatPoint<Long> point : fileDescriptorPoints) {
+            testOpenFileDescriptor(point, aggreFileDescriptorList.get(--index));
         }
     }
 
-    private void testOpenFileDescriptor(LongApplicationStatPoint fileDescriptorPoint, AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo) {
+    private void testOpenFileDescriptor(ApplicationStatPoint<Long> fileDescriptorPoint, AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo) {
         assertEquals(fileDescriptorPoint.getXVal(), aggreJoinFileDescriptorBo.getTimestamp());
         final JoinLongFieldBo openFdCountJoinValue = aggreJoinFileDescriptorBo.getOpenFdCountJoinValue();
         assertEquals(fileDescriptorPoint.getYValForAvg(), openFdCountJoinValue.getAvg(), 0);

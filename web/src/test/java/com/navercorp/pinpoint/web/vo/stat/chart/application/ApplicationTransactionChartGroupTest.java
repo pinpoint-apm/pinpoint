@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -58,20 +57,21 @@ public class ApplicationTransactionChartGroupTest {
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo4);
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo5);
 
-        StatChartGroup applicationTransactionChartGroup = new ApplicationTransactionChart.ApplicationTransactionChartGroup(timeWindow, aggreJoinTransactionBoList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationTransactionChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> builder = ApplicationTransactionChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = builder.build(timeWindow, aggreJoinTransactionBoList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> charts = statChartGroup.getCharts();
 
-        Chart tranCountChart = charts.get(ApplicationTransactionChart.ApplicationTransactionChartGroup.TransactionChartType.TRANSACTION_COUNT);
-        List<Point> tranCountPointList = tranCountChart.getPoints();
+        Chart<ApplicationStatPoint<Double>> tranCountChart = charts.get(ApplicationTransactionChart.TransactionChartType.TRANSACTION_COUNT);
+        List<ApplicationStatPoint<Double>> tranCountPointList = tranCountChart.getPoints();
         assertEquals(5, tranCountPointList.size());
         int index = tranCountPointList.size();
-        for (Point point : tranCountPointList) {
-            testTranCount((DoubleApplicationStatPoint) point, aggreJoinTransactionBoList.get(--index));
+        for (ApplicationStatPoint<Double> point : tranCountPointList) {
+            testTranCount(point, aggreJoinTransactionBoList.get(--index));
         }
 
     }
 
-    private void testTranCount(DoubleApplicationStatPoint transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
+    private void testTranCount(ApplicationStatPoint<Double> transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
         final JoinLongFieldBo totalCountJoinValue = aggreJoinTransactionBo.getTotalCountJoinValue();
         assertEquals(transactionPoint.getYValForAvg(), calculateTPS(totalCountJoinValue.getAvg(), aggreJoinTransactionBo.getCollectInterval()), 0);
         assertEquals(transactionPoint.getYValForMin(), calculateTPS(totalCountJoinValue.getMin(), aggreJoinTransactionBo.getCollectInterval()), 0);

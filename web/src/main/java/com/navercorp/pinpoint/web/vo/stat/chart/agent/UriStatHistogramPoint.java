@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.UriStatHistogramPointSerializer;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Arrays;
 

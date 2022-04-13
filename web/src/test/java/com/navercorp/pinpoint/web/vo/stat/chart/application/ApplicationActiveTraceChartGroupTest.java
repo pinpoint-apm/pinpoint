@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author minwoo.jung
@@ -56,23 +54,24 @@ public class ApplicationActiveTraceChartGroupTest {
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo4);
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo5);
 
-        StatChartGroup applicationActiveTraceChartGroup = new ApplicationActiveTraceChart.ApplicationActiveTraceChartGroup(timeWindow, aggreJoinActiveTraceBoList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationActiveTraceChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> builder = ApplicationActiveTraceChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Integer>> statChartGroup = builder.build(timeWindow, aggreJoinActiveTraceBoList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Integer>>> charts = statChartGroup.getCharts();
 
-        Chart<? extends Point> activeTraceChart = charts.get(ApplicationActiveTraceChart.ApplicationActiveTraceChartGroup.ActiveTraceChartType.ACTIVE_TRACE_COUNT);
-        List<? extends Point> activeTracePointList = activeTraceChart.getPoints();
+        Chart<ApplicationStatPoint<Integer>> activeTraceChart = charts.get(ApplicationActiveTraceChart.ActiveTraceChartType.ACTIVE_TRACE_COUNT);
+        List<ApplicationStatPoint<Integer>> activeTracePointList = activeTraceChart.getPoints();
         assertEquals(5, activeTracePointList.size());
         int index = activeTracePointList.size();
-        for (Point point : activeTracePointList) {
-            testActiveTraceCount((IntApplicationStatPoint) point, aggreJoinActiveTraceBoList.get(--index));
+        for (ApplicationStatPoint<Integer> point : activeTracePointList) {
+            testActiveTraceCount(point, aggreJoinActiveTraceBoList.get(--index));
         }
     }
 
-    private void testActiveTraceCount(IntApplicationStatPoint activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
+    private void testActiveTraceCount(ApplicationStatPoint<Integer> activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
         final JoinIntFieldBo totalCountJoinValue = aggreJoinActiveTraceBo.getTotalCountJoinValue();
-        assertTrue(activeTracePoint.getYValForAvg() == totalCountJoinValue.getAvg());
-        assertTrue(activeTracePoint.getYValForMin() == totalCountJoinValue.getMin());
-        assertTrue(activeTracePoint.getYValForMax() == totalCountJoinValue.getMax());
+        assertEquals(activeTracePoint.getYValForAvg(), totalCountJoinValue.getAvg());
+        assertEquals(activeTracePoint.getYValForMin(), totalCountJoinValue.getMin());
+        assertEquals(activeTracePoint.getYValForMax(), totalCountJoinValue.getMax());
         assertEquals(activeTracePoint.getAgentIdForMin(), totalCountJoinValue.getMinAgentId());
         assertEquals(activeTracePoint.getAgentIdForMax(), totalCountJoinValue.getMaxAgentId());
     }

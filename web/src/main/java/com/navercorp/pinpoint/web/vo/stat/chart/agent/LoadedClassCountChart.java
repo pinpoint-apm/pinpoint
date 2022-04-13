@@ -17,67 +17,30 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
-public class LoadedClassCountChart implements StatChart {
-    private final LoadedClassCountChartGroup LoadedClassCountChartGroup;
+public class LoadedClassCountChart extends DefaultAgentChart<SampledLoadedClassCount, Long> {
 
-    public LoadedClassCountChart(TimeWindow timeWindow, List<SampledLoadedClassCount> sampledLoadedClassCounts) {
-        this.LoadedClassCountChartGroup = new LoadedClassCountChartGroup(timeWindow, sampledLoadedClassCounts);
+    public enum LoadedClassCountChartType implements StatChartGroup.AgentChartType {
+        LOADED_CLASS_COUNT,
+        UNLOADED_CLASS_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return LoadedClassCountChartGroup;
+    private static final ChartGroupBuilder<SampledLoadedClassCount, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledLoadedClassCount, AgentStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<SampledLoadedClassCount, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(LoadedClassCountChartType.LOADED_CLASS_COUNT, SampledLoadedClassCount::getLoadedClassCount);
+        builder.addPointFunction(LoadedClassCountChartType.UNLOADED_CLASS_COUNT, SampledLoadedClassCount::getUnloadedClassCount);
+        return builder;
     }
 
-    private static class LoadedClassCountChartGroup implements StatChartGroup {
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> LoadedClassCountCharts;
-
-        public enum LoadedClassCountChartType implements AgentChartType {
-            LOADED_CLASS_COUNT,
-            UNLOADED_CLASS_COUNT
-        }
-
-        public LoadedClassCountChartGroup(TimeWindow timeWindow, List<SampledLoadedClassCount> sampledLoadedClassCounts) {
-            this.timeWindow = timeWindow;
-            this.LoadedClassCountCharts = newChart(sampledLoadedClassCounts);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledLoadedClassCount> sampledLoadedClassCounts) {
-            Chart<AgentStatPoint<Long>> loadedClassCount = newChart(sampledLoadedClassCounts, SampledLoadedClassCount::getLoadedClassCount);
-            Chart<AgentStatPoint<Long>> unloadedClassCount = newChart(sampledLoadedClassCounts, SampledLoadedClassCount::getUnloadedClassCount);
-
-            return ImmutableMap.of(LoadedClassCountChartType.LOADED_CLASS_COUNT, loadedClassCount,
-                    LoadedClassCountChartType.UNLOADED_CLASS_COUNT, unloadedClassCount);
-        }
-
-        private Chart<AgentStatPoint<Long>> newChart(List<SampledLoadedClassCount> sampledActiveTraces, Function<SampledLoadedClassCount, AgentStatPoint<Long>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
-            return builder.build(sampledActiveTraces, function);
-
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return LoadedClassCountCharts;
-        }
+    public LoadedClassCountChart(TimeWindow timeWindow, List<SampledLoadedClassCount> statList) {
+        super(timeWindow, statList, BUILDER);
     }
+
 }

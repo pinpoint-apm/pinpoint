@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -50,21 +49,22 @@ public class ApplicationTotalThreadCountChartGroupTest {
         aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo4);
         aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo5);
 
-        StatChartGroup applicationTotalThreadCountChartGroup = new ApplicationTotalThreadCountChart.ApplicationTotalThreadCountChartGroup(timeWindow, aggreJoinTotalThreadCountBoList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationTotalThreadCountChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinTotalThreadCountBo, ApplicationStatPoint<Long>> builder = ApplicationTotalThreadCountChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Long>> group = builder.build(timeWindow, aggreJoinTotalThreadCountBoList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = group.getCharts();
         assertEquals(1, charts.size());
 
-        Chart totalThreadCountChart = charts.get(ApplicationTotalThreadCountChart.ApplicationTotalThreadCountChartGroup.TotalThreadCountChartType.TOTAL_THREAD_COUNT);
-        List<Point> totalThreadCountChartPoints = totalThreadCountChart.getPoints();
+        Chart<ApplicationStatPoint<Long>> totalThreadCountChart = charts.get(ApplicationTotalThreadCountChart.TotalThreadCountChartType.TOTAL_THREAD_COUNT);
+        List<ApplicationStatPoint<Long>> totalThreadCountChartPoints = totalThreadCountChart.getPoints();
         assertEquals(5, totalThreadCountChartPoints.size());
         int index = totalThreadCountChartPoints.size();
 
-        for (Point point : totalThreadCountChartPoints) {
-            testTotalThreadCount((LongApplicationStatPoint) point, aggreJoinTotalThreadCountBoList.get(--index));
+        for (ApplicationStatPoint<Long> point : totalThreadCountChartPoints) {
+            testTotalThreadCount(point, aggreJoinTotalThreadCountBoList.get(--index));
         }
     }
 
-    private void testTotalThreadCount(LongApplicationStatPoint point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
+    private void testTotalThreadCount(ApplicationStatPoint<Long> point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
         assertEquals(point.getXVal(), totalThreadCountBo.getTimestamp());
         final JoinLongFieldBo totalThreadCountJoinValue = totalThreadCountBo.getTotalThreadCountJoinValue();
         assertEquals(point.getYValForAvg(), totalThreadCountJoinValue.getAvg(), 0);

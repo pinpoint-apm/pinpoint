@@ -22,7 +22,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -49,7 +48,7 @@ public abstract class DownSamplerTestBase<T extends Number & Comparable<? super 
     @Test
     public void sampler_should_return_default_value() {
         // Given
-        final List<T> samples = Collections.emptyList();
+        final List<T> samples = List.of();
         // When
         T min = sampler.sampleMin(samples);
         T max = sampler.sampleMax(samples);
@@ -85,7 +84,7 @@ public abstract class DownSamplerTestBase<T extends Number & Comparable<? super 
     public void sampler_should_sample_correctly_for_single_sample() {
         // Given
         final T sample = createSample();
-        final List<T> samples = Arrays.asList(sample);
+        final List<T> samples = List.of(sample);
         final T expectedMin = sample;
         final T expectedMax = sample;
         final double expectedMean = sample.doubleValue();
