@@ -96,7 +96,7 @@ public class DeadlockCheckerTest {
         Assert.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertTrue(smsMessage.size() == 1);
+        Assert.assertEquals(1, smsMessage.size());
     }
 
     @Test

@@ -37,7 +37,7 @@ public class UnsignedShortEncodingStrategyTest extends EncodingStrategyTestBase<
 
     @Override
     protected List<EncodingStrategy<Short>> getEncodingStrategies() {
-        return Arrays.<EncodingStrategy<Short>>asList(UnsignedShortEncodingStrategy.values());
+        return Arrays.asList(UnsignedShortEncodingStrategy.values());
     }
 
     @Override

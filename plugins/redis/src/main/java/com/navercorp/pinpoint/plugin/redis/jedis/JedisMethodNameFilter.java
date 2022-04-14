@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class JedisMethodNameFilter implements MethodFilter {
 
-    private final Set<String> excludeMethodNames = new HashSet<String>(16);
+    private final Set<String> excludeMethodNames = new HashSet<>(16);
 
     public JedisMethodNameFilter() {
         // object methods.

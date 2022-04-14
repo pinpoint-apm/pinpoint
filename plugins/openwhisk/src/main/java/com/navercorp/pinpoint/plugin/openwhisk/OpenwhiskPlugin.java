@@ -265,10 +265,14 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(targetMethodName))) {
                 if (checkSuitableMethod(method, transformTargetParameters)) {
-                    logger.info("addInterceptor={}", Arrays.asList(method.getParameterTypes()));
+                    if (logger.isInfoEnabled()) {
+                        logger.info("addInterceptor={}", Arrays.toString(method.getParameterTypes()));
+                    }
                     method.addInterceptor(TransactionIdCreateInterceptor.class);
                 } else {
-                    logger.info("params={}", Arrays.asList(method.getParameterTypes()));
+                    if (logger.isInfoEnabled()) {
+                        logger.info("params={}", Arrays.toString(method.getParameterTypes()));
+                    }
                 }
             }
             return target.toBytecode();

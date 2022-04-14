@@ -176,9 +176,9 @@ public class AnnotationTranscoderTest {
         byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN);
         IntBooleanIntBooleanValue decode = (IntBooleanIntBooleanValue) transcoder.decode(AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN, encode);
         Assert.assertEquals(value.getIntValue1(), decode.getIntValue1());
-        Assert.assertEquals(false, decode.isBooleanValue1());
+        Assert.assertFalse(decode.isBooleanValue1());
         Assert.assertEquals(value.getIntValue2(), decode.getIntValue2());
-        Assert.assertEquals(true, decode.isBooleanValue2());
+        Assert.assertTrue(decode.isBooleanValue2());
     }
 
     private void write(int value) throws TException {
