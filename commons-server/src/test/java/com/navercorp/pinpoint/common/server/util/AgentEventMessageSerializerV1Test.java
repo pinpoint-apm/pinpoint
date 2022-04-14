@@ -71,7 +71,7 @@ public class AgentEventMessageSerializerV1Test {
         // deserialize
         AgentEventMessageDeserializerV1 deserializer = new AgentEventMessageDeserializerV1();
         Object object = deserializer.deserialize(AgentEventType.AGENT_DEADLOCK_DETECTED, bytes);
-        if (false == (object instanceof DeadlockBo)) {
+        if (!(object instanceof DeadlockBo)) {
             fail("Failed to deserialize, expected object is DeadlockBo");
         }
         DeadlockBo result = (DeadlockBo) object;

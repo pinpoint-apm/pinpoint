@@ -37,7 +37,7 @@ public class UnsignedIntegerEncodingStrategyTest extends EncodingStrategyTestBas
 
     @Override
     protected List<EncodingStrategy<Integer>> getEncodingStrategies() {
-        return Arrays.<EncodingStrategy<Integer>>asList(UnsignedIntegerEncodingStrategy.values());
+        return Arrays.asList(UnsignedIntegerEncodingStrategy.values());
     }
 
     @Override

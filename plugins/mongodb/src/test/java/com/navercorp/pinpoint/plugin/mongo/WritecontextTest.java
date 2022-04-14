@@ -49,7 +49,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -76,8 +75,8 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
         Map<String, ?> query2Map = (Map<String, ?>) query1Map.get("specialchar");
 
@@ -94,10 +93,10 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
-        ArrayList objectArray = (ArrayList) query1Map.get("stringArray");
+        List<?> objectArray = (List<?>) query1Map.get("stringArray");
 
         checkValue(objectArray);
     }
@@ -139,8 +138,8 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("val:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
 
         checkValue(query1Map);
@@ -158,10 +157,10 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(objArray, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), objArray.length);
-        Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
-        ArrayList objectArray = (ArrayList) query1Map.get("intArray");
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(objArray.length, list.size());
+        Map<String, List<?>> query1Map = (Map<String, List<?>>) list.get(0);
+        List<?> objectArray = query1Map.get("intArray");
 
         checkValue(objectArray);
     }
@@ -176,10 +175,10 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
-        ArrayList objectArray = (ArrayList) query1Map.get("doubleArray");
+        List<?> objectArray = (List<?>) query1Map.get("doubleArray");
 
         checkValue(objectArray);
     }
@@ -194,10 +193,10 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
-        ArrayList objectArray = (ArrayList) query1Map.get("collection");
+        List<?> objectArray = (List<?>) query1Map.get("collection");
 
         checkValue(objectArray);
     }
@@ -211,8 +210,8 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
         Map<String, ?> query2Map = (Map<String, ?>) query1Map.get("\"query");
 
@@ -256,8 +255,8 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("val:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
 
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
 
@@ -281,10 +280,10 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(objArray, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), objArray.length);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(objArray.length, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
-        ArrayList objectArray = (ArrayList) query1Map.get("intArray");
+        List<?> objectArray = (List<?>) query1Map.get("intArray");
 
         checkValue(objectArray);
     }
@@ -303,10 +302,10 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(objArray, true);
         logger.debug("parsedStringStringValue:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), objArray.length);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(objArray.length, list.size());
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
-        ArrayList objectArray = (ArrayList) query1Map.get("intArray");
+        List<?> objectArray = (List<?>) query1Map.get("intArray");
 
         checkValue(objectArray);
     }
@@ -328,8 +327,8 @@ public class WritecontextTest {
         NormalizedBson stringStringValue = MongoUtil.parseBson(new Object[]{query}, true);
         logger.debug("val:{}", stringStringValue);
 
-        List list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
-        Assert.assertEquals(list.size(), 1);
+        List<?> list = objectMapper.readValue("[" + stringStringValue.getNormalizedBson() + "]", List.class);
+        Assert.assertEquals(1, list.size());
 
         Map<String, ?> query1Map = (Map<String, ?>) list.get(0);
 
@@ -338,11 +337,11 @@ public class WritecontextTest {
 
     private void checkValue(Object object) {
         if (object instanceof Map) {
-            for (Map.Entry<String, Object> entry : ((Map<String, Object>) object).entrySet()) {
+            for (Map.Entry<String, ?> entry : ((Map<String, ?>) object).entrySet()) {
                 checkValue(entry.getValue());
             }
         } else if (object instanceof List) {
-            for (Object value : (List<Object>) object) {
+            for (Object value : (List<?>) object) {
                 checkValue(value);
             }
         } else {

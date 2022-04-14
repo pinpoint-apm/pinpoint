@@ -37,7 +37,7 @@ public class UnsignedLongEncodingStrategyTest extends EncodingStrategyTestBase<L
 
     @Override
     protected List<EncodingStrategy<Long>> getEncodingStrategies() {
-        return Arrays.<EncodingStrategy<Long>>asList(UnsignedLongEncodingStrategy.values());
+        return Arrays.asList(UnsignedLongEncodingStrategy.values());
     }
 
     @Override

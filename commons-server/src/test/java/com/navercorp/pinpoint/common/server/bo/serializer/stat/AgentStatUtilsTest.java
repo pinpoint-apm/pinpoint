@@ -79,6 +79,6 @@ public class AgentStatUtilsTest {
     public void getBaseTimestamp_should_return_a_multiple_of_AGENT_STAT_TIMESPAN_MS() {
         long timestamp = RANDOM.nextLong();
         long baseTimestamp = AgentStatUtils.getBaseTimestamp(timestamp);
-        Assert.assertTrue((baseTimestamp % HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS) == 0);
+        Assert.assertEquals(0, (baseTimestamp % HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS));
     }
 }
