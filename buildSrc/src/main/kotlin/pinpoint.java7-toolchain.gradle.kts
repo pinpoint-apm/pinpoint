@@ -1,6 +1,6 @@
 plugins {
-    id("pinpoint.java-conventions")
-    id("pinpoint.jdk7-dependency-management-conventions")
+    id("pinpoint.java-library")
+    id("pinpoint.jdk7-dependency-management")
 }
 
 java {
