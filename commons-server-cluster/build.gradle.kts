@@ -5,8 +5,8 @@
  */
 
 plugins {
-    id("pinpoint.java11-conventions")
-    id("pinpoint.curator-conventions")
+    id("pinpoint.java11-toolchain")
+    id("pinpoint.curator-bom")
 }
 
 dependencies {

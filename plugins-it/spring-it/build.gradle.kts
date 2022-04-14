@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.java7-conventions")
+    id("pinpoint.java7-toolchain")
 }
 
 dependencies {
