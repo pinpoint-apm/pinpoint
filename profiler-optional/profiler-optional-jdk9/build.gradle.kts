@@ -5,8 +5,8 @@
  */
 
 plugins {
-    id("pinpoint.java8-toolchain")
-    id("pinpoint.asm-bom")
+    id("pinpoint.toolchain.java8")
+    id("pinpoint.bom.asm")
 }
 
 dependencies {

@@ -5,9 +5,9 @@
  */
 
 plugins {
-    id("pinpoint.java11-toolchain")
-    id("pinpoint.grpc-bom")
-    id("pinpoint.hbase-bom")
+    id("pinpoint.toolchain.java11")
+    id("pinpoint.bom.grpc")
+    id("pinpoint.bom.hbase")
 }
 
 dependencies {

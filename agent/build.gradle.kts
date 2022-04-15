@@ -5,10 +5,10 @@
  */
 
 plugins {
-    id("pinpoint.java8-toolchain")
-    id("pinpoint.profiler-optional-bom")
-    id("pinpoint.plugins-assembly-bom")
-    id("pinpoint.agent-plugins-bom")
+    id("pinpoint.toolchain.java8")
+    id("pinpoint.bom.profiler-optional")
+    id("pinpoint.bom.plugins-assembly")
+    id("pinpoint.bom.agent-plugins")
     `java-library-distribution`
 }
 

@@ -1,6 +1,6 @@
 plugins {
-    id("pinpoint.java7-toolchain")
-    id("pinpoint.asm-bom")
+    id("pinpoint.toolchain.java7")
+    id("pinpoint.bom.asm")
 }
 
 dependencies {
