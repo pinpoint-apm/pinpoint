@@ -1,7 +1,7 @@
 plugins {
-    id("pinpoint.toolchain.java11")
-    id("pinpoint.bom.plugins-assembly")
-    id("pinpoint.bom.agent-plugins")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.agent-plugins")
 }
 
 dependencies {

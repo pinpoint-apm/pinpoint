@@ -5,10 +5,10 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java8")
-    id("pinpoint.bom.profiler-optional")
-    id("pinpoint.bom.plugins-assembly")
-    id("pinpoint.bom.agent-plugins")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java8")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.profiler-optional")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.agent-plugins")
     `java-library-distribution`
 }
 

@@ -5,11 +5,11 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java11")
-    id("pinpoint.bom.plugins-assembly")
-    id("pinpoint.bom.grpc")
-    id("pinpoint.bom.hbase")
-    id("pinpoint.bom.curator")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
 }
 
 dependencies {

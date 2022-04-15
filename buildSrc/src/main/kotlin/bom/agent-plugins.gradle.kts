@@ -1,4 +1,4 @@
-package pinpoint.bom
+package com.navercorp.pinpoint.gradle.plugins.bom
 
 plugins {
     `java-library`

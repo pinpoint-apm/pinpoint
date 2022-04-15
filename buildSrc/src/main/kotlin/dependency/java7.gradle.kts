@@ -1,4 +1,4 @@
-package pinpoint.dependency
+package com.navercorp.pinpoint.gradle.plugins.dependency
 
 plugins {
     id("io.spring.dependency-management")
