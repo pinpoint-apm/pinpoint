@@ -1,6 +1,6 @@
 plugins {
-    // Support convention plugins written in Kotlin. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
     `kotlin-dsl`
+    `maven-publish`
 }
 
 repositories {
@@ -11,3 +11,18 @@ repositories {
 dependencies {
     implementation("io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE")
 }
+
+publishing {
+    repositories {
+        maven {
+            url = uri(layout.buildDirectory.dir("repo"))
+        }
+    }
+}
+
+tasks.publish {
+    dependsOn("check")
+}
+
+group = "com.navercorp.pinpoint.gradle.plugins"
+version = "1.0-SNAPSHOT"
