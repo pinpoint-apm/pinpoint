@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.DeltaOfDeltaE
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.RepeatCountEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.ValueEncodingStrategy;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -127,7 +126,7 @@ public enum UnsignedIntegerEncodingStrategy implements EncodingStrategy<Integer>
                     this.byteSizeRepeatCount += BytesUtils.computeVar32Size(this.repeatedValueCount);
                 }
                 EncodingStrategy<Integer> bestStrategy;
-                int minimumNumBytesUsed = NumberUtils.min(
+                int minimumNumBytesUsed = MathUtils.min(
                         this.byteSizeValue,
                         this.byteSizeDelta,
                         this.byteSizeDeltaOfDelta,

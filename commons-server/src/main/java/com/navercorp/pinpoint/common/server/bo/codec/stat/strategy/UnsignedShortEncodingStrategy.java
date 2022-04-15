@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.RepeatCountEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.ValueEncodingStrategy;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -119,7 +118,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
                     this.byteSizeRepeatCount += BytesUtils.computeVar32Size(this.repeatedValueCount);
                 }
                 EncodingStrategy<Short> bestStrategy;
-                int minimumNumBytesUsed = NumberUtils.min(
+                int minimumNumBytesUsed = Math.min(
                         this.byteSizeValue,
                         this.byteSizeRepeatCount);
                 if (this.byteSizeValue == minimumNumBytesUsed) {
