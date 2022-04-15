@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * @author Taejin Koo
  */
-public interface JoinEncodingStrategy<T extends JoinFieldBo> extends EncodingStrategy<T> {
+public interface JoinEncodingStrategy<T extends JoinFieldBo<? extends Number>> extends EncodingStrategy<T> {
 
     byte[] getCodes();
 

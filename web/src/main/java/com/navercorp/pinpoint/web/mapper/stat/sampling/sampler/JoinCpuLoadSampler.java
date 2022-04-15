@@ -19,10 +19,9 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -59,7 +58,7 @@ public class JoinCpuLoadSampler implements ApplicationStatSampler<JoinCpuLoadBo,
     }
 
     private double roundToScale(double value) {
-        return BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        return Precision.round(value, 1);
     }
 
 }

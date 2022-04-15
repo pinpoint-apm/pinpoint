@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledDirectBuffer;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -32,9 +32,6 @@ import java.util.function.ToLongFunction;
  */
 @Component
 public class DirectBufferSampler implements AgentStatSampler<DirectBufferBo, SampledDirectBuffer> {
-
-    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledDirectBuffer.UNCOLLECTED_VALUE);
-
 
     @Override
     public SampledDirectBuffer sampleDataPoints(int timeWindowIndex, long timestamp, List<DirectBufferBo> dataPoints, DirectBufferBo previousDataPoint) {
@@ -64,9 +61,9 @@ public class DirectBufferSampler implements AgentStatSampler<DirectBufferBo, Sam
     }
 
     private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
+        return AgentStatPointSummary.longSummary(timestamp, values);
     }
 }

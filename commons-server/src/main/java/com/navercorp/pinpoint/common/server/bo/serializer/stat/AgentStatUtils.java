@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
-import java.math.BigDecimal;
+import org.apache.commons.math3.util.Precision;
 
 import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
 
@@ -45,7 +45,7 @@ public class AgentStatUtils {
         if (timeMs < 1) {
             return defaultRate;
         }
-        return new BigDecimal(count / (timeMs / 1000D)).setScale(numDecimals, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return Precision.round(count / (timeMs / 1000D), numDecimals);
     }
 
     public static long getBaseTimestamp(long timestamp) {

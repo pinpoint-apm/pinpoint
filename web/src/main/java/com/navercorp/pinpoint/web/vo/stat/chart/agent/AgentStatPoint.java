@@ -19,10 +19,6 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.AgentStatPointSerializer;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.stat.chart.Sampler;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -54,16 +50,6 @@ public class AgentStatPoint<Y extends Number> implements Point {
         this.maxYVal = maxYVal;
         this.avgYVal = avgYVal;
         this.sumYVal = sumYVal;
-    }
-
-    public AgentStatPoint(long xVal, List<Y> yValList, Sampler<Y> sampler) {
-        this.xVal = xVal;
-
-        Objects.requireNonNull(sampler, "sampler");
-        this.minYVal = sampler.sampleMin(yValList);
-        this.maxYVal = sampler.sampleMax(yValList);
-        this.avgYVal = sampler.sampleAvg(yValList);
-        this.sumYVal = sampler.sampleSum(yValList);
     }
 
     @Override
