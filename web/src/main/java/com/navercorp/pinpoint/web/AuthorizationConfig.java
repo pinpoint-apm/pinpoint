@@ -101,7 +101,7 @@ public class AuthorizationConfig {
     }
 
     @Bean
-    public ApplicationStatController getApplicationStatControllerV2(List<ApplicationStatChartService<? extends StatChart>> list) {
+    public ApplicationStatController getApplicationStatControllerV2(List<ApplicationStatChartService> list) {
         return new ApplicationStatController(list);
     }
 

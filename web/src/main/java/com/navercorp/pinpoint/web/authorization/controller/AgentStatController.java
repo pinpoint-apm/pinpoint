@@ -73,7 +73,7 @@ public  class AgentStatController<DP extends AgentStatDataPoint> {
     private <T> T getChartService(Map<String, T> map, String chartType) {
         T service = map.get(chartType);
         if (service == null) {
-            throw new IllegalArgumentException("chartType pathVariable not found " + chartType);
+            throw new IllegalArgumentException("chartType pathVariable not found chartType:" + chartType);
         }
         return service;
     }
