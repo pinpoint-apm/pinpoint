@@ -1,6 +1,8 @@
+package pinpoint.toolchain
+
 plugins {
     id("pinpoint.java-library")
-    id("pinpoint.jdk7-dependency-management")
+    id("pinpoint.dependency.java7")
 }
 
 java {

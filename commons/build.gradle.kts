@@ -5,14 +5,21 @@
  */
 
 plugins {
-    id("pinpoint.java7-toolchain")
+    id("pinpoint.toolchain.java7")
 }
+
+val groovyScript by configurations.creating
 
 dependencies {
     testImplementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
     testImplementation("org.apache.commons:commons-lang3")
+    groovyScript("org.codehaus.groovy:groovy-all:2.4.5")
 }
 
 description = "pinpoint-commons"
+
+tasks.register<JavaExec>("runGroovyScript") {
+
+}

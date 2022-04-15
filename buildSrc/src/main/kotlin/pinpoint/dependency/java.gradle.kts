@@ -1,3 +1,5 @@
+package pinpoint.dependency
+
 plugins {
     id("io.spring.dependency-management")
 }

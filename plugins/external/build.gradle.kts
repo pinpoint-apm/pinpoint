@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.java7-toolchain")
+    id("pinpoint.toolchain.java7")
 }
 
 description = "pinpoint-external-plugins"

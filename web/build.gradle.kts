@@ -5,11 +5,11 @@
  */
 
 plugins {
-    id("pinpoint.java11-toolchain")
-    id("pinpoint.plugins-assembly-bom")
-    id("pinpoint.agent-plugins-bom")
-    id("pinpoint.hbase-bom")
-    id("pinpoint.curator-bom")
+    id("pinpoint.toolchain.java11")
+    id("pinpoint.bom.plugins-assembly")
+    id("pinpoint.bom.agent-plugins")
+    id("pinpoint.bom.hbase")
+    id("pinpoint.bom.curator")
     id("org.siouan.frontend-jdk8") version "6.0.0"
 }
 

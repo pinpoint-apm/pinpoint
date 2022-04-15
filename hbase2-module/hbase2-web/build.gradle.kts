@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.java11-toolchain")
+    id("pinpoint.toolchain.java11")
 }
 
 dependencies {

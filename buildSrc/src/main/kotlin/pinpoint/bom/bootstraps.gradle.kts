@@ -1,3 +1,5 @@
+package pinpoint.bom
+
 plugins {
     `java-library`
 }

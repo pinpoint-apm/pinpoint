@@ -1,7 +1,7 @@
 plugins {
-    id("pinpoint.java11-toolchain")
-    id("pinpoint.plugins-assembly-bom")
-    id("pinpoint.agent-plugins-bom")
+    id("pinpoint.toolchain.java11")
+    id("pinpoint.bom.plugins-assembly")
+    id("pinpoint.bom.agent-plugins")
 }
 
 dependencies {
