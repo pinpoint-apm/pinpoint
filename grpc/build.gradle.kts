@@ -1,8 +1,8 @@
 import com.google.protobuf.gradle.*
 
 plugins {
-    id("pinpoint.toolchain.java7")
-    id("pinpoint.bom.grpc")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
     id("com.google.protobuf") version Versions.protobufPlugin
 }
 

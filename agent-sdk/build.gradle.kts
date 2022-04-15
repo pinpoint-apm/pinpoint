@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java7")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
 }
 
 description = "pinpoint-agent-sdk"

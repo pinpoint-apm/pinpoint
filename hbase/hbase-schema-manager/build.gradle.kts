@@ -5,8 +5,8 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java11")
-    id("pinpoint.bom.hbase")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
 }
 
 dependencies {

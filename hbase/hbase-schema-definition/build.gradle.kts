@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java11")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
     id("com.intershop.gradle.jaxb") version Versions.jaxbPlugin
 }
 

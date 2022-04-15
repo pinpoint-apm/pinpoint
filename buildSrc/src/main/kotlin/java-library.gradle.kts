@@ -1,4 +1,4 @@
-package pinpoint
+package com.navercorp.pinpoint.gradle.plugins
 
 plugins {
     `java-library`

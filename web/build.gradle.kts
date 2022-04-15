@@ -5,11 +5,11 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java11")
-    id("pinpoint.bom.plugins-assembly")
-    id("pinpoint.bom.agent-plugins")
-    id("pinpoint.bom.hbase")
-    id("pinpoint.bom.curator")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.agent-plugins")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
     id("org.siouan.frontend-jdk8") version "6.0.0"
 }
 

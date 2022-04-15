@@ -5,8 +5,8 @@
  */
 
 plugins {
-    id("pinpoint.toolchain.java7")
-    id("pinpoint.bom.asm")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
+    id("com.navercorp.pinpoint.gradle.plugins.bom.asm")
 }
 
 dependencies {
