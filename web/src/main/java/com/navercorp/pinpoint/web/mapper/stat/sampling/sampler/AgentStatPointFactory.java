@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
@@ -30,13 +30,8 @@ import java.util.List;
 public class AgentStatPointFactory {
 
     private final Point.UncollectedPointCreator<AgentStatPoint<Integer>> uncollectedIntValuePointCreator;
-    private final DownSampler<Integer> intDownSampler;
-
     private final Point.UncollectedPointCreator<AgentStatPoint<Long>> uncollectedLongValuePointCreator;
-    private final DownSampler<Long> longDownSampler;
-
     private final Point.UncollectedPointCreator<AgentStatPoint<Double>> uncollectedDoubleValuePointCreator;
-    private final DownSampler<Double> doubleDownSampler;
 
     private final int defaultValueDecimal;
 
@@ -46,13 +41,8 @@ public class AgentStatPointFactory {
 
     public AgentStatPointFactory(int uncollectedIntValue, long uncollectedLongValue, double uncollectedDoubleValue, int defaultValueDecimal) {
         this.uncollectedIntValuePointCreator = UncollectedPointCreatorFactory.createIntPointCreator(uncollectedIntValue);
-        this.intDownSampler = DownSamplers.getIntegerDownSampler(uncollectedIntValue);
-
         this.uncollectedLongValuePointCreator = UncollectedPointCreatorFactory.createLongPointCreator(uncollectedLongValue);
-        this.longDownSampler = DownSamplers.getLongDownSampler(uncollectedLongValue);
-
         this.uncollectedDoubleValuePointCreator = UncollectedPointCreatorFactory.createDoublePointCreator(uncollectedDoubleValue);
-        this.doubleDownSampler = DownSamplers.getDoubleDownSampler(uncollectedDoubleValue);
 
         this.defaultValueDecimal = defaultValueDecimal;
     }
@@ -62,16 +52,10 @@ public class AgentStatPointFactory {
     }
 
     public AgentStatPoint<Integer> createIntPoint(long timestamp, List<Integer> values, int numDecimals) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return uncollectedIntValuePointCreator.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                intDownSampler.sampleMin(values),
-                intDownSampler.sampleMax(values),
-                intDownSampler.sampleAvg(values, numDecimals),
-                intDownSampler.sampleSum(values));
+        return AgentStatPointSummary.intSummary(timestamp, values, numDecimals);
     }
 
     public AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values) {
@@ -79,16 +63,10 @@ public class AgentStatPointFactory {
     }
 
     public AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values, int numDecimals) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return uncollectedLongValuePointCreator.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                longDownSampler.sampleMin(values),
-                longDownSampler.sampleMax(values),
-                longDownSampler.sampleAvg(values, numDecimals),
-                longDownSampler.sampleSum(values));
+        return AgentStatPointSummary.longSummary(timestamp, values, numDecimals);
     }
 
     public AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values) {
@@ -96,16 +74,10 @@ public class AgentStatPointFactory {
     }
 
     public AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values, int numDecimals) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return uncollectedDoubleValuePointCreator.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                doubleDownSampler.sampleMin(values),
-                doubleDownSampler.sampleMax(values),
-                doubleDownSampler.sampleAvg(values, numDecimals),
-                doubleDownSampler.sampleSum(values));
+        return AgentStatPointSummary.doubleSummary(timestamp, values, numDecimals);
     }
 
     public Point.UncollectedPointCreator<AgentStatPoint<Integer>> getUncollectedIntValuePointCreator() {

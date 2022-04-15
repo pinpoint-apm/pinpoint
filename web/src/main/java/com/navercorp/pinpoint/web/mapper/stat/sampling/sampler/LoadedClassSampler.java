@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,9 +31,6 @@ import java.util.function.ToLongFunction;
 
 @Component
 public class LoadedClassSampler implements AgentStatSampler<LoadedClassBo, SampledLoadedClassCount> {
-
-    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledLoadedClassCount.UNCOLLECTED_VALUE);
-
 
     @Override
     public SampledLoadedClassCount sampleDataPoints(int timeWindowIndex, long timestamp, List<LoadedClassBo> dataPoints, LoadedClassBo previousDataPoint) {
@@ -61,9 +58,9 @@ public class LoadedClassSampler implements AgentStatSampler<LoadedClassBo, Sampl
     }
 
     private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
+        return AgentStatPointSummary.longSummary(timestamp, values);
     }
 }

@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -32,8 +31,6 @@ import java.util.function.ToLongFunction;
  */
 @Component
 public class FileDescriptorSampler implements AgentStatSampler<FileDescriptorBo, SampledFileDescriptor> {
-
-    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledFileDescriptor.UNCOLLECTED_VALUE);
 
 
     @Override
@@ -64,6 +61,6 @@ public class FileDescriptorSampler implements AgentStatSampler<FileDescriptorBo,
         if (values.isEmpty()) {
             return SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        return new AgentStatPoint<>(timestamp, values, LONG_DOWN_SAMPLER);
+        return AgentStatPointSummary.longSummary(timestamp, values);
     }
 }

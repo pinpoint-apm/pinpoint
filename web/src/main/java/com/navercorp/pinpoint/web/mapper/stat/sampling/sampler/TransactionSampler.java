@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,7 +36,6 @@ import java.util.function.ToLongFunction;
 public class TransactionSampler implements AgentStatSampler<TransactionBo, SampledTransaction> {
 
     private static final int NUM_DECIMAL_PLACES = 1;
-    private static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(SampledTransaction.UNCOLLECTED_VALUE, NUM_DECIMAL_PLACES);
 
     @Override
     public SampledTransaction sampleDataPoints(int timeWindowIndex, long timestamp, List<TransactionBo> dataPoints, TransactionBo previousDataPoint) {
@@ -133,9 +132,9 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
     }
 
     private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return SampledTransaction.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        return new AgentStatPoint<>(timestamp, values, DOUBLE_DOWN_SAMPLER);
+        return AgentStatPointSummary.doubleSummaryWithAllScale(timestamp, values, NUM_DECIMAL_PLACES);
     }
 }
