@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringAlwaysS
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringRepeatCountEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringValueEncodingStrategy;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -127,7 +126,7 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
                 if (repeatedValueCount != 0 && repeatedValueCount == values.size()) {
                     bestStrategy = ALWAYS_SAME_VALUE;
                 } else {
-                    int minimumNumBytesUsed = NumberUtils.min(
+                    int minimumNumBytesUsed = Math.min(
                             this.byteSizeValue,
                             this.byteSizeRepeatCount);
                     if (this.byteSizeValue == minimumNumBytesUsed) {
