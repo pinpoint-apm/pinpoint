@@ -22,17 +22,17 @@ public class ApplicationStatController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Map<String, ApplicationStatChartService<? extends StatChart>> chartServiceMap;
+    private final Map<String, ApplicationStatChartService> chartServiceMap;
 
-    public ApplicationStatController(List<ApplicationStatChartService<? extends StatChart>> appStatChartServiceList) {
-        this.chartServiceMap = build(appStatChartServiceList);
+    public ApplicationStatController(List<ApplicationStatChartService> statChartServiceList) {
+        this.chartServiceMap = build(statChartServiceList);
     }
 
-    private Map<String, ApplicationStatChartService<? extends StatChart>> build(List<ApplicationStatChartService<? extends StatChart>> appStatChartServiceList) {
-        ChartTypeMappingBuilder<ApplicationStatChartService<? extends StatChart>> mapping = new ChartTypeMappingBuilder<>();
-        Map<String, ApplicationStatChartService<? extends StatChart>> map = mapping.build(appStatChartServiceList);
+    private Map<String, ApplicationStatChartService> build(List<ApplicationStatChartService> statChartServiceList) {
+        ChartTypeMappingBuilder<ApplicationStatChartService> mapping = new ChartTypeMappingBuilder<>();
+        Map<String, ApplicationStatChartService> map = mapping.build(statChartServiceList);
 
-        for (Map.Entry<String, ApplicationStatChartService<? extends StatChart>> entry : map.entrySet()) {
+        for (Map.Entry<String, ApplicationStatChartService> entry : map.entrySet()) {
             logger.info("ApplicationStatChartService chartType:{} {}", entry.getKey(), entry.getValue().getClass().getSimpleName());
         }
         return map;
@@ -57,7 +57,7 @@ public class ApplicationStatController {
     private ApplicationStatChartService<? extends StatChart> getService(String chartType) {
         ApplicationStatChartService<? extends StatChart> service = this.chartServiceMap.get(chartType);
         if (service == null) {
-            throw new IllegalArgumentException("chartType not found chartType" + chartType);
+            throw new IllegalArgumentException("chartType pathVariable not found chartType:" + chartType);
         }
         return service;
     }
