@@ -27,4 +27,4 @@ val testsJar by tasks.registering(Jar::class) {
     from(sourceSets["test"].output)
 }
 
-(publishing.publications["maven"] as MavenPublication).artifact(testsJar)
+(publishing.publications["pinpoint"] as MavenPublication).artifact(testsJar)
