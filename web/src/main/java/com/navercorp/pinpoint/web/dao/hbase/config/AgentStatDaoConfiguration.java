@@ -40,67 +40,67 @@ public class AgentStatDaoConfiguration {
     }
 
     @Bean
-    public AgentStatDao<JvmGcBo> getJvmGcDao(AgentStatDecoder<JvmGcBo> decoder) {
+    public AgentStatDao<JvmGcBo> getJvmGcWebDao(AgentStatDecoder<JvmGcBo> decoder) {
         return newStatDao(AgentStatType.JVM_GC, decoder);
     }
 
     @Bean
-    public AgentStatDao<JvmGcDetailedBo> getJvmGcDetailedDao(AgentStatDecoder<JvmGcDetailedBo> decoder) {
+    public AgentStatDao<JvmGcDetailedBo> getJvmGcDetailedWebDao(AgentStatDecoder<JvmGcDetailedBo> decoder) {
         return newStatDao(AgentStatType.JVM_GC_DETAILED, decoder);
     }
 
     @Bean
-    public AgentStatDao<CpuLoadBo> getCpuLoadDao(AgentStatDecoder<CpuLoadBo> decoder) {
+    public AgentStatDao<CpuLoadBo> getCpuLoadWebDao(AgentStatDecoder<CpuLoadBo> decoder) {
         return newStatDao(AgentStatType.CPU_LOAD, decoder);
     }
 
     @Bean
-    public AgentStatDao<TransactionBo> getTransactionDao(AgentStatDecoder<TransactionBo> decoder) {
+    public AgentStatDao<TransactionBo> getTransactionWebDao(AgentStatDecoder<TransactionBo> decoder) {
         return newStatDao(AgentStatType.TRANSACTION, decoder);
     }
 
     @Bean
-    public AgentStatDao<ActiveTraceBo> getActiveTraceDao(AgentStatDecoder<ActiveTraceBo> decoder) {
+    public AgentStatDao<ActiveTraceBo> getActiveTraceWebDao(AgentStatDecoder<ActiveTraceBo> decoder) {
         return newStatDao(AgentStatType.ACTIVE_TRACE, decoder);
     }
 
     @Bean
-    public AgentStatDao<DataSourceListBo> getDataSourceListDao(AgentStatDecoder<DataSourceListBo> decoder) {
+    public AgentStatDao<DataSourceListBo> getDataSourceListWebDao(AgentStatDecoder<DataSourceListBo> decoder) {
         return newStatDao(AgentStatType.DATASOURCE, decoder);
     }
 
     @Bean
-    public AgentStatDao<ResponseTimeBo> getResponseTimeDao(AgentStatDecoder<ResponseTimeBo> decoder) {
+    public AgentStatDao<ResponseTimeBo> getResponseTimeWebDao(AgentStatDecoder<ResponseTimeBo> decoder) {
         return newStatDao(AgentStatType.RESPONSE_TIME, decoder);
     }
 
     @Bean
-    public AgentStatDao<DeadlockThreadCountBo> getDeadlockThreadCountDao(AgentStatDecoder<DeadlockThreadCountBo> decoder) {
+    public AgentStatDao<DeadlockThreadCountBo> getDeadlockThreadCountWebDao(AgentStatDecoder<DeadlockThreadCountBo> decoder) {
         return newStatDao(AgentStatType.DEADLOCK, decoder);
     }
 
     @Bean
-    public AgentStatDao<FileDescriptorBo> getFileDescriptorDao(AgentStatDecoder<FileDescriptorBo> decoder) {
+    public AgentStatDao<FileDescriptorBo> getFileDescriptorWebDao(AgentStatDecoder<FileDescriptorBo> decoder) {
         return newStatDao(AgentStatType.FILE_DESCRIPTOR, decoder);
     }
 
     @Bean
-    public AgentStatDao<DirectBufferBo> getDirectBufferDao(AgentStatDecoder<DirectBufferBo> decoder) {
+    public AgentStatDao<DirectBufferBo> getDirectBufferWebDao(AgentStatDecoder<DirectBufferBo> decoder) {
         return newStatDao(AgentStatType.DIRECT_BUFFER, decoder);
     }
 
     @Bean
-    public AgentStatDao<TotalThreadCountBo> getTotalThreadCountDao(AgentStatDecoder<TotalThreadCountBo> decoder) {
+    public AgentStatDao<TotalThreadCountBo> getTotalThreadCountWebDao(AgentStatDecoder<TotalThreadCountBo> decoder) {
         return newStatDao(AgentStatType.TOTAL_THREAD, decoder);
     }
 
     @Bean
-    public AgentStatDao<LoadedClassBo> getLoadedClassDao(AgentStatDecoder<LoadedClassBo> decoder) {
+    public AgentStatDao<LoadedClassBo> getLoadedClassWebDao(AgentStatDecoder<LoadedClassBo> decoder) {
         return newStatDao(AgentStatType.LOADED_CLASS, decoder);
     }
 
     @Bean
-    public AgentStatDao<AgentUriStatBo> getAgentUriStatDao(AgentStatDecoder<AgentUriStatBo> decoder) {
+    public AgentStatDao<AgentUriStatBo> getAgentUriStatWebDao(AgentStatDecoder<AgentUriStatBo> decoder) {
         return newStatDao(AgentStatType.URI, decoder);
     }
 }
