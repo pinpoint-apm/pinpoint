@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.mapper.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
+import com.navercorp.pinpoint.web.util.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -49,26 +50,9 @@ public class SampledAgentStatResultExtractorTest {
 
     private static final long DEFAULT_TIME_INTERVAL = 5 * 1000L;
 
-    private static final TimeWindowSampler ONE_TO_ONE_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return DEFAULT_TIME_INTERVAL;
-        }
-    };
-
-    private static final TimeWindowSampler TWO_TO_ONE_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return DEFAULT_TIME_INTERVAL * 2;
-        }
-    };
-
-    private static final TimeWindowSampler TEN_TO_ONE_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return DEFAULT_TIME_INTERVAL * 10;
-        }
-    };
+    private static final TimeWindowSampler ONE_TO_ONE_SAMPLER = new FixedTimeWindowSampler(DEFAULT_TIME_INTERVAL);
+    private static final TimeWindowSampler TWO_TO_ONE_SAMPLER = new FixedTimeWindowSampler(DEFAULT_TIME_INTERVAL * 2);
+    private static final TimeWindowSampler TEN_TO_ONE_SAMPLER = new FixedTimeWindowSampler(DEFAULT_TIME_INTERVAL * 10);
 
     @Mock
     private ResultScanner resultScanner;

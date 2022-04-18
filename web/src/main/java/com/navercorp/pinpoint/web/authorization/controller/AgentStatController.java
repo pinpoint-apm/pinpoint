@@ -21,6 +21,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatService;
+import com.navercorp.pinpoint.web.util.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
@@ -113,12 +114,7 @@ public  class AgentStatController<DP extends AgentStatDataPoint> {
             @RequestParam("interval") Integer interval) {
         final int minSamplingInterval = 5;
         final long intervalMs = interval < minSamplingInterval ? minSamplingInterval * 1000L : interval * 1000L;
-        TimeWindowSampler sampler = new TimeWindowSampler() {
-            @Override
-            public long getWindowSize(Range range) {
-                return intervalMs;
-            }
-        };
+        TimeWindowSampler sampler = new FixedTimeWindowSampler(intervalMs);
         TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
 
         AgentStatChartService<StatChart> agentStatChartService = getChartService(this.agentStatChartServiceMap, chartType);
@@ -147,12 +143,7 @@ public  class AgentStatController<DP extends AgentStatDataPoint> {
             @RequestParam("interval") Integer interval) {
         final int minSamplingInterval = 5;
         final long intervalMs = interval < minSamplingInterval ? minSamplingInterval * 1000L : interval * 1000L;
-        TimeWindowSampler sampler = new TimeWindowSampler() {
-            @Override
-            public long getWindowSize(Range range) {
-                return intervalMs;
-            }
-        };
+        TimeWindowSampler sampler = new FixedTimeWindowSampler(intervalMs);
         TimeWindow timeWindow = new TimeWindow(Range.between(from, to), sampler);
 
         AgentStatChartService agentStatChartService = getChartService(this.agentStatChartServiceMap, chartType);
