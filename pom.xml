@@ -187,7 +187,7 @@
         <mybatis.version>3.5.7</mybatis.version>
 
         <jjwt.version>0.9.1</jjwt.version>
-        <jaxb.version>2.3.1</jaxb.version>
+        <jaxb.version>2.3.3</jaxb.version>
 
         <zookeeper.version>3.4.14</zookeeper.version>
         <curator.version>4.2.0</curator.version>
@@ -863,6 +863,17 @@
                 <artifactId>jakarta.activation</artifactId>
                 <scope>runtime</scope>
                 <version>1.2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.3.6</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>jakarta.annotation</groupId>

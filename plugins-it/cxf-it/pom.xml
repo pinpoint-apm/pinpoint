@@ -55,6 +55,10 @@
                     <groupId>javax.annotation</groupId>
                     <artifactId>javax.annotation-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-rt-databinding-jaxb</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
