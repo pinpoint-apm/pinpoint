@@ -37,6 +37,7 @@
         <mongo.driver.version>3.9.0</mongo.driver.version>
         <apache.dubbo.version>2.7.2</apache.dubbo.version>
         <ehcache.version>2.10.6</ehcache.version>
+        <undertow.version>2.2.17.Final</undertow.version>
     </properties>
 
     <dependencyManagement>

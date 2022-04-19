@@ -71,6 +71,7 @@
         <module>elasticsearch-plugin-testweb</module>
         <module>elasticsearch-8-plugin-testweb</module>
         <module>postgresql-plugin-testweb</module>
+        <module>undertow-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>
