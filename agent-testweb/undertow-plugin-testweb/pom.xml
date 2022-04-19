@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>2.4.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-undertow-plugin-testweb</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <encoding>UTF-8</encoding>
+        <undertow.version>2.2.17.Final</undertow.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>${undertow.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-servlet</artifactId>
+            <version>${undertow.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-websockets-jsr</artifactId>
+            <version>${undertow.version}</version>
+        </dependency>
+    </dependencies>
+</project>
