@@ -857,17 +857,31 @@
                 <groupId>com.sun.mail</groupId>
                 <artifactId>jakarta.mail</artifactId>
                 <version>1.6.7</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- use com.sun.activation:jakarta.activation -->
+                        <groupId>jakarta.activation</groupId>
+                        <artifactId>jakarta.activation-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sun.activation</groupId>
                 <artifactId>jakarta.activation</artifactId>
-                <scope>runtime</scope>
                 <version>1.2.2</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jaxb.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- use com.sun.activation:jakarta.activation -->
+                        <groupId>jakarta.activation</groupId>
+                        <artifactId>jakarta.activation-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
