@@ -25,4 +25,3 @@ tasks.publish {
 }
 
 group = "com.navercorp.pinpoint.gradle.plugins"
-version = "1.0-SNAPSHOT"
