@@ -23,10 +23,12 @@ import java.util.Objects;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +43,6 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-
     @Override
     public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
@@ -50,14 +51,16 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         Cell[] rawCells = result.rawCells();
         List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
-            final byte[] qualifierArray = cell.getQualifierArray();
-            final int qualifierOffset = cell.getQualifierOffset();
-            final int qualifierLength = cell.getQualifierLength();
-            // increment by value of key
-            TransactionId traceId = parseVarTransactionId(qualifierArray, qualifierOffset, qualifierLength);
-            traceIdList.add(traceId);
+            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.getName())) {
+                final byte[] qualifierArray = cell.getQualifierArray();
+                final int qualifierOffset = cell.getQualifierOffset();
+                final int qualifierLength = cell.getQualifierLength();
+                // increment by value of key
+                TransactionId traceId = parseVarTransactionId(qualifierArray, qualifierOffset, qualifierLength);
+                traceIdList.add(traceId);
 
-            logger.debug("found traceId {}", traceId);
+                logger.debug("found traceId {}", traceId);
+            }
         }
         return traceIdList;
     }

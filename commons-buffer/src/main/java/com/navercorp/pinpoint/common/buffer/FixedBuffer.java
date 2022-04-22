@@ -545,6 +545,11 @@ public class FixedBuffer implements Buffer {
         }
     }
 
+    @Override
+    public void setByte(int offset, byte value) {
+        this.buffer[offset] = value;
+    }
+
     /**
      * Be careful that if internal buffer's length is as same as offset,
      * then just return internal buffer without copying memory for improving performance.

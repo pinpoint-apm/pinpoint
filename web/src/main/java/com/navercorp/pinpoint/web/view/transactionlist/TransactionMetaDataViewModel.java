@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view.transactionlist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
@@ -40,7 +40,7 @@ public class TransactionMetaDataViewModel {
 
     @JsonProperty("metadata")
     public List<MetaData> getMetadata() {
-        List<MetaData> list = new ArrayList<MetaData>();
+        List<MetaData> list = new ArrayList<>(spanBoList.size());
         for (SpanBo span : spanBoList) {
             list.add(new MetaData(span));
         }
@@ -48,64 +48,64 @@ public class TransactionMetaDataViewModel {
         return list;
     }
 
-    public static class MetaData {
+    public static class MetaData implements DotMetaDataView {
         private final SpanBo span;
 
         public MetaData(SpanBo span) {
             this.span = span;
         }
 
-        @JsonProperty("traceId")
+        @Override
         public String getTraceId() {
             return TransactionIdUtils.formatString(span.getTransactionId());
         }
 
-        @JsonProperty("collectorAcceptTime")
+        @Override
         public long getCollectorAcceptTime() {
             return span.getCollectorAcceptTime();
         }
 
-        @JsonProperty("startTime")
+        @Override
         public long getStartTime() {
             return span.getStartTime();
         }
 
-        @JsonProperty("elapsed")
+        @Override
         public long getElapsed() {
             return span.getElapsed();
         }
 
-        @JsonProperty("application")
+        @Override
         public String getApplication() {
             return span.getRpc();
         }
 
-        @JsonProperty("agentId")
+        @Override
         public String getAgentId() {
             return span.getAgentId();
         }
 
-        @JsonProperty("agentName")
+        @Override
         public String getAgentName() {
             return span.getAgentName();
         }
 
-        @JsonProperty("endpoint")
+        @Override
         public String getEndpoint() {
             return span.getEndPoint();
         }
 
-        @JsonProperty("exception")
+        @Override
         public int getException() {
             return span.getErrCode();
         }
 
-        @JsonProperty("remoteAddr")
+        @Override
         public String getRemoteAddr() {
             return span.getRemoteAddr();
         }
 
-        @JsonProperty("spanId")
+        @Override
         public String getSpanId() {
             return Long.toString(span.getSpanId());
         }

@@ -43,9 +43,11 @@ import java.util.function.Predicate;
  */
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
+
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
+
     // @Nullable
     private final Predicate<Dot> filter;
-
 
     public TraceIndexScatterMapper() {
         this.filter = null;
@@ -63,18 +65,22 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
         Cell[] rawCells = result.rawCells();
         List<Dot> list = new ArrayList<>(rawCells.length);
-        final Predicate<Dot> filter = this.filter;
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.getName())) {
-                final Dot dot = createDot(cell);
-                if (filter == null) {
-                    list.add(dot);
-                } else if (filter.test(dot)) {
+            if (CellUtil.matchingFamily(cell, INDEX.getName())) {
+                Dot dot = createDot(cell);
+                if (filter(dot, this.filter)) {
                     list.add(dot);
                 }
             }
         }
         return list;
+    }
+
+    static boolean filter(Dot dot, Predicate<Dot> filter) {
+        if (filter == null) {
+            return true;
+        }
+        return filter.test(dot);
     }
 
     static Dot createDot(Cell cell) {

@@ -617,6 +617,36 @@ public class FixedBufferTest {
     }
 
     @Test
+    public void setByte() {
+        Buffer buffer = new FixedBuffer(16);
+        buffer.putByte((byte) 5);
+        buffer.putInt(123);
+        buffer.putLong(456);
+
+        buffer.setByte(0, (byte) buffer.getOffset());
+        buffer.setOffset(0);
+
+        Assert.assertEquals(13, buffer.readByte());
+        Assert.assertEquals(123, buffer.readInt());
+        Assert.assertEquals(456, buffer.readLong());
+    }
+
+    @Test
+    public void setByte1() {
+        Buffer buffer = new FixedBuffer(16);
+        buffer.putByte((byte) 5);
+        buffer.putInt(123);
+        int fixedSizeOffset = buffer.getOffset();
+        buffer.putPrefixedString("abc");
+
+        buffer.setByte(0, (byte) fixedSizeOffset);
+
+        buffer.setOffset(fixedSizeOffset);
+
+        Assert.assertEquals("abc", buffer.readPrefixedString());
+    }
+
+    @Test
     public void testGetOffset() {
         Buffer buffer = new FixedBuffer();
         Assert.assertEquals(buffer.getOffset(), 0);

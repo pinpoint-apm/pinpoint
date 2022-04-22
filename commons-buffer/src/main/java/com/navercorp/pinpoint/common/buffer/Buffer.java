@@ -178,6 +178,8 @@ public interface Buffer {
 
     String read4PrefixedString();
 
+    void setByte(int offset, byte value);
+
     byte[] getBuffer();
 
     byte[] copyBuffer();
