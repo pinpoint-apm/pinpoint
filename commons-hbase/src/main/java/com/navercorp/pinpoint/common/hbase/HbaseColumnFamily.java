@@ -98,6 +98,7 @@ public class HbaseColumnFamily {
     }
 
     public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_TRACE = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("I"));
+    public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_META = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("M"));
     public static class ApplicationTraceIndexTrace extends HbaseColumnFamily {
         public static final int ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 

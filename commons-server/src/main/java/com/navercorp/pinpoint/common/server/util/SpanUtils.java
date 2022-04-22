@@ -30,6 +30,9 @@ public final class SpanUtils {
     private SpanUtils() {
     }
 
+    /**
+     * deserializer ref : TransactionIdMapper.parseVarTransactionId
+     */
     public static byte[] getVarTransactionId(SpanBo span) {
         Objects.requireNonNull(span, "span");
 
@@ -39,7 +42,7 @@ public final class SpanUtils {
             agentId = span.getAgentId();
         }
 
-        final Buffer buffer= new AutomaticBuffer(32);
+        final Buffer buffer = new AutomaticBuffer(32);
         buffer.putPrefixedString(agentId);
         buffer.putSVLong(transactionId.getAgentStartTime());
         buffer.putVLong(transactionId.getTransactionSequence());

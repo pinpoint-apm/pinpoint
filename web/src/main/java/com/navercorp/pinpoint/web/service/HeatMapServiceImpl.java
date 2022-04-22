@@ -14,13 +14,18 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.SpanHint;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,6 +65,78 @@ public class HeatMapServiceImpl implements HeatMapService {
 
         logger.debug("dragScatterArea span:{}", spanList.size());
         return new LimitedScanResult<>(scanResult.getLimitedTime(), spanList);
+    }
+
+    @Override
+    public LimitedScanResult<List<DotMetaData>> dragScatterDataV2(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
+
+
+        LimitedScanResult<List<DotMetaData>> scanResult = applicationTraceIndexDao.scanScatterDataV2(applicationName, dragAreaQuery, limit);
+        scanResult = legacyCompatibilityCheck(applicationName, scanResult);
+
+        logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
+        return scanResult;
+    }
+
+    private LimitedScanResult<List<DotMetaData>> legacyCompatibilityCheck(String applicationName, LimitedScanResult<List<DotMetaData>> scanResult) {
+        Predicate<DotMetaData> legacyTablePredicate = legacyTablePredicate();
+
+        List<DotMetaData> scanData = scanResult.getScanData();
+        Optional<DotMetaData> oldVersion = scanData.stream()
+                .filter(legacyTablePredicate)
+                .findAny();
+        if (!oldVersion.isPresent()) {
+            return scanResult;
+        }
+        //
+        List<Dot> dots = scanData.stream()
+                .filter(legacyTablePredicate)
+                .map(DotMetaData::getDot)
+                .collect(Collectors.toList());
+
+        List<GetTraceInfo> query = buildQuery(applicationName, dots);
+        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
+        List<SpanBo> spanList = ListListUtils.toList(selectedSpans, selectedSpans.size());
+        spanService.populateAgentName(spanList);
+
+        if (dots.size() != spanList.size()) {
+            throw new IllegalStateException("Legacy compatibility error, dots=" + dots.size() + " spanList:" + spanList);
+        }
+
+        Iterator<SpanBo> spanIter = spanList.iterator();
+
+        List<DotMetaData> result = new ArrayList<>(scanData.size());
+        for (DotMetaData dotMetaData : scanData) {
+            if (legacyTablePredicate.test(dotMetaData)) {
+                if (!spanIter.hasNext()) {
+                    throw new IllegalStateException("Legacy compatibility error");
+                }
+                SpanBo span = spanIter.next();
+                DotMetaData.Builder builder = new DotMetaData.Builder();
+                builder.setDot(dotMetaData.getDot());
+                builder.setAgentName(span.getAgentName());
+                builder.setEndpoint(span.getEndPoint());
+                builder.setRemoteAddr(span.getRemoteAddr());
+                builder.setStartTime(span.getStartTime());
+                builder.setSpanId(span.getSpanId());
+                builder.setRpc(span.getRpc());
+                result.add(builder.build());
+            } else {
+                result.add(dotMetaData);
+            }
+        }
+        return new LimitedScanResult<>(scanResult.getLimitedTime(), result);
+    }
+
+    private Predicate<DotMetaData> legacyTablePredicate() {
+        return new Predicate<DotMetaData>() {
+            @Override
+            public boolean test(DotMetaData dotMetaData) {
+                return dotMetaData.getStartTime() == 0;
+            }
+        };
     }
 
     @Override

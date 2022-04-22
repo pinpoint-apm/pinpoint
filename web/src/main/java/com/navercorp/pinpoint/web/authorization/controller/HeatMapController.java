@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.Status;
@@ -10,10 +10,11 @@ import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
 import com.navercorp.pinpoint.web.scatter.heatmap.Point;
 import com.navercorp.pinpoint.web.service.HeatMapService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
-import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
+import com.navercorp.pinpoint.web.view.transactionlist.DotMetaDataView;
+import com.navercorp.pinpoint.web.view.transactionlist.TransactionDotMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,15 +60,15 @@ public class HeatMapController {
         Dot.Status dotStatus = toDotStatus(boolDotStatus);
         DragAreaQuery query = new DragAreaQuery(dragArea, agentId, dotStatus);
 
-        final LimitedScanResult<List<SpanBo>> scatterData = heatMap.dragScatterData(applicationName, query, limit);
+        final LimitedScanResult<List<DotMetaData>> dotMetaData = heatMap.dragScatterDataV2(applicationName, query, limit);
         if (logger.isDebugEnabled()) {
-            logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scatterData.getScanData().size());
+            logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.getScanData().size());
         }
 
-        List<SpanBo> scanData = scatterData.getScanData();
-        TransactionMetaDataViewModel transaction = new TransactionMetaDataViewModel(scanData);
+        List<DotMetaData> scanData = dotMetaData.getScanData();
+        TransactionDotMetaDataViewModel transaction = new TransactionDotMetaDataViewModel(scanData);
         boolean complete = scanData.size() < limit;
-        PagingStatus scanStatus = new PagingStatus(complete, scatterData.getLimitedTime());
+        PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.getLimitedTime());
         return new ResultView(transaction.getMetadata(), scanStatus);
 
     }
@@ -83,15 +84,15 @@ public class HeatMapController {
     }
 
     public static class ResultView {
-        private final List<TransactionMetaDataViewModel.MetaData> metaDataList;
+        private final List<DotMetaDataView> metaDataList;
         private final PagingStatus status;
 
-        public ResultView(List<TransactionMetaDataViewModel.MetaData> metaDataList, PagingStatus status) {
+        public ResultView(List<DotMetaDataView> metaDataList, PagingStatus status) {
             this.metaDataList = Objects.requireNonNull(metaDataList, "metaDataList");
             this.status = Objects.requireNonNull(status, "status");
         }
 
-        public List<TransactionMetaDataViewModel.MetaData> getMetadata() {
+        public List<DotMetaDataView> getMetadata() {
             return metaDataList;
         }
 

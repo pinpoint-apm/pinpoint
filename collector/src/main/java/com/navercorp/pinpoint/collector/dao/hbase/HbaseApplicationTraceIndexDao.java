@@ -54,7 +54,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace DESCRIPTOR = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
 
     private final HbaseOperations2 hbaseTemplate;
     private final TableNameProvider tableNameProvider;
@@ -93,26 +94,49 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(span.getApplicationId());
 
-        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
-        buffer.putVInt(span.getElapsed());
-        buffer.putSVInt(span.getErrCode());
-        buffer.putPrefixedString(span.getAgentId());
-        final byte[] value = buffer.getBuffer();
-
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final byte[] distributedKey = createRowKey(span, acceptedTime);
 
         final Put put = new Put(distributedKey);
 
-        put.addColumn(DESCRIPTOR.getName(), makeQualifier(span) , acceptedTime, value);
+        final byte[] qualifier = SpanUtils.getVarTransactionId(span);
 
-        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        final byte[] indexValue = buildIndexValue(span);
+        put.addColumn(INDEX.getName(), qualifier, acceptedTime, indexValue);
+
+        final byte[] metaDataValue = buildMetaData(span);
+        put.addColumn(META.getName(), qualifier, metaDataValue);
+
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
         hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
     }
 
-    private byte[] makeQualifier(final SpanBo span) {
-        final byte[] qualifier = SpanUtils.getVarTransactionId(span);
-        return qualifier;
+    private byte[] buildIndexValue(SpanBo span) {
+        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
+        buffer.putVInt(span.getElapsed());
+        buffer.putSVInt(span.getErrCode());
+        buffer.putPrefixedString(span.getAgentId());
+        final byte[] indexValue = buffer.getBuffer();
+        return indexValue;
+    }
+
+    /**
+     * DotMetaData.Builder.read();
+     */
+    private byte[] buildMetaData(SpanBo span) {
+        Buffer buffer = new AutomaticBuffer(64);
+        buffer.putByte((byte) 0);
+        buffer.putLong(span.getSpanId());
+        buffer.putLong(span.getStartTime());
+        // fixed field offset
+        buffer.setByte(0, (byte) buffer.getOffset());
+
+        buffer.putPrefixedString(span.getRpc());
+        buffer.putPrefixedString(span.getRemoteAddr());
+        buffer.putPrefixedString(span.getEndPoint());
+        buffer.putPrefixedString(span.getAgentName());
+
+        return buffer.getBuffer();
     }
 
     private byte[] createRowKey(SpanBo span, long acceptedTime) {
