@@ -20,16 +20,19 @@ import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
+import com.navercorp.pinpoint.grpc.trace.PCmdSamplingRate;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdSamplingRate;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 
 import com.google.protobuf.GeneratedMessageV3;
 
 /**
  * @author Taejin Koo
+ * @author yjqg6666
  */
 public class CommandThriftToGrpcMessageConverter implements MessageConverter<Object, GeneratedMessageV3> {
 
@@ -43,6 +46,8 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Obj
             return buildPCmdActiveThreadDump((TCmdActiveThreadDump) message);
         } else if (message instanceof TCmdActiveThreadLightDump) {
             return buildPCmdActiveThreadLightDump((TCmdActiveThreadLightDump) message);
+        } else if (message instanceof TCmdSamplingRate) {
+            return buildPCmdSamplingRate((TCmdSamplingRate) message);
         }
         return null;
     }
@@ -50,6 +55,12 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Obj
     private PCmdEcho buildPCommandEcho(TCommandEcho tCommandEcho) {
         PCmdEcho.Builder builder = PCmdEcho.newBuilder();
         builder.setMessage(tCommandEcho.getMessage());
+        return builder.build();
+    }
+
+    private PCmdSamplingRate buildPCmdSamplingRate(TCmdSamplingRate tCmdSamplingRate) {
+        PCmdSamplingRate.Builder builder = PCmdSamplingRate.newBuilder();
+        builder.setSamplingRate(tCmdSamplingRate.getSamplingRate());
         return builder.build();
     }
 

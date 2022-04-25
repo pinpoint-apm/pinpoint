@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdSamplingRate;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
@@ -33,6 +35,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,6 +49,7 @@ import java.util.Objects;
 
 /**
  * @author Taejin Koo
+ * @author yjqg6666
  */
 @RestController
 @RequestMapping("/agent")
@@ -67,7 +71,7 @@ public class AgentCommandController {
                                           @RequestParam(value = "agentId") String agentId,
                                           @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                           @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                          @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+                                          @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
             return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
@@ -110,17 +114,78 @@ public class AgentCommandController {
         }
     }
 
+    @GetMapping(value = "/samplingRate")
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'samplingRate')")
+    public CodeResult agentSamplingRate(
+        @RequestParam(value = "applicationName") String applicationName,
+        @RequestParam(value = "agentId") String agentId,
+        @RequestParam(value = "samplingRate", required = false, defaultValue = "-1") double samplingRate
+    ) {
+        if (!webProperties.isEnableSamplingRate()) {
+            return new CodeResult(CODE_FAIL, "Disable samplingRate option. 'config.enable.samplingRate=false'");
+        }
+
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
+        if (agentInfo == null) {
+            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+        }
+
+        TCmdSamplingRate cmdSamplingRate = new TCmdSamplingRate();
+        cmdSamplingRate.setSamplingRate(samplingRate);
+
+        try {
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, cmdSamplingRate, 30000);
+            if (isSuccessResponse(pinpointRouteResponse)) {
+                TBase<?, ?> result = pinpointRouteResponse.getResponse();
+                if (result instanceof TCmdSamplingRate) {
+                    Map<String, Object> responseData = new HashMap<>(1);
+                    responseData.put("samplingRate", ((TCmdSamplingRate) result).getSamplingRate());
+                    return new CodeResult(CODE_SUCCESS, responseData);
+                }
+            }
+            return handleFailedResponse(pinpointRouteResponse);
+        } catch (TException e) {
+            return new CodeResult(CODE_FAIL, e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/echo")
+    public CodeResult agentEcho(
+            @RequestParam(value = "applicationName") String applicationName,
+            @RequestParam(value = "agentId") String agentId,
+            @RequestParam(value = "msg") String msg
+    ) {
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
+        if (agentInfo == null) {
+            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+        }
+
+        TCommandEcho cmdEcho = new TCommandEcho();
+        cmdEcho.setMessage(msg);
+
+        try {
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, cmdEcho, 30000);
+            if (isSuccessResponse(pinpointRouteResponse)) {
+                TBase<?, ?> result = pinpointRouteResponse.getResponse();
+                if (result instanceof TCommandEcho ) {
+                    Map<String, Object> responseData = new HashMap<>(1);
+                    responseData.put("message", ((TCommandEcho) result).getMessage());
+                    return new CodeResult(CODE_SUCCESS, responseData);
+                }
+            }
+            return handleFailedResponse(pinpointRouteResponse);
+        } catch (TException e) {
+            return new CodeResult(CODE_FAIL, e.getMessage());
+        }
+    }
+
     private boolean isSuccessResponse(PinpointRouteResponse pinpointRouteResponse) {
         if (pinpointRouteResponse == null) {
             return false;
         }
 
         TRouteResult routeResult = pinpointRouteResponse.getRouteResult();
-        if (routeResult != TRouteResult.OK) {
-            return false;
-        }
-
-        return true;
+        return routeResult == TRouteResult.OK;
     }
 
     private Map<String, Object> createResponseData(AgentActiveThreadDumpList activeThreadDumpList, String type, String subType, String version) {
@@ -138,7 +203,7 @@ public class AgentCommandController {
                                                  @RequestParam(value = "agentId") String agentId,
                                                  @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                                  @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                                 @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+                                                 @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
             return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }

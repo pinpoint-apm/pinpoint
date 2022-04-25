@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
+import com.navercorp.pinpoint.grpc.trace.PCmdSamplingRate;
 import com.navercorp.pinpoint.profiler.context.thrift.CommandGrpcToThriftMessageConverter;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
@@ -65,6 +66,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Taejin Koo
+ * @author yjqg6666
  */
 public class PinpointGrpcServer {
 
@@ -187,19 +189,18 @@ public class PinpointGrpcServer {
 
         if (message instanceof PCmdEcho) {
             requestBuilder.setCommandEcho((PCmdEcho) message);
-            return requestBuilder.build();
         } else if (message instanceof PCmdActiveThreadCount) {
             requestBuilder.setCommandActiveThreadCount((PCmdActiveThreadCount) message);
-            return requestBuilder.build();
         } else if (message instanceof PCmdActiveThreadDump) {
             requestBuilder.setCommandActiveThreadDump((PCmdActiveThreadDump) message);
-            return requestBuilder.build();
         } else if (message instanceof PCmdActiveThreadLightDump) {
             requestBuilder.setCommandActiveThreadLightDump((PCmdActiveThreadLightDump) message);
-            return requestBuilder.build();
+        } else if (message instanceof PCmdSamplingRate) {
+            requestBuilder.setCommandSamplingRate((PCmdSamplingRate) message);
         } else {
             return null;
         }
+        return requestBuilder.build();
     }
 
     public void handleMessage(int responseId, GeneratedMessageV3 message) {

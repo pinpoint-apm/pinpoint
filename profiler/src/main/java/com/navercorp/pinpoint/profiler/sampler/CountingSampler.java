@@ -23,22 +23,37 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
+ * @author yjqg6666
  */
 public class CountingSampler implements Sampler {
 
     private final AtomicInteger counter = new AtomicInteger(0);
-    private final int samplingRate;
+    private volatile int samplingRate;
 
     public CountingSampler(int samplingRate) {
-        if (samplingRate <= 0) {
-            throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
-        }
-        this.samplingRate = samplingRate;
+        updateSamplingRate(samplingRate);
     }
 
+    public void updateSamplingRate(double samplingRate) {
+        if (samplingRate < 0) {
+            throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
+        }
+        this.samplingRate = (int) samplingRate;
+    }
+
+    @Override
+    public double getSamplingRate() {
+        return samplingRate;
+    }
 
     @Override
     public boolean isSampling() {
+        if (samplingRate == 0) {
+            return false;
+        }
+        if (samplingRate == 1) {
+            return true;
+        }
         int samplingCount = counter.getAndIncrement();
         int isSampling = MathUtils.floorMod(samplingCount, samplingRate);
         return isSampling == 0;

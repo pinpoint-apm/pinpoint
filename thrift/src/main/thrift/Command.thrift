@@ -112,6 +112,10 @@ struct TCommandEcho {
     1: string	message
 }
 
+struct TCmdSamplingRate {
+    1: double	samplingRate
+}
+
 enum TRouteResult {
     OK = 0,
 

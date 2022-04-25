@@ -32,11 +32,14 @@ public class PercentRateSampler implements Sampler {
 
     private final AtomicLong counter = new AtomicLong(0);
 
-    private final long samplingRate;
+    private volatile long samplingRate;
 
     public PercentRateSampler(long samplingRate) {
-        if (samplingRate <= 0 || samplingRate >= MAX) {
-            // Use TrueSampler for 100%
+        updateSamplingRate(samplingRate);
+    }
+
+    public void updateSamplingRate(long samplingRate) {
+        if (samplingRate < 0) {
             throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
         }
         this.samplingRate = samplingRate;
@@ -44,12 +47,28 @@ public class PercentRateSampler implements Sampler {
 
     @Override
     public boolean isSampling() {
+        if (samplingRate == 0) {
+            return false;
+        }
+        if (samplingRate >= MAX) {
+            return true;
+        }
         final long seed = counter.addAndGet(samplingRate);
         final long remainder = MathUtils.floorMod(seed, MAX);
         if (remainder > 0 && remainder <= samplingRate) {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public double getSamplingRate() {
+        return (double)(samplingRate) / MULTIPLIER;
+    }
+
+    @Override
+    public void updateSamplingRate(double rate) {
+        updateSamplingRate((long) (rate * MULTIPLIER));
     }
 
     @Override

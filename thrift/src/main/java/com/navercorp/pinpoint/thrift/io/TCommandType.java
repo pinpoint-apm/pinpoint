@@ -27,6 +27,7 @@ import java.util.Set;
 
 /**
  * @author koo.taejin
+ * @author yjqg6666
  */
 public enum TCommandType {
 
@@ -57,6 +58,13 @@ public enum TCommandType {
         @Override
         public TBase<?, ?> getObject() {
             return new TCommandEcho();
+        }
+    }),
+
+    SAMPLING_RATE((short) 715, new BodyFactory<TBase<?, ?>>() {
+        @Override
+        public TBase<?, ?> getObject() {
+            return new TCmdSamplingRate();
         }
     }),
 

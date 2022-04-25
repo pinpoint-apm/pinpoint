@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 
 /**
  * @author emeroad
+ * @author yjqg6666
  */
 public class TrueSampler implements Sampler {
     public static final Sampler INSTANCE = new TrueSampler();
@@ -30,6 +31,16 @@ public class TrueSampler implements Sampler {
     @Override
     public boolean isSampling() {
         return true;
+    }
+
+    @Override
+    public double getSamplingRate() {
+        return 100.00;
+    }
+
+    @Override
+    public void updateSamplingRate(double rate) {
+        //do nothing
     }
 
     @Override

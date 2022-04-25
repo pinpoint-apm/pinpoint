@@ -41,9 +41,6 @@ public class PercentSamplerFactory implements SamplerFactory {
         if (samplingRate <= 0) {
             return FalseSampler.INSTANCE;
         }
-        if (samplingRate >= PercentRateSampler.MAX) {
-            return TrueSampler.INSTANCE;
-        }
         return new PercentRateSampler(samplingRate);
     }
 

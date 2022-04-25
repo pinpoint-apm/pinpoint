@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
+import com.navercorp.pinpoint.grpc.trace.PCmdSamplingRateResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
@@ -55,6 +56,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
+ * @author yjqg6666
  */
 public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerCommandServiceImplBase implements Closeable {
 
@@ -69,6 +71,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final ActiveThreadDumpService activeThreadDumpService = new ActiveThreadDumpService();
     private final ActiveThreadLightDumpService activeThreadLightDumpService = new ActiveThreadLightDumpService();
     private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
+    private final SamplingRateService samplingRateService = new SamplingRateService();
 
     public GrpcCommandService(ClusterService clusterService) {
         Objects.requireNonNull(clusterService, "clusterService");
@@ -309,6 +312,20 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             logger.warn("Failed to handle activeThreadCountService. agentKey={}, transportId={}", getAgentInfo().getAgentKey(), transportId, e);
             streamConnectionManagerObserver.onError(Status.INTERNAL.withDescription("Internal Server Error").asException());
             return DisabledStreamObserver.instance();
+        }
+    }
+
+    @Override
+    public void commandSamplingRate(PCmdSamplingRateResponse samplingRateResponse, StreamObserver<Empty> responseObserver) {
+        final Long transportId = getTransportId();
+        PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
+        if (pinpointGrpcServer != null) {
+            samplingRateService.handle(pinpointGrpcServer, samplingRateResponse, responseObserver);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } else {
+            logger.info("{} => local. Can't find PinpointGrpcServer(transportId={}) for commandSamplingRate.", getAgentInfo().getAgentKey(), transportId);
+            responseObserver.onError(new StatusException(Status.NOT_FOUND));
         }
     }
 
