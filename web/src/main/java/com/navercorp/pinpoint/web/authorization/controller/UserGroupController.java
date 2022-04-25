@@ -16,6 +16,10 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.response.CreateUserGroupResponse;
+import com.navercorp.pinpoint.web.response.ErrorResponse;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.UserGroup;
@@ -24,6 +28,7 @@ import com.navercorp.pinpoint.web.vo.UserGroupMemberParam;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,9 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -57,36 +60,32 @@ public class UserGroupController {
     }
 
     @PostMapping()
-    public Map<String, String> createUserGroup(@RequestBody UserGroup userGroup) {
-        if (ValueValidator.validateUserGroupId(userGroup.getId()) == false) {
-            return createErrorMessage("500", "usergroupId pattern is invalid to create user group");
+    public ResponseEntity<Response> createUserGroup(@RequestBody UserGroup userGroup) {
+        if (!ValueValidator.validateUserGroupId(userGroup.getId())) {
+            return ErrorResponse.badRequest("usergroupId pattern is invalid to create user group");
         }
 
         try {
             String userGroupNumber = userGroupService.createUserGroup(userGroup);
-            Map<String, String> result = new HashMap<>();
-            result.put("number", userGroupNumber);
-            return result;
+            return ResponseEntity.ok(new CreateUserGroupResponse("SUCCESS", userGroupNumber));
         } catch (PinpointUserGroupException e) {
             logger.error(e.getMessage(), e);
-            return createErrorMessage("500", e.getMessage());
+            return ErrorResponse.serverError(e.getMessage());
         }
     }
 
     @DeleteMapping()
-    public Map<String, String> deleteUserGroup(@RequestBody UserGroup userGroup) {
+    public ResponseEntity<Response> deleteUserGroup(@RequestBody UserGroup userGroup) {
         if (StringUtils.isEmpty(userGroup.getId())) {
-            return createErrorMessage("500", "there is id of userGroup in params to delete user group");
+            return ErrorResponse.badRequest("there is id of userGroup in params to delete user group");
         }
 
         try {
             userGroupService.deleteUserGroup(userGroup);
-            Map<String, String> result = new HashMap<>();
-            result.put("result", "SUCCESS");
-            return result;
+            return SuccessResponse.ok();
         } catch (PinpointUserGroupException e) {
             logger.error(e.getMessage(), e);
-            return createErrorMessage("500", e.getMessage());
+            return ErrorResponse.serverError(e.getMessage());
         }
     }
 
@@ -101,28 +100,24 @@ public class UserGroupController {
     }
 
     @PostMapping(value = "/member")
-    public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
+    public ResponseEntity<Response> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getUserGroupId())) {
-            return createErrorMessage("500", "there is not userGroupId or memberId in params to insert user group member");
+            return ErrorResponse.serverError("there is not userGroupId or memberId in params to insert user group member");
         }
 
         userGroupService.insertMember(userGroupMember);
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        return SuccessResponse.ok();
 
     }
 
     @DeleteMapping(value = "/member")
-    public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
+    public ResponseEntity<Response> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
-            return createErrorMessage("500", "there is not userGroupId or memberId in params to delete user group member");
+            return ErrorResponse.badRequest("there is not userGroupId or memberId in params to delete user group member");
         }
 
         userGroupService.deleteMember(userGroupMember);
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        return SuccessResponse.ok();
     }
 
     @GetMapping(value = "/member")
@@ -131,15 +126,9 @@ public class UserGroupController {
     }
 
     @ExceptionHandler(Exception.class)
-    public Map<String, String> handleException(Exception e) {
+    public ResponseEntity<Response> handleException(Exception e) {
         logger.error("Exception occurred while trying to CRUD userGroup information", e);
-        return createErrorMessage("500", "Exception occurred while trying to CRUD userGroup information");
+        return ErrorResponse.serverError("Exception occurred while trying to CRUD userGroup information");
     }
 
-    private Map<String, String> createErrorMessage(String code, String errorMessage) {
-        Map<String, String> result = new HashMap<>();
-        result.put("errorCode", code);
-        result.put("errorMessage", errorMessage);
-        return result;
-    }
 }

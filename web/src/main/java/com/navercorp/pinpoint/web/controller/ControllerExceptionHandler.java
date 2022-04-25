@@ -28,23 +28,21 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.view.error.ExceptionResponse;
 import com.navercorp.pinpoint.web.view.error.InternalServerError;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author Taejin Koo
  */
 @ControllerAdvice
 public class ControllerExceptionHandler {
-
-    private static final String DEFAULT_ERROR_VIEW = "jsonView";
-
     private static final String UNKNOWN = "UNKNOWN";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -56,24 +54,20 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(value = Exception.class)
-    public ModelAndView defaultErrorHandler(HttpServletRequest request, Exception exception) throws Exception {
+    public ResponseEntity<Response> defaultErrorHandler(HttpServletRequest request, Exception exception) throws Exception {
         Objects.requireNonNull(request, "request");
         Objects.requireNonNull(exception, "exception");
 
         InternalServerError.RequestInfo requestInfo = createRequestResource(request);
         logger.warn("Failed to execute controller methods. message:{}, request:{}.", exception.getMessage(), requestInfo, exception);
-
-        ModelAndView mav = new ModelAndView();
         InternalServerError error = createExceptionResource(requestInfo, exception);
-        mav.addObject("exception", error);
-        mav.setViewName(DEFAULT_ERROR_VIEW);
-        mav.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 
-        return mav;
+        return ResponseEntity.internalServerError()
+                .body(new ExceptionResponse(error));
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
-    public ModelAndView accessDeniedExceptionHandler(HttpServletRequest request, Exception exception) throws Exception {
+    public ResponseEntity<Response> accessDeniedExceptionHandler(HttpServletRequest request, Exception exception) throws Exception {
         throw exception;
     }
 

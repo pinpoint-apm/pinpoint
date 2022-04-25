@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.web.response.ErrorResponse;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -44,31 +46,23 @@ public class AgentStatisticsController {
     }
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount"})
-    public Map<String, String> insertAgentCount(@RequestParam("agentCount") int agentCount) {
+    public ResponseEntity<Response> insertAgentCount(@RequestParam("agentCount") int agentCount) {
         return insertAgentCount(agentCount, new Date().getTime());
     }
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount", "timestamp"})
-    public Map<String, String> insertAgentCount(@RequestParam("agentCount") int agentCount, @RequestParam("timestamp") long timestamp) {
+    public ResponseEntity<Response> insertAgentCount(@RequestParam("agentCount") int agentCount, @RequestParam("timestamp") long timestamp) {
         if (timestamp < 0) {
-            Map<String, String> result = new HashMap<>();
-            result.put("result", "FAIL");
-            result.put("message", "negative timestamp.");
-            return result;
+            return ErrorResponse.badRequest("negative timestamp.");
         }
 
         AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateTimeUtils.timestampToStartOfDay(timestamp));
         boolean success = agentStatisticsService.insertAgentCount(agentCountStatistics);
 
         if (success) {
-            Map<String, String> result = new HashMap<>();
-            result.put("result", "SUCCESS");
-            return result;
+            return SuccessResponse.ok();
         } else {
-            Map<String, String> result = new HashMap<>();
-            result.put("result", "FAIL");
-            result.put("message", "insert DAO error.");
-            return result;
+            return ErrorResponse.serverError("insert DAO error.");
         }
     }
 

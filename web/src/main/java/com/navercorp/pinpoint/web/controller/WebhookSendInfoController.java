@@ -1,16 +1,19 @@
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.web.response.ErrorResponse;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
+import com.navercorp.pinpoint.web.response.WebhookSendInfoResponse;
 import com.navercorp.pinpoint.web.service.WebhookSendInfoService;
 import com.navercorp.pinpoint.web.service.WebhookService;
 import com.navercorp.pinpoint.web.vo.WebhookSendInfo;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -30,61 +33,42 @@ public class WebhookSendInfoController {
         this.webhookSendInfoService = Objects.requireNonNull(webhookSendInfoService, "webhookSendInfoService");
     }
 
-    private Map<String, String> getErrorStringMap(String errorCode, String errorMessage) {
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("errorCode", errorCode);
-        returnMap.put("errorMessage", errorMessage);
-        return returnMap;
-    }
-
-    private Map<String, String> getResultStringMap(String result, String ruleId) {
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("result", result);
-        returnMap.put("webhookSendInfoId", ruleId);
-        return returnMap;
-    }
-
-    private Map<String, String> getResultStringMap(String result) {
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("result", result);
-        return returnMap;
-    }
 
     @PostMapping()
-    public Map<String, String> insertWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
+    public ResponseEntity<Response> insertWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(webhookSendInfo.getRuleId()) || !StringUtils.hasText(webhookSendInfo.getWebhookId())) {
-            return getErrorStringMap("500", "there should be ruleId and webhookIdto insert webhookSendInfo");
+            return ErrorResponse.badRequest("there should be ruleId and webhookIdto insert webhookSendInfo");
         }
         String webhookSendInfoId = webhookSendInfoService.insertWebhookSendInfo(webhookSendInfo);
-        return getResultStringMap("SUCCESS", webhookSendInfoId);
+        return ResponseEntity.ok(new WebhookSendInfoResponse("SUCCESS", webhookSendInfoId));
     }
 
     @DeleteMapping()
-    public Map<String, String> deleteWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
+    public ResponseEntity<Response> deleteWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(webhookSendInfo.getWebhookSendInfoId())) {
-            return getErrorStringMap("500", "there should be webhookSendInfoId to delete webhook");
+            return ErrorResponse.badRequest("there should be webhookSendInfoId to delete webhook");
         }
         webhookSendInfoService.deleteWebhookSendInfo(webhookSendInfo);
-        return getResultStringMap("SUCCESS");
+        return SuccessResponse.ok();
     }
 
     @GetMapping()
     public Object getWebhookSendInfo(@RequestParam(value=WEBHOOK_ID, required=false) String webhookId,
                              @RequestParam(value=RULE_ID, required=false) String ruleId) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(webhookId) && !StringUtils.hasText(ruleId)) {
-            return getErrorStringMap("500", "Either webhookId or ruleId is needed to get webhook send information");
+            return ErrorResponse.badRequest("Either webhookId or ruleId is needed to get webhook send information");
         }
 
         if (StringUtils.hasText(webhookId)) {
@@ -95,26 +79,23 @@ public class WebhookSendInfoController {
     }
 
     @PutMapping()
-    public Map<String, String> updateWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
+    public ResponseEntity<Response> updateWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(webhookSendInfo.getWebhookSendInfoId()) ||
                 !StringUtils.hasText(webhookSendInfo.getWebhookId()) || !StringUtils.hasText(webhookSendInfo.getRuleId())) {
-            return getErrorStringMap("500", "There should be webhookSendInfoId, webhookId and ruleId to update webhook send information");
+            return ErrorResponse.badRequest("There should be webhookSendInfoId, webhookId and ruleId to update webhook send information");
         }
         webhookSendInfoService.updateWebhookSendInfo(webhookSendInfo);
-        return getResultStringMap("SUCCESS");
+        return SuccessResponse.ok();
     }
 
     @ExceptionHandler(Exception.class)
-    public Map<String, String> handleException(Exception e) {
+    public ResponseEntity<Response> handleException(Exception e) {
         logger.warn(" Exception occurred while trying to CRUD WebhookSendInfo", e);
 
-        Map<String, String> result = new HashMap<>();
-        result.put("errorCode", "500");
-        result.put("errorMessage", String.format("Exception occurred while trying to process WebhookSendInfo: %s", e.getMessage()));
-        return result;
+        return ErrorResponse.serverError(String.format("Exception occurred while trying to process WebhookSendInfo: %s", e.getMessage()));
     }
 }
