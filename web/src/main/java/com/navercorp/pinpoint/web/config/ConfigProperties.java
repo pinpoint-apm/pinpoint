@@ -64,6 +64,10 @@ public class ConfigProperties {
     @Value("${config.show.stackTraceOnError:true}")
     private boolean showStackTraceOnError;
 
+    @Value("${config.show.systemMetric:false}")
+    private boolean showSystemMetric;
+
+
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
     
@@ -108,6 +112,10 @@ public class ConfigProperties {
 
     public boolean isShowStackTraceOnError() {
         return showStackTraceOnError;
+    }
+
+    public boolean isShowSystemMetric() {
+        return showSystemMetric;
     }
 
     public String getWebSocketAllowedOrigins() {
