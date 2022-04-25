@@ -1,53 +1,55 @@
-<div
-    class="link-item-wrapper"
-    *ngFor="let item of items"
->
+<ng-container *ngFor="let item of items">
     <div
-        #linkItem
-        [ngClass]="{
-          'link-item': true, 
-          'active': isActive(item),
-          'disable': item.disable && item.disable()
-        }"
-        (click)="onClickItem($event, item)">
-        <div *ngIf="item.childItems" class="link-item-button-wrapper">
-            <i *ngIf="!minimize" class="fa fa-angle-right"></i>
-        </div>
-        <a *ngIf="item.path && !item.onClick" routerLink="{{item.path}}">
-            <i class="{{item.iconClass}}"></i>
-            <span [hidden]="minimize">{{item.title}}</span>
-        </a>
-        <span *ngIf="item.onClick || item.childItems">
-            <i class="{{item.iconClass}}"></i>
-            <span [hidden]="minimize">{{item.title}}</span>
-        </span>
-    </div>
-    <div 
-        #childLinkWrapper
-        *ngIf="minimize || item.childItems"
-        class="child-link-wrapper">
+        class="link-item-wrapper"
+        *ngIf="showItem(item)"
+    >
         <div
-            [hidden]="!minimize"
-            class="child-link-title">
-            {{item.title}}
+            #linkItem
+            [ngClass]="{
+            'link-item': true, 
+            'active': isActive(item),
+            'disable': item.disable && item.disable()
+            }"
+            (click)="onClickItem($event, item)">
+            <div *ngIf="item.childItems" class="link-item-button-wrapper">
+                <i *ngIf="!minimize" class="fa fa-angle-right"></i>
+            </div>
+            <a *ngIf="item.path && !item.onClick" routerLink="{{item.path}}">
+                <i class="{{item.iconClass}}"></i>
+                <span [hidden]="minimize">{{item.title}}</span>
+            </a>
+            <span *ngIf="item.onClick || item.childItems">
+                <i class="{{item.iconClass}}"></i>
+                <span [hidden]="minimize">{{item.title}}</span>
+            </span>
         </div>
         <div 
-            *ngFor="let childItem of item.childItems" 
-            [ngClass]="{
-              'link-item': true, 
-              'divider': childItem.id === 'divider',
-              'theme': childItem.id === 'theme'
-            }">
-            <a
-                *ngIf="childItem.id !== 'theme'" 
-                routerLink="{{childItem.path}}"
-                (click)="onClickItem($event, childItem)">
-                <i class="{{childItem.iconClass}}"></i>
-                <span
-                    [innerHTML]="childItem.title"
-                ></span>
-            </a>
-            <pp-theme-widget *ngIf="childItem.id === 'theme'"></pp-theme-widget>
+            #childLinkWrapper
+            *ngIf="minimize || item.childItems"
+            class="child-link-wrapper">
+            <div
+                [hidden]="!minimize"
+                class="child-link-title">
+                {{item.title}}
+            </div>
+            <div 
+                *ngFor="let childItem of item.childItems" 
+                [ngClass]="{
+                'link-item': true, 
+                'divider': childItem.id === 'divider',
+                'theme': childItem.id === 'theme'
+                }">
+                <a
+                    *ngIf="childItem.id !== 'theme'" 
+                    routerLink="{{childItem.path}}"
+                    (click)="onClickItem($event, childItem)">
+                    <i class="{{childItem.iconClass}}"></i>
+                    <span
+                        [innerHTML]="childItem.title"
+                    ></span>
+                </a>
+                <pp-theme-widget *ngIf="childItem.id === 'theme'"></pp-theme-widget>
+            </div>
         </div>
     </div>
-</div>
+</ng-container>

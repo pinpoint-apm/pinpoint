@@ -394,6 +394,7 @@ interface ISystemConfiguration {
     userId?: string;
     userName?: string;
     userDepartment?: string;
+    showSystemMetric: boolean;
 }
 
 interface IFormFieldErrorType {

@@ -10,6 +10,7 @@ import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { HostGroupAndHostListModule } from 'app/core/components/host-group-and-host-list';
 import { HostGroupListModule } from 'app/core/components/host-group-list';
 import { MetricContentsModule } from 'app/core/components/metric-contents';
+import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 
 @NgModule({
     declarations: [
@@ -17,6 +18,7 @@ import { MetricContentsModule } from 'app/core/components/metric-contents';
     ],
     imports: [
         SharedModule,
+        SideNavigationBarModule,
         NoticeModule,
         HostGroupListModule,
         PeriodSelectorModule,

@@ -35,7 +35,6 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.guideMessage$ = this.translateService.get('COMMON.CHART_INTERACTION_GUIDE_MESSAGE');
-
         // merge(
         //     of(this.webAppSettingDataService.getChartLayoutOption()),
         //     this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT)
