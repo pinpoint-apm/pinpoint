@@ -16,10 +16,25 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextCall;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 public final class ReactorContextAccessorUtils {
+
+    private static final AsyncContextCall REACTOR_CONTEXT_CALL = new AsyncContextCall() {
+        @Override
+        public AsyncContext getAsyncContext(Object object) {
+            return ReactorContextAccessorUtils.getAsyncContext(object);
+        }
+
+        @Override
+        public AsyncContext getAsyncContext(Object[] array, int index) {
+            return ReactorContextAccessorUtils.getAsyncContext(array, index);
+        }
+    };
+
 
     public static AsyncContext getAsyncContext(Object[] array, int index) {
         if (!ArrayUtils.isArrayIndexValid(array, index)) {
@@ -52,7 +67,7 @@ public final class ReactorContextAccessorUtils {
     }
 
     public static AsyncContext findAsyncContext(Object[] array, int beginIndex) {
-        if (array == null || array.length == 0) {
+        if (ArrayUtils.isEmpty(array)) {
             return null;
         }
         final int endIndex = array.length - 1;
@@ -60,29 +75,6 @@ public final class ReactorContextAccessorUtils {
     }
 
     public static AsyncContext findAsyncContext(Object[] array, int beginIndex, int endIndex) {
-        if (array == null || array.length == 0) {
-            return null;
-        }
-        final int length = array.length - 1;
-        if (beginIndex < 0 || beginIndex > endIndex || endIndex > length) {
-            return null;
-        }
-        for (int i = beginIndex; i <= endIndex; i++) {
-            if (array[i] instanceof Object[]) {
-                final Object[] objects = (Object[]) array[i];
-                for (Object object : objects) {
-                    final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(object);
-                    if (asyncContext != null) {
-                        return asyncContext;
-                    }
-                }
-            } else {
-                final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(array[i]);
-                if (asyncContext != null) {
-                    return asyncContext;
-                }
-            }
-        }
-        return null;
+        return AsyncContextAccessorUtils.findAsyncContext(array, beginIndex, endIndex, REACTOR_CONTEXT_CALL);
     }
 }
