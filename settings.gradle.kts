@@ -396,4 +396,10 @@ project(":pinpoint-rocketmq-original").projectDir = file("agent-testweb/rocketmq
 project(":pinpoint-jboss-plugin").projectDir = file("plugins/jboss")
 project(":pinpoint-cxf-plugin-it").projectDir = file("plugins-it/cxf-it")
 
-println("This is executed during the initialization phase.")
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            library("asm-core", "org.ow2.asm:asm:${Versions.asm}")
+        }
+    }
+}
