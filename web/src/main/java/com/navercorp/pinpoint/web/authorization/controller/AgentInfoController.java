@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.vo.AgentInfoFilterChain;
 import com.navercorp.pinpoint.web.vo.AgentInstallationInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
-import com.navercorp.pinpoint.web.vo.CodeResult;
+import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;

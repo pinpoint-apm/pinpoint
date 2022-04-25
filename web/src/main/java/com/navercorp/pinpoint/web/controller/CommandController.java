@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.CodeResult;
+import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.logging.log4j.Logger;

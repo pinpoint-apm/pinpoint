@@ -1,15 +1,18 @@
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.web.response.ErrorResponse;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
+import com.navercorp.pinpoint.web.response.WebhookResponse;
 import com.navercorp.pinpoint.web.service.WebhookService;
 import com.navercorp.pinpoint.web.vo.Webhook;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -30,51 +33,31 @@ public class WebhookController {
         this.webhookService = Objects.requireNonNull(webhookService, "webhookService");
     }
 
-    private Map<String, String> getErrorStringMap(String errorCode, String errorMessage) {
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("errorCode", errorCode);
-        returnMap.put("errorMessage", errorMessage);
-        return returnMap;
-    }
-
-    private Map<String, String> getResultStringMap(String result, String ruleId) {
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("result", result);
-        returnMap.put("webhookId", ruleId);
-        return returnMap;
-    }
-
-    private Map<String, String> getResultStringMap(String result) {
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("result", result);
-        return returnMap;
-    }
-
     @PostMapping()
-    public Map<String, String> insertWebhook(@RequestBody Webhook webhook) {
+    public ResponseEntity<Response> insertWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(webhook.getUrl()) || !(StringUtils.hasText(webhook.getApplicationId())
                 || StringUtils.hasText(webhook.getServiceName()))) {
-            return getErrorStringMap("500", "there should be url, applicationId/serviceName to insert webhook");
+            return ErrorResponse.serverError("there should be url, applicationId/serviceName to insert webhook");
         }
         String webhookId = webhookService.insertWebhook(webhook);
-        return getResultStringMap("SUCCESS", webhookId);
+        return ResponseEntity.ok(new WebhookResponse("SUCCESS", webhookId));
     }
 
     @DeleteMapping()
-    public Map<String, String> deleteWebhook(@RequestBody Webhook webhook) {
+    public ResponseEntity<Response> deleteWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(webhook.getWebhookId())) {
-            return getErrorStringMap("500", "there should be webhookId to delete webhook");
+            return ErrorResponse.badRequest("there should be webhookId to delete webhook");
         }
         webhookService.deleteWebhook(webhook);
-        return getResultStringMap("SUCCESS");
+        return SuccessResponse.ok();
     }
 
     @GetMapping()
@@ -82,11 +65,11 @@ public class WebhookController {
                              @RequestParam(value=SERVICE_NAME, required=false) String serviceName,
                              @RequestParam(value=ALARM_RULE_ID, required=false) String ruleId) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
 
         if (!StringUtils.hasText(applicationId) && !StringUtils.hasText(serviceName) && !StringUtils.hasText(ruleId)) {
-            return getErrorStringMap("500", "applicationId / serviceName / ruleId is needed to get webhooks");
+            return ErrorResponse.badRequest("applicationId / serviceName / ruleId is needed to get webhooks");
         }
 
         if (StringUtils.hasText(ruleId)) {
@@ -101,26 +84,22 @@ public class WebhookController {
     }
 
     @PutMapping()
-    public Map<String, String> updateWebhook(@RequestBody Webhook webhook) {
+    public ResponseEntity<Response> updateWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
-            return getErrorStringMap("500", "webhook function is disabled");
+            return ErrorResponse.serverError("webhook function is disabled");
         }
         
         if (!StringUtils.hasText(webhook.getWebhookId()) || !StringUtils.hasText(webhook.getUrl()) ||
                 !(StringUtils.hasText(webhook.getApplicationId()) || StringUtils.hasText(webhook.getServiceName()))) {
-            return getErrorStringMap("500", "there should be webhookId, url, applicationId/serviceName to update webhook");
+            return ErrorResponse.badRequest("there should be webhookId, url, applicationId/serviceName to update webhook");
         }
         webhookService.updateWebhook(webhook);
-        return getResultStringMap("SUCCESS");
+        return SuccessResponse.ok();
     }
 
     @ExceptionHandler(Exception.class)
-    public Map<String, String> handleException(Exception e) {
+    public ResponseEntity<Response> handleException(Exception e) {
         logger.warn(" Exception occurred while trying to CRUD Webhook information", e);
-
-        Map<String, String> result = new HashMap<>();
-        result.put("errorCode", "500");
-        result.put("errorMessage", String.format("Exception occurred while trying to process Webhook information: %s", e.getMessage()));
-        return result;
+        return ErrorResponse.serverError(String.format("Exception occurred while trying to process Webhook information: %s", e.getMessage()));
     }
 }

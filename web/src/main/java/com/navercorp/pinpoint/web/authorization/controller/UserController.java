@@ -20,8 +20,12 @@ import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.User;
 
+import com.navercorp.pinpoint.web.response.ErrorResponse;
+import com.navercorp.pinpoint.web.response.Response;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,9 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -55,35 +57,25 @@ public class UserController {
     }
 
     @PostMapping()
-    public Map<String, String> insertUser(@RequestBody User user) {
-        if (ValueValidator.validateUser(user) == false) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "User information validation failed to creating user infomation.");
-            return result;
+    public ResponseEntity<Response> insertUser(@RequestBody User user) {
+        if (!ValueValidator.validateUser(user)) {
+            return ErrorResponse.badRequest("User information validation failed to creating user information.");
         }
 
         userService.insertUser(user);
 
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        return SuccessResponse.ok();
     }
 
     @DeleteMapping()
-    public Map<String, String> deletetUser(@RequestBody User user) {
+    public ResponseEntity<Response> deletetUser(@RequestBody User user) {
         if (StringUtils.isEmpty(user.getUserId())) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userId in params to delete user");
-            return result;
+            return ErrorResponse.badRequest("there is not userId in params to delete user");
         }
 
         userService.deleteUser(user.getUserId());
 
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        return SuccessResponse.ok();
     }
 
     @GetMapping()
@@ -102,36 +94,25 @@ public class UserController {
         } catch (Exception e) {
             logger.error("can't select user", e);
 
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "This api need to collect condition for search.");
-            return result;
+            return ErrorResponse.serverError("This api need to collect condition for search.");
         }
     }
 
     @PutMapping()
-    public Map<String, String> updateUser(@RequestBody User user) {
-        if (ValueValidator.validateUser(user) == false) {
-            Map<String, String> result = new HashMap<>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "User information validation failed to creating user infomation.");
-            return result;
+    public ResponseEntity<Response> updateUser(@RequestBody User user) {
+        if (!ValueValidator.validateUser(user)) {
+            return ErrorResponse.badRequest("User information validation failed to creating user infomation.");
         }
 
         userService.updateUser(user);
 
-        Map<String, String> result = new HashMap<>();
-        result.put("result", "SUCCESS");
-        return result;
+        return SuccessResponse.ok();
     }
 
     @ExceptionHandler(Exception.class)
-    public Map<String, String> handleException(Exception e) {
-        logger.error(" Exception occurred while trying to CRUD user information", e);
+    public ResponseEntity<Response> handleException(Exception e) {
+        logger.error("Exception occurred while trying to CRUD user information", e);
 
-        Map<String, String> result = new HashMap<>();
-        result.put("errorCode", "500");
-        result.put("errorMessage", "Exception occurred while trying to CRUD user information");
-        return result;
+        return ErrorResponse.serverError("Exception occurred while trying to CRUD user information");
     }
 }

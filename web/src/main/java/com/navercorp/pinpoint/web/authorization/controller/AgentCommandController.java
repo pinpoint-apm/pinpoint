@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.CodeResult;
+import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.vo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.web.response.CodeResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.apache.logging.log4j.Logger;
