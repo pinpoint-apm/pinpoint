@@ -71,4 +71,8 @@ export class SideNavigationItemComponent implements OnInit, AfterViewInit, After
             item.onClick(item);
         }
     }
+
+    showItem({showItem}: ISNBItem): boolean {
+        return showItem === undefined || showItem === true;
+    }
 }

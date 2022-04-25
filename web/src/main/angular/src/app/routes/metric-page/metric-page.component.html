@@ -1,20 +1,29 @@
-<pp-notice-container></pp-notice-container>
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-    <div class="l-widget-group">
-        <pp-host-group-list-container></pp-host-group-list-container>
-        <pp-period-selector-container></pp-period-selector-container>
-    </div>
-    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
-    <pp-configuration-icon-container></pp-configuration-icon-container>
-</header>
-<div class="l-main-container">
-    <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
-        <div class="l-sidemenu-left">
-            <pp-host-group-and-host-list-container></pp-host-group-and-host-list-container>            
+<ng-container *ngIf="showMetric$ | async">
+    <pp-notice-container></pp-notice-container>
+    <div class="container" [class.sideNavigationUI]="sideNavigationUI">
+        <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+        <header *ngIf="!sideNavigationUI" class="l-header flex-container flex-row">
+            <pp-header-logo></pp-header-logo>
+            <div class="l-widget-group">
+                <pp-host-group-list-container></pp-host-group-list-container>
+                <pp-period-selector-container></pp-period-selector-container>
+            </div>
+            <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+            <pp-configuration-icon-container></pp-configuration-icon-container>
+        </header>
+        <div class="l-main-container" [class.sideNavigationUI]="sideNavigationUI">
+            <div *ngIf="sideNavigationUI" class="l-widget-group" [class.sideNavigationUI]="sideNavigationUI">
+                <pp-host-group-list-container></pp-host-group-list-container>
+                <pp-period-selector-container></pp-period-selector-container>
+            </div>
+            <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI">
+                <div class="l-sidemenu-left">
+                    <pp-host-group-and-host-list-container></pp-host-group-and-host-list-container>            
+                </div>
+            </section>
+            <section class="l-main-section" [class.sideNavigationUI]="sideNavigationUI">
+                <router-outlet></router-outlet>
+            </section>
         </div>
-    </section>
-    <section class="l-main-section">
-        <router-outlet></router-outlet>
-    </section>
-</div>
+    </div>
+</ng-container>

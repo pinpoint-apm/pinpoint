@@ -41,7 +41,8 @@ export class SystemConfigurationDataService {
         version: '',
         userId: '',
         userName: '',
-        userDepartment: ''
+        userDepartment: '',
+        showSystemMetric: false,
     };
 
     constructor(
@@ -54,7 +55,7 @@ export class SystemConfigurationDataService {
                 description: 'Use a new side navigation UI.',
                 value: false,
             }
-        }
+        };
     }
 
     getConfiguration(): Observable<ISystemConfigurationWithExperimental> {

@@ -16,6 +16,7 @@ export interface ISNBItem {
     disable?: () => boolean;
     onClick?: (item: ISNBItem) => void;
     childItems?: ISNBItem[];
+    showItem?: boolean;
 }
 
 interface ISNBMeta {
@@ -31,13 +32,15 @@ interface ISNBMeta {
 })
 export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-  
+
     enableRealTime: boolean;
     logoPath: string;
     minimize = false;
     currentItemId: string;
     userId = '';
     meta: ISNBMeta;
+
+    showMetric: boolean;
 
     constructor(
         private cd: ChangeDetectorRef,
@@ -51,7 +54,10 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.minimize = this.webAppSettingDataService.getSideNavBarScale();
-        
+        this.webAppSettingDataService.showMetric().subscribe((showMetric: boolean) => {
+            this.showMetric = showMetric;
+        });
+
         this.webAppSettingDataService.getUserId().subscribe(userId => {
             this.userId = userId || 'dev';
             this.meta = this.generatNavItemMeta();
@@ -83,9 +89,13 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
     onClickInspector(): void {
         this.urlRouteManagerService.moveByApplicationCondition(UrlPath.INSPECTOR);
     }
-    
-    onClickServermap() {
+
+    onClickServermap(): void {
         this.urlRouteManagerService.moveByApplicationCondition(UrlPath.MAIN);
+    }
+
+    onClickMetric(): void {
+        this.urlRouteManagerService.moveToMetricPage();
     }
 
     onClickGithubLink() {
@@ -100,30 +110,37 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         return this.userId;
     }
 
-    
-    generatNavItemMeta() {
+    generatNavItemMeta(): ISNBMeta {
         return {
             topItems: [
-                { 
-                    title: 'Servermap', 
-                    id: 'servermap', 
-                    path: '/main', 
-                    iconClass: 'fa fa-network-wired', 
+                {
+                    id: 'servermap',
+                    title: 'Servermap',
+                    path: '/main',
+                    iconClass: 'fa fa-network-wired',
                     onClick: () => this.onClickServermap(),
                 },
-                { 
-                    id: 'inspector', 
-                    title: 'Inspector', 
-                    path: '/inspector', 
-                    iconClass: 'fas fa-chart-line', 
+                {
+                    id: 'inspector',
+                    title: 'Inspector',
+                    path: '/inspector',
+                    iconClass: 'fas fa-chart-line',
                     onClick: () => this.onClickInspector(),
                 },
+                {
+                    id: 'infrastructure',
+                    title: 'Infrastructure',
+                    path: '/metric',
+                    iconClass: 'fas fa-server',
+                    showItem: this.showMetric,
+                    onClick: () => this.onClickMetric(),
+                }
             ],
             bottomItems: [
-                { 
+                {
                     id: 'configuration',
-                    title: 'Configuration', 
-                    iconClass: 'fas fa-cog', 
+                    title: 'Configuration',
+                    iconClass: 'fas fa-cog',
                     childItems: [
                         { title: 'User Group', id: 'userGroup', path: '/config/userGroup', },
                         { title: 'Alarm', id: 'alarm', path: '/config/alarm', },
@@ -138,19 +155,19 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                         { title: 'Experimental', id: 'experimental', path: '/config/experimental', },
                     ],
                 },
-                { 
+                {
                     id: 'administration',
-                    title: 'Administration',  
-                    iconClass: 'fas fa-user-cog', 
+                    title: 'Administration',
+                    iconClass: 'fas fa-user-cog',
                     childItems: [
                         { title: 'Agent Statistic', id: 'agentStatistic', path: '/config/agentStatistic', onClick: () => ''},
                         { title: 'Agent management', id: 'agentmanagement', path: '/config/agentManagement', },
                     ]
                 },
-                { 
+                {
                     id: 'user',
-                    title: this.userId,  
-                    iconClass: 'fas fa-user-circle', 
+                    title: this.userId,
+                    iconClass: 'fas fa-user-circle',
                     childItems: [
                         { title: 'General', id: 'general', path: '/config/general', },
                         { title: 'Favorite List', id: 'favoriteList', path: '/config/favorite', },
@@ -160,6 +177,6 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     ]
                 },
             ]
-        }
+        };
     }
 }

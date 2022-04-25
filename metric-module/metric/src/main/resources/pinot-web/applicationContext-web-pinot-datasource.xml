@@ -5,10 +5,10 @@
 
     <bean id="pinotDataSource"
           class="com.navercorp.pinpoint.metric.web.mybatis.DataSourceDelegator">
-        <constructor-arg index="0" ref="originalDataSource"/>
+        <constructor-arg index="0" ref="originalPinotDataSource"/>
     </bean>
 
-    <bean id="originalDataSource"
+    <bean id="originalPinotDataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="${pinpoint.pinot.jdbc.driverClassName}" />
         <property name="url" value="${pinpoint.pinot.jdbc.url}" />
