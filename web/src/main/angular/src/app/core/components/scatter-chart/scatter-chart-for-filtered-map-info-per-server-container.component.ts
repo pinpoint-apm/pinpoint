@@ -71,8 +71,10 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
 
     ngOnInit() {
         this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
-            const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
+            // const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
+            // this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
+            // Temp: Set it false till implementing the filter
+            this.enableServerSideScan = false;
         });
 
         this.setScatterY();
@@ -262,8 +264,9 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
                     y1: params.y.from,
                     y2: params.y.to,
                     agentId: this.selectedAgent,
-                    dotStatus: params.type
-                }
+                    dotStatus: params.type,
+                },
+                [UrlQuery.WITH_FILTER]: true
             },
         });
 

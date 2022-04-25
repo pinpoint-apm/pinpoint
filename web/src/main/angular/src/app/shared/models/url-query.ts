@@ -31,6 +31,8 @@ export class UrlQuery {
     static DRAG_INFO = 'dragInfo';
     static TRANSACTION_INFO = 'transactionInfo';
 
+    static WITH_FILTER = 'withFilter';
+
     constructor() {}
     static getQueryList(): string[] {
         return [
@@ -42,7 +44,8 @@ export class UrlQuery {
             UrlQuery.WAS_ONLY,
             UrlQuery.ACTIVE_ONLY,
             UrlQuery.DRAG_INFO,
-            UrlQuery.TRANSACTION_INFO
+            UrlQuery.TRANSACTION_INFO,
+            UrlQuery.WITH_FILTER
         ];
     }
 }
