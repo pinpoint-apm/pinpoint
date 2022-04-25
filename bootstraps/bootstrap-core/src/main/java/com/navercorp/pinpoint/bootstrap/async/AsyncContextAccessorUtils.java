@@ -19,10 +19,24 @@ package com.navercorp.pinpoint.bootstrap.async;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class AsyncContextAccessorUtils {
+    private static final AsyncContextCall ASYNC_CONTEXT_CALL = new AsyncContextCall() {
+        @Override
+        public AsyncContext getAsyncContext(Object object) {
+            return AsyncContextAccessorUtils.getAsyncContext(object);
+        }
+
+        @Override
+        public AsyncContext getAsyncContext(Object[] array, int index) {
+            return AsyncContextAccessorUtils.getAsyncContext(array, index);
+        }
+    };
+
 
     public static AsyncContext getAsyncContext(Object[] array, int index) {
         if (!ArrayUtils.isArrayIndexValid(array, index)) {
@@ -55,7 +69,7 @@ public final class AsyncContextAccessorUtils {
     }
 
     public static AsyncContext findAsyncContext(Object[] array, int beginIndex) {
-        if (array == null || array.length == 0) {
+        if (ArrayUtils.isEmpty(array)) {
             return null;
         }
         final int endIndex = array.length - 1;
@@ -63,7 +77,13 @@ public final class AsyncContextAccessorUtils {
     }
 
     public static AsyncContext findAsyncContext(Object[] array, int beginIndex, int endIndex) {
-        if (array == null || array.length == 0) {
+        return findAsyncContext(array, beginIndex, endIndex, ASYNC_CONTEXT_CALL);
+    }
+
+    public static AsyncContext findAsyncContext(Object[] array, int beginIndex, int endIndex, AsyncContextCall asyncContextCall) {
+        Objects.requireNonNull(asyncContextCall, "asyncContextCall");
+
+        if (ArrayUtils.isEmpty(array)) {
             return null;
         }
         final int length = array.length - 1;
@@ -74,13 +94,13 @@ public final class AsyncContextAccessorUtils {
             if (array[i] instanceof Object[]) {
                 final Object[] objects = (Object[]) array[i];
                 for (Object object : objects) {
-                    final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(object);
+                    final AsyncContext asyncContext = asyncContextCall.getAsyncContext(object);
                     if (asyncContext != null) {
                         return asyncContext;
                     }
                 }
             } else {
-                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(array[i]);
+                final AsyncContext asyncContext = asyncContextCall.getAsyncContext(array, i);
                 if (asyncContext != null) {
                     return asyncContext;
                 }
