@@ -59,8 +59,12 @@ export class TransactionMetaDataService {
     }
     loadData(): void {
         this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
+            // * Check withFilter Param in order to disable the server-side scanning temporarily
+            const withFilter = this.newUrlStateNotificationService.hasValue(UrlQuery.WITH_FILTER);
             const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
+
+            this.enableServerSideScan = withFilter ? false
+                : enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
         });
 
         if (this.enableServerSideScan) {
