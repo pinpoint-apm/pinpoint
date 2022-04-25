@@ -386,7 +386,8 @@ export class ScatterChart {
                 }
                 const transactionData = dataBlock.getDataByIndex(j);
                 const agentName =  dataBlock.getAgentName(transactionData);
-                if (this.isSelectedAgent(agentName)) {
+                // if (this.isSelectedAgent(agentName)) {
+                if (selectedAgent === '' || selectedAgent === agentName) {
                     const x = dataBlock.getX(transactionData);
                     const y = dataBlock.getY(transactionData);
 
