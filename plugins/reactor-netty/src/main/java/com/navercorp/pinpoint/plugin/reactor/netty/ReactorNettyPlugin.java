@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscr
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsOnInboundCompleteMethodInterceptor;
@@ -265,7 +266,7 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(FluxAndMonoConstructorInterceptor.class);
                 }
             }
@@ -294,7 +295,7 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(FluxAndMonoOperatorConstructorInterceptor.class);
                 }
             }
@@ -321,7 +322,7 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
                 }
             }

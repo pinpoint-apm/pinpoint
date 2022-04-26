@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxConstructorInterceptor;
@@ -470,7 +471,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(FluxConstructorInterceptor.class);
                 }
             }
@@ -499,7 +500,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(FluxOperatorConstructorInterceptor.class);
                 }
             }
@@ -528,7 +529,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(FluxDelaySubscriptionConstructorInterceptor.class);
                 }
             }
@@ -561,7 +562,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(RunnableCoreSubscriberConstructorInterceptor.class);
                 }
             }
@@ -601,7 +602,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(MonoConstructorInterceptor.class);
                 }
             }
@@ -628,7 +629,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(MonoOperatorConstructorInterceptor.class);
                 }
             }
@@ -655,7 +656,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(MonoDelaySubscriptionConstructorInterceptor.class);
                 }
             }
@@ -701,7 +702,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(ParallelFluxConstructorInterceptor.class);
                 }
             }
@@ -741,7 +742,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(ConnectableFluxConstructorInterceptor.class);
                 }
             }
@@ -775,7 +776,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (parameterTypes != null || parameterTypes.length > 0) {
+                if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
                 }
             }
