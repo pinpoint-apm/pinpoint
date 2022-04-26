@@ -33,15 +33,13 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -50,10 +48,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/agent")
 public class AgentCommandController {
-
-    private static final int CODE_SUCCESS = 0;
-    private static final int CODE_FAIL = -1;
-
     private final ConfigProperties webProperties;
     private final AgentService agentService;
 
@@ -63,18 +57,18 @@ public class AgentCommandController {
     }
 
     @GetMapping(value = "/activeThreadDump")
-    public CodeResult getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
+    public ResponseEntity<CodeResult> getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                           @RequestParam(value = "agentId") String agentId,
                                           @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
-                                          @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                          @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+                                          @RequestParam(value = "threadName", required = false) List<String> threadNameList,
+                                          @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
-            return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+            return CodeResult.serverError("Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            return CodeResult.serverError(String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadDump threadDump = new TCmdActiveThreadDump();
@@ -83,10 +77,10 @@ public class AgentCommandController {
         }
 
         if (threadNameList != null) {
-            threadDump.setThreadNameList(Arrays.asList(threadNameList));
+            threadDump.setThreadNameList(threadNameList);
         }
         if (localTraceIdList != null) {
-            threadDump.setLocalTraceIdList(Arrays.asList(localTraceIdList));
+            threadDump.setLocalTraceIdList(localTraceIdList);
         }
 
         try {
@@ -100,13 +94,13 @@ public class AgentCommandController {
                     AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
                     AgentActiveThreadDumpList activeThreadDumpList = factory.create1(activeThreadDumps);
 
-                    Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
-                    return new CodeResult(CODE_SUCCESS, responseData);
+                    ThreadDumpResult responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
+                    return CodeResult.ok(responseData);
                 }
             }
             return handleFailedResponse(pinpointRouteResponse);
         } catch (TException e) {
-            return new CodeResult(CODE_FAIL, e.getMessage());
+            return CodeResult.serverError(e.getMessage());
         }
     }
 
@@ -123,29 +117,53 @@ public class AgentCommandController {
         return true;
     }
 
-    private Map<String, Object> createResponseData(AgentActiveThreadDumpList activeThreadDumpList, String type, String subType, String version) {
-        Map<String, Object> response = new HashMap<>(4);
-        response.put("threadDumpData", activeThreadDumpList);
-        response.put("type", type);
-        response.put("subType", subType);
-        response.put("version", version);
+    private ThreadDumpResult createResponseData(AgentActiveThreadDumpList activeThreadDumpList, String type, String subType, String version) {
+        return new ThreadDumpResult(activeThreadDumpList, type, subType, version);
+    }
 
-        return response;
+    public static class ThreadDumpResult {
+        private final AgentActiveThreadDumpList threadDumpData;
+        private final String type;
+        private final String subType;
+        private final String version;
+
+        public ThreadDumpResult(AgentActiveThreadDumpList threadDumpData, String type, String subType, String version) {
+            this.threadDumpData = threadDumpData;
+            this.type = type;
+            this.subType = subType;
+            this.version = version;
+        }
+
+        public AgentActiveThreadDumpList getThreadDumpData() {
+            return threadDumpData;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getSubType() {
+            return subType;
+        }
+
+        public String getVersion() {
+            return version;
+        }
     }
 
     @GetMapping(value = "/activeThreadLightDump")
-    public CodeResult getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
-                                                 @RequestParam(value = "agentId") String agentId,
-                                                 @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
-                                                 @RequestParam(value = "threadName", required = false) String[] threadNameList,
-                                                 @RequestParam(value = "localTraceId", required = false) Long[] localTraceIdList) throws TException {
+    public ResponseEntity<CodeResult> getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
+                                                               @RequestParam(value = "agentId") String agentId,
+                                                               @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
+                                                               @RequestParam(value = "threadName", required = false) List<String> threadNameList,
+                                                               @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
-            return new CodeResult(CODE_FAIL, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+            return CodeResult.serverError("Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return new CodeResult(CODE_FAIL, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            return CodeResult.serverError(String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadLightDump threadDump = new TCmdActiveThreadLightDump();
@@ -153,10 +171,10 @@ public class AgentCommandController {
             threadDump.setLimit(limit);
         }
         if (threadNameList != null) {
-            threadDump.setThreadNameList(Arrays.asList(threadNameList));
+            threadDump.setThreadNameList(threadNameList);
         }
         if (localTraceIdList != null) {
-            threadDump.setLocalTraceIdList(Arrays.asList(localTraceIdList));
+            threadDump.setLocalTraceIdList(localTraceIdList);
         }
 
         try {
@@ -170,30 +188,30 @@ public class AgentCommandController {
                     AgentActiveThreadDumpFactory factory = new AgentActiveThreadDumpFactory();
                     AgentActiveThreadDumpList activeThreadDumpList = factory.create2(activeThreadDumps);
 
-                    Map<String, Object> responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
-                    return new CodeResult(CODE_SUCCESS, responseData);
+                    ThreadDumpResult responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
+                    return CodeResult.ok( responseData);
                 }
             }
             return handleFailedResponse(pinpointRouteResponse);
         } catch (TException e) {
-            return new CodeResult(CODE_FAIL, e.getMessage());
+            return CodeResult.serverError(e.getMessage());
         }
     }
 
-    private CodeResult handleFailedResponse(PinpointRouteResponse response) {
+    private ResponseEntity<CodeResult> handleFailedResponse(PinpointRouteResponse response) {
         if (response == null) {
-            return new CodeResult(CODE_FAIL, "response is null");
+            return CodeResult.serverError("response is null");
         }
 
         TRouteResult routeResult = response.getRouteResult();
         if (routeResult != TRouteResult.OK) {
-            return new CodeResult(CODE_FAIL, routeResult.name());
+            return CodeResult.serverError(routeResult.name());
         } else {
             TBase<?, ?> tBase = response.getResponse();
             if (tBase instanceof TResult) {
-                return new CodeResult(CODE_FAIL, ((TResult) tBase).getMessage());
+                return CodeResult.serverError(((TResult) tBase).getMessage());
             } else {
-                return new CodeResult(CODE_FAIL, "unknown");
+                return CodeResult.serverError("unknown");
             }
         }
     }

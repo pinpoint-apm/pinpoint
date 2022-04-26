@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,10 +49,6 @@ import java.util.Set;
  */
 @RestController
 public class AgentInfoController {
-
-    private static final int CODE_SUCCESS = 0;
-    private static final int CODE_FAIL = -1;
-
     private final AgentInfoService agentInfoService;
 
     private final AgentEventService agentEventService;
@@ -182,30 +179,30 @@ public class AgentInfoController {
     }
 
     @RequestMapping(value = "/isAvailableAgentId")
-    public CodeResult isAvailableAgentId(@RequestParam("agentId") String agentId) {
+    public ResponseEntity<CodeResult> isAvailableAgentId(@RequestParam("agentId") String agentId) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(agentId, PinpointConstants.AGENT_ID_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
-            return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
+            return CodeResult.badRequest("length range is 1 ~ 24");
         }
         if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-            return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+            return CodeResult.badRequest("invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
 
         if (agentInfoService.isExistAgentId(agentId)) {
-            return new CodeResult(CODE_FAIL, "already exist agentId");
+            return CodeResult.serverError("already exist agentId");
         }
 
-        return new CodeResult(CODE_SUCCESS, "OK");
+        return CodeResult.ok("OK");
     }
 
     @RequestMapping(value = "/getAgentInstallationInfo")
-    public CodeResult getAgentDownloadUrl() {
+    public ResponseEntity<CodeResult> getAgentDownloadUrl() {
         AgentDownloadInfo latestStableAgentDownloadInfo = agentInfoService.getLatestStableAgentDownloadInfo();
         if (latestStableAgentDownloadInfo != null) {
-            return new CodeResult(0, new AgentInstallationInfo(latestStableAgentDownloadInfo));
+            return CodeResult.ok(new AgentInstallationInfo(latestStableAgentDownloadInfo));
         }
 
-        return new CodeResult(-1, "can't find suitable download url");
+        return CodeResult.serverError("can't find suitable download url");
     }
 
 

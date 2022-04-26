@@ -27,6 +27,7 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,9 +38,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/command")
 public class CommandController {
-
-    private static final int CODE_SUCCESS = 0;
-    private static final int CODE_FAIL = -1;
 
     // FIX ME: created for a simple ping/pong test for now
     // need a formal set of APIs and proper code
@@ -53,12 +51,12 @@ public class CommandController {
     }
 
     @GetMapping(value = "/echo")
-    public CodeResult echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
-                           @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
+    public ResponseEntity<CodeResult> echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
+                                          @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
         if (agentInfo == null) {
-            return new CodeResult(CODE_FAIL, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+            return CodeResult.serverError(String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandEcho echo = new TCommandEcho();
@@ -69,19 +67,19 @@ public class CommandController {
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {
-                    return new CodeResult(CODE_FAIL, "result null.");
+                    return CodeResult.serverError("result null.");
                 } else if (result instanceof TCommandEcho) {
-                    return new CodeResult(CODE_SUCCESS, ((TCommandEcho) result).getMessage());
+                    return CodeResult.ok(((TCommandEcho) result).getMessage());
                 } else if (result instanceof TResult) {
-                    return new CodeResult(CODE_FAIL, ((TResult) result).getMessage());
+                    return CodeResult.serverError(((TResult) result).getMessage());
                 } else {
-                    return new CodeResult(CODE_FAIL, result.toString());
+                    return CodeResult.serverError(result.toString());
                 }
             } else {
-                return new CodeResult(CODE_FAIL, "unknown");
+                return CodeResult.serverError("unknown");
             }
         } catch (TException e) {
-            return new CodeResult(CODE_FAIL, e.getMessage());
+            return CodeResult.serverError(e.getMessage());
         }
     }
 

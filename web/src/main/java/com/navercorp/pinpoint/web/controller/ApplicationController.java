@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.response.CodeResult;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,9 +36,6 @@ import java.util.Objects;
 @RestController
 public class ApplicationController {
 
-    private static final int CODE_SUCCESS = 0;
-    private static final int CODE_FAIL = -1;
-
     private final AgentInfoService agentInfoService;
 
     private final ApplicationService applicationService;
@@ -50,7 +48,7 @@ public class ApplicationController {
     @GetMapping(value = "/getApplicationHostInfo", params = {"!durationDays"})
     public ApplicationAgentHostList getApplicationHostInfo (
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit) throws Exception {
+            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit) {
         return agentInfoService.getApplicationAgentHostList(offset, limit);
     }
 
@@ -58,25 +56,25 @@ public class ApplicationController {
     public ApplicationAgentHostList getApplicationHostInfo (
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
-            @RequestParam(value = "durationDays") int durationDays) throws Exception {
+            @RequestParam(value = "durationDays") int durationDays) {
         return agentInfoService.getApplicationAgentHostList(offset, limit, durationDays);
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
-    public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
+    public ResponseEntity<CodeResult> isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
-            return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
+            return CodeResult.badRequest("length range is 1 ~ 24");
         }
         if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-            return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+            return CodeResult.badRequest("invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
 
         if (applicationService.isExistApplicationName(applicationName)) {
-            return new CodeResult(CODE_FAIL, "already exist applicationName");
+            return CodeResult.serverError("already exist applicationName");
         }
 
-        return new CodeResult(CODE_SUCCESS, "OK");
+        return CodeResult.ok("OK");
     }
 
 }
