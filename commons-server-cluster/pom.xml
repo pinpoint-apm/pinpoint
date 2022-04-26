@@ -36,6 +36,13 @@
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>curator-patch-repo</id>
+            <url>file://${project.basedir}/libs</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
@@ -50,6 +57,10 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>

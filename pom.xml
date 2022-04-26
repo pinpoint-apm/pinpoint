@@ -191,6 +191,7 @@
 
         <zookeeper.version>3.4.14</zookeeper.version>
         <curator.version>4.2.0</curator.version>
+        <curator.framework.version>4.2.1</curator.framework.version>
         <curator.test.version>2.13.0</curator.test.version>
 
         <testcontainers.version>1.16.2</testcontainers.version>
@@ -1034,8 +1035,23 @@
 
             <dependency>
                 <groupId>org.apache.curator</groupId>
-                <artifactId>curator-framework</artifactId>
+                <artifactId>curator-client</artifactId>
                 <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>zookeeper</artifactId>
+                        <groupId>org.apache.zookeeper</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.curator</groupId>
+                        <artifactId>curator-test</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>${curator.framework.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>zookeeper</artifactId>
