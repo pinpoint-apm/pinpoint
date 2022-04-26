@@ -33,6 +33,7 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
+        <curator.framework.version>4.2.0</curator.framework.version>
     </properties>
 
     <dependencies>
