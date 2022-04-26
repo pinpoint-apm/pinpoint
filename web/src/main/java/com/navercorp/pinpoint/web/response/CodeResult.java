@@ -17,14 +17,32 @@
 package com.navercorp.pinpoint.web.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.http.ResponseEntity;
 
 /**
  * @author Taejin Koo
  */
 public class CodeResult {
 
+    public static final int CODE_SUCCESS = 0;
+    public static final int CODE_FAIL = -1;
+
     private final int code;
     private final Object message;
+
+    public static ResponseEntity<CodeResult> ok(Object message) {
+        return ResponseEntity.ok(new CodeResult(CODE_SUCCESS, message));
+    }
+
+    public static ResponseEntity<CodeResult> badRequest(Object message) {
+        return ResponseEntity.badRequest()
+                .body(new CodeResult(CODE_FAIL, message));
+    }
+
+    public static ResponseEntity<CodeResult> serverError(Object message) {
+        return ResponseEntity.internalServerError()
+                .body(new CodeResult(CODE_FAIL, message));
+    }
 
     public CodeResult(int code) {
         this(code, null);
