@@ -213,6 +213,14 @@
                                     <mainClass>com.navercorp.pinpoint.flink.StatStreamingVer2Job</mainClass>
                                 </transformer>
                             </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>com.navercorp.pinpoint:pinpoint-web</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/resources/**/*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <finalName>pinpoint-flink-job-${project.version}</finalName>
                         </configuration>
                     </execution>
