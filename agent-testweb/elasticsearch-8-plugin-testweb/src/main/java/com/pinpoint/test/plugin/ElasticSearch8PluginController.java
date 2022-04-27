@@ -39,13 +39,14 @@ public class ElasticSearch8PluginController {
 
     public static EmbeddedElastic embeddedElastic;
 
-    public static String ELASTICSEARCH_ADDRESS = "127.0.0.1:" + 9200;
+    private static final String ELASTICSEARCH_ADDRESS = "127.0.0.1";
+    private static final int PORT = 9200;
 
     @PostConstruct
     private void start() throws Exception {
         embeddedElastic = EmbeddedElastic.builder()
                 .withElasticVersion("6.8.0")
-                .withSetting(PopularProperties.HTTP_PORT, 9200)
+                .withSetting(PopularProperties.HTTP_PORT, PORT)
                 .withEsJavaOpts("-Xms128m -Xmx512m")
                 .withStartTimeout(2, MINUTES)
                 .build()
@@ -61,31 +62,32 @@ public class ElasticSearch8PluginController {
     @GetMapping("/index")
     public Mono<String> index() throws Exception {
         // Create the low-level client
-        RestClient restClient = RestClient.builder(
-                new HttpHost("127.0.0.1", 9200)).build();
+        try (RestClient restClient = RestClient.builder(
+                new HttpHost(ELASTICSEARCH_ADDRESS, PORT)).build()) {
 
-        // Create the transport with a Jackson mapper
-        ElasticsearchTransport transport = new RestClientTransport(
-                restClient, new JacksonJsonpMapper());
+            // Create the transport with a Jackson mapper
+            ElasticsearchTransport transport = new RestClientTransport(
+                    restClient, new JacksonJsonpMapper());
 
-        // And create the API client
-        ElasticsearchClient client = new ElasticsearchClient(transport);
+            // And create the API client
+            ElasticsearchClient client = new ElasticsearchClient(transport);
 
-        if (client.exists(b -> b.index("products").id("foo")).value()) {
-            System.out.println("product exists");
+            if (client.exists(b -> b.index("products").id("foo")).value()) {
+                System.out.println("product exists");
+            }
+
+            // Asynchronous non-blocking client
+            ElasticsearchAsyncClient asyncClient =
+                    new ElasticsearchAsyncClient(transport);
+
+            asyncClient
+                    .exists(b -> b.index("products").id("foo"))
+                    .thenAccept(response -> {
+                        if (response.value()) {
+                            System.out.println("product exists");
+                        }
+                    });
         }
-
-        // Asynchronous non-blocking client
-        ElasticsearchAsyncClient asyncClient =
-                new ElasticsearchAsyncClient(transport);
-
-        asyncClient
-                .exists(b -> b.index("products").id("foo"))
-                .thenAccept(response -> {
-                    if (response.value()) {
-                        System.out.println("product exists");
-                    }
-                });
 
         return Mono.just("OK");
     }
