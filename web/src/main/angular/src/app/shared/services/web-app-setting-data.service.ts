@@ -77,6 +77,9 @@ export class WebAppSettingDataService {
     isWebhookEnable(): Observable<boolean> {
         return this.newUrlStateNotificationService.getConfiguration('webhookEnable');
     }
+    showMetric(): Observable<boolean> {
+        return this.newUrlStateNotificationService.getConfiguration('showSystemMetric');
+    }
     getImagePath(): string {
         return this.IMAGE_PATH;
     }

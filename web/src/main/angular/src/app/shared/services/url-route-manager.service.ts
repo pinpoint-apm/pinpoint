@@ -60,19 +60,31 @@ export class UrlRouteManagerService {
         ]);
     }
 
+    moveToMain(): void {
+        this.router.navigate([
+            UrlPath.MAIN
+        ]);
+    }
+
+    moveToMetricPage(): void {
+        this.router.navigate([
+            UrlPath.METRIC
+        ]);
+    }
+
     moveByApplicationCondition(rootRoute: UrlPath): void {
         if (this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)) {
-            const isRealTimeMode = this.newUrlStateNotificationService.isRealTimeMode()
+            const isRealTimeMode = this.newUrlStateNotificationService.isRealTimeMode();
             const applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName;
             const serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).serviceType;
             const selectedApp = `${applicationName}@${serviceType}`;
-            
+
             if (isRealTimeMode) {
                 this.router.navigate([
                     rootRoute,
                     UrlPath.REAL_TIME,
                     selectedApp,
-                ])
+                ]);
             } else if (
                 this.newUrlStateNotificationService.hasValue(UrlPathId.PERIOD)
                 && this.newUrlStateNotificationService.hasValue(UrlPathId.END_TIME)
@@ -87,7 +99,7 @@ export class UrlRouteManagerService {
         } else {
             this.router.navigate([
                 rootRoute,
-            ])
+            ]);
         }
     }
 
