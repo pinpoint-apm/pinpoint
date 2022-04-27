@@ -76,6 +76,11 @@
             <url>http://repo.spring.io/libs-release</url>
         </repository>
         -->
+        <!-- curator patch -->
+        <repository>
+            <id>curator-patch-repo</id>
+            <url>file://${maven.multiModuleProjectDirectory}/libs</url>
+        </repository>
     </repositories>
 
     <modules>
