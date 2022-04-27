@@ -3,10 +3,6 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.IntApplicationStatPoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.LongApplicationStatPoint;
 
 public final class StatPointUtils {
     private StatPointUtils() {

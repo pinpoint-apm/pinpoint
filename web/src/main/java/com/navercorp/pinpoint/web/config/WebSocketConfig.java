@@ -17,7 +17,11 @@
 package com.navercorp.pinpoint.web.config;
 
 
-import com.navercorp.pinpoint.web.websocket.*;
+import com.navercorp.pinpoint.web.websocket.CustomHandshakeInterceptor;
+import com.navercorp.pinpoint.web.websocket.DefaultWebSocketHandlerDecoratorFactory;
+import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
+import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
+import com.navercorp.pinpoint.web.websocket.WebSocketSessionContextPrepareHandshakeInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;

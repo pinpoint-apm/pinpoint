@@ -1,9 +1,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

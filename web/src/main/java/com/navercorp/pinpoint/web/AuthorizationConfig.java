@@ -46,7 +46,6 @@ import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatService;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

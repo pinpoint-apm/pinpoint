@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
