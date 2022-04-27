@@ -38,15 +38,15 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class ElasticSearchPluginController {
 
     public static EmbeddedElastic embeddedElastic;
-    public static RestHighLevelClient restHighLevelClient;
 
-    public static String ELASTICSEARCH_ADDRESS = "127.0.0.1:" + 9200;
+    private static final String ELASTICSEARCH_ADDRESS = "127.0.0.1";
+    private static final int PORT = 9200;
 
     @PostConstruct
     private void start() throws Exception {
         embeddedElastic = EmbeddedElastic.builder()
                 .withElasticVersion("6.8.0")
-                .withSetting(PopularProperties.HTTP_PORT, 9200)
+                .withSetting(PopularProperties.HTTP_PORT, PORT)
                 .withEsJavaOpts("-Xms128m -Xmx512m")
                 .withStartTimeout(2, MINUTES)
                 .build()
@@ -61,27 +61,23 @@ public class ElasticSearchPluginController {
 
     @GetMapping("/index")
     public Mono<String> index() throws Exception {
-        restHighLevelClient = new RestHighLevelClient(
+        try (RestHighLevelClient restHighLevelClient = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost("127.0.0.1", 9200, "http")));
+                        new HttpHost(ELASTICSEARCH_ADDRESS, PORT, "http")))) {
 
-        IndexRequest indexRequest = new IndexRequest(
-                "post2");
-        indexRequest.id("1");
+            IndexRequest indexRequest = new IndexRequest("post2");
+            indexRequest.id("1");
 
-        String jsonString = "{" +
-                "\"user\":\"kimchy\"," +
-                "\"postDate\":\"2013-01-30\"," +
-                "\"message\":\"trying out Elasticsearch\"" +
-                "}";
+            String jsonString = "{" +
+                    "\"user\":\"kimchy\"," +
+                    "\"postDate\":\"2013-01-30\"," +
+                    "\"message\":\"trying out Elasticsearch\"" +
+                    "}";
 
-        indexRequest.source(jsonString, XContentType.JSON);
-        restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
+            indexRequest.source(jsonString, XContentType.JSON);
+            restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
 
-        TimeUnit.SECONDS.sleep(1);
-
-        if (restHighLevelClient == null) {
-            restHighLevelClient.close();
+            TimeUnit.SECONDS.sleep(1);
         }
 
         return Mono.just("OK");
