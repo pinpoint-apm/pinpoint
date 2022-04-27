@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Objects;
 
 /**

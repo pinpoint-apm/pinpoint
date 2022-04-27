@@ -33,15 +33,13 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
