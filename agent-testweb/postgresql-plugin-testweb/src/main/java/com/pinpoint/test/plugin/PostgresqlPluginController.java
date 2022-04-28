@@ -47,9 +47,12 @@ public class PostgresqlPluginController {
         url = postgres.start("localhost", 5432, "dbName", "userName", "password");
 
         final Connection conn = DriverManager.getConnection(url);
-        Statement selectStatement = conn.createStatement();
-        conn.createStatement().execute("CREATE TABLE test (name VARCHAR(45), age int);");
-        conn.createStatement().execute("CREATE TABLE member (id INT PRIMARY KEY, name CHAR(20));");
+        Statement createStatement = conn.createStatement();
+        createStatement.execute("CREATE TABLE test (name VARCHAR(45), age int);");
+        createStatement.execute("CREATE TABLE member (id INT PRIMARY KEY, name CHAR(20));");
+
+        createStatement.close();
+        conn.close();
     }
 
     @PreDestroy
@@ -75,12 +78,17 @@ public class PostgresqlPluginController {
         insertPreparedStatement.setString(1, name);
         insertPreparedStatement.setInt(2, age);
         insertPreparedStatement.execute();
+        insertPreparedStatement.close();
 
         Statement selectStatement = conn.createStatement();
-        ResultSet rs = selectStatement.executeQuery(selectQuery);
+        selectStatement.executeQuery(selectQuery);
+        selectStatement.close();
 
         Statement deleteStatement = conn.createStatement();
         deleteStatement.executeUpdate(deleteQuery, Statement.NO_GENERATED_KEYS);
+        deleteStatement.close();
+
+        conn.close();
 
         return Mono.just("OK");
     }
