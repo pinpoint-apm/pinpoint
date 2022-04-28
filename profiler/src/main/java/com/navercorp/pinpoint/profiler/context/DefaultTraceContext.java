@@ -125,16 +125,25 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueTraceObject(trace);
     }
 
-
     @Override
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
+    }
+
+    @Override
+    public Trace newTraceObject(String urlPath) {
+        return traceFactory.newTraceObject(urlPath);
     }
 
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace newAsyncTraceObject() {
         return traceFactory.newAsyncTraceObject();
+    }
+
+    @Override
+    public Trace newAsyncTraceObject(String urlPath) {
+        return traceFactory.newAsyncTraceObject(urlPath);
     }
 
     @InterfaceAudience.LimitedPrivate("vert.x")

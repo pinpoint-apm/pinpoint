@@ -88,10 +88,21 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
+    public Trace newTraceObject(String urlPath) {
+        logger.debug("newTraceObject(String urlPath)");
+        return baseTraceFactory.newTraceObject(urlPath);
+    }
+
+    @Override
     @InterfaceAudience.LimitedPrivate("vert.x")
     public Trace newAsyncTraceObject() {
         logger.debug("newAsyncTraceObject()");
 
         return baseTraceFactory.newAsyncTraceObject();
+    }
+
+    public Trace newAsyncTraceObject(String urlPath) {
+        logger.debug("newAsyncTraceObject(String urlPath)");
+        return baseTraceFactory.newAsyncTraceObject(urlPath);
     }
 }

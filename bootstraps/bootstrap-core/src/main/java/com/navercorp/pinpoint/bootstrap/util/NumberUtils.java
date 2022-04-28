@@ -64,4 +64,14 @@ public final class NumberUtils {
         }
     }
 
+    public static Double parseDouble(String str, double defaultDouble) {
+        if(str == null) {
+            return defaultDouble;
+        }
+        try {
+            return Double.parseDouble(str);
+        } catch (NumberFormatException e) {
+            return defaultDouble;
+        }
+    }
 }

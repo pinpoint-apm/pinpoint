@@ -70,6 +70,11 @@ public class MetricTraceFactory implements TraceFactory {
     }
 
     @Override
+    public Trace newAsyncTraceObject(String urlPath) {
+        return delegate.newAsyncTraceObject(urlPath);
+    }
+
+    @Override
     public Trace continueAsyncTraceObject(TraceId traceId) {
         return delegate.continueAsyncTraceObject(traceId);
     }
@@ -78,6 +83,11 @@ public class MetricTraceFactory implements TraceFactory {
     @Override
     public Trace newTraceObject() {
         return delegate.newTraceObject();
+    }
+
+    @Override
+    public Trace newTraceObject(String urlPath) {
+        return delegate.newTraceObject(urlPath);
     }
 
     @Override

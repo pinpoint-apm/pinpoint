@@ -80,4 +80,19 @@ public class NumberUtilsTest {
         Assertions.assertNull(NumberUtils.toInteger(oneString));
         Assertions.assertNull(NumberUtils.toInteger(notNumber));
     }
+
+    @Test
+    public void parseDouble() {
+        double defaultValue = 0;
+
+        assertDouble(Double.MIN_VALUE, defaultValue);
+        assertDouble((short) 0, defaultValue);
+        assertDouble(Double.MAX_VALUE, defaultValue);
+    }
+
+    private void assertDouble(double value, double defaultValue) {
+        Assertions.assertEquals(NumberUtils.parseDouble(null, value), value);
+        Assertions.assertEquals(NumberUtils.parseDouble(String.valueOf(value), defaultValue), value);
+        Assertions.assertEquals(NumberUtils.parseDouble(notNumber, value), value);
+    }
 }
