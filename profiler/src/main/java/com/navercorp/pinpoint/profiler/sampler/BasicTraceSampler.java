@@ -101,6 +101,12 @@ public class BasicTraceSampler implements TraceSampler {
     }
 
     @Override
+    public State isNewSampled(String urlPath) {
+        // Ignore urlPath
+        return isNewSampled();
+    }
+
+    @Override
     public State isContinueSampled() {
         return continueSuccessState;
     }

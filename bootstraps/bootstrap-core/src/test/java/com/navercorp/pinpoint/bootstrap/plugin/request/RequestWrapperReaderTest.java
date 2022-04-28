@@ -54,6 +54,7 @@ public class RequestWrapperReaderTest {
         when(traceContext.disableSampling()).thenReturn(disableTrace);
         when(traceContext.continueTraceObject(any(TraceId.class))).thenReturn(continueTrace);
         when(traceContext.newTraceObject()).thenReturn(newTrace);
+        when(traceContext.newTraceObject(null)).thenReturn(newTrace);
         when(traceContext.getProfilerConfig()).thenReturn(new DefaultProfilerConfig());
 
         TraceId traceId = mock(TraceId.class);

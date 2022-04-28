@@ -117,9 +117,17 @@ public class DefaultTraceFactory implements TraceFactory {
         return trace;
     }
 
+    @Override
+    public Trace newTraceObject(String urlPath) {
+        final Reference<Trace> reference = checkAndGet();
+        final Trace trace = this.baseTraceFactory.newTraceObject(urlPath);
+
+        bind(reference, trace);
+        return trace;
+    }
+
     private void bind(Reference<Trace> reference, Trace trace) {
         reference.set(trace);
-
     }
 
     @Override
@@ -147,9 +155,15 @@ public class DefaultTraceFactory implements TraceFactory {
     @Override
     public Trace newAsyncTraceObject() {
         final Reference<Trace> reference = checkAndGet();
-
         final Trace trace = this.baseTraceFactory.newAsyncTraceObject();
+        bind(reference, trace);
+        return trace;
+    }
 
+    @Override
+    public Trace newAsyncTraceObject(String urlPath) {
+        final Reference<Trace> reference = checkAndGet();
+        final Trace trace = this.baseTraceFactory.newAsyncTraceObject(urlPath);
         bind(reference, trace);
         return trace;
     }

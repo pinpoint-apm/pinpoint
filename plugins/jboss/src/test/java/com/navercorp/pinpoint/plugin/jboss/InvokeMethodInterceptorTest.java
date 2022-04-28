@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -141,12 +142,12 @@ public class InvokeMethodInterceptorTest {
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
-        verify(traceContext, times(1)).newAsyncTraceObject();
+        verify(traceContext, times(1)).newAsyncTraceObject(anyString());
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
-        verify(traceContext, times(2)).newAsyncTraceObject();
+        verify(traceContext, times(2)).newAsyncTraceObject(anyString());
     }
 
     /**
@@ -171,7 +172,7 @@ public class InvokeMethodInterceptorTest {
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
-        verify(traceContext, never()).newTraceObject();
+        verify(traceContext, never()).newTraceObject(anyString());
         verify(traceContext, never()).disableSampling();
         verify(traceContext, never()).continueTraceObject(any(TraceId.class));
 
@@ -179,7 +180,7 @@ public class InvokeMethodInterceptorTest {
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
-        verify(traceContext, never()).newTraceObject();
+        verify(traceContext, never()).newTraceObject(anyString());
         verify(traceContext, never()).disableSampling();
         verify(traceContext, never()).continueTraceObject(any(TraceId.class));
     }

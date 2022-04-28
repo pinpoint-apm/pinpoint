@@ -43,12 +43,16 @@ public interface TraceContext {
 
     Trace newTraceObject();
 
+    Trace newTraceObject(String urlPath);
+
     /**
      * internal experimental api
      */
     @InterfaceStability.Evolving
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace newAsyncTraceObject();
+
+    Trace newAsyncTraceObject(String urlPath);
 
     /**
      * internal experimental api

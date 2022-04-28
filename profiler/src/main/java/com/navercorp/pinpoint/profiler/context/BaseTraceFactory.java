@@ -38,6 +38,10 @@ public interface BaseTraceFactory {
 
     Trace newTraceObject();
 
+    Trace newTraceObject(String urlPath);
+
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace newAsyncTraceObject();
+
+    Trace newAsyncTraceObject(String urlPath);
 }

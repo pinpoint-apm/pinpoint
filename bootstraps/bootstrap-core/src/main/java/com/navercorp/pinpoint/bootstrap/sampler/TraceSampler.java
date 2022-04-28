@@ -21,12 +21,16 @@ package com.navercorp.pinpoint.bootstrap.sampler;
  */
 public interface TraceSampler {
     State isNewSampled();
+
+    State isNewSampled(String urlPath);
+
     State isContinueSampled();
 
     State getContinueDisableState();
 
     interface State {
         boolean isSampled();
+
         long nextId();
     }
 }
