@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+
 import java.util.Objects;
+
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -105,6 +107,16 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     public Trace newTraceObject() {
         // TODO need to modify how to inject a datasender
         final TraceSampler.State state = traceSampler.isNewSampled();
+        return newTraceObject(state);
+    }
+
+    @Override
+    public Trace newTraceObject(String urlPath) {
+        final TraceSampler.State state = traceSampler.isNewSampled(urlPath);
+        return newTraceObject(state);
+    }
+
+    Trace newTraceObject(TraceSampler.State state) {
         final boolean sampling = state.isSampled();
         if (sampling) {
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot(state.nextId());
@@ -143,7 +155,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final Trace asyncTrace = new AsyncChildTrace(traceRoot, callStack, storage, samplingEnable, spanRecorder, wrappedSpanEventRecorder, localAsyncId);
 
             return asyncTrace;
-        } else  {
+        } else {
             return new DisableAsyncChildTrace(traceRoot, localAsyncId);
         }
     }
@@ -185,6 +197,16 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace newAsyncTraceObject() {
         final TraceSampler.State state = traceSampler.isNewSampled();
+        return newAsyncTraceObject(state);
+    }
+
+    @Override
+    public Trace newAsyncTraceObject(String urlPath) {
+        final TraceSampler.State state = traceSampler.isNewSampled(urlPath);
+        return newAsyncTraceObject(state);
+    }
+
+    Trace newAsyncTraceObject(TraceSampler.State state) {
         final boolean sampling = state.isSampled();
         if (sampling) {
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot(state.nextId());

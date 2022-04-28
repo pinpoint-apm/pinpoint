@@ -87,6 +87,11 @@ public class RateLimitTraceSampler implements TraceSampler {
         return newState;
     }
 
+    @Override
+    public State isNewSampled(String urlPath) {
+        // Ignore urlPath
+        return isNewSampled();
+    }
 
     @Override
     public State isContinueSampled() {

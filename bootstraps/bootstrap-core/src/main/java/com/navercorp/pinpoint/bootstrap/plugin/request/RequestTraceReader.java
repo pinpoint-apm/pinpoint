@@ -84,7 +84,7 @@ public class RequestTraceReader<T> {
     }
 
     private Trace newTrace(T request) {
-        final Trace trace = newTrace();
+        final Trace trace = newTrace(requestAdaptor.getRpcName(request));
         if (trace.canSampled()) {
             if (isDebug) {
                 logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", requestAdaptor.getRpcName(request), requestAdaptor.getRemoteAddress(request));
@@ -130,10 +130,10 @@ public class RequestTraceReader<T> {
         return this.traceContext.continueTraceObject(traceId);
     }
 
-    private Trace newTrace() {
+    private Trace newTrace(String urlPath) {
         if (this.async) {
-            return this.traceContext.newAsyncTraceObject();
+            return this.traceContext.newAsyncTraceObject(urlPath);
         }
-        return this.traceContext.newTraceObject();
+        return this.traceContext.newTraceObject(urlPath);
     }
 }
