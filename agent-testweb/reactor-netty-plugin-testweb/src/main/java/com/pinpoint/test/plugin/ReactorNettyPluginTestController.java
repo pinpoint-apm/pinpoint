@@ -44,7 +44,10 @@ public class ReactorNettyPluginTestController {
     public String clientGet() {
         HttpClient client = HttpClient.create().port(80);
         String response = client.get().uri("https://www.google.com?foo=bar").responseContent().aggregate().asString().block();
-        return response;
+        if (response != null) {
+            return response;
+        }
+        return "OK";
     }
 
     @RequestMapping(value = "/client/local", method = RequestMethod.GET)
@@ -52,7 +55,10 @@ public class ReactorNettyPluginTestController {
     public String clientError(HttpServletRequest request) {
         HttpClient client = HttpClient.create().port(request.getLocalPort());
         String response = client.get().uri("/client/echo").responseContent().aggregate().asString().block();
-        return response;
+        if (response != null) {
+            return response;
+        }
+        return "OK";
     }
 
     @RequestMapping(value = "/client/post", method = RequestMethod.GET)
@@ -60,7 +66,10 @@ public class ReactorNettyPluginTestController {
     public String clientPost() {
         HttpClient client = HttpClient.create().port(80);
         HttpClientResponse response = client.post().uri("https://www.google.com/").send(ByteBufFlux.fromString(Mono.just("hello"))).response().block();
-        return response.toString();
+        if (response != null) {
+            return response.toString();
+        }
+        return "OK";
     }
 
     @RequestMapping(value = "/client/unknown", method = RequestMethod.GET)
@@ -68,6 +77,9 @@ public class ReactorNettyPluginTestController {
     public String clientError() {
         HttpClient client = HttpClient.create().port(80);
         String response = client.get().uri("http://fjalkjdlfaj.com").responseContent().aggregate().asString().block();
-        return response;
+        if (response != null) {
+            return response;
+        }
+        return "OK";
     }
 }
