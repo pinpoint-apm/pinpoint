@@ -5,6 +5,7 @@
  */
 
 rootProject.name = "pinpoint"
+includeBuild("gradle-plugins")
 include(":pinpoint-druid-plugin")
 include(":pinpoint-mongodb-driver-plugin")
 include(":pinpoint-elasticsearch-plugin-it")
@@ -396,10 +397,10 @@ project(":pinpoint-rocketmq-original").projectDir = file("agent-testweb/rocketmq
 project(":pinpoint-jboss-plugin").projectDir = file("plugins/jboss")
 project(":pinpoint-cxf-plugin-it").projectDir = file("plugins-it/cxf-it")
 
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            library("asm-core", "org.ow2.asm:asm:${Versions.asm}")
-        }
-    }
-}
+//dependencyResolutionManagement {
+//    versionCatalogs {
+//        create("libs") {
+//            library("asm-core", "org.ow2.asm:asm:${Versions.asm}")
+//        }
+//    }
+//}
