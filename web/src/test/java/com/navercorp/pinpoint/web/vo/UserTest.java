@@ -29,15 +29,17 @@ import static org.junit.Assert.*;
 public class UserTest {
 
     @Test
-    public void testRemoveHyphenForPhoneNumberList() {
+    public void testStripNonDigitForPhoneNumberList() {
         List<String> phoneNumberList = new ArrayList<>();
         phoneNumberList.add("010-1111-1111");
-        phoneNumberList.add("010-2222-2222");
+        phoneNumberList.add("010.2222.2222");
+        phoneNumberList.add("010/2/2/2/22222");
 
-        List<String> editedPhoneNumberList = User.removeHyphenForPhoneNumberList(phoneNumberList);
-        assertEquals(editedPhoneNumberList.size(), 2);
+        List<String> editedPhoneNumberList = User.stripNonDigitForPhoneNumberList(phoneNumberList);
+        assertEquals(editedPhoneNumberList.size(), 3);
         assertEquals(editedPhoneNumberList.get(0), "01011111111");
         assertEquals(editedPhoneNumberList.get(1), "01022222222");
+        assertEquals(editedPhoneNumberList.get(2), "01022222222");
     }
 
 }

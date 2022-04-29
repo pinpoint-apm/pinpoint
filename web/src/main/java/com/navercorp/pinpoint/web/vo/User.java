@@ -1,9 +1,8 @@
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class User {
     private String number;
@@ -92,28 +91,20 @@ public class User {
         this.phoneCountryCode = phoneCountryCode;
     }
 
-    public static List<String> removeHyphenForPhoneNumberList(List<String> phoneNumberList) {
-        if (CollectionUtils.isEmpty(phoneNumberList)) {
-            return phoneNumberList;
-        }
-
-        List<String> editedPhoneNumberList = new ArrayList<>(phoneNumberList.size());
-
-        for (String phoneNumber : phoneNumberList) {
-            if (phoneNumber == null) {
-                continue;
-            } else if (phoneNumber.contains("-")) {
-                editedPhoneNumberList.add(phoneNumber.replace("-", ""));
-            } else {
-                editedPhoneNumberList.add(phoneNumber);
-            }
-        }
-
-        return editedPhoneNumberList;
+    public static List<String> stripNonDigitForPhoneNumberList(List<String> phoneNumberList) {
+        return phoneNumberList.stream()
+                .filter(Objects::nonNull)
+                .map(User::stripNonDigitForPhoneNumber)
+                .collect(Collectors.toList());
     }
 
-    public static String removeHyphenForPhoneNumber(String phoneNumber) {
-        return phoneNumber.replace("-", "");
+    public static String stripNonDigitForPhoneNumber(String phoneNumber) {
+        return phoneNumber.chars()
+                .filter(Character::isDigit)
+                .collect(StringBuilder::new,
+                        StringBuilder::appendCodePoint,
+                        StringBuilder::append)
+                .toString();
     }
 
     @Override

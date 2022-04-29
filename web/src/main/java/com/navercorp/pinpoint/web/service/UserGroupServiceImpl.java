@@ -153,7 +153,7 @@ public class UserGroupServiceImpl implements UserGroupService {
             decodedPhoneNumberList =  userInfoDecoder.decodePhoneNumberList(phoneNumberList);
         }
 
-        return User.removeHyphenForPhoneNumberList(decodedPhoneNumberList);
+        return User.stripNonDigitForPhoneNumberList(decodedPhoneNumberList);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 
         for (UserPhoneInfo userPhoneInfo : userPhoneInfoList) {
             String decodedPhoneNumber = userInfoDecoder.decodePhoneNumber(userPhoneInfo.getPhoneNumber());
-            String phoneNumber = User.removeHyphenForPhoneNumber(decodedPhoneNumber);
+            String phoneNumber = User.stripNonDigitForPhoneNumber(decodedPhoneNumber);
             convertedUserPhoneInfoList.add(new UserPhoneInfo(userPhoneInfo.getPhoneCountryCode(), phoneNumber));
         }
 
