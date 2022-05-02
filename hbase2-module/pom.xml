@@ -30,6 +30,8 @@
 
     <properties>
         <thrift.version>${thrift-jdk8.version}</thrift.version>
+        <!-- hbase 2.4.11 dependency -->
+        <zookeeper.version>3.5.9</zookeeper.version>
     </properties>
 
     <modules>
