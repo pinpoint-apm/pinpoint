@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.eclipse.jetty.server.AbstractHttpConnection;
 
 import javax.servlet.http.HttpServletRequest;
