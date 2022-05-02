@@ -51,7 +51,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private final DefaultTransformerRegistry defaultTransformerRegistry;
 
     // class matcher operand.
-    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<String, IndexValue>(64);
+    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<>(64);
     // package matcher operand.
     private final Map<String, Set<IndexValue>> packageNameBasedIndex;
 
@@ -66,7 +66,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
 
         // sorted by package name length.
-        this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
+        this.packageNameBasedIndex = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String key1, String key2) {
                 return key1.compareTo(key2);
@@ -181,7 +181,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
 
     private List<MatchableClassFileTransformer> filterBaseMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
         // class name
-        final List<MatchableClassFileTransformer> filter = new ArrayList<MatchableClassFileTransformer>();
+        final List<MatchableClassFileTransformer> filter = new ArrayList<>();
         for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
             if (MatcherType.isBasedMatcher(transformer.getMatcher())) {
                 filter.add(transformer);
@@ -192,7 +192,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
 
     private List<MatchableClassFileTransformer> filterDefaultMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
         // class name
-        final List<MatchableClassFileTransformer> filter = new ArrayList<MatchableClassFileTransformer>();
+        final List<MatchableClassFileTransformer> filter = new ArrayList<>();
         for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
             if (!MatcherType.isBasedMatcher(transformer.getMatcher())) {
                 filter.add(transformer);
@@ -235,7 +235,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private void addIndexData(final String key, final IndexValue indexValue, final Map<String, Set<IndexValue>> index) {
         Set<IndexValue> indexValueSet = index.get(key);
         if (indexValueSet == null) {
-            indexValueSet = new HashSet<IndexValue>();
+            indexValueSet = new HashSet<>();
             index.put(key, indexValueSet);
         }
         indexValueSet.add(indexValue);

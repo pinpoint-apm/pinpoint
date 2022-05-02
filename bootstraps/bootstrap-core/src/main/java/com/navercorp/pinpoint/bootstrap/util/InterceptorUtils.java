@@ -36,12 +36,12 @@ public final class InterceptorUtils {
     public static String exceptionToString(Throwable ex) {
         if (ex != null) {
             StringBuilder sb = new StringBuilder(128);
-            sb.append(ex.toString()).append('\n');
+            sb.append(ex).append('\n');
 
             Writer writer = new StringWriter();
             PrintWriter printWriter = new PrintWriter(writer);
             ex.printStackTrace(printWriter);
-            sb.append(writer.toString());
+            sb.append(writer);
 
             return sb.toString();
         }
