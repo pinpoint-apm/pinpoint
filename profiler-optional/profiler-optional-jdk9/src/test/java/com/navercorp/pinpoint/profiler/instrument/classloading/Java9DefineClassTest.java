@@ -49,7 +49,7 @@ public class Java9DefineClassTest {
         try {
             classLoader.loadClass(Logger.class.getName());
             Assert.fail();
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignored) {
         }
 
         String className = JavaAssistUtils.javaClassNameToJvmResourceName(Logger.class.getName());

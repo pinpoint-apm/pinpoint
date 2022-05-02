@@ -73,14 +73,14 @@ public class AutomaticBufferTest {
         try {
             buffer1_1.putPadBytes(new byte[11], 10);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
         try {
             buffer1_2.putPadBytes(new byte[20], 10);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer2 = new AutomaticBuffer(32);
@@ -122,14 +122,14 @@ public class AutomaticBufferTest {
         try {
             buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
         try {
             buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
             Assert.fail("error");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         Buffer buffer2 = new AutomaticBuffer(32);
@@ -156,7 +156,7 @@ public class AutomaticBufferTest {
             byte[] bytes4 = new byte[Short.MAX_VALUE+1];
             checkPut2PrefixedBytes(bytes4);
             Assert.fail("too large bytes");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
     }
 

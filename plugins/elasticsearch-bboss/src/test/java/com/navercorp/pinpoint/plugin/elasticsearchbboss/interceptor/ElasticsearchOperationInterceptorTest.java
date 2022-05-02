@@ -87,7 +87,7 @@ public class ElasticsearchOperationInterceptorTest {
 
             elasticsearchExecutorOperationInterceptor.doInAfterTrace(mock(SpanEventRecorder.class),new Object(),args,"aa",null);
         }
-        catch (Exception ignore){
+        catch (Exception ignored){
 
         }
 

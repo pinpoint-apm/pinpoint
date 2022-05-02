@@ -136,7 +136,7 @@ public class SpanServerTestMain {
 //            System.out.println("## Incoming " + IncomingCounter.addAndGet(1));
             try {
                 TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException ignore) {
+            } catch (InterruptedException ignored) {
             }
 
             final GeneratedMessageV3 data = serverRequest.getData();

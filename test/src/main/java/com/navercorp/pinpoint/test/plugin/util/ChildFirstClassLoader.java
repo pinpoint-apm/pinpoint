@@ -59,7 +59,7 @@ public class ChildFirstClassLoader extends URLClassLoader {
                 } else {
                     try {
                         loadedClass = findClass(name);
-                    } catch (ClassNotFoundException ignore) {
+                    } catch (ClassNotFoundException ignored) {
                         // ignore
                     }
                     if (loadedClass == null) {

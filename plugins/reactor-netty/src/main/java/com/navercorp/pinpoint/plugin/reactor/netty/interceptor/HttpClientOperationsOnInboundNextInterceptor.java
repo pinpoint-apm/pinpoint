@@ -65,7 +65,7 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
                 recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, httpResponseStatus.code());
             }
             this.responseHeaderRecorder.recordHeader(recorder, httpResponses);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
     }
 

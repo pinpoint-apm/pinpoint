@@ -96,7 +96,7 @@ public final class NetworkUtils {
         Enumeration<NetworkInterface> interfaces = null;
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException ignore) {
+        } catch (SocketException ignored) {
             // skip
         }
 
@@ -154,7 +154,7 @@ public final class NetworkUtils {
                 return true;
             }
             return false;
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             // skip
         }
         return true;

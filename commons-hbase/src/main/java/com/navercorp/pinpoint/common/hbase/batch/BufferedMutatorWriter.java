@@ -206,7 +206,7 @@ public class BufferedMutatorWriter implements DisposableBean, HbaseBatchWriter {
         for (BufferedMutator mutator : this.mutatorMap.values()) {
             try {
                 mutator.close();
-            } catch (IOException ignore) {
+            } catch (IOException ignored) {
                 //
             }
         }

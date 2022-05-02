@@ -117,7 +117,7 @@ public final class NetUtils {
             if (validationIpV4FormatAddress(localIp)) {
                 return localIp;
             }
-        } catch (UnknownHostException ignore) {
+        } catch (UnknownHostException ignored) {
             // skip
         }
         return LOOPBACK_ADDRESS_V4;
@@ -132,7 +132,7 @@ public final class NetUtils {
         Enumeration<NetworkInterface> interfaces = null;
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException ignore) {
+        } catch (SocketException ignored) {
             // skip
         }
 
@@ -169,7 +169,7 @@ public final class NetUtils {
                 return true;
             }
             return false;
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             // skip
         }
         return true;
@@ -211,7 +211,7 @@ public final class NetUtils {
                 }
             }
             return true;
-        } catch (NumberFormatException ignore) {
+        } catch (NumberFormatException ignored) {
             // skip
         }
 

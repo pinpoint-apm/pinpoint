@@ -64,7 +64,7 @@ public class ServletRequestImplParameterExtractor implements ParameterExtractor<
                     params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
                 }
             }
-        } catch (UnsupportedEncodingException ignore) {
+        } catch (UnsupportedEncodingException ignored) {
             // ignore
         }
         return params.toString();

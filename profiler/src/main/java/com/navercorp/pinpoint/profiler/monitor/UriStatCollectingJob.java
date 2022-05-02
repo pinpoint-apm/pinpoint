@@ -60,7 +60,7 @@ public class UriStatCollectingJob implements Runnable, Closeable {
     public void close() {
         try {
             uriStatStorage.close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // do nothing
         }
     }

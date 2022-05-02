@@ -111,7 +111,7 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
 
                 return url.getProtocol() + "://" + url.getAuthority();
 
-            } catch (MalformedURLException e) {
+            } catch (MalformedURLException ignored) {
             }
         }
         return null;

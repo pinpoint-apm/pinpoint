@@ -86,7 +86,7 @@ public class DubboConsumerIT {
         when(abstractClusterInvoker.getInterface()).thenReturn(MonitorService.class);
         try {
             abstractClusterInvoker.invoke(rpcInvocation);
-        } catch (RpcException ignore) {
+        } catch (RpcException ignored) {
             // ignore
         }
 

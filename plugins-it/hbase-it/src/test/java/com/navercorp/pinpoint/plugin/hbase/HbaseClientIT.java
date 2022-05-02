@@ -62,7 +62,7 @@ public class HbaseClientIT {
 
         try {
             admin.tableExists(TableName.valueOf(tableName));
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             //
         }
 

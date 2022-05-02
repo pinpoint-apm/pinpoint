@@ -265,7 +265,7 @@ public class WeakAtomicReferenceArrayTest {
 //                    referenceTest.changeId(0, i);
                     try {
                         Thread.sleep(10);
-                    } catch (InterruptedException ignore) {
+                    } catch (InterruptedException ignored) {
                     }
                     i++;
                 }

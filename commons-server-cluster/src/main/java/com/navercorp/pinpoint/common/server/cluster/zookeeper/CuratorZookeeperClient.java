@@ -94,7 +94,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
         if (stat == null) {
             try {
                 curator.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
-            } catch (KeeperException.NodeExistsException nodeExists) {
+            } catch (KeeperException.NodeExistsException ignored) {
                 // skip
             } catch (Exception e) {
                 ZookeeperExceptionResolver.resolveAndThrow(e);
@@ -218,7 +218,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
             CuratorFramework curator = connectionManager.getCuratorFramework();
 
             curator.delete().forPath(path);
-        } catch (KeeperException.NoNodeException noNode) {
+        } catch (KeeperException.NoNodeException ignored) {
             // skip
         } catch (Exception e) {
             ZookeeperExceptionResolver.resolveAndThrow(e);

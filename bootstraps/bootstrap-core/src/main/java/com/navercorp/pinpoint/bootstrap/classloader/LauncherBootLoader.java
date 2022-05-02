@@ -60,7 +60,7 @@ final class LauncherBootLoader implements BootLoader {
             Method findBootstrapClass0 = ClassLoader.class.getDeclaredMethod("findBootstrapClass0", String.class);
             findBootstrapClass0.setAccessible(true);
             return findBootstrapClass0;
-        } catch (NoSuchMethodException ignore) {
+        } catch (NoSuchMethodException ignored) {
             // skip
         }
         throw new IllegalStateException("ClassLoader.findBootstrapClassOrNull api not found", rootException);

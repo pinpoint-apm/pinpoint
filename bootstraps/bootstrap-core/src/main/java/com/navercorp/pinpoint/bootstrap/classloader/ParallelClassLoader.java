@@ -102,7 +102,7 @@ class ParallelClassLoader extends URLClassLoader {
                         } else {
                             clazz = this.bootLoader.findBootstrapClassOrNull(this, name);
                         }
-                    } catch (ClassNotFoundException ignore) {
+                    } catch (ClassNotFoundException ignored) {
                     }
                     if (clazz == null) {
                         // if not found, try to load a class by this ClassLoader

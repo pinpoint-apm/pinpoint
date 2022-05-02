@@ -138,7 +138,7 @@ public class ASMMethodNodeAdapterTestMain {
 
         try {
             classLoader.loadClass(classInternalName);
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignored) {
             // ignore
         }
     }

@@ -43,7 +43,7 @@ public final class ClassUtils {
         try {
             classLoaderToUse.loadClass(name);
             return true;
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignored) {
             return false;
         }
     }

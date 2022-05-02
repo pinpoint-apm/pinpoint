@@ -29,7 +29,7 @@ public class DefaultApiParser implements ApiParser {
             String apiInfo = apiDescription.getApiDescription();
 
             return new Api(method, className, apiInfo, MethodTypeEnum.DEFAULT);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             // ignore
         }
 

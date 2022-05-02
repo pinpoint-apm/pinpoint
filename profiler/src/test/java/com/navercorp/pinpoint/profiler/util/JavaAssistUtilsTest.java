@@ -119,13 +119,13 @@ public class JavaAssistUtilsTest {
         try {
             Assert.assertEquals(JavaAssistUtils.toJvmSignature(""), "");
             Assert.fail("empty string");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         try {
             Assert.assertEquals(JavaAssistUtils.toJvmSignature(null), null);
             Assert.fail("null");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
     }
 

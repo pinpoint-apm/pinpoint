@@ -146,7 +146,7 @@ public class CuratorZookeeperClientTest {
             try {
                 curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes()));
                 Assert.fail();
-            } catch (Exception ignore) {
+            } catch (Exception ignored) {
             }
 
             boolean existNode = isExistNode(zooKeeper, path);

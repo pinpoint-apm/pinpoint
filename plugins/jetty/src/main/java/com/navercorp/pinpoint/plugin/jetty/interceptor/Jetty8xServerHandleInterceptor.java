@@ -44,7 +44,7 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
         if (connection != null) {
             try {
                 return connection.getRequest();
-            } catch (Throwable ignore) {
+            } catch (Throwable ignored) {
                 // ignore
             }
         }
@@ -57,7 +57,7 @@ public class Jetty8xServerHandleInterceptor extends AbstractServerHandleIntercep
         if (connection != null) {
             try {
                 return connection.getResponse();
-            } catch (Throwable ignore) {
+            } catch (Throwable ignored) {
                 // ignore
             }
         }

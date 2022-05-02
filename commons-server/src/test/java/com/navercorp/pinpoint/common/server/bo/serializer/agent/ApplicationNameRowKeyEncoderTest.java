@@ -54,7 +54,7 @@ public class ApplicationNameRowKeyEncoderTest {
         try {
             check(applicationName, time);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
     }
 

@@ -62,7 +62,7 @@ public class IRequestParameterExtractor implements ParameterExtractor<IRequest> 
                     params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
                 }
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException ignored) {
         }
         return params.toString();
     }

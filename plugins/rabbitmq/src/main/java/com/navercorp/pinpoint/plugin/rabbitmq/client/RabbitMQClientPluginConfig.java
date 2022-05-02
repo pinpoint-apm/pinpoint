@@ -69,12 +69,17 @@ public class RabbitMQClientPluginConfig {
     }
 
     public static boolean isExchangeExcluded(String exchange, Filter<String> filter) {
-        if (exchange == null || filter == null)
+        if (exchange == null) {
             return false;
+        }
+        if (filter == null) {
+            return false;
+        }
         try {
-            if (filter.filter(exchange))
+            if (filter.filter(exchange)) {
                 return true;
-        } catch (Exception e) {
+            }
+        } catch (Exception ignored) {
         }
 
         return false;

@@ -94,7 +94,7 @@ public enum ByteSizeUnit {
     public static long getByteSize(String value, long defaultValue) {
         try {
             return getByteSize(value);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
         return defaultValue;
     }

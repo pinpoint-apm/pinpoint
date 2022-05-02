@@ -69,7 +69,7 @@ public class RpcURLPatternFilter implements URLPatternFilter {
                 if (pluginRpcEndpointAnnotationKey != null) {
                     rpcEndPointAnnotationCodes.add(pluginRpcEndpointAnnotationKey.getCode());
                 }
-            } catch (NoSuchElementException ignore) {
+            } catch (NoSuchElementException ignored) {
                 // ignore
             }
         }
