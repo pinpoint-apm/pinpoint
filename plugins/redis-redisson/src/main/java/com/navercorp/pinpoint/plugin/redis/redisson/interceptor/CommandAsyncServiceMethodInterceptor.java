@@ -92,7 +92,7 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
             }
 
             if (this.keyTrace) {
-                RedisCommand<?> redisCommands = ArrayArgumentUtils.getArgument(args, 3, RedisCommand.class);;
+                RedisCommand<?> redisCommands = ArrayArgumentUtils.getArgument(args, 3, RedisCommand.class);
                 if (redisCommands != null && StringUtils.hasLength(redisCommands.getName())) {
                     recorder.recordAttribute(AnnotationKey.ARGS0, redisCommands.getName());
                 }

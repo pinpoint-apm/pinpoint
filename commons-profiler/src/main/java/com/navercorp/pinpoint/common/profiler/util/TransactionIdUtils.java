@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -102,7 +103,7 @@ public final class TransactionIdUtils {
         String agentId = buffer.readPrefixedString();
         agentId = StringUtils.defaultString(agentId, defaultAgentId);
         if (!IdValidateUtils.validateId(agentId)) {
-            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
+            throw new IllegalArgumentException("invalid transactionId:" + Arrays.toString(transactionId));
         }
 
         final long agentStartTime = buffer.readVLong();
