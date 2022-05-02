@@ -41,7 +41,7 @@ class LibraryFilter {
         return false;
     }
 
-    static interface LibraryMatcher {
+    interface LibraryMatcher {
         boolean include(String filePath);
     }
 
