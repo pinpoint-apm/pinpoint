@@ -40,7 +40,7 @@ final class ReflectionDefineClass implements DefineClass {
     }
 
     @Override
-    public final Class<?> defineClass(ClassLoader classLoader, String name, byte[] bytes) {
+    public Class<?> defineClass(ClassLoader classLoader, String name, byte[] bytes) {
         if (logger.isDebugEnabled()) {
             logger.debug("define class:{} cl:{}", name, classLoader);
         }

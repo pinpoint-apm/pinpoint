@@ -25,7 +25,7 @@ public abstract class PinpointBanner {
         return String.format(" :: %55s :: %35s", key, value);
     }
 
-    public static enum Mode {
+    public enum Mode {
         OFF,
         CONSOLE,
         LOG;

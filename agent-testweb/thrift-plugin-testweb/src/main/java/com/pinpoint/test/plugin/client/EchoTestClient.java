@@ -23,8 +23,8 @@ import org.apache.thrift.TException;
  */
 public interface EchoTestClient {
 
-    public String echo(String message) throws TException;
+    String echo(String message) throws TException;
 
-    public void close();
+    void close();
 
 }

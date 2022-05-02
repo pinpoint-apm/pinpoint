@@ -21,7 +21,7 @@ public final class PluginClassLoading {
             "tinylog-impl",
     };
 
-    public static final String[] getContainsCheckClassPath() {
+    public static String[] getContainsCheckClassPath() {
         return CLASS_PATHS_TO_CHECK_AS_CONTAINS;
     }
 
@@ -29,7 +29,7 @@ public final class PluginClassLoading {
             "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar", // required when executing test via mvn command
     };
 
-    public static final String[] getGlobMatchesCheckClassPath() {
+    public static String[] getGlobMatchesCheckClassPath() {
         return CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES;
     }
 

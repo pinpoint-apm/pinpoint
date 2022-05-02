@@ -193,7 +193,7 @@ public class SocketUtils {
     }
 
 
-    private static enum SocketType {
+    private enum SocketType {
 
         TCP {
             @Override

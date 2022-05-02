@@ -36,7 +36,7 @@ public enum SslOption {
     private final String key;
     private final String defaultValue;
 
-    private SslOption(String key, String defaultValue) {
+    SslOption(String key, String defaultValue) {
         this.key = key;
         this.defaultValue = defaultValue;
     }
