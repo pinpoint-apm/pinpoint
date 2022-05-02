@@ -29,7 +29,7 @@ public class CallSelfController {
         try {
             final InetAddress localHost = InetAddress.getLocalHost();
             return localHost.getHostAddress();
-        } catch (UnknownHostException ignore) {
+        } catch (UnknownHostException ignored) {
         }
         return DEFAULT_LOCAL_IP;
     }

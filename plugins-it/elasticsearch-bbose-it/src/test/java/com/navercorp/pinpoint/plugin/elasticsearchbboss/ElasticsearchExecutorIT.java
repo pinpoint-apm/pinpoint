@@ -101,7 +101,7 @@ public abstract class ElasticsearchExecutorIT {
         try {
             configRestClientInterface.createIndiceMapping("cars", "createCarIndice");
 
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
 
@@ -117,7 +117,7 @@ public abstract class ElasticsearchExecutorIT {
         Method dropIndiceMethod = configClass.getMethod("dropIndice", String.class);
         try {
             configRestClientInterface.dropIndice("cars");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
 
@@ -160,7 +160,7 @@ public abstract class ElasticsearchExecutorIT {
         // clientInterface.addDocument("cars",car).
         try {
             clientInterface.addDocument("cars", "car", car, "refresh=true");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
 
@@ -174,7 +174,7 @@ public abstract class ElasticsearchExecutorIT {
         //get car by document id "1"
         try {
             Car car = clientInterface.getDocument("cars", "1", Car.class);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
 
@@ -209,7 +209,7 @@ public abstract class ElasticsearchExecutorIT {
 
         try {
             clientInterface.addDocuments("cars", "car", cars, "refresh=true");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
         Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
@@ -234,7 +234,7 @@ public abstract class ElasticsearchExecutorIT {
             List<Car> cars = carESDatas.getDatas();
             //totalsize that match condition
             long totalSize = carESDatas.getTotalSize();
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
 
@@ -261,7 +261,7 @@ public abstract class ElasticsearchExecutorIT {
 
         try {
             clientInterface.updateDocument("cars", "car", "1", car, "refresh=true");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
         Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");
@@ -281,7 +281,7 @@ public abstract class ElasticsearchExecutorIT {
 
         try {
             clientInterface.deleteDocument("cars", "car", "1", "refresh=true");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
 
         }
         Class<?> restClientUtilClass = Class.forName("org.frameworkset.elasticsearch.client.RestClientUtil");

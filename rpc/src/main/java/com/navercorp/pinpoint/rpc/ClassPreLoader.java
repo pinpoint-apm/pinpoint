@@ -33,7 +33,7 @@ public final class ClassPreLoader {
     public static void preload() {
         try {
             preload(65535);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             // skip
         }
     }

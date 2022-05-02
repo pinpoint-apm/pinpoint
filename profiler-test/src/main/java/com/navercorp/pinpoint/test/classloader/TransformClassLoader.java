@@ -198,7 +198,7 @@ public class TransformClassLoader extends ClassLoader {
             if (getPackage(pname) == null)
                 try {
                     definePackage(pname, null, null, null, null, null, null, null);
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException ignored) {
                     // ignore.  maybe the package object for the same
                     // name has been created just right away.
                 }

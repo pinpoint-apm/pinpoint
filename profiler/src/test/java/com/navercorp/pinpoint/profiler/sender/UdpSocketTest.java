@@ -91,7 +91,7 @@ public class UdpSocketTest {
         try {
             sender.send(packet1);
             Assert.fail("expected fail, but succeed");
-        } catch (IOException ignore) {
+        } catch (IOException ignored) {
         }
     }
 
@@ -156,13 +156,13 @@ public class UdpSocketTest {
         try {
             so.send(newDatagramPacket(AcceptedSize + 1));
             Assert.fail("failed");
-        } catch (IOException ignore) {
+        } catch (IOException ignored) {
         }
 
         try {
             so.send(newDatagramPacket(70000));
             Assert.fail("failed");
-        } catch (IOException ignore) {
+        } catch (IOException ignored) {
         }
 
         so.close();

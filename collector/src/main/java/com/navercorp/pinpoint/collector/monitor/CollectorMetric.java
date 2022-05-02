@@ -160,7 +160,7 @@ public class CollectorMetric {
             if (reporter instanceof Closeable) {
                 try {
                     ((Closeable) reporter).close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                     // ignore
                 }
             }

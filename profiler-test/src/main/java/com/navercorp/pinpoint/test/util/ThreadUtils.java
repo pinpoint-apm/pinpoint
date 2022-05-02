@@ -23,7 +23,7 @@ public final class ThreadUtils {
     public static void sleep(long waitUnitTime) {
         try {
             Thread.sleep(waitUnitTime);
-        } catch (InterruptedException ignore) {
+        } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
     }

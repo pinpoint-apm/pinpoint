@@ -138,7 +138,7 @@ public class ContentLength {
             if (context instanceof InputStream) {
                 try {
                     return ((InputStream) context).available();
-                } catch (IOException ignore) {
+                } catch (IOException ignored) {
                     // io error
                     return NOT_EXIST;
                 }

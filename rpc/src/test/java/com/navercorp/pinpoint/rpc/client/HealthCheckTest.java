@@ -166,7 +166,7 @@ public class HealthCheckTest {
 
             sendPingAndReceivePongPacket(testRawSocket, new PingPayloadPacket(1, (byte) 1, (byte) 1));
             Assert.fail();
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         } finally {
             testRawSocket.close();
             testPinpointServerAcceptor.close();

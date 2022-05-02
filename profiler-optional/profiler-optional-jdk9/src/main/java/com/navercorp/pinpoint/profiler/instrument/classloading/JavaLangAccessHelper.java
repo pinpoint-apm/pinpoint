@@ -52,7 +52,7 @@ public final class JavaLangAccessHelper {
         try {
             Class.forName(MISC_JAVA_LANG_ACCESS_CLASS_NAME, false, JavaLangAccess.class.getClassLoader());
             return new JavaLangAccess9();
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignored) {
             // ignore
         }
         try {
@@ -61,7 +61,7 @@ public final class JavaLangAccessHelper {
             // openJDK11 =  jdk.internal.misc
             Class.forName(ACCESS_SHARED_SECRETS_CLASS_NAME, false, JavaLangAccess.class.getClassLoader());
             return new JavaLangAccess11();
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignored) {
             // ignore
         }
 

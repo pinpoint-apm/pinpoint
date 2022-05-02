@@ -35,7 +35,7 @@ public final class TestPluginVersion {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException ignore) {
+            } catch (IOException ignored) {
             }
         }
     }

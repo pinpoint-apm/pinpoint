@@ -58,7 +58,7 @@ public class AgentEventMessageDeserializer {
                 try {
                     Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(eventBody, deserializerFactory);
                     return deserialize.getData();
-                } catch (TException e) {
+                } catch (TException ignored) {
                     // ignore
                 }
             }

@@ -75,7 +75,7 @@ public class UNIXProcessPidProvider implements PidProvider {
         }
         try {
             return pidField.getLong(process);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             return null;
         }
     }

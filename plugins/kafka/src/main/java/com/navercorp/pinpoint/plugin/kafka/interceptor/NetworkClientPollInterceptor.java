@@ -120,7 +120,7 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
 
                 String ipPort = getIpPort(localAddress);
                 endPointAddressList.add(ipPort);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 

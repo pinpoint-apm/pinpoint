@@ -102,7 +102,7 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
                     if (getClusterVersionInfo == null) {
                         try {
                             getClusterVersionInfo = target.getClass().getMethod("getClusterVersionInfo");
-                        } catch (Exception ignore) {
+                        } catch (Exception ignored) {
                         }
                     }
                 }

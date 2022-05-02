@@ -109,14 +109,14 @@ public class FixedBufferTest {
         try {
             buffer1_1.putPadBytes(new byte[11], 10);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer1_2 = new FixedBuffer(32);
         try {
             buffer1_2.putPadBytes(new byte[20], 10);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer2 = new FixedBuffer(32);
@@ -181,14 +181,14 @@ public class FixedBufferTest {
         Buffer buffer1_1 = new FixedBuffer(32);
         try {
             buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer1_2 = new FixedBuffer(32);
         try {
             buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
             Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
         Buffer buffer2 = new FixedBuffer(32);
@@ -211,7 +211,7 @@ public class FixedBufferTest {
             byte[] bytes2 = new byte[Short.MAX_VALUE + 1];
             checkPut2PrefixedBytes(BytesUtils.toString(bytes2), endExpected, Short.MAX_VALUE * 2);
             Assert.fail("too large bytes");
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
 
     }
@@ -474,7 +474,7 @@ public class FixedBufferTest {
         try {
             buffer.readVInt();
             Assert.fail("invalid VInt");
-        } catch (IllegalArgumentException ignore) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         Assert.assertEquals(0, buffer.getOffset());
@@ -487,7 +487,7 @@ public class FixedBufferTest {
         try {
             buffer.readVLong();
             Assert.fail("invalid VLong");
-        } catch (IllegalArgumentException ignore) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         Assert.assertEquals(0, buffer.getOffset());

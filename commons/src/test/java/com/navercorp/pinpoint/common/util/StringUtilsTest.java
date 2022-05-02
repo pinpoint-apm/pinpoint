@@ -147,7 +147,7 @@ public class StringUtilsTest {
         try {
             StringUtils.abbreviate(string, -1);
             Assert.fail();
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             // skip
         }
     }

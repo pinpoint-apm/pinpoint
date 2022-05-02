@@ -77,7 +77,7 @@ public final class ClassLoaderUtils {
             if (contextClassLoader != null) {
                 return contextClassLoader;
             }
-        } catch (Throwable ignore) {
+        } catch (Throwable ignored) {
             // skip
         }
         // Timing for security exceptions is different when the ClassLoader is received as an argument

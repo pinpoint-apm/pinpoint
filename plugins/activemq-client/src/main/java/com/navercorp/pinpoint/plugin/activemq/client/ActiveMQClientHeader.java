@@ -73,7 +73,7 @@ public enum ActiveMQClientHeader {
                 if (message.propertyExists(id)) {
                     return getMessage0(message, id);
                 }
-            } catch (JMSException e) {
+            } catch (JMSException ignored) {
                 // just ignore and return default value
             }
             return defaultValue;

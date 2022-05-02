@@ -156,7 +156,7 @@ class ModuleBuilder {
         }
         try {
             closeable.close();
-        } catch (IOException ignore) {
+        } catch (IOException ignored) {
             // skip
         }
     }

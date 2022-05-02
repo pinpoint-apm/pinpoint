@@ -183,7 +183,7 @@ public class PinpointClientHandshaker {
         try {
             Map result = (Map) ControlMessageEncodingUtils.decode(payload);
             return result;
-        } catch (ProtocolException ignore) {
+        } catch (ProtocolException ignored) {
             // ignore
         }
 

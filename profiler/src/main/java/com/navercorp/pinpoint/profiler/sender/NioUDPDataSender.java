@@ -139,7 +139,7 @@ public class NioUDPDataSender<T> implements DataSender<T> {
         } finally {
             try {
                 byteBufferOutputStream.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
                 // ignore
             }
         }

@@ -69,7 +69,7 @@ public class ServerStreamChannel extends AbstractStreamChannel {
             try {
                 StreamClosePacket packet = new StreamClosePacket(getStreamId(), code);
                 write(packet);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 // do nothing
             }
         }

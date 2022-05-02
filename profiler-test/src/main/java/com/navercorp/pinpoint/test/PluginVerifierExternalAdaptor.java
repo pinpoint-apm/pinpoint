@@ -683,7 +683,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 if (hasTrace(expectedTrace)) {
                     return;
                 }
-            } catch (Exception ignore) {
+            } catch (Exception ignored) {
             }
 
             ThreadUtils.sleep(waitUnitTime);
@@ -714,7 +714,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
                 verifySpan(resolvedExpectedTrace, actualTrace);
                 return true;
-            } catch (Throwable ignore) {
+            } catch (Throwable ignored) {
             }
         }
 
@@ -734,7 +734,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             try {
                 verifyTraceCount(expectedTraceCount);
                 return;
-            } catch (Throwable ignore) {
+            } catch (Throwable ignored) {
             }
 
             ThreadUtils.sleep(waitUnitTime);

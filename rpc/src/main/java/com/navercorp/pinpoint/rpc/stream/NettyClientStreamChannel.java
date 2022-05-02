@@ -83,7 +83,7 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
             try {
                 StreamClosePacket packet = new StreamClosePacket(getStreamId(), code);
                 write(packet);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 // do nothing
             }
         }

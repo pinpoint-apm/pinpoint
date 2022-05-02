@@ -235,13 +235,13 @@ public class BytesUtilsTest {
         try {
             BytesUtils.writeLong(1234, such_long, -1);
             fail("negative offset did not catched");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         try {
             BytesUtils.writeLong(2222, such_long, 9);
             fail("index out of range exception did not catched");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         BytesUtils.writeLong(-1l, such_long, 2);
@@ -511,19 +511,19 @@ public class BytesUtilsTest {
         try {
             BytesUtils.checkBounds(buffer, buffer.length, buffer.length);
             Assert.fail("bound check fail");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         try {
             BytesUtils.checkBounds(buffer, 2, buffer.length);
             Assert.fail("bound check fail");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         try {
             BytesUtils.checkBounds(buffer, -1, buffer.length);
             Assert.fail("bound check fail");
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         try {

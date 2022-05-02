@@ -121,7 +121,7 @@ public final class IOUtils {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException ignore) {
+            } catch (IOException ignored) {
                 // skip
             }
         }
@@ -137,7 +137,7 @@ public final class IOUtils {
         if (socket != null) {
             try {
                 socket.close();
-            } catch (IOException ignore) {
+            } catch (IOException ignored) {
                 // skip
             }
         }

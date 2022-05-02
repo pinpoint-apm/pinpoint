@@ -89,7 +89,7 @@ public class TransactionDataSource implements DataSource {
 
         try {
             innerConnection.close();
-        } catch (SQLException ignore) {
+        } catch (SQLException ignored) {
             // ignore
         } finally {
             this.innerConnection = null;

@@ -42,7 +42,7 @@ public class Java7ShutdownHookRegister implements ShutdownHookRegister {
                 javaLangAccess.registerShutdownHook(i, true, thread);
                 logger.info("register() completed.");
                 return;
-            } catch (Throwable ignore) {
+            } catch (Throwable ignored) {
             }
         }
 

@@ -155,9 +155,9 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
                 }
 
             }
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             if (isDebug) {
-                logger.debug("Unexpected error. nodeSource={}", nodeSource, ignore);
+                logger.debug("Unexpected error. nodeSource={}", nodeSource, ignored);
             }
         }
         return "Unknown";

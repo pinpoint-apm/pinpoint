@@ -16,7 +16,7 @@ public class DefaultInterceptorRegistryAdaptorTest {
         try {
             new DefaultInterceptorRegistryAdaptor(-1);
             Assert.fail();
-        } catch (IllegalArgumentException ignore) {
+        } catch (IllegalArgumentException ignored) {
         }
 
     }
@@ -28,7 +28,7 @@ public class DefaultInterceptorRegistryAdaptorTest {
             StaticAroundInterceptor mock = mock(StaticAroundInterceptor.class);
             interceptorRegistry.addInterceptor(mock);
             Assert.fail();
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
     }
 
@@ -39,7 +39,7 @@ public class DefaultInterceptorRegistryAdaptorTest {
         try {
             interceptorRegistry.addInterceptor(mock(StaticAroundInterceptor.class));
             Assert.fail();
-        } catch (IndexOutOfBoundsException ignore) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
     }
 

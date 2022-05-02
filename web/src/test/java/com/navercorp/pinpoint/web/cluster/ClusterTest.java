@@ -126,12 +126,12 @@ public class ClusterTest {
 
         try {
             clusterDataManager.stop();
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
 
         try {
             clusterConnectionManager.stop();
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
         }
     }
 

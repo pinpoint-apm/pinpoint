@@ -162,7 +162,7 @@ public class DeadlockMonitorTask implements Runnable {
         if (!Thread.interrupted()) {
             try {
                 Thread.sleep(intervalMillis);
-            } catch (InterruptedException ignore) {
+            } catch (InterruptedException ignored) {
                 // It only exhaust time to wait using interrupt.
                 // The end of the job is confirmed by using the stop field.
             }

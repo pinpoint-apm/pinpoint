@@ -44,7 +44,7 @@ public class Java9ShutdownHookRegister implements ShutdownHookRegister {
                     javaLangAccess.registerShutdownHook(i, true, thread);
                     logger.info("register({}) completed.", i);
                     return;
-                } catch (Throwable ignore) {
+                } catch (Throwable ignored) {
                 }
             }
         }
