@@ -18,23 +18,16 @@ package com.navercorp.pinpoint.plugin.openwhisk.interceptor;
 import akka.http.scaladsl.server.RequestContextImpl;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author Seonghyun Oh
  */
 public class TransactionIdCreateInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
-    public TransactionIdCreateInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
+    public TransactionIdCreateInterceptor() {
     }
 
     @Override

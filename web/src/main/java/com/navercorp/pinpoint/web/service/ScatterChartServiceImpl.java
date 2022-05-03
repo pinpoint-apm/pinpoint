@@ -57,8 +57,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
     public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
                                    TraceDao traceDao,
-                                   SpanService spanService
-    ) {
+                                   SpanService spanService) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.netty;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,9 +28,6 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class NettyClientRequestWrapper implements ClientRequestWrapper {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
     private final HttpMessage httpMessage;
     private final ChannelHandlerContext channelHandlerContext;
 

@@ -25,9 +25,6 @@ import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,8 +38,6 @@ import java.util.Objects;
  */
 @JsonSerialize(using = NodeSerializer.class)
 public class Node {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String NODE_DELIMITER = "^";
 

@@ -17,7 +17,10 @@ package com.navercorp.pinpoint.plugin.openwhisk.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -37,14 +40,12 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
     protected final boolean isDebug = logger.isDebugEnabled();
     private final boolean isLoggingMessage;
 
-    public TransactionIdStartedInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public TransactionIdStartedInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.descriptor = descriptor;
 
         final OpenwhiskConfig config = new OpenwhiskConfig(traceContext.getProfilerConfig());
         this.isLoggingMessage = config.isLoggingMessage();

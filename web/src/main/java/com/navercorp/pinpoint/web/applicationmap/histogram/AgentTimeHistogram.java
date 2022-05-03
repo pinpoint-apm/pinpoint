@@ -25,10 +25,11 @@ import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * most of the features have been delegated to AgentHistorgramList upon refactoring
@@ -37,25 +38,22 @@ import java.util.*;
  */
 public class AgentTimeHistogram {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private static final Comparator<AgentResponseTimeViewModel> AGENT_NAME_COMPARATOR
+            = Comparator.comparing(AgentResponseTimeViewModel::getAgentName);
 
     private final Application application;
     private final Range range;
-    private final TimeWindow window;
-
     private final AgentHistogramList agentHistogramList;
 
     public AgentTimeHistogram(Application application, Range range) {
         this.application = Objects.requireNonNull(application, "application");
         this.range = Objects.requireNonNull(range, "range");
-        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.agentHistogramList = new AgentHistogramList();
     }
 
     public AgentTimeHistogram(Application application, Range range, AgentHistogramList agentHistogramList) {
         this.application = Objects.requireNonNull(application, "application");
         this.range = Objects.requireNonNull(range, "range");
-        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
@@ -68,7 +66,7 @@ public class AgentTimeHistogram {
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
             result.add(model);
         }
-        result.sort(Comparator.comparing(AgentResponseTimeViewModel::getAgentName));
+        result.sort(AGENT_NAME_COMPARATOR);
         return result;
     }
 

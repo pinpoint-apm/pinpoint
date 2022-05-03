@@ -30,13 +30,13 @@ import java.lang.reflect.Method;
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    private boolean recordResult = false;
-    private boolean recordArgs = false;
-    private boolean recordDsl = false;
-    private boolean recordResponseHandler = false;
-    private boolean recordESVersion = false;
+    private final boolean recordResult;
+    private final boolean recordArgs;
+    private final boolean recordDsl;
+    private final boolean recordResponseHandler;
+    private final boolean recordESVersion;
     private volatile Method getClusterVersionInfo;
-    private int maxDslSize;
+    private final int maxDslSize;
 
     public ElasticsearchExecutorOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);

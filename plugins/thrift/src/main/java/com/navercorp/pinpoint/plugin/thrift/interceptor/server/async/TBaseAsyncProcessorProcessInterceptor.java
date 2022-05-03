@@ -73,13 +73,9 @@ public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
 
-    public TBaseAsyncProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+    public TBaseAsyncProcessorProcessInterceptor(InterceptorScope scope) {
         this.scope = scope;
     }
 

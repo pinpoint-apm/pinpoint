@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import java.util.Objects;
@@ -29,12 +28,10 @@ import java.util.Objects;
  */
 public class ChannelOperationsChannelMethodInterceptor implements AroundInterceptor {
 
-    private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
 
-    public ChannelOperationsChannelMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public ChannelOperationsChannelMethodInterceptor(TraceContext traceContext) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override

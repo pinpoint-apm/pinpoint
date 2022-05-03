@@ -18,21 +18,18 @@ package com.navercorp.pinpoint.rpc;
 
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class UnsupportOperationMessageListener implements MessageListener {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final UnsupportOperationMessageListener INSTANCE = new UnsupportOperationMessageListener();
 
     @Override
     public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        StringBuilder errorMessage = new StringBuilder();
+        StringBuilder errorMessage = new StringBuilder(64);
         errorMessage.append("Unsupported handleSend method");
         errorMessage.append("packet:").append(sendPacket);
         errorMessage.append(", remote::").append(pinpointSocket.getRemoteAddress());
@@ -42,7 +39,7 @@ public class UnsupportOperationMessageListener implements MessageListener {
 
     @Override
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        StringBuilder errorMessage = new StringBuilder();
+        StringBuilder errorMessage = new StringBuilder(64);
         errorMessage.append("Unsupported handleRequest method");
         errorMessage.append("packet:").append(requestPacket);
         errorMessage.append(", remote::").append(pinpointSocket.getRemoteAddress());

@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.paho.mqtt.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.paho.mqtt.PahoMqttPluginConfig;
@@ -34,7 +37,6 @@ import java.util.List;
  */
 public class MqttV5ClientPublishInterceptor extends MqttClientPublishInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
     public MqttV5ClientPublishInterceptor(TraceContext traceContext, MethodDescriptor descriptor, PahoMqttPluginConfig config) {
         super(traceContext, descriptor, config);

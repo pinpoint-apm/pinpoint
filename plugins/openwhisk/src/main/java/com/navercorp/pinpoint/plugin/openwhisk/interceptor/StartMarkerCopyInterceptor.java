@@ -16,24 +16,15 @@
 package com.navercorp.pinpoint.plugin.openwhisk.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.openwhisk.accessor.PinpointTraceAccessor;
 
 /**
  * @author Seonghyun Oh
  */
 public class StartMarkerCopyInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
-
-    public StartMarkerCopyInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
+    public StartMarkerCopyInterceptor() {
     }
 
     @Override
