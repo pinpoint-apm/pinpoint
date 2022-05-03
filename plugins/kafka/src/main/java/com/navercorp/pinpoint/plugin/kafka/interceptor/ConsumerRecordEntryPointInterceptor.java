@@ -52,14 +52,14 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     protected final int parameterIndex;
 
-    private static boolean isHeaderRecorded;
+    private final TraceFactoryProvider traceFactoryProvider;
 
     public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
         super(traceContext, methodDescriptor, SCOPE_NAME);
         traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
         this.parameterIndex = parameterIndex;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
-        this.isHeaderRecorded = config.isHeaderRecorded();
+        this.traceFactoryProvider = new TraceFactoryProvider(config.isHeaderRecorded());
     }
 
     @Override
@@ -108,7 +108,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
     private Trace createTrace(ConsumerRecord consumerRecord) {
         TraceFactoryProvider.TraceFactory traceFactory = traceFactoryReference.get();
         if (traceFactory == null) {
-            traceFactory = TraceFactoryProvider.get(consumerRecord);
+            traceFactory = traceFactoryProvider.get(consumerRecord);
             traceFactoryReference.compareAndSet(null, traceFactory);
         }
         return traceFactory.createTrace(traceContext, consumerRecord);
@@ -116,7 +116,13 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     private static class TraceFactoryProvider {
 
-        private static TraceFactory get(Object object) {
+        private final boolean isHeaderRecorded;
+
+        public TraceFactoryProvider(boolean isHeaderRecorded) {
+            this.isHeaderRecorded = isHeaderRecorded;
+        }
+
+        private TraceFactory get(Object object) {
             if (KafkaClientUtils.supportHeaders(object.getClass())) {
                 return new SupportContinueTraceFactory(isHeaderRecorded);
             } else {
