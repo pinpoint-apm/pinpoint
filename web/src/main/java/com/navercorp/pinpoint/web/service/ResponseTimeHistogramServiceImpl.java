@@ -79,13 +79,11 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     private final MapResponseDao mapResponseDao;
 
-    private final ApplicationFactory applicationFactory;
 
-    public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService, MapResponseDao mapResponseDao, ApplicationFactory applicationFactory) {
+    public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService, MapResponseDao mapResponseDao) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
-        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
     }
 
     private ServerInstanceListFactory createServerInstanceListFactory(ResponseTimeHistogramServiceOption option) {

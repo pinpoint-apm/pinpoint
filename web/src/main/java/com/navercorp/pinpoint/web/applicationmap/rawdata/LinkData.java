@@ -21,9 +21,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import java.util.Objects;
 
 /**
@@ -33,7 +30,6 @@ import java.util.Objects;
  * @author emeroad
  */
 public class LinkData {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Application fromApplication;
     private final Application toApplication;

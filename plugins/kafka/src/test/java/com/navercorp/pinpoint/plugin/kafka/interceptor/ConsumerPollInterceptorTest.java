@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.junit.Test;
@@ -18,12 +16,6 @@ import static org.mockito.Mockito.verify;
 public class ConsumerPollInterceptorTest {
 
     @Mock
-    private TraceContext traceContext;
-
-    @Mock
-    private MethodDescriptor descriptor;
-
-    @Mock
     private RemoteAddressFieldAccessor addressFieldAccessor;
 
     @Mock
@@ -35,7 +27,7 @@ public class ConsumerPollInterceptorTest {
 
     @Test
     public void before() {
-        ConsumerPollInterceptor interceptor = new ConsumerPollInterceptor(traceContext, descriptor);
+        ConsumerPollInterceptor interceptor = new ConsumerPollInterceptor();
         Object target = new Object();
         Object[] args = new Object[]{};
         interceptor.before(target, args);
@@ -48,7 +40,7 @@ public class ConsumerPollInterceptorTest {
         doReturn(iterator).when(consumerRecords).iterator();
         doReturn(false).when(iterator).hasNext();
 
-        ConsumerPollInterceptor interceptor = new ConsumerPollInterceptor(traceContext, descriptor);
+        ConsumerPollInterceptor interceptor = new ConsumerPollInterceptor();
         interceptor.after(addressFieldAccessor, new Object[]{}, consumerRecords, null);
 
         verify(addressFieldAccessor)._$PINPOINT$_getRemoteAddress();

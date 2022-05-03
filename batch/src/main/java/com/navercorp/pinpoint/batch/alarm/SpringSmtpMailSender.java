@@ -34,8 +34,6 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 public class SpringSmtpMailSender implements MailSender {
-
-    private static final InternetAddress[] EMPTY_RECEIVERS = new InternetAddress[0];
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final UserGroupService userGroupService;

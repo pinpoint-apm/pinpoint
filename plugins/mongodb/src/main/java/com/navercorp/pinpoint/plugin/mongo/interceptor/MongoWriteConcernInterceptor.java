@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -38,12 +36,8 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
 
-    public MongoWriteConcernInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+    public MongoWriteConcernInterceptor() {
     }
 
     @Override

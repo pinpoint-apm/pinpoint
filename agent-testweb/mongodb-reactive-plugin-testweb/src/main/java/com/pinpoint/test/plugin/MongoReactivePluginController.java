@@ -17,6 +17,7 @@
 package com.pinpoint.test.plugin;
 
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -41,12 +42,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @RestController
 public class MongoReactivePluginController {
-    private int port = 27017;
+    private static final int PORT = 27017;
     private MongodExecutable mongodExecutable;
     private MongodProcess mongod;
 
@@ -56,7 +58,7 @@ public class MongoReactivePluginController {
 
         MongodConfig mongodConfig = MongodConfig.builder()
                 .version(Version.Main.PRODUCTION)
-                .net(new Net(port, Network.localhostIsIPv6()))
+                .net(new Net(PORT, Network.localhostIsIPv6()))
                 .build();
 
         this.mongodExecutable = starter.prepare(mongodConfig);
@@ -87,7 +89,7 @@ public class MongoReactivePluginController {
                 .append("uom", "cm");
         canvas.put("size", size);
 
-        ObservableSubscriber sub = new ObservableSubscriber();
+        ObservableSubscriber<InsertOneResult> sub = new ObservableSubscriber<>();
         collection.insertOne(canvas).subscribe(sub);
         sub.waitForThenCancel(1);
 
@@ -95,7 +97,7 @@ public class MongoReactivePluginController {
     }
 
     private MongoDatabase getDatabase() {
-        String uri = "mongodb://localhost:" + port;
+        String uri = "mongodb://localhost:" + PORT;
         MongoClient mongo = MongoClients.create(uri);
         MongoDatabase db = mongo.getDatabase("test");
 
@@ -103,12 +105,14 @@ public class MongoReactivePluginController {
     }
 
     private static <T> void subscribeAndAwait(final Publisher<T> publisher) throws Throwable {
-        ObservableSubscriber<T> subscriber = new ObservableSubscriber<T>(false);
+        ObservableSubscriber<T> subscriber = new ObservableSubscriber<>(false);
         publisher.subscribe(subscriber);
         subscriber.await();
     }
 
     private static class ObservableSubscriber<T> implements Subscriber<T> {
+        private static final AtomicIntegerFieldUpdater<ObservableSubscriber> COUNT_UPDATER
+                = AtomicIntegerFieldUpdater.newUpdater(ObservableSubscriber.class, "counter");
         private final CountDownLatch latch;
         private final List<T> results = new ArrayList<T>();
         private final boolean printResults;
@@ -139,8 +143,8 @@ public class MongoReactivePluginController {
             if (printResults) {
                 System.out.println(t);
             }
-            counter++;
-            if (counter >= minimumNumberOfResults) {
+            final int i = COUNT_UPDATER.incrementAndGet(this);
+            if (i >= minimumNumberOfResults) {
                 latch.countDown();
             }
         }
@@ -172,7 +176,7 @@ public class MongoReactivePluginController {
 
         public void waitForThenCancel(final int minimumNumberOfResults) throws Throwable {
             this.minimumNumberOfResults = minimumNumberOfResults;
-            if (minimumNumberOfResults > counter) {
+            if (minimumNumberOfResults > COUNT_UPDATER.get(this)) {
                 await();
             }
             subscription.cancel();

@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,8 +38,6 @@ import java.util.Objects;
  * @author emeroad
  */
 public class NodeHistogram {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Application application;
 

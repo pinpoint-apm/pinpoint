@@ -33,14 +33,12 @@ public class J9BootLoader implements BootLoader {
     private static final ClassLoader bootstrapClassLoader ;
     private static final Method findResource;
     private static final Method findResources;
-    private static final boolean isJ9VM;
 
     static {
         bootstrapClassLoader = findBootstrapClassLoader();
         final Class<?> abstractClassLoader = getAbstractClassLoader("com.ibm.oti.vm.AbstractClassLoader");
         findResource = getMethod(abstractClassLoader, "findResource", String.class);
         findResources = getMethod(abstractClassLoader, "findResources", String.class);
-        isJ9VM = true;
     }
 
     private static ClassLoader findBootstrapClassLoader() {

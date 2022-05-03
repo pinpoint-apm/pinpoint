@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -37,13 +36,11 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
 
     private final RequestTraceWriter<HttpHeaders> requestTraceWriter;
 
-    public BodyInserterRequestBuilderConstructorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public BodyInserterRequestBuilderConstructorInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
 
         final ClientHeaderAdaptor clientHeaderAdaptor = new HttpHeadersClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);

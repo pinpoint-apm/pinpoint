@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -31,12 +29,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public class SubscribeOrReturnMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
 
-    public SubscribeOrReturnMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
+    public SubscribeOrReturnMethodInterceptor() {
     }
 
     @Override

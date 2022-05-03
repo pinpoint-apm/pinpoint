@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
@@ -29,8 +27,6 @@ import java.util.List;
  * @author Taejin Koo
  */
 public final class PinpointClassLoaderFactory {
-
-    private static final PLogger LOGGER = PLoggerFactory.getLogger(PinpointClassLoaderFactory.class);
 
     private static final ClassLoaderFactory CLASS_LOADER_FACTORY = createClassLoaderFactory();
 

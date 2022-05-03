@@ -48,7 +48,7 @@ public class ApplicationMetricServiceConfiguration {
     }
 
     @Bean
-    public ApplicationStatChartService<ApplicationMemoryChart> ApplicationMemoryService (ApplicationMetricDao<AggreJoinMemoryBo> metricDao) {
+    public ApplicationStatChartService<ApplicationMemoryChart> getApplicationMemoryService(ApplicationMetricDao<AggreJoinMemoryBo> metricDao) {
         return new DefaultApplicationStatChartService<>(metricDao, ApplicationMemoryChart::new);
     }
 

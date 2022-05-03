@@ -38,7 +38,6 @@ import java.util.Objects;
 public class ConfigController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final static String SSO_USER = "SSO_USER";
 
     private final ConfigProperties webProperties;
 

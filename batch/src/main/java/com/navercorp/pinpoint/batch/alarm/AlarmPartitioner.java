@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.common.DefaultDivider;
 import com.navercorp.pinpoint.batch.common.Divider;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,8 +29,6 @@ import java.util.Optional;
  * @author minwoo.jung
  */
 public class AlarmPartitioner implements Partitioner {
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
     private static final String PARTITION_NAME_PREFIX = "alarm_partition_number_";
     private static final String BATCH_NAME = "alarm_batch";
 
