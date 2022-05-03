@@ -21,12 +21,10 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilterChain;
-import com.navercorp.pinpoint.web.vo.AgentInstallationInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.response.CodeResult;
@@ -194,17 +192,5 @@ public class AgentInfoController {
 
         return CodeResult.ok("OK");
     }
-
-    @RequestMapping(value = "/getAgentInstallationInfo")
-    public ResponseEntity<CodeResult> getAgentDownloadUrl() {
-        AgentDownloadInfo latestStableAgentDownloadInfo = agentInfoService.getLatestStableAgentDownloadInfo();
-        if (latestStableAgentDownloadInfo != null) {
-            return CodeResult.ok(new AgentInstallationInfo(latestStableAgentDownloadInfo));
-        }
-
-        return CodeResult.serverError("can't find suitable download url");
-    }
-
-
 
 }
