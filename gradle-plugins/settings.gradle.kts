@@ -1,1 +1,1 @@
-rootProject.name="gradle-plugins"
+rootProject.name="pinpoint-gradle-plugins"
