@@ -64,6 +64,4 @@ public interface AgentInfoService {
 
     boolean isExistAgentId(String agentId);
 
-    AgentDownloadInfo getLatestStableAgentDownloadInfo();
-
 }
