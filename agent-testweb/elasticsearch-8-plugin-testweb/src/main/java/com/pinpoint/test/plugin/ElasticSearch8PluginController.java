@@ -25,45 +25,24 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
-import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
+import java.util.Objects;
 
 @RestController
 public class ElasticSearch8PluginController {
 
-    public static EmbeddedElastic embeddedElastic;
+    private final EmbeddedElasticServer elasticServer;
 
-    private static final String ELASTICSEARCH_ADDRESS = "127.0.0.1";
-    private static final int PORT = 9200;
-
-    @PostConstruct
-    private void start() throws Exception {
-        embeddedElastic = EmbeddedElastic.builder()
-                .withElasticVersion("6.8.0")
-                .withSetting(PopularProperties.HTTP_PORT, PORT)
-                .withEsJavaOpts("-Xms128m -Xmx512m")
-                .withStartTimeout(2, MINUTES)
-                .build()
-                .start();
-    }
-
-    @PreDestroy
-    private void shutdown() {
-        if (embeddedElastic != null)
-            embeddedElastic.stop();
+    public ElasticSearch8PluginController(EmbeddedElasticServer elasticServer) {
+        this.elasticServer = Objects.requireNonNull(elasticServer, "elasticServer");
     }
 
     @GetMapping("/index")
     public Mono<String> index() throws Exception {
         // Create the low-level client
         try (RestClient restClient = RestClient.builder(
-                new HttpHost(ELASTICSEARCH_ADDRESS, PORT)).build()) {
+                new HttpHost(elasticServer.getAddress(), elasticServer.getPort())).build()) {
 
             // Create the transport with a Jackson mapper
             ElasticsearchTransport transport = new RestClientTransport(
