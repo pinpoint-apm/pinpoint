@@ -24,46 +24,25 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
-import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RestController
 public class ElasticSearchPluginController {
 
-    public static EmbeddedElastic embeddedElastic;
+    private final EmbeddedElasticServer elasticServer;
 
-    private static final String ELASTICSEARCH_ADDRESS = "127.0.0.1";
-    private static final int PORT = 9200;
-
-    @PostConstruct
-    private void start() throws Exception {
-        embeddedElastic = EmbeddedElastic.builder()
-                .withElasticVersion("6.8.0")
-                .withSetting(PopularProperties.HTTP_PORT, PORT)
-                .withEsJavaOpts("-Xms128m -Xmx512m")
-                .withStartTimeout(2, MINUTES)
-                .build()
-                .start();
-    }
-
-    @PreDestroy
-    private void shutdown() {
-        if (embeddedElastic != null)
-            embeddedElastic.stop();
+    public ElasticSearchPluginController(EmbeddedElasticServer elasticServer) {
+        this.elasticServer = Objects.requireNonNull(elasticServer, "elasticServer");
     }
 
     @GetMapping("/index")
     public Mono<String> index() throws Exception {
         try (RestHighLevelClient restHighLevelClient = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost(ELASTICSEARCH_ADDRESS, PORT, "http")))) {
+                        new HttpHost(elasticServer.getAddress(), elasticServer.getPort(), "http")))) {
 
             IndexRequest indexRequest = new IndexRequest("post2");
             indexRequest.id("1");

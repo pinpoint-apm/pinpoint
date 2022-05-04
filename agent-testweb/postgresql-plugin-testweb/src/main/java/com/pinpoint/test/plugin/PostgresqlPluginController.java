@@ -16,49 +16,28 @@
 
 package com.pinpoint.test.plugin;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import static ru.yandex.qatools.embed.postgresql.distribution.Version.Main.V9_6;
+import java.util.Objects;
 
 @RestController
 public class PostgresqlPluginController {
-    private static EmbeddedPostgres postgres;
-    private static String url;
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @PostConstruct
-    public static void start() throws Exception {
-        // starting Postgres
-        postgres = new EmbeddedPostgres(V9_6);
-        // predefined data directory
-        // final EmbeddedPostgres postgres = new EmbeddedPostgres(V9_6, "/path/to/predefined/data/directory");
-        url = postgres.start("localhost", 5432, "dbName", "userName", "password");
+    private final PostgresqlServer postgresqlServer;
 
-        final Connection conn = DriverManager.getConnection(url);
-        Statement createStatement = conn.createStatement();
-        createStatement.execute("CREATE TABLE test (name VARCHAR(45), age int);");
-        createStatement.execute("CREATE TABLE member (id INT PRIMARY KEY, name CHAR(20));");
-
-        createStatement.close();
-        conn.close();
-    }
-
-    @PreDestroy
-    public static void shutdown() throws Exception {
-        if (postgres != null) {
-            postgres.close();
-        }
+    public PostgresqlPluginController(PostgresqlServer postgresqlServer) {
+        this.postgresqlServer = Objects.requireNonNull(postgresqlServer, "postgresql");
     }
 
     @GetMapping("/select")
@@ -70,25 +49,27 @@ public class PostgresqlPluginController {
         String selectQuery = "SELECT * FROM test";
         String deleteQuery = "DELETE FROM test";
 
-        final Connection conn = DriverManager.getConnection(url);
+        try (Connection conn = DriverManager.getConnection(postgresqlServer.getUrl())) {
+            // performing some assertions
+            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                insert.setString(1, name);
+                insert.setInt(2, age);
+                insert.execute();
+            }
 
-        // performing some assertions
-        PreparedStatement insertPreparedStatement = conn.prepareStatement(insertQuery);
-        insertPreparedStatement.setString(1, name);
-        insertPreparedStatement.setInt(2, age);
-        insertPreparedStatement.execute();
-        insertPreparedStatement.close();
+            try (Statement select = conn.createStatement();
+                 ResultSet rs = select.executeQuery(selectQuery)) {
+                while (rs.next()) {
+                    String rsName = rs.getString(1);
+                    int rsAge = rs.getInt(2);
+                    logger.info("name:{} age:{}", rsName, rsAge);
+                }
+            }
 
-        Statement selectStatement = conn.createStatement();
-        selectStatement.executeQuery(selectQuery);
-        selectStatement.close();
-
-        Statement deleteStatement = conn.createStatement();
-        deleteStatement.executeUpdate(deleteQuery, Statement.NO_GENERATED_KEYS);
-        deleteStatement.close();
-
-        conn.close();
-
+            try (Statement delete = conn.createStatement()) {
+                delete.executeUpdate(deleteQuery, Statement.NO_GENERATED_KEYS);
+            }
+        }
         return Mono.just("OK");
     }
 }
