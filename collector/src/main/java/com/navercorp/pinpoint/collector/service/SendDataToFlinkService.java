@@ -16,9 +16,11 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import org.apache.thrift.TBase;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,14 +29,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author minwoo.jung
  */
-public abstract class SendDataToFlinkService {
+@Component
+public class SendDataToFlinkService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private volatile List<FlinkTcpDataSender> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
+    private volatile List<TcpDataSender<TBase<?, ?>>> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
     private final AtomicInteger callCount = new AtomicInteger(1);
 
     protected void sendData(TBase<?, ?> data) {
-        FlinkTcpDataSender tcpDataSender = roundRobinTcpDataSender();
+        TcpDataSender<TBase<?, ?>> tcpDataSender = roundRobinTcpDataSender();
         if (tcpDataSender == null) {
             logger.warn("not send flink server. Because FlinkTcpDataSender is null.");
             return;
@@ -50,7 +53,7 @@ public abstract class SendDataToFlinkService {
         }
     }
 
-    private FlinkTcpDataSender roundRobinTcpDataSender() {
+    private TcpDataSender<TBase<?, ?>> roundRobinTcpDataSender() {
         if (flinkTcpDataSenderList.isEmpty()) {
             return null;
         }
