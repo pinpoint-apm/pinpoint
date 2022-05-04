@@ -28,4 +28,4 @@ tasks.publish {
     dependsOn("check")
 }
 
-group = "com.navercorp.pinpoint.gradle.plugins"
+group = "com.navercorp.pinpoint"
