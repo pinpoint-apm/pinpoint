@@ -22,13 +22,6 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.runtime.Network;
 import org.bson.Document;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -41,6 +34,7 @@ import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -48,30 +42,23 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 @RestController
 public class MongoReactivePluginController {
-    private static final int PORT = 27017;
-    private MongodExecutable mongodExecutable;
-    private MongodProcess mongod;
+    private final MongoServer mongoServer;
+
+    private MongoClient mongoClient;
+
+    public MongoReactivePluginController(MongoServer mongoServer) {
+        this.mongoServer = Objects.requireNonNull(mongoServer, "mongoServer");
+    }
 
     @PostConstruct
-    private void start() throws Exception {
-        MongodStarter starter = MongodStarter.getDefaultInstance();
-
-        MongodConfig mongodConfig = MongodConfig.builder()
-                .version(Version.Main.PRODUCTION)
-                .net(new Net(PORT, Network.localhostIsIPv6()))
-                .build();
-
-        this.mongodExecutable = starter.prepare(mongodConfig);
-        this.mongod = mongodExecutable.start();
+    private void start() {
+        this.mongoClient = MongoClients.create(mongoServer.getUri());
     }
 
     @PreDestroy
     private void shutdown() {
-        if (mongod != null) {
-            mongod.stop();
-        }
-        if (mongodExecutable != null) {
-            mongodExecutable.stop();
+        if (mongoClient != null) {
+            mongoClient.close();
         }
     }
 
@@ -97,15 +84,12 @@ public class MongoReactivePluginController {
     }
 
     private MongoDatabase getDatabase() {
-        String uri = "mongodb://localhost:" + PORT;
-        MongoClient mongo = MongoClients.create(uri);
-        MongoDatabase db = mongo.getDatabase("test");
-
+        MongoDatabase db = this.mongoClient.getDatabase("test");
         return db;
     }
 
     private static <T> void subscribeAndAwait(final Publisher<T> publisher) throws Throwable {
-        ObservableSubscriber<T> subscriber = new ObservableSubscriber<>(false);
+        ObservableSubscriber<T> subscriber = new ObservableSubscriber<T>(false);
         publisher.subscribe(subscriber);
         subscriber.await();
     }
