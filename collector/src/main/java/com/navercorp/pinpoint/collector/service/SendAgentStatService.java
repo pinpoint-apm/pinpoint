@@ -27,12 +27,14 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 @Service("sendAgentStatService")
-public class SendAgentStatService extends SendDataToFlinkService implements AgentStatService {
+public class SendAgentStatService implements AgentStatService {
     private final boolean flinkClusterEnable;
+    private final SendDataToFlinkService flinkService;
     private final TFAgentStatBatchMapper tFAgentStatBatchMapper;
 
-    public SendAgentStatService(FlinkConfiguration config, TFAgentStatBatchMapper tFAgentStatBatchMapper) {
+    public SendAgentStatService(FlinkConfiguration config, SendDataToFlinkService flinkService, TFAgentStatBatchMapper tFAgentStatBatchMapper) {
         this.flinkClusterEnable = config.isFlinkClusterEnable();
+        this.flinkService = Objects.requireNonNull(flinkService, "flinkService");
         this.tFAgentStatBatchMapper = Objects.requireNonNull(tFAgentStatBatchMapper, "tFAgentStatBatchMapper");
     }
 
@@ -43,6 +45,6 @@ public class SendAgentStatService extends SendDataToFlinkService implements Agen
         }
 
         TFAgentStatBatch tFAgentStatBatch = tFAgentStatBatchMapper.map(agentStatBo);
-        sendData(tFAgentStatBatch);
+        flinkService.sendData(tFAgentStatBatch);
     }
 }

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.util.Address;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,10 +32,10 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class TcpDataSenderRepository {
     private final ConcurrentMap<Address, SenderContext> clusterConnectionRepository = new ConcurrentHashMap<>();
-    private final SendDataToFlinkService sendDataToFlinkService;
+    private final SendDataToFlinkService flinkService;
 
-    TcpDataSenderRepository(SendDataToFlinkService sendDataToFlinkService) {
-        this.sendDataToFlinkService = sendDataToFlinkService;
+    public TcpDataSenderRepository(SendDataToFlinkService flinkService) {
+        this.flinkService = Objects.requireNonNull(flinkService, "flinkService");
     }
 
     public SenderContext putIfAbsent(Address address, SenderContext senderContext) {
@@ -57,7 +58,7 @@ public class TcpDataSenderRepository {
             tcpDataSenderList.add(senderContext.getFlinkTcpDataSender());
         }
 
-        sendDataToFlinkService.replaceFlinkTcpDataSenderList(tcpDataSenderList);
+        flinkService.replaceFlinkTcpDataSenderList(tcpDataSenderList);
     }
 
     public boolean containsKey(Address address) {
