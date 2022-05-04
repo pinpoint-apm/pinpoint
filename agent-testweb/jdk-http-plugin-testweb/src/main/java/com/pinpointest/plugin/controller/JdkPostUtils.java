@@ -23,17 +23,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class JdkPostUtils {
+    private static final String CHAR_SET = StandardCharsets.UTF_8.name();
+
     public static HttpURLConnection getHttpURLPostConnection(String postUrl) throws Exception {
-        HttpURLConnection http = null;
         URL url = new URL(postUrl);
-        http = (HttpURLConnection) url.openConnection();
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
         http.setDoInput(true);
         http.setDoOutput(true);
         http.setAllowUserInteraction(true);
-        http.setRequestMethod("POST");    //POST
-        http.setRequestProperty("Content-type", "application/json");    //헤더셋팅
+        http.setRequestMethod("POST");
+        http.setRequestProperty("Content-type", "application/json");
 
         return http;
     }
@@ -42,31 +44,24 @@ public class JdkPostUtils {
         HttpURLConnection http = null;
         OutputStream writer = null;
         InputStream reader = null;
-        String jsonResult = "";
+        String jsonResult;
         try {
-            String encodeType = "UTF-8";
-            String defaultErrorMsg = "connection error";
             http = getHttpURLPostConnection(url);
-
             //Set Parameter
-            StringBuffer postSb = new StringBuffer();
+            StringBuilder postSb = new StringBuilder();
             postSb.append("{foo:bar}");
             writer = http.getOutputStream();
-            IOUtils.write(postSb, writer, encodeType);
+            IOUtils.write(postSb, writer, CHAR_SET);
             IOUtils.closeQuietly(writer);
             http.connect();
             reader = http.getInputStream();
-            jsonResult = IOUtils.toString(reader, encodeType);
+            jsonResult = IOUtils.toString(reader, CHAR_SET);
         } finally {
             if (http != null) {
                 http.disconnect();
             }
-            if (reader != null) {
-                reader.close();
-            }
-            if (writer != null) {
-                writer.close();
-            }
+            IOUtils.close(reader);
+            IOUtils.close(writer);
         }
 
         return jsonResult;

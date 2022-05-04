@@ -110,9 +110,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                     streamChannel = connect0(agentInfo);
                     return streamChannel;
                 } catch (StreamException streamException) {
-                    if (streamChannel != null) {
-                        streamChannel.close(streamException.getStreamCode());
-                    }
+                    closeStreamChannel(streamChannel, streamException.getStreamCode());
 
                     StreamCode streamCode = streamException.getStreamCode();
                     if (streamCode == StreamCode.CONNECTION_NOT_FOUND) {
@@ -120,9 +118,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                     }
                     setDefaultErrorMessage(streamCode.name());
                 } catch (TException exception) {
-                    if (streamChannel != null) {
-                        streamChannel.close(StreamCode.TYPE_UNKNOWN);
-                    }
+                    closeStreamChannel(streamChannel, StreamCode.TYPE_UNKNOWN);
                     setDefaultErrorMessage(TRouteResult.NOT_SUPPORTED_REQUEST.name());
                 }
             }
@@ -172,7 +168,6 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                     closeStreamChannel();
                 } catch (Exception ignored) {
                 }
-                return;
             }
         }
     }
@@ -184,22 +179,23 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 streamChannel = connect0(agentInfo);
                 return active0(streamChannel, 3000);
             } catch (StreamException streamException) {
-                if (streamChannel != null) {
-                    streamChannel.close(streamException.getStreamCode());
-                }
-
+                closeStreamChannel(streamChannel, streamException.getStreamCode());
                 StreamCode streamCode = streamException.getStreamCode();
                 if (streamCode == StreamCode.CONNECTION_NOT_FOUND) {
                     workerActiveManager.addReactiveWorker(agentInfo);
                 }
                 setDefaultErrorMessage(streamCode.name());
             } catch (TException exception) {
-                if (streamChannel != null) {
-                    streamChannel.close(StreamCode.TYPE_UNKNOWN);
-                }
+                closeStreamChannel(streamChannel, StreamCode.TYPE_UNKNOWN);
                 setDefaultErrorMessage(TRouteResult.NOT_SUPPORTED_REQUEST.name());
             }
             return false;
+        }
+    }
+
+    private void closeStreamChannel(StreamChannel streamChannel, StreamCode streamCode) {
+        if (streamChannel != null) {
+            streamChannel.close(streamCode);
         }
     }
 
