@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class JoinDataSourceListBoTest {
         assertEquals(joinDataSourceListBo.getId(), id);
         assertEquals(joinDataSourceListBo.getTimestamp(), currentTime);
         List<JoinDataSourceBo> joinDataSourceBoList = joinDataSourceListBo.getJoinDataSourceBoList();
-        Collections.sort(joinDataSourceBoList, Comparator.comparingInt(JoinDataSourceBo::getServiceTypeCode));
+        joinDataSourceBoList.sort(Comparator.comparingInt(JoinDataSourceBo::getServiceTypeCode));
 
         assertEquals(joinDataSourceBoList.size(), 5);
 

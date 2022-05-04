@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
-import java.util.Objects;
-
 /**
  * @author Roy Kim
  */

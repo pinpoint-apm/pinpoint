@@ -85,9 +85,7 @@ public class TableMultiplexerAsyncOperation implements HBaseAsyncOperation {
 
     @Override
     public Long getOpsFailedCount() {
-        HTableMultiplexer.HTableMultiplexerStatus status = hTableMultiplexer.getHTableMultiplexerStatus();
-        status.getTotalBufferedCounter();
-        return status.getTotalFailedCounter();
+        return hTableMultiplexer.getHTableMultiplexerStatus().getTotalFailedCounter();
     }
 
     @Override
