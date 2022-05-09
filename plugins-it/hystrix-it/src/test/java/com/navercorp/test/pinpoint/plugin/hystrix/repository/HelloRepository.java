@@ -17,6 +17,8 @@
 package com.navercorp.test.pinpoint.plugin.hystrix.repository;
 
 import com.navercorp.pinpoint.plugin.hystrix.HystrixTestHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -24,21 +26,21 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public class HelloRepository {
-
+    private final Logger logger = LogManager.getLogger(this.getClass());
     public String hello(String name) {
-        System.out.println("name : " + name);
+        logger.info("name:{}", name);
         return HystrixTestHelper.sayHello(name);
     }
 
     public String hello(String name, Exception exception) throws Exception {
         Objects.requireNonNull(exception, "exception");
 
-        System.out.println("name : " + name + ", with exception : " + exception);
+        logger.info("name:{}", name, exception);
         throw exception;
     }
 
     public String hello(String name, long delayMs) {
-        System.out.println("name : " + name + ", with delay : " + delayMs + "ms");
+        logger.info("name:{} with delay : {}ms", name, delayMs);
         try {
             Thread.sleep(delayMs);
         } catch (InterruptedException e) {

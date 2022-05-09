@@ -25,55 +25,61 @@ import org.junit.Test;
  * @author poap
  */
 public class NumberUtilsTest {
-	private final String notNumber = "H3110 W0r1d";
+    private final String notNumber = "H3110 W0r1d";
 
-	@Test
-	public void parseLong() {
-		long defaultLong = new Random().nextLong();
-		long randomLong = new Random().nextLong();
+    @Test
+    public void parseLong() {
+        assertLong(Long.MIN_VALUE, 0);
+        assertLong(0, 0);
+        assertLong(Long.MAX_VALUE, 0);
+    }
 
-		Assert.assertEquals(NumberUtils.parseLong(null, defaultLong), defaultLong);
-		Assert.assertEquals(NumberUtils.parseLong(String.valueOf(randomLong), defaultLong), randomLong);
-		Assert.assertEquals(NumberUtils.parseLong(notNumber, defaultLong), defaultLong);
-	}
-	
-	@Test
-	public void parseInteger() {
-		int defaultInt = new Random().nextInt();
-		int randomInt = new Random().nextInt();
+    private void assertLong(long longValue, long defaultLong) {
+        Assert.assertEquals(NumberUtils.parseLong(null, defaultLong), defaultLong);
+        Assert.assertEquals(NumberUtils.parseLong(String.valueOf(longValue), defaultLong), longValue);
+        Assert.assertEquals(NumberUtils.parseLong(notNumber, defaultLong), defaultLong);
+    }
 
-		Assert.assertEquals(NumberUtils.parseLong(null, defaultInt), defaultInt);
-		Assert.assertEquals(NumberUtils.parseInteger(String.valueOf(randomInt), defaultInt), randomInt);
-		Assert.assertEquals(NumberUtils.parseLong(notNumber, defaultInt), defaultInt);
-	}
-	
-	@Test
-	public void parseShort() {
-		short defaultShort = 0;
+    @Test
+    public void parseInteger() {
+        assertInteger(Integer.MIN_VALUE, 0);
+        assertInteger(0, 0);
+        assertInteger(Integer.MAX_VALUE, 0);
+    }
 
-		for(short s=Short.MIN_VALUE; s!=Short.MAX_VALUE; s++) {
-			Assert.assertEquals(NumberUtils.parseShort(null, s), s);
-			Assert.assertEquals(NumberUtils.parseShort(String.valueOf(s), defaultShort), s);
-			Assert.assertEquals(NumberUtils.parseShort(notNumber, s), s);
-		}
+    private void assertInteger(int integerValue, int defaultInt) {
+        Assert.assertEquals(NumberUtils.parseInteger(null, defaultInt), defaultInt);
+        Assert.assertEquals(NumberUtils.parseInteger(String.valueOf(integerValue), defaultInt), integerValue);
+        Assert.assertEquals(NumberUtils.parseInteger(notNumber, defaultInt), defaultInt);
+    }
 
-		Assert.assertEquals(NumberUtils.parseShort(null, Short.MAX_VALUE), Short.MAX_VALUE);
-		Assert.assertEquals(NumberUtils.parseShort(String.valueOf(Short.MAX_VALUE), defaultShort), Short.MAX_VALUE);
-		Assert.assertEquals(NumberUtils.parseShort(notNumber, Short.MAX_VALUE), Short.MAX_VALUE);
-	}
-	
-	@Test
-	public void toInteger() {
-		short oneShort = 1;
-		int oneInteger = 1;
-		long oneLong = 1;
-		String oneString = "1";
+    @Test
+    public void parseShort() {
+        short defaultShort = 0;
 
-		Assert.assertNull(NumberUtils.toInteger(null));
-		Assert.assertNull(NumberUtils.toInteger(oneShort));
-		Assert.assertEquals(NumberUtils.toInteger(oneInteger), (Integer)1);
-		Assert.assertNull(NumberUtils.toInteger(oneLong));
-		Assert.assertNull(NumberUtils.toInteger(oneString));
-		Assert.assertNull(NumberUtils.toInteger(notNumber));
-	}
+        assertShort(Short.MIN_VALUE, defaultShort);
+        assertShort((short) 0, defaultShort);
+        assertShort(Short.MAX_VALUE, defaultShort);
+    }
+
+    private void assertShort(short shortValue, short defaultShort) {
+        Assert.assertEquals(NumberUtils.parseShort(null, shortValue), shortValue);
+        Assert.assertEquals(NumberUtils.parseShort(String.valueOf(shortValue), defaultShort), shortValue);
+        Assert.assertEquals(NumberUtils.parseShort(notNumber, shortValue), shortValue);
+    }
+
+    @Test
+    public void toInteger() {
+        short oneShort = 1;
+        int oneInteger = 1;
+        long oneLong = 1;
+        String oneString = "1";
+
+        Assert.assertNull(NumberUtils.toInteger(null));
+        Assert.assertNull(NumberUtils.toInteger(oneShort));
+        Assert.assertEquals(NumberUtils.toInteger(oneInteger), (Integer) 1);
+        Assert.assertNull(NumberUtils.toInteger(oneLong));
+        Assert.assertNull(NumberUtils.toInteger(oneString));
+        Assert.assertNull(NumberUtils.toInteger(notNumber));
+    }
 }

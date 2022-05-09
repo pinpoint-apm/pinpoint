@@ -45,7 +45,7 @@ public class TestAgentStatFactory {
     }
 
     public static List<JvmGcBo> createJvmGcBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
-        List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
+        List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
         List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> heapUseds = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
@@ -475,7 +475,7 @@ public class TestAgentStatFactory {
         List<EachUriStatBo> eachUriStatBoList = createEachUriStatBoList(numValues);
         agentUriStatBo.setEachUriStatBoList(eachUriStatBoList);
 
-        return Arrays.asList(agentUriStatBo);
+        return List.of(agentUriStatBo);
     }
 
     private static List<EachUriStatBo> createEachUriStatBoList(int numValues) {
@@ -560,7 +560,7 @@ public class TestAgentStatFactory {
     }
 
     private static List<Double> createRandomPercentageValues(int numValues) {
-        List<Double> values = new ArrayList<Double>(numValues);
+        List<Double> values = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             int randomInt = RANDOM.nextInt(101);
             double value = randomInt;

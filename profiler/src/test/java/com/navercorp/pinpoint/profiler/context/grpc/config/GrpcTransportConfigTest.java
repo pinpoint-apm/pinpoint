@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -83,7 +82,5 @@ public class GrpcTransportConfigTest {
         assertEquals(3145728, config.getSpanClientOption().getFlowControlWindow());
         assertEquals(3145728, config.getSpanClientOption().getWriteBufferHighWaterMark());
         assertEquals(3145728, config.getSpanClientOption().getWriteBufferLowWaterMark());
-
-        System.out.println(config);
     }
 }

@@ -45,7 +45,7 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
         Assert.assertEquals(dbInfo.getDatabaseId(), "SID");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port:SID");
-        logger.info(dbInfo.toString());
+        logger.info(dbInfo);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "localhost:1521");
         Assert.assertEquals(dbInfo.getDatabaseId(), "XE");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
-        logger.info(dbInfo.toString());
+        logger.info(dbInfo);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
         Assert.assertEquals(dbInfo.getDatabaseId(), "serviceName");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port/serviceName");
-        logger.info(dbInfo.toString());
+        logger.info(dbInfo);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class JDBCUrlParserTest {
 
         Assert.assertEquals(dbInfo.getDatabaseId(), "service");
         Assert.assertEquals(dbInfo.getUrl(), rac);
-        logger.info(dbInfo.toString());
+        logger.info(dbInfo);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class JDBCUrlParserTest {
 
         Assert.assertEquals("service_test", dbInfo.getDatabaseId());
         Assert.assertEquals(url, dbInfo.getUrl());
-        logger.info(dbInfo.toString());
+        logger.info(dbInfo);
     }
 
     @Test

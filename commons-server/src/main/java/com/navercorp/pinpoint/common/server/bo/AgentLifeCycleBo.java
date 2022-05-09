@@ -98,7 +98,7 @@ public class AgentLifeCycleBo {
         sb.append(", startTimestamp=").append(this.getStartTimestamp());
         sb.append(", eventTimestamp=").append(this.getEventTimestamp());
         sb.append(", eventIdentifier=").append(this.eventIdentifier);
-        sb.append(", state=").append(this.agentLifeCycleState.toString());
+        sb.append(", state=").append(this.agentLifeCycleState);
         return sb.toString();
     }
 

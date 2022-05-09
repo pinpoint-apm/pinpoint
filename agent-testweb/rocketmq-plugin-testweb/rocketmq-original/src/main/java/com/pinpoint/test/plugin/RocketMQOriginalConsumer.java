@@ -19,6 +19,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RocketMQOriginalConsumer {
+    private final Logger logger = LogManager.getLogger(this.getClass());
     @Value("${namesrvAddr}")
     private String namesrvAddr;
 
@@ -52,7 +55,7 @@ public class RocketMQOriginalConsumer {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                                                             ConsumeConcurrentlyContext context) {
-                System.out.printf("%s Receive New Messages: %s %n", Thread.currentThread().getName(), msgs);
+                logger.info("Receive New Messages: {} {}", Thread.currentThread().getName(), msgs);
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
@@ -60,6 +63,6 @@ public class RocketMQOriginalConsumer {
         //Launch the consumer instance.
         consumer.start();
 
-        System.out.printf("Consumer Started.%n");
+        logger.info("Consumer Started.%n");
     }
 }

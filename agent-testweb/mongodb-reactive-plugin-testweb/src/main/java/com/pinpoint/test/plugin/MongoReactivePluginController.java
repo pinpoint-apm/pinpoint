@@ -22,8 +22,9 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.Document;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,12 +52,12 @@ public class MongoReactivePluginController {
     }
 
     @PostConstruct
-    private void start() {
+    public void start() {
         this.mongoClient = MongoClients.create(mongoServer.getUri());
     }
 
     @PreDestroy
-    private void shutdown() {
+    public void shutdown() {
         if (mongoClient != null) {
             mongoClient.close();
         }
@@ -88,18 +89,13 @@ public class MongoReactivePluginController {
         return db;
     }
 
-    private static <T> void subscribeAndAwait(final Publisher<T> publisher) throws Throwable {
-        ObservableSubscriber<T> subscriber = new ObservableSubscriber<T>(false);
-        publisher.subscribe(subscriber);
-        subscriber.await();
-    }
-
     private static class ObservableSubscriber<T> implements Subscriber<T> {
+        private final Logger logger = LogManager.getLogger(this.getClass());
+
         private static final AtomicIntegerFieldUpdater<ObservableSubscriber> COUNT_UPDATER
                 = AtomicIntegerFieldUpdater.newUpdater(ObservableSubscriber.class, "counter");
         private final CountDownLatch latch;
         private final List<T> results = new ArrayList<T>();
-        private final boolean printResults;
 
         private volatile int minimumNumberOfResults;
         private volatile int counter;
@@ -107,11 +103,6 @@ public class MongoReactivePluginController {
         private volatile Throwable error;
 
         public ObservableSubscriber() {
-            this(true);
-        }
-
-        public ObservableSubscriber(final boolean printResults) {
-            this.printResults = printResults;
             this.latch = new CountDownLatch(1);
         }
 
@@ -124,9 +115,8 @@ public class MongoReactivePluginController {
         @Override
         public void onNext(final T t) {
             results.add(t);
-            if (printResults) {
-                System.out.println(t);
-            }
+            logger.info(t);
+
             final int i = COUNT_UPDATER.incrementAndGet(this);
             if (i >= minimumNumberOfResults) {
                 latch.countDown();
@@ -136,7 +126,7 @@ public class MongoReactivePluginController {
         @Override
         public void onError(final Throwable t) {
             error = t;
-            System.out.println(t.getMessage());
+            logger.info(t.getMessage());
             onComplete();
         }
 

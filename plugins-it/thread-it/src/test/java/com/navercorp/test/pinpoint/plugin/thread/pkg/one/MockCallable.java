@@ -1,9 +1,12 @@
 package com.navercorp.test.pinpoint.plugin.thread.pkg.one;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.concurrent.Callable;
 
 public class MockCallable implements Callable<String> {
-
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private String name;
 
     public MockCallable(String name) {
@@ -12,7 +15,7 @@ public class MockCallable implements Callable<String> {
 
     @Override
     public String call() {
-        System.out.println("callable-----------------");
+        logger.info("callable-----------------");
         return this.name;
     }
 };
