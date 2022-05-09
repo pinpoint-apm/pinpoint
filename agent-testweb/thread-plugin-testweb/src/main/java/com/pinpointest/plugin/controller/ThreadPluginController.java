@@ -95,7 +95,7 @@ public class ThreadPluginController {
     }
 
     @PreDestroy
-    private void shutdown() {
+    public void shutdown() {
         this.executorService.shutdown();
     }
 }

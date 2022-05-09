@@ -72,7 +72,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
                 }
             }
         } else {
-            logger.warn("Webapp loader is not an instance of org.apache.catalina.loader.WebappLoader. Found [{}]", target.getClass().toString());
+            logger.warn("Webapp loader is not an instance of org.apache.catalina.loader.WebappLoader. Found [{}]", target.getClass());
         }
     }
     
@@ -132,7 +132,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
             URL[] urls = webappClassLoader.getURLs();
             return extractLibJarNamesFromURLs(urls);
         } else {
-            logger.warn("Webapp class loader is not an instance of URLClassLoader. Found [{}]", classLoader.getClass().toString());
+            logger.warn("Webapp class loader is not an instance of URLClassLoader. Found [{}]", classLoader.getClass());
             return Collections.emptyList();
         } 
     }

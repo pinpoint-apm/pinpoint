@@ -17,6 +17,8 @@ package com.pinpoint.test.plugin;
 
 import javax.annotation.Resource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
@@ -32,7 +34,7 @@ import java.nio.charset.StandardCharsets;
  */
 @RestController
 public class RocketMQSpringBootProducer {
-
+    private static final Logger logger = LogManager.getLogger(RocketMQSpringBootProducer.class);
     @Resource
     private RocketMQTemplate rocketMQTemplate;
     private static final Charset UTF8 = StandardCharsets.UTF_8;
@@ -51,12 +53,12 @@ public class RocketMQSpringBootProducer {
                 new SendCallback() {
                     @Override
                     public void onSuccess(SendResult sendResult) {
-                        System.out.printf("async onSucess SendResult=%s %n", sendResult);
+                        logger.info("async onSucess SendResult={}", sendResult);
                     }
 
                     @Override
                     public void onException(Throwable e) {
-                        System.out.printf("async onException Throwable=%s %n", e);
+                        logger.info("async onException", e);
 
                     }
                 });

@@ -83,7 +83,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), IP_PORT);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), CONNECTION_STRING);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
         logger.debug(dbInfo.getMultipleHost());
     }
 
@@ -97,7 +97,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), IP);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), CONNECTION_STRING_NO_PORT);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), IP_PORT);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), CONNECTION_STRING);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), IP_PORT);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), LOADBALANCE_CONNECTION_STRING);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), IP_PORT);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), CONNECTION_STRING);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), IP_PORT);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), LOADBALANCE_CONNECTION_STRING);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class MariaDBJdbcUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(1), IP_PORT2);
         Assert.assertEquals(dbInfo.getDatabaseId(), DATABASE_ID);
         Assert.assertEquals(dbInfo.getUrl(), LOADBALANCE_CONNECTION_STRING2);
-        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo);
     }
 
     @Test

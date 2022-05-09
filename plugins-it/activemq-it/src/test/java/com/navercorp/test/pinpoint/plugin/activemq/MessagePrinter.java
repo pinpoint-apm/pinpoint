@@ -16,6 +16,9 @@
 
 package com.navercorp.test.pinpoint.plugin.activemq;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.jms.Message;
 
 /**
@@ -24,8 +27,9 @@ import javax.jms.Message;
  * @author HyunGil Jeong
  */
 public class MessagePrinter {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public void printMessage(Message message) {
-        System.out.println("message : " + message);
+        logger.info("message : {}", message);
     }
 }

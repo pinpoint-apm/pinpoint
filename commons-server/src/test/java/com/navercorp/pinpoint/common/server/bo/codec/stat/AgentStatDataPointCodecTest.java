@@ -53,7 +53,7 @@ public class AgentStatDataPointCodecTest {
     public void test_single_timestamp() {
         // Given
         final long givenTimestamp = System.currentTimeMillis();
-        final List<Long> expectedTimestamp = Arrays.asList(givenTimestamp);
+        final List<Long> expectedTimestamp = List.of(givenTimestamp);
         final Buffer timestampBuffer = new AutomaticBuffer();
         // When
         codec.encodeTimestamps(timestampBuffer, expectedTimestamp);
@@ -63,7 +63,7 @@ public class AgentStatDataPointCodecTest {
     }
 
     private List<Long> createTimestamps(long initialTimestampMs, long intervalMs, long randomDelta, int numValues) {
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         timestamps.add(initialTimestampMs);
         long prevTimestamp = initialTimestampMs;
         for (int i = 1; i < numValues; i++) {

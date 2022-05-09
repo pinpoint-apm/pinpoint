@@ -6,7 +6,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class FastjsonConfigTest {
-
     @Test
     public void isProfile() {
 
@@ -16,7 +15,6 @@ public class FastjsonConfigTest {
 
         Assert.assertFalse(config.isProfile());
 
-        System.out.println(config.toString());
     }
 
 }

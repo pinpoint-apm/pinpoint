@@ -195,10 +195,10 @@ public class ZookeeperClusterTest {
             agentList = manager.getRegisteredAgentList("c", "d", 2L);
             Assert.assertEquals(1, agentList.size());
             Assert.assertEquals("test", agentList.get(0).getCollectorId());
-            System.out.println("----------------------1111");
+
             zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
             Thread.sleep(10000);
-            System.out.println("----------------------2222");
+
             awaitCheckAgentUnRegistered(manager, "a", "b", 1L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);

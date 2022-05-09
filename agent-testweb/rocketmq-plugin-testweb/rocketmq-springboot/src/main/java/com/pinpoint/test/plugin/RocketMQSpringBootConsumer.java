@@ -15,6 +15,8 @@
  */
 package com.pinpoint.test.plugin;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.stereotype.Component;
@@ -25,8 +27,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RocketMQMessageListener(topic = "TopicTest", consumerGroup = "demo_consumer")
 public class RocketMQSpringBootConsumer implements RocketMQListener<String> {
+    private final Logger logger = LogManager.getLogger(this.getClass());
     @Override
     public void onMessage(String message) {
-        System.out.println("RocketMQSpringBootConsumer receive message:" + message);
+        logger.info("RocketMQSpringBootConsumer receive message:{}", message);
     }
 }

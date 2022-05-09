@@ -80,7 +80,6 @@ import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.pullAll;
 import static com.mongodb.client.model.Updates.pushEach;
 import static com.mongodb.client.model.Updates.set;
-import static java.util.Arrays.asList;
 
 @RestController
 public class MongoPluginController {
@@ -96,12 +95,12 @@ public class MongoPluginController {
     }
 
     @PostConstruct
-    private void start() {
+    public void start() {
         this.mongoClient = MongoClients.create(mongoServer.getUri());
     }
 
     @PreDestroy
-    private void shutdown() {
+    public void shutdown() {
         if (mongoClient != null) {
             mongoClient.close();
         }
@@ -124,8 +123,9 @@ public class MongoPluginController {
         documentList.add(doc);
         documentList.add(doc2);
 
-        for (int i = 3; i < 100; i++)
+        for (int i = 3; i < 100; i++) {
             documentList.add(new Document("name", "manymanay" + i).append("company", "ManyCompany"));
+        }
 
         InsertManyResult result = collection.insertMany(documentList);
         return "Insert=" + result;
@@ -257,7 +257,7 @@ public class MongoPluginController {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME_2).getCollection(COLLECTION_NAME);
         Document doc1 = new Document("name", "pinpoint").append("company", "Naver");
 
-        UpdateResult updateResult = collection.updateOne(doc1, addEachToSet("arrayField", asList("pinpoint", "pinpoint2")), new UpdateOptions().upsert(true));
+        UpdateResult updateResult = collection.updateOne(doc1, addEachToSet("arrayField", Arrays.asList("pinpoint", "pinpoint2")), new UpdateOptions().upsert(true));
         return "Update=" + updateResult.getMatchedCount();
     }
 
@@ -266,7 +266,7 @@ public class MongoPluginController {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME_2).getCollection(COLLECTION_NAME);
         Document doc1 = new Document("name", "pinpoint").append("company", "Naver");
 
-        UpdateResult updateResult = collection.updateOne(doc1, pushEach("arrayField", asList("pinpoint", "pinpoint2"), new PushOptions().position(1)));
+        UpdateResult updateResult = collection.updateOne(doc1, pushEach("arrayField", Arrays.asList("pinpoint", "pinpoint2"), new PushOptions().position(1)));
         return "Update=" + updateResult.getMatchedCount();
     }
 
@@ -275,7 +275,7 @@ public class MongoPluginController {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME_2).getCollection(COLLECTION_NAME);
         Document doc1 = new Document("name", "pinpoint").append("company", "Naver");
 
-        UpdateResult updateResult = collection.updateOne(doc1, pullAll("arrayField", asList("pinpoint", "pinpoint2")));
+        UpdateResult updateResult = collection.updateOne(doc1, pullAll("arrayField", Arrays.asList("pinpoint", "pinpoint2")));
         return "Update=" + updateResult.getMatchedCount();
     }
 
@@ -284,7 +284,9 @@ public class MongoPluginController {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME_2).getCollection(COLLECTION_NAME);
         Document doc1 = new Document("name", "pinpoint").append("company", "Naver");
 
-        UpdateResult updateResult = collection.updateOne(doc1, combine(asList(pushEach("arrayField", asList("pinpoint", "pinpoint2")), pushEach("arrayField", asList("pinpoint", "pinpoint2")))));
+        UpdateResult updateResult = collection.updateOne(doc1,
+                combine(Arrays.asList(pushEach("arrayField", Arrays.asList("pinpoint", "pinpoint2")), pushEach("arrayField", Arrays.asList("pinpoint", "pinpoint2"))))
+        );
         return "Update=" + updateResult.getMatchedCount();
     }
 

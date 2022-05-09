@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -33,8 +32,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class ScatterDataTest {
 
-    String agentId = "agent";
-    String transactionAgentId = "transactionAgent";
+    private static final String agentId = "agent";
+    private static final String transactionAgentId = "transactionAgent";
 
     @Test
     public void addDotTest() {
@@ -136,8 +135,7 @@ public class ScatterDataTest {
             dotList.add(new Dot(transactionIdList.get(i), Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from), executionTime, exceptionCode, agentId));
         }
 
-        long seed = System.nanoTime();
-        Collections.shuffle(dotList, new Random(seed));
+        Collections.shuffle(dotList);
 
         return dotList;
     }

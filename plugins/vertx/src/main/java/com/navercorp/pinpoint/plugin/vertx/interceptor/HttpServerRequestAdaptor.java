@@ -80,6 +80,6 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
 
     @Override
     public String getAcceptorHost(HttpServerRequest request) {
-        return NetworkUtils.getHostFromURL(request.uri().toString());
+        return NetworkUtils.getHostFromURL(request.uri());
     }
 }

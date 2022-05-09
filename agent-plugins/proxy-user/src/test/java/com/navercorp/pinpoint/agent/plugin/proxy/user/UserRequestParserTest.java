@@ -17,11 +17,14 @@
 package com.navercorp.pinpoint.agent.plugin.proxy.user;
 
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class UserRequestParserTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void parse() {
@@ -54,7 +57,7 @@ public class UserRequestParserTest {
         String value = "D=123";
         ProxyRequestHeader proxyHttpHeader = parser.parse(value);
         assertFalse(proxyHttpHeader.isValid());
-        System.out.println(proxyHttpHeader);
+        logger.info(proxyHttpHeader);
     }
 
     @Test
@@ -63,6 +66,6 @@ public class UserRequestParserTest {
         String value = "t=1625212448.369";
         ProxyRequestHeader proxyHttpHeader = parser.parse(value);
         assertFalse(proxyHttpHeader.isValid());
-        System.out.println(proxyHttpHeader);
+        logger.info(proxyHttpHeader);
     }
 }

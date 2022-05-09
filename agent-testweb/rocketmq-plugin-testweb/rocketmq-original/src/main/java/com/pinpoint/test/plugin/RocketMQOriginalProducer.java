@@ -17,6 +17,8 @@ package com.pinpoint.test.plugin;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -36,6 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class RocketMQOriginalProducer {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     public static void main(String[] args) {
         SpringApplication.run(RocketMQOriginalProducer.class, args);
     }
@@ -66,7 +70,7 @@ public class RocketMQOriginalProducer {
                                   "OrderID188",
                                   "Hello world".getBytes(RemotingHelper.DEFAULT_CHARSET));
         SendResult send = producer.send(msg);
-        System.out.println(send.getMsgId());
+        logger.info(send.getMsgId());
         return "success";
     }
 
@@ -80,13 +84,12 @@ public class RocketMQOriginalProducer {
         producer.send(msg, new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
-                System.out.printf(sendResult.getMsgId());
+                logger.info(sendResult.getMsgId());
             }
 
             @Override
             public void onException(Throwable e) {
-                System.out.printf("Exception", e);
-                e.printStackTrace();
+                logger.info("Exception", e);
             }
         });
         return "success";

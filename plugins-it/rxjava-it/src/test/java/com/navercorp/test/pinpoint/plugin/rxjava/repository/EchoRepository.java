@@ -16,33 +16,36 @@
 
 package com.navercorp.test.pinpoint.plugin.rxjava.repository;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class EchoRepository {
-
+    private final Logger logger = LogManager.getLogger(this.getClass());
     public String echo(String message) {
-        System.out.println("echo : " + message);
+        logger.info("echo:{}", message);
         return message;
     }
 
     public String echo(String message, Exception exception) throws Exception {
         Objects.requireNonNull(exception, "exception");
 
-        System.out.println("echo : " + message + ", with exception : " + exception);
+        logger.info("echo:{}", message, exception);
         throw exception;
     }
 
     public void shout(String message) {
-        System.out.println("shout : " + message);
+        logger.info("shout:{}", message);
     }
 
     public void shout(String message, Exception exception) throws Exception {
         Objects.requireNonNull(exception, "exception");
 
-        System.out.println("shout : " + message + ", with exception : " + exception);
+        logger.info("shout:{} ", message, exception);
         throw exception;
     }
 }
