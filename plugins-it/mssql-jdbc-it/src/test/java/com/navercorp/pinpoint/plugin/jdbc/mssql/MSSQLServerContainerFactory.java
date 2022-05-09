@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
-import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.output.OutputFrame;
+
+import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,9 +34,13 @@ public final class MSSQLServerContainerFactory {
         final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
 
-        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
-        org.slf4j.Logger logger = log4jLoggerFactory.getLogger(loggerName);
-        mssqlServerContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+        mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
+            private final Logger logger = LogManager.getLogger(loggerName);
+            @Override
+            public void accept(OutputFrame outputFrame) {
+                logger.info(outputFrame.getUtf8String());
+            }
+        });
         return mssqlServerContainer;
     }
 }

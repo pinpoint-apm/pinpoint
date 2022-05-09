@@ -32,17 +32,18 @@ import com.navercorp.pinpoint.test.plugin.Repository;
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 
-import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.output.OutputFrame;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * @author Jongho Moon
@@ -61,17 +62,21 @@ public class JtdsIT extends DataBaseTestCase {
     private static final Logger logger = LoggerFactory.getLogger(JtdsIT.class);
 
 
-    public static final MSSQLServerContainer mssqlserver = newMSSQLServerContainer(logger.getName());
+    public static final JdbcDatabaseContainer mssqlserver = newMSSQLServerContainer(logger.getName());
 
-    public static MSSQLServerContainer newMSSQLServerContainer(String loggerName) {
+    public static JdbcDatabaseContainer newMSSQLServerContainer(String loggerName) {
         final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-latest");
         mssqlServerContainer.addEnv("ACCEPT_EULA", "y");
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
         mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);
 
-        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
-        org.slf4j.Logger sLogger = log4jLoggerFactory.getLogger(loggerName);
-        mssqlServerContainer.withLogConsumer(new Slf4jLogConsumer(sLogger));
+
+        mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
+            @Override
+            public void accept(OutputFrame outputFrame) {
+                logger.info(outputFrame.getUtf8String());
+            }
+        });
         return mssqlServerContainer;
     }
 

@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
-import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
-import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
@@ -30,18 +27,18 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.Repository;
-
-import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.junit.runner.RunWith;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -50,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * @author emeroad
@@ -67,23 +65,27 @@ public class JtdsConnectionIT {
     private static DriverProperties driverProperties;
 
 
-    public static final MSSQLServerContainer mssqlserver = newMSSQLServerContainer(logger.getName());
+    public static final JdbcDatabaseContainer mssqlserver = newMSSQLServerContainer(logger.getName());
 
-    public static MSSQLServerContainer newMSSQLServerContainer(String loggerName) {
+    public static JdbcDatabaseContainer newMSSQLServerContainer(String loggerName) {
         final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-latest");
         mssqlServerContainer.addEnv("ACCEPT_EULA", "y");
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
         mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);
-
-        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
-        org.slf4j.Logger sLogger = log4jLoggerFactory.getLogger(loggerName);
-        mssqlServerContainer.withLogConsumer(new Slf4jLogConsumer(sLogger));
+        mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
+            private final Logger logger = LogManager.getLogger(loggerName);
+            @Override
+            public void accept(OutputFrame outputFrame) {
+                logger.info(outputFrame.getUtf8String());
+            }
+        });
         return mssqlServerContainer;
     }
 
 
     @BeforeClass
     public static void beforeClass() throws Exception {
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
         mssqlserver.start();
 
         String address = mssqlserver.getJdbcUrl().substring(JtdsITConstants.JDBC_URL_PREFIX.length());

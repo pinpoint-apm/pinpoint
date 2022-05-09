@@ -21,26 +21,27 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.containers.output.WaitingConsumer;
+import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * @author Taejin Koo
  */
 public abstract class MySql_IT_Base {
-
+    private static final Logger logger = LogManager.getLogger(MySql_IT_Base.class);
     public static MySQLContainer mysqlDB = new MySQLContainer();
 
     protected static final String DATABASE_NAME = "test";
@@ -74,9 +75,12 @@ public abstract class MySql_IT_Base {
     public static void sharedSetUp() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
-        org.slf4j.Logger logger = log4jLoggerFactory.getLogger(MySql_IT_Base.class.getName());
-        mysqlDB.withLogConsumer(new Slf4jLogConsumer(logger));
+        mysqlDB.withLogConsumer(new Consumer<OutputFrame>() {
+            @Override
+            public void accept(OutputFrame outputFrame) {
+                logger.info(outputFrame.getUtf8String());
+            }
+        });
         mysqlDB.withDatabaseName(DATABASE_NAME);
         mysqlDB.withUsername(USERNAME);
         mysqlDB.withPassword(PASSWORD);
