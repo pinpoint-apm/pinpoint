@@ -22,13 +22,14 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 
-import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -39,6 +40,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -47,7 +49,7 @@ import static org.junit.Assert.fail;
  * @author HyunGil Jeong
  */
 public abstract class MariaDB_IT_Base {
-
+    private static final Logger logger = LogManager.getLogger(MariaDB_IT_Base.class);
     protected static final String DATABASE_NAME = "test";
 
     // for Statement
@@ -99,9 +101,12 @@ public abstract class MariaDB_IT_Base {
     public static void sharedSetUp() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
-        org.slf4j.Logger logger = log4jLoggerFactory.getLogger(MariaDB_IT_Base.class.getName());
-        mariaDB.withLogConsumer(new Slf4jLogConsumer(logger));
+        mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
+            @Override
+            public void accept(OutputFrame outputFrame) {
+                logger.info(outputFrame.getUtf8String());
+            }
+        });
         mariaDB.withDatabaseName(DATABASE_NAME);
         mariaDB.withUsername(USERNAME);
         mariaDB.withPassword(PASSWORD);
