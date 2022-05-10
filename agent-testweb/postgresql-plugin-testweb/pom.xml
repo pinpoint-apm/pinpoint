@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-agent-testweb</artifactId>
-        <version>2.4.0-RC1</version>
+        <version>2.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-postgresql-plugin-testweb</artifactId>
