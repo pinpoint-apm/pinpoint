@@ -126,10 +126,15 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 
 We have Chinese community now, welcome to join!
 
-QQ Group1: 897594820 | QQ Group2: 812507584 | DING Group : 21981598
-:----------------: | :-----------: | :-----------: 
-![QQ Group1](doc/images/NAVERPinpoint.png) | ![QQ Group2](doc/images/NAVERPinpoint2.png) | ![DING Group](doc/images/NaverPinpoint交流群-DING.jpg)
+<details>
+  <summary> 👆 click me
+</summary>
 
+QQ Group1: 897594820 | QQ Group2: 812507584 | QQ Group3: 882020485| DING Group : 21981598
+:----------------: |:----------------: | :-----------: | :-----------: 
+![QQ Group1](doc/images/NAVERPinpoint.png) | ![QQ Group2](doc/images/NAVERPinpoint2.png)| ![QQ Group3](doc/images/NAVERPinpoint3.png)| ![DING Group](doc/images/NaverPinpoint交流群-DING.jpg)
+
+</details>
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
