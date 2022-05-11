@@ -108,14 +108,14 @@ Agent Version | Collector 1.8.x | Collector 2.0.x | Collector 2.1.x | Collector 
 <!-- </compatibilityPinpoint.md> -->
 Flink compatibility table:
 
-Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink 1.7.X
----------------- | ----------- | ----------- | ----------- | ----------- | -----------
-1.8.x | yes | yes | no | no | no |
-2.0.x | yes | yes | yes | yes | yes |
-2.1.x | yes | yes | yes | yes | yes |
-2.2.x | yes | yes | yes | yes | yes |
-2.3.x | yes | yes | yes | yes | yes |
-2.4.x | yes | yes | yes | yes | yes |
+Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink 1.7.X | flink 1.14.X
+---------------- | ----------- | ----------- | ----------- | ----------- | ----------- | -----------
+1.8.x | yes | yes | no | no | no | no
+2.0.x | yes | yes | yes | yes | yes | no
+2.1.x | yes | yes | yes | yes | yes | no
+2.2.x | yes | yes | yes | yes | yes | no
+2.3.x | yes | yes | yes | yes | yes | no
+2.4.x | yes | yes | yes | yes | yes | yes
 
 
 ## Community
