@@ -127,6 +127,7 @@
         <jdk.version>1.7</jdk.version>
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
+        <javadoc.source>${jdk.version}</javadoc.source>
 
         <!-- hbase -->
         <hbase.shaded.client.version>1.7.1</hbase.shaded.client.version>
@@ -1509,12 +1510,12 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.3.1</version>
+                        <version>3.4.0</version>
                         <configuration>
-                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <doclint>none</doclint>
+                            <source>${javadoc.source}</source>
 <!--                            <detectOfflineLinks>false</detectOfflineLinks>-->
 <!--                            <detectJavaApiLink>false</detectJavaApiLink>-->
-<!--                            <source>8</source>-->
                             <javadocExecutable>${jdk.home}/bin/javadoc</javadocExecutable>
                         </configuration>
                         <executions>
