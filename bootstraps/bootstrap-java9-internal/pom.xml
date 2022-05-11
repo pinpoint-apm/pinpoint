@@ -28,6 +28,7 @@
     <properties>
         <jdk.version>9</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
+        <javadoc.source>8</javadoc.source>
 
         <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
@@ -90,7 +91,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>pinpoint.bootstrap.java9</Automatic-Module-Name>
+                            <Automatic-Module-Name>pinpoint.bootstrap.java9_internal</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
