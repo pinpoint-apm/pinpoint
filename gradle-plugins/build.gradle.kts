@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     `maven-publish`
+    `version-catalog`
 }
 
 repositories {
@@ -26,6 +27,13 @@ publishing {
 
 tasks.publish {
     dependsOn("check")
+}
+
+catalog {
+    versionCatalog {
+        version("spring", "5.3.13")
+        library("spring-core", "org.codehaus.groovy", "groovy").versionRef("spring")
+    }
 }
 
 group = "com.navercorp.pinpoint"
