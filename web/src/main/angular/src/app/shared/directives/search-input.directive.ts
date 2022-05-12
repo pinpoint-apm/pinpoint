@@ -32,15 +32,15 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
         }
         if (this.isESC(keyCode)) {
             element.value = '';
-            this.outCancel.next();
+            this.outCancel.emit();
             return;
         }
         if (this.useEnter) {
             if (this.isEnter(keyCode) && this.isValidLength(value)) {
-                this.outSearch.next(value);
+                this.outSearch.emit(value);
             }
         } else {
-            this.userInput.next(value);
+            this.userInput.emit(value);
         }
     }
     constructor(private elementRef: ElementRef) {}
@@ -68,7 +68,7 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
                 return this.isValidLength(query);
             })
         ).subscribe((query: string) => {
-            this.outSearch.next(query);
+            this.outSearch.emit(query);
         });
     }
     private isValidLength(value: string): boolean {
