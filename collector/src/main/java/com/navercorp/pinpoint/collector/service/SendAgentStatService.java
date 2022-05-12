@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.collector.config.FlinkConfiguration;
 import com.navercorp.pinpoint.collector.mapper.flink.TFAgentStatBatchMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class SendAgentStatService implements AgentStatService {
     private final SendDataToFlinkService flinkService;
     private final TFAgentStatBatchMapper tFAgentStatBatchMapper;
 
-    public SendAgentStatService(FlinkConfiguration config, SendDataToFlinkService flinkService, TFAgentStatBatchMapper tFAgentStatBatchMapper) {
+    public SendAgentStatService(FlinkConfiguration config, @Qualifier("sendDataToFlinkService") SendDataToFlinkService flinkService, TFAgentStatBatchMapper tFAgentStatBatchMapper) {
         this.flinkClusterEnable = config.isFlinkClusterEnable();
         this.flinkService = Objects.requireNonNull(flinkService, "flinkService");
         this.tFAgentStatBatchMapper = Objects.requireNonNull(tFAgentStatBatchMapper, "tFAgentStatBatchMapper");
