@@ -58,6 +58,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     }
 
     @Override
+    public boolean isExistUserGroupMember(UserGroupMember userGroupMember) {
+        return sqlSessionTemplate.selectOne(NAMESPACE + "isExistUserGroupMember", userGroupMember);
+    }
+
+    @Override
     public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectPhoneInfoOfMember", userGroupId);
     }
