@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author minwoo.jung
  */
-@Component
 public class SendDataToFlinkService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

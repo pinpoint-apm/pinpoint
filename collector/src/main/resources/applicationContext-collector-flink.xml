@@ -8,8 +8,11 @@
 
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.collector.config.FlinkConfiguration" primary="true"/>
 
+    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
+        <constructor-arg index="0" ref="sendDataToFlinkService"/>
+    </bean>
 
-    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository"/>
+    <bean id="sendDataToFlinkService" class="com.navercorp.pinpoint.collector.service.SendDataToFlinkService"/>
 
     <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
         <constructor-arg index="0">
