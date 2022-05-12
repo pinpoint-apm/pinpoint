@@ -149,7 +149,7 @@
         <httpcomponents-core.version>4.4.14</httpcomponents-core.version>
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
-        <spring5.version>5.3.18</spring5.version>
+        <spring5.version>5.3.20</spring5.version>
         <spring.version>${spring5.version}</spring.version>
         <spring.batch.version>4.3.3</spring.batch.version>
 
