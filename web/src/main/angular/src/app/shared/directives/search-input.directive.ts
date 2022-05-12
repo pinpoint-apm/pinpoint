@@ -40,7 +40,7 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
                 this.outSearch.emit(value);
             }
         } else {
-            this.userInput.emit(value);
+            this.userInput.next(value);
         }
     }
     constructor(private elementRef: ElementRef) {}
