@@ -88,7 +88,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 if (params.colDef.field === 'path') {
                     const tag = params.event.target.tagName.toUpperCase();
                     if (tag === 'I' || tag === 'BUTTON' ) {
-                        this.outSelectTransactionView.next({
+                        this.outSelectTransactionView.emit({
                             agentId: params.data.agentId,
                             traceId: params.data.traceId,
                             collectorAcceptTime: params.data.collectorAcceptTime,
@@ -104,7 +104,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                     return;
                 }
 
-                this.outSelectTransaction.next({
+                this.outSelectTransaction.emit({
                     agentId: params.data.agentId,
                     spanId: params.data.spanId,
                     traceId: params.data.traceId,

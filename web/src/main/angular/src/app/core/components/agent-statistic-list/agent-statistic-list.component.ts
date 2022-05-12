@@ -132,7 +132,7 @@ export class AgentStatisticListComponent implements OnInit  {
     }
 
     onCellClick(params: any): void {
-        this.outCellClick.next(params);
+        this.outCellClick.emit(params);
     }
 
     onRendered(): void {

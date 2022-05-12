@@ -378,7 +378,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                     bindValue = nextRowData[this.originalData.callStackIndex.arguments];
                 }
 
-                this.outSelectFormatting.next({
+                this.outSelectFormatting.emit({
                     type,
                     originalContents: data.argument,
                     bindValue
@@ -388,7 +388,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     onCellDoubleClicked(params: any): void {
-        this.outCellDoubleClicked.next(params.data[params.colDef.field]);
+        this.outCellDoubleClicked.emit(params.data[params.colDef.field]);
     }
 
     onRendered(): void {

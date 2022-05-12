@@ -40,11 +40,11 @@ export class TransactionDetailMenuComponent implements OnInit {
             return;
         }
 
-        this.outSelectViewType.next(key);
+        this.outSelectViewType.emit(key);
     }
 
     openDetailView(): void {
-        this.outOpenDetailView.next();
+        this.outOpenDetailView.emit();
     }
 
     hasLogView(): boolean {
@@ -53,8 +53,8 @@ export class TransactionDetailMenuComponent implements OnInit {
 
     openLogView(): void {
         this.transactionDetailInfo.loggingTransactionInfo === true
-            ? this.outOpenExtraView.next({open: true, url: this.transactionDetailInfo.logPageUrl})
-            : this.outOpenExtraView.next({open: false, message: this.transactionDetailInfo.disableButtonMessage});
+            ? this.outOpenExtraView.emit({open: true, url: this.transactionDetailInfo.logPageUrl})
+            : this.outOpenExtraView.emit({open: false, message: this.transactionDetailInfo.disableButtonMessage});
     }
 
     hasInfo(): boolean {

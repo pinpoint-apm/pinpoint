@@ -17,7 +17,7 @@ export class AgentEventViewComponent implements OnInit {
     constructor() {}
     ngOnInit() {}
     onClickClose(): void {
-        this.outClose.next();
+        this.outClose.emit();
     }
 
     formatDate(time: number): string {

@@ -54,7 +54,7 @@ export class ChartLayoutComponent implements OnInit, AfterViewInit {
         return false;
     }
     removeChart(chartName: string): void {
-        this.outRemoveChart.next(chartName);
+        this.outRemoveChart.emit(chartName);
     }
     dropListDropped() {
         if (!this.target) {
@@ -75,7 +75,7 @@ export class ChartLayoutComponent implements OnInit, AfterViewInit {
 
         if (this.sourceIndex !== this.targetIndex) {
             moveItemInArray(this.chartList, this.sourceIndex, this.targetIndex);
-            this.outUpdateChartOrder.next(this.chartList.concat([]));
+            this.outUpdateChartOrder.emit(this.chartList.concat([]));
         }
     }
 
