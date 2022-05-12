@@ -218,6 +218,16 @@ public class MemoryUserGroupDao implements UserGroupDao {
     }
 
     @Override
+    public boolean isExistUserGroupMember(UserGroupMember userGroupMember) {
+        for (UserGroupMember member : userGroupMembers.values()) {
+            if (member.getUserGroupId().equals(userGroupMember.getUserGroupId()) &&
+                member.getMemberId().equals(userGroupMember.getMemberId()))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
         List<UserGroupMember> userGroupMemberList = new LinkedList<>();
 

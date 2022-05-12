@@ -37,6 +37,14 @@
         )
     </select>
 
+    <select id="isExistUserGroupMember" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM user_group_member
+            WHERE member_id = #{memberId} AND user_group_id = #{userGroupId}
+        )
+    </select>
+
     <delete id="deleteUserGroup" parameterType="UserGroup">
         DELETE
         FROM user_group
