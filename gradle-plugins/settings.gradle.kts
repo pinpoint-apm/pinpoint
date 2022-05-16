@@ -1,5 +1,14 @@
 rootProject.name="pinpoint-gradle-plugins"
 
+pluginManagement {
+    plugins {
+    }
+    resolutionStrategy {
+    }
+    repositories {
+    }
+}
+
 //dependencyResolutionManagement {
 //    versionCatalogs {
 //        create("libs") {
