@@ -15,15 +15,13 @@
  */
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import org.apache.thrift.TBase;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -32,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SendDataToFlinkService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private volatile List<TcpDataSender<TBase<?, ?>>> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
+    private volatile List<TcpDataSender<TBase<?, ?>>> dataSenderList = new ArrayList<>();
     private final AtomicInteger callCount = new AtomicInteger(1);
 
     protected void sendData(TBase<?, ?> data) {
@@ -53,20 +51,16 @@ public class SendDataToFlinkService {
     }
 
     private TcpDataSender<TBase<?, ?>> roundRobinTcpDataSender() {
-        if (flinkTcpDataSenderList.isEmpty()) {
+        final List<TcpDataSender<TBase<?, ?>>> copyList = this.dataSenderList;
+        if (copyList.isEmpty()) {
             return null;
         }
 
-        int count = callCount.getAndIncrement();
-        int tcpDataSenderIndex = count % flinkTcpDataSenderList.size();
-
-        if (tcpDataSenderIndex < 0) {
-            tcpDataSenderIndex = tcpDataSenderIndex * -1;
-            callCount.set(0);
-        }
+        int count = Math.abs(callCount.getAndIncrement());
+        int tcpDataSenderIndex = count % copyList.size();
 
         try {
-            return flinkTcpDataSenderList.get(tcpDataSenderIndex);
+            return copyList.get(tcpDataSenderIndex);
         } catch (Exception e) {
             logger.warn("not get FlinkTcpDataSender", e);
         }
@@ -74,7 +68,7 @@ public class SendDataToFlinkService {
         return null;
     }
 
-    public void replaceFlinkTcpDataSenderList(List<FlinkTcpDataSender> flinkTcpDataSenderList) {
-        this.flinkTcpDataSenderList = new CopyOnWriteArrayList<>(flinkTcpDataSenderList);
+    public void replaceFlinkTcpDataSenderList(List<TcpDataSender<TBase<?, ?>>> flinkTcpDataSenderList) {
+        this.dataSenderList = new ArrayList<>(flinkTcpDataSenderList);
     }
 }

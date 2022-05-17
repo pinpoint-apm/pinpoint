@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.collector.cluster.flink;
 
-import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import com.navercorp.pinpoint.collector.service.SendDataToFlinkService;
 import com.navercorp.pinpoint.collector.util.Address;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class TcpDataSenderRepository {
     private void replaceDataInSendDataToFlinkService() {
         Collection<SenderContext> values = clusterConnectionRepository.values();
 
-        List<FlinkTcpDataSender> tcpDataSenderList = new ArrayList<>(values.size());
+        List<TcpDataSender<TBase<?, ?>>> tcpDataSenderList = new ArrayList<>(values.size());
         for (SenderContext senderContext : values) {
             tcpDataSenderList.add(senderContext.getFlinkTcpDataSender());
         }

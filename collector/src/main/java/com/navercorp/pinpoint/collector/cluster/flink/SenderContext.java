@@ -15,7 +15,8 @@
  */
 package com.navercorp.pinpoint.collector.cluster.flink;
 
-import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import org.apache.thrift.TBase;
 
 import java.util.Objects;
 
@@ -23,13 +24,13 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 public class SenderContext {
-    private final FlinkTcpDataSender flinkTcpDataSender;
+    private final TcpDataSender<TBase<?, ?>> flinkTcpDataSender;
 
-    public SenderContext(FlinkTcpDataSender tcpDataSender) {
+    public SenderContext(TcpDataSender<TBase<?, ?>> tcpDataSender) {
         this.flinkTcpDataSender = Objects.requireNonNull(tcpDataSender, "flinkTcpDataSender");
     }
 
-    public FlinkTcpDataSender getFlinkTcpDataSender() {
+    public TcpDataSender<TBase<?, ?>> getFlinkTcpDataSender() {
         return flinkTcpDataSender;
     }
 
