@@ -1,18 +1,5 @@
 rootProject.name="pinpoint-gradle-plugins"
 
-pluginManagement {
-    plugins {
-    }
-    resolutionStrategy {
-    }
-    repositories {
-        mavenLocal()
-        maven {
-            url = uri("https://repo.maven.apache.org/maven2/")
-        }
-    }
-}
-
 //dependencyResolutionManagement {
 //    versionCatalogs {
 //        create("libs") {
