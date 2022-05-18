@@ -1,0 +1,26 @@
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["lint", "test", "^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+
+    },
+    "dev": {
+      "cache": false
+    },
+    "storybook": {
+
+    },
+    "build-storybook": {
+      "dependsOn": ["lint"]
+    },
+    "chromatic": {
+      "dependsOn": ["lint"]
+    }
+  }
+}
