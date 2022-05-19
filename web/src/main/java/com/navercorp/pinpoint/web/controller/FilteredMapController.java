@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
@@ -117,12 +116,7 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapWrap mapWrap;
-        if (useLoadHistogramFormat) {
-            mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V2);
-        } else {
-            mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V1);
-        }
+        FilterMapWrap mapWrap = new FilterMapWrap(map);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
     }

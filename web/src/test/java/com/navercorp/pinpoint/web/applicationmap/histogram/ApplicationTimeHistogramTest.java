@@ -49,7 +49,7 @@ public class ApplicationTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app);
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
-        List<TimeViewModel> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
+        List<TimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);
         ObjectWriter writer = mapper.writer();
         String s = writer.writeValueAsString(viewModel);
@@ -85,7 +85,7 @@ public class ApplicationTimeHistogramTest {
 
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
-        List<TimeViewModel> viewModelList = histogram.createViewModel(TimeHistogramFormat.V2);
+        List<TimeViewModel> viewModelList = histogram.createViewModel();
         logger.debug("{}", viewModelList);
     }
 }

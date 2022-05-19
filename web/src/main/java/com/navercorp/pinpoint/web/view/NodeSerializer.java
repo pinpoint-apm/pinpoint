@@ -190,7 +190,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
         }
         // FIXME isn't this all ServiceTypes that can be a node?
         if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
-            List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
+            List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
             if (applicationTimeSeriesHistogram == null) {
                 writeEmptyArray(jgen, "timeSeriesHistogram");
             } else {
@@ -198,7 +198,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
             }
 
             if (NodeType.DETAILED == node.getNodeType()) {
-                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
+                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
                 jgen.writeObject(agentTimeSeriesHistogram);
             }
         }

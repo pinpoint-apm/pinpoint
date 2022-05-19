@@ -68,14 +68,14 @@ public class NodeHistogramSummarySerializer extends JsonSerializer<NodeHistogram
             jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
         }
 
-        List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
+        List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
         if (applicationTimeSeriesHistogram == null) {
             writeEmptyArray(jgen, "timeSeriesHistogram");
         } else {
             jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
         }
 
-        AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
+        AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
         jgen.writeObject(agentTimeSeriesHistogram);
     }
 

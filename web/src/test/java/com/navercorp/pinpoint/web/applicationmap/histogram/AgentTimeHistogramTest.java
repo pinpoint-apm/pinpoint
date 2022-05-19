@@ -51,7 +51,7 @@ public class AgentTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
-        List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
+        List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);
 
         JsonFactory jsonFactory = mapper.getFactory();

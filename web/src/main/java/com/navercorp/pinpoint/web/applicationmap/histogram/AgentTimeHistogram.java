@@ -56,12 +56,12 @@ public class AgentTimeHistogram {
     }
 
 
-    public List<AgentResponseTimeViewModel> createViewModel(TimeHistogramFormat timeHistogramFormat) {
+    public List<AgentResponseTimeViewModel> createViewModel() {
         final List<AgentResponseTimeViewModel> result = new ArrayList<>();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             Application agentId = agentHistogram.getAgentId();
             List<TimeHistogram> timeList = sortTimeHistogram(agentHistogram.getTimeHistogram());
-            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
+            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList);
             result.add(model);
         }
         result.sort(AGENT_NAME_COMPARATOR);
@@ -74,13 +74,13 @@ public class AgentTimeHistogram {
         return timeList;
     }
 
-    private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        List<TimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);
+    private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList) {
+        List<TimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList);
         AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
         return agentResponseTimeViewModel;
     }
 
-    private List<TimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        return new TimeViewModel.TimeViewModelBuilder(application, timeHistogramList).setTimeHistogramFormat(timeHistogramFormat).build();
+    private List<TimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList) {
+        return new TimeViewModel.TimeViewModelBuilder(application, timeHistogramList).build();
     }
 }

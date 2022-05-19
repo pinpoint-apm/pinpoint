@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.view.LinkHistogramSummarySerializer;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 
@@ -36,10 +35,6 @@ public class LinkHistogramSummary {
     public LinkHistogramSummary(Link link) {
         Objects.requireNonNull(link, "link");
         this.link = link;
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        link.setTimeHistogramFormat(timeHistogramFormat);
     }
 
     public String getLinkName() {

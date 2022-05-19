@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.view;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.LoadHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
@@ -33,26 +31,17 @@ public interface TimeViewModel {
     class TimeViewModelBuilder {
         private final Application application;
         private final List<TimeHistogram> histogramList;
-        private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
         public TimeViewModelBuilder(Application application, List<TimeHistogram> histogramList) {
             this.application = application;
             this.histogramList = histogramList;
         }
 
-        public TimeViewModelBuilder setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-            this.timeHistogramFormat = timeHistogramFormat;
-            return this;
-        }
-
         public List<TimeViewModel> build() {
-            if (TimeHistogramFormat.V1 == timeHistogramFormat) {
-                return createViewModelV1();
-            }
-            return createViewModelV2();
+            return createViewModel();
         }
 
-        List<TimeViewModel> createViewModelV1() {
+        List<TimeViewModel> createViewModel() {
             final List<TimeViewModel> value = new ArrayList<>(9);
             ServiceType serviceType = application.getServiceType();
             HistogramSchema schema = serviceType.getHistogramSchema();
@@ -104,19 +93,6 @@ public interface TimeViewModel {
 
         long getCount(TimeHistogram timeHistogram, SlotType slotType) {
             return timeHistogram.getCount(slotType);
-        }
-
-        public List<TimeViewModel> createViewModelV2() {
-            final List<TimeViewModel> loadTimeViewModelList = new ArrayList<>(histogramList.size());
-            for (TimeHistogram timeHistogram : histogramList) {
-                if (timeHistogram.getTimeStamp() <= 0) {
-                    // Ignored unexpected timestamp
-                    continue;
-                }
-                final LoadTimeViewModel loadTimeViewModel = new LoadTimeViewModel(timeHistogram.getTimeStamp(), new LoadHistogram(timeHistogram));
-                loadTimeViewModelList.add(loadTimeViewModel);
-            }
-            return loadTimeViewModelList;
         }
     }
 }

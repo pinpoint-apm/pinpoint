@@ -111,12 +111,12 @@ public class NodeHistogram {
         return map;
     }
 
-    public List<TimeViewModel> getApplicationTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
-        return applicationTimeHistogram.createViewModel(timeHistogramFormat);
+    public List<TimeViewModel> getApplicationTimeHistogram() {
+        return applicationTimeHistogram.createViewModel();
     }
 
-    public AgentResponseTimeViewModelList getAgentTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
-        return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel(timeHistogramFormat));
+    public AgentResponseTimeViewModelList getAgentTimeHistogram() {
+        return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel());
     }
 
     public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {

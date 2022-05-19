@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
@@ -49,9 +48,7 @@ public class TransactionInfoViewModel {
     private final RecordSet recordSet;
     private final TraceState.State completeState;
 
-
     private final LogConfiguration logConfiguration;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, LogConfiguration logConfiguration) {
         this.transactionId = transactionId;
@@ -61,10 +58,6 @@ public class TransactionInfoViewModel {
         this.recordSet = recordSet;
         this.completeState = state;
         this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
     }
 
     @JsonProperty("applicationName")
@@ -184,15 +177,6 @@ public class TransactionInfoViewModel {
     @JsonProperty("applicationMapData")
     public Map<String, List<Object>> getApplicationMapData() {
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
-        if (timeHistogramFormat == TimeHistogramFormat.V2) {
-            for (Node node : nodes) {
-                node.setTimeHistogramFormat(timeHistogramFormat);
-            }
-            for (Link link : links) {
-                link.setTimeHistogramFormat(timeHistogramFormat);
-            }
-        }
-
         List<Object> nodeDataArray = new ArrayList<>(nodes);
         result.put("nodeDataArray", nodeDataArray);
         List<Object> linkDataArray = new ArrayList<>(links);

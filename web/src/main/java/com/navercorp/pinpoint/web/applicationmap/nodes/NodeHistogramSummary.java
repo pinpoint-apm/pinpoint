@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeHistogramSummarySerializer;
 
@@ -31,7 +30,6 @@ public class NodeHistogramSummary {
 
     private final ServerInstanceList serverInstanceList;
     private final NodeHistogram nodeHistogram;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public NodeHistogramSummary(ServerInstanceList serverInstanceList, NodeHistogram nodeHistogram) {
         this.serverInstanceList = Objects.requireNonNull(serverInstanceList, "serverInstanceList");
@@ -44,14 +42,6 @@ public class NodeHistogramSummary {
 
     public NodeHistogram getNodeHistogram() {
         return nodeHistogram;
-    }
-
-    public TimeHistogramFormat getTimeHistogramFormat() {
-        return timeHistogramFormat;
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
     }
 
     @Override

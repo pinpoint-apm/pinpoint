@@ -40,7 +40,7 @@ public class ApplicationTimeHistogram {
         this.histogramList = Objects.requireNonNull(histogramList, "histogramList");
     }
 
-    public List<TimeViewModel> createViewModel(TimeHistogramFormat timeHistogramFormat) {
-        return new TimeViewModel.TimeViewModelBuilder(application, histogramList).setTimeHistogramFormat(timeHistogramFormat).build();
+    public List<TimeViewModel> createViewModel() {
+        return new TimeViewModel.TimeViewModelBuilder(application, histogramList).build();
     }
 }
