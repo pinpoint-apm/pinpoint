@@ -37,9 +37,8 @@ public class ProfilerLibClass {
 
 
     public boolean onLoadClass(String clazzName) {
-        final int length = libClass.length;
-        for (int i = 0; i < length; i++) {
-            if (clazzName.startsWith(libClass[i])) {
+        for (String libClassName : libClass) {
+            if (clazzName.startsWith(libClassName)) {
                 return ON_LOAD_CLASS;
             }
         }
