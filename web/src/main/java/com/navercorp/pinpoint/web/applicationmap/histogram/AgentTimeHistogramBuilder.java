@@ -26,17 +26,14 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class AgentTimeHistogramBuilder {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Application application;
     private final Range range;
@@ -48,6 +45,11 @@ public class AgentTimeHistogramBuilder {
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
+    public AgentTimeHistogramBuilder(Application application, Range range, TimeWindow window) {
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
+        this.window = Objects.requireNonNull(window, "window");
+    }
 
     public AgentTimeHistogram build(List<ResponseTime> responseHistogramList) {
         AgentHistogramList agentHistogramList = new AgentHistogramList(application, responseHistogramList);
