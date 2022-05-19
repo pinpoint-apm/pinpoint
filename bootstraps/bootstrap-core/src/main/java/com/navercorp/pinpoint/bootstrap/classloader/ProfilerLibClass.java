@@ -34,9 +34,8 @@ public class ProfilerLibClass implements LibClass {
 
     @Override
     public boolean onLoadClass(String clazzName) {
-        final int length = profilerClass.length;
-        for (int i = 0; i < length; i++) {
-            if (clazzName.startsWith(profilerClass[i])) {
+        for (String libClassName : profilerClass) {
+            if (clazzName.startsWith(libClassName)) {
                 return ON_LOAD_CLASS;
             }
         }
