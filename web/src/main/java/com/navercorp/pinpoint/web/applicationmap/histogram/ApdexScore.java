@@ -7,13 +7,22 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
- * https://en.wikipedia.org/wiki/Apdex
+ * <a href="https://en.wikipedia.org/wiki/Apdex">https://en.wikipedia.org/wiki/Apdex</a>
  */
 public class ApdexScore {
 
     private static final BigDecimal TWO = BigDecimal.valueOf(2);
 
     private final double apdexScore;
+
+    public static double toDoubleFromHistogram(Histogram histogram) {
+        Objects.requireNonNull(histogram, "histogram");
+        final long satisfiedCount = histogram.getFastCount();
+        final long toleratingCount = histogram.getNormalCount();
+        final long totalCount = histogram.getTotalCount();
+
+        return calculateApdexScore(satisfiedCount, toleratingCount, totalCount);
+    }
 
     public static ApdexScore newApdexScore(Histogram histogram) {
         Objects.requireNonNull(histogram, "histogram");
@@ -28,7 +37,7 @@ public class ApdexScore {
         this.apdexScore = calculateApdexScore(satisfiedCount, toleratingCount, totalSamples);
     }
 
-    private double calculateApdexScore(long satisfiedCount, long toleratingCount, long totalSamples) {
+    private static double calculateApdexScore(long satisfiedCount, long toleratingCount, long totalSamples) {
         // divide by zero
         if (totalSamples == 0) {
             return 0;

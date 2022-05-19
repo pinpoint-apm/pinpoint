@@ -19,15 +19,19 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -47,7 +51,7 @@ public class AgentTimeHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(0, 1000*60));
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(0, 1000 * 60));
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
@@ -68,6 +72,42 @@ public class AgentTimeHistogramTest {
 
     }
 
+    @Test
+    public void getSampledAgentApdexScoreListTest() {
+        Application app = new Application("test", ServiceType.STAND_ALONE);
+        Range range = Range.between(0, 1000 * 60);
+        TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
+        List<ResponseTime> responseHistogramList = createResponseTime(app, "test3", "test4");
+        AgentTimeHistogram histogram = builder.build(responseHistogramList);
+
+        List<SampledApdexScore> sampledApdexScore1 = histogram.getSampledAgentApdexScoreList("test3");
+        Assert.assertEquals(sampledApdexScore1.size(), 2);
+
+        List<SampledApdexScore> sampledApdexScore2 = histogram.getSampledAgentApdexScoreList("test4");
+        Assert.assertEquals(sampledApdexScore2.size(), 2);
+
+        List<SampledApdexScore> wrongSampledApdexScore = histogram.getSampledAgentApdexScoreList("wrongAgentName");
+        Assert.assertEquals(wrongSampledApdexScore.size(), 0);
+    }
+
+    @Test
+    public void getApplicationApdexScoreListTest() {
+        Application app = new Application("test", ServiceType.STAND_ALONE);
+        Range range = Range.between(0, 1000 * 60);
+        TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
+        List<ResponseTime> responseHistogramList = createResponseTime(app, "test5", "test6");
+        AgentTimeHistogram histogram = builder.build(responseHistogramList);
+
+        List<DoubleApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
+        Assert.assertEquals(applicationStatPointList.size(), 2);
+        Assert.assertEquals(applicationStatPointList.get(0).getXVal(), 0);
+        Assert.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
+        Assert.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
+        Assert.assertEquals(applicationStatPointList.get(1).getYValForAvg(), 0.5, 0.001);
+    }
+
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {
         List<ResponseTime> responseTimeList = new ArrayList<ResponseTime>();
 
@@ -75,7 +115,7 @@ public class AgentTimeHistogramTest {
         one.addResponseTime(agentName1, (short) 1000, 1);
         responseTimeList.add(one);
 
-        ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000*60);
+        ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
         two.addResponseTime(agentName1, (short) 3000, 1);
         responseTimeList.add(two);
 
@@ -83,7 +123,7 @@ public class AgentTimeHistogramTest {
         three.addResponseTime(agentName2, (short) 1000, 1);
         responseTimeList.add(three);
 
-        ResponseTime four = new ResponseTime(app.getName(), app.getServiceType(), 1000*60);
+        ResponseTime four = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
         four.addResponseTime(agentName2, (short) 3000, 1);
         responseTimeList.add(four);
         return responseTimeList;
