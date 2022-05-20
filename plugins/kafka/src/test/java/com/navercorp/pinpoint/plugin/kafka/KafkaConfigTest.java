@@ -30,11 +30,11 @@ public class KafkaConfigTest {
 
     @Test
     public void configTest1() throws Exception {
-        KafkaConfig config = createConfig("true", "true", "entryPoint");
+        KafkaConfig config = createConfig("true", "true", "entryPoint1,entryPoint2");
 
         Assert.assertTrue(config.isProducerEnable());
         Assert.assertTrue(config.isConsumerEnable());
-        Assert.assertEquals("entryPoint", config.getKafkaEntryPoint());
+        Assert.assertEquals("[entryPoint1, entryPoint2]", config.getKafkaEntryPoints().toString());
     }
 
     @Test
@@ -43,7 +43,7 @@ public class KafkaConfigTest {
 
         Assert.assertTrue(config.isProducerEnable());
         Assert.assertFalse(config.isConsumerEnable());
-        Assert.assertEquals("", config.getKafkaEntryPoint());
+        Assert.assertEquals("[]", config.getKafkaEntryPoints().toString());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class KafkaConfigTest {
 
         Assert.assertFalse(config.isProducerEnable());
         Assert.assertTrue(config.isConsumerEnable());
-        Assert.assertEquals("", config.getKafkaEntryPoint());
+        Assert.assertEquals("[]", config.getKafkaEntryPoints().toString());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class KafkaConfigTest {
 
         Assert.assertFalse(config.isProducerEnable());
         Assert.assertFalse(config.isConsumerEnable());
-        Assert.assertEquals("", config.getKafkaEntryPoint());
+        Assert.assertEquals("[]", config.getKafkaEntryPoints().toString());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class KafkaConfigTest {
         Assert.assertTrue(config.isProducerEnable());
         Assert.assertFalse(config.isConsumerEnable());
         Assert.assertTrue(config.isHeaderEnable());
-        Assert.assertEquals("entryPoint1", config.getKafkaEntryPoint());
+        Assert.assertEquals("[entryPoint1]", config.getKafkaEntryPoints().toString());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class KafkaConfigTest {
         Assert.assertTrue(config.isProducerEnable());
         Assert.assertFalse(config.isConsumerEnable());
         Assert.assertFalse(config.isHeaderEnable());
-        Assert.assertEquals("entryPoint2", config.getKafkaEntryPoint());
+        Assert.assertEquals("[entryPoint2]", config.getKafkaEntryPoints().toString());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class KafkaConfigTest {
         Assert.assertFalse(config.isProducerEnable());
         Assert.assertTrue(config.isConsumerEnable());
         Assert.assertFalse(config.isHeaderEnable());
-        Assert.assertEquals("entryPoint3", config.getKafkaEntryPoint());
+        Assert.assertEquals("[entryPoint3]", config.getKafkaEntryPoints().toString());
     }
 
     private KafkaConfig createConfig(String producerEnable, String consumerEnable) {
