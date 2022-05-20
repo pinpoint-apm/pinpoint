@@ -5,7 +5,9 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.hbase.HbaseVersion;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Table;
 import org.junit.Assert;
@@ -19,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +36,9 @@ public class HbaseTableMethodInterceptorTest {
 
     @Mock
     private SpanEventRecorder recorder;
+
+    @Mock
+    private ClusterConnection connection;
 
     @Test
     public void doInBeforeTrace() {
@@ -95,5 +101,21 @@ public class HbaseTableMethodInterceptorTest {
 
         String unknownString = (String) method.invoke(interceptor, "1234");
         Assert.assertEquals("Unknown", unknownString);
+    }
+
+    @Test
+    public void doTestHbaseOpMethod() throws Exception {
+
+        doReturn(new Configuration()).when(connection).getConfiguration();
+
+        Table target = new HTable(TableName.valueOf("test"), connection);
+
+        Object[] args = new Object[]{Collections.singletonList("test")};
+
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true);
+        interceptor.doInAfterTrace(recorder, target, args, null, null);
+        verify(recorder).recordAttribute(HbasePluginConstants.HBASE_OP_METHOD, descriptor.getMethodName());
+        verify(recorder).recordApi(descriptor);
+        verify(recorder).recordException(null);
     }
 }
