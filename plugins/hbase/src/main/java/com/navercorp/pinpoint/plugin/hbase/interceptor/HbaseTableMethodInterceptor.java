@@ -67,10 +67,11 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
                 recorder.recordAttribute(HbasePluginConstants.HBASE_CLIENT_PARAMS, attributes);
             }
         }
-        if (tableNameProfile){
+        if (tableNameProfile) {
             String tableName = getTableName(target);
             recorder.recordAttribute(HbasePluginConstants.HBASE_TABLE_NAME, tableName);
         }
+        recorder.recordAttribute(HbasePluginConstants.HBASE_OP_METHOD, getMethodDescriptor().getMethodName());
 
         recorder.recordApi(getMethodDescriptor());
         recorder.recordException(throwable);

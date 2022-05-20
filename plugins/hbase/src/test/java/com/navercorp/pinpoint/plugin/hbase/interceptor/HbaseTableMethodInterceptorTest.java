@@ -40,7 +40,7 @@ public class HbaseTableMethodInterceptorTest {
         Object target = new Object();
         Object[] args = new Object[]{};
 
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor,true, false);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, false);
         interceptor.doInBeforeTrace(recorder, target, args);
         verify(recorder).recordServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
     }
@@ -51,7 +51,7 @@ public class HbaseTableMethodInterceptorTest {
         Object target = new Object();
         Object[] args = new Object[]{Collections.singletonList("test")};
 
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true , true);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true);
         interceptor.doInAfterTrace(recorder, target, args, null, null);
         verify(recorder).recordAttribute(HbasePluginConstants.HBASE_CLIENT_PARAMS, "size: 1");
         verify(recorder).recordApi(descriptor);
@@ -59,7 +59,7 @@ public class HbaseTableMethodInterceptorTest {
     }
 
     @Test
-    public void doTestHbaseTableName() throws Exception{
+    public void doTestHbaseTableName() throws Exception {
 
         doReturn(new Configuration()).when(connection).getConfiguration();
 
@@ -70,6 +70,22 @@ public class HbaseTableMethodInterceptorTest {
         HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true);
         interceptor.doInAfterTrace(recorder, target, args, null, null);
         verify(recorder).recordAttribute(HbasePluginConstants.HBASE_TABLE_NAME, "test");
+        verify(recorder).recordApi(descriptor);
+        verify(recorder).recordException(null);
+    }
+
+    @Test
+    public void doTestHbaseOpMethod() throws Exception {
+
+        doReturn(new Configuration()).when(connection).getConfiguration();
+
+        Table target = new HTable(TableName.valueOf("test"), connection);
+
+        Object[] args = new Object[]{Collections.singletonList("test")};
+
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true);
+        interceptor.doInAfterTrace(recorder, target, args, null, null);
+        verify(recorder).recordAttribute(HbasePluginConstants.HBASE_OP_METHOD, descriptor.getMethodName());
         verify(recorder).recordApi(descriptor);
         verify(recorder).recordException(null);
     }
