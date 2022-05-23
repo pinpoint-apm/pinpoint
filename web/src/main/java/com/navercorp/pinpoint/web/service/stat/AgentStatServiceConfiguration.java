@@ -50,7 +50,7 @@ import org.springframework.context.annotation.Configuration;
 public class AgentStatServiceConfiguration {
 
     @Bean
-    public AgentStatChartService<ActiveTraceChart> getAgentStatChartService(SampledAgentStatDao<SampledActiveTrace> statDao) {
+    public AgentStatChartService<ActiveTraceChart> getActiveTraceChartService(SampledAgentStatDao<SampledActiveTrace> statDao) {
         return new DefaultAgentStatChartService<>(statDao, ActiveTraceChart::new);
     }
 

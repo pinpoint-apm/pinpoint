@@ -49,7 +49,7 @@ public class HBaseDaoConfiguration {
 
     @Bean
     public AgentStatDao<ActiveTraceBo> getActiveTraceDao(AgentStatSerializer<ActiveTraceBo> serializer) {
-        return newAgentStatDao(AgentStatType.TRANSACTION, AgentStatBo::getActiveTraceBos, serializer);
+        return newAgentStatDao(AgentStatType.ACTIVE_TRACE, AgentStatBo::getActiveTraceBos, serializer);
     }
 
     @Bean
