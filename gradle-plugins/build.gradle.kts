@@ -1,7 +1,6 @@
 plugins {
     `kotlin-dsl`
     `maven-publish`
-//    `version-catalog`
 }
 
 repositories {
