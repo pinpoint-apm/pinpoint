@@ -22,22 +22,10 @@ publishing {
             url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
         }
     }
-//    publications {
-//        create<MavenPublication>("maven") {
-//            from(components["versionCatalog"])
-//        }
-//    }
 }
 
 tasks.publish {
     dependsOn("check")
 }
-
-//catalog {
-//    versionCatalog {
-//        version("spring", "5.3.13")
-//        library("spring-core", "org.codehaus.groovy", "groovy").versionRef("spring")
-//    }
-//}
 
 group = "com.navercorp.pinpoint"
