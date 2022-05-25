@@ -1,5 +1,6 @@
 // .storybook/preview.js
 import * as NextImage from 'next/image';
+import { IconContext } from "react-icons";
 import { GlobalStyle } from '@pinpoint-fe/common/components/Styled/GlobalStyle';
 
 // de optimize next image
@@ -23,7 +24,9 @@ export const decorators = [
   (Story) => (
     <>
       {GlobalStyle}
-      <Story />
+      <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
+        <Story />
+      </IconContext.Provider>
     </>
   ),
 ];
