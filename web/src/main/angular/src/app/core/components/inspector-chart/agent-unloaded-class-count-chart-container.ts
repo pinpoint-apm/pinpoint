@@ -34,10 +34,10 @@ export class AgentUnloadedCLassCountChartContainer implements IInspectorChartCon
         return {
             type: spline(),
             names: {
-                loadedClassCount: 'Unloaded Class Count'
+                unloadedClassCount: 'Unloaded Class Count'
             },
             colors: {
-                loadedClassCount: `rgba(31, 119, 180, ${alpha})`
+                unloadedClassCount: `rgba(31, 119, 180, ${alpha})`
             }
         };
     }
@@ -70,6 +70,10 @@ export class AgentUnloadedCLassCountChartContainer implements IInspectorChartCon
                 default: [0, this.defaultYMax]
             }
         };
+    }
+
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
     }
 
     convertWithUnit(value: number): string {

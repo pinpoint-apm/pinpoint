@@ -84,6 +84,10 @@ export class ApplicationActiveRequestChartContainer implements IInspectorChartCo
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 

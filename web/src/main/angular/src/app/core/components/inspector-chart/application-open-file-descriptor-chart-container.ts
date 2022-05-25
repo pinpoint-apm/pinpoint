@@ -84,6 +84,10 @@ export class ApplicationOpenFileDescriptorChartContainer implements IInspectorCh
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

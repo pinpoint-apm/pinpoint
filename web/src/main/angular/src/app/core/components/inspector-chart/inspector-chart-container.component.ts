@@ -11,7 +11,8 @@ import {
     DynamicPopupService,
     TRACKED_EVENT_LIST,
     MessageQueueService,
-    MESSAGE_TO
+    MESSAGE_TO,
+    NewUrlStateNotificationService
 } from 'app/shared/services';
 import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
@@ -35,7 +36,12 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     @Input()
     set chartType(chartType: ChartType) {
         this._chartType = chartType;
-        this.chartContainer = InspectorChartContainerFactory.createInspectorChartContainer(chartType, this.inspectorChartDataService, this.inspectorChartThemeService);
+        this.chartContainer = InspectorChartContainerFactory.createInspectorChartContainer(
+            chartType,
+            this.inspectorChartDataService,
+            this.inspectorChartThemeService,
+            this.newUrlStateNotificationService
+        );
     }
 
     get chartType(): ChartType {
@@ -70,6 +76,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
         private injector: Injector,
         private inspectorPageService: InspectorPageService,
         private messageQueueService: MessageQueueService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) { }
 
     ngOnInit() {
@@ -246,7 +253,8 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
                         return this.chartContainer.getTooltipFormat(v, columnId, i);
                     }
                 },
-                order: ''
+                order: '',
+                ...this.chartContainer.makeTooltipOptions()
             },
             transition: {
                 duration: 0

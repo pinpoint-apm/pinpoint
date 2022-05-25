@@ -84,6 +84,10 @@ export class ApplicationTotalThreadCountChartContainer implements IInspectorChar
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

@@ -2,37 +2,43 @@ import { PrimitiveArray, Data, spline } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
-import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
+import { makeYData, makeXData } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { getAgentId } from './inspector-chart-util';
 import { InspectorChartThemeService } from './inspector-chart-theme.service';
+import { NewUrlStateNotificationService } from 'app/shared/services';
+import { UrlPathId } from 'app/shared/models';
 
-export class ApplicationResponseTimeChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/responseTime/chart.pinpoint';
+export class ApplicationApdexScoreChartContainer implements IInspectorChartContainer {
+    private apiUrl = 'getApplicationStat/apdexScore/chart.pinpoint';
     private minAgentIdList: string[];
     private maxAgentIdList: string[];
 
-    defaultYMax = 100;
-    title = 'Response Time';
+    defaultYMax = 1;
+    title = 'Apdex Score';
 
     constructor(
         private inspectorChartDataService: InspectorChartDataService,
         private inspectorChartThemeService: InspectorChartThemeService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
-        return this.inspectorChartDataService.getData(this.apiUrl, range);
+        const applicationId = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+        const serviceTypeName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
+
+        return this.inspectorChartDataService.getData(this.apiUrl, range, {serviceTypeName, applicationId});
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
-        this.minAgentIdList = makeYData(charts.y['RESPONSE_TIME'], 1) as string[];
-        this.maxAgentIdList = makeYData(charts.y['RESPONSE_TIME'], 3) as string[];
+        this.minAgentIdList = makeYData(charts.y['APDEX_SCORE'], 1) as string[];
+        this.maxAgentIdList = makeYData(charts.y['APDEX_SCORE'], 3) as string[];
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['max', ...makeYData(charts.y['RESPONSE_TIME'], 2)],
-            ['avg', ...makeYData(charts.y['RESPONSE_TIME'], 4)],
-            ['min', ...makeYData(charts.y['RESPONSE_TIME'], 0)],
+            ['max', ...makeYData(charts.y['APDEX_SCORE'], 2)],
+            ['avg', ...makeYData(charts.y['APDEX_SCORE'], 4)],
+            ['min', ...makeYData(charts.y['APDEX_SCORE'], 0)],
         ];
     }
 
@@ -62,7 +68,7 @@ export class ApplicationResponseTimeChartContainer implements IInspectorChartCon
         return {
             y: {
                 label: {
-                    text: 'Response Time (ms)',
+                    text: 'Apdex Score',
                     position: 'outer-middle'
                 },
                 tick: {
@@ -74,30 +80,20 @@ export class ApplicationResponseTimeChartContainer implements IInspectorChartCon
                     bottom: 0
                 },
                 min: 0,
-                max: (() => {
-                    const maxTickValue = getMaxTickValue(data, 1);
-
-                    return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
-                })(),
+                max: this.defaultYMax,
                 default: [0, this.defaultYMax]
             }
         };
     }
 
     makeTooltipOptions(): {[key: string]: any} {
-        return {};
+        return {
+            linked: false,
+        };
     }
 
     convertWithUnit(value: number): string {
-        const unitList = ['ms', 'sec'];
-
-        return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
-            const v = Number(acc);
-
-            return v >= 1000
-                ? (v / 1000).toString()
-                : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
-        }, value.toString());
+        return (Math.floor(value * 100) / 100).toFixed(2);
     }
 
     getTooltipFormat(v: number, columnId: string, i: number): string {

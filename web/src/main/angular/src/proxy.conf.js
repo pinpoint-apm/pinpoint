@@ -59,6 +59,9 @@ const PROXY_CONFIG = [
             "/application/webhook.pinpoint",
             "/application/webhookSendInfo.pinpoint",
             "/application/alarmRule/includeWebhooks.pinpoint",
+            "/getApdexScore.pinpoint",
+            "/getApplicationStat/apdexScore/chart.pinpoint",
+            "/getAgentStat/apdexScore/chart.pinpoint"
         ],
         target: 'http://localhost:8080',
         secure: false

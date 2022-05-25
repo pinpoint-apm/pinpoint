@@ -21,7 +21,7 @@
             </div>
         </div>
     </div>
-    <pp-info-per-server-container></pp-info-per-server-container>
+    <pp-info-per-server-container *ngIf="renderInfoPerServer"></pp-info-per-server-container>
 </section>
 <pp-film-for-disable *ngIf="useDisable" [zIndex]="100" [marginWidth]="0"></pp-film-for-disable>
 <pp-loading [showLoading]="showLoading" [zIndex]="101"></pp-loading>

@@ -80,6 +80,10 @@ export class ApplicationJVMCpuChartContainer implements IInspectorChartContainer
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return `${value}%`;
     }

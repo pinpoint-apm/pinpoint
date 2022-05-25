@@ -80,6 +80,10 @@ export class ApplicationSystemCpuChartContainer implements IInspectorChartContai
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return `${value}%`;
     }

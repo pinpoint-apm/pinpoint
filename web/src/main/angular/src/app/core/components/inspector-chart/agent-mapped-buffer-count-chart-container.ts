@@ -72,6 +72,10 @@ export class AgentMappedBufferCountChartContainer implements IInspectorChartCont
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

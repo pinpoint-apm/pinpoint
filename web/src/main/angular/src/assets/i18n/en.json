@@ -447,6 +447,17 @@
                         }]
                     }]
                 }],
+                "APDEX_SCORE": [{
+                    "TITLE": "Apdex Score",
+                    "DESC": "Shows status of the agent's Apdex Score",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Apdex Score",
+                            "DESC": "Agent's Apdex Score"
+                        }]
+                    }]
+                }],
                 "TPS": [{
                     "TITLE": "Transactions Per Second",
                     "DESC": "Transactions received by the server per second",
@@ -565,7 +576,7 @@
                 }],
                 "MAPPED_BUFFER_COUNT": [{
                     "TITLE": "Mapped Buffer",
-                    "DESC": "Shows the status of agent's Mapped buffer.",
+                    "DESC": "Shows the status of agent's mapped buffer.",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
@@ -576,7 +587,7 @@
                 }],
                 "MAPPED_BUFFER_MEMORY": [{
                     "TITLE": "Mapped Buffer Memory",
-                    "DESC": "Shows the status of agent's used Mapped buffer memory.",
+                    "DESC": "Shows the status of agent's used mapped buffer memory.",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
@@ -685,6 +696,23 @@
                         }, {
                             "NAME": "Max",
                             "DESC": "Largest system CPU usage of agents"
+                        }]
+                    }]
+                }],
+                "APDEX_SCORE": [{
+                    "TITLE": "Apdex Score",
+                    "DESC": "Apdex Score of the agents and the application",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "Min Apdex Score among the agents"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "Apdex Score of the application"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "Max Apdex Score among the agents"
                         }]
                     }]
                 }],

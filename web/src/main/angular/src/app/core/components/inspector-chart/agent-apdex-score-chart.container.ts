@@ -5,26 +5,32 @@ import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { InspectorChartThemeService } from './inspector-chart-theme.service';
+import { NewUrlStateNotificationService } from 'app/shared/services';
+import { UrlPathId } from 'app/shared/models';
 
-export class AgentLoadedCLassCountChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getAgentStat/loadedClass/chart.pinpoint';
+export class AgentApdexScoreChartContainer implements IInspectorChartContainer {
+    private apiUrl = 'getAgentStat/apdexScore/chart.pinpoint';
 
-    defaultYMax = 100;
-    title = 'Loaded Class Count';
+    defaultYMax = 1;
+    title = 'Apdex Score';
 
     constructor(
         private inspectorChartDataService: InspectorChartDataService,
         private inspectorChartThemeService: InspectorChartThemeService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
     getData(range: number[]): Observable<IInspectorChartData> {
-        return this.inspectorChartDataService.getData(this.apiUrl, range);
+        const applicationId = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+        const serviceTypeName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
+
+        return this.inspectorChartDataService.getData(this.apiUrl, range, {serviceTypeName, applicationId});
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
         return [
             ['x', ...makeXData(charts.x)],
-            ['loadedClassCount', ...makeYData(charts.y['LOADED_CLASS_COUNT'], 2)],
+            ['apdexScore', ...makeYData(charts.y['APDEX_SCORE'], 2)],
         ];
     }
 
@@ -34,10 +40,10 @@ export class AgentLoadedCLassCountChartContainer implements IInspectorChartConta
         return {
             type: spline(),
             names: {
-                loadedClassCount: 'Loaded Class Count'
+                apdexScore: 'Apdex Score',
             },
             colors: {
-                loadedClassCount: `rgba(31, 119, 180, ${alpha})`
+                apdexScore: `rgba(65, 196, 100, ${alpha})`,
             }
         };
     }
@@ -50,7 +56,7 @@ export class AgentLoadedCLassCountChartContainer implements IInspectorChartConta
         return {
             y: {
                 label: {
-                    text: 'Loaded Class (count)',
+                    text: 'Apdex Score',
                     position: 'outer-middle'
                 },
                 tick: {
@@ -62,25 +68,23 @@ export class AgentLoadedCLassCountChartContainer implements IInspectorChartConta
                     bottom: 0
                 },
                 min: 0,
-                max: (() => {
-                    const maxTickValue = getMaxTickValue(data, 1);
-
-                    return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
-                })(),
+                max: this.defaultYMax,
                 default: [0, this.defaultYMax]
             }
         };
     }
 
     makeTooltipOptions(): {[key: string]: any} {
-        return {};
+        return {
+            linked: false
+        };
     }
 
     convertWithUnit(value: number): string {
-        return value.toString();
+        return (Math.floor(value * 100) / 100).toFixed(2);
     }
 
     getTooltipFormat(v: number, columnId: string, i: number): string {
-        return Number.isInteger(v) ? v.toString() : v.toFixed(2);
+        return this.convertWithUnit(v);
     }
 }

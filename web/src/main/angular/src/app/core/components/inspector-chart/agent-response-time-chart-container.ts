@@ -78,6 +78,10 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         const unitList = ['ms', 'sec'];
 

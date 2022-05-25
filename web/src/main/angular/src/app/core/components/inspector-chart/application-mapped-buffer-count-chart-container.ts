@@ -84,6 +84,10 @@ export class ApplicationMappedBufferCountChartContainer implements IInspectorCha
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

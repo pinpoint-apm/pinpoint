@@ -84,6 +84,10 @@ export class ApplicationJVMNonHeapChartContainer implements IInspectorChartConta
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 
