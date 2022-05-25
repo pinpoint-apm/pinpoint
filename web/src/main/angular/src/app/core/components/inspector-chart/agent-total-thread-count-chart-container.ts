@@ -72,6 +72,10 @@ export class AgentTotalThreadCountChartContainer implements IInspectorChartConta
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

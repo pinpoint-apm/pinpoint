@@ -33,7 +33,7 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
 
     makeDataOption(): Data {
         const alpha = this.inspectorChartThemeService.getAlpha(0.4);
-        
+
         return {
             type: areaSpline(),
             names: {
@@ -81,6 +81,10 @@ export class AgentActiveRequestChartContainer implements IInspectorChartContaine
                 default: [0, this.defaultYMax]
             }
         };
+    }
+
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
     }
 
     convertWithUnit(value: number): string {

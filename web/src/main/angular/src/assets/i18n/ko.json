@@ -446,6 +446,17 @@
                         }]
                     }]
                 }],
+                "APDEX_SCORE": [{
+                    "TITLE": "Apdex Score",
+                    "DESC": "Agent의 Apdex Score 현황을 보여줍니다.",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Apdex Score",
+                            "DESC": "현재 Agent의 Apdex Score"
+                        }]
+                    }]
+                }],
                 "TPS": [{
                     "TITLE": "Transactions Per Second",
                     "DESC": "서버로 인입된 초당 트랜잭션 수",
@@ -684,6 +695,23 @@
                         }, {
                             "NAME": "Max",
                             "DESC": "Agent 서버들의 시스템 CPU 사용량 중 가장 큰 값"
+                        }]
+                    }]
+                }],
+                "APDEX_SCORE": [{
+                    "TITLE": "Apdex Score",
+                    "DESC": "Agent, Application의 Apdex Score 현황",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "각 Agent의 Apdex Score 중 가장 작은 값"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "현재 Application의 Apdex Score"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "각 Agent의 Apdex Score 중 가장 큰 값"
                         }]
                     }]
                 }],

@@ -24,12 +24,12 @@ export class InspectorChartDataService {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
-    getData(url: string, range: number[]): Observable<IInspectorChartData> {
-        return this.http.get<IInspectorChartData>(url, this.getHttpParams(range));
+    // TODO: include range, agent, applicationInfo into params?
+    getData(url: string, range: number[], params = {}): Observable<IInspectorChartData> {
+        return this.http.get<IInspectorChartData>(url, this.getHttpParams(range, params));
     }
 
-    // TODO: Include agent/application info in parameter along with range
-    private getHttpParams([from, to]: number[]): object {
+    private getHttpParams([from, to]: number[], params: any): object {
         const isAgentPage = this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ||
             this.newUrlStateNotificationService.hasValue(UrlQuery.TRANSACTION_INFO);
 
@@ -39,6 +39,7 @@ export class InspectorChartDataService {
 
         return {
             params: {
+                ...params,
                 ...idObj,
                 from,
                 to,

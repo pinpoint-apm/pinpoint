@@ -1,5 +1,5 @@
 <div class="l-tool-box">
-    <pp-apdex-score [score]="apdexScore"></pp-apdex-score>
+    <pp-apdex-score-container></pp-apdex-score-container>
     <div>
         <button [hidden]="hiddenOptions.setting" class="fas fa-cog" (click)="outShowSetting.emit()"></button>
         <button [hidden]="hiddenOptions.download" class="fas fa-download" (click)="outDownload.emit()"></button>

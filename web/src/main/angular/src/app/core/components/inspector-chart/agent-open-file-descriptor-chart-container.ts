@@ -72,6 +72,10 @@ export class AgentOpenFileDescriptorChartContainer implements IInspectorChartCon
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

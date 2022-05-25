@@ -84,6 +84,10 @@ export class ApplicationMappedBufferMemoryChartContainer implements IInspectorCh
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 

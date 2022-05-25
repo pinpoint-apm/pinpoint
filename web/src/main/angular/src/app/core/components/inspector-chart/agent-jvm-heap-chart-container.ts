@@ -132,6 +132,10 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 

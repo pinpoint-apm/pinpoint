@@ -84,6 +84,10 @@ export class ApplicationLoadedClassCountChartContainer implements IInspectorChar
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         return value.toString();
     }

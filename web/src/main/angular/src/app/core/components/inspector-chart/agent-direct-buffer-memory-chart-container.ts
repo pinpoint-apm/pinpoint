@@ -72,6 +72,10 @@ export class AgentDirectBufferMemoryChartContainer implements IInspectorChartCon
         };
     }
 
+    makeTooltipOptions(): {[key: string]: any} {
+        return {};
+    }
+
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 
