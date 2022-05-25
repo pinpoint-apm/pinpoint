@@ -17,3 +17,5 @@ publishing {
         }
     }
 }
+
+group = "com.navercorp.pinpoint"
