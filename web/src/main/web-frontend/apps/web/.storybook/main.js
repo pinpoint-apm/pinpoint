@@ -27,7 +27,6 @@ module.exports = {
         'emotion-theming': getPackageDir('@emotion/react'),
       },
     };
-
     return config;
   },
   refs: (config, { configType }) => {
