@@ -15,7 +15,9 @@ dependencies {
     api(project(":pinpoint-commons-profiler"))
     implementation("org.apache.commons:commons-collections4")
     implementation("org.codehaus.jackson:jackson-core-asl")
-    implementation("org.springframework:spring-core")
+    implementation(libs.spring.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     implementation("org.springframework:spring-tx")
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
     runtimeOnly("log4j:log4j")

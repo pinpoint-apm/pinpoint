@@ -1,0 +1,18 @@
+[versions]
+spring = "5.3.13"
+spring4 = "4.3.30.RELEASE"
+
+[libraries]
+spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
+spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
+spring-orm = { module = "org.springframework:spring-orm", version.ref = "spring" }
+spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
+
+spring4-beans = { module = "org.springframework:spring-beans", version.ref = "spring4" }
+spring4-context = { module = "org.springframework:spring-context", version.ref = "spring4" }
+spring4-test = { module = "org.springframework:spring-test", version.ref = "spring4" }
+spring4-web = { module = "org.springframework:spring-web", version.ref = "spring4" }
+
+json-path = { module = "com.jayway.jsonpath:json-path", version = "1.2.0" }
+[bundles]

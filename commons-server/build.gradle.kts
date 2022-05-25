@@ -16,8 +16,10 @@ dependencies {
     api(project(":pinpoint-commons-hbase"))
     api(project(":pinpoint-plugins-loader"))
     implementation("org.apache.commons:commons-collections4")
-    implementation("org.springframework:spring-core")
-    implementation("org.springframework:spring-context")
+    implementation(libs.spring.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.spring.context)
     implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
     implementation("org.apache.commons:commons-lang3")
     implementation("org.apache.thrift:libthrift")
@@ -27,7 +29,7 @@ dependencies {
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     testImplementation("org.awaitility:awaitility")
-    testImplementation("org.springframework:spring-test:${Versions.spring}")
+    testImplementation(libs.spring.test)
     compileOnlyApi(project(":pinpoint-thrift"))
     compileOnlyApi(project(":pinpoint-grpc"))
 }

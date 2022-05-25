@@ -20,8 +20,10 @@ dependencies {
     implementation("org.apache.thrift:libthrift:0.15.0")
     api(project(":pinpoint-web"))
     api(project(":pinpoint-collector"))
-    implementation("org.springframework:spring-core")
-    implementation("org.springframework:spring-context")
+    implementation(libs.spring.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.spring.context)
     implementation("org.springframework:spring-context-support")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
@@ -33,7 +35,7 @@ dependencies {
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
     testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
-    testImplementation("org.springframework:spring-test:${Versions.spring}")
+    testImplementation(libs.spring.test)
     compileOnly("org.apache.flink:flink-java:1.14.2")
     compileOnly("org.apache.flink:flink-streaming-java_2.11:1.14.2")
     compileOnly("org.apache.flink:flink-clients_2.11:1.14.2")

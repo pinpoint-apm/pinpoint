@@ -6,7 +6,7 @@ plugins {
 catalog {
     // declare the aliases, bundles and versions in this block
     versionCatalog {
-        library("pinpoint", "com.navercorp.pinpoint:pinpoint-version-catalog:$version")
+        from(rootProject.files("gradle/libs.versions.toml"))
     }
 }
 

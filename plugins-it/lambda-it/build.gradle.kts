@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.springframework:spring-context")
+    testImplementation(libs.spring.context)
     testImplementation(project(":pinpoint-plugin-it-utils"))
 }
 

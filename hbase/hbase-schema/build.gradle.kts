@@ -13,7 +13,9 @@ dependencies {
     api(project(":pinpoint-hbase-schema-definition"))
     api(project(":pinpoint-commons-hbase"))
     api(project(":pinpoint-commons-buffer"))
-    implementation("org.springframework:spring-core")
+    implementation(libs.spring.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:${Versions.jaxbImpl}")
     runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")

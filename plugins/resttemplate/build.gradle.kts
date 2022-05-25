@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.springframework:spring-web:${Versions.spring4}")
+    compileOnly(libs.spring4.web)
 }
 
 description = "pinpoint-resttemplate-plugin"

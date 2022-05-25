@@ -15,7 +15,7 @@ dependencies {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
     implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
-    implementation("org.springframework:spring-web")
+    implementation(libs.spring.web)
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework:spring-jdbc")
     implementation("com.sun.mail:jakarta.mail")
@@ -31,7 +31,7 @@ dependencies {
     }
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
     runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
-    testImplementation("org.springframework:spring-test:${Versions.spring}")
+    testImplementation(libs.spring.test)
     testImplementation("org.springframework.batch:spring-batch-test:4.3.3")
     testImplementation("org.apache.commons:commons-lang3")
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
