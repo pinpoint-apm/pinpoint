@@ -20,7 +20,6 @@ function renderDropdown(props?: Partial<DropdownProps>) {
   function clickOutside() {
     userEvent.click(document.body);
   }
-
   function pressEscapeKey() {
     userEvent.keyboard('{esc}');
     // fireEvent.keyDown(document.body, {
@@ -46,7 +45,6 @@ describe('Dropdown', () => {
       Content,
       clickTrigger,
     } = renderDropdown();
-
     clickTrigger();
     expect(Content()).toBeVisible();
   })
