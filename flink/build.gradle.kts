@@ -24,12 +24,14 @@ dependencies {
         exclude(group = "commons-logging", module = "commons-logging")
     }
     implementation(libs.spring.context)
-    implementation("org.springframework:spring-context-support")
+    implementation(libs.spring.context.support)
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
-    implementation("io.dropwizard.metrics:metrics-core")
-    implementation("io.dropwizard.metrics:metrics-jvm")
-    implementation("io.dropwizard.metrics:metrics-servlets")
+    implementation(libs.metrics.core)
+    implementation(libs.metrics.jvm)
+    implementation(libs.metrics.servlets) {
+        exclude(group = "com.papertrail", module = "profiler")
+    }
     implementation("org.apache.zookeeper:zookeeper")
     runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")

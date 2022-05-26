@@ -12,9 +12,9 @@ dependencies {
     api(project(":pinpoint-plugin-it-utils"))
     testImplementation("org.codehaus.jackson:jackson-core-asl")
     testImplementation("org.codehaus.jackson:jackson-mapper-asl")
-    testImplementation("com.fasterxml.jackson.core:jackson-core")
-    testImplementation("com.fasterxml.jackson.core:jackson-annotations")
-    testImplementation("com.fasterxml.jackson.core:jackson-databind")
+    testImplementation(libs.jackson.core)
+    testImplementation(libs.jackson.annotations)
+    testImplementation(libs.jackson.databind)
 }
 
 description = "pinpoint-jackson-plugin-it"

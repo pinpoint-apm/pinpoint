@@ -1,6 +1,8 @@
 [versions]
 spring = "5.3.13"
 spring4 = "4.3.30.RELEASE"
+metrics = "3.2.6"
+fastxml-jackson = "2.12.5"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -8,11 +10,34 @@ spring-context = { module = "org.springframework:spring-context", version.ref = 
 spring-orm = { module = "org.springframework:spring-orm", version.ref = "spring" }
 spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
+spring-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "spring" }
+spring-websocket = { module = "org.springframework:spring-websocket", version.ref = "spring" }
+spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring" }
+spring-tx = { module = "org.springframework:spring-tx", version.ref = "spring" }
+spring-oxm = { module = "org.springframework:spring-oxm", version.ref = "spring" }
+spring-instrument = { module = "org.springframework:spring-instrument", version.ref = "spring" }
+spring-context-support = { module = "org.springframework:spring-context-support", version.ref = "spring" }
+spring-aop = { module = "org.springframework:spring-aop", version.ref = "spring" }
+spring-aspects = { module = "org.springframework:spring-aspects", version.ref = "spring" }
 
 spring4-beans = { module = "org.springframework:spring-beans", version.ref = "spring4" }
 spring4-context = { module = "org.springframework:spring-context", version.ref = "spring4" }
 spring4-test = { module = "org.springframework:spring-test", version.ref = "spring4" }
 spring4-web = { module = "org.springframework:spring-web", version.ref = "spring4" }
+spring4-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "spring4" }
 
 json-path = { module = "com.jayway.jsonpath:json-path", version = "1.2.0" }
+
+# serving performance metrics
+metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
+metrics-jvm = { module = "io.dropwizard.metrics:metrics-jvm", version.ref = "metrics" }
+metrics-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "metrics" }
+
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "fastxml-jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "fastxml-jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "fastxml-jackson" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "fastxml-jackson" }
+snakeyaml = { module = "org.yaml:snakeyaml", version = "1.27" }
+
+hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.1" }
 [bundles]

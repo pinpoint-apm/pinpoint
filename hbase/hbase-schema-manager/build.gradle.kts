@@ -15,7 +15,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3")
     implementation("org.springframework.boot:spring-boot-starter:${Versions.springBoot}")
     implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
-    implementation("org.springframework:spring-tx")
+    implementation(libs.spring.tx)
     implementation("org.apache.logging.log4j:log4j-1.2-api:2.14.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test:${Versions.springBoot}")
 }

@@ -16,8 +16,8 @@ dependencies {
     }
     implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
     implementation(libs.spring.web)
-    implementation("org.springframework:spring-context-support")
-    implementation("org.springframework:spring-jdbc")
+    implementation(libs.spring.context.support)
+    implementation(libs.spring.jdbc)
     implementation("com.sun.mail:jakarta.mail")
     implementation("org.springframework.batch:spring-batch-core:4.3.3")
     implementation("com.zaxxer:HikariCP")

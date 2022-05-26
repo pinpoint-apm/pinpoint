@@ -12,7 +12,7 @@ dependencies {
     api(project(":pinpoint-plugin-it-utils"))
     testImplementation(libs.spring4.test)
     testImplementation(libs.spring4.context)
-    testImplementation("org.springframework:spring-webmvc:${Versions.spring4}")
+    testImplementation(libs.spring4.webmvc)
     testImplementation("javax.servlet:javax.servlet-api")
 }
 

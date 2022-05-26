@@ -18,7 +18,7 @@ dependencies {
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
-    implementation("org.springframework:spring-tx")
+    implementation(libs.spring.tx)
     implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
     runtimeOnly("log4j:log4j")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
