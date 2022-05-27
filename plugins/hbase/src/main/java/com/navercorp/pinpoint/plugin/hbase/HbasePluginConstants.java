@@ -110,4 +110,5 @@ public final class HbasePluginConstants {
      */
     public static final String[] adminMethodNames = new String[]{"tableExists", "listTables", "listTableNames", "getTableDescriptor", "createTable", "deleteTable", "modifyTable", "truncateTable", "enableTable", "enableTableAsync", "enableTables", "disableTableAsync", "disableTable", "disableTables", "getAlterStatus", "addColumn", "deleteColumn", "modifyColumn", "compact", "majorCompact", "split", "getTableRegions", "snapshot", "restoreSnapshot", "cloneSnapshot", "listSnapshots", "deleteSnapshot"};
 
+    public static final String UNKNOWN_TABLE = "Unknown";
 }
