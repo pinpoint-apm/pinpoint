@@ -6,7 +6,6 @@
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
 }
 
 dependencies {
@@ -18,6 +17,14 @@ dependencies {
     implementation(libs.spring.tx)
     implementation("org.apache.logging.log4j:log4j-1.2-api:2.14.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test:${Versions.springBoot}")
+
+    implementation(libs.hbase.shaded.client) {
+        exclude("org.slf4j:slf4j-log4j12")
+        exclude("commons-logging:commons-logging")
+    }
+    implementation(libs.hbasewd) {
+        exclude("log4j:log4j")
+    }
 }
 
 description = "pinpoint-hbase-schema-manager"

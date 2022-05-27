@@ -8,7 +8,6 @@ plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
     id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
     id("com.navercorp.pinpoint.gradle.plugins.bom.agent-plugins")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
     id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
     id("org.siouan.frontend-jdk8") version "6.0.0"
 }
@@ -51,17 +50,17 @@ dependencies {
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
+    implementation(libs.log4j.api)
     implementation("commons-codec:commons-codec")
     implementation("com.sun.mail:jakarta.mail")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("org.aspectj:aspectjweaver:1.9.5")
     runtimeOnly("commons-lang:commons-lang")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    runtimeOnly(libs.slf4j.api)
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
     testImplementation(libs.json.path)
     testImplementation(project(":pinpoint-profiler"))
@@ -72,6 +71,14 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     compileOnly("javax.servlet:javax.servlet-api:4.0.1")
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
+
+    implementation(libs.hbase.shaded.client) {
+        exclude("org.slf4j:slf4j-log4j12")
+        exclude("commons-logging:commons-logging")
+    }
+    implementation(libs.hbasewd) {
+        exclude("log4j:log4j")
+    }
 }
 
 description = "pinpoint-web"

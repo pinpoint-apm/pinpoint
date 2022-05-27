@@ -7,7 +7,6 @@
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
     id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
 }
 
 dependencies {
@@ -23,15 +22,23 @@ dependencies {
     implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
     implementation("org.apache.commons:commons-lang3")
     implementation("org.apache.thrift:libthrift")
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    implementation(libs.log4j.api.jdk7)
+    runtimeOnly(libs.slf4j.api)
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j.core)
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     testImplementation("org.awaitility:awaitility")
     testImplementation(libs.spring.test)
     compileOnlyApi(project(":pinpoint-thrift"))
     compileOnlyApi(project(":pinpoint-grpc"))
+
+    implementation(libs.hbase.shaded.client) {
+        exclude("org.slf4j:slf4j-log4j12")
+        exclude("commons-logging:commons-logging")
+    }
+    implementation(libs.hbasewd) {
+        exclude("log4j:log4j")
+    }
 }
 
 description = "pinpoint-commons-server"

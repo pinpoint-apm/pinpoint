@@ -11,10 +11,10 @@ dependencies {
     api(project(":pinpoint-bootstrap-core"))
     api(project(":pinpoint-commons-profiler"))
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
-    implementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    implementation(libs.log4j.core.jdk7)
     implementation("org.apache.commons:commons-lang3")
     runtimeOnly("io.netty:netty-tcnative-boringssl-static:2.0.38.Final")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    runtimeOnly(libs.slf4j.api)
     testImplementation("io.grpc:grpc-testing:${Versions.grpc}")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 }

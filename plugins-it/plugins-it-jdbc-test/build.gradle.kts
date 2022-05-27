@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-bootstrap-core"))
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
+    implementation(libs.log4j.api.jdk7)
     implementation("junit:junit:${Versions.junit}")
 }
 

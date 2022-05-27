@@ -12,10 +12,10 @@ dependencies {
     api(project(":pinpoint-bootstrap-core"))
     api(project(":pinpoint-thrift"))
     implementation("org.apache.thrift:libthrift")
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    implementation(libs.log4j.api.jdk7)
+    runtimeOnly(libs.slf4j.api)
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}")
+    runtimeOnly(libs.log4j.core.jdk7)
 }
 
 description = "pinpoint-tools"

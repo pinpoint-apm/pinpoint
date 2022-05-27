@@ -6,7 +6,6 @@
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
     id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
 }
 
@@ -26,21 +25,29 @@ dependencies {
     implementation(libs.spring.context)
     implementation(libs.spring.context.support)
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
+    implementation(libs.log4j.api)
     implementation(libs.metrics.core)
     implementation(libs.metrics.jvm)
     implementation(libs.metrics.servlets) {
         exclude(group = "com.papertrail", module = "profiler")
     }
     implementation("org.apache.zookeeper:zookeeper")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    runtimeOnly(libs.slf4j.api)
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
-    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
+    testImplementation(libs.log4j.core)
     testImplementation(libs.spring.test)
     compileOnly("org.apache.flink:flink-java:1.14.2")
     compileOnly("org.apache.flink:flink-streaming-java_2.11:1.14.2")
     compileOnly("org.apache.flink:flink-clients_2.11:1.14.2")
+
+    implementation(libs.hbase.shaded.client) {
+        exclude("org.slf4j:slf4j-log4j12")
+        exclude("commons-logging:commons-logging")
+    }
+    implementation(libs.hbasewd) {
+        exclude("log4j:log4j")
+    }
 }
 
 description = "pinpoint-flink"

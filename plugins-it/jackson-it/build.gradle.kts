@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("org.codehaus.jackson:jackson-core-asl")
+    testImplementation(libs.jackson.core.asl)
     testImplementation("org.codehaus.jackson:jackson-mapper-asl")
     testImplementation(libs.jackson.core)
     testImplementation(libs.jackson.annotations)

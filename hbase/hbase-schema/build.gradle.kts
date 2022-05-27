@@ -6,7 +6,6 @@
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.hbase")
 }
 
 dependencies {
@@ -16,9 +15,17 @@ dependencies {
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK8}")
+    implementation(libs.log4j.api)
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:${Versions.jaxbImpl}")
     runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
+
+    implementation(libs.hbase.shaded.client) {
+        exclude("org.slf4j:slf4j-log4j12")
+        exclude("commons-logging:commons-logging")
+    }
+    implementation(libs.hbasewd) {
+        exclude("log4j:log4j")
+    }
 }
 
 description = "pinpoint-hbase-schema"

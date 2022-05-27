@@ -25,12 +25,12 @@ dependencies {
     implementation("org.mybatis:mybatis-spring")
     implementation("mysql:mysql-connector-java")
     runtimeOnly("com.sun.activation:jakarta.activation:1.2.2")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    runtimeOnly(libs.slf4j.api)
     runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}") {
         exclude(group = "commons-logging", module = "commons-logging")
     }
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
     testImplementation("org.springframework.batch:spring-batch-test:4.3.3")
     testImplementation("org.apache.commons:commons-lang3")

@@ -3,6 +3,8 @@ spring = "5.3.13"
 spring4 = "4.3.30.RELEASE"
 metrics = "3.2.6"
 fastxml-jackson = "2.12.5"
+log4j2-jdk7 = "2.12.4"
+log4j2 = "2.17.1"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -40,4 +42,13 @@ jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-d
 snakeyaml = { module = "org.yaml:snakeyaml", version = "1.27" }
 
 hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.1" }
+jackson-core-asl = { module = "org.codehaus.jackson:jackson-core-asl", version = "1.9.13" }
+hbasewd = { module = "com.sematext.hbasewd:hbasewd", version = "0.1.0" }
+
+# Logging dependencies
+log4j-api-jdk7 = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2-jdk7" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2" }
+log4j-core-jdk7 = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2-jdk7" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "1.7.30" }
 [bundles]

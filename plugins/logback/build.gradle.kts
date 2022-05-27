@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    compileOnly(libs.slf4j.api)
     compileOnly("ch.qos.logback:logback-core:1.2.5")
 }
 

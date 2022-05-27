@@ -21,7 +21,7 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-transport-wagon:1.6.1")
     implementation("org.apache.maven:maven-resolver-provider:3.6.3")
     implementation("org.apache.commons:commons-lang3")
-    implementation("org.apache.logging.log4j:log4j-api:${Versions.log4jJDK7}")
+    implementation(libs.log4j.api.jdk7)
     implementation("org.tinylog:tinylog-api:${Versions.tinylog}")
     implementation("org.tinylog:tinylog-impl:${Versions.tinylog}") {
         exclude(group = "org.tinylog", module = "tinylog-api")
@@ -31,13 +31,13 @@ dependencies {
         exclude(group = "org.tinylog", module = "tinylog-api")
     }
     implementation("junit:junit:${Versions.junit}")
-    runtimeOnly("org.slf4j:slf4j-api:${Versions.slf4j}")
+    runtimeOnly(libs.slf4j.api)
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}") {
         exclude(group = "org.slf4j", module = "slf4j-api")
         exclude(group = "org.apache.logging.log4j", module = "log4j-api")
         exclude(group = "org.apache.logging.log4j", module = "log4j-core")
     }
-    testImplementation("org.apache.logging.log4j:log4j-core:${Versions.log4jJDK7}") {
+    testImplementation(libs.log4j.core.jdk7) {
         exclude(group = "org.apache.logging.log4j", module = "log4j-api")
     }
     testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}") {
