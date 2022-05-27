@@ -124,7 +124,7 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    };
+    }
 
     private void addHbaseAdminTransformer() {
 
@@ -159,8 +159,10 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
             HbasePluginConfig config = new HbasePluginConfig(instrumentor.getProfilerConfig());
             final boolean paramsProfile = config.isParamsProfile();
             final boolean tableNameProfile = config.isTableNameProfile();
+            final int hbaseVersion = HbaseVersion.getVersion(classLoader);
+
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.tableMethodNames))) {
-                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile, tableNameProfile));
+                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile, tableNameProfile, hbaseVersion));
             }
             return target.toBytecode();
         }

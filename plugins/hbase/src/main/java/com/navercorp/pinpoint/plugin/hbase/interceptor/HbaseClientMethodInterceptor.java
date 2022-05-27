@@ -52,7 +52,7 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = getEndPoint(args);
-        recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
+        recorder.recordEndPoint(endPoint != null ? endPoint : HbasePluginConstants.UNKNOWN_TABLE);
         recorder.recordDestinationId(HbasePluginConstants.HBASE_DESTINATION_ID);
         recorder.recordApi(getMethodDescriptor());
         recorder.recordException(throwable);
