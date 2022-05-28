@@ -56,7 +56,7 @@ public class AgentSdkAsyncPlugin implements ProfilerPlugin, TransformTemplateAwa
 
         addTraceRunnableInterceptorTask(sdkPackage + ".TraceRunnable");
         addTraceCallableInterceptorTask(sdkPackage + ".TraceCallable");
-
+        addTraceForkJoinTaskInterceptorTask(sdkPackage + ".TraceForkJoinTask");
 
         addTraceExecutor(sdkPackage + ".TraceExecutorService");
         addTraceExecutor(sdkPackage + ".TraceScheduledExecutorService");
@@ -117,6 +117,30 @@ public class AgentSdkAsyncPlugin implements ProfilerPlugin, TransformTemplateAwa
         }
     }
 
+    private void addTraceForkJoinTaskInterceptorTask(final String className) {
+        transformTemplate.transform(className, TraceForkJoinTaskCallback.class);
+    }
+
+    public static class TraceForkJoinTaskCallback implements TransformCallback {
+
+        public TraceForkJoinTaskCallback() {
+        }
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            final InstrumentMethod execMethod = target.getDeclaredMethod("exec");
+            if (execMethod != null) {
+                execMethod.addInterceptor(CommandInterceptor.class);
+            }
+            InstrumentMethod asyncEntry = target.getDeclaredMethod("asyncEntry", "java.util.concurrent.ForkJoinTask");
+            if (asyncEntry != null) {
+                asyncEntry.addInterceptor(AsyncEntryInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
 
     private void addTraceExecutor(final String className) {
         transformTemplate.transform(className, ExecutorExecuteTransformCallback.class);
