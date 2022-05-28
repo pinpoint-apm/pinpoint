@@ -112,7 +112,7 @@ public class HbaseTableMethodInterceptorTest {
 
         Object[] args = new Object[]{Collections.singletonList("test")};
 
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, getHbaseVersion());
         interceptor.doInAfterTrace(recorder, target, args, null, null);
         verify(recorder).recordAttribute(HbasePluginConstants.HBASE_OP_METHOD, descriptor.getMethodName());
         verify(recorder).recordApi(descriptor);
