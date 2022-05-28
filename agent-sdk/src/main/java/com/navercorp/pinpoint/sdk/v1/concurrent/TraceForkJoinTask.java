@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.sdk.v1.concurrent;
 
+import com.navercorp.pinpoint.sdk.v1.concurrent.util.Counter;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ForkJoinTask;
@@ -46,6 +48,8 @@ public class TraceForkJoinTask<V> extends ForkJoinTask<V> {
             if (finished) {
                 result = task.getRawResult();
             }
+            // for performance test
+            Counter.add();
             return finished;
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -65,6 +69,8 @@ public class TraceForkJoinTask<V> extends ForkJoinTask<V> {
             compute.setAccessible(true);
             //noinspection unchecked
             result = (V) compute.invoke(task);
+            // for performance test
+            Counter.add();
             return result;
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
