@@ -14,7 +14,7 @@ dependencies {
     api(project(":pinpoint-commons-profiler"))
     api(project(":pinpoint-commons-hbase"))
     api(project(":pinpoint-plugins-loader"))
-    implementation("org.apache.commons:commons-collections4")
+    implementation(libs.commons.collections4)
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }

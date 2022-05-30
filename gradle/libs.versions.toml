@@ -98,4 +98,6 @@ commons-io = { module = "commons-io:commons-io", version = "2.6" }
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.8.1" }
 # for jdk6
 commons-lang = { module = "commons-lang:commons-lang", version = "2.6" }
+commons-collections = { module = "commons-collections:commons-collections", version = "3.2.2" }
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version = "4.4" }
 [bundles]

@@ -20,7 +20,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1-jre")
     implementation(libs.netty)
     implementation(libs.commons.lang3)
-    implementation("org.apache.commons:commons-collections4")
+    implementation(libs.commons.collections4)
     implementation("org.apache.thrift:libthrift:0.15.0")
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)

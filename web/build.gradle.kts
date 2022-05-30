@@ -25,7 +25,7 @@ dependencies {
     implementation("org.apache.zookeeper:zookeeper")
     implementation(libs.commons.lang3)
     implementation("org.apache.commons:commons-text:1.9")
-    implementation("org.apache.commons:commons-collections4")
+    implementation(libs.commons.collections4)
     implementation("org.apache.thrift:libthrift:0.15.0")
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")

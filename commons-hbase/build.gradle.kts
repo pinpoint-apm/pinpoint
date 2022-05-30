@@ -12,7 +12,7 @@ dependencies {
     api(project(":pinpoint-annotations"))
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-profiler"))
-    implementation("org.apache.commons:commons-collections4")
+    implementation(libs.commons.collections4)
     implementation(libs.jackson.core.asl)
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
