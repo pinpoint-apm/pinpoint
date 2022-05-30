@@ -19,7 +19,7 @@ dependencies {
     api(project(":pinpoint-profiler"))
     implementation("com.google.guava:guava:30.1-jre")
     implementation(libs.netty)
-    implementation("org.apache.commons:commons-lang3")
+    implementation(libs.commons.lang3)
     implementation("org.apache.commons:commons-collections4")
     implementation("org.apache.thrift:libthrift:0.15.0")
     implementation(libs.jackson.core)
@@ -41,7 +41,7 @@ dependencies {
     implementation(libs.metrics.servlets) {
         exclude(group = "com.papertrail", module = "profiler")
     }
-    runtimeOnly("commons-lang:commons-lang")
+    runtimeOnly(libs.commons.lang)
     runtimeOnly(libs.log4j.jcl)
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)

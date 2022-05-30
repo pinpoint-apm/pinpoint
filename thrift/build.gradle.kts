@@ -16,7 +16,7 @@ dependencies {
     implementation(libs.log4j.core.jdk7)
     implementation(libs.log4j.jcl.jdk7)
     runtimeOnly(libs.slf4j.api)
-    testImplementation("commons-lang:commons-lang")
+    testImplementation(libs.commons.lang)
 }
 
 description = "pinpoint-thrift"

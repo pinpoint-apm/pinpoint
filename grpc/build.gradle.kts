@@ -12,7 +12,7 @@ dependencies {
     api(project(":pinpoint-commons-profiler"))
     implementation(libs.log4j.slf4j.impl.jdk7)
     implementation(libs.log4j.core.jdk7)
-    implementation("org.apache.commons:commons-lang3")
+    implementation(libs.commons.lang3)
     runtimeOnly("io.netty:netty-tcnative-boringssl-static:2.0.38.Final")
     runtimeOnly(libs.slf4j.api)
     testImplementation("io.grpc:grpc-testing:${Versions.grpc}")

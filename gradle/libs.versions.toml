@@ -89,4 +89,13 @@ caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version = "2.9.2
 
 httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.5.13" }
 httpcore = { module = "org.apache.httpcomponents:httpcore", version = "4.4.14" }
+
+# 2.7 (requires Java 8
+# 2.6 (requires Java 7
+commons-io = { module = "commons-io:commons-io", version = "2.6" }
+# https://commons.apache.org/proper/commons-lang/changes-report.html
+# Lang 3.9 and onwards now targets Java 8, making use of features that arrived with Java 8.
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.8.1" }
+# for jdk6
+commons-lang = { module = "commons-lang:commons-lang", version = "2.6" }
 [bundles]

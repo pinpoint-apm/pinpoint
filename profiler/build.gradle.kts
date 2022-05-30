@@ -27,7 +27,7 @@ dependencies {
     implementation("io.grpc:grpc-core:${Versions.grpc}")
     runtimeOnly(libs.slf4j.api)
     testImplementation("com.google.inject.extensions:guice-grapher:4.1.0")
-    testImplementation("commons-lang:commons-lang")
+    testImplementation(libs.commons.lang)
     testImplementation(project(":pinpoint-rpc"))
     testImplementation(project(":pinpoint-testcase"))
     testImplementation(libs.spring4.context)

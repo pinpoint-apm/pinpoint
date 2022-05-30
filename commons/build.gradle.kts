@@ -14,7 +14,7 @@ dependencies {
     testImplementation(libs.log4j.api.jdk7)
     testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
-    testImplementation("org.apache.commons:commons-lang3")
+    testImplementation(libs.commons.lang3)
     groovyScript("org.codehaus.groovy:groovy-all:2.4.5")
 }
 

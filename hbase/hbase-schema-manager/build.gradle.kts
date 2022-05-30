@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-hbase-schema"))
     implementation("org.springframework.boot:spring-boot-configuration-processor:${Versions.springBoot}")
-    implementation("org.apache.commons:commons-lang3")
+    implementation(libs.commons.lang3)
     implementation("org.springframework.boot:spring-boot-starter:${Versions.springBoot}")
     implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
     implementation(libs.spring.tx)

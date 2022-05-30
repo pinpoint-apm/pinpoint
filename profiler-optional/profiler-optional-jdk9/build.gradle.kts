@@ -15,7 +15,7 @@ dependencies {
     testImplementation(project(":pinpoint-test"))
     testImplementation(libs.spring.test)
     testImplementation(libs.spring.context)
-    testImplementation("commons-io:commons-io")
+    testImplementation(libs.commons.io)
     testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
 }

@@ -33,7 +33,7 @@ dependencies {
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
     testImplementation("org.springframework.batch:spring-batch-test:4.3.3")
-    testImplementation("org.apache.commons:commons-lang3")
+    testImplementation(libs.commons.lang3)
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
 }
 

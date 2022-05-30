@@ -20,7 +20,7 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-transport-http:1.6.1")
     implementation("org.apache.maven.resolver:maven-resolver-transport-wagon:1.6.1")
     implementation("org.apache.maven:maven-resolver-provider:3.6.3")
-    implementation("org.apache.commons:commons-lang3")
+    implementation(libs.commons.lang3)
     implementation(libs.log4j.api.jdk7)
     implementation("org.tinylog:tinylog-api:${Versions.tinylog}")
     implementation("org.tinylog:tinylog-impl:${Versions.tinylog}") {

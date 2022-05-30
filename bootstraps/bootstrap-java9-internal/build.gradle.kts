@@ -16,7 +16,7 @@ dependencies {
     testImplementation(libs.log4j.core.jdk7)
     testImplementation(libs.log4j.jcl.jdk7)
     testImplementation(libs.mysql.connector.java)
-    testImplementation("commons-io:commons-io")
+    testImplementation(libs.commons.io)
 }
 
 description = "pinpoint-bootstrap-java9-internal"

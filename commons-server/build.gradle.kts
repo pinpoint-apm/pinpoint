@@ -20,7 +20,7 @@ dependencies {
     }
     implementation(libs.spring.context)
     implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
-    implementation("org.apache.commons:commons-lang3")
+    implementation(libs.commons.lang3)
     implementation("org.apache.thrift:libthrift")
     implementation(libs.log4j.api.jdk7)
     runtimeOnly(libs.slf4j.api)
