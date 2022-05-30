@@ -91,14 +91,7 @@ public class PinpointPluginTestRunListener extends RunListener {
         builder.append(JUNIT_OUTPUT_DELIMITER);
 
         for (StackTraceElement e : failure.getException().getStackTrace()) {
-            builder.append(e.getClassName());
-            builder.append(',');
-            builder.append(e.getMethodName());
-            builder.append(',');
-            builder.append(e.getFileName());
-            builder.append(',');
-            builder.append(e.getLineNumber());
-
+            ExceptionWriter.writeStackTrace(builder, e);
             builder.append(JUNIT_OUTPUT_DELIMITER);
         }
 
