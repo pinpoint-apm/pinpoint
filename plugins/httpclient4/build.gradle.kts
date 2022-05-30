@@ -10,10 +10,10 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.apache.httpcomponents:httpcore:4.4.14")
+    compileOnly(libs.httpcore)
     compileOnly("org.apache.httpcomponents:httpasyncclient:4.1.4")
     compileOnly("org.apache.httpcomponents:httpcore-nio:4.4.14")
-    compileOnly("org.apache.httpcomponents:httpclient")
+    compileOnly(libs.httpclient)
     compileOnly("commons-httpclient:commons-httpclient:3.1")
 }
 

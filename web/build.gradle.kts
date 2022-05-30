@@ -46,7 +46,7 @@ dependencies {
     implementation(libs.mybatis)
     implementation(libs.mybatis.spring)
     implementation(libs.mysql.connector.java)
-    implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation(libs.caffeine)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)

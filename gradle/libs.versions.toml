@@ -84,4 +84,9 @@ netty-resolver = { module = "io.netty:netty-resolver", version.ref = "netty4" }
 netty-resolver-dns = { module = "io.netty:netty-resolver-dns", version.ref = "netty4" }
 netty-transport = { module = "io.netty:netty-transport", version.ref = "netty4" }
 netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty4" }
+
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version = "2.9.2" }
+
+httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.5.13" }
+httpcore = { module = "org.apache.httpcomponents:httpcore", version = "4.4.14" }
 [bundles]

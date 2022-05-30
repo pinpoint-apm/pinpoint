@@ -24,7 +24,7 @@ dependencies {
     }
     implementation(libs.spring.context)
     implementation(libs.spring.context.support)
-    implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation(libs.caffeine)
     implementation(libs.log4j.api)
     implementation(libs.metrics.core)
     implementation(libs.metrics.jvm)
