@@ -78,7 +78,6 @@ export const GlobalStyle = (
       * {
         margin: 0;
         padding: 0;
-        text-decoration: none;
         box-sizing: border-box;
         border-collapse: collapse;
         background: transparent;
