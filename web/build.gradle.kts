@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)
     implementation(libs.log4j.api)
-    implementation("commons-codec:commons-codec")
+    implementation(libs.commons.codec)
     implementation("com.sun.mail:jakarta.mail")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api:2.3.1")

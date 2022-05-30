@@ -100,4 +100,7 @@ commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.8.1"
 commons-lang = { module = "commons-lang:commons-lang", version = "2.6" }
 commons-collections = { module = "commons-collections:commons-collections", version = "3.2.2" }
 commons-collections4 = { module = "org.apache.commons:commons-collections4", version = "4.4" }
+commons-compress = { module = "org.apache.commons:commons-compress", version = "1.20" }
+# Codec 1.14 (mirrors) requires Java 7
+commons-codec = { module = "commons-codec:commons-codec", version = "1.14" }
 [bundles]
