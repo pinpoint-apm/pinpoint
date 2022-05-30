@@ -23,12 +23,7 @@ public class PinpointPluginTestException extends RuntimeException {
     private final String exceptionClass;
 
     public PinpointPluginTestException(String exceptionClass, String message, Throwable cause) {
-        super(concat(exceptionClass, message), cause);
-        this.exceptionClass = exceptionClass;
-    }
-
-    public PinpointPluginTestException(String exceptionClass, String message) {
-        super(message);
+        super(concat(exceptionClass, message), cause, false, false);
         this.exceptionClass = exceptionClass;
     }
 
