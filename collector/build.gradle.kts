@@ -26,7 +26,7 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)
     implementation(libs.slf4j.api)
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
+    implementation(libs.log4j.slf4j.impl)
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
@@ -42,7 +42,7 @@ dependencies {
         exclude(group = "com.papertrail", module = "profiler")
     }
     runtimeOnly("commons-lang:commons-lang")
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j.jcl)
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
     testImplementation("org.springframework.boot:spring-boot-test:${Versions.springBoot}")

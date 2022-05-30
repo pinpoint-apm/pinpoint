@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.mybatis:mybatis")
+    compileOnly(libs.mybatis)
 }
 
 description = "pinpoint-mybatis-plugin"

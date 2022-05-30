@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("log4j:log4j")
+    compileOnly(libs.log4j)
 }
 
 description = "pinpoint-log4j-plugin"

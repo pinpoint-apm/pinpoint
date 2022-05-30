@@ -32,7 +32,7 @@ dependencies {
     }
     implementation("junit:junit:${Versions.junit}")
     runtimeOnly(libs.slf4j.api)
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}") {
+    testImplementation(libs.log4j.slf4j.impl.jdk7) {
         exclude(group = "org.slf4j", module = "slf4j-api")
         exclude(group = "org.apache.logging.log4j", module = "log4j-api")
         exclude(group = "org.apache.logging.log4j", module = "log4j-core")
@@ -40,7 +40,7 @@ dependencies {
     testImplementation(libs.log4j.core.jdk7) {
         exclude(group = "org.apache.logging.log4j", module = "log4j-api")
     }
-    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}") {
+    testImplementation(libs.log4j.jcl.jdk7) {
         exclude(group = "org.apache.logging.log4j", module = "log4j-api")
     }
 }

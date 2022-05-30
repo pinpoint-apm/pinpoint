@@ -10,9 +10,9 @@ plugins {
 
 dependencies {
     testImplementation(libs.log4j.api.jdk7)
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
-    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
+    testImplementation(libs.log4j.jcl.jdk7)
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.thrift:libthrift")
 }

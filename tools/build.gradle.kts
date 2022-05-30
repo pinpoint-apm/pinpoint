@@ -14,7 +14,7 @@ dependencies {
     implementation("org.apache.thrift:libthrift")
     implementation(libs.log4j.api.jdk7)
     runtimeOnly(libs.slf4j.api)
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    runtimeOnly(libs.log4j.slf4j.impl.jdk7)
     runtimeOnly(libs.log4j.core.jdk7)
 }
 

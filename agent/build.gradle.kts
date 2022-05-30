@@ -25,7 +25,7 @@ dependencies {
     runtimeOnly(project(":pinpoint-tools"))
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.core.jdk7)
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    runtimeOnly(libs.log4j.slf4j.impl.jdk7)
 }
 
 description = "pinpoint-agent-distribution"

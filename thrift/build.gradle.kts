@@ -12,9 +12,9 @@ dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-commons-buffer"))
     implementation("org.apache.thrift:libthrift")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    implementation(libs.log4j.slf4j.impl.jdk7)
     implementation(libs.log4j.core.jdk7)
-    implementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
+    implementation(libs.log4j.jcl.jdk7)
     runtimeOnly(libs.slf4j.api)
     testImplementation("commons-lang:commons-lang")
 }

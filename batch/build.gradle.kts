@@ -20,16 +20,16 @@ dependencies {
     implementation(libs.spring.jdbc)
     implementation("com.sun.mail:jakarta.mail")
     implementation("org.springframework.batch:spring-batch-core:4.3.3")
-    implementation("com.zaxxer:HikariCP")
-    implementation("org.mybatis:mybatis")
-    implementation("org.mybatis:mybatis-spring")
+    implementation(libs.hikariCP)
+    implementation(libs.mybatis)
+    implementation(libs.mybatis.spring)
     implementation("mysql:mysql-connector-java")
     runtimeOnly("com.sun.activation:jakarta.activation:1.2.2")
     runtimeOnly(libs.slf4j.api)
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}") {
+    runtimeOnly(libs.log4j.jcl) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
     testImplementation("org.springframework.batch:spring-batch-test:4.3.3")

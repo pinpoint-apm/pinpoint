@@ -24,8 +24,8 @@ dependencies {
     implementation(libs.log4j.core.jdk7)
     implementation("junit:junit:${Versions.junit}")
     runtimeOnly(libs.slf4j.api)
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK7}")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    runtimeOnly(libs.log4j.jcl.jdk7)
+    runtimeOnly(libs.log4j.slf4j.impl.jdk7)
     runtimeOnly(libs.log4j.core.jdk7)
     testImplementation("org.apache.commons:commons-lang3")
 }

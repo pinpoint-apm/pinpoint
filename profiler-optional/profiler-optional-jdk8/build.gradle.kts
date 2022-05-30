@@ -15,7 +15,7 @@ dependencies {
     testImplementation(project(":pinpoint-test"))
     testImplementation(libs.spring.test)
     testImplementation(libs.spring.context)
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
 }
 

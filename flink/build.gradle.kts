@@ -33,8 +33,8 @@ dependencies {
     }
     implementation("org.apache.zookeeper:zookeeper")
     runtimeOnly(libs.slf4j.api)
-    testImplementation("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
+    testImplementation(libs.log4j.jcl)
+    testImplementation(libs.log4j.slf4j.impl)
     testImplementation(libs.log4j.core)
     testImplementation(libs.spring.test)
     compileOnly("org.apache.flink:flink-java:1.14.2")

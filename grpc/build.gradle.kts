@@ -10,7 +10,7 @@ dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-bootstrap-core"))
     api(project(":pinpoint-commons-profiler"))
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK7}")
+    implementation(libs.log4j.slf4j.impl.jdk7)
     implementation(libs.log4j.core.jdk7)
     implementation("org.apache.commons:commons-lang3")
     runtimeOnly("io.netty:netty-tcnative-boringssl-static:2.0.38.Final")

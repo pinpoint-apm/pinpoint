@@ -19,10 +19,10 @@ dependencies {
     }
     implementation(libs.spring.tx)
     implementation(libs.log4j.api)
-    runtimeOnly("log4j:log4j")
-    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j)
+    runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
-    runtimeOnly("org.apache.logging.log4j:log4j-jcl:${Versions.log4jJDK8}")
+    runtimeOnly(libs.log4j.jcl)
 
     implementation(libs.hbase.shaded.client) {
         exclude("org.slf4j:slf4j-log4j12")

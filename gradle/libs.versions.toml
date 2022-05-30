@@ -51,4 +51,18 @@ log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4
 log4j-core-jdk7 = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2-jdk7" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version = "1.7.30" }
+log4j-slf4j-impl-jdk7 = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2-jdk7" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2" }
+
+# thrift logging lib
+commons-logging = { module = "commons-logging:commons-logging", version = "1.2" }
+log4j-jcl-jdk7 = { module = "org.apache.logging.log4j:log4j-jcl", version.ref = "log4j2-jdk7" }
+log4j-jcl = { module = "org.apache.logging.log4j:log4j-jcl", version.ref = "log4j2" }
+log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4j2" }
+log4j = { module = "log4j:log4j", version = "1.2.17" }
+
+hikariCP = { module = "com.zaxxer:HikariCP", version = "4.0.3" }
+mybatis = { module = "org.mybatis:mybatis", version = "3.5.7" }
+# 2.0.x java8 & spring5 https://mybatis.org/spring/index.html
+mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "2.0.6" }
 [bundles]
