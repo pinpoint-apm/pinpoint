@@ -16,7 +16,7 @@ dependencies {
     testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
     testImplementation(libs.log4j.jcl.jdk7)
-    testImplementation("mysql:mysql-connector-java")
+    testImplementation(libs.mysql.connector.java)
     testImplementation("commons-io:commons-io")
 }
 

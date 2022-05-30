@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("io.netty:netty-all")
+    testImplementation(libs.netty.all)
 }
 
 description = "pinpoint-netty-plugin-it"

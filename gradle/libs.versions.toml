@@ -5,6 +5,7 @@ metrics = "3.2.6"
 fastxml-jackson = "2.12.5"
 log4j2-jdk7 = "2.12.4"
 log4j2 = "2.17.1"
+netty4 = "4.1.63.Final"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -65,4 +66,22 @@ hikariCP = { module = "com.zaxxer:HikariCP", version = "4.0.3" }
 mybatis = { module = "org.mybatis:mybatis", version = "3.5.7" }
 # 2.0.x java8 & spring5 https://mybatis.org/spring/index.html
 mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "2.0.6" }
+mysql-connector-java = { module = "mysql:mysql-connector-java", version = "8.0.27" }
+
+netty = { module = "io.netty:netty", version = "3.10.6.Final" }
+netty-bom = { module = "io.netty:netty-bom", version.ref = "netty4" }
+netty-all = { module = "io.netty:netty-all", version.ref = "netty4" }
+netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty4" }
+netty-codec = { module = "io.netty:netty-codec", version.ref = "netty4" }
+netty-codec-dns = { module = "io.netty:netty-codec-dns", version.ref = "netty4" }
+netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty4" }
+netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty4" }
+netty-codec-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty4" }
+netty-common = { module = "io.netty:netty-common", version.ref = "netty4" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "netty4" }
+netty-handler-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty4" }
+netty-resolver = { module = "io.netty:netty-resolver", version.ref = "netty4" }
+netty-resolver-dns = { module = "io.netty:netty-resolver-dns", version.ref = "netty4" }
+netty-transport = { module = "io.netty:netty-transport", version.ref = "netty4" }
+netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty4" }
 [bundles]

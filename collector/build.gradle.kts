@@ -18,7 +18,7 @@ dependencies {
     implementation("org.apache.zookeeper:zookeeper")
     api(project(":pinpoint-profiler"))
     implementation("com.google.guava:guava:30.1-jre")
-    implementation("io.netty:netty")
+    implementation(libs.netty)
     implementation("org.apache.commons:commons-lang3")
     implementation("org.apache.commons:commons-collections4")
     implementation("org.apache.thrift:libthrift:0.15.0")

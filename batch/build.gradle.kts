@@ -23,7 +23,7 @@ dependencies {
     implementation(libs.hikariCP)
     implementation(libs.mybatis)
     implementation(libs.mybatis.spring)
-    implementation("mysql:mysql-connector-java")
+    implementation(libs.mysql.connector.java)
     runtimeOnly("com.sun.activation:jakarta.activation:1.2.2")
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.jcl) {

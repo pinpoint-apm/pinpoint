@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
     api(project(":pinpoint-plugin-it-jdbc-test"))
-    testImplementation("mysql:mysql-connector-java")
+    testImplementation(libs.mysql.connector.java)
     testImplementation(project(":pinpoint-mysql-jdbc-driver-plugin"))
     testImplementation("org.testcontainers:mysql:1.16.2")
     testImplementation(project(":pinpoint-profiler-test"))
