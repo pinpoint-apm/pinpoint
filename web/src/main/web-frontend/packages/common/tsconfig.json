@@ -1,13 +1,5 @@
 {
   "extends": "@pinpoint-fe/tsconfig/react-library.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/components/*": ["components/*"],
-      "@/hooks/*": ["hooks/*"],
-      "@/utils/*": ["utils/*"]
-    }
-  },
   "include": [".", "**/*.ts", "**/*.tsx"],
   "exclude": ["dist", "build", "node_modules"]
 }

@@ -18,18 +18,17 @@ module.exports = {
   typescript: { reactDocgen: false },
   staticDirs: ['../../../apps/web/public'],
   webpackFinal: async (config) => {
-    return {
-      ...config,
-      resolve: {
-        ...config.resolve,
-        alias: {
-          ...config.resolve.alias,
-          '@emotion/core': getPackageDir('@emotion/react'),
-          '@emotion/styled': getPackageDir('@emotion/styled'),
-          'emotion-theming': getPackageDir('@emotion/react'),
-        },
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve.alias,
+        '@emotion/core': getPackageDir('@emotion/react'),
+        '@emotion/styled': getPackageDir('@emotion/styled'),
+        'emotion-theming': getPackageDir('@emotion/react'),
       },
     };
+
+    return config;
   },
 }
 

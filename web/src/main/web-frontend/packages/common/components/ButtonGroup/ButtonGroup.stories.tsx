@@ -26,17 +26,12 @@ Default.args = {
       padding: 30px;
     }
   `,
-  children: [
+  children: ['A', 'B', 'C'].map((b, i) => (
     <ButtonGroup.Button
-      onClick={() => console.log('A clicked')}
-    >A</ButtonGroup.Button>,
-    <ButtonGroup.Button
-      onClick={() => console.log('B clicked')}
-    >B</ButtonGroup.Button>,
-    <ButtonGroup.Button
-      onClick={() => console.log('C clicked')}
-    >C</ButtonGroup.Button>,
-  ]
+      key={i}
+      onClick={() => console.log(`${b} clicked`)}
+    >{b}</ButtonGroup.Button>
+  ))
 };
 
 export const InitActiveIndex = Template.bind({});
@@ -50,17 +45,12 @@ InitActiveIndex.args = {
       padding: 30px;
     }
   `,
-  children: [
+  children: ['A', 'B', 'C'].map((b, i) => (
     <ButtonGroup.Button
-      onClick={() => console.log('A clicked')}
-    >A</ButtonGroup.Button>,
-    <ButtonGroup.Button
-      onClick={() => console.log('B clicked')}
-    >B</ButtonGroup.Button>,
-    <ButtonGroup.Button
-      onClick={() => console.log('C clicked')}
-    >C</ButtonGroup.Button>,
-  ]
+      key={i}
+      onClick={() => console.log(`${b} clicked`)}
+    >{b}</ButtonGroup.Button>
+  ))
 };
 
 export const DisableActiveButtonA = Template.bind({});
@@ -74,16 +64,21 @@ DisableActiveButtonA.args = {
       padding: 30px;
     }
   `,
-  children: [
-    <ButtonGroup.Button
-      onClick={() => console.log('A clicked')}
-      disableActive={true}
-    >A</ButtonGroup.Button>,
-    <ButtonGroup.Button
-      onClick={() => console.log('B clicked')}
-    >B</ButtonGroup.Button>,
-    <ButtonGroup.Button
-      onClick={() => console.log('C clicked')}
-    >C</ButtonGroup.Button>,
-  ]
+  children: ['A', 'B', 'C'].map((b, i) => {
+    if (i === 0) {
+      return (
+        <ButtonGroup.Button
+          key={i}
+          onClick={() => console.log(`${b} clicked`)}
+          disableActive={true}
+        >{b}</ButtonGroup.Button>
+      )
+    }
+    return (
+      <ButtonGroup.Button
+        key={i}
+        onClick={() => console.log(`${b} clicked`)}
+      >{b}</ButtonGroup.Button>
+    )
+  })
 };
