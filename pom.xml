@@ -136,7 +136,6 @@
         <hbase2.client.version>2.4.11</hbase2.client.version>
 
         <plugin.jacoco.skip>true</plugin.jacoco.skip>
-        <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
 
         <!-- library -->
         <metrics.version>3.2.6</metrics.version>
@@ -216,9 +215,6 @@
         <plugin.pmd.version>3.15.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.20</plugin.animal-sniffer.version>
-
-        <sniffer.artifactid>java17</sniffer.artifactid>
 
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.12.0</plugin.frontend.version>
@@ -1388,32 +1384,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>${plugin.animal-sniffer.version}</version>
-                <configuration>
-                    <signature>
-                        <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>${sniffer.artifactid}</artifactId>
-                        <version>1.0</version>
-                    </signature>
-                    <ignores>
-                        <ignore>sun.*</ignore>
-                    </ignores>
-                    <skip>${plugin.animal-sniffer.skip}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>ensure-java-${jdk.version}-class-library</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
@@ -1466,8 +1436,6 @@
             <properties>
                 <env>local</env>
                 <spring.profiles.active>local</spring.profiles.active>
-                <!-- skip development environment-->
-                <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
             </properties>
         </profile>
         <!-- for Release -->

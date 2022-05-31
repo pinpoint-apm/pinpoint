@@ -31,7 +31,6 @@
     <properties>
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
-        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
 
         <guava.version>${guava-jdk8.version}</guava.version>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
