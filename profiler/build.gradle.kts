@@ -1,6 +1,5 @@
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.asm")
 }
 
 dependencies {
@@ -25,6 +24,7 @@ dependencies {
     implementation(libs.netty)
     implementation(libs.netty.common)
     implementation("io.grpc:grpc-core:${Versions.grpc}")
+    implementation(libs.bundles.asm)
     runtimeOnly(libs.slf4j.api)
     testImplementation("com.google.inject.extensions:guice-grapher:4.1.0")
     testImplementation(libs.commons.lang)

@@ -6,12 +6,12 @@
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java8")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.asm")
 }
 
 dependencies {
     compileOnly(project(":pinpoint-profiler"))
     implementation(libs.log4j.api.jdk7)
+    implementation(libs.bundles.asm)
     testImplementation(project(":pinpoint-test"))
     testImplementation(libs.spring.test)
     testImplementation(libs.spring.context)
