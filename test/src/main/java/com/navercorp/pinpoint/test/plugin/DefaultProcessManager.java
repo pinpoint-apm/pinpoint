@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.test.plugin.util.CommandLineOption;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.tinylog.TaggedLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.PINPOINT_TEST_ID;
-import static com.navercorp.pinpoint.test.plugin.util.SystemPropertyBuilder.format;
+
 
 /**
  * @author Taejin Koo
@@ -94,60 +94,61 @@ public class DefaultProcessManager implements ProcessManager {
             }
 
             timer.cancel();
+            timer.purge();
             process = null;
         }
     }
 
-    private String[] buildCommand(PinpointPluginTestInstance pluginTestInstance) {
-        List<String> list = new ArrayList<>();
+    private List<String> buildCommand(PinpointPluginTestInstance pluginTestInstance) {
+        CommandLineOption option = new CommandLineOption();
 
-        list.add(context.getJavaExecutable());
+        option.addOption(context.getJavaExecutable());
 
-        list.add("-cp");
-        list.add(getClassPathAsString(pluginTestInstance));
+        option.addOption("-cp");
+        option.addOption(getClassPathAsString(pluginTestInstance));
 
-        list.add(getAgent());
+        option.addOption(getAgent());
 
-        list.add(format("pinpoint.agentId", "build.test.0"));
-        list.add(format("pinpoint.applicationName", "test"));
-        list.add(format(PINPOINT_TEST_ID, pluginTestInstance.getTestId()));
+        option.addSystemProperty("pinpoint.agentId", "build.test.0");
+        option.addSystemProperty("pinpoint.applicationName", "test");
+        option.addSystemProperty(PINPOINT_TEST_ID, pluginTestInstance.getTestId());
 
-        list.addAll(context.getJvmArguments());
+        option.addOptions(context.getJvmArguments());
 
         if (context.isDebug()) {
-            list.addAll(getDebugOptions());
+            option.addOptions(getDebugOptions());
         }
 
         if (context.getProfile() != null) {
-            list.add(format("pinpoint.profiler.profiles.active", context.getProfile()));
+            option.addSystemProperty("pinpoint.profiler.profiles.active", context.getProfile());
         }
 
         if (context.getConfigFile() != null) {
-            list.add(format("pinpoint.config", context.getConfigFile()));
-            list.add(format("pinpoint.config.load.mode", "simple"));
+            option.addSystemProperty("pinpoint.config", context.getConfigFile());
+            option.addSystemProperty("pinpoint.config.load.mode", "simple");
         }
 
         String logLocationConfig = context.getLogLocationConfig();
         if (logLocationConfig != null) {
             if (logLocationConfig.endsWith("/")) {
-                list.add(format(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig()));
+                option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig());
             } else {
-                list.add(format(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig() + '/'));
+                option.addSystemProperty(Profiles.LOG_CONFIG_LOCATION_KEY, context.getLogLocationConfig() + '/');
             }
         }
 
-        list.addAll(pluginTestInstance.getVmArgs());
+        option.addOptions(pluginTestInstance.getVmArgs());
 
         String mainClass = pluginTestInstance.getMainClass();
 
         if (mainClass.endsWith(".jar")) {
-            list.add("-jar");
+            option.addOption("-jar");
         }
 
-        list.add(mainClass);
-        list.addAll(pluginTestInstance.getAppArgs());
+        option.addOption(mainClass);
+        option.addOptions(pluginTestInstance.getAppArgs());
 
-        return list.toArray(new String[0]);
+        return option.build();
     }
 
     private List<String> getDebugOptions() {
