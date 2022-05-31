@@ -57,7 +57,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
   ![Inspector](doc/images/ss_inspector.png)
 
 ## Supported Modules
-* JDK 7+
+* JDK 8+
 * [Tomcat 6/7/8/9](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/undertow)
 * Spring, Spring Boot (Embedded Tomcat, Jetty, Undertow), Spring asynchronous communication
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
@@ -75,47 +75,45 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 Java version required to run Pinpoint:
 <!-- <compatibilityJava.md> -->
 Pinpoint Version | Agent | Collector | Web | Flink
----------------- | ----- | --------- | --- | ---
-1.8.0  | 6-10 | 8   | 8 | 8
-1.8.1+ | 6-11 | 8   | 8 | 8
-2.0.x  | 6-13 | 8   | 8 | 8
-2.1.x  | 6-14 | 8   | 8 | 8
-2.2.x  | 7-14 | 8   | 8 | 8
-2.3.x  | 7-17 | 8   | 8 | 8
-2.4.x  | 7-18 | 11  | 11 | 11
+---------------- |-------| --------- | --- | ---
+2.0.x  | 6-13  | 8   | 8 | 8
+2.1.x  | 6-14  | 8   | 8 | 8
+2.2.x  | 7-14  | 8   | 8 | 8
+2.3.x  | 7-17  | 8   | 8 | 8
+2.4.x  | 7-18  | 11  | 11 | 11
+2.5.x  | 8-18  | 11  | 11 | 11
 <!-- </compatibilityJava.md> -->
 HBase compatibility table:
 <!-- <compatibilityHbase.md> -->
 Pinpoint Version | HBase 1.0.x | HBase 1.2.x | HBase 1.4.x | HBase 2.0.x
 ---------------- | ----------- | ----------- | ----------- | -----------
-1.8.x | not tested | yes | yes | no
-2.0.x | not tested | yes | yes | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint)
 2.1.x | not tested | yes | yes | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint)
 2.2.x | not tested | yes | yes | [optional](https://pinpoint-apm.gitbook.io/pinpoint/documents/hbase-upgrade#do-you-like-to-use-hbase-2x-for-pinpoint)
 2.3.x | not tested | yes | yes | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module)
 2.4.x | not tested | yes | yes | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module)
+2.5.x | not tested | yes | yes | [hbase2-module](https://github.com/pinpoint-apm/pinpoint/tree/master/hbase2-module)
 <!-- </compatibilityHbase.md> -->
 Agent - Collector compatibility table:
 <!-- <compatibilityPinpoint.md> -->
-Agent Version | Collector 1.8.x | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x | Collector 2.3.x | Collector 2.4.x |
+Agent Version | Collector 2.0.x | Collector 2.1.x | Collector 2.2.x | Collector 2.3.x | Collector 2.4.x | Collector 2.5.x |
 ------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
-1.8.x | yes | yes | yes | yes | yes | yes
-2.0.x | no  | yes | yes | yes | yes | yes
-2.1.x | no  | no  | yes | yes | yes | yes
-2.2.x | no  | no  | no  | yes | yes | yes
-2.3.x | no  | no  | no  | no  | yes | yes
-2.4.x | no  | no  | no  | no  | no  | yes
+2.0.x | yes | yes | yes | yes | yes | yes
+2.1.x | no  | yes | yes | yes | yes | yes
+2.2.x | no  | no  | yes | yes | yes | yes
+2.3.x | no  | no  | no  | yes | yes | yes
+2.4.x | no  | no  | no  | no  | yes | yes
+2.5.x | no  | no  | no  | no  | no  | yes
 <!-- </compatibilityPinpoint.md> -->
 Flink compatibility table:
 
 Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink 1.7.X | flink 1.14.X
 ---------------- | ----------- | ----------- | ----------- | ----------- | ----------- | -----------
-1.8.x | yes | yes | no | no | no | no
 2.0.x | yes | yes | yes | yes | yes | no
 2.1.x | yes | yes | yes | yes | yes | no
 2.2.x | yes | yes | yes | yes | yes | no
 2.3.x | yes | yes | yes | yes | yes | no
 2.4.x | yes | yes | yes | yes | yes | yes
+2.5.x | yes | yes | yes | yes | yes | yes
 
 
 ## Community
