@@ -14,7 +14,6 @@
 
     <properties>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <sniffer.artifactid>java18</sniffer.artifactid>
     </properties>
 
     <dependencies>

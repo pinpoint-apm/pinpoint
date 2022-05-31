@@ -30,7 +30,6 @@
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
         <javadoc.source>8</javadoc.source>
 
-        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
     <artifactId>pinpoint-bootstrap-java9-internal</artifactId>

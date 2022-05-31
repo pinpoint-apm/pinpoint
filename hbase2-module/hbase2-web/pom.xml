@@ -30,7 +30,6 @@
     <properties>
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
-        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
 
         <grunt.build.command>build_release_without_lint</grunt.build.command>
 

@@ -36,8 +36,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
 <!--        <jdk.version>9</jdk.version>-->
 <!--        <jdk.home>${env.JAVA_9_HOME}</jdk.home>-->
-
-        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
     </properties>
 
     <dependencies>
