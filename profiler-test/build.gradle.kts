@@ -22,7 +22,7 @@ dependencies {
     implementation("org.apache.thrift:libthrift")
     implementation("com.google.inject:guice")
     implementation(libs.log4j.core.jdk7)
-    implementation("junit:junit:${Versions.junit}")
+    implementation(libs.junit)
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.jcl.jdk7)
     runtimeOnly(libs.log4j.slf4j.impl.jdk7)

@@ -123,5 +123,7 @@ aspectjweaver = { module = "org.aspectj:aspectjweaver", version = "1.9.5" }
 javax-servlet-api-v3 = { module = "javax.servlet:javax.servlet-api", version = "3.0.1" }
 javax-servlet-api = { module = "javax.servlet:javax.servlet-api", version = "4.0.1" }
 
+# https://github.com/gradle/gradle/issues/15383 no support version catalog in prebuild script
+junit = { module = "junit:junit", version = "4.13.2" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]

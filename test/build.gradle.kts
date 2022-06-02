@@ -30,7 +30,7 @@ dependencies {
         exclude(group = "org.slf4j", module = "slf4j-api")
         exclude(group = "org.tinylog", module = "tinylog-api")
     }
-    implementation("junit:junit:${Versions.junit}")
+    implementation(libs.junit)
     runtimeOnly(libs.slf4j.api)
     testImplementation(libs.log4j.slf4j.impl.jdk7) {
         exclude(group = "org.slf4j", module = "slf4j-api")

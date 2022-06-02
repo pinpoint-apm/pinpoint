@@ -22,9 +22,17 @@ repositories {
 }
 
 dependencies {
-    testImplementation("junit:junit")
-    testImplementation("org.hamcrest:hamcrest:2.2")
-    testImplementation("org.mockito:mockito-core:2.28.2")
+    testImplementation("junit:junit") {
+        exclude(group = "org.hamcrest", module = "hamcrest-core")
+        exclude(group = "org.hamcrest", module = "hamcrest-library")
+    }
+    testImplementation("org.hamcrest:hamcrest")
+    testImplementation("org.mockito:mockito-core")
+    constraints {
+        testImplementation("junit:junit:4.13.2")
+        testImplementation("org.hamcrest:hamcrest:2.2")
+        testImplementation("org.mockito:mockito-core:2.28.2")
+    }
 }
 
 group = "com.navercorp.pinpoint"

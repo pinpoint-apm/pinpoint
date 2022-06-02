@@ -12,7 +12,7 @@ dependencies {
     api(project(":pinpoint-commons"))
     api(project(":pinpoint-bootstrap-core"))
     implementation(libs.log4j.api.jdk7)
-    implementation("junit:junit:${Versions.junit}")
+    implementation(libs.junit)
 }
 
 description = "pinpoint-plugin-it-jdbc-test"
