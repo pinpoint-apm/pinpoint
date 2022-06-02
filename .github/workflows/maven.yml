@@ -36,14 +36,8 @@ jobs:
         key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-node_install-
-    - name: Set up JDK 7
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'zulu'
-        java-version: '7'
     - name: Set JAVA_HOME
       run: |
-        echo "JAVA_7_HOME=$JAVA_HOME" >> $GITHUB_ENV
         echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
         echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
         echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
