@@ -678,7 +678,7 @@ public class ASMClassTest {
     @Test
     public void isInterceptorable() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface");
-        assertFalse(clazz.isInterceptable());
+        assertTrue(clazz.isInterceptable());
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
         assertTrue(clazz.isInterceptable());
