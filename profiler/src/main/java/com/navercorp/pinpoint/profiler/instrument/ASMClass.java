@@ -77,9 +77,6 @@ public class ASMClass implements InstrumentClass {
         this.classNode = Objects.requireNonNull(classNode, "classNode");
     }
 
-    public void test() {
-
-    }
     public ClassLoader getClassLoader() {
         return this.classNode.getClassLoader();
     }
@@ -90,7 +87,7 @@ public class ASMClass implements InstrumentClass {
             return false;
         }
         // interface static method or default method is java 1.8 or later
-        if (isInterface() && (this.classNode.getMajorVersion() < 52 || !JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8))) {
+        if (isInterface() && (this.classNode.getMajorVersion() < JvmVersion.JAVA_8.getClassVersion() || !JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8))) {
             return false;
         }
         return true;

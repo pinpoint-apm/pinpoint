@@ -42,7 +42,7 @@
     </repositories>
 
     <properties>
-        <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
+        <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
     </properties>
 
     <dependencies>
