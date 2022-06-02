@@ -1,7 +1,5 @@
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.agent-plugins")
 }
 
 dependencies {
@@ -10,6 +8,9 @@ dependencies {
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-web")) // all transitive depdency off on pinpoint-web
     api(project(":pinpoint-rpc"))
+    api(platform(project(":pinpoint-plugins")))
+    api(platform(project(":pinpoint-agent-plugins")))
+
     implementation("org.apache.thrift:libthrift:0.15.0")
     implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")

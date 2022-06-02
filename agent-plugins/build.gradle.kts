@@ -1,7 +1,9 @@
-package com.navercorp.pinpoint.gradle.plugins.bom
-
 plugins {
-    `java-library`
+    `java-platform`
+}
+
+javaPlatform {
+    allowDependencies()
 }
 
 dependencies {

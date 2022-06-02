@@ -1,7 +1,9 @@
-package com.navercorp.pinpoint.gradle.plugins.bom
-
 plugins {
-    `java-library`
+    `java-platform`
+}
+
+javaPlatform {
+    allowDependencies()
 }
 
 dependencies {
@@ -80,4 +82,6 @@ dependencies {
     api(project(":pinpoint-paho-mqtt-plugin"))
     api(project(":pinpoint-rocketmq-plugin"))
     api(project(":pinpoint-kotlin-coroutines-plugin"))
+    constraints {
+    }
 }

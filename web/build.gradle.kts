@@ -6,8 +6,6 @@
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.agent-plugins")
     id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
     id("org.siouan.frontend-jdk8") version "6.0.0"
 }
@@ -20,6 +18,9 @@ dependencies {
     api(project(":pinpoint-rpc"))
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-grpc"))
+    api(platform(project(":pinpoint-plugins")))
+    api(platform(project(":pinpoint-agent-plugins")))
+
     implementation("com.google.guava:guava:30.1-jre")
     implementation(libs.netty)
     implementation("org.apache.zookeeper:zookeeper")
@@ -55,7 +56,7 @@ dependencies {
     implementation("com.sun.mail:jakarta.mail")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation("org.aspectj:aspectjweaver:1.9.5")
+    implementation(libs.aspectjweaver)
     runtimeOnly(libs.commons.lang)
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.jcl)
@@ -69,7 +70,7 @@ dependencies {
     testImplementation("org.apache.curator:curator-test")
     testImplementation(project(":pinpoint-rpc"))
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
-    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
+    compileOnly(libs.javax.servlet.api)
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
 
     implementation(libs.hbase.shaded.client) {

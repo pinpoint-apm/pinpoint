@@ -1,6 +1,5 @@
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.plugins-assembly")
     id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
     id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
 }
@@ -15,8 +14,10 @@ dependencies {
     api(project(":pinpoint-rpc"))
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-grpc"))
-    implementation("org.apache.zookeeper:zookeeper")
+    api(platform(project(":pinpoint-plugins")))
     api(project(":pinpoint-profiler"))
+
+    implementation("org.apache.zookeeper:zookeeper")
     implementation("com.google.guava:guava:30.1-jre")
     implementation(libs.netty)
     implementation(libs.commons.lang3)
@@ -48,7 +49,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-test:${Versions.springBoot}")
     testImplementation("org.awaitility:awaitility")
     testImplementation(project(":pinpoint-rpc"))
-    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
+    compileOnly(libs.javax.servlet.api)
 
     implementation(libs.hbase.shaded.client) {
         exclude("org.slf4j:slf4j-log4j12")
