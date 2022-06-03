@@ -65,7 +65,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(7)
+@JvmVersion(8)
 @JvmArgument("-XX:MaxPermSize=768m")
 @Dependency({"io.netty:netty-all:[4.1.0.Final,4.1.max]", WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-netty-plugin-test.config")

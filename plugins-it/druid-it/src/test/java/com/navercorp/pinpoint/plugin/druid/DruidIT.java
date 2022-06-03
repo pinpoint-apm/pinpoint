@@ -25,7 +25,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.alibaba:druid:[1.0.0][1.0.31],[1.1.0,1.1.20]", "com.h2database:h2:1.4.191"})
-@JvmVersion(7)
+@JvmVersion(8)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-druid-plugin")
 @PinpointConfig("druid/pinpoint-druid-test.config")
 public class DruidIT {

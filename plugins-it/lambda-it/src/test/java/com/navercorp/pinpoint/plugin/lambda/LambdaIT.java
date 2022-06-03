@@ -36,7 +36,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.function.Predicate;
 
 @RunWith(PinpointPluginTestSuite.class)
-@JvmVersion({8})
+@JvmVersion(8)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-lambda-test.config")
 @Dependency({"org.springframework:spring-context:[4.2.0.RELEASE]"})
