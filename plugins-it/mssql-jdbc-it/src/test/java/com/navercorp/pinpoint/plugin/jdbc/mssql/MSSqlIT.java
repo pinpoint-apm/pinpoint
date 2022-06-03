@@ -54,7 +54,7 @@ import java.util.Properties;
 @Dependency({"com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8],[6.2.0.jre8],[6.4.0.jre8],[7.0.0.jre8],[7.2.0.jre8],[7.4.0.jre8]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
-@JvmVersion({8})
+@JvmVersion(8)
 @PinpointConfig("pinpoint-mssql.config")
 public class MSSqlIT extends DataBaseTestCase {
 

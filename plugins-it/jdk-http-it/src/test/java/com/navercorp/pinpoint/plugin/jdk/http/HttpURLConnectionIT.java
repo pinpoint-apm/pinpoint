@@ -45,7 +45,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion({7, 8})
+@JvmVersion(8)
 @Dependency({ WebServer.VERSION, PluginITConstants.VERSION})
 @JvmArgument("-Dprofiler.http.record.response.headers=Connection")
 public class HttpURLConnectionIT {
