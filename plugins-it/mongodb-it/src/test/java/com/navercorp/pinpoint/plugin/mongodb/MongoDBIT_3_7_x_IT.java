@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
 @Dependency({
         "org.mongodb:mongodb-driver:[3.7.0,]",
-        "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
+        MongoDBITConstants.EMBED_MONGODB_VERSION
 })
 public class MongoDBIT_3_7_x_IT extends MongoDBITBase {
 

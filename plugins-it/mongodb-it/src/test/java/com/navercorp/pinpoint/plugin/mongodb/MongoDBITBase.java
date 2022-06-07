@@ -32,8 +32,7 @@ import com.mongodb.client.result.DeleteResult;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.IMongodConfig;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
@@ -91,17 +90,18 @@ public abstract class MongoDBITBase {
 
     abstract Class<?> getMongoDatabaseClazz() throws ClassNotFoundException;
 
-    abstract void insertComplex(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption);
+    abstract void insertComplex(PluginTestVerifier verifier,
+                                MongoCollection<Document> collection, Class<?> mongoDatabaseImpl,
+                                String collectionInfo, String collectionOption);
 
     public void startDB() throws Exception {
         MongodStarter starter = MongodStarter.getDefaultInstance();
-        IMongodConfig mongodConfig = new MongodConfigBuilder()
+        MongodConfig  mongodConfig = MongodConfig.builder()
                 .version(Version.Main.PRODUCTION)
                 .net(new Net(MongoDBITConstants.BIND_ADDRESS, MongoDBITConstants.PORT, Network.localhostIsIPv6()))
                 .build();
 
         MongodExecutable mongodExecutable = starter.prepare(mongodConfig);
-
 //        replaced via awaitCompleted()
 //        //give time for previous DB close to finish and port to be released"
 //        Thread.sleep(200L);
@@ -113,7 +113,8 @@ public abstract class MongoDBITBase {
     public void stopDB(MongoCollection<Document> collection) throws Exception {
         try {
             collection.drop();
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            throw new RuntimeException("drop() failure", ex);
         }
 
 //        replaced via awaitCompleted()
@@ -174,10 +175,7 @@ public abstract class MongoDBITBase {
     }
 
     public NormalizedBson parseBson(Object... documents) {
-        Object[] objects = new Object[documents.length];
-        for (int i = 0; i < documents.length; i++) {
-            objects[i] = documents[i];
-        }
+        Object[] objects = Arrays.copyOf(documents, documents.length);
         return MongoUtil.parseBson(objects, true);
     }
 
@@ -211,12 +209,11 @@ public abstract class MongoDBITBase {
     }
 
     private Method getMethod(Class<?> mongoDatabaseImpl, String name, Class<?>... parameterTypes) {
-        Method method = null;
         try {
-            method = mongoDatabaseImpl.getDeclaredMethod(name, parameterTypes);
-        } catch (NoSuchMethodException e) {
+            return mongoDatabaseImpl.getDeclaredMethod(name, parameterTypes);
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException(ex);
         }
-        return method;
     }
 
     public void insertComlexBsonValueData34(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {

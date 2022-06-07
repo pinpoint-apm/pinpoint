@@ -22,6 +22,8 @@ public final class MongoDBITConstants {
 
     public static final int PORT = 27018;
 
-    public static String MONGODB_ADDRESS = BIND_ADDRESS + ":" + PORT;
+    public static final String MONGODB_ADDRESS = BIND_ADDRESS + ":" + PORT;
+
+    public static final String EMBED_MONGODB_VERSION = "de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.6";
 
 }
