@@ -32,7 +32,6 @@
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
 
-        <guava.version>${guava-jdk8.version}</guava.version>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
         <thrift.version>${thrift-jdk8.version}</thrift.version>
