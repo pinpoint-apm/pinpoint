@@ -1,7 +1,6 @@
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
     id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.curator")
 }
 
 dependencies {
@@ -57,6 +56,10 @@ dependencies {
     }
     implementation(libs.hbasewd) {
         exclude("log4j:log4j")
+    }
+    implementation(libs.curator.framework) {
+        exclude(group = "org.apache.zookeeper", module = "zookeeper")
+        exclude(group = "org.apache.curator", module = "curator-test")
     }
 }
 

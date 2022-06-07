@@ -37,6 +37,10 @@ dependencies {
         implementation("io.netty:netty:3.10.6.Final")
         implementation("org.slf4j:slf4j-log4j12:1.7.30")
         implementation("log4j:log4j:1.2.17")
+
+        // curator-framework exclusion
+        testImplementation("org.apache.curator:curator-test:2.13.0")
+        testImplementation("org.apache.zookeeper:zookeeper:3.4.14")
     }
 }
 
