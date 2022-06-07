@@ -17,7 +17,7 @@ dependencies {
     api(project(":pinpoint-profiler"))
 
     implementation(libs.zookeeper)
-    implementation("com.google.guava:guava:30.1-jre")
+    implementation(libs.guava.jdk8)
     implementation(libs.netty)
     implementation(libs.commons.lang3)
     implementation(libs.commons.collections4)

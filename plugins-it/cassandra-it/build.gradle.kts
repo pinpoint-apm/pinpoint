@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.google.guava:guava:14.0.1")
+    implementation(libs.guava.cassandra)
     testImplementation("com.datastax.cassandra:cassandra-driver-core:2.1.7.1")
     testImplementation("org.testcontainers:cassandra:1.16.2")
     testImplementation(project(":pinpoint-commons-profiler"))

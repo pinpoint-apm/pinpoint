@@ -134,5 +134,9 @@ curator-test = { module = "org.apache.curator:curator-test", version = "2.13.0" 
 
 libthrift = { module = "org.apache.thrift:libthrift", version = "0.15.0" }
 libthrift-v012 = { module = "org.apache.thrift:libthrift", version = "0.12.0" }
+
+guava-jdk7 = { module = "com.google.guava:guava", version = "30.1-android" }
+guava-jdk8 = { module = "com.google.guava:guava", version = "30.1-jre" }
+guava-cassandra = { module = "com.google.guava:guava", version = "14.0.1" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
