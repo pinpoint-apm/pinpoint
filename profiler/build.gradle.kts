@@ -18,7 +18,7 @@ dependencies {
     implementation(libs.guava.jdk7) {
         exclude(group = "com.google.guava", module = "listenablefuture")
     }
-    implementation("com.google.inject:guice")
+    implementation(libs.guice)
     implementation(libs.libthrift.v012)
     implementation(libs.log4j.core.jdk7)
     implementation("com.google.protobuf:protobuf-java:${Versions.protoc}")
