@@ -11,7 +11,7 @@ dependencies {
     api(platform(project(":pinpoint-plugins")))
     api(platform(project(":pinpoint-agent-plugins")))
 
-    implementation("org.apache.thrift:libthrift:0.15.0")
+    implementation(libs.libthrift)
     implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }

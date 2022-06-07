@@ -131,5 +131,8 @@ zookeeper = { module = "org.apache.zookeeper:zookeeper", version = "3.4.14" }
 
 curator-framework = { module = "org.apache.curator:curator-framework", version = "4.2.0" }
 curator-test = { module = "org.apache.curator:curator-test", version = "2.13.0" }
+
+libthrift = { module = "org.apache.thrift:libthrift", version = "0.15.0" }
+libthrift-v012 = { module = "org.apache.thrift:libthrift", version = "0.12.0" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]

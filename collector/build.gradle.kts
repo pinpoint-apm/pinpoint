@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.netty)
     implementation(libs.commons.lang3)
     implementation(libs.commons.collections4)
-    implementation("org.apache.thrift:libthrift:0.15.0")
+    implementation(libs.libthrift)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)

@@ -41,6 +41,11 @@ dependencies {
         // curator-framework exclusion
         testImplementation("org.apache.curator:curator-test:2.13.0")
         testImplementation("org.apache.zookeeper:zookeeper:3.4.14")
+
+        // libthrift exclusions
+        implementation("org.apache.httpcomponents:httpclient:4.5.13")
+        implementation("org.apache.httpcomponents:httpcore:4.4.14")
+        implementation("org.slf4j:slf4j-api:1.7.30")
     }
 }
 

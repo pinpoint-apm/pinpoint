@@ -17,7 +17,7 @@ dependencies {
     api(project(":pinpoint-profiler-logging"))
     implementation("com.google.guava:guava")
     implementation("com.google.inject:guice")
-    implementation("org.apache.thrift:libthrift")
+    implementation(libs.libthrift.v012)
     implementation(libs.log4j.core.jdk7)
     implementation("com.google.protobuf:protobuf-java:${Versions.protoc}")
     implementation("io.grpc:grpc-stub:${Versions.grpc}")

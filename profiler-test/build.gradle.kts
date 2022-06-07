@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.asm.commons)
     implementation(libs.asm.util)
     implementation(libs.asm.tree)
-    implementation("org.apache.thrift:libthrift")
+    implementation(libs.libthrift.v012)
     implementation("com.google.inject:guice")
     implementation(libs.log4j.core.jdk7)
     implementation(libs.junit)

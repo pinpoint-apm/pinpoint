@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
-    testImplementation("org.apache.thrift:libthrift")
+    testImplementation(libs.libthrift.v012)
     testImplementation("org.eclipse.jetty:jetty-server:9.2.11.v20150529")
 }
 

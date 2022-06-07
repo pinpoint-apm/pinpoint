@@ -9,7 +9,7 @@ dependencies {
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-rpc"))
     api(project(":pinpoint-grpc"))
-    implementation("org.apache.thrift:libthrift:0.15.0")
+    implementation(libs.libthrift)
     api(project(":pinpoint-web"))
     api(project(":pinpoint-collector"))
     implementation(libs.spring.core) {
