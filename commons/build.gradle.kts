@@ -8,18 +8,12 @@ plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
 }
 
-val groovyScript by configurations.creating
 
 dependencies {
     testImplementation(libs.log4j.api.jdk7)
     testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
     testImplementation(libs.commons.lang3)
-    groovyScript("org.codehaus.groovy:groovy-all:2.4.5")
 }
 
 description = "pinpoint-commons"
-
-tasks.register<JavaExec>("runGroovyScript") {
-
-}
