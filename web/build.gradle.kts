@@ -66,7 +66,7 @@ dependencies {
     testImplementation(libs.json.path)
     testImplementation(project(":pinpoint-profiler"))
     testImplementation(project(":pinpoint-collector"))
-    testImplementation("org.awaitility:awaitility")
+    testImplementation(libs.awaitility)
     testImplementation("org.apache.curator:curator-test")
     testImplementation(project(":pinpoint-rpc"))
     testImplementation("org.skyscreamer:jsonassert:1.5.0")

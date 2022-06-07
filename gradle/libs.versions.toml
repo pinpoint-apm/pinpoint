@@ -125,5 +125,6 @@ javax-servlet-api = { module = "javax.servlet:javax.servlet-api", version = "4.0
 
 # https://github.com/gradle/gradle/issues/15383 no support version catalog in prebuild script
 junit = { module = "junit:junit", version = "4.13.2" }
+awaitility = { module = "org.awaitility:awaitility", version = "3.1.5" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]

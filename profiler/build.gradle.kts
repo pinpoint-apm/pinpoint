@@ -31,7 +31,7 @@ dependencies {
     testImplementation(project(":pinpoint-rpc"))
     testImplementation(project(":pinpoint-testcase"))
     testImplementation(libs.spring4.context)
-    testImplementation("org.awaitility:awaitility")
+    testImplementation(libs.awaitility)
 }
 
 description = "pinpoint-profiler"

@@ -27,7 +27,7 @@ dependencies {
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
     runtimeOnly(libs.log4j.jcl)
-    testImplementation("org.awaitility:awaitility")
+    testImplementation(libs.awaitility)
     testImplementation(libs.spring.test)
     compileOnlyApi(project(":pinpoint-thrift"))
     compileOnlyApi(project(":pinpoint-grpc"))

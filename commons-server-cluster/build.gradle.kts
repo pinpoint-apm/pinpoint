@@ -21,7 +21,7 @@ dependencies {
     testImplementation(libs.spring.test)
     testImplementation("org.apache.curator:curator-test")
     testImplementation(project(":pinpoint-testcase"))
-    testImplementation("org.awaitility:awaitility")
+    testImplementation(libs.awaitility)
 }
 
 description = "pinpoint-commons-server-cluster"
