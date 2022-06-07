@@ -37,7 +37,6 @@
         <build.frontend.skip>false</build.frontend.skip>
         <frontend.build.dir>${basedir}/src/main/frontend</frontend.build.dir>
 
-        <guava.version>${guava-jdk8.version}</guava.version>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
 

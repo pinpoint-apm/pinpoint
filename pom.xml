@@ -184,9 +184,7 @@
         <grpc.version>1.43.2</grpc.version>
         <protoc.version>3.19.2</protoc.version>
 
-        <guava-jdk7.version>30.1-android</guava-jdk7.version>
-        <guava-jdk8.version>30.1-jre</guava-jdk8.version>
-        <guava.version>${guava-jdk7.version}</guava.version>
+        <guava.version>31.1-jre</guava.version>
 
         <mybatis.spring.version>2.0.6</mybatis.spring.version>
         <mybatis.version>3.5.7</mybatis.version>
