@@ -23,7 +23,7 @@ dependencies {
 
     implementation("com.google.guava:guava:30.1-jre")
     implementation(libs.netty)
-    implementation("org.apache.zookeeper:zookeeper")
+    implementation(libs.zookeeper)
     implementation(libs.commons.lang3)
     implementation("org.apache.commons:commons-text:1.9")
     implementation(libs.commons.collections4)

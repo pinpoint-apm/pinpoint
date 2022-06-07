@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.metrics.servlets) {
         exclude(group = "com.papertrail", module = "profiler")
     }
-    implementation("org.apache.zookeeper:zookeeper")
+    implementation(libs.zookeeper)
     runtimeOnly(libs.slf4j.api)
     testImplementation(libs.log4j.jcl)
     testImplementation(libs.log4j.slf4j.impl)

@@ -32,6 +32,11 @@ dependencies {
         testImplementation("junit:junit:4.13.2")
         testImplementation("org.hamcrest:hamcrest:2.2")
         testImplementation("org.mockito:mockito-core:2.28.2")
+
+        // zookeeper exclusion
+        implementation("io.netty:netty:3.10.6.Final")
+        implementation("org.slf4j:slf4j-log4j12:1.7.30")
+        implementation("log4j:log4j:1.2.17")
     }
 }
 

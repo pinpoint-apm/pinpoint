@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.apache.zookeeper:zookeeper")
+    implementation(libs.zookeeper)
     implementation(libs.spring.context)
     implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
     implementation(libs.log4j.api.jdk7)
