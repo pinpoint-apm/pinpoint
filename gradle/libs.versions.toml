@@ -12,6 +12,7 @@ protoc = "3.17.2"
 springBoot = "2.5.7"
 jaxbImpl = "2.3.3"
 tinylog = "2.2.1"
+springSecurity = "5.5.3"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -48,6 +49,8 @@ spring-boot-starter-logging = { module = "org.springframework.boot:spring-boot-s
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "springBoot" }
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springBoot" }
 spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2", version.ref = "springBoot" }
+
+spring-security-web = { module = "org.springframework.security:spring-security-web", version.ref = "springSecurity" }
 
 json-path = { module = "com.jayway.jsonpath:json-path", version = "1.2.0" }
 

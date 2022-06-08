@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.spring.context)
     implementation(libs.spring.context.support)
     implementation(libs.spring.messaging)
-    implementation("org.springframework.security:spring-security-web:5.5.3")
+    implementation(libs.spring.security.web)
     implementation("org.springframework.security:spring-security-config:5.5.3")
     implementation("org.springframework.security:spring-security-messaging:5.5.3")
     implementation(libs.spring.boot.starter.web)
