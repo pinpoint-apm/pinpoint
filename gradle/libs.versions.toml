@@ -164,6 +164,8 @@ grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
 grpc-testing = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
 
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoc" }
+
 jakarta-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxbImpl" }
 jakarta-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxbImpl" }
 [bundles]
