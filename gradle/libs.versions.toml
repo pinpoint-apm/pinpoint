@@ -29,6 +29,7 @@ spring-context-support = { module = "org.springframework:spring-context-support"
 spring-aop = { module = "org.springframework:spring-aop", version.ref = "spring" }
 spring-aspects = { module = "org.springframework:spring-aspects", version.ref = "spring" }
 spring-webflux = { module = "org.springframework:spring-webflux", version.ref = "spring" }
+spring-messaging = { module = "org.springframework:spring-messaging", version.ref = "spring" }
 
 spring4-beans = { module = "org.springframework:spring-beans", version.ref = "spring4" }
 spring4-context = { module = "org.springframework:spring-context", version.ref = "spring4" }
