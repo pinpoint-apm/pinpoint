@@ -11,7 +11,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-web"))
     implementation("org.apache.hbase:hbase-client:2.4.2")
-    implementation("org.springframework.boot:spring-boot-autoconfigure:${Versions.springBoot}")
+    implementation(libs.spring.boot.autoconfigure)
 }
 
 description = "pinpoint-hbase2-web"
