@@ -11,6 +11,7 @@ grpc = "1.42.1"
 protoc = "3.17.2"
 springBoot = "2.5.7"
 jaxbImpl = "2.3.3"
+tinylog = "2.2.1"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -169,5 +170,9 @@ protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "p
 
 jakarta-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxbImpl" }
 jakarta-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxbImpl" }
+
+tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
+tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
+tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]

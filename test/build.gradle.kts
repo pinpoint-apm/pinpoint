@@ -22,11 +22,11 @@ dependencies {
     implementation("org.apache.maven:maven-resolver-provider:3.6.3")
     implementation(libs.commons.lang3)
     implementation(libs.log4j.api.jdk7)
-    implementation("org.tinylog:tinylog-api:${Versions.tinylog}")
-    implementation("org.tinylog:tinylog-impl:${Versions.tinylog}") {
+    implementation(libs.tinylog.api)
+    implementation(libs.tinylog.impl) {
         exclude(group = "org.tinylog", module = "tinylog-api")
     }
-    implementation("org.tinylog:slf4j-tinylog:${Versions.tinylog}") {
+    implementation(libs.tinylog.slf4j) {
         exclude(group = "org.slf4j", module = "slf4j-api")
         exclude(group = "org.tinylog", module = "tinylog-api")
     }
