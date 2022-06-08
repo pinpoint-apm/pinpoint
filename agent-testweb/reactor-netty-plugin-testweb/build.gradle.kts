@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}")
+    implementation(libs.spring.boot.starter.web)
     implementation("org.springframework.boot:spring-boot-starter-logging:${Versions.springBoot}")
     implementation("org.springframework.boot:spring-boot-starter-actuator:${Versions.springBoot}")
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")

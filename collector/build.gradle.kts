@@ -33,7 +33,7 @@ dependencies {
     implementation(libs.spring.orm)
     implementation(libs.spring.web)
     implementation(libs.spring.webmvc)
-    implementation("org.springframework.boot:spring-boot-starter-web:${Versions.springBoot}")
+    implementation(libs.spring.boot.starter.web)
     implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
     implementation(libs.metrics.core)
     implementation(libs.metrics.jvm)
