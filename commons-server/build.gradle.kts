@@ -18,7 +18,7 @@ dependencies {
         exclude(group = "commons-logging", module = "commons-logging")
     }
     implementation(libs.spring.context)
-    implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
+    implementation(libs.spring.boot)
     implementation(libs.commons.lang3)
     implementation(libs.libthrift.v012)
     implementation(libs.log4j.api.jdk7)

@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(libs.zookeeper)
     implementation(libs.spring.context)
-    implementation("org.springframework.boot:spring-boot:${Versions.springBoot}")
+    implementation(libs.spring.boot)
     implementation(libs.log4j.api.jdk7)
     implementation(libs.curator.framework) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")
