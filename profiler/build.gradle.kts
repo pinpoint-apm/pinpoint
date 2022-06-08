@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.libthrift.v012)
     implementation(libs.log4j.core.jdk7)
     implementation(libs.protobuf.java)
-    implementation("io.grpc:grpc-stub:${Versions.grpc}")
+    implementation(libs.grpc.stub)
     implementation(libs.netty)
     implementation(libs.netty.common)
     implementation(libs.grpc.core) {
