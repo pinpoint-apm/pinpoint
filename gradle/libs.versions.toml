@@ -51,6 +51,8 @@ spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-st
 spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2", version.ref = "springBoot" }
 
 spring-security-web = { module = "org.springframework.security:spring-security-web", version.ref = "springSecurity" }
+spring-security-config = { module = "org.springframework.security:spring-security-config", version.ref = "springSecurity" }
+spring-security-messaging = { module = "org.springframework.security:spring-security-messaging", version.ref = "springSecurity" }
 
 json-path = { module = "com.jayway.jsonpath:json-path", version = "1.2.0" }
 
