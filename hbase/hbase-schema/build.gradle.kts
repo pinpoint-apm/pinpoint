@@ -16,7 +16,7 @@ dependencies {
         exclude(group = "commons-logging", module = "commons-logging")
     }
     implementation(libs.log4j.api)
-    implementation("jakarta.xml.bind:jakarta.xml.bind-api:${Versions.jaxbImpl}")
+    implementation(libs.jakarta.bind.api)
     runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
 
     implementation(libs.hbase.shaded.client) {

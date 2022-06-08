@@ -10,6 +10,7 @@ asm = "9.2"
 grpc = "1.42.1"
 protoc = "3.17.2"
 springBoot = "2.5.7"
+jaxbImpl = "2.3.3"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -158,5 +159,7 @@ grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
 grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
 grpc-testing = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
+
+jakarta-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxbImpl" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
