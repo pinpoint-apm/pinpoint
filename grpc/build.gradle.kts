@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.commons.lang3)
     runtimeOnly("io.netty:netty-tcnative-boringssl-static:2.0.38.Final")
     runtimeOnly(libs.slf4j.api)
-    testImplementation("io.grpc:grpc-testing:${Versions.grpc}")
+    testImplementation(libs.grpc.testing)
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     implementation(libs.grpc.core) {
