@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.hbasewd) {
         exclude(group = "log4j", module = "log4j")
     }
+    implementation(libs.commons.math3)
 }
 
 description = "pinpoint-web"
