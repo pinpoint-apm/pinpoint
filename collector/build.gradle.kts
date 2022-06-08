@@ -44,7 +44,7 @@ dependencies {
     runtimeOnly(libs.log4j.jcl)
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
-    testImplementation("org.springframework.boot:spring-boot-test:${Versions.springBoot}")
+    testImplementation(libs.spring.boot.test)
     testImplementation(libs.awaitility)
     testImplementation(project(":pinpoint-rpc"))
     compileOnly(libs.javax.servlet.api)
