@@ -42,12 +42,14 @@ sourceSets {
 }
 
 protobuf {
+    val protocVersion = libs.versions.protoc.get()
+    val grpcVersion = libs.versions.grpc.get()
     protoc {
-        artifact = "com.google.protobuf:protoc:${Versions.protoc}"
+        artifact = "com.google.protobuf:protoc:${protocVersion}"
     }
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
         }
     }
     generateProtoTasks {
