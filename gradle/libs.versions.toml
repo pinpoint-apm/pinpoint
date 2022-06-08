@@ -130,6 +130,8 @@ awaitility = { module = "org.awaitility:awaitility", version = "3.1.5" }
 
 zookeeper = { module = "org.apache.zookeeper:zookeeper", version = "3.4.14" }
 
+jakarta-mail = { module = "com.sun.mail:jakarta.mail", version = "1.6.7" }
+
 curator-framework = { module = "org.apache.curator:curator-framework", version = "4.2.0" }
 curator-test = { module = "org.apache.curator:curator-test", version = "2.13.0" }
 

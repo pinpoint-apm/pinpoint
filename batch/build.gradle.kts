@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.spring.web)
     implementation(libs.spring.context.support)
     implementation(libs.spring.jdbc)
-    implementation("com.sun.mail:jakarta.mail")
+    implementation(libs.jakarta.mail)
     implementation("org.springframework.batch:spring-batch-core:4.3.3")
     implementation(libs.hikariCP)
     implementation(libs.mybatis)
