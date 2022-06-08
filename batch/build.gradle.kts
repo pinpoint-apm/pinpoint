@@ -15,7 +15,7 @@ dependencies {
     implementation(libs.spring.boot.starter.web) {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
+    implementation(libs.spring.boot.starter.log4j2)
     implementation(libs.spring.web)
     implementation(libs.spring.context.support)
     implementation(libs.spring.jdbc)

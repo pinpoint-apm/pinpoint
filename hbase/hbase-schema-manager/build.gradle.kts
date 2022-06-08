@@ -13,7 +13,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-configuration-processor:${Versions.springBoot}")
     implementation(libs.commons.lang3)
     implementation("org.springframework.boot:spring-boot-starter:${Versions.springBoot}")
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
+    implementation(libs.spring.boot.starter.log4j2)
     implementation(libs.spring.tx)
     implementation("org.apache.logging.log4j:log4j-1.2-api:2.14.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test:${Versions.springBoot}")

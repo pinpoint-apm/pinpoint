@@ -35,7 +35,7 @@ dependencies {
     implementation("org.springframework.security:spring-security-config:5.5.3")
     implementation("org.springframework.security:spring-security-messaging:5.5.3")
     implementation(libs.spring.boot.starter.web)
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:${Versions.springBoot}")
+    implementation(libs.spring.boot.starter.log4j2)
     implementation(libs.hikariCP)
     implementation(libs.mybatis)
     implementation(libs.mybatis.spring)
