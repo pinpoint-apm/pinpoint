@@ -13,6 +13,7 @@ springBoot = "2.5.7"
 jaxbImpl = "2.3.3"
 tinylog = "2.2.1"
 springSecurity = "5.5.3"
+jacksonASL = "1.9.13"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -68,7 +69,8 @@ jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-d
 snakeyaml = { module = "org.yaml:snakeyaml", version = "1.27" }
 
 hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.1" }
-jackson-core-asl = { module = "org.codehaus.jackson:jackson-core-asl", version = "1.9.13" }
+jackson-core-asl = { module = "org.codehaus.jackson:jackson-core-asl", version.ref = "jacksonASL" }
+jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jacksonASL" }
 hbasewd = { module = "com.sematext.hbasewd:hbasewd", version = "0.1.0" }
 
 # Logging dependencies
@@ -180,5 +182,10 @@ jakarta-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb
 tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
 tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
+
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
+
+[plugins]
+protobuf = { id = "com.google.protobuf", version = "0.8.18" }
+jaxb = { id = "com.intershop.gradle.jaxb", version = "4.4.2" }
