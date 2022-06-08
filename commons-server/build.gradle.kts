@@ -6,7 +6,6 @@
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
 }
 
 dependencies {
@@ -39,6 +38,21 @@ dependencies {
     implementation(libs.hbasewd) {
         exclude("log4j:log4j")
     }
+
+    implementation(libs.grpc.core) {
+        exclude(group = "io.opencensus", module = "opencensus-api")
+        exclude(group = "io.opencensus", module = "opencensus-contrib-grpc-metrics")
+        exclude(group = "com.google.code.findbugs", module = "jsr305")
+    }
+    implementation(libs.grpc.netty) {
+        exclude(group = "io.netty", module = "netty-codec-http2")
+        exclude(group = "io.netty", module = "netty-handler-proxy")
+    }
+    implementation(libs.netty.handler)
+    implementation(libs.netty.transport.native.epoll)
+    implementation(libs.netty.codec.http2)
+    implementation(libs.grpc.stub)
+    implementation(libs.grpc.protobuf)
 }
 
 description = "pinpoint-commons-server"

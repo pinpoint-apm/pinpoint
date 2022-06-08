@@ -7,6 +7,7 @@ log4j2-jdk7 = "2.12.4"
 log4j2 = "2.17.1"
 netty4 = "4.1.63.Final"
 asm = "9.2"
+grpc = "1.42.1"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -139,5 +140,10 @@ guava-jdk7 = { module = "com.google.guava:guava", version = "30.1-android" }
 guava-jdk8 = { module = "com.google.guava:guava", version = "30.1-jre" }
 guava-cassandra = { module = "com.google.guava:guava", version = "14.0.1" }
 guice = { module = "com.google.inject:guice", version = "4.2.2" }
+
+grpc-core = { module = "io.grpc:grpc-core", version.ref = "grpc" }
+grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]

@@ -2,7 +2,6 @@ import com.google.protobuf.gradle.*
 
 plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
-    id("com.navercorp.pinpoint.gradle.plugins.bom.grpc")
     id("com.google.protobuf") version Versions.protobufPlugin
 }
 
@@ -17,6 +16,21 @@ dependencies {
     runtimeOnly(libs.slf4j.api)
     testImplementation("io.grpc:grpc-testing:${Versions.grpc}")
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+
+    implementation(libs.grpc.core) {
+        exclude(group = "io.opencensus", module = "opencensus-api")
+        exclude(group = "io.opencensus", module = "opencensus-contrib-grpc-metrics")
+        exclude(group = "com.google.code.findbugs", module = "jsr305")
+    }
+    implementation(libs.grpc.netty) {
+        exclude(group = "io.netty", module = "netty-codec-http2")
+        exclude(group = "io.netty", module = "netty-handler-proxy")
+    }
+    implementation(libs.netty.handler)
+    implementation(libs.netty.transport.native.epoll)
+    implementation(libs.netty.codec.http2)
+    implementation(libs.grpc.stub)
+    implementation(libs.grpc.protobuf)
 }
 
 sourceSets {

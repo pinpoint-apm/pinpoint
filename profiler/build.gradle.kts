@@ -25,7 +25,11 @@ dependencies {
     implementation("io.grpc:grpc-stub:${Versions.grpc}")
     implementation(libs.netty)
     implementation(libs.netty.common)
-    implementation("io.grpc:grpc-core:${Versions.grpc}")
+    implementation(libs.grpc.core) {
+        exclude(group = "io.opencensus", module = "opencensus-api")
+        exclude(group = "io.opencensus", module = "opencensus-contrib-grpc-metrics")
+        exclude(group = "com.google.code.findbugs", module = "jsr305")
+    }
     implementation(libs.bundles.asm)
     runtimeOnly(libs.slf4j.api)
     testImplementation("com.google.inject.extensions:guice-grapher:4.1.0")
