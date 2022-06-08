@@ -17,7 +17,7 @@ dependencies {
     }
     implementation(libs.log4j.api)
     implementation(libs.jakarta.bind.api)
-    runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
+    runtimeOnly(libs.jakarta.jaxb.impl)
 
     implementation(libs.hbase.shaded.client) {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")

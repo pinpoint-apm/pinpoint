@@ -34,13 +34,13 @@ spring4-test = { module = "org.springframework:spring-test", version.ref = "spri
 spring4-web = { module = "org.springframework:spring-web", version.ref = "spring4" }
 spring4-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "spring4" }
 
+spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "springBoot" }
+spring-boot-test = { module = "org.springframework.boot:spring-boot-test", version.ref = "springBoot" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
 spring-boot-starter-logging = { module = "org.springframework.boot:spring-boot-starter-logging", version.ref = "springBoot" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "springBoot" }
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springBoot" }
 spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2", version.ref = "springBoot" }
-spring-boot-test = { module = "org.springframework.boot:spring-boot-test", version.ref = "springBoot" }
-spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "springBoot" }
 
 json-path = { module = "com.jayway.jsonpath:json-path", version = "1.2.0" }
 
@@ -161,5 +161,6 @@ grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
 grpc-testing = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
 
 jakarta-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxbImpl" }
+jakarta-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxbImpl" }
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]

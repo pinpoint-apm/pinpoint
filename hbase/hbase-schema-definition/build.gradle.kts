@@ -12,7 +12,7 @@ plugins {
 dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation(libs.jakarta.bind.api)
-    runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
+    runtimeOnly(libs.jakarta.jaxb.impl)
 }
 
 description = "pinpoint-hbase-schema-definition"
