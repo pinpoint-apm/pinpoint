@@ -20,11 +20,11 @@ dependencies {
     runtimeOnly("com.sun.xml.bind:jaxb-impl:${Versions.jaxbImpl}")
 
     implementation(libs.hbase.shaded.client) {
-        exclude("org.slf4j:slf4j-log4j12")
-        exclude("commons-logging:commons-logging")
+        exclude(group = "org.slf4j", module = "slf4j-log4j12")
+        exclude(group = "commons-logging", module = "commons-logging")
     }
     implementation(libs.hbasewd) {
-        exclude("log4j:log4j")
+        exclude(group = "log4j", module = "log4j")
     }
 }
 
