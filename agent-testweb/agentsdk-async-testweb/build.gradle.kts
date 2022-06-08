@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
     api(project(":pinpoint-agent-sdk"))
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
+    compileOnly(libs.spring.boot.starter.tomcat)
 }
 
 description = "pinpoint-agentsdk-async-testweb"

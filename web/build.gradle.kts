@@ -68,7 +68,7 @@ dependencies {
     testImplementation(project(":pinpoint-rpc"))
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     compileOnly(libs.javax.servlet.api)
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
+    compileOnly(libs.spring.boot.starter.tomcat)
 
     implementation(libs.hbase.shaded.client) {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")

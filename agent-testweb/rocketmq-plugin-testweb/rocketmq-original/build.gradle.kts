@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
     implementation("org.apache.rocketmq:rocketmq-client:4.7.1")
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
+    compileOnly(libs.spring.boot.starter.tomcat)
 }
 
 description = "pinpoint-rocketmq-original"

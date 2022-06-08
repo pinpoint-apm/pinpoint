@@ -15,7 +15,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
     implementation("org.apache.dubbo:dubbo:2.7.7")
     implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.7")
-    compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
+    compileOnly(libs.spring.boot.starter.tomcat)
 }
 
 description = "pinpoint-dubbo-plugin-testweb"
