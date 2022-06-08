@@ -11,7 +11,7 @@ plugins {
 dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.logging)
-    implementation("org.springframework.boot:spring-boot-starter-actuator:${Versions.springBoot}")
+    implementation(libs.spring.boot.starter.actuator)
     implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
     implementation("org.apache.rocketmq:rocketmq-spring-boot-starter:2.1.1")
     compileOnly("org.springframework.boot:spring-boot-starter-tomcat:${Versions.springBoot}")
