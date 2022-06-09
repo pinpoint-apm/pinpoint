@@ -83,6 +83,7 @@
         <module>lambda-it</module>
         <module>jtds-it</module>
         <module>mysql-jdbc-driver-plugin-it</module>
+        <module>spring-data-r2dbc-it</module>
     </modules>
 
     <properties>

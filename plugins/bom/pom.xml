@@ -402,6 +402,12 @@
                 <version>4.7.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-r2dbc</artifactId>
+                <version>1.5.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>

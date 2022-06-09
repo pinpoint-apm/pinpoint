@@ -46,6 +46,14 @@ public class SimpleTypeConverter implements Converter {
         return "error";
     }
 
+    public String convert(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        return abbreviate(value);
+    }
+
+
     private String abbreviate(Object arg) {
         return StringUtils.abbreviate(StringUtils.toString(arg), this.maxWidth);
     }

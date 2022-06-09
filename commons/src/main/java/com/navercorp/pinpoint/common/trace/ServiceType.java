@@ -99,14 +99,22 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2051</td><td>UNKNOWN_DB_EXECUTE_QUERY</td></tr>
  * <tr><td>2100</td><td>MYSQL</td></tr>
  * <tr><td>2101</td><td>MYSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2102</td><td>R2DBC_MYSQL</td></tr>
+ * <tr><td>2103</td><td>R2DBC_MYSQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2150</td><td>MARIADB</td></tr>
  * <tr><td>2151</td><td>MARIADB_EXECUTE_QUERY</td></tr>
+ * <tr><td>2152</td><td>R2DBC_MARIADB</td></tr>
+ * <tr><td>2153</td><td>R2DBC_MARIADB_EXECUTE_QUERY</td></tr>
  * <tr><td>2200</td><td>MSSQL</td></tr>
  * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2250</td><td>MSSQL_JDBC</td></tr>
- * <tr><td>2251</td><td>MSSQL_JDBC_QUERY</td></tr> *
+ * <tr><td>2251</td><td>MSSQL_JDBC_QUERY</td></tr>
+ * <tr><td>2252</td><td>R2DBC_MSSQL_JDBC</td></tr>
+ * <tr><td>2253</td><td>R2DBC_MSSQL_JDBC_QUERY</td></tr>
  * <tr><td>2300</td><td>ORACLE</td></tr>
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
+ * <tr><td>2302</td><td>R2DBC_ORACLE</td></tr>
+ * <tr><td>2303</td><td>R2DBC_ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
  * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
  * <tr><td>2410</td><td>NBASET</td></tr>
@@ -116,6 +124,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2451</td><td>INFORMIX_EXECUTE_QUERY</td></tr>
  * <tr><td>2500</td><td>POSTGRESQL</td></tr>
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2502</td><td>R2DBC_POSTGRESQL</td></tr>
+ * <tr><td>2503</td><td>R2DBC_POSTGRESQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2600</td><td>CASSANDRA</td></tr>
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
  * <tr><td>2650</td><td>MONGO</td></tr>
@@ -123,6 +133,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2652</td><td>MONGO_REACTIVE</td></tr>
  * <tr><td>2700</td><td>COUCHDB</td></tr>
  * <tr><td>2701</td><td>COUCHDB_EXECUTE_QUERY</td></tr>
+ * <tr><td>2750</td><td>H2</td></tr>
+ * <tr><td>2751</td><td>H2_EXECUTE_QUERY</td></tr>
+ * <tr><td>2752</td><td>R2DBC_H2</td></tr>
+ * <tr><td>2753</td><td>R2DBC_H2_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
@@ -161,6 +175,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6610</td><td>KOA</td></tr>
  * <tr><td>6620</td><td>HAPI</td></tr>
  * <tr><td>6630</td><td>RESTIFY</td></tr>
+ * <tr><td>6640</td><td>SPRING_DATA_R2DBC</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
  *

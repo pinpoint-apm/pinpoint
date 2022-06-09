@@ -19,7 +19,17 @@ public class DefaultBindVariableService implements BindVariableService {
     }
 
     @Override
+    public String formatBindVariable(Object value) {
+        return bindValueConverter.convert(value);
+    }
+
+    @Override
     public String bindVariableToString(Map<Integer, String> bindValueMap, int limit) {
         return BindValueUtils.bindValueToString(bindValueMap, limit);
+    }
+
+    @Override
+    public String bindNameVariableToString(Map<String, String> bindValueMap, int limit) {
+        return BindValueUtils.bindNameValueToString(bindValueMap, limit);
     }
 }

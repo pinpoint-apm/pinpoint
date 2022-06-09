@@ -108,6 +108,7 @@
         <module>paho-mqtt</module>
         <module>rocketmq</module>
         <module>agentsdk-async</module>
+        <module>spring-data-r2dbc</module>
     </modules>
 
 
