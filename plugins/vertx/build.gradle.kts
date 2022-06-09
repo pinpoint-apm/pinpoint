@@ -15,8 +15,3 @@ dependencies {
 }
 
 description = "pinpoint-vertx-plugin"
-
-tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = "1.7"
-    targetCompatibility = "1.7"
-}

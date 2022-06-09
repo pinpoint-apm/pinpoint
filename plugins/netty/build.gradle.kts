@@ -20,8 +20,3 @@ dependencies {
 }
 
 description = "pinpoint-netty-plugin"
-
-tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = "1.7"
-    targetCompatibility = "1.7"
-}

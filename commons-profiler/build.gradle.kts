@@ -1,5 +1,5 @@
 plugins {
-    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java7")
+    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java8")
 }
 
 dependencies {
