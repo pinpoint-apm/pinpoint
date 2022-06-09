@@ -1,11 +1,12 @@
 [versions]
-spring = "5.3.13"
+spring = "5.3.20"
 spring4 = "4.3.30.RELEASE"
 metrics = "3.2.6"
-fastxml-jackson = "2.12.5"
+fastxml-jackson = "2.12.6"
+fastxml-jackson-databind = "2.12.6.1"
 log4j2-jdk7 = "2.12.4"
 log4j2 = "2.17.1"
-netty4 = "4.1.63.Final"
+netty4 = "4.1.72.Final"
 asm = "9.2"
 grpc = "1.42.1"
 protoc = "3.17.2"
@@ -119,7 +120,7 @@ httpcore = { module = "org.apache.httpcomponents:httpcore", version = "4.4.14" }
 
 # 2.7 (requires Java 8
 # 2.6 (requires Java 7
-commons-io = { module = "commons-io:commons-io", version = "2.6" }
+commons-io = { module = "commons-io:commons-io", version = "2.11.0" }
 # https://commons.apache.org/proper/commons-lang/changes-report.html
 # Lang 3.9 and onwards now targets Java 8, making use of features that arrived with Java 8.
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.8.1" }
@@ -127,13 +128,14 @@ commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.8.1"
 commons-lang = { module = "commons-lang:commons-lang", version = "2.6" }
 commons-collections = { module = "commons-collections:commons-collections", version = "3.2.2" }
 commons-collections4 = { module = "org.apache.commons:commons-collections4", version = "4.4" }
-commons-compress = { module = "org.apache.commons:commons-compress", version = "1.20" }
+commons-compress = { module = "org.apache.commons:commons-compress", version = "1.21" }
 # Codec 1.14 (mirrors) requires Java 7
 commons-codec = { module = "commons-codec:commons-codec", version = "1.14" }
 commons-beanutils = { module = "commons-beanutils:commons-beanutils", version = "1.9.4" }
 commons-math3 = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
 commons-digester = { module = "commons-digester:commons-digester", version = "2.1" }
-jta = { module = "javax.transaction:jta", version = "1.1" }
+
+jakarta-mail = { module = "com.sun.mail:jakarta.mail", version = "1.6.7" }
 
 javassist = { module = "org.javassist:javassist", version = "3.27.0-GA" }
 cglib-nodep = { module = "cglib:cglib-nodep", version = "3.2.12" }
@@ -155,8 +157,6 @@ awaitility = { module = "org.awaitility:awaitility", version = "3.1.5" }
 
 zookeeper = { module = "org.apache.zookeeper:zookeeper", version = "3.4.14" }
 
-jakarta-mail = { module = "com.sun.mail:jakarta.mail", version = "1.6.7" }
-
 curator-framework = { module = "org.apache.curator:curator-framework", version = "4.2.0" }
 curator-test = { module = "org.apache.curator:curator-test", version = "2.13.0" }
 
@@ -164,7 +164,7 @@ libthrift = { module = "org.apache.thrift:libthrift", version = "0.15.0" }
 libthrift-v012 = { module = "org.apache.thrift:libthrift", version = "0.12.0" }
 
 guava-jdk7 = { module = "com.google.guava:guava", version = "30.1-android" }
-guava-jdk8 = { module = "com.google.guava:guava", version = "30.1-jre" }
+guava-jdk8 = { module = "com.google.guava:guava", version = "31.1-jre" }
 guava-cassandra = { module = "com.google.guava:guava", version = "14.0.1" }
 guice = { module = "com.google.inject:guice", version = "4.2.2" }
 
