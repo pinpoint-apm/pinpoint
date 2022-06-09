@@ -28,10 +28,17 @@ public class ClassNameConverter implements Converter {
         if (args.length == 2) {
             return getClassName(args[1]);
         } else if (args.length == 3) {
-           // need to handle 3rd arg?
+            // need to handle 3rd arg?
             return getClassName(args[1]);
         }
         return "error";
+    }
+
+    public String convert(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        return getClassName(value);
     }
 
     private String getClassName(Object args) {

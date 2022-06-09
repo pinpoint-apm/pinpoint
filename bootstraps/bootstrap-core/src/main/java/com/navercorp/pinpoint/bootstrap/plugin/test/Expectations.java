@@ -117,6 +117,12 @@ public final class Expectations {
         return eventBuilder.build();
     }
 
+    public static ExpectedTrace event(String serviceType, ExpectedAnnotation... annotations) {
+        ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
+        eventBuilder.setAnnotations(annotations);
+        return eventBuilder.build();
+    }
+
     public static ExpectedTrace event(String serviceType, String methodDescriptor, Exception exception, ExpectedAnnotation... annotations) {
         ExpectedTrace.Builder eventBuilder = ExpectedTrace.createEventBuilder(serviceType);
         eventBuilder.setMethodSignature(methodDescriptor);

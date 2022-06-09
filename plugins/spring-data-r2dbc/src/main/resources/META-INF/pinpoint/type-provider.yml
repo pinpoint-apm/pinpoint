@@ -1,0 +1,81 @@
+serviceTypes:
+    - code: 6640
+      name: 'SPRING_DATA_R2DBC'
+    - code: 2252
+      name: 'R2DBC_MSSQL_JDBC'
+      desc: 'MSSQL_JDBC'
+      property:
+        terminal: true
+        includeDestinationId: true
+    - code: 2253
+      name: 'R2DBC_MSSQL_JDBC_EXECUTE_QUERY'
+      desc: 'MSSQLSERVER'
+      property:
+        recordStatistics: true
+        terminal: true
+        includeDestinationId: true
+    - code: 2302
+      name: 'R2DBC_ORACLE'
+      desc: 'ORACLE'
+      property:
+        terminal: true
+        includeDestinationId: true
+    - code: 2303
+      name: 'R2DBC_ORACLE_EXECUTE_QUERY'
+      desc: 'ORACLE'
+      property:
+        recordStatistics: true
+        terminal: true
+        includeDestinationId: true
+    - code: 2152
+      name: 'R2DBC_MARIADB'
+      desc: 'MARIADB'
+      property:
+        terminal: true
+        includeDestinationId: true
+    - code: 2153
+      name: 'R2DBC_MARIADB_EXECUTE_QUERY'
+      desc: 'MARIADB'
+      property:
+        recordStatistics: true
+        terminal: true
+        includeDestinationId: true
+    - code: 2102
+      name: 'R2DBC_MYSQL'
+      desc: 'MYSQL'
+      property:
+        terminal: true
+        includeDestinationId: true
+    - code: 2103
+      name: 'R2DBC_MYSQL_EXECUTE_QUERY'
+      desc: 'MYSQL'
+      property:
+        recordStatistics: true
+        terminal: true
+        includeDestinationId: true
+    - code: 2752
+      name: 'R2DBC_H2'
+      desc: 'H2'
+      property:
+        terminal: true
+        includeDestinationId: true
+    - code: 2753
+      name: 'R2DBC_H2_EXECUTE_QUERY'
+      desc: 'H2'
+      property:
+        recordStatistics: true
+        terminal: true
+        includeDestinationId: true
+    - code: 2502
+      name: 'R2DBC_POSTGRESQL'
+      desc: 'POSTGRESQL'
+      property:
+        terminal: true
+        includeDestinationId: true
+    - code: 2503
+      name: 'R2DBC_POSTGRESQL_EXECUTE_QUERY'
+      desc: 'POSTGRESQL'
+      property:
+        recordStatistics: true
+        terminal: true
+        includeDestinationId: true
