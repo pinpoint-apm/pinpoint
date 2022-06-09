@@ -18,6 +18,14 @@ public final class DatabaseContainers {
         properties.setProperty(DriverProperties.URL, container.getJdbcUrl());
         properties.setProperty(DriverProperties.USER, container.getUsername());
         properties.setProperty(DriverProperties.PASSWARD, container.getPassword());
+        properties.setProperty(DriverProperties.HOST, container.getHost());
+        properties.setProperty(DriverProperties.PORT, container.getFirstMappedPort().toString());
+
+        try {
+            properties.setProperty(DriverProperties.DATABASE, container.getDatabaseName());
+        } catch (UnsupportedOperationException ignored) {
+        }
+
         return properties;
     }
 

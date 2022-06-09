@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * duplicate : com.navercorp.pinpoint.profiler.modifier.db.interceptor.BindValueUtils
+ *
  * @author emeroad
  */
 public final class BindValueUtils {
@@ -49,6 +50,23 @@ public final class BindValueUtils {
                 continue;
             }
             temp[parameterIndex] = entry.getValue();
+        }
+        return bindValueToString(temp, limit);
+    }
+
+    public static String bindNameValueToString(final Map<String, String> bindValueMap, int limit) {
+        if (MapUtils.isEmpty(bindValueMap)) {
+            return "";
+        }
+        final int maxParameterIndex = bindValueMap.size();
+        if (maxParameterIndex <= 0) {
+            return "";
+        }
+        int parameterIndex = 0;
+        final String[] temp = new String[maxParameterIndex];
+        for (Map.Entry<String, String> entry : bindValueMap.entrySet()) {
+            final String value = entry.getKey() + "=" + entry.getValue();
+            temp[parameterIndex++] = value;
         }
         return bindValueToString(temp, limit);
     }

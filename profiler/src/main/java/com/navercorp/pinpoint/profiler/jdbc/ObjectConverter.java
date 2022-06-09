@@ -44,6 +44,7 @@ public class ObjectConverter implements Converter {
         SQL_CLOB = SqlModule.getSqlClob();
         SQL_BLOB = SqlModule.getSqlBlob();
     }
+
     private final int maxWidth;
 
     public ObjectConverter() {
@@ -69,6 +70,13 @@ public class ObjectConverter implements Converter {
             return getParameter(param);
         }
         return "error";
+    }
+
+    public String convert(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        return getParameter(value);
     }
 
     private String getParameter(Object param) {
@@ -116,7 +124,6 @@ public class ObjectConverter implements Converter {
         if (param instanceof BigInteger) {
             return toString(param);
         }
-
 
 
         if (SQL_MODULE) {

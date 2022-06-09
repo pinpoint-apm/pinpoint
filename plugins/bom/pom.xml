@@ -401,7 +401,47 @@
                 <artifactId>rocketmq-client</artifactId>
                 <version>4.7.1</version>
             </dependency>
-
+            <!-- Spring Data R2DBC -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-r2dbc</artifactId>
+                <version>1.5.1</version>
+            </dependency>
+            <dependency>
+                <groupId>io.r2dbc</groupId>
+                <artifactId>r2dbc-h2</artifactId>
+                <version>0.9.1.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.miku</groupId>
+                <artifactId>r2dbc-mysql</artifactId>
+                <version>0.8.2.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jasync-sql</groupId>
+                <artifactId>jasync-r2dbc-mysql</artifactId>
+                <version>2.0.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mariadb</groupId>
+                <artifactId>r2dbc-mariadb</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>r2dbc-postgresql</artifactId>
+                <version>0.9.1.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.database.r2dbc</groupId>
+                <artifactId>oracle-r2dbc</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.r2dbc</groupId>
+                <artifactId>r2dbc-mssql</artifactId>
+                <version>0.9.0.RELEASE</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

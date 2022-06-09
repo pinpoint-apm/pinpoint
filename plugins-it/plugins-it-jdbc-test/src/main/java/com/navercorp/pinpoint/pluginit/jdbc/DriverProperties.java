@@ -32,6 +32,9 @@ public class DriverProperties {
     public static final String URL = "url";
     public static final String USER = "user";
     public static final String PASSWARD = "password";
+    public static final String HOST = "host";
+    public static final String PORT = "port";
+    public static final String DATABASE = "database";
     private final String url;
     private final String user;
     private final String password;
