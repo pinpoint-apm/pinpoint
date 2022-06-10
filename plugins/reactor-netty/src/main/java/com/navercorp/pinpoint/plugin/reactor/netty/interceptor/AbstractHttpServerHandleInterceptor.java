@@ -38,6 +38,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
+import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
+import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
 
@@ -56,6 +58,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
     private final boolean enableAsyncEndPoint;
     private final ServletRequestListener<HttpServerRequest> servletRequestListener;
     private final ServletResponseListener<HttpServerResponse> servletResponseListener;
+    private final SimpleSampler sampler;
 
     public AbstractHttpServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
         this.traceContext = traceContext;
@@ -82,12 +85,22 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpResponseAdaptor()).build();
 
         this.enableAsyncEndPoint = config.isEnableAsyncEndPoint();
+        sampler = SimpleSamplerFactory.createPercentSampler(config.isForceSample(), config.getForceSampleRate());
+
     }
 
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
+        }
+
+        //not sample
+        if (!sampler.isSampling()){
+            if (isDebug) {
+                logger.debug("not sample");
+            }
+            return;
         }
 
         if (traceContext.currentRawTraceObject() != null) {
@@ -107,6 +120,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
             // duplicate trace.
             return;
         }
+
 
         try {
             if (Boolean.FALSE == isReceived(args)) {
