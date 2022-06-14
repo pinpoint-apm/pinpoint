@@ -10,14 +10,6 @@ repositories {
     maven {
         url = uri("https://repo.maven.apache.org/maven2/")
     }
-
-    maven {
-        url = uri("https://jcenter.bintray.com")
-    }
-
-    maven {
-        url = uri("https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/")
-    }
 }
 
 dependencies {

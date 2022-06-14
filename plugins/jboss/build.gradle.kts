@@ -2,6 +2,16 @@ plugins {
     id("com.navercorp.pinpoint.gradle.plugins.toolchain.java8")
 }
 
+repositories {
+    maven {
+        url = uri("https://jcenter.bintray.com")
+    }
+
+    maven {
+        url = uri("https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/")
+    }
+}
+
 dependencies {
     api(project(":pinpoint-common-servlet"))
     testImplementation(project(":pinpoint-profiler"))
