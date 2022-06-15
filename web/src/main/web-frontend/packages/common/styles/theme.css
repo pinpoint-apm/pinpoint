@@ -231,6 +231,7 @@ body {
   --icon-default: var(--blue-grey-500);
   --icon-default-darker: var(--blue-grey-600);
   --icon-default-lighter: var(--blue-grey-400);
+  --icon-default-lightest: var(--blue-grey-300);
   --icon-disable: var(--blue-grey-300);
 
   --table-header-background: var(--blue-grey-50);
@@ -322,6 +323,7 @@ body.dark-mode {
   --icon-default: var(--blue-grey-500);
   --icon-default-darker: var(--blue-grey-600);
   --icon-default-lighter: var(--blue-grey-400);
+  --icon-default-lightest: var(--blue-grey-300);
   --icon-disable: var(--blue-grey-300);
 
   --table-header-background: var(--blue-grey-50);
