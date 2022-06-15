@@ -68,6 +68,7 @@ public class JarFileAnalyzer implements PackageAnalyzer {
 
             final Providers provides = this.serviceLoaderEntryFilter.filter(jarEntry);
             if (provides != null) {
+                packageSet.add(provides.getServicePackage());
                 providesList.add(provides);
             }
         }
@@ -124,7 +125,7 @@ public class JarFileAnalyzer implements PackageAnalyzer {
 
             final String fileName = jarEntry.getName();
             if (!checkFIleExtension(fileName, CLASS_EXTENSION)) {
-                // skip non class file
+                // skip non-class file
                 return null;
             }
 
