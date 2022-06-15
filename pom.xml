@@ -197,6 +197,8 @@
         <curator.framework.version>4.2.1</curator.framework.version>
         <curator.test.version>2.13.0</curator.test.version>
 
+        <embed.mongo>3.4.6</embed.mongo>
+
         <testcontainers.version>1.16.2</testcontainers.version>
 
         <!-- maven-plugin -->
