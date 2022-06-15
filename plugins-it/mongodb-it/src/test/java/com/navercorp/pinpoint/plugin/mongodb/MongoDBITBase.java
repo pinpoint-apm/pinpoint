@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.mongodb;
 
+import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
@@ -23,19 +28,6 @@ import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
-
-import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.DeleteResult;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.runtime.Network;
 import org.bson.BsonArray;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
@@ -82,7 +74,7 @@ public abstract class MongoDBITBase {
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
     public static MongoDatabase database;
     public static String secondCollectionDefaultOption = "ACKNOWLEDGED";
-    MongodProcess mongod;
+    MongodServer mongod;
 
     public abstract void setClient();
 
@@ -95,18 +87,9 @@ public abstract class MongoDBITBase {
                                 String collectionInfo, String collectionOption);
 
     public void startDB() throws Exception {
-        MongodStarter starter = MongodStarter.getDefaultInstance();
-        MongodConfig  mongodConfig = MongodConfig.builder()
-                .version(Version.Main.PRODUCTION)
-                .net(new Net(MongoDBITConstants.BIND_ADDRESS, MongoDBITConstants.PORT, Network.localhostIsIPv6()))
-                .build();
+        mongod = new MongodServer();
+        mongod.start();
 
-        MongodExecutable mongodExecutable = starter.prepare(mongodConfig);
-//        replaced via awaitCompleted()
-//        //give time for previous DB close to finish and port to be released"
-//        Thread.sleep(200L);
-
-        mongod = mongodExecutable.start();
         setClient();
     }
 
