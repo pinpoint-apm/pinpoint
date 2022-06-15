@@ -1,12 +1,14 @@
-import React, { useState, ReactNode, FC, memo } from 'react';
+import React, { useState, ReactNode, FC } from 'react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { SerializedStyles } from '@emotion/react';
 
 export interface ButtonProps {
+  className?: string;
   children: ReactNode;
   active?: boolean;
   disableActive?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }
 
@@ -16,22 +18,25 @@ export interface ButtonGroupContainerProps {
   children: React.ReactElement<ButtonProps>[]
 }
 
-const Button: FC<ButtonProps> = memo(({
+const Button: FC<ButtonProps> = ({
   children,
   active,
   onClick,
+  className,
+  disabled,
 }: ButtonProps) => {
   return (
-    <StyledButton 
-      className={classNames({ active })}
+    <StyledButton
+      disabled={disabled}
+      className={classNames({ active }, className)}
       onClick={onClick}
     >
       {children}
     </StyledButton>
   );
-});
+};
 
-const Container: FC<ButtonGroupContainerProps> = memo(({
+const Container: FC<ButtonGroupContainerProps> = ({
   customStyle,
   initActiveIndex = 0,
   children,
@@ -40,7 +45,7 @@ const Container: FC<ButtonGroupContainerProps> = memo(({
   
   function handleClick(index: number, disableActive?: boolean, clickFn?: () => void) {
     return () => {
-      !disableActive && setActiveIndex(index)
+      !disableActive && setActiveIndex(index);
       clickFn?.();
     }
   }
@@ -51,14 +56,14 @@ const Container: FC<ButtonGroupContainerProps> = memo(({
       if (React.isValidElement(button)) {
         return React.cloneElement(button, { 
           active: activeIndex === i && !button.props.disableActive,
-          onClick: handleClick(i, button.props.disableActive ,button.props.onClick),
+          onClick: handleClick(i, button.props.disableActive, button.props.onClick),
         })
       }
       return button;
     })}
     </StyledContainer>
   );
-});
+};
 
 const ButtonGroup = {
   Container,
@@ -76,9 +81,17 @@ const StyledContainer = styled.div<{ customStyle?: SerializedStyles}>`
 `
 
 const StyledButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-right: 1px solid var(--border-primary);
 
   &:nth-last-of-type(1) {
     border: none;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 `
