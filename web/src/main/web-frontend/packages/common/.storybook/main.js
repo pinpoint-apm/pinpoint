@@ -22,6 +22,12 @@ module.exports = {
       ...config.resolve,
       alias: {
         ...config.resolve.alias,
+        // path alias
+        '@/hooks': path.resolve(__dirname, '../hooks'),
+        '@/utils': path.resolve(__dirname, '../utils'),
+        '@/styles': path.resolve(__dirname, '../styles'),
+        '@/components': path.resolve(__dirname, '../components'),
+        // for emotion
         '@emotion/core': getPackageDir('@emotion/react'),
         '@emotion/styled': getPackageDir('@emotion/styled'),
         'emotion-theming': getPackageDir('@emotion/react'),
