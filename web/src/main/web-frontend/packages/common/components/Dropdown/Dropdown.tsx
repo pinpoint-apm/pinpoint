@@ -1,27 +1,32 @@
-import { useCaptureKeydown, useOutsideClick } from '../../hooks/interaction';
-import React, { FC, memo, useState, useRef, useMemo, useEffect } from 'react';
+import React, { FC, memo, useState, useRef, useImperativeHandle, useMemo, useEffect } from 'react';
+import { css } from '@emotion/react';
+
+import { useCaptureKeydown, useOutsideClick } from '@/hooks/interaction';
 import { DropdownContent, DropdownContentProps } from './DropdownContent';
 import { DropdownTrigger, DropdownTriggerProps } from './DropdownTrigger';
 import DropdownContext from './DropdownContext';
-import { css } from '@emotion/react';
+
+export interface DropdownRef {
+  close: () => void;
+}
 
 export interface DropdownProps {
   className?: string;
   children?: React.ReactNode[];
   onChange?: ({ show }: { show: boolean }) => void;
+  ref: React.MutableRefObject<DropdownRef>;
 }
 
-
-const Dropdown: FC<DropdownProps> = memo(({
+const Dropdown = React.forwardRef(({
   className,
   children,
   onChange,
-}: DropdownProps) => {
+}: DropdownProps, ref) => {
   const [ show, setShow ] = useState(false);
   const dropdownRef = useRef(null);
 
   useOutsideClick(dropdownRef, () => {
-    setShow(false);
+    show && setShow(false);
   })
 
   useCaptureKeydown(event => {
@@ -34,14 +39,24 @@ const Dropdown: FC<DropdownProps> = memo(({
     onChange?.({
       show,
     })
-  }, [ show, onChange ])
+  }, [ show ])
+
+  useImperativeHandle(ref, () => ({
+    close() {
+      closeContent();
+    }
+  }))
+
+  function closeContent() {
+    setShow(false);
+  }
 
   return (
-    <div className={className} ref={dropdownRef} css={css`position: relative;`}>
-      <DropdownContext.Provider value={{ show, setShow: useMemo(() => setShow, [ setShow ]) }}>
-      {children}
-      </DropdownContext.Provider>
-    </div>
+    <DropdownContext.Provider value={{ show, setShow: useMemo(() => setShow, [ setShow ]) }}>
+      <div ref={dropdownRef} className={className} css={css`position: relative;`}>
+        {children}
+      </div>
+    </DropdownContext.Provider>
   );
 });
 
