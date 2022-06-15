@@ -19,8 +19,13 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 import jdk.internal.loader.BootLoader;
 import jdk.internal.module.Modules;
 
+import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
+import java.lang.module.ModuleFinder;
 import java.net.URI;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 final class InternalModules {
 
@@ -28,7 +33,7 @@ final class InternalModules {
     }
 
     /**
-     * Returns the unnamed module for the boot loader.
+     * Returns the unnamed module for the bootloader.
      */
     static Module getUnnamedModule() {
         return BootLoader.getUnnamedModule();
@@ -47,14 +52,24 @@ final class InternalModules {
                                       ModuleDescriptor descriptor,
                                       URI uri)
     {
-        return Modules.defineModule(loader, descriptor, uri);
+        final String moduleName = descriptor.name();
+        final ModuleLayer parent = ModuleLayer.boot();
+
+        final ModuleFinder before = new SingleModuleFinder(descriptor, uri);
+        final Configuration cf = parent.configuration().resolve(before, ModuleFinder.of(), Set.of(moduleName));
+        final Module module = ModuleLayer.defineModules(cf, List.of(parent), name -> loader)
+                .layer()
+                .findModule(moduleName)
+                .orElse(null);
+
+        return Objects.requireNonNull(module, moduleName);
     }
 
 
     /**
      * Called by the VM to load a system module, typically "java.instrument" or
      * "jdk.management.agent". If the module is not loaded then it is resolved
-     * and loaded (along with any dependences that weren't previously loaded)
+     * and loaded (along with any dependencies that weren't previously loaded)
      * into a child layer.
      */
     static Module loadModule(String name) {

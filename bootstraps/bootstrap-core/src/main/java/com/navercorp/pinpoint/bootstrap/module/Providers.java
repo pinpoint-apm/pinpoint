@@ -35,6 +35,14 @@ public class Providers {
         return services;
     }
 
+    public String getServicePackage() {
+        int lastDotIndex = services.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return services;
+        }
+        return services.substring(0, lastDotIndex);
+    }
+
     public List<String> getProviders() {
         return providers;
     }
