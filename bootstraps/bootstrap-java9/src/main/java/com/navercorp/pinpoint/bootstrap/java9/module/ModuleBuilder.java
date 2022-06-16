@@ -16,22 +16,18 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
-import com.navercorp.pinpoint.bootstrap.module.Providers;
+import com.navercorp.pinpoint.bootstrap.java9.module.merger.JarMerger;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.lang.module.ModuleDescriptor;
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -54,110 +50,29 @@ class ModuleBuilder {
         logger.info("defineModule classLoader: " + classLoader);
         logger.info("defineModule classLoader-unnamedModule: " + unnamedModule);
 
-
-        List<PackageInfo> packageInfos = parsePackageInfo(urls);
-        Set<String> packages = mergePackageInfo(packageInfos);
-        logger.info("packages:" + packages);
-        Map<String, Set<String>> serviceInfoMap = mergeServiceInfo(packageInfos);
-        logger.info("providers:" + serviceInfoMap);
-
-        ModuleDescriptor.Builder builder = ModuleDescriptor.newModule(moduleName);
-        builder.packages(packages);
-        for (Map.Entry<String, Set<String>> entry : serviceInfoMap.entrySet()) {
-            builder.provides(entry.getKey(), new ArrayList<>(entry.getValue()));
-        }
-
-        ModuleDescriptor moduleDescriptor = builder.build();
-        URI url = getInformationURI(urls);
-
-        Module module = InternalModules.defineModule(classLoader, moduleDescriptor , url);
-        logger.info("defineModule module:" + module);
-        return module;
-    }
-
-    private Map<String, Set<String>> mergeServiceInfo(List<PackageInfo> packageInfos) {
-        Map<String, Set<String>> providesMap = new HashMap<>();
-        for (PackageInfo packageInfo : packageInfos) {
-            List<Providers> serviceLoader = packageInfo.getProviders();
-            for (Providers provides : serviceLoader) {
-                Set<String> providerSet = providesMap.computeIfAbsent(provides.getService(), s -> new HashSet<>());
-                providerSet.addAll(provides.getProviders());
-            }
-        }
-        return providesMap;
-    }
-
-    private Set<String> mergePackageInfo(List<PackageInfo> packageInfos) {
-        Set<String> packageSet = new HashSet<>();
-        for (PackageInfo packageInfo : packageInfos) {
-            packageSet.addAll(packageInfo.getPackage());
-        }
-        return packageSet;
-    }
-
-    private JarFile newJarFile(URL jarFile) {
-        try {
-            if (!jarFile.getProtocol().equals("file")) {
-                throw new IllegalStateException("invalid file " + jarFile);
-            }
-            return new JarFile(jarFile.getFile());
-        } catch (IOException e) {
-            throw new ModuleException(jarFile.getFile() +  " create fail " + e.getMessage(), e);
-        }
-    }
-
-    private URI getInformationURI(URL[] urls) {
-        if (isEmpty(urls)) {
-            return null;
-        }
-        final URL url = urls[0];
-        try {
-            return url.toURI();
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private boolean isEmpty(URL[] urls) {
-        return urls == null || urls.length == 0;
-    }
-
-    private List<PackageInfo> parsePackageInfo(URL[] urls) {
-
-        final List<PackageInfo> packageInfoList = new ArrayList<>();
-        for (URL url : urls) {
-            if (!isJar(url)) {
-                continue;
-            }
-            JarFile jarFile = null;
+        final List<URI> uris = new ArrayList<>(urls.length);
+        for (final URL url: urls) {
             try {
-                jarFile = newJarFile(url);
-                PackageAnalyzer packageAnalyzer = new JarFileAnalyzer(jarFile);
-                PackageInfo packageInfo = packageAnalyzer.analyze();
-                packageInfoList.add(packageInfo);
-            } finally {
-                close(jarFile);
+                uris.add(url.toURI());
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Invalid lib url", e);
             }
         }
-        return packageInfoList;
-    }
 
-    private boolean isJar(URL url){
-         // filter *.xml
-        if (url.getPath().endsWith(".jar")) {
-            return true;
-        }
-        return false;
-    }
+        final ModuleLayer bootLayer = ModuleLayer.boot();
 
-    private void close(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
         try {
-            closeable.close();
-        } catch (IOException ignored) {
-            // skip
+            final ModuleFinder finder = JarMerger.build(moduleName, uris);
+            final Configuration config = bootLayer.configuration().resolve(finder, ModuleFinder.of(), Set.of(moduleName));
+            final Module module = bootLayer.defineModules(config, name -> classLoader)
+                    .modules()
+                    .iterator()
+                    .next();
+
+            logger.info("defineModule module:" + module);
+            return module;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to define module", e);
         }
     }
 
