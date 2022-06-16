@@ -52,10 +52,7 @@ public final class ReactorContextAccessorUtils {
 
     public static void setAsyncContext(final AsyncContext asyncContext, final Object object) {
         if (object instanceof ReactorContextAccessor) {
-            final AsyncContext argAsyncContext = ReactorContextAccessorUtils.getAsyncContext(object);
-            if (argAsyncContext == null) {
-                ((ReactorContextAccessor) object)._$PINPOINT$_setReactorContext(asyncContext);
-            }
+            ((ReactorContextAccessor) object)._$PINPOINT$_setReactorContext(asyncContext);
         }
     }
 
