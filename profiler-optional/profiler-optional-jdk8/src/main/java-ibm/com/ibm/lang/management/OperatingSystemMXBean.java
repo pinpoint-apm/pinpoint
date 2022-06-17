@@ -17,8 +17,11 @@
 package com.ibm.lang.management;
 
 /**
- * @author Roy Kim
+ * @author HyunGil Jeong
  */
-public interface OperatingSystemMXBean extends java.lang.management.OperatingSystemMXBean{
+public interface OperatingSystemMXBean extends java.lang.management.OperatingSystemMXBean {
 
+    double getProcessCpuLoad();
+
+    double getSystemCpuLoad();
 }

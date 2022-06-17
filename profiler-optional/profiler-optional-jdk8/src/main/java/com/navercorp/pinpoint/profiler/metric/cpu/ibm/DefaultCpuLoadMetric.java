@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.cpu.oracle;
+package com.navercorp.pinpoint.profiler.metric.cpu.ibm;
 
+import com.ibm.lang.management.OperatingSystemMXBean;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuUsageProvider;
-import com.sun.management.OperatingSystemMXBean;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -36,7 +36,7 @@ public class DefaultCpuLoadMetric implements CpuLoadMetric {
     private final CpuUsageProvider systemCpuUsageProvider;
 
     public DefaultCpuLoadMetric() {
-        final OperatingSystemMXBean operatingSystemMXBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        final OperatingSystemMXBean operatingSystemMXBean = (com.ibm.lang.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         if (operatingSystemMXBean == null) {
             throw new IllegalStateException("OperatingSystemMXBean not available");
         }
@@ -69,7 +69,7 @@ public class DefaultCpuLoadMetric implements CpuLoadMetric {
 
     @Override
     public String toString() {
-        return "CpuLoadMetric for Oracle Java 1.7+";
+        return "CpuLoadMetric for IBM Java 1.7+";
     }
 
     private static class JvmCpuUsageProvider implements CpuUsageProvider {
