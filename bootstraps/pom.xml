@@ -30,7 +30,6 @@
     <modules>
         <module>bootstrap</module>
         <module>bootstrap-core</module>
-        <module>bootstrap-java8</module>
         <module>bootstrap-java9</module>
         <module>bootstrap-java9-internal</module>
     </modules>
@@ -41,12 +40,6 @@
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap-java8</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
