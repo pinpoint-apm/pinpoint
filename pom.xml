@@ -199,7 +199,7 @@
 
         <embed.mongo>3.4.6</embed.mongo>
 
-        <testcontainers.version>1.16.2</testcontainers.version>
+        <testcontainers.version>1.17.2</testcontainers.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>

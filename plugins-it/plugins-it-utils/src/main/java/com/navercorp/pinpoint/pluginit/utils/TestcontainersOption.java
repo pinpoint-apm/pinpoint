@@ -23,7 +23,7 @@ public final class TestcontainersOption {
     private TestcontainersOption() {
     }
 
-    public static final String VERSION = "1.16.2";
+    public static final String VERSION = "1.17.2";
 
     public static final String TEST_CONTAINER = "org.testcontainers:testcontainers:" + VERSION;
     public static final String MSSQL = "org.testcontainers:mssqlserver:" + VERSION;
