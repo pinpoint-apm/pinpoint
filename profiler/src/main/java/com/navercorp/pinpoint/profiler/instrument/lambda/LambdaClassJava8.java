@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.profiler.instrument.lambda;
  */
 public class LambdaClassJava8 implements LambdaClass {
 
-    public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/java8/lambda/UnsafeDelegatorJava8";
+    public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/lambda/UnsafeDelegatorJava8";
 
     @Override
     public String getUnsafeClass() {

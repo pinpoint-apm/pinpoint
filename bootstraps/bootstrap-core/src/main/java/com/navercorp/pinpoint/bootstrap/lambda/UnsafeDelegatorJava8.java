@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.java8.lambda;
+package com.navercorp.pinpoint.bootstrap.lambda;
 
 import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 import sun.misc.Unsafe;
