@@ -63,7 +63,7 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
             logger.debug("Complete async listener. throwable={}, statusCode={}", throwable, statusCode);
         }
 
-        final Trace trace = this.asyncContext.continueAsyncTraceObject();
+        final TraceWithLocation trace = createTraceWithLocation(asyncContext);
         if (trace == null) {
             return;
         }
@@ -81,9 +81,10 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
         }
     }
 
-    private void recordHttpStatusCode(final Trace trace, final int statusCode) {
+    private void recordHttpStatusCode(final TraceWithLocation trace, final int statusCode) {
         // Record http status code
-        final SpanRecorder spanRecorder = trace.getSpanRecorder();
+        final Trace actualTrace = trace.getActual();
+        final SpanRecorder spanRecorder = actualTrace.getSpanRecorder();
         this.httpStatusCodeRecorder.record(spanRecorder, statusCode);
     }
 
@@ -92,7 +93,7 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
             logger.debug("Error async listener. throwable={}", throwable);
         }
 
-        final Trace trace = this.asyncContext.continueAsyncTraceObject();
+        final TraceWithLocation trace = createTraceWithLocation(asyncContext);
         if (trace == null) {
             return;
         }
@@ -109,7 +110,7 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
             logger.debug("Timeout async listener. throwable={}", throwable);
         }
 
-        final Trace trace = this.asyncContext.continueAsyncTraceObject();
+        final TraceWithLocation trace = createTraceWithLocation(asyncContext);
         if (trace == null) {
             return;
         }
@@ -121,16 +122,23 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
         }
     }
 
-    private void recordAsyncEvent(final Trace trace, final Throwable throwable, MethodDescriptor methodDescriptor) {
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+    private void recordAsyncEvent(final TraceWithLocation trace, final Throwable throwable, MethodDescriptor methodDescriptor) {
+        final Trace actualTrace = trace.getActual();
+
+        final SpanEventRecorder recorder = actualTrace.traceBlockBegin();
         recorder.recordServiceType(ServiceType.SERVLET);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        trace.traceBlockEnd();
+        actualTrace.traceBlockEnd();
     }
 
-    private void close(final Trace trace) {
-        trace.close();
+    private void close(final TraceWithLocation trace) {
+        if (trace.isIncludedCurrentThread()) {
+            return;
+        }
+
+        final Trace actualTrace = trace.getActual();
+        actualTrace.close();
         this.asyncContext.close();
     }
 
@@ -141,4 +149,38 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
             asyncState.finish();
         }
     }
+
+    private static TraceWithLocation createTraceWithLocation(AsyncContext asyncContext) {
+        final Trace currentAsyncTraceObject = asyncContext.currentAsyncTraceObject();
+        if (currentAsyncTraceObject != null) {
+            return new TraceWithLocation(currentAsyncTraceObject, true);
+        }
+
+        final Trace continueAsyncTraceObject = asyncContext.continueAsyncTraceObject();
+        if (continueAsyncTraceObject != null) {
+            return new TraceWithLocation(continueAsyncTraceObject, false);
+        }
+        return null;
+    }
+
+    private static class TraceWithLocation {
+
+        private final Trace trace;
+        private final boolean isIncludedCurrentThread;
+
+        private TraceWithLocation(Trace trace, boolean isIncludedCurrentThread) {
+            this.trace = Objects.requireNonNull(trace, "trace");
+            this.isIncludedCurrentThread = isIncludedCurrentThread;
+        }
+
+        private Trace getActual() {
+            return trace;
+        }
+
+        private boolean isIncludedCurrentThread() {
+            return isIncludedCurrentThread;
+        }
+
+    }
+
 }
