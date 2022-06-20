@@ -17,18 +17,11 @@ package com.navercorp.pinpoint.plugin.elasticsearch;
 
 import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
-import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
-
-import java.io.IOException;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Assume;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 /**
  * @author Roy Kim
@@ -36,41 +29,56 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public abstract class ElasticsearchITBase {
 
-    public static EmbeddedElastic embeddedElastic;
-    public static RestHighLevelClient restHighLevelClient;
+    protected static final Logger logger = LogManager.getLogger(ElasticsearchITBase.class);
 
-    public static String ELASTICSEARCH_ADDRESS = "127.0.0.1:" + 9200;
+    public static ElasticsearchContainer elasticsearchContainer;
+
+    protected static int SERVER_PORT;
+    protected static String SERVER_HOST;
+    protected static String ELASTICSEARCH_ADDRESS;
+
+    public static int getServerPort() {
+        return SERVER_PORT;
+    }
+
+    public static void setServerPort(int serverPort) {
+        SERVER_PORT = serverPort;
+    }
+
+    public static String getServerHost() {
+        return SERVER_HOST;
+    }
+
+    public static void setServerHost(String serverHost) {
+        SERVER_HOST = serverHost;
+    }
+
+    public static String getElasticsearchAddress() {
+        return ELASTICSEARCH_ADDRESS;
+    }
+
+    public static void setElasticsearchAddress(String elasticsearchAddress) {
+        ELASTICSEARCH_ADDRESS = elasticsearchAddress;
+    }
 
     @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        embeddedElastic = EmbeddedElastic.builder()
-                .withElasticVersion("6.8.0")
-                .withSetting(PopularProperties.HTTP_PORT, 9200)
-                .withEsJavaOpts("-Xms128m -Xmx512m")
-                .withStartTimeout(2, MINUTES)
-                .build()
-                .start();
+    public static void sharedSetUp() {
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-    }
+        elasticsearchContainer = ESServerContainerFactory.newESServerContainerFactory(logger.getName());
+        elasticsearchContainer.start();
 
-    @BeforeClass
-    public static void setup() throws IOException {
-        restHighLevelClient = new RestHighLevelClient(
-                RestClient.builder(
-                        new HttpHost("127.0.0.1", 9200, "http")));
-    }
+        setServerPort(elasticsearchContainer.getMappedPort(ESServerContainerFactory.DEFAULT_PORT));
+        setServerHost(elasticsearchContainer.getHost());
+        setElasticsearchAddress(elasticsearchContainer.getHttpHostAddress());
 
-    @AfterClass
-    public static void tearDown() throws IOException {
-        if (restHighLevelClient == null) {
-            restHighLevelClient.close();
-        }
     }
 
     @AfterSharedClass
-    public static void sharedTearDown() throws IOException {
-        if (embeddedElastic != null)
-            embeddedElastic.stop();
+    public static void sharedTearDown() {
+        if (elasticsearchContainer != null) {
+            elasticsearchContainer.stop();
+        }
     }
 
 }

@@ -20,13 +20,19 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,10 +43,26 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.16.0,]",
-        "pl.allegro.tech:embedded-elasticsearch:2.10.0"})
+@Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.16.0,7.max]",
+        TestcontainersOption.ELASTICSEARCH})
 @JvmVersion(8)
 public class ElasticsearchIT_7_16_x_IT extends ElasticsearchITBase {
+
+    private static RestHighLevelClient restHighLevelClient;
+
+    @Before
+    public void setup() {
+        restHighLevelClient = new RestHighLevelClient(
+                RestClient.builder(
+                        new HttpHost(getServerHost(), getServerPort(), "http")));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        if (restHighLevelClient != null) {
+            restHighLevelClient.close();
+        }
+    }
 
     @Test
     public void testHighLevelClient() throws Exception {
@@ -53,8 +75,7 @@ public class ElasticsearchIT_7_16_x_IT extends ElasticsearchITBase {
 
     private void testIndexV70UP(PluginTestVerifier verifier) throws IOException {
 
-        IndexRequest indexRequest = new IndexRequest(
-                "post2");
+        IndexRequest indexRequest = new IndexRequest("post2");
         indexRequest.id("1");
 
         String jsonString = "{" +
