@@ -55,7 +55,6 @@
 | Jackson Databind | jackson-databind | 2.0.6 | 2.12.3 |  |  |
 | MariaDB Connector/J | mariadb-java-client | 1.3.0 | 2.7.2 |  |  |
 | MongoDB Java Driver | mongodb-driver | 3.0.0 | 3.12.8 |  |  |
-| [Elasticsearch](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/elasticsearch-bboss) | bboss-elasticsearch-rest-jdbc | 5.6.9 | 5.8.2 |  |  |
 | Elasticsearch | elasticsearch-rest-high-level-client | 6.0.0 | 6.8.15 |  |  |
 | Datastax Java Driver | cassandra-driver-core | 2.0.10 | 3.11.0 |  |  |
 | Druid | druid | 1.0.0 | 1.2.6 |  |  |

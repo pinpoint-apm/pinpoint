@@ -231,8 +231,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
- * <tr><td>9201</td><td>ElasticsearchBBoss</td></tr>
- * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
+ * <tr><td>9201</td><td>ElasticsearchBBoss @Deprecated</td></tr>
+ * <tr><td>9202</td><td>ElasticsearchBBossExecutor @Deprecated </td></tr>
  * <tr><td>9203</td><td>ELASTICSEARCH</td></tr>
  * <tr><td>9204</td><td>ELASTICSEARCH_HIGHLEVEL_CLIENT</td></tr>
  * <tr><td>9205</td><td>ELASTICSEARCH8</td></tr>

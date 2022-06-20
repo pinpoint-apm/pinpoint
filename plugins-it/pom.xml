@@ -38,7 +38,6 @@
         <module>cxf-it</module>
         <module>druid-it</module>
         <module>dubbo-it</module>
-        <module>elasticsearch-bbose-it</module>
         <module>elasticsearch-it</module>
         <module>elasticsearch-7.16-it</module>
         <module>fastjson-it</module>
