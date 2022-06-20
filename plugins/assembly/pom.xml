@@ -336,11 +336,6 @@
             <artifactId>pinpoint-openwhisk-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-	    <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-elasticsearch-bboss-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-apache-dubbo-plugin</artifactId>
