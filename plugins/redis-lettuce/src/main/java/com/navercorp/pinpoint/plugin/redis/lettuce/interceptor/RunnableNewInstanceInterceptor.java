@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.reactor;
+package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import org.reactivestreams.Subscriber;
 
-public abstract class FluxAndMonoConstructorInterceptor implements AroundInterceptor {
+public class RunnableNewInstanceInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+
+    public RunnableNewInstanceInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -36,31 +44,26 @@ public abstract class FluxAndMonoConstructorInterceptor implements AroundInterce
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (throwable != null) {
+        Subscriber subscriber = ArrayArgumentUtils.getArgument(args, 1, Subscriber.class);
+        if (subscriber == null) {
+            subscriber = ArrayArgumentUtils.getArgument(args, 0, Subscriber.class);
+        }
+
+        if (subscriber == null) {
             return;
         }
 
-        try {
-            // Check arguments
-            final AsyncContext argAsyncContext = AsyncContextAccessorUtils.findAsyncContext(args, 0);
-            if (argAsyncContext != null) {
-                setReactorContextToTarget(argAsyncContext, target);
-                setAsyncContextToTarget(argAsyncContext, target);
-            }
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
-            }
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(subscriber);
+        if (asyncContext == null) {
+            asyncContext = ReactorContextAccessorUtils.getAsyncContext(subscriber);
         }
-    }
+        if (asyncContext == null) {
+            return;
+        }
 
-    // Trace reactor
-    protected void setReactorContextToTarget(final AsyncContext asyncContext, final Object target) {
-        ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
-    }
-
-    // Trace subscribe() method
-    protected void setAsyncContextToTarget(AsyncContext asyncContext, Object target) {
-        AsyncContextAccessorUtils.setAsyncContext(asyncContext, target);
+        // Set result to asyncContext
+        if (throwable != null) {
+            AsyncContextAccessorUtils.setAsyncContext(asyncContext, result);
+        }
     }
 }

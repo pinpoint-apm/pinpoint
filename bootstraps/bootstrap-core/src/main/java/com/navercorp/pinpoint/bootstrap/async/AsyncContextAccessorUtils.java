@@ -54,10 +54,7 @@ public final class AsyncContextAccessorUtils {
 
     public static void setAsyncContext(final AsyncContext asyncContext, final Object object) {
         if (object instanceof AsyncContextAccessor) {
-            final AsyncContext argAsyncContext = AsyncContextAccessorUtils.getAsyncContext(object);
-            if (argAsyncContext == null) {
-                ((AsyncContextAccessor) object)._$PINPOINT$_setAsyncContext(asyncContext);
-            }
+            ((AsyncContextAccessor) object)._$PINPOINT$_setAsyncContext(asyncContext);
         }
     }
 

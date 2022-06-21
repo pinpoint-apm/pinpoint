@@ -53,9 +53,6 @@ public class CoreSubscriberConstructorInterceptor implements AroundInterceptor {
     }
 
     protected void setReactorContextToTarget(final AsyncContext asyncContext, final Object target) {
-        final AsyncContext targetAsyncContext = ReactorContextAccessorUtils.getAsyncContext(target);
-        if (targetAsyncContext == null) {
-            ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
-        }
+        ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
     }
 }

@@ -50,10 +50,7 @@ public class ParallelFluxSubscribeInterceptor extends FluxAndMonoOperatorSubscri
 
     private void setAsyncContext(final AsyncContext asyncContext, final Object object) {
         if (object instanceof ReactorContextAccessor) {
-            final AsyncContext actualAsyncContext = ReactorContextAccessorUtils.getAsyncContext(object);
-            if (actualAsyncContext == null) {
-                ReactorContextAccessorUtils.setAsyncContext(asyncContext, object);
-            }
+            ReactorContextAccessorUtils.setAsyncContext(asyncContext, object);
         }
     }
 }
