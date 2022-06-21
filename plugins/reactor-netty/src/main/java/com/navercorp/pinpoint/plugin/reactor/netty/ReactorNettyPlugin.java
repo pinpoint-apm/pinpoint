@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoConstructorInt
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorConstructorInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeOrReturnInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -278,7 +279,7 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
             if (subscribeOrReturnMethod != null) {
-                subscribeOrReturnMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class, va(ReactorNettyConstants.REACTOR_NETTY_INTERNAL));
+                subscribeOrReturnMethod.addInterceptor(FluxAndMonoSubscribeOrReturnInterceptor.class);
             }
 
             return target.toBytecode();
@@ -306,7 +307,7 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
             if (subscribeOrReturnMethod != null) {
-                subscribeOrReturnMethod.addInterceptor(FluxAndMonoOperatorSubscribeInterceptor.class, va(ReactorNettyConstants.REACTOR_NETTY_INTERNAL));
+                subscribeOrReturnMethod.addInterceptor(FluxAndMonoSubscribeOrReturnInterceptor.class);
             }
             return target.toBytecode();
         }
