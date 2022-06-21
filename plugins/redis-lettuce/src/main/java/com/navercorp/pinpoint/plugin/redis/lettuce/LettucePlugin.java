@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.redis.lettuce;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -28,12 +29,21 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClientConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClusterClientConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisSubscriberInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RunnableNewInstanceInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RunnableRunInterceptor;
 
 import java.security.ProtectionDomain;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author jaehong.kim
@@ -52,7 +62,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
         if (logger.isInfoEnabled()) {
-            logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config={}", this.getClass().getSimpleName(), config);
+            logger.info("{} version range=[5.0.0.RELEASE, 6.1.5.RELEASE], config={}", this.getClass().getSimpleName(), config);
         }
 
         // Set endpoint
@@ -64,6 +74,8 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
 
         // Commands
         addRedisCommands(config);
+
+        addReactive();
     }
 
     private void addRedisClient() {
@@ -159,7 +171,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addAbstractRedisCommands(final String className, Class<? extends TransformCallback> transformCallback, boolean getter) {
-        transformTemplate.transform(className, transformCallback, new Object[]{getter}, new Class[] {boolean.class});
+        transformTemplate.transform(className, transformCallback, new Object[]{getter}, new Class[]{boolean.class});
     }
 
     public static class AbstractRedisCommandsTransform implements TransformCallback {
@@ -187,6 +199,102 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
                     }
                 }
             }
+            return target.toBytecode();
+        }
+    }
+
+    private void addReactive() {
+        transformTemplate.transform("io.lettuce.core.RedisPublisher", RedisPublisherTransform.class);
+        transformTemplate.transform("io.lettuce.core.RedisPublisher$ImmediateSubscriber", RedisSubscriberTransform.class);
+        transformTemplate.transform("io.lettuce.core.RedisPublisher$PublishOnSubscriber", RedisSubscriberTransform.class);
+        transformTemplate.transform("io.lettuce.core.RedisPublisher$OnNext", RedisPublisherOnNextTransform.class);
+        transformTemplate.transform("io.lettuce.core.RedisPublisher$OnComplete", RedisPublisherOnCompleteTransform.class);
+    }
+
+    public static class RedisPublisherTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
+
+            final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
+            if (subscribeMethod != null) {
+                subscribeMethod.addInterceptor(FluxAndMonoOperatorSubscribeInterceptor.class, va(LettuceConstants.REDIS_LETTUCE));
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class RedisSubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
+                }
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("onNext", "onError", "onComplete"))) {
+                method.addInterceptor(RedisSubscriberInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class RedisPublisherOnNextTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod newInstanceMethod = target.getDeclaredMethod("newInstance", "java.lang.Object", "org.reactivestreams.Subscriber");
+            if (newInstanceMethod != null) {
+                newInstanceMethod.addInterceptor(RunnableNewInstanceInterceptor.class);
+            }
+
+            final InstrumentMethod runMethod = target.getDeclaredMethod("run");
+            if (runMethod != null) {
+                runMethod.addInterceptor(RunnableRunInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class RedisPublisherOnCompleteTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+
+            // static OnComplete newInstance(Throwable signal, Subscriber<?> subscriber)
+            final InstrumentMethod newInstanceMethod = target.getDeclaredMethod("newInstance", "java.lang.Throwable", "org.reactivestreams.Subscriber");
+            if (newInstanceMethod != null) {
+                newInstanceMethod.addInterceptor(RunnableNewInstanceInterceptor.class);
+            }
+            // static OnComplete newInstance(Subscriber<?> subscriber)
+            final InstrumentMethod newInstanceMethod2 = target.getDeclaredMethod("newInstance", "org.reactivestreams.Subscriber");
+            if (newInstanceMethod2 != null) {
+                newInstanceMethod2.addInterceptor(RunnableNewInstanceInterceptor.class);
+            }
+
+            final InstrumentMethod runMethod = target.getDeclaredMethod("run");
+            if (runMethod != null) {
+                runMethod.addInterceptor(RunnableRunInterceptor.class);
+            }
+
             return target.toBytecode();
         }
     }

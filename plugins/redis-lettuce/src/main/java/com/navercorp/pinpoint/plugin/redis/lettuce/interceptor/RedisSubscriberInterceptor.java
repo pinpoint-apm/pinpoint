@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.reactor.interceptor;
+package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
@@ -22,26 +22,41 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
+import com.navercorp.pinpoint.plugin.redis.lettuce.LettuceConstants;
 
-public class RunnableCoreSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class RedisSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    public RunnableCoreSubscriberInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public RedisSubscriberInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (publisherAsyncContext != null) {
-            AsyncContextAccessorUtils.setAsyncContext(publisherAsyncContext, args, 0);
-        }
+    public AsyncContext getAsyncContext(Object target, Object[] args) {
+        return getAsyncContextOrReactorContext(target);
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    }
+
+    @Override
+    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
+        return getAsyncContextOrReactorContext(target);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
+        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
         recorder.recordException(throwable);
+    }
+
+    AsyncContext getAsyncContextOrReactorContext(Object target) {
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+        if (asyncContext != null) {
+            return asyncContext;
+        }
+        return ReactorContextAccessorUtils.getAsyncContext(target);
     }
 }
