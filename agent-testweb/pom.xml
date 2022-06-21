@@ -72,6 +72,7 @@
         <module>postgresql-plugin-testweb</module>
         <module>undertow-plugin-testweb</module>
         <module>redis-lettuce-plugin-testweb</module>
+        <module>jetty-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>
