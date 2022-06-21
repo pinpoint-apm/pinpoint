@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
-import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 
 import java.util.Objects;
 
@@ -25,17 +26,30 @@ import java.util.Objects;
  */
 public class SimpleCacheFactory {
 
-    private final SimpleCache.IdTransformer idTransformer;
+    private final IdAllocator.ID_TYPE type;
 
-    public SimpleCacheFactory(SimpleCache.IdTransformer idTransformer) {
-        this.idTransformer = Objects.requireNonNull(idTransformer, "idTransformer");
+    public SimpleCacheFactory(IdAllocator.ID_TYPE type) {
+        this.type = Objects.requireNonNull(type, "type");
     }
 
     public <T> SimpleCache<T> newSimpleCache() {
-        return new SimpleCache<T>(idTransformer);
+        IdAllocator idAllocator = newIdAllocator(type, 1);
+        return new SimpleCache<>(idAllocator);
     }
 
-    public <T> SimpleCache<T> newSimpleCache(int size ) {
-        return new SimpleCache<T>(idTransformer, size);
+    public <T> SimpleCache<T> newSimpleCache(int size) {
+        IdAllocator idAllocator = newIdAllocator(type, size);
+        return new SimpleCache<>(idAllocator, size);
+    }
+
+    private IdAllocator newIdAllocator(IdAllocator.ID_TYPE type, int size) {
+        switch (type) {
+            case BYPASS:
+                return new IdAllocator.BypassAllocator(size);
+            case ZIGZAG:
+                return new IdAllocator.ZigZagAllocator(size);
+        }
+        throw new RuntimeException("Unknown SimpleCache.ID_TYPE:" + type);
     }
 }
+

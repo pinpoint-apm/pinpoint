@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +36,7 @@ public class DefaultSqlMetaDataServiceTest {
     @Test
     public void cacheSql() {
         final EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> sqlCache = new SimpleCache<>(new SimpleCache.ZigZagTransformer(), 100);
+        SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
         final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService(dataSender, sqlCache);
 
         final String sql = "select * from A";

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +32,7 @@ public class DefaultStringMetaDataServiceTest {
     @Test
     public void cacheString() {
         EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> stringCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
+        SimpleCache<String> stringCache = new SimpleCache<String>(new IdAllocator.ZigZagAllocator());
         StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService(dataSender, stringCache);
 
         String str = "test";

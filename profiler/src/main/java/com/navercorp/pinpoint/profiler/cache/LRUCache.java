@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.cache;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,8 +35,7 @@ public class LRUCache<T> {
 
 
     public LRUCache(int maxCacheSize) {
-        final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        cacheBuilder.concurrencyLevel(32);
+        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
         Cache<T, Object> localCache = cacheBuilder.build();
@@ -49,7 +48,6 @@ public class LRUCache<T> {
 
 
     public boolean put(T value) {
-
         Object oldValue = cache.putIfAbsent(value, V);
         return oldValue == null;
 

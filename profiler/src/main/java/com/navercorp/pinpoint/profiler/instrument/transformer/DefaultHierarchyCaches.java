@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+
 
 import java.util.concurrent.ExecutionException;
 
@@ -41,16 +41,14 @@ public class DefaultHierarchyCaches implements HierarchyCaches {
 
         this.cacheEntrySize = getCacheEntrySize(entrySize);
 
-        this.caches = CacheBuilder.newBuilder()
+        this.caches = Caffeine.newBuilder()
                 .maximumSize(this.cacheSize)
                 .initialCapacity(this.cacheSize)
-                .concurrencyLevel(4)
-                .build(new CacheLoader<String, Hierarchy>() {
-                    @Override
-                    public Hierarchy load(String s) throws Exception {
-                        return new Hierarchy();
-                    }
-                });
+                .build(this::loadEntry);
+    }
+
+    private Hierarchy loadEntry(String key) {
+        return new Hierarchy();
     }
 
     private int getCacheEntrySize(int entrySize) {
@@ -72,20 +70,15 @@ public class DefaultHierarchyCaches implements HierarchyCaches {
 
     @Override
     public boolean get(String key, String classInternalName) {
-        try {
-            return this.caches.get(key).cache.getIfPresent(classInternalName) != null;
-        } catch (ExecutionException ignored) {
-        }
 
-        return false;
+        Hierarchy hierarchy = this.caches.get(key);
+        return hierarchy.cache.getIfPresent(classInternalName) != null;
     }
 
     @Override
     public void put(String key, String classInternalName) {
-        try {
-            this.caches.get(key).cache.put(classInternalName, Boolean.TRUE);
-        } catch (ExecutionException ignored) {
-        }
+        Hierarchy hierarchy = this.caches.get(key);
+        hierarchy.cache.put(classInternalName, Boolean.TRUE);
     }
 
     @Override
@@ -101,7 +94,10 @@ public class DefaultHierarchyCaches implements HierarchyCaches {
         Cache<String, Boolean> cache;
 
         public Hierarchy() {
-            cache = CacheBuilder.newBuilder().maximumSize(cacheEntrySize).initialCapacity(cacheEntrySize).concurrencyLevel(4).build();
+            cache = Caffeine.newBuilder()
+                    .maximumSize(cacheEntrySize)
+                    .initialCapacity(cacheEntrySize)
+                    .build();
         }
 
         @Override
@@ -112,12 +108,9 @@ public class DefaultHierarchyCaches implements HierarchyCaches {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append("caches=").append(caches.asMap()).append(", ");
-        sb.append("size=").append(caches.size()).append(", ");
-        sb.append("stats=").append(caches.stats());
-        sb.append("}");
-        return sb.toString();
+        String sb = "{" +
+                "stats=" + caches.stats() +
+                "}";
+        return sb;
     }
 }

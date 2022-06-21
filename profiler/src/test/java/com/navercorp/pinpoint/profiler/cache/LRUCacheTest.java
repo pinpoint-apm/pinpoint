@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.cache;
 
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
 import org.junit.Assert;
-
 import org.junit.Test;
 
-
 import java.util.Random;
+
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author emeroad
@@ -35,10 +37,8 @@ public class LRUCacheTest {
         for (int i = 0; i < 1000; i++) {
             cache.put(String.valueOf(random.nextInt(100000)));
         }
-
-        long size = cache.getSize();
-        Assert.assertEquals(size, cacheSize);
-
+        ConditionFactory await = Awaitility.await();
+        await.until(cache::getSize, is(cacheSize));
     }
 
     @Test
@@ -54,15 +54,16 @@ public class LRUCacheTest {
 
         boolean hit2 = cache.put(sqlObject);
         Assert.assertFalse(hit2);
-        Assert.assertEquals(cache.getSize(), 1);
+        ConditionFactory await = Awaitility.await();
+        await.until(cache::getSize, is(1L));
 //        "23 123";
 //        "DCArMlhwQO 7"
         cache.put("23 123");
         cache.put("DCArMlhwQO 7");
         cache.put("3");
         cache.put("4");
-        Assert.assertEquals(cache.getSize(), 2);
 
+        await.until(cache::getSize, is(2L));
 
     }
 }
