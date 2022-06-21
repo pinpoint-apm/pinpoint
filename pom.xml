@@ -1217,7 +1217,6 @@
                             <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/bootstrap/util/spring/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/common/profiler/concurrent/jsr166/**/*.java</exclude>
-                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
                         </excludes>
                     </configuration>
@@ -1247,7 +1246,6 @@
                             <exclude>com/navercorp/pinpoint/common/util/apache/**/*.class</exclude>
                             <exclude>com/navercorp/pinpoint/bootstrap/util/spring/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/common/profiler/concurrent/jsr166/**/*.class</exclude>
-                            <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.class</exclude>
                             <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
                         </excludes>
                     </configuration>
