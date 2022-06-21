@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.cache;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.util.Objects;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -30,33 +28,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SimpleCache<T> {
 
     // zero means not exist.
-    private final AtomicInteger idGen;
     private final ConcurrentMap<T, Result> cache;
-    private final IdTransformer idTransformer;
+    private final IdAllocator idAllocator;
 
-    public SimpleCache(IdTransformer idTransformer) {
-        this(idTransformer, 1024, 1);
+    public SimpleCache(IdAllocator idAllocator) {
+        this(idAllocator, 1024);
     }
-
-    public SimpleCache(IdTransformer idTransformer, int cacheSize) {
-        this(idTransformer, cacheSize, 1);
-    }
-
-    public SimpleCache(IdTransformer idTransformer, int cacheSize, int startValue) {
-        this.idGen = new AtomicInteger(startValue);
+    public SimpleCache(IdAllocator idAllocator, int cacheSize) {
         this.cache = createCache(cacheSize);
-        this.idTransformer = Objects.requireNonNull(idTransformer, "idTransformer");
+        this.idAllocator = Objects.requireNonNull(idAllocator, "idTransformer");
 
     }
 
     private ConcurrentMap<T, Result> createCache(int maxCacheSize) {
-        final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        cacheBuilder.concurrencyLevel(64);
+        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
         Cache<T, Result> localCache = cacheBuilder.build();
-        ConcurrentMap<T, Result> cache = localCache.asMap();
-        return cache;
+        return localCache.asMap();
     }
 
     public Result put(T value) {
@@ -76,27 +65,10 @@ public class SimpleCache<T> {
     }
 
     private int nextId() {
-        int nextId = idGen.getAndIncrement();
-        return this.idTransformer.transform(nextId);
+        return this.idAllocator.allocate();
     }
 
-    public interface IdTransformer {
-        int transform(int id);
-    }
 
-    public static class ZigZagTransformer implements IdTransformer  {
-        @Override
-        public int transform(int id) {
-            return BytesUtils.zigzagToInt(id);
-        }
-    }
-
-    public static class BypassTransformer implements IdTransformer {
-        @Override
-        public int transform(int id) {
-            return id;
-        }
-    }
 
 
 }

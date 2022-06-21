@@ -21,6 +21,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.profiler.cache.Result;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 

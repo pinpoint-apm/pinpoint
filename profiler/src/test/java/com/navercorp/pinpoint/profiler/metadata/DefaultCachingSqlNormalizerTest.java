@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,6 +64,6 @@ public class DefaultCachingSqlNormalizerTest {
     }
 
     private SimpleCache<String> newCache(int size) {
-        return new SimpleCache<>(new SimpleCache.ZigZagTransformer(), size);
+        return new SimpleCache<>(new IdAllocator.ZigZagAllocator(), size);
     }
 }

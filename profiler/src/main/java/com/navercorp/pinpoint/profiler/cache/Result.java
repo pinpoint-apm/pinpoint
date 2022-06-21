@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.cache;
 
 /**
  * @author emeroad

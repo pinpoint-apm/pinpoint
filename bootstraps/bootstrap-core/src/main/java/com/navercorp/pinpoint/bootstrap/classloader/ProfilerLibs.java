@@ -53,7 +53,7 @@ public class ProfilerLibs {
                 "com.google.rpc",
                 "com.google.type",
 
-
+                "com.github.benmanes.caffeine",
                 "org.objectweb.asm",
                 "org.slf4j",
                 "org.apache.thrift",

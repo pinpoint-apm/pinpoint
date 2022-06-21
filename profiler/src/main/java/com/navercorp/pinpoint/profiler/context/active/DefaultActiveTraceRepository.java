@@ -15,9 +15,8 @@
  */
 
 package com.navercorp.pinpoint.profiler.context.active;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
@@ -62,8 +61,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     }
 
     private ConcurrentMap<ActiveTraceHandle, ActiveTrace> createCache(int maxActiveTraceSize) {
-        final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        cacheBuilder.concurrencyLevel(64);
+        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
         cacheBuilder.initialCapacity(maxActiveTraceSize);
         cacheBuilder.maximumSize(maxActiveTraceSize);
 

@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.cache.Result;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**

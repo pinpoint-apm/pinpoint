@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
-import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import java.util.Objects;

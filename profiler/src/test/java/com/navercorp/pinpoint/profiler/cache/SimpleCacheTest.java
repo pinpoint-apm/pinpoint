@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.cache;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 
@@ -26,25 +25,23 @@ import org.junit.Test;
  */
 public class SimpleCacheTest {
 
-    private SimpleCache.IdTransformer idTransformer = new SimpleCache.ZigZagTransformer();
-
     @Test
     public void startKey0() {
-        SimpleCache<String> cache = new SimpleCache<>(idTransformer, 1024, 0);
+        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(0), 1024);
         Result test = cache.put("test");
         Assert.assertEquals(0, test.getId());
     }
 
     @Test
     public void startKey1() {
-        SimpleCache<String> cache = new SimpleCache<>(idTransformer, 1);
+        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 1);
         Result test = cache.put("test");
         Assert.assertEquals(-1, test.getId());
     }
 
     @Test
     public void put() {
-        SimpleCache<String> cache = new SimpleCache<>(idTransformer);
+        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator());
         Result test = cache.put("test");
         Assert.assertEquals(-1, test.getId());
         Assert.assertTrue(test.isNewValue());
