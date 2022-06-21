@@ -38,7 +38,7 @@ public class FluxAndMonoPublishOnInterceptor extends SpanEventSimpleAroundInterc
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
+        recorder.recordServiceType(ReactorConstants.REACTOR);
         recorder.recordException(throwable);
 
         if (isAsync(result, throwable)) {
