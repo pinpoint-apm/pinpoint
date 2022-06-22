@@ -4,6 +4,8 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-plugin-it-utils"))
+    implementation(libs.slf4j.api)
+    implementation(libs.log4j.slf4j.impl)
     testImplementation("org.apache.activemq:activemq-all:5.13.2") {
         exclude(group = "org.slf4j", module = "impl")
     }
