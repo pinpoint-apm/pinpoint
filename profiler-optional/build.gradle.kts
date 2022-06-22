@@ -1,5 +1,5 @@
 plugins {
-    `java-platform`
+    id("com.navercorp.pinpoint.gradle.plugins.java-platform")
 }
 
 dependencies {
