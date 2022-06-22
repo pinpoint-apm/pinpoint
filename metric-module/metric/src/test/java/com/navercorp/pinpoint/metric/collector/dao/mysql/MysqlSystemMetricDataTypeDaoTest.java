@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @TestPropertySource(properties = {"pinpoint.profiles.active=local"})
 @WebAppConfiguration
 @Transactional
+@Ignore
 public class MysqlSystemMetricDataTypeDaoTest {
 
     @Autowired
