@@ -63,7 +63,9 @@ public class GrpcStatSslReceiverConfigurationTest {
         assertEquals("server0.pem", keyFile.getName());
         assertEquals(Boolean.TRUE, keyFile.exists());
 
-        Resource keyCertFileUrl = sslConfiguration.getKeyCertChainResource();
+        Resource[] keyCertFileUrls = sslConfiguration.getKeyCertChainResources();
+        assertEquals("# of cert files", 1, keyCertFileUrls.length);
+        Resource keyCertFileUrl = keyCertFileUrls[0];
         File keyCertFile = keyCertFileUrl.getFile();
         assertEquals("server0.key", keyCertFile.getName());
         assertEquals(Boolean.TRUE, keyCertFile.exists());

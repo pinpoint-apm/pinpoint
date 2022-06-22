@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.grpc.security;
 
 import com.navercorp.pinpoint.grpc.util.Resource;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -29,19 +30,21 @@ public final class SslServerConfig {
     private static final boolean DISABLED = false;
     private static final String EMPTY_STRING = "";
 
-    public static final SslServerConfig DISABLED_CONFIG = new SslServerConfig(DISABLED, EMPTY_STRING, null, null);
+    public static final SslServerConfig DISABLED_CONFIG = new SslServerConfig(DISABLED, EMPTY_STRING, null, null, null);
 
     private final boolean enable;
 
     private final String sslProviderType;
     private final Resource keyResource;
-    private final Resource keyCertChainResource;
+    private final Resource[] keyCertChainResources;
+    private final String keyPassword;
 
-    public SslServerConfig(boolean enable, String sslProviderType, Resource keyResource, Resource keyCertChainResource) {
+    public SslServerConfig(boolean enable, String sslProviderType, Resource keyResource, Resource[] keyCertChainResources, String keyPassword) {
         this.enable = enable;
         this.sslProviderType = Objects.requireNonNull(sslProviderType, "sslProviderType");
         this.keyResource = keyResource;
-        this.keyCertChainResource = keyCertChainResource;
+        this.keyCertChainResources = keyCertChainResources;
+        this.keyPassword = keyPassword;
     }
 
     public boolean isEnable() {
@@ -56,8 +59,12 @@ public final class SslServerConfig {
         return keyResource;
     }
 
-    public Resource getKeyCertChainResource() {
-        return keyCertChainResource;
+    public Resource[] getKeyCertChainResources() {
+        return keyCertChainResources;
+    }
+
+    public String getKeyPassword() {
+        return keyPassword;
     }
 
     @Override
@@ -66,7 +73,7 @@ public final class SslServerConfig {
                 "enable=" + enable +
                 ", sslProviderType='" + sslProviderType + '\'' +
                 ", keyFileUrl='" + keyResource + '\'' +
-                ", keyCertChainFileUrl='" + keyCertChainResource + '\'' +
+                ", keyCertChainFileUrls='" + Arrays.toString(keyCertChainResources) + '\'' +
                 '}';
     }
 }

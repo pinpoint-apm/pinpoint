@@ -30,14 +30,16 @@ public class GrpcSslConfiguration {
     private final boolean enable;
     private final String providerType;
     private final Resource keyResource;
-    private final Resource keyCertChainResource;
+    private final Resource[] keyCertChainResources;
+    private final String keyPassword;
 
     private GrpcSslConfiguration(boolean enable, String providerType,
-                                 Resource keyResource, Resource keyCertChainResource) {
+                                 Resource keyResource, Resource[] keyCertChainResources, String keyPassword) {
         this.enable = enable;
         this.providerType = providerType;
         this.keyResource = keyResource;
-        this.keyCertChainResource = keyCertChainResource;
+        this.keyCertChainResources = keyCertChainResources;
+        this.keyPassword = keyPassword;
     }
 
     public boolean isEnable() {
@@ -52,14 +54,23 @@ public class GrpcSslConfiguration {
         return keyResource;
     }
 
-    public Resource getKeyCertChainResource() {
-        return keyCertChainResource;
+    public Resource[] getKeyCertChainResources() {
+        return keyCertChainResources;
+    }
+
+    public String getKeyPassword() {
+        return keyPassword;
     }
 
     public SslServerConfig toSslServerConfig() {
         if (enable) {
+            SpringResource[] certResources = new SpringResource[keyCertChainResources.length];
+            for (int i = 0; i < keyCertChainResources.length; i++) {
+                certResources[i] = new SpringResource(keyCertChainResources[i]);
+            }
+
             SslServerConfig sslServerConfig = new SslServerConfig(enable, providerType,
-                    new SpringResource(keyResource), new SpringResource(keyCertChainResource));
+                    new SpringResource(keyResource), certResources, keyPassword);
             return sslServerConfig;
         } else {
             return SslServerConfig.DISABLED_CONFIG;
@@ -75,7 +86,8 @@ public class GrpcSslConfiguration {
         private boolean enable;
         private String providerType;
         private Resource keyFilePath;
-        private Resource keyCertFilePath;
+        private Resource[] keyCertFilePaths;
+        private String keyPassword;
 
         private Builder() {
         }
@@ -104,20 +116,28 @@ public class GrpcSslConfiguration {
             this.keyFilePath = keyFilePath;
         }
 
-        public Resource getKeyCertFilePath() {
-            return keyCertFilePath;
+        public Resource[] getKeyCertFilePaths() {
+            return keyCertFilePaths;
         }
 
-        public void setKeyCertFilePath(Resource keyCertFilePath) {
-            this.keyCertFilePath = keyCertFilePath;
+        public void setKeyCertFilePaths(Resource[] keyCertFilePaths) {
+            this.keyCertFilePaths = keyCertFilePaths;
+        }
+
+        public String getKeyPassword() {
+            return keyPassword;
+        }
+
+        public void setKeyPassword(String keyPassword) {
+            this.keyPassword = keyPassword;
         }
 
         public GrpcSslConfiguration build() throws IOException {
             if (enable) {
                 Objects.requireNonNull(providerType);
-                return new GrpcSslConfiguration(this.enable, this.providerType, this.keyFilePath, this.keyCertFilePath);
+                return new GrpcSslConfiguration(this.enable, this.providerType, this.keyFilePath, this.keyCertFilePaths, keyPassword);
             } else {
-                return new GrpcSslConfiguration(this.enable, this.providerType, null, null);
+                return new GrpcSslConfiguration(this.enable, this.providerType, null, null, null);
             }
         }
     }
@@ -128,7 +148,18 @@ public class GrpcSslConfiguration {
                 "enable=" + enable +
                 ", providerType='" + providerType + '\'' +
                 ", keyResource='" + keyResource + '\'' +
-                ", keyCertChainResource='" + keyCertChainResource + '\'' +
+                ", keyCertChainResource='" + joinResources(keyCertChainResources) + '\'' +
                 '}';
+    }
+
+    private String joinResources(Resource[] resources) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < resources.length; i++) {
+            builder.append(resources[i]);
+            if (i < resources.length - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.grpc.security;
 
 import com.navercorp.pinpoint.grpc.util.Resource;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -32,13 +33,13 @@ public class SslClientConfig {
 
     private final boolean enable;
     private final String sslProviderType;
-    private final Resource trustCertResource;
+    private final Resource[] trustCertResources;
 
-    public SslClientConfig(boolean enable, String sslProviderType, Resource trustCertResource) {
+    public SslClientConfig(boolean enable, String sslProviderType, Resource[] trustCertResources) {
         this.enable = enable;
 
         this.sslProviderType = Objects.requireNonNull(sslProviderType, "sslProviderType");
-        this.trustCertResource = trustCertResource;
+        this.trustCertResources = trustCertResources;
     }
 
     public boolean isEnable() {
@@ -49,8 +50,8 @@ public class SslClientConfig {
         return sslProviderType;
     }
 
-    public Resource getTrustCertResource() {
-        return trustCertResource;
+    public Resource[] getTrustCertResources() {
+        return trustCertResources;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class SslClientConfig {
         final StringBuilder sb = new StringBuilder("SslClientConfig{");
         sb.append("enable=").append(enable);
         sb.append(", sslProviderType='").append(sslProviderType).append('\'');
-        sb.append(", trustCertResource=").append(trustCertResource);
+        sb.append(", trustCertResource=").append(Arrays.toString(trustCertResources));
         sb.append('}');
         return sb.toString();
     }

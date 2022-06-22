@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.util.FileSystemResource;
 import com.navercorp.pinpoint.grpc.util.Resource;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -34,12 +35,12 @@ public class SslOption {
 
     private final boolean enable;
     private final String providerType;
-    private final Resource trustCertResource;
+    private final Resource[] trustCertResources;
 
-    private SslOption(boolean enable, String providerType, Resource trustCertResource) {
+    private SslOption(boolean enable, String providerType, Resource[] trustCertResources) {
         this.enable = enable;
         this.providerType = providerType;
-        this.trustCertResource = trustCertResource;
+        this.trustCertResources = trustCertResources;
     }
 
     public boolean isEnable() {
@@ -50,8 +51,8 @@ public class SslOption {
         return providerType;
     }
 
-    public Resource getTrustCertResource() {
-        return trustCertResource;
+    public Resource[] getTrustCertResources() {
+        return trustCertResources;
     }
 
     public static class Builder {
@@ -62,8 +63,8 @@ public class SslOption {
         private boolean enable;
         @Value("${provider.type}")
         private String providerType;
-        @Value("${trust.cert.file.path}")
-        private String trustCertFilePath;
+        @Value("${trust.cert.file.paths}")
+        private String[] trustCertFilePaths;
 
         public Builder(String basePath) {
             this.basePath = basePath;
@@ -89,26 +90,38 @@ public class SslOption {
             this.providerType = providerType;
         }
 
-        public String getTrustCertFilePath() {
-            return trustCertFilePath;
+        public String[] getTrustCertFilePaths() {
+            return trustCertFilePaths;
         }
 
-        public void setTrustCertFilePath(String trustCertFilePath) {
-            this.trustCertFilePath = trustCertFilePath;
+        public void setTrustCertFilePaths(String[] trustCertFilePaths) {
+            this.trustCertFilePaths = trustCertFilePaths;
         }
 
         public SslOption build()  {
             if (enable) {
                 Objects.requireNonNull(providerType);
-                Resource trustCertResource = toResource(trustCertFilePath);
-                return new SslOption(true, this.providerType, trustCertResource);
+                Resource[] trustCertResources = toResources(trustCertFilePaths);
+                return new SslOption(true, this.providerType, trustCertResources);
             } else {
-                return new SslOption(this.enable, DEFAULT_PROVIDER_TYPE, DEFAULT_TRUST_CERT_RESOURCE);
+                Resource[] trustCertResources = new Resource[1];
+                trustCertResources[0] = DEFAULT_TRUST_CERT_RESOURCE;
+
+                return new SslOption(this.enable, DEFAULT_PROVIDER_TYPE, trustCertResources);
             }
         }
 
         private static final String CLASSPATH_URL_PREFIX = "classpath:";
         private static final String FILE_URL_PREFIX = "file:";
+
+
+        private Resource[] toResources(String[] filepaths) {
+            Resource[] res = new Resource[filepaths.length];
+            for (int i = 0; i < filepaths.length; i++) {
+                res[i] = toResource(filepaths[i]);
+            }
+            return res;
+        }
 
         private Resource toResource(String filePath) {
             if (!StringUtils.hasText(filePath)) {
@@ -137,7 +150,7 @@ public class SslOption {
         final StringBuilder sb = new StringBuilder("SslOption{");
         sb.append("enable=").append(enable);
         sb.append(", providerType='").append(providerType).append('\'');
-        sb.append(", trustCertResource=").append(trustCertResource);
+        sb.append(", trustCertResource=").append(Arrays.toString(trustCertResources));
         sb.append('}');
         return sb.toString();
     }

@@ -100,8 +100,8 @@ public class DefaultChannelFactoryBuilder implements ChannelFactoryBuilder {
         SslClientConfig sslClientConfig = SslClientConfig.DISABLED_CONFIG;
         if (sslOption != null && sslOption.isEnable()) {
             String providerType = sslOption.getProviderType();
-            Resource trustCertResource = sslOption.getTrustCertResource();
-            sslClientConfig = new SslClientConfig(true, providerType, trustCertResource);
+            Resource[] trustCertResources = sslOption.getTrustCertResources();
+            sslClientConfig = new SslClientConfig(true, providerType, trustCertResources);
         }
 
         return new DefaultChannelFactory(factoryName, executorQueueSize,
