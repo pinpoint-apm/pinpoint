@@ -119,7 +119,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         if (applicationServiceType.isWas()) {
             NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(option.getApplication(), option.getRange());
             node.setNodeHistogram(nodeHistogram);
-            ServerInstanceList serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, option.getRange().getToInstant());
+            ServerInstanceList serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, option.getRange());
             return new NodeHistogramSummary(serverInstanceList, nodeHistogram);
         } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown() || applicationServiceType.isAlias()) {
             if (sourceApplications.isEmpty()) {

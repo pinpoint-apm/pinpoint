@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppen
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 
@@ -209,6 +211,7 @@ public class ApplicationMapBuilderTestHelper {
         agentInfo.setApplicationName(applicationName);
         agentInfo.setAgentId(agentId);
         agentInfo.setHostName(hostName);
+        agentInfo.setStatus(new AgentStatus(agentId, AgentLifeCycleState.RUNNING, System.currentTimeMillis()));
         return agentInfo;
     }
 }

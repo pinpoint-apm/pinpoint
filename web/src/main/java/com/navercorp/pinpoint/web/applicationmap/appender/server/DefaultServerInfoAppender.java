@@ -99,14 +99,13 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
         CompletableFuture<ServerInstanceList> serverInstanceListFuture;
         ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isWas()) {
-            final Instant to = range.getToInstant();
             serverInstanceListFuture = CompletableFuture.supplyAsync(new Supplier<ServerInstanceList>() {
                 @Override
                 public ServerInstanceList get() {
                     if (Boolean.TRUE == stopSign.get()) { // Stop
                         return serverInstanceListFactory.createEmptyNodeInstanceList();
                     }
-                    return serverInstanceListFactory.createWasNodeInstanceList(node, to);
+                    return serverInstanceListFactory.createWasNodeInstanceList(node, range);
                 }
             }, executor);
         } else if (nodeServiceType.isTerminal() || nodeServiceType.isAlias()) {

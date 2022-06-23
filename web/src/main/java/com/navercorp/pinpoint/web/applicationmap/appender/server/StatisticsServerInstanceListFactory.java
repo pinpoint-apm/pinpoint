@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -42,11 +43,11 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
     }
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
-        ServerInstanceList serverInstanceList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
+    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Range range) {
+        ServerInstanceList serverInstanceList = createWasNodeInstanceListFromHistogram(wasNode, range.getToInstant());
         if (serverInstanceList.getServerInstanceList().isEmpty()) {
             // When there is no transaction information, agentInfo information is used.
-            serverInstanceList = createWasNodeInstanceListFromAgentInfo(wasNode, timestamp);
+            serverInstanceList = createWasNodeInstanceListFromAgentInfo(wasNode, range);
         }
         return serverInstanceList;
     }
@@ -74,8 +75,8 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
         return builder.build();
     }
 
-    ServerInstanceList createWasNodeInstanceListFromAgentInfo(Node wasNode, Instant timestamp) {
-        return serverInstanceListDataSource.createServerInstanceList(wasNode, timestamp);
+    ServerInstanceList createWasNodeInstanceListFromAgentInfo(Node wasNode, Range range) {
+        return serverInstanceListDataSource.createServerInstanceList(wasNode, range);
     }
 
     @Override

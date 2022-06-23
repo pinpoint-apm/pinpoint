@@ -115,7 +115,7 @@ public class ServerInfoAppenderTest {
         nodeList.addNode(wasNode);
 
         ServerInstanceList serverInstanceList = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode, range.getToInstant())).thenReturn(serverInstanceList);
+        when(serverInstanceListDataSource.createServerInstanceList(wasNode, range)).thenReturn(serverInstanceList);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
@@ -136,9 +136,9 @@ public class ServerInfoAppenderTest {
         nodeList.addNode(wasNode2);
 
         ServerInstanceList serverInstanceList1 = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode1, range.getToInstant())).thenReturn(serverInstanceList1);
+        when(serverInstanceListDataSource.createServerInstanceList(wasNode1, range)).thenReturn(serverInstanceList1);
         ServerInstanceList serverInstanceList2 = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode2, range.getToInstant())).thenReturn(serverInstanceList2);
+        when(serverInstanceListDataSource.createServerInstanceList(wasNode2, range)).thenReturn(serverInstanceList2);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then

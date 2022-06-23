@@ -16,27 +16,26 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.AgentInfoFilterChain;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -54,9 +53,18 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
-    public ServerInstanceList createServerInstanceList(Node node, Instant timestamp) {
+    @Override
+    public ServerInstanceList createServerInstanceList(Node node, Range range) {
+        AgentInfoFilter runningFilter = new AgentInfoFilterChain(
+                new DefaultAgentInfoFilter(range.getFrom())
+        );
+        return createServerInstanceList(node, range, runningFilter);
+    }
+
+    public ServerInstanceList createServerInstanceList(Node node, Range range, AgentInfoFilter filter) {
         Objects.requireNonNull(node, "node");
-        Objects.requireNonNull(timestamp, "timestamp");
+        Objects.requireNonNull(range, "range");
+        Instant timestamp = range.getToInstant();
         if (timestamp.toEpochMilli() < 0) {
             return new ServerInstanceList();
         }
@@ -69,7 +77,7 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
         }
 
         logger.debug("unfiltered agentInfos {}", agentInfos);
-        agentInfos = filterAgentInfos(agentInfos, timestamp, node);
+        agentInfos = filterAgentInfos(agentInfos, range, filter);
         logger.debug("add agentInfos {} : {}", application, agentInfos);
 
         ServerBuilder builder = new ServerBuilder();
@@ -78,21 +86,10 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
     }
 
     // TODO Change to list of filters?
-    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, Instant timestamp, Node node) {
-
-        final Map<String, Histogram> agentHistogramMap = getAgentHistogramMap(node);
-
+    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, Range range, AgentInfoFilter filter) {
         Set<AgentInfo> filteredAgentInfos = new HashSet<>();
-        List<AgentInfo> agentsToCheckStatus = new ArrayList<>();
-        for (AgentInfo agentInfo : agentInfos) {
-            String agentId = agentInfo.getAgentId();
-            if (agentHistogramMap.containsKey(agentId)) {
-                filteredAgentInfos.add(agentInfo);
-            } else {
-                agentsToCheckStatus.add(agentInfo);
-            }
-        }
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, timestamp);
+        List<AgentInfo> agentsToCheckStatus = new ArrayList<>(agentInfos);
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, range.getToInstant());
 
         List<Optional<AgentStatus>> agentStatusList = agentInfoService.getAgentStatus(query);
 
@@ -100,20 +97,13 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
         for (AgentInfo agentInfo : agentsToCheckStatus) {
             Optional<AgentStatus> agentStatus = agentStatusList.get(idx++);
             if (agentStatus.isPresent()) {
-                if (agentStatus.get().getState() == AgentLifeCycleState.RUNNING) {
+                agentInfo.setStatus(agentStatus.get());
+                if (filter.filter(agentInfo) == AgentInfoFilter.ACCEPT) {
                     filteredAgentInfos.add(agentInfo);
                 }
             }
         }
 
         return filteredAgentInfos;
-    }
-
-    private Map<String, Histogram> getAgentHistogramMap(Node node) {
-        NodeHistogram nodeHistogram = node.getNodeHistogram();
-        if (nodeHistogram != null) {
-            return nodeHistogram.getAgentHistogramMap();
-        }
-        return Collections.emptyMap();
     }
 }

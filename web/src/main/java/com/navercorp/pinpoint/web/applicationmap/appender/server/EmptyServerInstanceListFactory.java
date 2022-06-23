@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-
-import java.time.Instant;
 
 /**
  * @author HyunGil Jeong
@@ -28,7 +27,7 @@ import java.time.Instant;
 public class EmptyServerInstanceListFactory implements ServerInstanceListFactory {
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Range range) {
         return new ServerInstanceList();
     }
 
