@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
 @Dependency({"com.rabbitmq:amqp-client:[5.0.0,)", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 @JvmArgument("-DtestLoggerEnable=false")
+@SharedTestLifeCycleClass(TestBrokerServer.class)
 public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
 
     @Test

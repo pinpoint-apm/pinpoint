@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.rabbitmq.TestBrokerServer;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
-import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
@@ -65,6 +66,7 @@ import java.util.List;
 @Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE],(2.1.1.RELEASE,2.1.9.RELEASE),(2.1.9.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 @JvmArgument("-DtestLoggerEnable=false")
+@SharedTestLifeCycleClass(TestBrokerServer.class)
 public class SpringAmqpRabbit_2_1_x_to_2_x_IT extends SpringAmqpRabbitITBase {
 
     private static final TestApplicationContext CONTEXT = new TestApplicationContext();

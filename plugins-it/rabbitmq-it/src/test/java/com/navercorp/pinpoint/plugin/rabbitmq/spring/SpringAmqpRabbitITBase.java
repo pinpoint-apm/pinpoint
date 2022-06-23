@@ -1,24 +1,17 @@
 package com.navercorp.pinpoint.plugin.rabbitmq.spring;
 
-import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+
+import java.util.Properties;
 
 /**
  * @author kootaejin
  */
 public class SpringAmqpRabbitITBase {
 
-    private static final TestBroker BROKER = new TestBroker();
-
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        BROKER.start();
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        BROKER.shutdown();
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        // empty
     }
 
 }
