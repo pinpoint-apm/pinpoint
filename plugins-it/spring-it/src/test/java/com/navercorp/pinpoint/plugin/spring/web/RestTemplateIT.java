@@ -53,14 +53,14 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @SharedTestLifeCycleClass(HttpWebServer.class)
 public class RestTemplateIT {
 
-    private static String ADDRESS;
+    private static String HOST_PORT;
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        ADDRESS = beforeAllResult.getProperty("ADDRESS");
+        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
     }
 
     public static String getCallUrl() {
-        return ADDRESS;
+        return "http://" + HOST_PORT;
     }
 
 

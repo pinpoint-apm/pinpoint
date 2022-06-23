@@ -47,15 +47,15 @@ import java.util.Properties;
 @SharedTestLifeCycleClass(HttpWebServer.class)
 public class HttpClientIT {
 
-    private static String ADDRESS;
+    private static String HOST_PORT;
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        ADDRESS = beforeAllResult.getProperty("ADDRESS");
+        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
     }
 
     public String getAddress() {
-        return ADDRESS;
+        return "http://" + HOST_PORT;
     }
 
 

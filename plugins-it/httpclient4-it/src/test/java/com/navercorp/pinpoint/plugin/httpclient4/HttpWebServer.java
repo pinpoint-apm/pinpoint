@@ -14,7 +14,6 @@ public class HttpWebServer implements SharedTestLifeCycle {
             webServer = WebServer.newTestWebServer();
 
             Properties properties = new Properties();
-            properties.setProperty("ADDRESS", webServer.getCallHttpUrl());
             properties.setProperty("HOST_PORT", webServer.getHostAndPort());
             return properties;
         } catch (Exception e) {
