@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.pluginit.utils;
 
 import fi.iki.elonen.NanoHTTPD;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public class WebServer extends NanoHTTPD {
     }
 
 
-    public static WebServer newTestWebServer() throws Exception {
+    public static WebServer newTestWebServer() throws IOException {
 
         final int port = SocketUtils.findAvailableTcpPort(21000);
         final WebServer webServer = new WebServer(LOCAL_HOST, port);

@@ -16,46 +16,27 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import com.navercorp.pinpoint.pluginit.utils.WebServer;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+
+import java.util.Properties;
 
 public abstract class HttpClientITBase {
 
-    private static com.navercorp.pinpoint.pluginit.utils.WebServer webServer;
-
-    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
-    private static String CALL_URL;
+    private static String ADDRESS;
     private static String HOST_PORT;
 
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        ADDRESS = beforeAllResult.getProperty("ADDRESS");
+        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
 
-    public static String getCallUrl() {
-        return CALL_URL;
     }
 
-    public static void setCallUrl(String callUrl) {
-        CALL_URL = callUrl;
+    public String getAddress() {
+        return ADDRESS;
     }
 
     public static String getHostPort() {
         return HOST_PORT;
     }
-
-    public static void setHostPort(String hostPort) {
-        HOST_PORT = hostPort;
-    }
-    // ---------- //
-
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        webServer = WebServer.newTestWebServer();
-        setCallUrl(webServer.getCallHttpUrl());
-        setHostPort(webServer.getHostAndPort());
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        webServer = WebServer.cleanup(webServer);
-    }
-
 }

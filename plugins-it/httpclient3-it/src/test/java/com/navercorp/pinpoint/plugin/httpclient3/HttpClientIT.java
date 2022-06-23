@@ -15,28 +15,27 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient3;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+import java.util.Properties;
 
 /**
  * @author jaehong.kim
@@ -45,32 +44,20 @@ import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient3-plugin")
 @Dependency({ "commons-httpclient:commons-httpclient:[3.0],[3.0.1],[3.1]", WebServer.VERSION, PluginITConstants.VERSION})
+@SharedTestLifeCycleClass(HttpWebServer.class)
 public class HttpClientIT {
 
-    private static com.navercorp.pinpoint.pluginit.utils.WebServer webServer;
+    private static String ADDRESS;
 
-    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
-    private static String CALL_URL;
-
-    public static String getCallUrl() {
-        return CALL_URL;
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        ADDRESS = beforeAllResult.getProperty("ADDRESS");
     }
 
-    public static void setCallUrl(String callUrl) {
-        CALL_URL = callUrl;
-    }
-    // ---------- //
-
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        webServer = WebServer.newTestWebServer();
-        setCallUrl(webServer.getCallHttpUrl());
+    public String getAddress() {
+        return ADDRESS;
     }
 
-    @AfterSharedClass
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
-    }
 
     private static final long CONNECTION_TIMEOUT = 10000;
     private static final int SO_TIMEOUT = 10000;
@@ -81,7 +68,7 @@ public class HttpClientIT {
         client.getParams().setConnectionManagerTimeout(CONNECTION_TIMEOUT);
         client.getParams().setSoTimeout(SO_TIMEOUT);
 
-        GetMethod method = new GetMethod(getCallUrl());
+        GetMethod method = new GetMethod(getAddress());
 
         // Provide custom retry handler is necessary
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
