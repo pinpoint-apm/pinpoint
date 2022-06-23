@@ -37,7 +37,7 @@ public class ExecuteSharedThread {
     private static final TaggedLogger logger = TestLogger.getLogger();
 
     private final Thread thread;
-
+    private final ExecuteSharedThreadRunnable runnable;
     private final String testClazzName;
     private final ClassLoader testClassLoader;
 
@@ -50,7 +50,9 @@ public class ExecuteSharedThread {
         this.testClazzName = Objects.requireNonNull(testClazzName, "testClazzName");
         this.testClassLoader = Objects.requireNonNull(testClassLoader, "testClassLoader");
 
-        thread = new Thread(new ExecuteSharedThreadRunnable());
+        this.runnable = new ExecuteSharedThreadRunnable();
+
+        thread = new Thread(runnable);
         thread.setName(testClazzName + "-Shared-Thread");
         thread.setContextClassLoader(testClassLoader);
         thread.setDaemon(true);
@@ -58,6 +60,14 @@ public class ExecuteSharedThread {
 
     void startBefore() {
         thread.start();
+    }
+
+    public SharedTestLifeCycleWrapper getSharedClassWrapper() {
+        return runnable.sharedTestLifeCycleWrapper;
+    }
+
+    public Throwable getRunnableError() {
+        return runnable.throwable;
     }
 
     boolean awaitBeforeCompleted(long timeout, TimeUnit unit) {
@@ -123,26 +133,43 @@ public class ExecuteSharedThread {
     }
 
     private class ExecuteSharedThreadRunnable implements Runnable {
-
+        private volatile SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper;
+        private volatile Throwable throwable;
         @Override
         public void run() {
-            final Class<?> testClazz;
+            Class<?> testClazz = null;
             try {
                 testClazz = loadClass();
 
                 logger.debug("Execute testClazz:{} cl:{}", testClazz.getName(), testClazz.getClassLoader());
 
+                sharedTestLifeCycleWrapper = SharedTestLifeCycleWrapper.newVersionTestLifeCycleWrapper(testClazz);
+                if (sharedTestLifeCycleWrapper != null) {
+                    sharedTestLifeCycleWrapper.beforeAll();
+                }
+
                 runBeforeSharedClass(testClazz);
                 Map<String, Object> result = getProperties(testClazz);
                 if (result.size() > 0) {
-                    properties.putAll(result);
+                    // bind parameter
+                    for (Map.Entry<String, Object> entry : result.entrySet()) {
+                        if (entry.getValue() != null) {
+                            properties.put(entry.getKey(), entry.getValue());
+                        }
+                    }
                 }
+            } catch (Throwable th) {
+                logger.warn("{} testclass error", testClazzName, th);
+                throwable = th;
             } finally {
                 setBeforeCompleted();
             }
 
             awaitAfterStart();
             runAfterSharedClass(testClazz);
+            if (sharedTestLifeCycleWrapper != null) {
+                sharedTestLifeCycleWrapper.afterAll();
+            }
         }
 
         private Class<?> loadClass() {
