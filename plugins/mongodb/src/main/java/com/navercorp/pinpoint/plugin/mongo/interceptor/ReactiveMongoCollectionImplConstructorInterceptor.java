@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,22 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
-import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 
-/**
- * @author Roy Kim
- */
-public class MongoWriteConcernInterceptor implements AroundInterceptor {
-
+public class ReactiveMongoCollectionImplConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-
-    public MongoWriteConcernInterceptor() {
+    public ReactiveMongoCollectionImplConstructorInterceptor() {
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
     }
 
     @Override
@@ -51,21 +40,29 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (args == null) {
+        if (throwable != null) {
             return;
         }
 
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        if (Boolean.FALSE == (target instanceof DatabaseInfoAccessor)) {
+            logger.info("Unexpected target. The target is not a DatabaseInfoAccessor implementation. target={}", target);
+            return;
+        }
 
-        String writeConcernStr = MongoUtil.getWriteConcern0((WriteConcern) args[0]);
+        final DatabaseInfoAccessor databaseInfoAccessor = ArrayArgumentUtils.getArgument(args, 0, DatabaseInfoAccessor.class);
+        if (databaseInfoAccessor == null) {
+            logger.info("Unexpected argument. The arg0 is not a DatabaseInfoAccessor class. args={}", args);
+            return;
+        }
 
-        databaseInfo = new MongoDatabaseInfo(databaseInfo.getType(), databaseInfo.getExecuteQueryType()
-                , databaseInfo.getRealUrl(), databaseInfo.getUrl(), databaseInfo.getHost(), databaseInfo.getDatabaseId()
-                , ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getReadPreference(), writeConcernStr);
-
-        if (result instanceof DatabaseInfoAccessor) {
-            ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+        final DatabaseInfo databaseInfo = databaseInfoAccessor._$PINPOINT$_getDatabaseInfo();
+        if (databaseInfo == null) {
+            logger.info("DatabaseInfo information is not set.");
+            return;
+        }
+        ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+        if (isDebug) {
+            logger.debug("Set databaseInfo={}", databaseInfo);
         }
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,27 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
 
+import java.util.List;
 import java.util.Objects;
 
-/**
- * @author Roy Kim
- */
-public class MongoDriverGetCollectionInterceptor implements AroundInterceptor {
-
+public class SetHostListAccessorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public MongoDriverGetCollectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public SetHostListAccessorInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         Objects.requireNonNull(traceContext, "traceContext");
         Objects.requireNonNull(descriptor, "descriptor");
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
     }
 
     @Override
@@ -54,24 +45,30 @@ public class MongoDriverGetCollectionInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (args == null) {
+        if (throwable != null) {
+            // If an error occurs, it is ignored.
             return;
         }
 
-        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        if (Boolean.FALSE == (target instanceof HostListAccessor)) {
+            logger.info("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            return;
+        }
 
-        databaseInfo = new MongoDatabaseInfo(databaseInfo.getType(), databaseInfo.getExecuteQueryType(),
-                null, null, databaseInfo.getHost(), databaseInfo.getDatabaseId(), args[0].toString(), ((MongoDatabaseInfo) databaseInfo).getReadPreference(), ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
+        final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
+        if (hostList == null) {
+            logger.info("Invalid hostList. target={}", target);
+            return;
+        }
 
+        if (Boolean.FALSE == (result instanceof HostListAccessor)) {
+            logger.info("Unexpected result. The result is not a HostListAccessor implementation. result={}", result);
+            return;
+        }
+
+        ((HostListAccessor) result)._$PINPOINT$_setHostList(hostList);
         if (isDebug) {
-            logger.debug("parse DatabaseInfo:{}", databaseInfo);
+            logger.debug("Set hostList hostList={}", hostList);
         }
-
-        if (result instanceof DatabaseInfoAccessor) {
-            ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
-        }
-
     }
-
-
 }

@@ -21,6 +21,18 @@ public final class DatabaseContainers {
         return properties;
     }
 
+    public static Properties toProperties(String url, String user, String password) {
+        Objects.requireNonNull(url, "url");
+        Objects.requireNonNull(user, "user");
+        Objects.requireNonNull(password, "password");
+
+        Properties properties = new Properties();
+        properties.setProperty(DriverProperties.URL, url);
+        properties.setProperty(DriverProperties.USER, user);
+        properties.setProperty(DriverProperties.PASSWARD, password);
+        return properties;
+    }
+
     public static DriverProperties readDriverProperties(Properties properties) {
         Objects.requireNonNull(properties, "properties");
 
