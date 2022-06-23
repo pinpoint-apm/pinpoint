@@ -26,15 +26,16 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Properties;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -49,32 +50,19 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
         WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-disabled-plugin-test.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-resttemplate-plugin"})
+@SharedTestLifeCycleClass(HttpWebServer.class)
 public class RestTemplateIT {
 
-    private static WebServer webServer;
-
-    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
-    private static String CALL_URL;
+    private static String ADDRESS;
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        ADDRESS = beforeAllResult.getProperty("ADDRESS");
+    }
 
     public static String getCallUrl() {
-        return CALL_URL;
+        return ADDRESS;
     }
 
-    public static void setCallUrl(String callUrl) {
-        CALL_URL = callUrl;
-    }
-    // ---------- //
-
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        webServer = WebServer.newTestWebServer();
-        setCallUrl(webServer.getCallHttpUrl());
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() throws Exception {
-        webServer = WebServer.cleanup(webServer);
-    }
 
     @Test
     public void test1() throws Exception {

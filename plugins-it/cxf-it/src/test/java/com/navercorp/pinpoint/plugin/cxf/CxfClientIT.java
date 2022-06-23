@@ -18,19 +18,17 @@ package com.navercorp.pinpoint.plugin.cxf;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -38,10 +36,10 @@ import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Properties;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -53,35 +51,24 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.0.0][3.0.16][3.1.0][3.1.16],[3.2.1,)", WebServer.VERSION, PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-cxf-plugin", "com.navercorp.pinpoint:pinpoint-jdk-http-plugin"})
 @PinpointConfig("cxf/pinpoint-cxf-test.config")
+@SharedTestLifeCycleClass(HttpWebServer.class)
 public class CxfClientIT {
-
-    private static WebServer webServer;
 
     private static String ADDRESS;
 
-    public static String getADDRESS() {
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        ADDRESS = beforeAllResult.getProperty("ADDRESS");
+    }
+
+    public String getAddress() {
         return ADDRESS;
-    }
-
-    public static void setADDRESS(String ADDRESS) {
-        CxfClientIT.ADDRESS = ADDRESS;
-    }
-
-    @BeforeSharedClass
-    public static void BeforeClass() throws Exception {
-        webServer = WebServer.newTestWebServer();
-        setADDRESS(webServer.getCallHttpUrl());
-    }
-
-    @AfterSharedClass
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test
     public void test() throws Exception {
 
-        String address = getADDRESS();
+        String address = getAddress();
 
         String json = "{\"id\" : 12345, \"name\" : \"victor\"}";
 
