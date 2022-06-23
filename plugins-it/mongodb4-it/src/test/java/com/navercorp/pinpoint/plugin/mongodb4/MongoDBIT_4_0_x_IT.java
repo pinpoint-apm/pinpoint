@@ -1,8 +1,8 @@
 /*
- * Copyright 2018 Naver Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance,the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.mongodb;
+package com.navercorp.pinpoint.plugin.mongodb4;
 
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
@@ -39,21 +40,17 @@ import org.junit.runner.RunWith;
 
 import java.net.URI;
 
-/**
- * @author Roy Kim
- */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.4.0,3.6.0-alpha),[3.6.0],[3.6.1,3.6.max]",
+        "org.mongodb:mongodb-driver-sync:[4.0.0,]",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MONGODB
 })
 @SharedTestLifeCycleClass(MongodbServer.class)
-public class MongoDBIT_3_4_x_IT extends MongoDBITBase {
-
-    private static com.mongodb.MongoClient mongoClient;
+public class MongoDBIT_4_0_x_IT extends MongoDBITBase {
+    private static MongoClient mongoClient;
     private static MongoDatabase database;
     private static URI uri;
 
@@ -61,7 +58,7 @@ public class MongoDBIT_3_4_x_IT extends MongoDBITBase {
     public static void setUpBeforeClass() throws Exception {
         DriverProperties driverProperties = getDriverProperties();
         uri = new URI(driverProperties.getUrl());
-        mongoClient = new com.mongodb.MongoClient(uri.getHost(), uri.getPort());
+        mongoClient = MongoClients.create("mongodb://" + uri.getHost() + ":" + uri.getPort());
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
     }
 
@@ -74,13 +71,13 @@ public class MongoDBIT_3_4_x_IT extends MongoDBITBase {
 
     @Override
     Class<?> getMongoDatabaseClazz() throws ClassNotFoundException {
-        return Class.forName("com.mongodb.MongoCollectionImpl");
+        return Class.forName("com.mongodb.client.internal.MongoCollectionImpl");
     }
 
     @Test
     public void testStatements() throws Exception {
         final MongoDBITHelper helper = new MongoDBITHelper();
         final String address = uri.getHost() + ":" + uri.getPort();
-        helper.testConnection34(this, address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED");
+        helper.testConnection(address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED");
     }
 }

@@ -19,17 +19,25 @@ package com.navercorp.pinpoint.plugin.mongodb;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.mongodb.client.MongoDatabase;
+import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.net.URI;
 
 /**
  * @author Roy Kim
@@ -40,30 +48,39 @@ import org.junit.runner.RunWith;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
 @Dependency({
         "org.mongodb:mongodb-driver:[3.2.0,3.3.max]",
-        MongoDBITConstants.EMBED_MONGODB_VERSION
+        PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MONGODB
 })
+@SharedTestLifeCycleClass(MongodbServer.class)
 public class MongoDBIT_3_2_x_IT extends MongoDBITBase {
 
     private static com.mongodb.MongoClient mongoClient;
+    private static MongoDatabase database;
+    private static URI uri;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        DriverProperties driverProperties = getDriverProperties();
+        uri = new URI(driverProperties.getUrl());
+        mongoClient = new com.mongodb.MongoClient(uri.getHost(), uri.getPort());
+        database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
+    }
+
+    @AfterClass
+    public static void cleanAfterClass() throws Exception {
+        if (mongoClient != null) {
+            mongoClient.close();
+        }
+    }
 
     @Override
     Class<?> getMongoDatabaseClazz() throws ClassNotFoundException {
         return Class.forName("com.mongodb.MongoCollectionImpl");
     }
 
-    @Override
-    void insertComplex(PluginTestVerifier verifier, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {
-        insertComlexBsonValueData30(verifier, collection, mongoDatabaseImpl, collectionInfo, collectionOption);
-    }
-
-    @Override
-    public void setClient() {
-        mongoClient = new com.mongodb.MongoClient(MongoDBITConstants.BIND_ADDRESS, mongod.getPort());
-        database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
-    }
-
-    @Override
-    public void closeClient() {
-        mongoClient.close();
+    @Test
+    public void testStatements() throws Exception {
+        final MongoDBITHelper helper = new MongoDBITHelper();
+        final String address = uri.getHost() + ":" + uri.getPort();
+        helper.testConnection30(this, address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED");
     }
 }
