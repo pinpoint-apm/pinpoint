@@ -15,13 +15,11 @@ package com.navercorp.pinpoint.plugin.elasticsearch;
  * limitations under the License.
  */
 
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assume;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
+
+import java.util.Properties;
 
 /**
  * @author Roy Kim
@@ -31,56 +29,25 @@ public abstract class ElasticsearchITBase {
 
     protected static final Logger logger = LogManager.getLogger(ElasticsearchITBase.class);
 
-    public static ElasticsearchContainer elasticsearchContainer;
+    protected static int ES_PORT;
 
-
-    protected static int SERVER_PORT;
-    protected static String SERVER_HOST;
-    protected static String ELASTICSEARCH_ADDRESS;
-
-    public static int getServerPort() {
-        return SERVER_PORT;
+    public String getEsHost() {
+        return "127.0.0.1";
     }
 
-    public static void setServerPort(int serverPort) {
-        SERVER_PORT = serverPort;
+    public int getEsPort() {
+        return ES_PORT;
     }
 
-    public static String getServerHost() {
-        return SERVER_HOST;
+    public String getEsAddress() {
+        return getEsHost() + ":" + ES_PORT;
     }
 
-    public static void setServerHost(String serverHost) {
-        SERVER_HOST = serverHost;
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        logger.info("ElasticsearchContainer properties:{}", beforeAllResult);
+
+        ES_PORT = Integer.parseInt(beforeAllResult.getProperty("PORT"));
     }
-
-    public static String getElasticsearchAddress() {
-        return ELASTICSEARCH_ADDRESS;
-    }
-
-    public static void setElasticsearchAddress(String elasticsearchAddress) {
-        ELASTICSEARCH_ADDRESS = elasticsearchAddress;
-    }
-
-    @BeforeSharedClass
-    public static void sharedSetUp() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-
-        elasticsearchContainer = ESServerContainerFactory.newESServerContainerFactory(logger.getName());
-        elasticsearchContainer.start();
-
-        setServerPort(elasticsearchContainer.getMappedPort(ESServerContainerFactory.DEFAULT_PORT));
-        setServerHost(elasticsearchContainer.getHost());
-        setElasticsearchAddress(elasticsearchContainer.getHttpHostAddress());
-
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        if (elasticsearchContainer != null) {
-            elasticsearchContainer.stop();
-        }
-    }
-
 
 }

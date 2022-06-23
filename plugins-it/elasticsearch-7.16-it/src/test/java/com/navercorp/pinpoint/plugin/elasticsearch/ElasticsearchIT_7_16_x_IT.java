@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -43,18 +44,18 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.16.0,7.max]",
+@Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.16.0]",
         TestcontainersOption.ELASTICSEARCH})
 @JvmVersion(8)
+@SharedTestLifeCycleClass(ESServer.class)
 public class ElasticsearchIT_7_16_x_IT extends ElasticsearchITBase {
 
-    private static RestHighLevelClient restHighLevelClient;
+    private RestHighLevelClient restHighLevelClient;
 
     @Before
     public void setup() {
         restHighLevelClient = new RestHighLevelClient(
-                RestClient.builder(
-                        new HttpHost(getServerHost(), getServerPort(), "http")));
+                RestClient.builder(new HttpHost(getEsHost(), getEsPort(), "http")));
     }
 
     @After
@@ -94,7 +95,7 @@ public class ElasticsearchIT_7_16_x_IT extends ElasticsearchITBase {
             throw new AssertionError(e);
         }
 
-        verifier.verifyTrace(event(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR.getName(), index, null, ELASTICSEARCH_ADDRESS, "ElasticSearch"
+        verifier.verifyTrace(event(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR.getName(), index, null, getEsAddress(), "ElasticSearch"
                 , new ExpectedAnnotation(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY.getName(), indexRequest.toString())
         ));
     }

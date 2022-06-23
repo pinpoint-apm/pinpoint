@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -45,6 +46,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[7.0.0,7.16.0)",
         TestcontainersOption.ELASTICSEARCH})
 @JvmVersion(8)
+@SharedTestLifeCycleClass(ESServer.class)
 public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {
 
     private static RestHighLevelClient restHighLevelClient;
@@ -53,7 +55,7 @@ public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {
     public void setup() {
         restHighLevelClient = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost(getServerHost(), getServerPort(), "http")));
+                        new HttpHost(getEsHost(), getEsPort(), "http")));
     }
 
     @After
@@ -62,6 +64,7 @@ public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {
             restHighLevelClient.close();
         }
     }
+
 
     @Test
     public void testHighLevelClient() throws Exception {
@@ -93,7 +96,7 @@ public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {
             throw new AssertionError(e);
         }
 
-        verifier.verifyTrace(event(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR.getName(), index, null, getElasticsearchAddress(), "ElasticSearch"
+        verifier.verifyTrace(event(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR.getName(), index, null, getEsAddress(), "ElasticSearch"
                 , new ExpectedAnnotation(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY.getName(), indexRequest.toString())
         ));
     }
