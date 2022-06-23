@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 public class SharedPinpointPluginTest {
     private static final TaggedLogger logger = TestLogger.getLogger();
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Throwable {
         final String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
         if (mavenDependencyResolverClassPaths == null) {
             logger.error("mavenDependencyResolverClassPaths must not be empty");
@@ -202,7 +202,7 @@ public class SharedPinpointPluginTest {
         }
     }
 
-    public void execute() throws Exception {
+    public void execute() throws Throwable {
         logTestInformation();
         ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(mavenDependencyResolverClassPaths));
         File testClazzLocation = new File(testLocation);
@@ -211,7 +211,7 @@ public class SharedPinpointPluginTest {
         executes(testInfos);
     }
 
-    private void executes(List<TestInfo> testInfos) {
+    private void executes(List<TestInfo> testInfos) throws Throwable {
         if (!CollectionUtils.hasLength(testInfos)) {
             return;
         }
@@ -222,13 +222,18 @@ public class SharedPinpointPluginTest {
 
         executeSharedThread.startBefore();
         executeSharedThread.awaitBeforeCompleted(10, TimeUnit.MINUTES);
+        Throwable runnableError = executeSharedThread.getRunnableError();
+        if (runnableError != null) {
+            throw runnableError;
+        }
         Properties properties = executeSharedThread.getProperties();
         if (logger.isDebugEnabled()) {
             logger.debug("sharedThread properties:{}", properties);
         }
 
+        final SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper = executeSharedThread.getSharedClassWrapper();
         for (TestInfo testInfo : testInfos) {
-            execute(testInfo, properties);
+            execute(testInfo, properties, sharedTestLifeCycleWrapper);
         }
 
         executeSharedThread.startAfter();
@@ -248,7 +253,7 @@ public class SharedPinpointPluginTest {
         return testClassLoader;
     }
 
-    private void execute(final TestInfo testInfo, final Properties properties) {
+    private void execute(final TestInfo testInfo, final Properties properties, SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper) {
         try {
             final ClassLoader testClassLoader = createTestClassLoader(testInfo);
 
@@ -257,11 +262,16 @@ public class SharedPinpointPluginTest {
                 public void run() {
                     final Class<?> testClazz = loadClass();
                     logger.debug("testClazz:{} cl:{}", testClazz.getName(), testClazz.getClassLoader());
-
+                    SharedTestBeforeAllInvoker invoker = new SharedTestBeforeAllInvoker(testClazz);
+                    try {
+                        invoker.invoke(sharedTestLifeCycleWrapper.getLifeCycleResult());
+                    } catch (Throwable th) {
+                        logger.error(th, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
+                    }
                     try {
                         MethodUtils.invokeSetMethod(testClazz, properties);
                     } catch (Exception e) {
-                        logger.warn(e, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
+                        logger.error(e, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
                     }
 
                     try {
