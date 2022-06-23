@@ -14,11 +14,4 @@ public interface AgentInfoFilter {
         return REJECT;
     }
 
-    static boolean filterServer(AgentInfo agentInfo) {
-        if (!agentInfo.isContainer()) {
-            return ACCEPT;
-        }
-        return REJECT;
-    }
-
 }
