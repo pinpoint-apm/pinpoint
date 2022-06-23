@@ -42,7 +42,6 @@ import static org.mockito.Mockito.doAnswer;
 /**
  * @author Hyunjoon Cho
  */
-@Ignore
 public class PinotSystemMetricDaoTest {
 
     private final static String TOPIC = "test-topic";
@@ -66,7 +65,7 @@ public class PinotSystemMetricDaoTest {
                 logger.info("Sending View {}", sendCount.getSendCount());
                 return null;
             }
-        }).when(kafkaTemplate).send(anyString(), any(SystemMetricView.class));
+        }).when(kafkaTemplate).send(anyString(), anyString(), any(SystemMetricView.class));
     }
 
     @Test
