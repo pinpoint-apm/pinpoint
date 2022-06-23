@@ -10,3 +10,13 @@ serviceTypes:
 #      matcher:
 #          type: 'exact'
 #          code: 40 # http.url
+
+annotationKeys:
+  - code: 173
+    name: 'es.dsl'
+    property:
+      viewInRecordSet: true
+  - code: 176
+    name: 'es.version'
+    property:
+      viewInRecordSet: true

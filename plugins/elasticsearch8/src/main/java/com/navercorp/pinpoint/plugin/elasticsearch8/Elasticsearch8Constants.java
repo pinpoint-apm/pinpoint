@@ -16,15 +16,14 @@
 package com.navercorp.pinpoint.plugin.elasticsearch8;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 public class Elasticsearch8Constants {
 
-    public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(177, "es8.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(178, "es8.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyProvider.getByCode(177);
+    public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyProvider.getByCode(178);
 
     public static final ServiceType ELASTICSEARCH = ServiceTypeProvider.getByName("ELASTICSEARCH8");
     public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeProvider.getByName("ELASTICSEARCH8_CLIENT");
