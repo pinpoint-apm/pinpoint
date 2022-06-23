@@ -17,9 +17,6 @@
 package com.navercorp.pinpoint.plugin.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
-import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.Before;
@@ -30,20 +27,10 @@ import org.junit.Before;
  */
 public abstract class RabbitMQClientITBase {
 
-    private static final TestBroker BROKER = new TestBroker();
 
     private final ConnectionFactory connectionFactory = new ConnectionFactory();
     protected final RabbitMQTestRunner testRunner = new RabbitMQTestRunner(connectionFactory);
 
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        BROKER.start();
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        BROKER.shutdown();
-    }
 
     @Before
     public void setUp() {
