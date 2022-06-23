@@ -7,34 +7,6 @@ import org.junit.Test;
 public class AgentInfoFilterChainTest {
 
     @Test
-    public void filter_server() {
-
-        AgentInfoFilter chain = new AgentInfoFilterChain(
-                AgentInfoFilter::filterServer,
-                AgentInfoFilter::reject
-        );
-
-        AgentInfo info = new AgentInfo();
-        info.setContainer(false);
-
-        Assert.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
-    }
-
-    @Test
-    public void filter_container() {
-
-        AgentInfoFilter chain = new AgentInfoFilterChain(
-                AgentInfoFilter::filterServer,
-                AgentInfoFilter::reject
-        );
-
-        AgentInfo info = new AgentInfo();
-        info.setContainer(true);
-
-        Assert.assertEquals(AgentInfoFilter.REJECT, chain.filter(info));
-    }
-
-    @Test
     public void filter_from_accept() {
         final long current = System.currentTimeMillis();
 

@@ -89,7 +89,6 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter containerFilter = new AgentInfoFilterChain(
-                AgentInfoFilter::filterServer,
                 new DefaultAgentInfoFilter(from)
         );
         long timestamp = to;
@@ -101,7 +100,6 @@ public class AgentInfoController {
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         AgentInfoFilter runningContainerFilter = new AgentInfoFilterChain(
-                AgentInfoFilter::filterServer,
                 new DefaultAgentInfoFilter(Long.MAX_VALUE)
         );
         return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningContainerFilter, applicationName, timestamp);
