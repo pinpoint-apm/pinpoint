@@ -19,13 +19,11 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -37,45 +35,29 @@ import java.util.Properties;
 public abstract class PostgreSqlBase {
     protected abstract JDBCDriverClass getJDBCDriverClass();
 
-    private static final Logger logger = LogManager.getLogger(PostgreSqlBase.class);
+    private final Logger logger = LogManager.getLogger(getClass());
 
-    protected static JdbcDatabaseContainer container;
-
-    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
     private static String JDBC_URL;
-    private static String USER_NAME;
-    private static String PASS_WORD;
+    private static String USERNAME;
+    private static String PASSWORD;
 
     public static String getJdbcUrl() {
         return JDBC_URL;
     }
 
-    public static void setJdbcUrl(String jdbcUrl) {
-        JDBC_URL = jdbcUrl;
-    }
-
     public static String getUserName() {
-        return USER_NAME;
-    }
-
-    public static void setUserName(String userName) {
-        USER_NAME = userName;
+        return USERNAME;
     }
 
     public static String getPassWord() {
-        return PASS_WORD;
+        return PASSWORD;
     }
 
-    public static void setPassWord(String passWord) {
-        PASS_WORD = passWord;
-    }
-    // ---------- //
-
-    @AfterSharedClass
-    public static void sharedTeardown() throws Exception {
-        if (container != null) {
-            container.stop();
-        }
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
+        USERNAME = beforeAllResult.getProperty("USERNAME");
+        PASSWORD = beforeAllResult.getProperty("PASSWORD");
     }
 
     public static DriverProperties getDriverProperties() {
