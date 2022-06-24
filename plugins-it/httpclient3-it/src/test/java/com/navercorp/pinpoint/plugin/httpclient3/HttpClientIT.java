@@ -24,18 +24,16 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Properties;
 
 /**
  * @author jaehong.kim
@@ -44,18 +42,27 @@ import java.util.Properties;
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient3-plugin")
 @Dependency({ "commons-httpclient:commons-httpclient:[3.0],[3.0.1],[3.1]", WebServer.VERSION, PluginITConstants.VERSION})
-@SharedTestLifeCycleClass(HttpWebServer.class)
 public class HttpClientIT {
 
-    private static String HOST_PORT;
+    public static WebServer webServer;
 
-    @SharedTestBeforeAllResult
-    public static void setBeforeAllResult(Properties beforeAllResult) {
-        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        webServer = WebServer.cleanup(webServer);
     }
 
     public String getAddress() {
-        return "http://" + HOST_PORT;
+        return webServer.getCallHttpUrl();
+    }
+
+    public static String getHostPort() {
+        return webServer.getHostAndPort();
     }
 
 

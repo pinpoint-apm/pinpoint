@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -58,7 +57,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({"org.apache.httpcomponents:httpasyncclient:[4.0],[4.0.1],[4.0.2],[4.1],[4.1.1],[4.1.2],[4.1.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
-@SharedTestLifeCycleClass(HttpWebServer.class)
 public class ClosableAsyncHttpClientIT extends HttpClientITBase {
 
     @Test

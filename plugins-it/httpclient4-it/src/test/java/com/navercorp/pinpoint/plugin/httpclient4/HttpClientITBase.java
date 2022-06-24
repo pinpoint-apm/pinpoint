@@ -16,26 +16,31 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 import java.util.Properties;
 
 public abstract class HttpClientITBase {
+    public static WebServer webServer;
 
-    private static String ADDRESS;
-    private static String HOST_PORT;
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
 
-    @SharedTestBeforeAllResult
-    public static void setBeforeAllResult(Properties beforeAllResult) {
-        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
+    }
 
+    @AfterClass
+    public static void afterClass() throws Exception {
+        webServer = WebServer.cleanup(webServer);
     }
 
     public String getAddress() {
-        return "http://" + HOST_PORT;
+        return webServer.getCallHttpUrl();
     }
 
     public static String getHostPort() {
-        return HOST_PORT;
+        return webServer.getHostAndPort();
     }
 }

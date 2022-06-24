@@ -56,7 +56,6 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({"org.apache.httpcomponents:httpclient:[4.0],[4.0.1],[4.0.2],[4.0.3],[4.1],[4.1.1],[4.1.2],[4.1.3],[4.2],[4.2.1],[4.2.2],[4.2.3],[4.2.4],[4.2.4],[4.2.6],[4.3.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
-@SharedTestLifeCycleClass(HttpWebServer.class)
 public class HttpClientIT extends HttpClientITBase {
 
     @Test
