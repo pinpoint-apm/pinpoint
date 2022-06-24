@@ -25,16 +25,14 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
 
-import org.junit.AfterClass;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.testcontainers.DockerClientFactory;
 
 import java.net.URL;
 
@@ -48,25 +46,16 @@ import java.net.URL;
 //        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @Dependency({"org.postgresql:postgresql:[9.4.1208,)",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
+@SharedTestLifeCycleClass(PostgreSqlServer.class)
 public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
 
-    private static final Logger logger = LogManager.getLogger(PostgreSql_Post_9_4_1208_IT.class);
+    private final Logger logger = LogManager.getLogger(getClass());
     
     private static PostgreSqlItHelper HELPER;
     private static PostgreSqlJDBCDriverClass driverClass;
 
     private static PostgreSqlJDBCApi jdbcApi;
 
-    @BeforeSharedClass
-    public static void sharedSetup() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        container = PostgreSQLContainerFactory.newContainer(logger.getName());
-
-        container.start();
-        setJdbcUrl(container.getJdbcUrl());
-        setUserName(container.getUsername());
-        setPassWord(container.getPassword());
-    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -86,13 +75,6 @@ public class PostgreSql_Post_9_4_1208_IT extends PostgreSqlBase {
         // invalid jar : postgresql-42.2.15.jre6
         URL jar = classLoader.getResource("org.postgresql.Driver".replace('.', '/').concat(".class"));
         Assume.assumeTrue("test skip : invalid jar ", jar != null);
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        if (container != null) {
-            container.stop();
-        }
     }
 
     @Override

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.OutputFrame;
 
@@ -29,7 +28,7 @@ import java.util.function.Consumer;
  */
 public class PostgreSQLContainerFactory {
 
-    public static JdbcDatabaseContainer newContainer(String loggerName) {
+    public static PostgreSQLContainer newContainer(String loggerName) {
         PostgreSQLContainer container = new PostgreSQLContainer();
         container.withInitScript("init_postgresql.sql");
 
