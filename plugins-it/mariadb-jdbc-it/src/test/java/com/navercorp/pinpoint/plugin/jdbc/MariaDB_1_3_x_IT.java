@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
@@ -31,12 +30,16 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Method;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 
 /**
  * @author HyunGil Jeong
@@ -48,6 +51,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
 @Dependency({"org.mariadb.jdbc:mariadb-java-client:[1.3.0,1.3.max]",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+@SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_1_3_x_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos

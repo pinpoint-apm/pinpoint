@@ -19,17 +19,11 @@ package com.navercorp.pinpoint.plugin.jdbc;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -40,7 +34,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.function.Consumer;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -50,7 +44,7 @@ import static org.junit.Assert.fail;
  */
 public abstract class MariaDB_IT_Base {
     private static final Logger logger = LogManager.getLogger(MariaDB_IT_Base.class);
-    protected static final String DATABASE_NAME = "test";
+    protected static final String DATABASE_NAME = MariaDBServer.DATABASE_NAME;
 
     // for Statement
     protected static final String STATEMENT_QUERY = "SELECT count(1) FROM playground";
@@ -66,64 +60,28 @@ public abstract class MariaDB_IT_Base {
     protected static final int CALLABLE_STATMENT_OUTPUT_PARAM_TYPE = Types.INTEGER;
 
     protected static DriverProperties driverProperties;
-//    @Rule
-    public static MariaDBContainer mariaDB = new MariaDBContainer();
 
-    protected static final String USERNAME = "root";
-    protected static final String PASSWORD = "";
+    protected static final String USERNAME = MariaDBServer.USERNAME;
+    protected static final String PASSWORD = MariaDBServer.PASSWORD;
 
     protected static final String DB_TYPE = "MARIADB";
     protected static final String DB_EXECUTE_QUERY = "MARIADB_EXECUTE_QUERY";
 
-    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
-    // for shared test'
     protected static String JDBC_URL;
     protected static String URL;
 
-    public static String getJdbcUrl() {
+    public String getJdbcUrl() {
         return JDBC_URL;
-    }
-
-    public static void setJdbcUrl(String jdbcUrl) {
-        JDBC_URL = jdbcUrl;
     }
 
     public static String getURL() {
         return URL;
     }
 
-    public static void setURL(String URL) {
-        MariaDB_IT_Base.URL = URL;
-    }
-    // ---------- //
-
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-
-        mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
-            }
-        });
-        mariaDB.withDatabaseName(DATABASE_NAME);
-        mariaDB.withUsername(USERNAME);
-        mariaDB.withPassword(PASSWORD);
-        mariaDB.withInitScript("jdbc/mariadb/init.sql");
-//        mariaDB.withUrlParam("noAccessToProcedureBodies", "true");
-        mariaDB.start();
-
-        setJdbcUrl(mariaDB.getJdbcUrl());
-        int port = mariaDB.getMappedPort(3306);
-        setURL(mariaDB.getHost() + ":" + port);
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() throws Exception {
-        if (mariaDB != null) {
-            mariaDB.stop();
-        }
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
+        URL = beforeAllResult.getProperty("URL");
     }
 
     abstract JDBCDriverClass getJDBCDriverClass();
