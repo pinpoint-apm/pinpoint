@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,6 +52,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
 @Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.0.1,2.4.min)",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+@SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
