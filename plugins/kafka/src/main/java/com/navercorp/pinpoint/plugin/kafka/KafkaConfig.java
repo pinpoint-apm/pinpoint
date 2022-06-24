@@ -17,6 +17,10 @@
 package com.navercorp.pinpoint.plugin.kafka;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 public class KafkaConfig {
 
@@ -38,7 +42,7 @@ public class KafkaConfig {
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
     private final boolean headerRecorded;
-    private final String kafkaEntryPoint;
+    private final List<String> kafkaEntryPoints;
 
     public KafkaConfig(ProfilerConfig config) {
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
@@ -46,7 +50,7 @@ public class KafkaConfig {
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
         this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
-        this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+        this.kafkaEntryPoints = split(config.readString(CONSUMER_ENTRY_POINT, ""));
     }
 
     public boolean isProducerEnable() {
@@ -69,8 +73,16 @@ public class KafkaConfig {
         return headerRecorded;
     }
 
-    public String getKafkaEntryPoint() {
-        return kafkaEntryPoint;
+    public List<String> getKafkaEntryPoints() {
+        return kafkaEntryPoints;
+    }
+
+    private List<String> split(String values) {
+        if (StringUtils.isEmpty(values)) {
+            return Collections.emptyList();
+        }
+
+        return StringUtils.tokenizeToStringList(values, ",");
     }
 
     @Override
@@ -80,7 +92,7 @@ public class KafkaConfig {
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", headerEnable=" + headerEnable +
-                ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
+                ", kafkaEntryPoints='" + kafkaEntryPoints.toString() + '\'' +
                 '}';
     }
 }
