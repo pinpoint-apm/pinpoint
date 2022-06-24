@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -36,10 +34,10 @@ import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Properties;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -51,18 +49,22 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.0.0][3.0.16][3.1.0][3.1.16],[3.2.1,)", WebServer.VERSION, PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-cxf-plugin", "com.navercorp.pinpoint:pinpoint-jdk-http-plugin"})
 @PinpointConfig("cxf/pinpoint-cxf-test.config")
-@SharedTestLifeCycleClass(HttpWebServer.class)
 public class CxfClientIT {
 
-    private static String HOST_PORT;
+    public static WebServer webServer;
 
-    @SharedTestBeforeAllResult
-    public static void setBeforeAllResult(Properties beforeAllResult) {
-        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        webServer = WebServer.cleanup(webServer);
     }
 
     public String getAddress() {
-        return "http://" + HOST_PORT;
+        return webServer.getCallHttpUrl();
     }
 
     @Test

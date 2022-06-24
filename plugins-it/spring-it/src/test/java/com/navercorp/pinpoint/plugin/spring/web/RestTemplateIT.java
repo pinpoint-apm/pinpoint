@@ -26,16 +26,14 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Properties;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -50,24 +48,29 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
         WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-disabled-plugin-test.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-resttemplate-plugin"})
-@SharedTestLifeCycleClass(HttpWebServer.class)
 public class RestTemplateIT {
 
-    private static String HOST_PORT;
-    @SharedTestBeforeAllResult
-    public static void setBeforeAllResult(Properties beforeAllResult) {
-        HOST_PORT = beforeAllResult.getProperty("HOST_PORT");
+    public static WebServer webServer;
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        webServer = WebServer.newTestWebServer();
     }
 
-    public static String getCallUrl() {
-        return "http://" + HOST_PORT;
+    @AfterClass
+    public static void afterClass() throws Exception {
+        webServer = WebServer.cleanup(webServer);
+    }
+
+    public String getAddress() {
+        return webServer.getCallHttpUrl();
     }
 
 
     @Test
     public void test1() throws Exception {
         RestTemplate restTemplate = new RestTemplate();
-        String forObject = restTemplate.getForObject(getCallUrl(), String.class);
+        String forObject = restTemplate.getForObject(getAddress(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -79,7 +82,7 @@ public class RestTemplateIT {
     @Test
     public void test2() throws Exception {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-        String forObject = restTemplate.getForObject(getCallUrl(), String.class);
+        String forObject = restTemplate.getForObject(getAddress(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -91,7 +94,7 @@ public class RestTemplateIT {
     @Test
     public void test3() throws Exception {
         RestTemplate restTemplate = new RestTemplate(new Netty4ClientHttpRequestFactory());
-        String forObject = restTemplate.getForObject(getCallUrl(), String.class);
+        String forObject = restTemplate.getForObject(getAddress(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.awaitTrace(event("ASYNC", "Asynchronous Invocation"), 20, 3000);
