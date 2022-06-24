@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.jdbc;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,7 +81,7 @@ public abstract class MariaDB_IT_Base {
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
+        JDBC_URL = DatabaseContainers.getJdbcUrl(beforeAllResult);
         URL = beforeAllResult.getProperty("URL");
     }
 

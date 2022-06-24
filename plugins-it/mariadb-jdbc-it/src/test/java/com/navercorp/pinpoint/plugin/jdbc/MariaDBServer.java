@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.jdbc;
 
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,10 +39,8 @@ public class MariaDBServer implements SharedTestLifeCycle {
         mariaDB.start();
 
         int port = mariaDB.getMappedPort(3306);
-        Properties properties = new Properties();
-        properties.setProperty("JDBC_URL", mariaDB.getJdbcUrl());
+        Properties properties = DatabaseContainers.toProperties(mariaDB);
         properties.setProperty("URL", mariaDB.getHost() + ":" + port);
-
         return properties;
     }
 

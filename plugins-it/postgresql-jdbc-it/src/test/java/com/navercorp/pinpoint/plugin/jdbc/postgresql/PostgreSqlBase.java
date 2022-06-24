@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,9 +56,9 @@ public abstract class PostgreSqlBase {
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
-        USERNAME = beforeAllResult.getProperty("USERNAME");
-        PASSWORD = beforeAllResult.getProperty("PASSWORD");
+        JDBC_URL = DatabaseContainers.getJdbcUrl(beforeAllResult);
+        USERNAME = DatabaseContainers.getUsername(beforeAllResult);
+        PASSWORD = DatabaseContainers.getPassword(beforeAllResult);
     }
 
     public static DriverProperties getDriverProperties() {

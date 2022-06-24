@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.Assume;
 import org.slf4j.Logger;
@@ -21,11 +22,7 @@ public class MsSqlServer implements SharedTestLifeCycle {
         mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
         mssqlserver.start();
 
-        Properties properties = new Properties();
-        properties.setProperty("JDBC_URL", mssqlserver.getJdbcUrl());
-        properties.setProperty("USERNAME", mssqlserver.getUsername());
-        properties.setProperty("PASSWORD", mssqlserver.getPassword());
-        return properties;
+        return DatabaseContainers.toProperties(mssqlserver);
     }
 
     @Override
