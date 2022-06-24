@@ -29,18 +29,14 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
-import org.junit.Assume;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
 
 import java.util.Properties;
 
@@ -56,6 +52,7 @@ import java.util.Properties;
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
 @JvmVersion(8)
 @PinpointConfig("pinpoint-mssql.config")
+@SharedTestLifeCycleClass(MsSqlServer.class)
 public class MSSqlIT extends DataBaseTestCase {
 
     private static final String MSSQL = "MSSQL_JDBC";
@@ -68,53 +65,29 @@ public class MSSqlIT extends DataBaseTestCase {
     private static JDBCApi jdbcApi;
 
     private static JdbcUrlParserV2 jdbcUrlParser;
-    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
 
-    // ---------- For @BeforeSharedClass, @AfterSharedClass   //
     private static String JDBC_URL;
-    private static String USER_NAME;
-    private static String PASS_WORD;
+    private static String USERNAME;
+    private static String PASSWORD;
 
     public static String getJdbcUrl() {
         return JDBC_URL;
     }
 
-    public static void setJdbcUrl(String jdbcUrl) {
-        JDBC_URL = jdbcUrl;
-    }
-
     public static String getUserName() {
-        return USER_NAME;
-    }
-
-    public static void setUserName(String userName) {
-        USER_NAME = userName;
+        return USERNAME;
     }
 
     public static String getPassWord() {
-        return PASS_WORD;
+        return PASSWORD;
     }
 
-    public static void setPassWord(String passWord) {
-        PASS_WORD = passWord;
-    }
-    // ---------- //
 
-    @BeforeSharedClass
-    public static void sharedSetup() {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-        mssqlserver.start();
-
-        setJdbcUrl(mssqlserver.getJdbcUrl());
-        setUserName(mssqlserver.getUsername());
-        setPassWord(mssqlserver.getPassword());
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        if (mssqlserver != null) {
-            mssqlserver.stop();
-        }
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
+        USERNAME = beforeAllResult.getProperty("USERNAME");
+        PASSWORD = beforeAllResult.getProperty("PASSWORD");
     }
 
     @BeforeClass
