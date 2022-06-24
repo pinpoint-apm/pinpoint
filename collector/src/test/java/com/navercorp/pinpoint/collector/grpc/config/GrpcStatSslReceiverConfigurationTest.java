@@ -17,26 +17,25 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfigurationFactory.class,GrpcStatSslReceiverConfigurationFactory.class})
-@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfigurationFactory.class, GrpcStatSslReceiverConfigurationFactory.class})
+@ExtendWith(SpringExtension.class)
 public class GrpcStatSslReceiverConfigurationTest {
 
     @Autowired

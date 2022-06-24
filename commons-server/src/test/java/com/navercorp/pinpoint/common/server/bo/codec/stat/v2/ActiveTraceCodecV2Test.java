@@ -20,18 +20,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class ActiveTraceCodecV2Test extends AgentStatCodecTestBase<ActiveTraceBo> {
 
@@ -50,11 +50,11 @@ public class ActiveTraceCodecV2Test extends AgentStatCodecTestBase<ActiveTraceBo
 
     @Override
     protected void verify(ActiveTraceBo expected, ActiveTraceBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("version", expected.getVersion(), actual.getVersion());
-        Assert.assertEquals("histogramSchemaType", expected.getHistogramSchemaType(), actual.getHistogramSchemaType());
-        Assert.assertEquals("activeTraceCounts", expected.getActiveTraceHistogram(), actual.getActiveTraceHistogram());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getVersion(), actual.getVersion(), "version");
+        Assertions.assertEquals(expected.getHistogramSchemaType(), actual.getHistogramSchemaType(), "histogramSchemaType");
+        Assertions.assertEquals(expected.getActiveTraceHistogram(), actual.getActiveTraceHistogram(), "activeTraceCounts");
     }
 }

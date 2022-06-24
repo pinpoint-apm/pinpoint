@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 
@@ -43,16 +43,16 @@ public class DefaultRouteHandlerTest {
         routeHandler.addRequestFilter(requestFilter);
 
         TCommandTransferResponse response = routeHandler.onRoute(createRequestEvent());
-        Assert.assertEquals(1, requestFilter.getCallCount());
+        Assertions.assertEquals(1, requestFilter.getCallCount());
 
         CountFilter<ResponseEvent> responseFilter = new CountFilter<>();
         routeHandler.addResponseFilter(responseFilter);
 
         response = routeHandler.onRoute(createRequestEvent());
-        Assert.assertEquals(2, requestFilter.getCallCount());
-        Assert.assertEquals(1, responseFilter.getCallCount());
+        Assertions.assertEquals(2, requestFilter.getCallCount());
+        Assertions.assertEquals(1, responseFilter.getCallCount());
 
-        Assert.assertEquals(TRouteResult.NOT_FOUND, response.getRouteResult());
+        Assertions.assertEquals(TRouteResult.NOT_FOUND, response.getRouteResult());
     }
 
     private RequestEvent createRequestEvent() {

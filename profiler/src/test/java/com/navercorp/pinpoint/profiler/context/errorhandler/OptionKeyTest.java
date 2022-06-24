@@ -3,10 +3,10 @@ package com.navercorp.pinpoint.profiler.context.errorhandler;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContext;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Properties;
@@ -17,14 +17,14 @@ public class OptionKeyTest {
     @Test
     public void getKey() {
         String abc = OptionKey.getKey("handlerId", OptionKey.CLASSNAME);
-        Assert.assertEquals("profiler.ignore-error-handler.handlerId.class-name", abc);
+        Assertions.assertEquals("profiler.ignore-error-handler.handlerId.class-name", abc);
     }
 
     @Test
     public void getHandlerId() {
         String abc = OptionKey.getKey("handlerId", OptionKey.CLASSNAME);
         String handlerId = OptionKey.parseHandlerId(abc);
-        Assert.assertEquals("handlerId", handlerId);
+        Assertions.assertEquals("handlerId", handlerId);
     }
 
     @Test
@@ -34,7 +34,7 @@ public class OptionKeyTest {
         ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         Map<String, String> kv = config.readPattern(OptionKey.PATTERN_REGEX);
-        Assert.assertEquals(1, kv.size());
-        Assert.assertEquals("java.lang.RuntimeException", kv.get(OptionKey.getClassName("handler")));
+        Assertions.assertEquals(1, kv.size());
+        Assertions.assertEquals("java.lang.RuntimeException", kv.get(OptionKey.getClassName("handler")));
     }
 }

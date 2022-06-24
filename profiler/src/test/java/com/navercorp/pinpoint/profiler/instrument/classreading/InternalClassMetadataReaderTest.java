@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author jaehong.kim
@@ -42,7 +43,7 @@ public class InternalClassMetadataReaderTest {
         // interfaces
         for (Class<?> interfacez : clazz.getInterfaces()) {
             final String interfaceInternalName = JavaAssistUtils.javaNameToJvmName(interfacez.getName());
-            Assert.assertTrue(classMetadata.getInterfaceInternalNames().contains(interfaceInternalName));
+            Assertions.assertTrue(classMetadata.getInterfaceInternalNames().contains(interfaceInternalName));
         }
 
         // super
@@ -51,7 +52,7 @@ public class InternalClassMetadataReaderTest {
         // annotations
         for (Annotation annotation : clazz.getAnnotations()) {
             final String annotationInternalName = JavaAssistUtils.javaNameToJvmName(annotation.annotationType().getName());
-            Assert.assertTrue(classMetadata.getAnnotationInternalNames().contains(annotationInternalName));
+            Assertions.assertTrue(classMetadata.getAnnotationInternalNames().contains(annotationInternalName));
         }
     }
 

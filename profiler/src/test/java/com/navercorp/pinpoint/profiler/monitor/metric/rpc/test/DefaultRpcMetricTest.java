@@ -16,23 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.rpc.test;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.profiler.monitor.metric.rpc.DefaultRpcMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.rpc.HistogramSnapshot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 public class DefaultRpcMetricTest {
     private static final ServiceType ASYNC_HTTP_CLIENT = ServiceTypeFactory.of(9056, "ASYNC_HTTP_CLIENT", RECORD_STATISTICS);
-    
+
     @Test
     public void testAddResponseTime() throws Exception {
 
@@ -48,7 +46,7 @@ public class DefaultRpcMetricTest {
         metric.addResponseTime("test3", schema.getVerySlowSlot().getSlotTime(), true);
 
         List<HistogramSnapshot> snapshotList = metric.createSnapshotList();
-        Assert.assertEquals(snapshotList.size(), 3);
+        Assertions.assertEquals(snapshotList.size(), 3);
 
     }
 }

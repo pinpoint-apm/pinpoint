@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -28,18 +28,18 @@ import org.junit.Test;
 public class CubridConnectionStringParserTest {
 
     private final JdbcUrlParserV2 parser = new CubridJdbcUrlParser();
-    
+
     @Test
     public void testParse1() {
         String cubrid = "jdbc:cubrid:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
 
         DatabaseInfo dbInfo = parser.parse(cubrid);
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
-        Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
-        Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
-        Assert.assertEquals("jdbc:cubrid:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
+        Assertions.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
+        Assertions.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
+        Assertions.assertEquals("nrdwapw", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:cubrid:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
     }
 
     @Test
@@ -47,12 +47,12 @@ public class CubridConnectionStringParserTest {
         String cubrid = "jdbc:cubrid-mysql:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
 
         DatabaseInfo dbInfo = parser.parse(cubrid);
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
-        Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
-        Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
-        Assert.assertEquals("jdbc:cubrid-mysql:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
+        Assertions.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
+        Assertions.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
+        Assertions.assertEquals("nrdwapw", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:cubrid-mysql:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
     }
 
     @Test
@@ -60,29 +60,29 @@ public class CubridConnectionStringParserTest {
         String cubrid = "jdbc:cubrid-oracle:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
 
         DatabaseInfo dbInfo = parser.parse(cubrid);
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
-        Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
-        Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
-        Assert.assertEquals("jdbc:cubrid-oracle:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
+        Assertions.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
+        Assertions.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
+        Assertions.assertEquals("nrdwapw", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:cubrid-oracle:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
     }
 
     @Test
     public void parseFailTest1() {
         DatabaseInfo dbInfo = parser.parse(null);
-        Assert.assertFalse(dbInfo.isParsingComplete());
+        Assertions.assertFalse(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+        Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
     @Test
     public void parseFailTest2() {
         String cubrid = "jdbc:mysql:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
         DatabaseInfo dbInfo = parser.parse(cubrid);
-        Assert.assertFalse(dbInfo.isParsingComplete());
+        Assertions.assertFalse(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+        Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
 }

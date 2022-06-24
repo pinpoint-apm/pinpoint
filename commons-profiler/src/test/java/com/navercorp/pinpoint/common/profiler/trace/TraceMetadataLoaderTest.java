@@ -16,21 +16,11 @@
 
 package com.navercorp.pinpoint.common.profiler.trace;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
-import com.navercorp.pinpoint.common.trace.DefaultServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
+import com.navercorp.pinpoint.common.trace.*;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,8 +102,8 @@ public class TraceMetadataLoaderTest {
         ServiceTypeRegistry serviceTypeRegistry = traceMetadataLoader.createServiceTypeRegistry();
         verifyServiceType(serviceTypeRegistry, registeredServiceType);
 
-        Assert.assertSame(ServiceType.UNDEFINED, serviceTypeRegistry.findServiceType(unregisteredServiceType.getCode()));
-        Assert.assertSame(ServiceType.UNDEFINED, serviceTypeRegistry.findServiceTypeByName(unregisteredServiceType.getName()));
+        Assertions.assertSame(ServiceType.UNDEFINED, serviceTypeRegistry.findServiceType(unregisteredServiceType.getCode()));
+        Assertions.assertSame(ServiceType.UNDEFINED, serviceTypeRegistry.findServiceTypeByName(unregisteredServiceType.getName()));
     }
 
     @Test
@@ -129,11 +119,12 @@ public class TraceMetadataLoaderTest {
         AnnotationKeyRegistry annotationKeyRegistry = traceMetadataLoader.createAnnotationKeyRegistry();
         verifyAnnotationKey(annotationKeyRegistry, registeredAnnotationKey);
 
-        Assert.assertSame(AnnotationKey.UNKNOWN, annotationKeyRegistry.findAnnotationKey(unregisteredAnnotationKey.getCode()));
+        Assertions.assertSame(AnnotationKey.UNKNOWN, annotationKeyRegistry.findAnnotationKey(unregisteredAnnotationKey.getCode()));
         try {
             annotationKeyRegistry.findAnnotationKeyByName(unregisteredAnnotationKey.getName());
-            Assert.fail();
-        } catch (NoSuchElementException expected) {}
+            Assertions.fail();
+        } catch (NoSuchElementException expected) {
+        }
     }
 
     @Test
@@ -150,12 +141,12 @@ public class TraceMetadataLoaderTest {
         AnnotationKeyMatcherRegistry annotationKeyMatcherRegistry = traceMetadataLoader.createAnnotationKeyMatcherRegistry();
         verifyAnnotationKeyMatcher(annotationKeyMatcherRegistry, registeredServiceType, registeredAnnotationKeyMatcher);
 
-        Assert.assertNull(annotationKeyMatcherRegistry.findAnnotationKeyMatcher(unregisteredServiceType.getCode()));
+        Assertions.assertNull(annotationKeyMatcherRegistry.findAnnotationKeyMatcher(unregisteredServiceType.getCode()));
     }
 
     private void verifyServiceType(ServiceTypeRegistry serviceTypeRegistry, ServiceType serviceType) {
-        Assert.assertSame(serviceType, serviceTypeRegistry.findServiceType(serviceType.getCode()));
-        Assert.assertSame(serviceType, serviceTypeRegistry.findServiceTypeByName(serviceType.getName()));
+        Assertions.assertSame(serviceType, serviceTypeRegistry.findServiceType(serviceType.getCode()));
+        Assertions.assertSame(serviceType, serviceTypeRegistry.findServiceTypeByName(serviceType.getName()));
         if (serviceType.isRecordStatistics()) {
             boolean found = false;
             List<ServiceType> descMatchedServiceTypes = serviceTypeRegistry.findDesc(serviceType.getDesc());
@@ -164,22 +155,22 @@ public class TraceMetadataLoaderTest {
                     found = true;
                 }
             }
-            Assert.assertTrue(found);
+            Assertions.assertTrue(found);
             try {
                 descMatchedServiceTypes.add(serviceType);
-                Assert.fail("Adding to unmodifiable list should have failed");
+                Assertions.fail("Adding to unmodifiable list should have failed");
             } catch (Exception expected) {
             }
         }
     }
 
     private void verifyAnnotationKey(AnnotationKeyRegistry annotationKeyRegistry, AnnotationKey annotationKey) {
-        Assert.assertSame(annotationKey, annotationKeyRegistry.findAnnotationKey(annotationKey.getCode()));
-        Assert.assertSame(annotationKey, annotationKeyRegistry.findAnnotationKeyByName(annotationKey.getName()));
+        Assertions.assertSame(annotationKey, annotationKeyRegistry.findAnnotationKey(annotationKey.getCode()));
+        Assertions.assertSame(annotationKey, annotationKeyRegistry.findAnnotationKeyByName(annotationKey.getName()));
     }
 
     private void verifyAnnotationKeyMatcher(AnnotationKeyMatcherRegistry annotationKeyMatcherRegistry, ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
-        Assert.assertSame(annotationKeyMatcher, annotationKeyMatcherRegistry.findAnnotationKeyMatcher(serviceType.getCode()));
+        Assertions.assertSame(annotationKeyMatcher, annotationKeyMatcherRegistry.findAnnotationKeyMatcher(serviceType.getCode()));
     }
 
     private TraceMetadataProvider createTraceMetadataProvider(ServiceTypeInfo serviceTypeInfo) {

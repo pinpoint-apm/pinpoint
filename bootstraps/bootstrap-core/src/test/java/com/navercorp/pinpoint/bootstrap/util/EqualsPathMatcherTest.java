@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -27,11 +27,11 @@ public class EqualsPathMatcherTest {
     @Test
     public void testIsMatched() {
         EqualsPathMatcher matcher = new EqualsPathMatcher("/test");
-        Assert.assertTrue(matcher.isMatched("/test"));
+        Assertions.assertTrue(matcher.isMatched("/test"));
 
-        Assert.assertFalse(matcher.isMatched("/test/b"));
+        Assertions.assertFalse(matcher.isMatched("/test/b"));
 
-        Assert.assertFalse(matcher.isMatched(null));
-        Assert.assertFalse(matcher.isMatched(""));
+        Assertions.assertFalse(matcher.isMatched(null));
+        Assertions.assertFalse(matcher.isMatched(""));
     }
 }

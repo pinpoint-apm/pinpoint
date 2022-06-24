@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeBuilder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ReactorNettyBugWorkaroundFilterTest {
 
@@ -13,20 +13,20 @@ public class ReactorNettyBugWorkaroundFilterTest {
     public void filter_servlet() {
         ServiceType serviceType = ServiceType.SERVLET;
 
-        Assert.assertFalse(filter.filter(serviceType, "/url"));
-        Assert.assertFalse(filter.filter(serviceType, "url?test=a"));
+        Assertions.assertFalse(filter.filter(serviceType, "/url"));
+        Assertions.assertFalse(filter.filter(serviceType, "url?test=a"));
 
-        Assert.assertFalse(filter.filter(serviceType, "localhost:1234"));
+        Assertions.assertFalse(filter.filter(serviceType, "localhost:1234"));
     }
 
     @Test
     public void filter_netty() {
         ServiceType serviceType = newReactorNettyClient();
 
-        Assert.assertTrue(filter.filter(serviceType, "/url"));
-        Assert.assertTrue(filter.filter(serviceType, "url?test=a"));
+        Assertions.assertTrue(filter.filter(serviceType, "/url"));
+        Assertions.assertTrue(filter.filter(serviceType, "url?test=a"));
 
-        Assert.assertFalse(filter.filter(serviceType, "localhost:1234"));
+        Assertions.assertFalse(filter.filter(serviceType, "localhost:1234"));
     }
 
     private ServiceType newReactorNettyClient() {
@@ -39,14 +39,14 @@ public class ReactorNettyBugWorkaroundFilterTest {
     public void filter_null() {
         ServiceType serviceType = newReactorNettyClient();
 
-        Assert.assertFalse(filter.filter(serviceType, null));
+        Assertions.assertFalse(filter.filter(serviceType, null));
     }
 
     @Test
     public void filter_empty() {
         ServiceType serviceType = newReactorNettyClient();
 
-        Assert.assertFalse(filter.filter(serviceType, ""));
+        Assertions.assertFalse(filter.filter(serviceType, ""));
     }
 
 }

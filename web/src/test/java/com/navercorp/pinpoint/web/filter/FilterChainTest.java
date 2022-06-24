@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ public class FilterChainTest {
             }
         };
         FilterChain<List<String>> filterChain = new FilterChain<>(Collections.singletonList(filter));
-        Assert.assertFalse(filterChain.include(Collections.singletonList("a")));
+        Assertions.assertFalse(filterChain.include(Collections.singletonList("a")));
 
     }
 }

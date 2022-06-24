@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Formatter;
 
@@ -36,7 +36,7 @@ public class FormatTest {
         formatter.format("%1s", "ab");
 
         formatter.format("%3s", "a");
-        Assert.assertEquals(buffer.toString(), "ab  a");
+        Assertions.assertEquals(buffer.toString(), "ab  a");
     }
 
     @Test
@@ -45,6 +45,6 @@ public class FormatTest {
         Formatter formatter = new Formatter(buffer);
         formatter.format("(%s, %s, %s)", 1, 2, 3);
 
-        Assert.assertEquals(buffer.toString(), "(1, 2, 3)");
+        Assertions.assertEquals(buffer.toString(), "(1, 2, 3)");
     }
 }

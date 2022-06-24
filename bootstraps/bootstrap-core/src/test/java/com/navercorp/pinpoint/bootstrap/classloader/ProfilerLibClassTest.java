@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -26,6 +27,6 @@ public class ProfilerLibClassTest {
     @Test
     public void onLoadClass() {
         LibClass libClass = new ProfilerLibClass(ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        Assert.assertTrue(libClass.onLoadClass("com.navercorp.pinpoint.profiler.XXX"));
+        Assertions.assertTrue(libClass.onLoadClass("com.navercorp.pinpoint.profiler.XXX"));
     }
 }

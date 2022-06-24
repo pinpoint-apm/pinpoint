@@ -30,15 +30,14 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializ
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +107,7 @@ public class AgentStatMapperV2Test {
 
         // Then
         givenAgentStats.sort(AgentStatMapperV2.REVERSE_TIMESTAMP_COMPARATOR);
-        Assert.assertEquals(givenAgentStats, mappedAgentStats);
+        Assertions.assertEquals(givenAgentStats, mappedAgentStats);
     }
 
     private List<TestAgentStat> createAgentStats(long initialTimestamp, long interval, int batchSize) {

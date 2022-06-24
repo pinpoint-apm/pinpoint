@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -32,16 +32,16 @@ public class PropertiesVerificationTest {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-root.config");
 
         String collectorIp = properties.getProperty("profiler.collector.ip");
-        Assert.assertEquals("127.0.0.1", collectorIp);
+        Assertions.assertEquals("127.0.0.1", collectorIp);
 
         collectorIp = properties.getProperty("profiler.collector.span.ip");
-        Assert.assertEquals("${profiler.collector.ip}", collectorIp);
+        Assertions.assertEquals("${profiler.collector.ip}", collectorIp);
 
         collectorIp = properties.getProperty("profiler.collector.stat.ip");
-        Assert.assertEquals("${profiler.collector.ip}", collectorIp);
+        Assertions.assertEquals("${profiler.collector.ip}", collectorIp);
 
         collectorIp = properties.getProperty("profiler.collector.tcp.ip");
-        Assert.assertEquals("${profiler.collector.ip}", collectorIp);
+        Assertions.assertEquals("${profiler.collector.ip}", collectorIp);
     }
 
 }

@@ -3,17 +3,17 @@ package com.navercorp.pinpoint.plugin.hbase.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.plugin.hbase.HbaseVersion;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
+import com.navercorp.pinpoint.plugin.hbase.HbaseVersion;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Table;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,7 +22,7 @@ import java.util.Collections;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HbaseTableMethodInterceptorTest {
 
     @Mock
@@ -91,9 +91,9 @@ public class HbaseTableMethodInterceptorTest {
         method.setAccessible(true);
 
         String hTableString = (String) method.invoke(interceptor, mockHTable);
-        Assert.assertEquals("HTable", hTableString);
+        Assertions.assertEquals("HTable", hTableString);
 
         String unknownString = (String) method.invoke(interceptor, "1234");
-        Assert.assertEquals("Unknown", unknownString);
+        Assertions.assertEquals("Unknown", unknownString);
     }
 }

@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -31,11 +31,11 @@ public class JoinActiveTraceBoTest {
     @Test
     public void joinActiveTraceBoTest() {
         List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<>();
-        JoinActiveTraceBo joinActiveTraceBo1 = new JoinActiveTraceBo("agent1", 1, (short)2, 40, 10, "agent1", 70, "agent1", 1496988667231L);
-        JoinActiveTraceBo joinActiveTraceBo2 = new JoinActiveTraceBo("agent2", 1, (short)2, 10, 9, "agent2", 71, "agent2", 1496988667231L);
-        JoinActiveTraceBo joinActiveTraceBo3 = new JoinActiveTraceBo("agent3", 1, (short)2, 20, 14, "agent3", 88, "agent3", 1496988667231L);
-        JoinActiveTraceBo joinActiveTraceBo4 = new JoinActiveTraceBo("agent4", 1, (short)2, 30, 22, "agent4", 10, "agent4", 1496988667231L);
-        JoinActiveTraceBo joinActiveTraceBo5 = new JoinActiveTraceBo("agent5", 1, (short)2, 50, 17, "agent5", 99, "agent5", 1496988667231L);
+        JoinActiveTraceBo joinActiveTraceBo1 = new JoinActiveTraceBo("agent1", 1, (short) 2, 40, 10, "agent1", 70, "agent1", 1496988667231L);
+        JoinActiveTraceBo joinActiveTraceBo2 = new JoinActiveTraceBo("agent2", 1, (short) 2, 10, 9, "agent2", 71, "agent2", 1496988667231L);
+        JoinActiveTraceBo joinActiveTraceBo3 = new JoinActiveTraceBo("agent3", 1, (short) 2, 20, 14, "agent3", 88, "agent3", 1496988667231L);
+        JoinActiveTraceBo joinActiveTraceBo4 = new JoinActiveTraceBo("agent4", 1, (short) 2, 30, 22, "agent4", 10, "agent4", 1496988667231L);
+        JoinActiveTraceBo joinActiveTraceBo5 = new JoinActiveTraceBo("agent5", 1, (short) 2, 50, 17, "agent5", 99, "agent5", 1496988667231L);
         joinActiveTraceBoList.add(joinActiveTraceBo1);
         joinActiveTraceBoList.add(joinActiveTraceBo2);
         joinActiveTraceBoList.add(joinActiveTraceBo3);

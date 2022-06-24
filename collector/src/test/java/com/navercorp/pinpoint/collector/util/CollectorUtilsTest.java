@@ -2,8 +2,7 @@ package com.navercorp.pinpoint.collector.util;
 
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 
 public class CollectorUtilsTest {
 

@@ -16,16 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
-import static org.junit.Assert.*;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
@@ -34,14 +25,23 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.junit.After;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author HyunGil Jeong
@@ -57,7 +57,7 @@ public class OrderedSpanRecorderTest {
 
     private final String agentId = "agentId";
 
-    @After
+    @AfterEach
     public void tearDown() {
         this.recorder.clear();
     }
@@ -68,7 +68,7 @@ public class OrderedSpanRecorderTest {
         final long startTime = 100;
         final long spanId = 1L;
 
-        TraceId traceId = new DefaultTraceId(agentId, startTime, 0,-1L, spanId, (short)0);
+        TraceId traceId = new DefaultTraceId(agentId, startTime, 0, -1L, spanId, (short) 0);
         final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, startTime, 0);
 
         Span span = createSpan(traceRoot, startTime);
@@ -112,13 +112,13 @@ public class OrderedSpanRecorderTest {
         // given
         final long startTime1 = 100;
         final long spanId = 1L;
-        TraceId traceId1 = new DefaultTraceId(agentId, startTime1, 0,-1L, spanId, (short)0);
+        TraceId traceId1 = new DefaultTraceId(agentId, startTime1, 0, -1L, spanId, (short) 0);
         final TraceRoot traceRoot1 = new DefaultTraceRoot(traceId1, agentId, startTime1, 0);
 
 
         final long startTime2 = startTime1 + 10L;
         final long spanId2 = 2L;
-        final TraceId traceId2 = new DefaultTraceId(agentId, startTime2, 0,-1L, spanId2, (short)0);
+        final TraceId traceId2 = new DefaultTraceId(agentId, startTime2, 0, -1L, spanId2, (short) 0);
         final TraceRoot traceRoot2 = new DefaultTraceRoot(traceId2, agentId, startTime2, 0);
 
 
@@ -165,17 +165,17 @@ public class OrderedSpanRecorderTest {
         // given
         final long startTime1 = 100;
         final long spanId1 = 1L;
-        final TraceId traceId1 = new DefaultTraceId(agentId, startTime1, 0,-1L, spanId1, (short)0);
+        final TraceId traceId1 = new DefaultTraceId(agentId, startTime1, 0, -1L, spanId1, (short) 0);
         final TraceRoot traceRoot1 = new DefaultTraceRoot(traceId1, agentId, startTime1, 0);
 
         final long startTime2 = startTime1 + 10L;
         final long spanId2 = 2L;
-        final TraceId traceId2 = new DefaultTraceId(agentId, startTime2, 0,-1L, spanId2, (short)0);
+        final TraceId traceId2 = new DefaultTraceId(agentId, startTime2, 0, -1L, spanId2, (short) 0);
         final TraceRoot traceRoot2 = new DefaultTraceRoot(traceId2, agentId, startTime2, 0);
 
         Span span1 = createSpan(traceRoot1, startTime1);
         SpanChunk event1_0 = wrapSpanChunk(traceRoot1, createSpanEvent(traceRoot1, 1, 0));
-        SpanChunk event1_1 = wrapSpanChunk(traceRoot1, createSpanEvent(traceRoot1,2, 1));
+        SpanChunk event1_1 = wrapSpanChunk(traceRoot1, createSpanEvent(traceRoot1, 2, 1));
         SpanChunk asyncEvent1_0 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 1, 0), new DefaultLocalAsyncId(1, (short) 1));
         SpanChunk asyncEvent1_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 2, 1), new DefaultLocalAsyncId(1, (short) 1));
 

@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.util.RandomExUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultDataSourceMetricTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -69,7 +69,7 @@ public class DefaultDataSourceMetricTest {
         for (int i = 0; i < remainingCapacity; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor(i);
             boolean register = dataSourceMonitorRegistry.register(mock);
-            Assert.assertTrue(register);
+            Assertions.assertTrue(register);
             mockDataSourceMonitors[i] = mock;
         }
         return mockDataSourceMonitors;
@@ -82,7 +82,7 @@ public class DefaultDataSourceMetricTest {
             idSet.add(dataSource.getId());
         }
 
-        Assert.assertEquals(dataSourceList.size(), idSet.size());
+        Assertions.assertEquals(dataSourceList.size(), idSet.size());
     }
 
     private void assertContainsAndEquals(DataSourceMonitor dataSourceMonitor, List<DataSource> dataSourceList) {
@@ -90,14 +90,14 @@ public class DefaultDataSourceMetricTest {
             String url = dataSourceMonitor.getUrl();
 
             if (url.equals(dataSource.getUrl())) {
-                Assert.assertEquals(dataSourceMonitor.getActiveConnectionSize(), dataSource.getActiveConnectionSize());
-                Assert.assertEquals(dataSourceMonitor.getMaxConnectionSize(), dataSource.getMaxConnectionSize());
-                Assert.assertEquals(dataSourceMonitor.getServiceType().getCode(), dataSource.getServiceTypeCode());
+                Assertions.assertEquals(dataSourceMonitor.getActiveConnectionSize(), dataSource.getActiveConnectionSize());
+                Assertions.assertEquals(dataSourceMonitor.getMaxConnectionSize(), dataSource.getMaxConnectionSize());
+                Assertions.assertEquals(dataSourceMonitor.getServiceType().getCode(), dataSource.getServiceTypeCode());
                 return;
             }
 
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     private static class MockDataSourceMonitor implements DataSourceMonitor {

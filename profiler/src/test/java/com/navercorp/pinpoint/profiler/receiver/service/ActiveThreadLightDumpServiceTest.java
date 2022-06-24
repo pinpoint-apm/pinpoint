@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class ActiveThreadLightDumpServiceTest {
     private final WaitingJobListFactory waitingJobListFactory = new WaitingJobListFactory();
 
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         waitingJobListFactory.close();
     }
@@ -75,7 +75,7 @@ public class ActiveThreadLightDumpServiceTest {
         ActiveThreadLightDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadLightDumpRes response = (TCmdActiveThreadLightDumpRes) service.requestCommandService(createRequest(0, null, null));
 
-        Assert.assertEquals(CREATE_SIZE, response.getThreadDumpsSize());
+        Assertions.assertEquals(CREATE_SIZE, response.getThreadDumpsSize());
 
     }
 
@@ -91,7 +91,7 @@ public class ActiveThreadLightDumpServiceTest {
         ActiveThreadLightDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadLightDumpRes response = (TCmdActiveThreadLightDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(1, response.getThreadDumpsSize());
+        Assertions.assertEquals(1, response.getThreadDumpsSize());
 
     }
 
@@ -109,7 +109,7 @@ public class ActiveThreadLightDumpServiceTest {
         ActiveThreadLightDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadLightDumpRes response = (TCmdActiveThreadLightDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(3, response.getThreadDumpsSize());
+        Assertions.assertEquals(3, response.getThreadDumpsSize());
 
     }
 
@@ -131,7 +131,7 @@ public class ActiveThreadLightDumpServiceTest {
         ActiveThreadLightDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadLightDumpRes response = (TCmdActiveThreadLightDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(targetThreadNameSize + targetTraceIdSize, response.getThreadDumpsSize());
+        Assertions.assertEquals(targetThreadNameSize + targetTraceIdSize, response.getThreadDumpsSize());
 
     }
 
@@ -150,10 +150,10 @@ public class ActiveThreadLightDumpServiceTest {
         ActiveThreadLightDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadLightDumpRes response = (TCmdActiveThreadLightDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(limit, response.getThreadDumpsSize());
+        Assertions.assertEquals(limit, response.getThreadDumpsSize());
 
         for (TActiveThreadLightDump dump : response.getThreadDumps()) {
-            Assert.assertTrue(oldTimeList.contains(dump.getStartTime()));
+            Assertions.assertTrue(oldTimeList.contains(dump.getStartTime()));
         }
 
     }

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.hbase.bo;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -27,12 +27,12 @@ public class ColumnGetCountTest {
     @Test
     public void columnGetCountTest() {
         ColumnGetCount columnGetCount = ColumnGetCountFactory.create(-1);
-        Assert.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
+        Assertions.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
 
         columnGetCount = ColumnGetCountFactory.create(Integer.MAX_VALUE);
-        Assert.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
+        Assertions.assertEquals(Integer.MAX_VALUE, columnGetCount.getLimit());
 
-        Assert.assertFalse(columnGetCount.isReachedLimit(Integer.MAX_VALUE));
+        Assertions.assertFalse(columnGetCount.isReachedLimit(Integer.MAX_VALUE));
 
     }
 
@@ -41,11 +41,11 @@ public class ColumnGetCountTest {
         int countValue = 10;
 
         ColumnGetCount columnGetCount = ColumnGetCountFactory.create(countValue);
-        Assert.assertEquals(countValue, columnGetCount.getLimit());
+        Assertions.assertEquals(countValue, columnGetCount.getLimit());
 
-        Assert.assertFalse(columnGetCount.isReachedLimit(0));
+        Assertions.assertFalse(columnGetCount.isReachedLimit(0));
 
-        Assert.assertTrue(columnGetCount.isReachedLimit(++countValue));
+        Assertions.assertTrue(columnGetCount.isReachedLimit(++countValue));
 
     }
 

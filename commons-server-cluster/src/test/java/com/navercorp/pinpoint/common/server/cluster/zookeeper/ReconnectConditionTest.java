@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
  */
 public class ReconnectConditionTest {
 
-    @Ignore
+    @Disabled
     @Test
     public void functionTest() {
         ReconnectCondition condition = new ReconnectCondition(1, 1);

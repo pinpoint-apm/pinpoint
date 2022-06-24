@@ -36,10 +36,10 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -77,7 +77,7 @@ public class ApplicationMapBuilderTest {
 
     private long buildTimeoutMillis = 1000;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MapResponseDao mapResponseDao = mock(MapResponseDao.class);
         mapResponseNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
@@ -150,7 +150,7 @@ public class ApplicationMapBuilderTest {
         }).when(agentInfoService).getAgentStatus(any());
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         shutdownExecutor(serialExecutor);
         shutdownExecutor(parallelExecutor);
@@ -186,12 +186,12 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverInstanceListFactory)
                 .build(application, buildTimeoutMillis);
 
-        Assert.assertEquals(1, applicationMap.getNodes().size());
-        Assert.assertEquals(1, applicationMap.getNodes().size());
-        Assert.assertEquals(1, applicationMap_parallelAppenders.getNodes().size());
-        Assert.assertEquals(0, applicationMap.getLinks().size());
-        Assert.assertEquals(0, applicationMap.getLinks().size());
-        Assert.assertEquals(0, applicationMap_parallelAppenders.getLinks().size());
+        Assertions.assertEquals(1, applicationMap.getNodes().size());
+        Assertions.assertEquals(1, applicationMap.getNodes().size());
+        Assertions.assertEquals(1, applicationMap_parallelAppenders.getNodes().size());
+        Assertions.assertEquals(0, applicationMap.getLinks().size());
+        Assertions.assertEquals(0, applicationMap.getLinks().size());
+        Assertions.assertEquals(0, applicationMap_parallelAppenders.getLinks().size());
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -217,12 +217,12 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        Assert.assertTrue(applicationMap.getNodes().isEmpty());
-        Assert.assertTrue(applicationMap.getNodes().isEmpty());
-        Assert.assertTrue(applicationMap_parallelAppenders.getNodes().isEmpty());
-        Assert.assertTrue(applicationMap.getLinks().isEmpty());
-        Assert.assertTrue(applicationMap.getLinks().isEmpty());
-        Assert.assertTrue(applicationMap_parallelAppenders.getLinks().isEmpty());
+        Assertions.assertTrue(applicationMap.getNodes().isEmpty());
+        Assertions.assertTrue(applicationMap.getNodes().isEmpty());
+        Assertions.assertTrue(applicationMap_parallelAppenders.getNodes().isEmpty());
+        Assertions.assertTrue(applicationMap.getLinks().isEmpty());
+        Assertions.assertTrue(applicationMap.getLinks().isEmpty());
+        Assertions.assertTrue(applicationMap_parallelAppenders.getLinks().isEmpty());
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -318,10 +318,10 @@ public class ApplicationMapBuilderTest {
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
-        Assert.assertEquals(expectedNumNodes, applicationMap_MapResponseDao.getNodes().size());
-        Assert.assertEquals(expectedNumNodes, applicationMap_MapResponseDao_parallelAppenders.getNodes().size());
-        Assert.assertEquals(expectedNumLinks, applicationMap_MapResponseDao.getLinks().size());
-        Assert.assertEquals(expectedNumLinks, applicationMap_MapResponseDao_parallelAppenders.getLinks().size());
+        Assertions.assertEquals(expectedNumNodes, applicationMap_MapResponseDao.getNodes().size());
+        Assertions.assertEquals(expectedNumNodes, applicationMap_MapResponseDao_parallelAppenders.getNodes().size());
+        Assertions.assertEquals(expectedNumLinks, applicationMap_MapResponseDao.getLinks().size());
+        Assertions.assertEquals(expectedNumLinks, applicationMap_MapResponseDao_parallelAppenders.getLinks().size());
         ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMap_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMap_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMap_MapResponseDao_parallelAppenders);
@@ -335,10 +335,10 @@ public class ApplicationMapBuilderTest {
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
                 .includeServerInfo(serverInstanceListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
-        Assert.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder.getNodes().size());
-        Assert.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
-        Assert.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder.getLinks().size());
-        Assert.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks().size());
+        Assertions.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder.getNodes().size());
+        Assertions.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
+        Assertions.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder.getLinks().size());
+        Assertions.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks().size());
         ApplicationMapVerifier verifier_ResponseHistogramBuilder = new ApplicationMapVerifier(applicationMap_ResponseHistogramBuilder);
         verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder);
         verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder_parallelAppenders);

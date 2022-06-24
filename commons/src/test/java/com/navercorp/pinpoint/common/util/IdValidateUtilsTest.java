@@ -16,50 +16,50 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class IdValidateUtilsTest  {
+public class IdValidateUtilsTest {
 
     @Test
     public void testValidateId() {
-        Assert.assertTrue(IdValidateUtils.validateId("abcd"));
-        Assert.assertTrue(IdValidateUtils.validateId("ab-_bc"));
-        Assert.assertTrue(IdValidateUtils.validateId("test.abc"));
+        Assertions.assertTrue(IdValidateUtils.validateId("abcd"));
+        Assertions.assertTrue(IdValidateUtils.validateId("ab-_bc"));
+        Assertions.assertTrue(IdValidateUtils.validateId("test.abc"));
 
-        Assert.assertTrue(IdValidateUtils.validateId("--__"));
+        Assertions.assertTrue(IdValidateUtils.validateId("--__"));
 
-        Assert.assertFalse(IdValidateUtils.validateId("()"));
+        Assertions.assertFalse(IdValidateUtils.validateId("()"));
 
-        Assert.assertTrue(IdValidateUtils.validateId("."));
-        Assert.assertFalse(IdValidateUtils.validateId(""));
+        Assertions.assertTrue(IdValidateUtils.validateId("."));
+        Assertions.assertFalse(IdValidateUtils.validateId(""));
 
 
-        Assert.assertFalse(IdValidateUtils.validateId("한글")); // test with parameter written in Korean.
+        Assertions.assertFalse(IdValidateUtils.validateId("한글")); // test with parameter written in Korean.
     }
 
     @Test
     public void testValidateId_max_length() {
-        Assert.assertTrue("check max length", IdValidateUtils.validateId("0123456789012"));
-        Assert.assertTrue("check max length", IdValidateUtils.validateId("012345678901234567891234"));
+        Assertions.assertTrue(IdValidateUtils.validateId("0123456789012"), "check max length");
+        Assertions.assertTrue(IdValidateUtils.validateId("012345678901234567891234"), "check max length");
 
-        Assert.assertFalse("check max length", IdValidateUtils.validateId("0123456789012345678912345"));
-        Assert.assertFalse("check max length", IdValidateUtils.validateId("0123456789012345678912345"));
-        Assert.assertFalse("empty", IdValidateUtils.validateId(""));
+        Assertions.assertFalse(IdValidateUtils.validateId("0123456789012345678912345"), "check max length");
+        Assertions.assertFalse(IdValidateUtils.validateId("0123456789012345678912345"), "check max length");
+        Assertions.assertFalse(IdValidateUtils.validateId(""), "empty");
     }
 
     @Test
     public void testValidateId_custom_max_length() {
-        Assert.assertTrue("check max length", IdValidateUtils.validateId("0", 1));
-        Assert.assertFalse("check max length", IdValidateUtils.validateId("01", 1));
+        Assertions.assertTrue(IdValidateUtils.validateId("0", 1), "check max length");
+        Assertions.assertFalse(IdValidateUtils.validateId("01", 1), "check max length");
 
-        Assert.assertTrue("check max length", IdValidateUtils.validateId("0", 2));
-        Assert.assertFalse("check max length", IdValidateUtils.validateId("0123", 2));
+        Assertions.assertTrue(IdValidateUtils.validateId("0", 2), "check max length");
+        Assertions.assertFalse(IdValidateUtils.validateId("0123", 2), "check max length");
 
 
         try {
             IdValidateUtils.validateId("0123", -1);
-            Assert.fail();
+            Assertions.fail();
         } catch (IllegalArgumentException ignored) {
         }
     }
@@ -67,16 +67,16 @@ public class IdValidateUtilsTest  {
     @Test
     public void testValidateId_offset() {
         String postFix = "agent^";
-        Assert.assertTrue(IdValidateUtils.checkId(postFix, 0, postFix.length() - 1));
+        Assertions.assertTrue(IdValidateUtils.checkId(postFix, 0, postFix.length() - 1));
 
         String preFix = "^agent";
-        Assert.assertTrue(IdValidateUtils.checkId(preFix, 1, preFix.length()));
+        Assertions.assertTrue(IdValidateUtils.checkId(preFix, 1, preFix.length()));
 
         String all = "^agent^";
-        Assert.assertTrue(IdValidateUtils.checkId(all, 1, all.length() -1));
+        Assertions.assertTrue(IdValidateUtils.checkId(all, 1, all.length() - 1));
 
         String error = "^age&nt&";
-        Assert.assertFalse(IdValidateUtils.checkId(error, 1, error.length()));
+        Assertions.assertFalse(IdValidateUtils.checkId(error, 1, error.length()));
 
     }
 

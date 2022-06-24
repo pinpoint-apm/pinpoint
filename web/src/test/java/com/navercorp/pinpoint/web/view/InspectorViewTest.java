@@ -10,8 +10,8 @@ import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorDataBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,12 +61,12 @@ public class InspectorViewTest {
         InspectorData inspectorData = inspectorDataBuilder.build(timeWindow, testAgentStatDataPoints);
         InspectorView inspectorView = new InspectorView(inspectorData);
 
-        Assert.assertEquals(inspectorView.getTitle(), title);
-        Assert.assertEquals(inspectorView.getUnit(), unit);
-        Assert.assertEquals(inspectorView.getTimestamp().size(), timeWindow.getWindowRangeCount());
-        Assert.assertEquals(inspectorView.getMetricValueGroups().size(), TestChartType.values().length);
+        Assertions.assertEquals(inspectorView.getTitle(), title);
+        Assertions.assertEquals(inspectorView.getUnit(), unit);
+        Assertions.assertEquals(inspectorView.getTimestamp().size(), timeWindow.getWindowRangeCount());
+        Assertions.assertEquals(inspectorView.getMetricValueGroups().size(), TestChartType.values().length);
         InspectorView.InspectorValueGroupView inspectorValueGroupView = inspectorView.getMetricValueGroups().get(0);
-        Assert.assertEquals(inspectorValueGroupView.getMetricValues().size(), valueFunctionMap.size());
+        Assertions.assertEquals(inspectorValueGroupView.getMetricValues().size(), valueFunctionMap.size());
     }
 
     private List<TestAgentStatDataPoint> createTestAgentStatDataPoint() {

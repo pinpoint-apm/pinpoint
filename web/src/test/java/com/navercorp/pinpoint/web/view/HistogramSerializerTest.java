@@ -20,11 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -56,7 +55,7 @@ public class HistogramSerializerTest {
         String internalJson = internalJson(original);
         Map<String, Object> hashMap = objectMapper.readValue(internalJson, Map.class);
 
-        Assert.assertEquals(objectMapperHashMap, hashMap);
+        Assertions.assertEquals(objectMapperHashMap, hashMap);
     }
 
     /**

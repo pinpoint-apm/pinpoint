@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
@@ -35,27 +33,27 @@ public class PacketUtilsTest {
 
 
         byte[] bytes1 = PacketUtils.sliceData(packet, 0);
-        Assert.assertEquals(bytes1.length, 5);
+        Assertions.assertEquals(bytes1.length, 5);
     }
 
     @Test
     public void testSliceData2() {
         DatagramPacket packet = createPacket(10);
-        Arrays.fill(packet.getData(), 1, 8, (byte)'a');
+        Arrays.fill(packet.getData(), 1, 8, (byte) 'a');
 
         byte[] bytes1 = PacketUtils.sliceData(packet, 0);
-        Assert.assertArrayEquals(bytes1, packet.getData());
+        Assertions.assertArrayEquals(bytes1, packet.getData());
     }
 
 
     @Test
     public void testSliceData3() {
         DatagramPacket packet = createPacket(10);
-        Arrays.fill(packet.getData(), 1, 8, (byte)'a');
+        Arrays.fill(packet.getData(), 1, 8, (byte) 'a');
         packet.setLength(4);
 
         byte[] bytes1 = PacketUtils.sliceData(packet, 0);
-        Assert.assertArrayEquals(bytes1, Arrays.copyOf(packet.getData(), 4));
+        Assertions.assertArrayEquals(bytes1, Arrays.copyOf(packet.getData(), 4));
     }
 
     private DatagramPacket createPacket(int size) {

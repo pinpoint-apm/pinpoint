@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -36,15 +35,15 @@ public class AgentStatUtilsTest {
     public void testConversion() {
         double originalValue = Math.random();
         double convertedValue = AgentStatUtils.convertLongToDouble(AgentStatUtils.convertDoubleToLong(originalValue));
-        Assert.assertEquals(originalValue, convertedValue, DECIMAL_COMPARISON_DELTA);
+        Assertions.assertEquals(originalValue, convertedValue, DECIMAL_COMPARISON_DELTA);
 
         originalValue = 0;
         convertedValue = AgentStatUtils.convertLongToDouble(AgentStatUtils.convertDoubleToLong(originalValue));
-        Assert.assertEquals(originalValue, convertedValue, DECIMAL_COMPARISON_DELTA);
+        Assertions.assertEquals(originalValue, convertedValue, DECIMAL_COMPARISON_DELTA);
 
         originalValue = -1 * Math.random();
         convertedValue = AgentStatUtils.convertLongToDouble(AgentStatUtils.convertDoubleToLong(originalValue));
-        Assert.assertEquals(originalValue, convertedValue, DECIMAL_COMPARISON_DELTA);
+        Assertions.assertEquals(originalValue, convertedValue, DECIMAL_COMPARISON_DELTA);
     }
 
     @Test
@@ -56,11 +55,11 @@ public class AgentStatUtilsTest {
 
         long timeMs = 0;
         double rate = AgentStatUtils.calculateRate(count, timeMs, numDecimals, defaultRate);
-        Assert.assertEquals(defaultRate, rate, validDelta);
+        Assertions.assertEquals(defaultRate, rate, validDelta);
 
         timeMs = -1;
         rate = AgentStatUtils.calculateRate(count, timeMs, numDecimals, defaultRate);
-        Assert.assertEquals(defaultRate, rate, validDelta);
+        Assertions.assertEquals(defaultRate, rate, validDelta);
     }
 
     @Test
@@ -72,13 +71,13 @@ public class AgentStatUtilsTest {
         double expectedRate = 1000;
 
         double rate = AgentStatUtils.calculateRate(count, timeMs, numDecimals, defaultRate);
-        Assert.assertEquals(Double.doubleToLongBits(expectedRate), Double.doubleToLongBits(rate));
+        Assertions.assertEquals(Double.doubleToLongBits(expectedRate), Double.doubleToLongBits(rate));
     }
 
     @Test
     public void getBaseTimestamp_should_return_a_multiple_of_AGENT_STAT_TIMESPAN_MS() {
         long timestamp = RANDOM.nextLong();
         long baseTimestamp = AgentStatUtils.getBaseTimestamp(timestamp);
-        Assert.assertEquals(0, (baseTimestamp % HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS));
+        Assertions.assertEquals(0, (baseTimestamp % HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS));
     }
 }

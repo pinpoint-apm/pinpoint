@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.EachUriStatData;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Random;
@@ -54,7 +53,7 @@ public class AsyncQueueingUriStatStorageTest {
                 storeRandomValue(storage);
             }
 
-            Assert.assertNull(storage.poll());
+            Assertions.assertNull(storage.poll());
 
             try {
                 Thread.sleep(collectInterval);
@@ -64,14 +63,14 @@ public class AsyncQueueingUriStatStorageTest {
             storage.pollTimeout(collectInterval);
 
             AgentUriStatData poll = storage.poll();
-            Assert.assertNotNull(poll);
+            Assertions.assertNotNull(poll);
 
             Collection<EachUriStatData> allUriStatData = poll.getAllUriStatData();
             for (EachUriStatData eachUriStatData : allUriStatData) {
                 storeCount -= eachUriStatData.getTotalHistogram().getCount();
             }
 
-            Assert.assertEquals(0, storeCount);
+            Assertions.assertEquals(0, storeCount);
         } finally {
             if (storage != null) {
                 storage.close();

@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.plugin.druid.interceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.plugin.druid.DruidDataSourceTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DataSourceCloseInterceptorTest {
 

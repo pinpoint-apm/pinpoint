@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
+import com.google.common.net.InetAddresses;
 import com.navercorp.pinpoint.collector.receiver.thrift.AddressFilterAdaptor;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
-import com.google.common.net.InetAddresses;
 import org.jboss.netty.channel.Channel;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -49,7 +49,7 @@ public class AddressFilterAdaptorTest {
         Channel ignoreChannel = mockChannel(ignore);
         AddressFilterAdaptor adaptor = new AddressFilterAdaptor(filter);
 
-        Assert.assertTrue(adaptor.accept(ignoreChannel));
+        Assertions.assertTrue(adaptor.accept(ignoreChannel));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class AddressFilterAdaptorTest {
         Channel ignoreChannel = mockChannel(ignore);
         AddressFilterAdaptor adaptor = new AddressFilterAdaptor(ignoreAddressFilter);
 
-        Assert.assertFalse(adaptor.accept(ignoreChannel));
+        Assertions.assertFalse(adaptor.accept(ignoreChannel));
     }
 
     private Channel mockChannel(InetAddress inetAddress) {

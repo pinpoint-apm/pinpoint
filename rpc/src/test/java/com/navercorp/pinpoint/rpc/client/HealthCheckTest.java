@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.rpc.packet.PingSimplePacket;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -52,7 +52,7 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(serverMessageListener.hasReceivedPing());
+        Assertions.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertTrue(serverMessageListener.hasReceivedPing());
+        Assertions.assertTrue(serverMessageListener.hasReceivedPing());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class HealthCheckTest {
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertTrue(serverMessageListener.hasReceivedPing());
+        Assertions.assertTrue(serverMessageListener.hasReceivedPing());
     }
 
     @Test
@@ -108,14 +108,14 @@ public class HealthCheckTest {
         try {
             testRawSocket.connect(bindPort);
             sendPingAndReceivePongPacket(testRawSocket, new PingSimplePacket());
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception e) {
         } finally {
             testRawSocket.close();
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(serverMessageListener.hasReceivedPing());
+        Assertions.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     @Test
@@ -138,18 +138,18 @@ public class HealthCheckTest {
             isSuccess = true;
 
             sendPingAndReceivePongPacket(testRawSocket, new PingPayloadPacket(1, (byte) 1, (byte) 1));
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception e) {
-            Assert.assertTrue(isSuccess);
+            Assertions.assertTrue(isSuccess);
         } finally {
             testRawSocket.close();
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(serverMessageListener.hasReceivedPing());
+        Assertions.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void expiredHealthCheckTest() throws Exception {
         TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
@@ -165,19 +165,19 @@ public class HealthCheckTest {
             Thread.sleep(35 * 60 * 1000);
 
             sendPingAndReceivePongPacket(testRawSocket, new PingPayloadPacket(1, (byte) 1, (byte) 1));
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         } finally {
             testRawSocket.close();
             testPinpointServerAcceptor.close();
         }
 
-        Assert.assertFalse(serverMessageListener.hasReceivedPing());
+        Assertions.assertFalse(serverMessageListener.hasReceivedPing());
     }
 
     private void sendPingAndReceivePongPacket(TestRawSocket testRawSocket, Packet pingPacket) throws IOException, ProtocolException {
         testRawSocket.sendPingPacket(pingPacket);
-        Assert.assertNotNull(testRawSocket.readPongPacket(3000));
+        Assertions.assertNotNull(testRawSocket.readPongPacket(3000));
     }
 
 }

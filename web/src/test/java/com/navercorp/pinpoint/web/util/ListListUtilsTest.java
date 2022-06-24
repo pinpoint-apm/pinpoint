@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +20,6 @@ public class ListListUtilsTest {
         listList.add(b);
 
         List<String> sum = ListListUtils.toList(listList);
-        Assert.assertEquals(4, sum.size());
+        Assertions.assertEquals(4, sum.size());
     }
 }

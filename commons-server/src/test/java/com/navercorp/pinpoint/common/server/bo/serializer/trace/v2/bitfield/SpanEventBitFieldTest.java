@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -40,7 +40,7 @@ public class SpanEventBitFieldTest {
         byte byteField = (byte) field.getBitField();
 
         SpanEventBitField byteCastField = new SpanEventBitField(byteField);
-        Assert.assertTrue(byteCastField.isSetHasException());
+        Assertions.assertTrue(byteCastField.isSetHasException());
 
 
     }
@@ -52,7 +52,7 @@ public class SpanEventBitFieldTest {
         spanEventBo.setRpc("Rpc");
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertFalse(bitField.isSetRpc());
+        Assertions.assertFalse(bitField.isSetRpc());
 
     }
 
@@ -63,10 +63,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setEndPoint("EndPoint");
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetEndPoint());
+        Assertions.assertTrue(bitField.isSetEndPoint());
 
         bitField.setEndPoint(false);
-        Assert.assertFalse(bitField.isSetEndPoint());
+        Assertions.assertFalse(bitField.isSetEndPoint());
 
     }
 
@@ -77,10 +77,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setDestinationId("DestinationId");
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetDestinationId());
+        Assertions.assertTrue(bitField.isSetDestinationId());
 
         bitField.setDestinationId(false);
-        Assert.assertFalse(bitField.isSetDestinationId());
+        Assertions.assertFalse(bitField.isSetDestinationId());
 
     }
 
@@ -92,10 +92,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setNextSpanId(1234);
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetNextSpanId());
+        Assertions.assertTrue(bitField.isSetNextSpanId());
 
         bitField.setNextSpanId(false);
-        Assert.assertFalse(bitField.isSetNextSpanId());
+        Assertions.assertFalse(bitField.isSetNextSpanId());
 
     }
 
@@ -106,10 +106,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setExceptionInfo(100, "excetpion");
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetHasException());
+        Assertions.assertTrue(bitField.isSetHasException());
 
         bitField.setHasException(false);
-        Assert.assertFalse(bitField.isSetHasException());
+        Assertions.assertFalse(bitField.isSetHasException());
 
     }
 
@@ -121,10 +121,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setAnnotationBoList(Collections.singletonList(new AnnotationBo(1, "test")));
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetAnnotation());
+        Assertions.assertTrue(bitField.isSetAnnotation());
 
         bitField.setAnnotation(false);
-        Assert.assertFalse(bitField.isSetAnnotation());
+        Assertions.assertFalse(bitField.isSetAnnotation());
 
     }
 
@@ -136,10 +136,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setNextAsyncId(1234);
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetNextAsyncId());
+        Assertions.assertTrue(bitField.isSetNextAsyncId());
 
         bitField.setNextAsyncId(false);
-        Assert.assertFalse(bitField.isSetNextAsyncId());
+        Assertions.assertFalse(bitField.isSetNextAsyncId());
 
     }
 
@@ -151,10 +151,10 @@ public class SpanEventBitFieldTest {
         spanEventBo.setAsyncSequence((short) 1234);
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
-        Assert.assertTrue(bitField.isSetAsyncId());
+        Assertions.assertTrue(bitField.isSetAsyncId());
 
         bitField.setAsyncId(false);
-        Assert.assertFalse(bitField.isSetAsyncId());
+        Assertions.assertFalse(bitField.isSetAsyncId());
 
     }
 
@@ -167,7 +167,7 @@ public class SpanEventBitFieldTest {
         current.setStartElapsed(1234);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getStartElapsedEncodingStrategy(), StartElapsedTimeEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(bitField.getStartElapsedEncodingStrategy(), StartElapsedTimeEncodingStrategy.PREV_EQUALS);
 
     }
 
@@ -180,7 +180,7 @@ public class SpanEventBitFieldTest {
         current.setStartElapsed(1235);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getStartElapsedEncodingStrategy(), StartElapsedTimeEncodingStrategy.PREV_DELTA);
+        Assertions.assertEquals(bitField.getStartElapsedEncodingStrategy(), StartElapsedTimeEncodingStrategy.PREV_DELTA);
 
     }
 
@@ -193,7 +193,7 @@ public class SpanEventBitFieldTest {
         current.setSequence((short) 11);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getSequenceEncodingStrategy(), SequenceEncodingStrategy.PREV_ADD1);
+        Assertions.assertEquals(bitField.getSequenceEncodingStrategy(), SequenceEncodingStrategy.PREV_ADD1);
 
     }
 
@@ -206,7 +206,7 @@ public class SpanEventBitFieldTest {
         current.setSequence((short) 12);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getSequenceEncodingStrategy(), SequenceEncodingStrategy.PREV_DELTA);
+        Assertions.assertEquals(bitField.getSequenceEncodingStrategy(), SequenceEncodingStrategy.PREV_DELTA);
 
     }
 
@@ -219,7 +219,7 @@ public class SpanEventBitFieldTest {
         current.setDepth(3);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getDepthEncodingStrategy(), DepthEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(bitField.getDepthEncodingStrategy(), DepthEncodingStrategy.PREV_EQUALS);
 
     }
 
@@ -232,7 +232,7 @@ public class SpanEventBitFieldTest {
         current.setDepth(4);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getDepthEncodingStrategy(), DepthEncodingStrategy.RAW);
+        Assertions.assertEquals(bitField.getDepthEncodingStrategy(), DepthEncodingStrategy.RAW);
 
     }
 
@@ -245,7 +245,7 @@ public class SpanEventBitFieldTest {
         current.setServiceType((short) 2000);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(bitField.getServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
 
     }
 
@@ -258,7 +258,7 @@ public class SpanEventBitFieldTest {
         current.setServiceType((short) 2001);
 
         SpanEventBitField bitField = SpanEventBitField.build(current, prev);
-        Assert.assertEquals(bitField.getServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
+        Assertions.assertEquals(bitField.getServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
 
     }
 

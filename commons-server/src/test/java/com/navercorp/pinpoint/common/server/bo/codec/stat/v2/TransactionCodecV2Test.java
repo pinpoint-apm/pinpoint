@@ -20,18 +20,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class TransactionCodecV2Test extends AgentStatCodecTestBase<TransactionBo> {
 
@@ -50,13 +50,13 @@ public class TransactionCodecV2Test extends AgentStatCodecTestBase<TransactionBo
 
     @Override
     protected void verify(TransactionBo expected, TransactionBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("collectInterval", expected.getCollectInterval(), actual.getCollectInterval());
-        Assert.assertEquals("sampledNewCount", expected.getSampledNewCount(), actual.getSampledNewCount());
-        Assert.assertEquals("sampledContinuationCount", expected.getSampledContinuationCount(), actual.getSampledContinuationCount());
-        Assert.assertEquals("unsampledNewCount", expected.getUnsampledNewCount(), actual.getUnsampledNewCount());
-        Assert.assertEquals("unsampledContinuationCount", expected.getUnsampledContinuationCount(), actual.getUnsampledContinuationCount());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getCollectInterval(), actual.getCollectInterval(), "collectInterval");
+        Assertions.assertEquals(expected.getSampledNewCount(), actual.getSampledNewCount(), "sampledNewCount");
+        Assertions.assertEquals(expected.getSampledContinuationCount(), actual.getSampledContinuationCount(), "sampledContinuationCount");
+        Assertions.assertEquals(expected.getUnsampledNewCount(), actual.getUnsampledNewCount(), "unsampledNewCount");
+        Assertions.assertEquals(expected.getUnsampledContinuationCount(), actual.getUnsampledContinuationCount(), "unsampledContinuationCount");
     }
 }

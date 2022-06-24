@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ClusterIdTest {
 
@@ -9,26 +9,26 @@ public class ClusterIdTest {
     public void newClusterId1() {
         ClusterId clusterId = ClusterId.newClusterId("/pinpoint/collector/test");
 
-        Assert.assertEquals("/pinpoint/collector", clusterId.getParentPath());
-        Assert.assertEquals("test", clusterId.getCollectorId());
-        Assert.assertNull(clusterId.getApplicationName());
+        Assertions.assertEquals("/pinpoint/collector", clusterId.getParentPath());
+        Assertions.assertEquals("test", clusterId.getCollectorId());
+        Assertions.assertNull(clusterId.getApplicationName());
     }
 
     @Test
     public void newClusterByZKPath() {
         ClusterId clusterId = ClusterId.newClusterId("/pinpoint/collector", "HOST_NAME@1234$$appName");
 
-        Assert.assertEquals("/pinpoint/collector", clusterId.getParentPath());
-        Assert.assertEquals("HOST_NAME@1234", clusterId.getCollectorId());
-        Assert.assertEquals("appName", clusterId.getApplicationName());
+        Assertions.assertEquals("/pinpoint/collector", clusterId.getParentPath());
+        Assertions.assertEquals("HOST_NAME@1234", clusterId.getCollectorId());
+        Assertions.assertEquals("appName", clusterId.getApplicationName());
     }
 
     @Test
     public void newClusterByZKPath_noAppName() {
         ClusterId clusterId = ClusterId.newClusterId("/pinpoint/collector", "HOST_NAME@1234");
 
-        Assert.assertEquals("/pinpoint/collector", clusterId.getParentPath());
-        Assert.assertEquals("HOST_NAME@1234", clusterId.getCollectorId());
-        Assert.assertNull(clusterId.getApplicationName());
+        Assertions.assertEquals("/pinpoint/collector", clusterId.getParentPath());
+        Assertions.assertEquals("HOST_NAME@1234", clusterId.getCollectorId());
+        Assertions.assertNull(clusterId.getApplicationName());
     }
 }

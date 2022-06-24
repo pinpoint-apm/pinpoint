@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -39,7 +39,7 @@ public class PropertyRollbackTemplateTest {
             }
         });
 
-        Assert.assertTrue(properties.isEmpty());
+        Assertions.assertTrue(properties.isEmpty());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class PropertyRollbackTemplateTest {
             }
         });
 
-        Assert.assertEquals(properties.get("a"), "A");
+        Assertions.assertEquals(properties.get("a"), "A");
     }
 
     @Test
@@ -72,6 +72,6 @@ public class PropertyRollbackTemplateTest {
             }
         });
 
-        Assert.assertNull(properties.get("a"));
+        Assertions.assertNull(properties.get("a"));
     }
 }

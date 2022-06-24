@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,14 +56,14 @@ public class ServerInfoAppenderTest {
 
     private long timeoutMillis = 1000;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         serverInstanceListDataSource = mock(ServerInstanceListDataSource.class);
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
         serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         executor.shutdown();
         try {
@@ -85,7 +85,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertNull(nodeList);
+        Assertions.assertNull(nodeList);
         verifyZeroInteractions(serverInstanceListDataSource);
         verifyZeroInteractions(linkDataDuplexMap);
     }
@@ -99,7 +99,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertTrue(nodeList.getNodeList().isEmpty());
+        Assertions.assertTrue(nodeList.getNodeList().isEmpty());
         verifyZeroInteractions(serverInstanceListDataSource);
         verifyZeroInteractions(linkDataDuplexMap);
     }
@@ -119,7 +119,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertSame(serverInstanceList, wasNode.getServerInstanceList());
+        Assertions.assertSame(serverInstanceList, wasNode.getServerInstanceList());
         verifyZeroInteractions(linkDataDuplexMap);
     }
 
@@ -142,8 +142,8 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertSame(serverInstanceList1, wasNode1.getServerInstanceList());
-        Assert.assertSame(serverInstanceList2, wasNode2.getServerInstanceList());
+        Assertions.assertSame(serverInstanceList1, wasNode1.getServerInstanceList());
+        Assertions.assertSame(serverInstanceList2, wasNode2.getServerInstanceList());
         verifyZeroInteractions(linkDataDuplexMap);
     }
 
@@ -169,7 +169,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(1, terminalNode.getServerInstanceList().getInstanceCount());
+        Assertions.assertEquals(1, terminalNode.getServerInstanceList().getInstanceCount());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(2, terminalNode.getServerInstanceList().getInstanceCount());
+        Assertions.assertEquals(2, terminalNode.getServerInstanceList().getInstanceCount());
     }
 
     @Test
@@ -213,7 +213,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(0, userNode.getServerInstanceList().getInstanceCount());
+        Assertions.assertEquals(0, userNode.getServerInstanceList().getInstanceCount());
         verifyZeroInteractions(linkDataDuplexMap);
     }
 
@@ -229,7 +229,7 @@ public class ServerInfoAppenderTest {
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(0, unknownNode.getServerInstanceList().getInstanceCount());
+        Assertions.assertEquals(0, unknownNode.getServerInstanceList().getInstanceCount());
         verifyZeroInteractions(linkDataDuplexMap);
     }
 }

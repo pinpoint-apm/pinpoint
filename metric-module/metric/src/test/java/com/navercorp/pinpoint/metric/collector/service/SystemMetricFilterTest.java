@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -49,7 +49,7 @@ public class SystemMetricFilterTest {
     @Mock
     private PinotSystemMetricDoubleDao doubleDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         systemMetricService = new SystemMetricService(longDao, doubleDao);
@@ -64,8 +64,8 @@ public class SystemMetricFilterTest {
         List<LongMetric> longMetricList = systemMetricService.filterLongCounter(systemMetrics);
         List<DoubleMetric> doubleMetricList = systemMetricService.filterDoubleCounter(systemMetrics);
 
-        Assert.assertEquals(longCount, longMetricList.size());
-        Assert.assertEquals(doubleCount, doubleMetricList.size());
+        Assertions.assertEquals(longCount, longMetricList.size());
+        Assertions.assertEquals(doubleCount, doubleMetricList.size());
     }
 
     private Metrics createList(int longCount, int doubleCount) {

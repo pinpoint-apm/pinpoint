@@ -3,12 +3,12 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.times;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BytecodeDumpServiceTest {
 
     private final String classInternalName = JavaAssistUtils.javaNameToJvmName("java.lang.String");

@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JoinTotalThreadCountBoTest {
     @Test
-    public void joinTotalThreadCountBoList () {
+    public void joinTotalThreadCountBoList() {
         List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>();
         JoinTotalThreadCountBo joinTotalThreadCountBo1 = new JoinTotalThreadCountBo("agent1", 1496988667231L, 35, 10, "agent1", 67, "agent1");
         JoinTotalThreadCountBo joinTotalThreadCountBo2 = new JoinTotalThreadCountBo("agent2", 1496988667231L, 39, 2, "agent2", 164, "agent2");
@@ -44,6 +44,7 @@ public class JoinTotalThreadCountBoTest {
         assertEquals(1496988668231L, joinTotalThreadCountBo.getTimestamp());
         assertEquals(new JoinLongFieldBo(26L, 0L, "agent4", 236L, "agent3"), joinTotalThreadCountBo.getTotalThreadCountJoinValue());
     }
+
     @Test
     public void joinTotalThreadCountBoList2Test() {
         List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>();

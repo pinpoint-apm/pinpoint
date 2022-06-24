@@ -30,7 +30,8 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.TableConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -42,7 +43,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -75,31 +76,35 @@ public class HbaseSchemaCommandManagerTest {
         assertThat(schemaSnapshot, not(contains(differentNamespaceHtd)));
     }
 
-    @Test(expected = InvalidHbaseSchemaException.class)
+    @Test
     public void creatingExistingTableShouldFail() {
-        String namespace = "namespace";
-        String tableName = "table";
-        HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
-        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
+        Assertions.assertThrows(InvalidHbaseSchemaException.class, () -> {
+            String namespace = "namespace";
+            String tableName = "table";
+            HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
+            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
 
-        TableChange createTableChange = newTableChange(ChangeType.CREATE, tableName);
-        ChangeSet createTableChangeSet = newChangeSet(createTableChange);
+            TableChange createTableChange = newTableChange(ChangeType.CREATE, tableName);
+            ChangeSet createTableChangeSet = newChangeSet(createTableChange);
 
-        manager.applyChangeSet(createTableChangeSet);
+            manager.applyChangeSet(createTableChangeSet);
+        });
     }
 
-    @Test(expected = InvalidHbaseSchemaException.class)
+    @Test
     public void modifyingNonExistingTableShouldFail() {
-        String namespace = "namespace";
-        String tableName = "table";
-        String nonExistingTableName = "anotherTable";
-        HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
-        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
+        Assertions.assertThrows(InvalidHbaseSchemaException.class, () -> {
+            String namespace = "namespace";
+            String tableName = "table";
+            String nonExistingTableName = "anotherTable";
+            HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
+            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
 
-        TableChange modifyTableChange = newTableChange(ChangeType.MODIFY, nonExistingTableName);
-        ChangeSet modifyTableChangeSet = newChangeSet(modifyTableChange);
+            TableChange modifyTableChange = newTableChange(ChangeType.MODIFY, nonExistingTableName);
+            ChangeSet modifyTableChangeSet = newChangeSet(modifyTableChange);
 
-        manager.applyChangeSet(modifyTableChangeSet);
+            manager.applyChangeSet(modifyTableChangeSet);
+        });
     }
 
     @Test

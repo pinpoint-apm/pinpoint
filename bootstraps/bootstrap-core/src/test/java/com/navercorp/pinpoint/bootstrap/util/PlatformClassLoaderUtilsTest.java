@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,6 +35,6 @@ public class PlatformClassLoaderUtilsTest {
         //java8 test
         ClassLoader platformOrBootstrapClassLoader = PlatformClassLoaderUtils.getPlatformOrBootstrapClassLoader();
         ClassLoader classLoader = Object.class.getClassLoader();
-        Assert.assertSame(platformOrBootstrapClassLoader, classLoader);
+        Assertions.assertSame(platformOrBootstrapClassLoader, classLoader);
     }
 }

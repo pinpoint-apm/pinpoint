@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.Properties;

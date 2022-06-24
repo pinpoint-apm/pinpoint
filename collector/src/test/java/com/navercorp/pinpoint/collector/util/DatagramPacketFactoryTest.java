@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.DatagramPacket;
 
@@ -31,7 +31,7 @@ public class DatagramPacketFactoryTest {
         int bufferLength = 10;
         DatagramPacketFactory factory = new DatagramPacketFactory(bufferLength);
         DatagramPacket packet = factory.create();
-        Assert.assertEquals(bufferLength, packet.getLength());
+        Assertions.assertEquals(bufferLength, packet.getLength());
     }
 
     @Test
@@ -42,7 +42,7 @@ public class DatagramPacketFactoryTest {
 
         packet.setLength(1);
         factory.beforeReturn(packet);
-        Assert.assertEquals(bufferLength, packet.getLength());
+        Assertions.assertEquals(bufferLength, packet.getLength());
 
     }
 }

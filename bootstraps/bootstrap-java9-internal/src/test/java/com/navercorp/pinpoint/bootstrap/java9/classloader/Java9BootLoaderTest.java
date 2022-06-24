@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,7 +41,7 @@ public class Java9BootLoaderTest {
         String stringResource = getInternalName(String.class);
 
         URL url = bootLoader.findResource(stringResource);
-        Assert.assertNotNull(url);
+        Assertions.assertNotNull(url);
     }
 
     private static String getInternalName(Class<?> clazz) {
@@ -57,7 +56,7 @@ public class Java9BootLoaderTest {
 
         Enumeration<URL> bootstrapResources = bootLoader.findResources(stringResource);
         List<URL> list = Collections.list(bootstrapResources);
-        Assert.assertEquals(1, list.size());
+        Assertions.assertEquals(1, list.size());
         logger.debug("list:{}", list);
     }
 }

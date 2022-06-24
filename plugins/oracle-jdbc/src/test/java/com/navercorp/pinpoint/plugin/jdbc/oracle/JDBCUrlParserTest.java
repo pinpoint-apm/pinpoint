@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import java.net.URI;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -39,12 +37,12 @@ public class JDBCUrlParserTest {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:@hostname:port:SID");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
-        Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "SID");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port:SID");
+        Assertions.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "hostname:port");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "SID");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port:SID");
         logger.info(dbInfo);
     }
 
@@ -53,12 +51,12 @@ public class JDBCUrlParserTest {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
-        Assert.assertEquals(dbInfo.getHost().get(0), "localhost:1521");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "XE");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
+        Assertions.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "localhost:1521");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "XE");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
         logger.info(dbInfo);
     }
 
@@ -67,12 +65,12 @@ public class JDBCUrlParserTest {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:@hostname:port/serviceName");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
-        Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "serviceName");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port/serviceName");
+        Assertions.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "hostname:port");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "serviceName");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port/serviceName");
         logger.info(dbInfo);
     }
 
@@ -87,14 +85,14 @@ public class JDBCUrlParserTest {
                 "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
                 "(CONNECT_DATA=(SERVICE_NAME=service)))";
         DatabaseInfo dbInfo = jdbcUrlParser.parse(rac);
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
-        Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:1521");
-        Assert.assertEquals(dbInfo.getHost().get(1), "1.2.3.5:1522");
+        Assertions.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:1521");
+        Assertions.assertEquals(dbInfo.getHost().get(1), "1.2.3.5:1522");
 
-        Assert.assertEquals(dbInfo.getDatabaseId(), "service");
-        Assert.assertEquals(dbInfo.getUrl(), rac);
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "service");
+        Assertions.assertEquals(dbInfo.getUrl(), rac);
         logger.info(dbInfo);
     }
 
@@ -113,33 +111,33 @@ public class JDBCUrlParserTest {
                 "(ADDRESS=(PROTOCOL=tcp)(HOST=2.3.4.6)(PORT=1521))" +
                 "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=service_test))))";
         DatabaseInfo dbInfo = jdbcUrlParser.parse(url);
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(OracleConstants.ORACLE, dbInfo.getType());
-        Assert.assertEquals("1.2.3.4:1521", dbInfo.getHost().get(0));
-        Assert.assertEquals("1.2.3.5:1521", dbInfo.getHost().get(1));
-        Assert.assertEquals("2.3.4.5:1521", dbInfo.getHost().get(2));
-        Assert.assertEquals("2.3.4.6:1521", dbInfo.getHost().get(3));
+        Assertions.assertEquals(OracleConstants.ORACLE, dbInfo.getType());
+        Assertions.assertEquals("1.2.3.4:1521", dbInfo.getHost().get(0));
+        Assertions.assertEquals("1.2.3.5:1521", dbInfo.getHost().get(1));
+        Assertions.assertEquals("2.3.4.5:1521", dbInfo.getHost().get(2));
+        Assertions.assertEquals("2.3.4.6:1521", dbInfo.getHost().get(3));
 
-        Assert.assertEquals("service_test", dbInfo.getDatabaseId());
-        Assert.assertEquals(url, dbInfo.getUrl());
+        Assertions.assertEquals("service_test", dbInfo.getDatabaseId());
+        Assertions.assertEquals(url, dbInfo.getUrl());
         logger.info(dbInfo);
     }
 
     @Test
     public void parseFailTest1() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse(null);
-        Assert.assertFalse(dbInfo.isParsingComplete());
+        Assertions.assertFalse(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+        Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
     @Test
     public void parseFailTest2() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:thin:@hostname:port:SID");
-        Assert.assertFalse(dbInfo.isParsingComplete());
+        Assertions.assertFalse(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+        Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
 

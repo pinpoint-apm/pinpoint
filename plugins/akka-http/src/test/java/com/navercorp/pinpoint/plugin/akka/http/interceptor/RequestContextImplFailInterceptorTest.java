@@ -20,14 +20,15 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
 
-@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RequestContextImplFailInterceptorTest {
 
     @Mock
@@ -43,7 +44,7 @@ public class RequestContextImplFailInterceptorTest {
 
     RequestContextImplFailInterceptor interceptor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         interceptor = new RequestContextImplFailInterceptor(traceContext, descriptor);
     }

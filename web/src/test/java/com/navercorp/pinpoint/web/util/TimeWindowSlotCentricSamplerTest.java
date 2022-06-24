@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import static org.junit.Assert.*;
-import static com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler.*;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import static com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler.DEFAULT_IDEAL_NUM_TIMESLOTS;
+import static com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler.DEFAULT_MINIMUM_TIMESLOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author hyungil.jeong

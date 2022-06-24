@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.weblogic;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import weblogic.servlet.internal.ServletRequestImpl;
 
 import static org.mockito.Mockito.mock;
@@ -34,6 +34,6 @@ public class ServletRequestImplParameterExtractorTest {
         when(servletRequest.getQueryString()).thenReturn(queryString);
         ServletRequestImplParameterExtractor extractor = new ServletRequestImplParameterExtractor(100, 100);
         String normalizedString = extractor.extractParameter(servletRequest);
-        Assert.assertEquals(queryString, normalizedString);
+        Assertions.assertEquals(queryString, normalizedString);
     }
 }

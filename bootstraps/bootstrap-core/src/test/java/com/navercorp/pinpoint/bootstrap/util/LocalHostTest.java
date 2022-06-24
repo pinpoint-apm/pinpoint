@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -33,7 +33,7 @@ import java.util.Enumeration;
 public class LocalHostTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Ignore
+    @Disabled
     @Test
     public void portName() throws UnknownHostException, SocketException {
 

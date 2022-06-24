@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.rpc.message;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -35,7 +35,7 @@ public class SendPacketTest {
 
         short packetType = channelBuffer.readShort();
         SendPacket packet = (SendPacket) SendPacket.readBuffer(packetType, channelBuffer);
-        Assert.assertArrayEquals(bytes, packet.getPayload());
+        Assertions.assertArrayEquals(bytes, packet.getPayload());
 
 
     }

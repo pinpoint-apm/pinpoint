@@ -21,10 +21,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.profiler.monitor.metric.rpc.MetricRegistry;
 import com.navercorp.pinpoint.profiler.monitor.metric.rpc.RpcMetric;
-import org.junit.Assert;
-import org.junit.Test;
+
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class MetricRegistryTest {
     private static final ServiceType ASYNC_HTTP_CLIENT = ServiceTypeFactory.of(9056, "ASYNC_HTTP_CLIENT", RECORD_STATISTICS);
@@ -40,14 +41,14 @@ public class MetricRegistryTest {
         MetricRegistry metricRegistry = null;
         try {
             metricRegistry = new MetricRegistry(ServiceType.UNKNOWN_DB);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
 
         metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
         try {
             metricRegistry.getRpcMetric(ServiceType.ASYNC);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
 

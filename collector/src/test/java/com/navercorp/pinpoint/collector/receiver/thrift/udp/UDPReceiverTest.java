@@ -22,12 +22,12 @@ import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.util.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.util.SocketUtils;
 
 import java.io.Closeable;
@@ -56,13 +56,14 @@ public class UDPReceiverTest {
 
     private final PacketHandler<DatagramPacket> loggingPacketHandler = new PacketHandler<DatagramPacket>() {
         private final Logger logger = LogManager.getLogger(this.getClass());
+
         @Override
         public void receive(DatagramSocket localSocket, DatagramPacket packet) {
             logger.info("receive localSocket:{} packet:{}", localSocket, packet);
         }
     };
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.port = SocketUtils.findAvailableUdpPort(10999);
     }
@@ -83,7 +84,7 @@ public class UDPReceiverTest {
             receiver = new UDPReceiver("test", packetHandlerFactory, executor, 8, bindAddress, socketOptionApplier, pool);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         } finally {
             if (receiver != null) {
                 receiver.shutdown();
@@ -153,12 +154,12 @@ public class UDPReceiverTest {
 
             datagramSocket.send(new DatagramPacket(new byte[1], 1, addr));
 
-            Assert.assertTrue(awaitLatch(latch));
-            Assert.assertEquals(1, zeroPacketCounter.get());
+            Assertions.assertTrue(awaitLatch(latch));
+            Assertions.assertEquals(1, zeroPacketCounter.get());
             Mockito.verify(mockExecutor).execute(any(Runnable.class));
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         } finally {
             if (receiver != null) {
                 receiver.shutdown();

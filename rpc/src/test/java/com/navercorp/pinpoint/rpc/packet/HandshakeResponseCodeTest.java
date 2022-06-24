@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.packet;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,7 +25,7 @@ import org.junit.Test;
 public class HandshakeResponseCodeTest {
     @Test
     public void getValue() throws Exception {
-        Assert.assertEquals(HandshakeResponseCode.getValue(0, 1),  HandshakeResponseCode.SIMPLEX_COMMUNICATION);
+        Assertions.assertEquals(HandshakeResponseCode.getValue(0, 1),  HandshakeResponseCode.SIMPLEX_COMMUNICATION);
     }
 
 }

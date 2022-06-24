@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.hbase.util;
 
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
@@ -39,12 +39,12 @@ public class HbaseTableNameCacheTest {
         TableName tableName2 = cache.get(nullNamespace, qualifier);
         TableName tableName3 = cache.get(emptyNamespace, qualifier);
         // Then
-        Assert.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName1.getNamespaceAsString());
-        Assert.assertEquals(qualifier, tableName1.getQualifierAsString());
-        Assert.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName2.getNamespaceAsString());
-        Assert.assertEquals(qualifier, tableName2.getQualifierAsString());
-        Assert.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName3.getNamespaceAsString());
-        Assert.assertEquals(qualifier, tableName3.getQualifierAsString());
+        Assertions.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName1.getNamespaceAsString());
+        Assertions.assertEquals(qualifier, tableName1.getQualifierAsString());
+        Assertions.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName2.getNamespaceAsString());
+        Assertions.assertEquals(qualifier, tableName2.getQualifierAsString());
+        Assertions.assertEquals(NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR, tableName3.getNamespaceAsString());
+        Assertions.assertEquals(qualifier, tableName3.getQualifierAsString());
     }
 
     @Test
@@ -55,17 +55,19 @@ public class HbaseTableNameCacheTest {
         // When
         TableName tableName = cache.get(namespace, qualifier);
         // Then
-        Assert.assertEquals(namespace, tableName.getNamespaceAsString());
-        Assert.assertEquals(qualifier, tableName.getQualifierAsString());
+        Assertions.assertEquals(namespace, tableName.getNamespaceAsString());
+        Assertions.assertEquals(qualifier, tableName.getQualifierAsString());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void nullQualifierShouldThrowException() {
-        // Given
-        final String nullQualifier = null;
-        // When
-        cache.get(nullQualifier);
-        // Then
-        Assert.fail();
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            // Given
+            final String nullQualifier = null;
+            // When
+            cache.get(nullQualifier);
+            // Then
+            Assertions.fail();
+        });
     }
 }

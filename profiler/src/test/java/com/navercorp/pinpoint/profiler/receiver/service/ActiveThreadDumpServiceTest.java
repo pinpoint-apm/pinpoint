@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class ActiveThreadDumpServiceTest {
 
     private final WaitingJobListFactory waitingJobListFactory = new WaitingJobListFactory();
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         waitingJobListFactory.close();
     }
@@ -70,7 +70,7 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(createRequest(0, null, null));
 
-        Assert.assertEquals(CREATE_SIZE, response.getThreadDumpsSize());
+        Assertions.assertEquals(CREATE_SIZE, response.getThreadDumpsSize());
 
     }
 
@@ -85,7 +85,7 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(1, response.getThreadDumpsSize());
+        Assertions.assertEquals(1, response.getThreadDumpsSize());
 
     }
 
@@ -103,14 +103,13 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(3, response.getThreadDumpsSize());
+        Assertions.assertEquals(3, response.getThreadDumpsSize());
 
     }
 
     @Test
     public void basicFunctionTest4() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
-
 
 
         List<ActiveTraceSnapshot> activeTraceInfoList = createMockActiveTraceInfoList(CREATE_SIZE, DEFAULT_TIME_MILLIS, TIME_DIFF_INTERVAL, waitingJobList);
@@ -126,7 +125,7 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(targetThreadNameSize + targetTraceIdSize, response.getThreadDumpsSize());
+        Assertions.assertEquals(targetThreadNameSize + targetTraceIdSize, response.getThreadDumpsSize());
 
     }
 
@@ -145,10 +144,10 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(limit, response.getThreadDumpsSize());
+        Assertions.assertEquals(limit, response.getThreadDumpsSize());
 
         for (TActiveThreadDump dump : response.getThreadDumps()) {
-            Assert.assertTrue(oldTimeList.contains(dump.getStartTime()));
+            Assertions.assertTrue(oldTimeList.contains(dump.getStartTime()));
         }
 
     }
@@ -219,7 +218,6 @@ public class ActiveThreadDumpServiceTest {
     }
 
 
-
     private TCmdActiveThreadDump createRequest(int limit, List<String> threadNameList, List<Long> localTraceIdList) {
         TCmdActiveThreadDump request = new TCmdActiveThreadDump();
         if (limit > 0) {
@@ -233,7 +231,6 @@ public class ActiveThreadDumpServiceTest {
         }
         return request;
     }
-
 
 
 }

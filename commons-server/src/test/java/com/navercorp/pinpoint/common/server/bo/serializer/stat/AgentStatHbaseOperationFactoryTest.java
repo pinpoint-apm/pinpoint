@@ -19,16 +19,15 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-
 import org.apache.hadoop.hbase.client.Put;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +36,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class AgentStatHbaseOperationFactoryTest {
 
@@ -56,7 +55,7 @@ public class AgentStatHbaseOperationFactoryTest {
     @Autowired
     private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
@@ -218,6 +217,7 @@ public class AgentStatHbaseOperationFactoryTest {
             public long getTimestamp() {
                 return this.timestamp;
             }
+
             @Override
             public void setTimestamp(long timestamp) {
                 this.timestamp = timestamp;

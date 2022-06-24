@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import org.junit.Assert;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -28,10 +28,10 @@ public class LoadStateTest {
     public void testStart() {
         LoadState loadState = new LoadState();
 
-        Assert.assertTrue(loadState.start());
-        Assert.assertTrue(loadState.getState());
+        Assertions.assertTrue(loadState.start());
+        Assertions.assertTrue(loadState.getState());
 
-        Assert.assertFalse(loadState.start());
+        Assertions.assertFalse(loadState.start());
 
     }
 }

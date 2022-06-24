@@ -22,9 +22,8 @@ import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 import com.navercorp.pinpoint.web.vo.stat.SampledEachUriStatBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledUriStatHistogramBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,12 +95,12 @@ public class AgentUriStatSamplerTest {
 
     private void assertMaxValue(AgentStatPoint<Long> expected, List<EachUriStatBo> actual) {
         Long max = actual.stream().mapToLong(o -> o.getTotalHistogram().getMax()).max().getAsLong();
-        Assert.assertEquals(expected.getMaxYVal(), max);
+        Assertions.assertEquals(expected.getMaxYVal(), max);
     }
 
     private void assertCountValue(AgentStatPoint<Integer> expected, List<EachUriStatBo> actual) {
         Integer count = actual.stream().mapToInt(o -> o.getTotalHistogram().getCount()).sum();
-        Assert.assertEquals(expected.getSumYVal(), count);
+        Assertions.assertEquals(expected.getSumYVal(), count);
     }
 
     private void assertHistogramValue(int[] uriStatHistogramValue, List<EachUriStatBo> actual) {
@@ -113,7 +112,7 @@ public class AgentUriStatSamplerTest {
             }
         }
 
-        Assert.assertTrue(Arrays.equals(uriStatHistogramValue, newArrayValue));
+        Assertions.assertTrue(Arrays.equals(uriStatHistogramValue, newArrayValue));
     }
 
 }

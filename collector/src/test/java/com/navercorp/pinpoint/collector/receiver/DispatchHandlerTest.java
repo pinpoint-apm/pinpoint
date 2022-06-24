@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -47,36 +47,38 @@ public class DispatchHandlerTest {
     @Mock
     private AcceptedTimeService acceptedTimeService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void throwExceptionTest1() {
-        ServerRequest<TBase<?, ?>> request = mock(ServerRequest.class);
-        when(request.getData()).thenReturn(null);
-        testDispatchHandler.dispatchSendMessage(request);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            ServerRequest<TBase<?, ?>> request = mock(ServerRequest.class);
+            when(request.getData()).thenReturn(null);
+            testDispatchHandler.dispatchSendMessage(request);
+        });
     }
 
     @Test
     public void dispatchSendMessageTest() {
         ServerRequest<TBase<?, ?>> serverRequest = mock(ServerRequest.class);
-        when(serverRequest.getData()).thenReturn((TBase)new TResult());
+        when(serverRequest.getData()).thenReturn((TBase) new TResult());
         testDispatchHandler.dispatchSendMessage(serverRequest);
 
-        Assert.assertTrue(TEST_SIMPLE_HANDLER.getExecutedCount() > 0);
+        Assertions.assertTrue(TEST_SIMPLE_HANDLER.getExecutedCount() > 0);
     }
 
     @Test
     public void dispatchRequestMessageTest() {
         ServerRequest<TBase<?, ?>> request = mock(ServerRequest.class);
-        when(request.getData()).thenReturn((TBase)new TResult());
+        when(request.getData()).thenReturn((TBase) new TResult());
 
         ServerResponse<TBase<?, ?>> response = mock(ServerResponse.class);
         testDispatchHandler.dispatchRequestMessage(request, response);
 
-        Assert.assertTrue(TEST_REQUEST_HANDLER.getExecutedCount() > 0);
+        Assertions.assertTrue(TEST_REQUEST_HANDLER.getExecutedCount() > 0);
     }
 
     private static class TestDispatchHandler implements DispatchHandler<TBase<?, ?>, TBase<?, ?>> {

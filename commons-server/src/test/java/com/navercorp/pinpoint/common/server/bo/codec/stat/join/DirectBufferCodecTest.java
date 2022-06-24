@@ -24,13 +24,13 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Roy Kim
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 public class DirectBufferCodecTest {
 
     @Test
-    public void encodeAndDecodeTest(){
+    public void encodeAndDecodeTest() {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
@@ -48,7 +48,7 @@ public class DirectBufferCodecTest {
         encodedValueBuffer.putByte(directBufferCodec.getVersion());
         directBufferCodec.encodeValues(encodedValueBuffer, joinDirectBufferBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -68,7 +68,7 @@ public class DirectBufferCodecTest {
         final List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>();
         JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo(id, 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", currentTime);
         JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo(id, 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000);
-        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo(id, 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2",  currentTime + 15000);
+        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo(id, 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", currentTime + 15000);
         JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo(id, 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000);
         JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo(id, 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000);
         joinDirectBufferBoList.add(joinDirectBufferBo1);

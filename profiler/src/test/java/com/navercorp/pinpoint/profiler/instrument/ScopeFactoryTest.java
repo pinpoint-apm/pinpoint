@@ -21,12 +21,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -45,8 +44,8 @@ public class ScopeFactoryTest {
         ScopeInfo scopeInfo = scopeFactory.newScopeInfo(context, Interceptor_Annotation.class, null, null);
 
         logger.debug("scopeInfo:{}", scopeInfo);
-        Assert.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
-        Assert.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
+        Assertions.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
+        Assertions.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
     }
 
     @Test
@@ -59,8 +58,8 @@ public class ScopeFactoryTest {
 
 
         logger.debug("scopeInfo:{}", scopeInfo);
-        Assert.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
-        Assert.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.ALWAYS);
+        Assertions.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
+        Assertions.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.ALWAYS);
     }
 
 
@@ -75,8 +74,8 @@ public class ScopeFactoryTest {
 
 
         logger.debug("scopeInfo:{}", scopeInfo);
-        Assert.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
-        Assert.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
+        Assertions.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
+        Assertions.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
     }
 
     @Scope("test")

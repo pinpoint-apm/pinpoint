@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -55,12 +55,12 @@ public class GrpcSpanProcessorV2Test {
         List<SpanEvent> original = factory.getSpanEventList();
 
         factory.shuffle();
-        Assert.assertNotEquals(factory.getSpanEventList(), span.getSpanEventList());
+        Assertions.assertNotEquals(factory.getSpanEventList(), span.getSpanEventList());
 
         span.setSpanEventList(factory.getSpanEventList());
         spanProcessorProtoV2.preProcess(span, PSpan.newBuilder());
 
-        Assert.assertEquals(original, span.getSpanEventList());
+        Assertions.assertEquals(original, span.getSpanEventList());
     }
 
     private Span newSpan() {
@@ -96,7 +96,7 @@ public class GrpcSpanProcessorV2Test {
             PSpanEvent pSpanEvent = pSpanEventList.get(i);
             SpanEvent next = spanEventList.get(i);
             long startTime = keyStartTime + pSpanEvent.getStartElapsed();
-            Assert.assertEquals(startTime, next.getStartTime());
+            Assertions.assertEquals(startTime, next.getStartTime());
             keyStartTime = startTime;
         }
     }

@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class AgentStatEncoderTest {
     }
 
     protected void verify(List<TestAgentStat> expectedAgentStats, List<TestAgentStat> actualAgentStats) {
-        Assert.assertEquals(expectedAgentStats, actualAgentStats);
+        Assertions.assertEquals(expectedAgentStats, actualAgentStats);
     }
 
     private List<TestAgentStat> decode(Buffer encodedQualifierBuffer, Buffer encodedValueBuffer, AgentStatDecodingContext decodingContext) {

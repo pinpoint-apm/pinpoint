@@ -18,11 +18,10 @@
 package com.navercorp.pinpoint.profiler.jdbc;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ public class BindValueConverterTest {
         Date d = new Date();
         logger.debug("{}", d);
 
-        byte[] bytes = new byte[] {1, 2, 4};
+        byte[] bytes = new byte[]{1, 2, 4};
         String s = Arrays.toString(bytes);
         logger.debug(s);
     }
@@ -47,14 +46,14 @@ public class BindValueConverterTest {
     @Test
     public void testBindValueBoolean() {
         String setBoolean = bindValueConverter.convert("setBoolean", new Object[]{null, Boolean.TRUE});
-        Assert.assertEquals(setBoolean, Boolean.TRUE.toString());
+        Assertions.assertEquals(setBoolean, Boolean.TRUE.toString());
     }
 
     @Test
     public void testBindValueNotSupport() {
         // Should not throw even if given arguments are not supported value
         String setBoolean = bindValueConverter.convert("setXxxx", new Object[]{null, "XXX"});
-        Assert.assertEquals(setBoolean, "");
+        Assertions.assertEquals(setBoolean, "");
     }
 
     @Test
@@ -69,7 +68,7 @@ public class BindValueConverterTest {
         BindValueConverter bindValueConverter = BindValueConverter.defaultBindValueConverter();
         bindValueConverter.setHexBytesConverter();
         String setBytes = bindValueConverter.convert("setBytes", new Object[]{null, bytes});
-        Assert.assertEquals(setBytes, uuidHex);
+        Assertions.assertEquals(setBytes, uuidHex);
     }
 
     @Test
@@ -78,6 +77,6 @@ public class BindValueConverterTest {
         BindValueConverter converter = BindValueConverter.defaultBindValueConverter(maxWidth);
 
         String stringValue = converter.convert("setString", new Object[]{null, "abc"});
-        Assert.assertEquals(StringUtils.abbreviate("abc", maxWidth), stringValue);
+        Assertions.assertEquals(StringUtils.abbreviate("abc", maxWidth), stringValue);
     }
 }

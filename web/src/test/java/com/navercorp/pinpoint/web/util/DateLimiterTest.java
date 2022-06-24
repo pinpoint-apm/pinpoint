@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-
-import org.junit.Assert;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -59,13 +57,13 @@ public class DateLimiterTest {
         Limiter limiter = new DateLimiter(Duration.ofDays(2));
         try {
             limiter.limit(Instant.EPOCH, ofDays(2).plusMillis(1));
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
 
         try {
             limiter.limit(ofDays(2), Instant.EPOCH);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
     }
@@ -75,13 +73,13 @@ public class DateLimiterTest {
         Limiter limiter = new DateLimiter(Duration.ofDays(2));
         try {
             limiter.limit(Range.between(Instant.EPOCH, ofDays(2).plusMillis(1)));
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
 
         try {
             limiter.limit(Range.between(ofDays(2), Instant.EPOCH));
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
     }

@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.rpc.buffer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,10 +29,11 @@ public class ByteBufferFactoryTest {
         assertBufferType(buffer, false);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void unknownByteBufferFactoryTest() {
-        ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("unknown");
-
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("unknown");
+        });
     }
 
     private void assertBufferOrder(ByteBuffer byteBuffer, ByteOrder order) {

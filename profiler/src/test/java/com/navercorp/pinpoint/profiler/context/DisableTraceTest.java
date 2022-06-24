@@ -5,8 +5,8 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 
@@ -15,8 +15,8 @@ public class DisableTraceTest {
     public void testGetScope() {
         Trace trace = newTrace();
         Trace childTrace = newChildTrace();
-        Assert.assertNull(trace.addScope("empty"));
-        Assert.assertNull(childTrace.addScope("empty"));
+        Assertions.assertNull(trace.addScope("empty"));
+        Assertions.assertNull(childTrace.addScope("empty"));
     }
 
     @Test
@@ -26,8 +26,8 @@ public class DisableTraceTest {
 
         trace.addScope("aaa");
         childTrace.addScope("bbb");
-        Assert.assertNotNull(trace.getScope("aaa"));
-        Assert.assertNotNull(childTrace.getScope("bbb"));
+        Assertions.assertNotNull(trace.getScope("aaa"));
+        Assertions.assertNotNull(childTrace.getScope("bbb"));
     }
 
     @Test
@@ -35,8 +35,8 @@ public class DisableTraceTest {
         Trace trace = newTrace();
         Trace childTrace = newChildTrace();
 
-        Assert.assertFalse(trace.canSampled());
-        Assert.assertFalse(childTrace.canSampled());
+        Assertions.assertFalse(trace.canSampled());
+        Assertions.assertFalse(childTrace.canSampled());
     }
 
     @Test
@@ -46,8 +46,8 @@ public class DisableTraceTest {
         SpanRecorder spanRecorder = trace.getSpanRecorder();
         SpanRecorder childSpanRecorder = childTrace.getSpanRecorder();
 
-        Assert.assertNull(spanRecorder);
-        Assert.assertNull(childSpanRecorder);
+        Assertions.assertNull(spanRecorder);
+        Assertions.assertNull(childSpanRecorder);
     }
 
     @Test
@@ -57,8 +57,8 @@ public class DisableTraceTest {
         SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
         SpanEventRecorder childSpanEventRecorder = childTrace.currentSpanEventRecorder();
 
-        Assert.assertNull(spanEventRecorder);
-        Assert.assertNull(childSpanEventRecorder);
+        Assertions.assertNull(spanEventRecorder);
+        Assertions.assertNull(childSpanEventRecorder);
     }
 
     private Trace newTrace() {

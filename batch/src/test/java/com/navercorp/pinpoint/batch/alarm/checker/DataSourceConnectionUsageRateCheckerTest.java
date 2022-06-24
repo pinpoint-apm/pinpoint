@@ -16,26 +16,26 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DataSourceConnectionUsageRateCheckerTest {
 
     private static final String APPLICATION_NAME = "local_service";
@@ -67,7 +67,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
     @Mock
     private ApplicationIndexDao mockApplicationIndexDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         when(mockApplicationIndexDao.selectAgentIds(APPLICATION_NAME)).thenReturn(Arrays.asList(AGENT_ID));
 
@@ -89,13 +89,13 @@ public class DataSourceConnectionUsageRateCheckerTest {
         DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DataSourceConnectionUsageRateChecker checker = new DataSourceConnectionUsageRateChecker(collector, rule);
         checker.check();
-        Assert.assertTrue(checker.isDetected());
+        Assertions.assertTrue(checker.isDetected());
 
         String emailMessage = checker.getEmailMessage();
-        Assert.assertTrue(StringUtils.hasLength(emailMessage));
+        Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertEquals(2, smsMessage.size());
+        Assertions.assertEquals(2, smsMessage.size());
     }
 
     @Test
@@ -106,13 +106,13 @@ public class DataSourceConnectionUsageRateCheckerTest {
         DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DataSourceConnectionUsageRateChecker checker = new DataSourceConnectionUsageRateChecker(collector, rule);
         checker.check();
-        Assert.assertFalse(checker.isDetected());
+        Assertions.assertFalse(checker.isDetected());
 
         String emailMessage = checker.getEmailMessage();
-        Assert.assertTrue(StringUtils.isEmpty(emailMessage));
+        Assertions.assertTrue(StringUtils.isEmpty(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertTrue(CollectionUtils.isEmpty(smsMessage));
+        Assertions.assertTrue(CollectionUtils.isEmpty(smsMessage));
     }
 
     private DataSourceListBo createDataSourceListBo(int id, int activeConnectionSize, int maxConnectionSize, int numValues) {

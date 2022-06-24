@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -36,14 +36,14 @@ public class DateTimeFormatUtilsTest {
     @Test
     public void format() {
         long time = System.currentTimeMillis();
-        Assert.assertEquals(defaultDateFormatfinal.format(time), DateTimeFormatUtils.format(time));
+        Assertions.assertEquals(defaultDateFormatfinal.format(time), DateTimeFormatUtils.format(time));
     }
 
     @Test
     public void formatSimple() {
         long time = System.currentTimeMillis();
         String actual = DateTimeFormatUtils.formatSimple(time);
-        Assert.assertEquals(simpleDateFormatfinal.format(time), actual);
+        Assertions.assertEquals(simpleDateFormatfinal.format(time), actual);
     }
 
     @Test
@@ -51,19 +51,21 @@ public class DateTimeFormatUtilsTest {
         String simpleDate = DateTimeFormatUtils.formatSimple(System.currentTimeMillis());
         SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
         long time = format.parse(simpleDate).getTime();
-        
-        Assert.assertEquals(time, DateTimeFormatUtils.parseSimple(simpleDate));
+
+        Assertions.assertEquals(time, DateTimeFormatUtils.parseSimple(simpleDate));
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void parseSimple_sqltimestamp_error() throws ParseException {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        // "2100-12-31 23:59:59.111"
-        String simpleDate = timestamp.toString();
-        SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
+        Assertions.assertThrows(DateTimeParseException.class, () -> {
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            // "2100-12-31 23:59:59.111"
+            String simpleDate = timestamp.toString();
+            SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
 
-        long time = format.parse(simpleDate).getTime();
-        DateTimeFormatUtils.parseSimple(simpleDate);
+            long time = format.parse(simpleDate).getTime();
+            DateTimeFormatUtils.parseSimple(simpleDate);
+        });
     }
 
 

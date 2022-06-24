@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -49,7 +49,7 @@ public class JoinCpuLoadBoTest {
     }
 
     @Test
-    public void  joinCpuLoadBo2List() {
+    public void joinCpuLoadBo2List() {
         List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>();
         JoinCpuLoadBo joinCpuLoadBo = JoinCpuLoadBo.joinCpuLoadBoList(joinCpuLoadBoList, 1496988667231L);
         assertEquals(joinCpuLoadBo, JoinCpuLoadBo.EMPTY_JOIN_CPU_LOAD_BO);

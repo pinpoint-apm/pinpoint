@@ -20,19 +20,19 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class JvmGcCodecV2Test extends AgentStatCodecTestBase<JvmGcBo> {
 
@@ -52,15 +52,15 @@ public class JvmGcCodecV2Test extends AgentStatCodecTestBase<JvmGcBo> {
 
     @Override
     protected void verify(JvmGcBo expected, JvmGcBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("gcType", expected.getGcType(), actual.getGcType());
-        Assert.assertEquals("heapUsed", expected.getHeapUsed(), actual.getHeapUsed());
-        Assert.assertEquals("heapMax", expected.getHeapMax(), actual.getHeapMax());
-        Assert.assertEquals("nonHeapUsed", expected.getNonHeapUsed(), actual.getNonHeapUsed());
-        Assert.assertEquals("nonHeapMax", expected.getNonHeapMax(), actual.getNonHeapMax());
-        Assert.assertEquals("gcOldCount", expected.getGcOldCount(), actual.getGcOldCount());
-        Assert.assertEquals("gcOldTime", expected.getGcOldTime(), actual.getGcOldTime());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getGcType(), actual.getGcType(), "gcType");
+        Assertions.assertEquals(expected.getHeapUsed(), actual.getHeapUsed(), "heapUsed");
+        Assertions.assertEquals(expected.getHeapMax(), actual.getHeapMax(), "heapMax");
+        Assertions.assertEquals(expected.getNonHeapUsed(), actual.getNonHeapUsed(), "nonHeapUsed");
+        Assertions.assertEquals(expected.getNonHeapMax(), actual.getNonHeapMax(), "nonHeapMax");
+        Assertions.assertEquals(expected.getGcOldCount(), actual.getGcOldCount(), "gcOldCount");
+        Assertions.assertEquals(expected.getGcOldTime(), actual.getGcOldTime(), "gcOldTime");
     }
 }

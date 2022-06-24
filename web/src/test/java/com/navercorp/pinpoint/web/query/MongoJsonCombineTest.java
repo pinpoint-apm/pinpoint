@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.query;
 import com.navercorp.pinpoint.web.util.MongoJsonParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -97,6 +97,6 @@ public class MongoJsonCombineTest {
         logger.debug("bindValues={} " + bindValues.get(0) + ", size : " + bindValues.size());
         String full = jsonParser.combineBindValues(json, bindValues);
         logger.debug("full={} " + full + ", size : " + full.length());
-        Assert.assertEquals(result, full);
+        Assertions.assertEquals(result, full);
     }
 }

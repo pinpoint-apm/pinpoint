@@ -1,13 +1,12 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-
 import com.navercorp.pinpoint.web.dao.UserDao;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public class MemoryUserGroupDaoTest {
 

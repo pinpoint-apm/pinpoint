@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -31,7 +31,7 @@ public class DateTimeUtilsTest {
     @Test
     public void timestampToMidNight() {
         long current = System.currentTimeMillis();
-        Assert.assertEquals(timestampToMidNight(current), DateTimeUtils.timestampToStartOfDay(current));
+        Assertions.assertEquals(timestampToMidNight(current), DateTimeUtils.timestampToStartOfDay(current));
     }
 
     private static long timestampToMidNight(long timestamp) {

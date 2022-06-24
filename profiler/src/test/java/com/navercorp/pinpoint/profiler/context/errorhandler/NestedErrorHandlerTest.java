@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
@@ -17,9 +17,9 @@ public class NestedErrorHandlerTest {
         SQLException sqlException = new SQLException("sql error");
         Exception rootException = new RuntimeException("nested error ", sqlException);
         // fail
-        Assert.assertFalse(errorHandler.handleError(rootException));
+        Assertions.assertFalse(errorHandler.handleError(rootException));
         // success
-        Assert.assertTrue(nestedErrorHandler.handleError(rootException));
+        Assertions.assertTrue(nestedErrorHandler.handleError(rootException));
 
     }
 
@@ -33,7 +33,7 @@ public class NestedErrorHandlerTest {
         SQLException sqlException = new SQLException("sql error");
         Exception rootException = new RuntimeException("nested error ", sqlException);
         // not found
-        Assert.assertFalse(nestedErrorHandler.handleError(rootException));
+        Assertions.assertFalse(nestedErrorHandler.handleError(rootException));
 
     }
 
@@ -46,7 +46,7 @@ public class NestedErrorHandlerTest {
 //
 //        NestedErrorHandler errorHandler = new NestedErrorHandler(new BypassErrorHandler());
 //
-//        Assert.assertFalse(errorHandler.handleError(root));
+//        Assertions.assertFalse(errorHandler.handleError(root));
 //        // success
 //
 //    }

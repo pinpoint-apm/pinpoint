@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.thrift.dto;
 
 import com.navercorp.pinpoint.io.SpanVersion;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,10 +27,10 @@ public class SpanVersionTest {
 
     @Test
     public void supportedVersionRange() {
-        Assert.assertTrue(SpanVersion.supportedVersionRange(SpanVersion.TRACE_V1));
-        Assert.assertTrue(SpanVersion.supportedVersionRange(SpanVersion.TRACE_V2));
+        Assertions.assertTrue(SpanVersion.supportedVersionRange(SpanVersion.TRACE_V1));
+        Assertions.assertTrue(SpanVersion.supportedVersionRange(SpanVersion.TRACE_V2));
 
-        Assert.assertFalse(SpanVersion.supportedVersionRange((byte) -1));
-        Assert.assertFalse(SpanVersion.supportedVersionRange((byte) 100));
+        Assertions.assertFalse(SpanVersion.supportedVersionRange((byte) -1));
+        Assertions.assertFalse(SpanVersion.supportedVersionRange((byte) 100));
     }
 }

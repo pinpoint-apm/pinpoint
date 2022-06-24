@@ -21,14 +21,13 @@ import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BufferedStorageTest {
 
@@ -38,7 +37,7 @@ public class BufferedStorageTest {
     private final CountingDataSender countingDataSender = new CountingDataSender();
     private TraceRoot internalTraceId;
 
-    @Before
+    @BeforeEach
     public void before() {
         countingDataSender.stop();
         internalTraceId = newInternalTraceId();
@@ -58,7 +57,7 @@ public class BufferedStorageTest {
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
 
-        Assert.assertEquals(0, countingDataSender.getTotalCount());
+        Assertions.assertEquals(0, countingDataSender.getTotalCount());
     }
 
     @Test
@@ -70,11 +69,11 @@ public class BufferedStorageTest {
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
 
-        Assert.assertEquals(2, countingDataSender.getSenderCounter());
-        Assert.assertEquals(2, countingDataSender.getTotalCount());
+        Assertions.assertEquals(2, countingDataSender.getSenderCounter());
+        Assertions.assertEquals(2, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(2, countingDataSender.getSpanChunkCounter());
-        Assert.assertEquals(0, countingDataSender.getSpanCounter());
+        Assertions.assertEquals(2, countingDataSender.getSpanChunkCounter());
+        Assertions.assertEquals(0, countingDataSender.getSpanCounter());
     }
 
 
@@ -87,11 +86,11 @@ public class BufferedStorageTest {
         bufferedStorage.store(span);
         bufferedStorage.store(span);
 
-        Assert.assertEquals(3, countingDataSender.getSenderCounter());
-        Assert.assertEquals(3, countingDataSender.getTotalCount());
+        Assertions.assertEquals(3, countingDataSender.getSenderCounter());
+        Assertions.assertEquals(3, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(3, countingDataSender.getSpanCounter());
-        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter());
+        Assertions.assertEquals(3, countingDataSender.getSpanCounter());
+        Assertions.assertEquals(0, countingDataSender.getSpanChunkCounter());
     }
 
     @Test
@@ -104,11 +103,11 @@ public class BufferedStorageTest {
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(span);
 
-        Assert.assertEquals(1, countingDataSender.getSenderCounter());
-        Assert.assertEquals(1, countingDataSender.getTotalCount());
+        Assertions.assertEquals(1, countingDataSender.getSenderCounter());
+        Assertions.assertEquals(1, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(1, countingDataSender.getSpanCounter());
-        Assert.assertEquals(0, countingDataSender.getSpanChunkCounter());
+        Assertions.assertEquals(1, countingDataSender.getSpanCounter());
+        Assertions.assertEquals(0, countingDataSender.getSpanChunkCounter());
     }
 
     @Test
@@ -121,11 +120,11 @@ public class BufferedStorageTest {
         bufferedStorage.store(spanEvent);
         bufferedStorage.flush();
 
-        Assert.assertEquals(1, countingDataSender.getSenderCounter());
-        Assert.assertEquals(1, countingDataSender.getTotalCount());
+        Assertions.assertEquals(1, countingDataSender.getSenderCounter());
+        Assertions.assertEquals(1, countingDataSender.getTotalCount());
 
-        Assert.assertEquals(0, countingDataSender.getSpanCounter());
-        Assert.assertEquals(1, countingDataSender.getSpanChunkCounter());
+        Assertions.assertEquals(0, countingDataSender.getSpanCounter());
+        Assertions.assertEquals(1, countingDataSender.getSpanChunkCounter());
     }
 
     private BufferedStorage newBufferedStorage(int bufferSize) {

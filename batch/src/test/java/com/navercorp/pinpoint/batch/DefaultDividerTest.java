@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.batch.common.DefaultDivider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung

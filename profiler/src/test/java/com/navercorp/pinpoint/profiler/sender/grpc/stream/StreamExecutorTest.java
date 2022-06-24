@@ -17,15 +17,12 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.stream;
 
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamId;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,12 +32,12 @@ public class StreamExecutorTest {
     private ExecutorService executor = Executors.newFixedThreadPool(2);
     private StreamId id = StreamId.newStreamId("test");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         executor = Executors.newFixedThreadPool(2);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (executor != null) {
             executor.shutdown();

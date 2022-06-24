@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class AgentActiveThreadDumpListTest {
 
             AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
 
-            Assert.assertEquals(CREATE_DUMP_SIZE, activeThreadDumpList.getAgentActiveThreadDumpRepository().size());
+            Assertions.assertEquals(CREATE_DUMP_SIZE, activeThreadDumpList.getAgentActiveThreadDumpRepository().size());
         } finally {
             clearResource(waitingJobList);
         }
@@ -72,7 +72,7 @@ public class AgentActiveThreadDumpListTest {
             for (AgentActiveThreadDump dump : sortOldestAgentActiveThreadDumpRepository) {
                 long startTime = dump.getStartTime();
                 if (before > startTime) {
-                    Assert.fail();
+                    Assertions.fail();
                 }
                 before = startTime;
             }
@@ -81,19 +81,21 @@ public class AgentActiveThreadDumpListTest {
         }
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void checkUnmodifiableList() {
-        List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
-        try {
-            Thread[] threads = createThread(waitingJobList);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            List<WaitingJob> waitingJobList = createWaitingJobList(CREATE_DUMP_SIZE);
+            try {
+                Thread[] threads = createThread(waitingJobList);
 
-            AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
+                AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
 
-            List<AgentActiveThreadDump> agentActiveThreadDumpRepository = activeThreadDumpList.getAgentActiveThreadDumpRepository();
-            agentActiveThreadDumpRepository.remove(0);
-        } finally {
-            clearResource(waitingJobList);
-        }
+                List<AgentActiveThreadDump> agentActiveThreadDumpRepository = activeThreadDumpList.getAgentActiveThreadDumpRepository();
+                agentActiveThreadDumpRepository.remove(0);
+            } finally {
+                clearResource(waitingJobList);
+            }
+        });
     }
 
     private List<WaitingJob> createWaitingJobList(int createActiveTraceRepositorySize) {
@@ -127,7 +129,7 @@ public class AgentActiveThreadDumpListTest {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(100000));
 
-            final ThreadDumpMetricSnapshot threadDumpMetricSnapshot =ThreadDumpUtils.createThreadDump(thread);
+            final ThreadDumpMetricSnapshot threadDumpMetricSnapshot = ThreadDumpUtils.createThreadDump(thread);
             final TThreadDump threadDump = this.threadDumpThriftMessageConverter.toMessage(threadDumpMetricSnapshot);
 
             tActiveThreadDump.setThreadDump(threadDump);

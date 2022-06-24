@@ -4,8 +4,8 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.vo.SpanHint;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Predicate;
 
@@ -30,7 +30,7 @@ public class SpanQueryBuilderTest {
         span.setElapsed(200);
         span.setApplicationId("appName");
 
-        Assert.assertTrue(filter.test(span));
+        Assertions.assertTrue(filter.test(span));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class SpanQueryBuilderTest {
 
         SpanBo span = new SpanBo();
 
-        Assert.assertFalse(filter.test(span));
+        Assertions.assertFalse(filter.test(span));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class SpanQueryBuilderTest {
         SpanBo span = new SpanBo();
         span.setTransactionId(txId);
 
-        Assert.assertTrue(filter.test(span));
+        Assertions.assertTrue(filter.test(span));
     }
 
     @Test
@@ -65,7 +65,7 @@ public class SpanQueryBuilderTest {
         SpanBo span = new SpanBo();
         span.setCollectorAcceptTime(COLLECTOR_ACCEPTOR_TIME);
 
-        Assert.assertTrue(filter.test(span));
+        Assertions.assertTrue(filter.test(span));
     }
 
     @Test
@@ -76,6 +76,6 @@ public class SpanQueryBuilderTest {
         SpanBo span = new SpanBo();
         span.setElapsed(RESPONSE_TIME);
 
-        Assert.assertTrue(filter.test(span));
+        Assertions.assertTrue(filter.test(span));
     }
 }

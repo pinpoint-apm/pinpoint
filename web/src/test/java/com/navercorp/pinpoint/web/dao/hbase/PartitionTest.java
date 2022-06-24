@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class PartitionTest {
     private void assertPartition(int size) throws NoSuchFieldException, IllegalAccessException {
         List<List<Integer>> daoImpl = splitTransactionIdList(original, size);
         List<List<Integer>> guava = ListUtils.partition(original, size);
-        Assert.assertEquals(guava , daoImpl);
+        Assertions.assertEquals(guava , daoImpl);
     }
 
     static <V> List<List<V>> splitTransactionIdList(List<V> transactionIdList, int maxTransactionIdListSize) {

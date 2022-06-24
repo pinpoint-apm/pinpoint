@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author emeroad
  */
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
 @ContextConfiguration(classes = CollectorConfiguration.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CollectorConfigurationTest {
 
     @Autowired
@@ -37,9 +37,9 @@ public class CollectorConfigurationTest {
 
     @Test
     public void l4IpTest() {
-        Assert.assertTrue(collectorConfiguration.getL4IpList().contains("127.0.0.1"));
-        Assert.assertTrue(collectorConfiguration.getL4IpList().contains("192.168.0.1"));
-        Assert.assertTrue(collectorConfiguration.getL4IpList().contains("255.255.255.255"));
+        Assertions.assertTrue(collectorConfiguration.getL4IpList().contains("127.0.0.1"));
+        Assertions.assertTrue(collectorConfiguration.getL4IpList().contains("192.168.0.1"));
+        Assertions.assertTrue(collectorConfiguration.getL4IpList().contains("255.255.255.255"));
     }
 
 }

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -34,7 +34,7 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = {accessorMock};
 
         AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        Assert.assertNotNull(asyncContext);
+        Assertions.assertNotNull(asyncContext);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = null;
 
         AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = {"Str"};
 
         AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
     }
 
     @Test
@@ -61,10 +61,10 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = {};
 
         AsyncContext asyncContext0 = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        Assert.assertNull(asyncContext0);
+        Assertions.assertNull(asyncContext0);
 
         AsyncContext asyncContext1 = ReactorContextAccessorUtils.getAsyncContext(args, 1);
-        Assert.assertNull(asyncContext1);
+        Assertions.assertNull(asyncContext1);
     }
 
     @Test
@@ -75,28 +75,28 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = {"foo", "bar", accessorMock};
 
         AsyncContext asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 0);
-        Assert.assertNotNull(asyncContext);
+        Assertions.assertNotNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 1);
-        Assert.assertNotNull(asyncContext);
+        Assertions.assertNotNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 2);
-        Assert.assertNotNull(asyncContext);
+        Assertions.assertNotNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 3);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 0, 2);
-        Assert.assertNotNull(asyncContext);
+        Assertions.assertNotNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 1, 2);
-        Assert.assertNotNull(asyncContext);
+        Assertions.assertNotNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 0, 1);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
 
         asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 2, 0);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = null;
 
         AsyncContext asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 0);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = {"Str"};
 
         AsyncContext asyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 0);
-        Assert.assertNull(asyncContext);
+        Assertions.assertNull(asyncContext);
     }
 
     @Test
@@ -120,10 +120,10 @@ public class ReactorContextAccessorUtilsTest {
         Object[] args = {};
 
         AsyncContext asyncContext0 = ReactorContextAccessorUtils.findAsyncContext(args, 0);
-        Assert.assertNull(asyncContext0);
+        Assertions.assertNull(asyncContext0);
 
         AsyncContext asyncContext1 = ReactorContextAccessorUtils.findAsyncContext(args, 1);
-        Assert.assertNull(asyncContext1);
+        Assertions.assertNull(asyncContext1);
     }
 
     @Test

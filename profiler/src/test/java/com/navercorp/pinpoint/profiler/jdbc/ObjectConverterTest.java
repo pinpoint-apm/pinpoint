@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.jdbc;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Time;
 import java.util.UUID;
@@ -36,7 +36,7 @@ public class ObjectConverterTest {
         Time sqlTime = new Time(System.currentTimeMillis());
         String stringTime = convert(sqlTime);
 
-        Assert.assertEquals(stringTime, sqlTime.toString());
+        Assertions.assertEquals(stringTime, sqlTime.toString());
     }
 
     @Test
@@ -44,11 +44,11 @@ public class ObjectConverterTest {
         byte byte1 = 0;
         String convert = convert(byte1);
 
-        Assert.assertEquals(convert, String.valueOf(byte1));
+        Assertions.assertEquals(convert, String.valueOf(byte1));
     }
 
     private String convert(Object param) {
-        Object[] args = new Object[] { new Object(), param };
+        Object[] args = new Object[]{new Object(), param};
         ObjectConverter objectConverter = new ObjectConverter();
         return objectConverter.convert(args);
     }
@@ -57,6 +57,6 @@ public class ObjectConverterTest {
     public void convert_UUID() {
         UUID uuid = UUID.randomUUID();
         String uuidStr = convert(uuid);
-        Assert.assertEquals(uuidStr, uuidStr);
+        Assertions.assertEquals(uuidStr, uuidStr);
     }
 }

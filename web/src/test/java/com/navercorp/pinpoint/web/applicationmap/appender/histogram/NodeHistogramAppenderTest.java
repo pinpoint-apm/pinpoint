@@ -16,29 +16,32 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.mock;
@@ -60,14 +63,14 @@ public class NodeHistogramAppenderTest {
 
     private long buildTimeoutMillis = 1000;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         wasNodeHistogramDataSource = mock(WasNodeHistogramDataSource.class);
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
         nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         executor.shutdown();
         try {
@@ -89,7 +92,7 @@ public class NodeHistogramAppenderTest {
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
         // Then
-        Assert.assertTrue(nodeList.getNodeList().isEmpty());
+        Assertions.assertTrue(nodeList.getNodeList().isEmpty());
         verifyZeroInteractions(wasNodeHistogramDataSource);
     }
 
@@ -111,7 +114,7 @@ public class NodeHistogramAppenderTest {
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
-        Assert.assertSame(nodeHistogram, actualNode.getNodeHistogram());
+        Assertions.assertSame(nodeHistogram, actualNode.getNodeHistogram());
     }
 
     /**
@@ -156,17 +159,17 @@ public class NodeHistogramAppenderTest {
         NodeHistogram nodeHistogram = actualNode.getNodeHistogram();
         // verify application-level histogram
         Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
-        Assert.assertEquals(fastCallCount, applicationHistogram.getFastCount());
-        Assert.assertEquals(normalCallCount, applicationHistogram.getNormalCount());
-        Assert.assertEquals(slowCallCount, applicationHistogram.getSlowCount());
-        Assert.assertEquals(fastCallCount + normalCallCount + slowCallCount, applicationHistogram.getTotalCount());
+        Assertions.assertEquals(fastCallCount, applicationHistogram.getFastCount());
+        Assertions.assertEquals(normalCallCount, applicationHistogram.getNormalCount());
+        Assertions.assertEquals(slowCallCount, applicationHistogram.getSlowCount());
+        Assertions.assertEquals(fastCallCount + normalCallCount + slowCallCount, applicationHistogram.getTotalCount());
         // verify agent-level histogram
         Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
         Histogram agentHistogram = agentHistogramMap.get(toNodeAgent);
-        Assert.assertEquals(fastCallCount, agentHistogram.getFastCount());
-        Assert.assertEquals(normalCallCount, agentHistogram.getNormalCount());
-        Assert.assertEquals(slowCallCount, agentHistogram.getSlowCount());
-        Assert.assertEquals(fastCallCount + normalCallCount + slowCallCount, agentHistogram.getTotalCount());
+        Assertions.assertEquals(fastCallCount, agentHistogram.getFastCount());
+        Assertions.assertEquals(normalCallCount, agentHistogram.getNormalCount());
+        Assertions.assertEquals(slowCallCount, agentHistogram.getSlowCount());
+        Assertions.assertEquals(fastCallCount + normalCallCount + slowCallCount, agentHistogram.getTotalCount());
     }
 
     /**
@@ -210,17 +213,17 @@ public class NodeHistogramAppenderTest {
         NodeHistogram nodeHistogram = actualNode.getNodeHistogram();
         // verify application-level histogram
         Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
-        Assert.assertEquals(callCount1, applicationHistogram.getFastCount());
-        Assert.assertEquals(callCount2, applicationHistogram.getNormalCount());
-        Assert.assertEquals(callCount1 + callCount2, applicationHistogram.getTotalCount());
+        Assertions.assertEquals(callCount1, applicationHistogram.getFastCount());
+        Assertions.assertEquals(callCount2, applicationHistogram.getNormalCount());
+        Assertions.assertEquals(callCount1 + callCount2, applicationHistogram.getTotalCount());
         // verify agent-level histogram
         Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
         Histogram agent1Histogram = agentHistogramMap.get(toNodeAgent1);
-        Assert.assertEquals(callCount1, agent1Histogram.getFastCount());
-        Assert.assertEquals(callCount1, agent1Histogram.getTotalCount());
+        Assertions.assertEquals(callCount1, agent1Histogram.getFastCount());
+        Assertions.assertEquals(callCount1, agent1Histogram.getTotalCount());
         Histogram agent2Histogram = agentHistogramMap.get(toNodeAgent2);
-        Assert.assertEquals(callCount2, agent2Histogram.getNormalCount());
-        Assert.assertEquals(callCount2, agent2Histogram.getTotalCount());
+        Assertions.assertEquals(callCount2, agent2Histogram.getNormalCount());
+        Assertions.assertEquals(callCount2, agent2Histogram.getTotalCount());
     }
 
     /**
@@ -273,27 +276,27 @@ public class NodeHistogramAppenderTest {
         NodeHistogram databaseNodeHistogram = actualDatabaseNode.getNodeHistogram();
         // verify application-level histogram
         Histogram databaseApplicationHistogram = databaseNodeHistogram.getApplicationHistogram();
-        Assert.assertEquals(databaseCallSlowCount, databaseApplicationHistogram.getSlowCount());
-        Assert.assertEquals(databaseCallSlowCount, databaseApplicationHistogram.getTotalCount());
+        Assertions.assertEquals(databaseCallSlowCount, databaseApplicationHistogram.getSlowCount());
+        Assertions.assertEquals(databaseCallSlowCount, databaseApplicationHistogram.getTotalCount());
         // verify agent-level histogram
         Map<String, Histogram> databaseAgentHistogramMap = databaseNodeHistogram.getAgentHistogramMap();
         Histogram databaseAgentHistogram = databaseAgentHistogramMap.get(databaseNodeAgent);
-        Assert.assertEquals(databaseCallSlowCount, databaseAgentHistogram.getSlowCount());
-        Assert.assertEquals(databaseCallSlowCount, databaseAgentHistogram.getTotalCount());
+        Assertions.assertEquals(databaseCallSlowCount, databaseAgentHistogram.getSlowCount());
+        Assertions.assertEquals(databaseCallSlowCount, databaseAgentHistogram.getTotalCount());
         // Cache node
         Node actualCacheNode = nodeList.findNode(cacheNode.getApplication());
         NodeHistogram cacheNodeHistogram = actualCacheNode.getNodeHistogram();
         // verify application-level histogram
         Histogram cacheApplicationHistogram = cacheNodeHistogram.getApplicationHistogram();
-        Assert.assertEquals(cacheCallFastCount, cacheApplicationHistogram.getFastCount());
-        Assert.assertEquals(cacheCallSlowCount, cacheApplicationHistogram.getSlowCount());
-        Assert.assertEquals(cacheCallFastCount + cacheCallSlowCount, cacheApplicationHistogram.getTotalCount());
+        Assertions.assertEquals(cacheCallFastCount, cacheApplicationHistogram.getFastCount());
+        Assertions.assertEquals(cacheCallSlowCount, cacheApplicationHistogram.getSlowCount());
+        Assertions.assertEquals(cacheCallFastCount + cacheCallSlowCount, cacheApplicationHistogram.getTotalCount());
         // verify agent-level histogram
         Map<String, Histogram> cacheAgentHistogramMap = cacheNodeHistogram.getAgentHistogramMap();
         Histogram cacheAgentHistogram = cacheAgentHistogramMap.get(cacheNodeAgent);
-        Assert.assertEquals(cacheCallFastCount, cacheAgentHistogram.getFastCount());
-        Assert.assertEquals(cacheCallSlowCount, cacheAgentHistogram.getSlowCount());
-        Assert.assertEquals(cacheCallFastCount + cacheCallSlowCount, cacheAgentHistogram.getTotalCount());
+        Assertions.assertEquals(cacheCallFastCount, cacheAgentHistogram.getFastCount());
+        Assertions.assertEquals(cacheCallSlowCount, cacheAgentHistogram.getSlowCount());
+        Assertions.assertEquals(cacheCallFastCount + cacheCallSlowCount, cacheAgentHistogram.getTotalCount());
     }
 
     /**
@@ -335,12 +338,12 @@ public class NodeHistogramAppenderTest {
         NodeHistogram nodeHistogram = userNode.getNodeHistogram();
         // verify application-level histogram
         Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
-        Assert.assertEquals(fastCallCount, applicationHistogram.getFastCount());
-        Assert.assertEquals(normalCallCount, applicationHistogram.getNormalCount());
-        Assert.assertEquals(fastCallCount + normalCallCount, applicationHistogram.getTotalCount());
+        Assertions.assertEquals(fastCallCount, applicationHistogram.getFastCount());
+        Assertions.assertEquals(normalCallCount, applicationHistogram.getNormalCount());
+        Assertions.assertEquals(fastCallCount + normalCallCount, applicationHistogram.getTotalCount());
         // verify agent-level histogram - there is none for user node
         Map<String, Histogram> databaseAgentHistogramMap = nodeHistogram.getAgentHistogramMap();
-        Assert.assertTrue(databaseAgentHistogramMap.isEmpty());
+        Assertions.assertTrue(databaseAgentHistogramMap.isEmpty());
     }
 
     private Node createNode(String applicationName, ServiceType serviceType) {

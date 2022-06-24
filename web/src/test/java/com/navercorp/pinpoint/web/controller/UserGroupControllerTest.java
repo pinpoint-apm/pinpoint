@@ -15,6 +15,32 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.web.dao.UserDao;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,38 +50,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.dao.UserGroupDao;
-import com.navercorp.pinpoint.web.vo.User;
-import com.navercorp.pinpoint.web.vo.UserGroup;
-import com.navercorp.pinpoint.web.vo.UserGroupMember;
-
 /**
  * @author minwoo.jung
  */
-@Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
+@Disabled
+@ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
 public class UserGroupControllerTest {
@@ -83,7 +82,7 @@ public class UserGroupControllerTest {
     private MockMvc mockMvc;
     
     private final User user = new User(TEST_USER_GROUP_MEMBER_ID, "userName", "pinpoint_team", 82, "0101234", "pinpoint_team@navercorp.com");
-    @Before
+    @BeforeEach
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID));
@@ -100,7 +99,7 @@ public class UserGroupControllerTest {
         userGroupDao.insertMember(new UserGroupMember(TEST_USER_GROUP_ID3, TEST_USER_GROUP_MEMBER_ID2));
     }
     
-    @After
+    @AfterEach
     public void after(){
         userDao.deleteUser(user.getUserId());
         
@@ -121,7 +120,7 @@ public class UserGroupControllerTest {
         String content = result.getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
         List<Map> userGroupList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(userGroupList.size(), 2);
+        Assertions.assertEquals(userGroupList.size(), 2);
     }
 
     @Test
@@ -134,7 +133,7 @@ public class UserGroupControllerTest {
         String content = result.getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
         List<Map> userGroupList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(userGroupList.size(), 2);
+        Assertions.assertEquals(userGroupList.size(), 2);
     }
 
     @Test

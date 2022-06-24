@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.profiler.sampler;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-
-import org.junit.Assert;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,7 +33,7 @@ public class CountingSamplerFactoryTest {
         SamplerFactory factory = new CountingSamplerFactory(0);
         Sampler sampler = factory.createSampler();
         boolean sampling = sampler.isSampling();
-        Assert.assertFalse(sampling);
+        Assertions.assertFalse(sampling);
     }
 
     @Test
@@ -43,7 +41,7 @@ public class CountingSamplerFactoryTest {
         SamplerFactory factory = new CountingSamplerFactory(-1);
         Sampler sampler = factory.createSampler();
         boolean sampling = sampler.isSampling();
-        Assert.assertFalse(sampling);
+        Assertions.assertFalse(sampling);
     }
 
     @Test
@@ -51,10 +49,10 @@ public class CountingSamplerFactoryTest {
         SamplerFactory factory = new CountingSamplerFactory(2);
         Sampler sampler = factory.createSampler();
 
-        Assert.assertEquals(true, sampler.isSampling());
-        Assert.assertEquals(false, sampler.isSampling());
-        Assert.assertEquals(true, sampler.isSampling());
-        Assert.assertEquals(false, sampler.isSampling());
+        Assertions.assertEquals(true, sampler.isSampling());
+        Assertions.assertEquals(false, sampler.isSampling());
+        Assertions.assertEquals(true, sampler.isSampling());
+        Assertions.assertEquals(false, sampler.isSampling());
     }
 
     @Test
@@ -63,7 +61,7 @@ public class CountingSamplerFactoryTest {
         when(profilerConfig.readInt(CountingSamplerFactory.LEGACY_SAMPLING_RATE_NAME, -1)).thenReturn(100);
 
         CountingSamplerFactory.Config config = CountingSamplerFactory.config(profilerConfig);
-        Assert.assertEquals(100, config.getSamplingRate());
+        Assertions.assertEquals(100, config.getSamplingRate());
     }
 
     @Test
@@ -73,6 +71,6 @@ public class CountingSamplerFactoryTest {
         when(profilerConfig.readInt(CountingSamplerFactory.SAMPLING_RATE_NAME, 1)).thenReturn(200);
 
         CountingSamplerFactory.Config config = CountingSamplerFactory.config(profilerConfig);
-        Assert.assertEquals(200, config.getSamplingRate());
+        Assertions.assertEquals(200, config.getSamplingRate());
     }
 }

@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ApplicationMapStatisticsUtilsTest {
 
@@ -34,18 +33,18 @@ public class ApplicationMapStatisticsUtilsTest {
 
         byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, time);
 
-        Assert.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
-        Assert.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
+        Assertions.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
+        Assertions.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
     }
 
     @Test
     public void testMakeColumnName() throws Exception {
         final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName("test", (short) 10);
-        short slotNumber = BytesUtils.bytesToShort(columnNameBytes,0);
-        Assert.assertEquals(slotNumber, 10);
+        short slotNumber = BytesUtils.bytesToShort(columnNameBytes, 0);
+        Assertions.assertEquals(slotNumber, 10);
 
         String columnName = BytesUtils.toString(columnNameBytes, BytesUtils.SHORT_BYTE_LENGTH, columnNameBytes.length - BytesUtils.SHORT_BYTE_LENGTH);
-        Assert.assertEquals(columnName, "test");
+        Assertions.assertEquals(columnName, "test");
 
     }
 
@@ -55,13 +54,13 @@ public class ApplicationMapStatisticsUtilsTest {
         final short slotNumber = 10;
         final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName(ServiceType.STAND_ALONE.getCode(), "applicationName", "dest", slotNumber);
         Buffer buffer = new FixedBuffer(columnNameBytes);
-        Assert.assertEquals(ServiceType.STAND_ALONE.getCode(), buffer.readShort());
-        Assert.assertEquals(10, buffer.readShort());
-        Assert.assertEquals("applicationName", buffer.read2PrefixedString());
+        Assertions.assertEquals(ServiceType.STAND_ALONE.getCode(), buffer.readShort());
+        Assertions.assertEquals(10, buffer.readShort());
+        Assertions.assertEquals("applicationName", buffer.read2PrefixedString());
 
         int offset = buffer.getOffset();
         byte[] interBuffer = buffer.getInternalBuffer();
-        Assert.assertEquals(BytesUtils.toString(interBuffer, offset, interBuffer.length - offset), "dest");
+        Assertions.assertEquals(BytesUtils.toString(interBuffer, offset, interBuffer.length - offset), "dest");
 
     }
 }

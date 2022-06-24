@@ -17,18 +17,17 @@
 package com.navercorp.pinpoint.profiler.context.compress;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class SpanPostProcessorTest {
         try {
             SpanChunk spanChunk = new DefaultSpanChunk(internalTraceId, new ArrayList<SpanEvent>());
             spanChunkPostProcessor.postProcess(spanChunk, tSpanChunk);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
     }

@@ -26,10 +26,10 @@ import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.awaitility.core.ConditionTimeoutException;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +54,7 @@ public class ConnectionTest {
     private static int zookeeperPort;
     private static TestingServer ts = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         zookeeperPort = SocketUtils.findAvailableTcpPort();
         ts = createTestingServer();
@@ -64,7 +64,7 @@ public class ConnectionTest {
         return new TestingServer(zookeeperPort);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         if (ts != null) {
             ts.stop();
@@ -96,7 +96,7 @@ public class ConnectionTest {
 
             ts = createTestingServer();
 
-            Assert.assertThrows(ConditionTimeoutException.class, () -> assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper));
+            Assertions.assertThrows(ConditionTimeoutException.class, () -> assertAwaitState(ZooKeeper.States.CONNECTED, zookeeper));
 
         } finally {
             ZKUtils.closeQuietly(zookeeper);
@@ -156,7 +156,7 @@ public class ConnectionTest {
     @Test
     public void curatorReconnectTest() throws Exception {
         CuratorZookeeperClient curatorZookeeperClient = new CuratorZookeeperClient(ts.getConnectString(), 5000, new LoggingZookeeperEventWatcher());
-        try (curatorZookeeperClient){
+        try (curatorZookeeperClient) {
             curatorZookeeperClient.connect();
 
             assertAwaitState(true, curatorZookeeperClient);
@@ -173,6 +173,7 @@ public class ConnectionTest {
 
     private static class LoggingZookeeperEventWatcher implements ZookeeperEventWatcher {
         private final Logger logger = LogManager.getLogger(LoggingZookeeperEventWatcher.class);
+
         @Override
         public boolean handleConnected() {
             logger.info("handleConnected()");

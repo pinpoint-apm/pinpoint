@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
@@ -61,7 +61,7 @@ public class JarFileAnalyzerTest {
                 .filter(this::packageFilter)
                 .count();
 
-        Assert.assertEquals(packageCount, packageSet.size());
+        Assertions.assertEquals(packageCount, packageSet.size());
     }
 
     private boolean packageFilter(JarEntry jarEntry) {
@@ -95,7 +95,7 @@ public class JarFileAnalyzerTest {
         when(jarEntry.getName()).thenReturn("test.class");
 
         String empty = filter.filter(jarEntry);
-        Assert.assertNull(empty);
+        Assertions.assertNull(empty);
     }
 
     @Test
@@ -108,8 +108,8 @@ public class JarFileAnalyzerTest {
         PackageInfo analyze = analyzer.analyze();
         List<Providers> providers = analyze.getProviders();
         Providers first = providers.get(0);
-        Assert.assertEquals("java.sql.Driver", first.getService());
-        Assert.assertTrue(first.getProviders().contains("com.mysql.cj.jdbc.Driver"));
+        Assertions.assertEquals("java.sql.Driver", first.getService());
+        Assertions.assertTrue(first.getProviders().contains("com.mysql.cj.jdbc.Driver"));
 
 
     }

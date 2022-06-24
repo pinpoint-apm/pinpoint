@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HttpStatusCodeErrorsTest {
     @Test

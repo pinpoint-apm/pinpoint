@@ -1,15 +1,16 @@
 package com.navercorp.pinpoint.grpc.server;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 
-public class SocketAddressUtilsTest extends TestCase {
+public class SocketAddressUtilsTest {
 
+    @Test
     public void testTestToString() {
         InetSocketAddress unresolved = InetSocketAddress.createUnresolved("127.0.0.1", 9999);
         String address = SocketAddressUtils.toString(unresolved);
-        Assert.assertEquals("127.0.0.1:9999", address);
+        Assertions.assertEquals("127.0.0.1:9999", address);
     }
 }

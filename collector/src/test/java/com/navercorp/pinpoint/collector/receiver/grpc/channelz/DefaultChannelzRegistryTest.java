@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.channelz;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 
@@ -16,7 +16,7 @@ public class DefaultChannelzRegistryTest {
         registry.addSocket(logId, remote, local);
 
         Long removedLogId = registry.removeSocket(remote);
-        Assert.assertEquals(logId, removedLogId.longValue());
+        Assertions.assertEquals(logId, removedLogId.longValue());
     }
 
     @Test
@@ -34,9 +34,9 @@ public class DefaultChannelzRegistryTest {
         registry.addSocket(logId2, remote2, local2);
 
         Long removedLogId = registry.removeSocket(remote1);
-        Assert.assertEquals(logId1, removedLogId.longValue());
+        Assertions.assertEquals(logId1, removedLogId.longValue());
 
-        Assert.assertEquals(-1L, registry.removeSocket(remote1).longValue());
+        Assertions.assertEquals(-1L, registry.removeSocket(remote1).longValue());
     }
 
     @Test
@@ -50,10 +50,10 @@ public class DefaultChannelzRegistryTest {
         registry.addSocket(logId1, remote1, local1);
         long removedLogId = registry.removeSocket(remote1);
 
-        Assert.assertEquals(logId1, removedLogId);
+        Assertions.assertEquals(logId1, removedLogId);
 
-        Assert.assertEquals(0, registry.getRemoteAddressSocketMapSize());
-        Assert.assertEquals(0, registry.getSocketMapSize());
+        Assertions.assertEquals(0, registry.getRemoteAddressSocketMapSize());
+        Assertions.assertEquals(0, registry.getSocketMapSize());
     }
 
     @Test
@@ -65,6 +65,6 @@ public class DefaultChannelzRegistryTest {
         registry.addSocket(1, remote1, local1);
 
         InetSocketAddress unkonwn = InetSocketAddress.createUnresolved("2.2.2.2", 9991);
-        Assert.assertEquals(-1L, registry.removeSocket(unkonwn).longValue());
+        Assertions.assertEquals(-1L, registry.removeSocket(unkonwn).longValue());
     }
 }

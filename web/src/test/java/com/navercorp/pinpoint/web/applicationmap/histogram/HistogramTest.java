@@ -21,11 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
@@ -42,42 +41,42 @@ public class HistogramTest {
     public void pingSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getPingSlot().getSlotTime(), 1);
-        Assert.assertEquals(1, histogram.getPingCount());
+        Assertions.assertEquals(1, histogram.getPingCount());
 
-        Assert.assertEquals(0, histogram.getErrorCount());
+        Assertions.assertEquals(0, histogram.getErrorCount());
     }
 
     @Test
     public void maxSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getMaxStatSlot().getSlotTime(), 1000);
-        Assert.assertEquals(1000, histogram.getMaxElapsed());
+        Assertions.assertEquals(1000, histogram.getMaxElapsed());
 
-        Assert.assertEquals(0, histogram.getErrorCount());
+        Assertions.assertEquals(0, histogram.getErrorCount());
     }
 
     @Test
     public void errorSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getErrorSlot().getSlotTime(), 1);
-        Assert.assertEquals(1, histogram.getErrorCount());
-        Assert.assertEquals(0, histogram.getSuccessCount());
+        Assertions.assertEquals(1, histogram.getErrorCount());
+        Assertions.assertEquals(0, histogram.getSuccessCount());
     }
 
     @Test
     public void slowSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getSlowSlot().getSlotTime(), 1);
-        Assert.assertEquals(1, histogram.getSlowCount());
-        Assert.assertEquals(1, histogram.getSuccessCount());
+        Assertions.assertEquals(1, histogram.getSlowCount());
+        Assertions.assertEquals(1, histogram.getSuccessCount());
     }
 
     @Test
     public void verySlowSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getVerySlowSlot().getSlotTime(), 1);
-        Assert.assertEquals(1, histogram.getVerySlowCount());
-        Assert.assertEquals(1, histogram.getSuccessCount());
+        Assertions.assertEquals(1, histogram.getVerySlowCount());
+        Assertions.assertEquals(1, histogram.getSuccessCount());
     }
 
     @Test
@@ -87,13 +86,13 @@ public class HistogramTest {
 
 
         Histogram copy = new Histogram(ServiceType.STAND_ALONE);
-        Assert.assertEquals(copy.getFastCount(), 0);
+        Assertions.assertEquals(copy.getFastCount(), 0);
         copy.add(original);
-        Assert.assertEquals(original.getFastCount(), copy.getFastCount());
+        Assertions.assertEquals(original.getFastCount(), copy.getFastCount());
 
         copy.addCallCount((short) 1000, 100);
-        Assert.assertEquals(original.getFastCount(), 100);
-        Assert.assertEquals(copy.getFastCount(), 200);
+        Assertions.assertEquals(original.getFastCount(), 100);
+        Assertions.assertEquals(copy.getFastCount(), 200);
 
     }
 
@@ -106,7 +105,7 @@ public class HistogramTest {
         String json = objectMapper.writeValueAsString(original);
         HashMap<?, ?> hashMap = objectMapper.readValue(json, HashMap.class);
 
-        Assert.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
-        Assert.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);
+        Assertions.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
+        Assertions.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);
     }
 }

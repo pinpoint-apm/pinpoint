@@ -4,21 +4,26 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public abstract class AsyncContextTest {
     @Mock
     protected TraceRoot traceRoot;
@@ -32,33 +37,34 @@ public abstract class AsyncContextTest {
         BaseTraceFactoryProvider baseTraceFactoryProvider = mock(BaseTraceFactoryProvider.class);
 
         when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), eq(true)))
-            .thenAnswer(new Answer<Trace>() {
-                @Override
-                public Trace answer(InvocationOnMock invocationOnMock) {
-                    Trace trace = mock(AsyncChildTrace.class);
-                    when(trace.canSampled()).thenReturn(true);
-                    return trace;
-                }
-            });
+                .thenAnswer(new Answer<Trace>() {
+                    @Override
+                    public Trace answer(InvocationOnMock invocationOnMock) {
+                        Trace trace = mock(AsyncChildTrace.class);
+                        when(trace.canSampled()).thenReturn(true);
+                        return trace;
+                    }
+                });
         when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), eq(false)))
-            .thenAnswer(new Answer<Trace>() {
-                @Override
-                public Trace answer(InvocationOnMock invocationOnMock) {
-                    return mock(DisableAsyncChildTrace.class);
-                }
-            });
+                .thenAnswer(new Answer<Trace>() {
+                    @Override
+                    public Trace answer(InvocationOnMock invocationOnMock) {
+                        return mock(DisableAsyncChildTrace.class);
+                    }
+                });
         when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
 
         return new DefaultAsyncTraceContext(baseTraceFactoryProvider, new ThreadLocalBinder<Trace>());
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         LocalAsyncId localAsyncId = new DefaultLocalAsyncId(0, 0);
         when(asyncId.nextLocalAsyncId()).thenReturn(localAsyncId);
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void testAsyncTraceObject() {
         AsyncContext enabledAsyncContext = newAsyncContext(true);
         AsyncContext disabledAsyncContext = newAsyncContext(false);
@@ -83,6 +89,7 @@ public abstract class AsyncContextTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void testClose() {
         AsyncContext asyncContext = newAsyncContext(true);
 

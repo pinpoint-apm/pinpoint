@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.collector.thrift.config;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
 @ContextConfiguration(classes = SpanReceiverConfiguration.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class SpanReceiverConfigurationTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -37,15 +37,15 @@ public class SpanReceiverConfigurationTest {
 
     @Test
     public void properties() {
-        Assert.assertTrue(configuration.isUdpEnable());
-        Assert.assertEquals(configuration.getUdpBindIp(), "0.0.0.3");
-        Assert.assertEquals(configuration.getUdpBindPort(), 39997);
-        Assert.assertEquals(configuration.getUdpReceiveBufferSize(), 568);
-        Assert.assertFalse(configuration.isTcpEnable());
-        Assert.assertEquals(configuration.getTcpBindIp(), "0.0.0.4");
-        Assert.assertEquals(configuration.getTcpBindPort(), 39998);
-        Assert.assertEquals(configuration.getWorkerThreadSize(), 3);
-        Assert.assertEquals(configuration.getWorkerQueueSize(), 4);
-        Assert.assertFalse(configuration.isWorkerMonitorEnable());
+        Assertions.assertTrue(configuration.isUdpEnable());
+        Assertions.assertEquals(configuration.getUdpBindIp(), "0.0.0.3");
+        Assertions.assertEquals(configuration.getUdpBindPort(), 39997);
+        Assertions.assertEquals(configuration.getUdpReceiveBufferSize(), 568);
+        Assertions.assertFalse(configuration.isTcpEnable());
+        Assertions.assertEquals(configuration.getTcpBindIp(), "0.0.0.4");
+        Assertions.assertEquals(configuration.getTcpBindPort(), 39998);
+        Assertions.assertEquals(configuration.getWorkerThreadSize(), 3);
+        Assertions.assertEquals(configuration.getWorkerQueueSize(), 4);
+        Assertions.assertFalse(configuration.isWorkerMonitorEnable());
     }
 }

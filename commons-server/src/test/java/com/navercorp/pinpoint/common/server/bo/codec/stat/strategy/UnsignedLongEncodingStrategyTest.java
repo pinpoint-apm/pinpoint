@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatDataPointFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,10 +47,10 @@ public class UnsignedLongEncodingStrategyTest extends EncodingStrategyTestBase<L
         int actualRepeatCountEncodedSize = bufferSizes.get(UnsignedLongEncodingStrategy.REPEAT_COUNT);
         int actualDeltaEncodedSize = bufferSizes.get(UnsignedLongEncodingStrategy.DELTA);
         int actualDeltaOfDeltaEncodedSize = bufferSizes.get(UnsignedLongEncodingStrategy.DELTA_OF_DELTA);
-        Assert.assertEquals(actualValueEncodedSize, builder.getByteSizeValue());
-        Assert.assertEquals(actualRepeatCountEncodedSize, builder.getByteSizeRepeatCount());
-        Assert.assertEquals(actualDeltaEncodedSize, builder.getByteSizeDelta());
-        Assert.assertEquals(actualDeltaOfDeltaEncodedSize, builder.getByteSizeDeltaOfDelta());
+        Assertions.assertEquals(actualValueEncodedSize, builder.getByteSizeValue());
+        Assertions.assertEquals(actualRepeatCountEncodedSize, builder.getByteSizeRepeatCount());
+        Assertions.assertEquals(actualDeltaEncodedSize, builder.getByteSizeDelta());
+        Assertions.assertEquals(actualDeltaOfDeltaEncodedSize, builder.getByteSizeDeltaOfDelta());
     }
 
     @Test
@@ -73,6 +73,7 @@ public class UnsignedLongEncodingStrategyTest extends EncodingStrategyTestBase<L
         long maxValue = 1000000000;
         testValues(minValue, maxValue);
     }
+
     @Test
     public void test_huge_values() {
         long minValue = 1000000000;

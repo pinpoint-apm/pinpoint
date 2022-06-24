@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import org.junit.Assert;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +65,7 @@ public abstract class EncodingStrategyTestBase<T extends Number> {
         EncodingStrategy<T> chosenStrategy = analyzer.getBestStrategy();
         List<T> values = analyzer.getValues();
         logger.debug("Chosen : {}", analyzer.getBestStrategy());
-        Assert.assertTrue(createTestFailMessage(values, bestStrategies, chosenStrategy), bestStrategies.contains(chosenStrategy));
+        Assertions.assertTrue(bestStrategies.contains(chosenStrategy), createTestFailMessage(values, bestStrategies, chosenStrategy));
     }
 
     private <S extends EncodingStrategy<T>> String createTestFailMessage(List<T> values, Set<S> bestStrategies, EncodingStrategy<T> chosenStrategy) {

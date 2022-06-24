@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class ApplicationTimeHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, Range.between(0, 10*6000));
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, Range.between(0, 10 * 6000));
         List<ResponseTime> responseHistogramList = createResponseTime(app);
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
@@ -64,8 +63,8 @@ public class ApplicationTimeHistogramTest {
         one.addResponseTime("test", (short) 1000, 1);
         responseTimeList.add(one);
 
-        ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000*60);
-        two .addResponseTime("test", (short) 3000, 1);
+        ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
+        two.addResponseTime("test", (short) 3000, 1);
         responseTimeList.add(two);
         return responseTimeList;
     }

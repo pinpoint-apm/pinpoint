@@ -19,12 +19,14 @@ package com.navercorp.pinpoint.profiler.monitor.collector.response;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Random;
 
@@ -33,7 +35,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultResponseTimeMetricCollectorTest {
 
     private final Random random = new Random(System.currentTimeMillis());
@@ -47,7 +49,7 @@ public class DefaultResponseTimeMetricCollectorTest {
     @Mock
     private ResponseTimeMetric responseTimeMetric;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         totalValue = 0;
         for (int i = 0; i < COUNT; i++) {
@@ -65,12 +67,15 @@ public class DefaultResponseTimeMetricCollectorTest {
         AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(responseTimeMetric);
         ResponseTimeValue collect = responseTimeMetricCollector.collect();
 
-        Assert.assertEquals(totalValue / COUNT, collect.getAvg());
+        Assertions.assertEquals(totalValue / COUNT, collect.getAvg());
     }
 
-    @Test(expected = NullPointerException.class)
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    @Test
     public void throwNPETest() throws Exception {
-        AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(null);
+        });
     }
 
 }

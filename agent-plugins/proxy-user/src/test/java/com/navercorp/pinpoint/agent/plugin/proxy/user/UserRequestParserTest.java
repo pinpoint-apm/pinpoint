@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.agent.plugin.proxy.user;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserRequestParserTest {
     private final Logger logger = LogManager.getLogger(this.getClass());

@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -19,10 +19,10 @@ public class SpanBitFiledTest {
         spanBo.setParentSpanId(-1);
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
-        Assert.assertTrue(spanBitFiled.isRoot());
+        Assertions.assertTrue(spanBitFiled.isRoot());
 
         spanBitFiled.setRoot(false);
-        Assert.assertFalse(spanBitFiled.isRoot());
+        Assertions.assertFalse(spanBitFiled.isRoot());
 
     }
 
@@ -32,11 +32,11 @@ public class SpanBitFiledTest {
         spanBo.setParentSpanId(0);
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
-        Assert.assertFalse(spanBitFiled.isRoot());
+        Assertions.assertFalse(spanBitFiled.isRoot());
 
         spanBitFiled.maskAll();
         spanBitFiled.setRoot(false);
-        Assert.assertFalse(spanBitFiled.isRoot());
+        Assertions.assertFalse(spanBitFiled.isRoot());
     }
 
     @Test
@@ -45,10 +45,10 @@ public class SpanBitFiledTest {
         spanBo.setErrCode(1);
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertTrue(spanBitFiled.isSetErrorCode());
+        Assertions.assertTrue(spanBitFiled.isSetErrorCode());
 
         spanBitFiled.setErrorCode(false);
-        Assert.assertFalse(spanBitFiled.isSetErrorCode());
+        Assertions.assertFalse(spanBitFiled.isSetErrorCode());
     }
 
     @Test
@@ -57,11 +57,11 @@ public class SpanBitFiledTest {
         spanBo.setErrCode(0);
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertFalse(spanBitFiled.isSetErrorCode());
+        Assertions.assertFalse(spanBitFiled.isSetErrorCode());
 
         spanBitFiled.maskAll();
         spanBitFiled.setErrorCode(false);
-        Assert.assertFalse(spanBitFiled.isSetErrorCode());
+        Assertions.assertFalse(spanBitFiled.isSetErrorCode());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
     }
 
     @Test
@@ -83,12 +83,12 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
+        Assertions.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
 
         spanBitFiled.maskAll();
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
+        Assertions.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
         spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
-        Assert.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(spanBitFiled.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
     }
 
 
@@ -99,10 +99,10 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertTrue(spanBitFiled.isSetHasException());
+        Assertions.assertTrue(spanBitFiled.isSetHasException());
 
         spanBitFiled.setHasException(false);
-        Assert.assertFalse(spanBitFiled.isSetHasException());
+        Assertions.assertFalse(spanBitFiled.isSetHasException());
     }
 
     @Test
@@ -111,13 +111,12 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertFalse(spanBitFiled.isSetHasException());
+        Assertions.assertFalse(spanBitFiled.isSetHasException());
 
         spanBitFiled.maskAll();
         spanBitFiled.setHasException(false);
-        Assert.assertFalse(spanBitFiled.isSetHasException());
+        Assertions.assertFalse(spanBitFiled.isSetHasException());
     }
-
 
 
     @Test
@@ -127,10 +126,10 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertTrue(spanBitFiled.isSetLoggingTransactionInfo());
+        Assertions.assertTrue(spanBitFiled.isSetLoggingTransactionInfo());
 
         spanBitFiled.setLoggingTransactionInfo(false);
-        Assert.assertFalse(spanBitFiled.isSetLoggingTransactionInfo());
+        Assertions.assertFalse(spanBitFiled.isSetLoggingTransactionInfo());
     }
 
     @Test
@@ -139,11 +138,11 @@ public class SpanBitFiledTest {
 
         SpanBitFiled spanBitFiled = SpanBitFiled.build(spanBo);
 
-        Assert.assertFalse(spanBitFiled.isSetLoggingTransactionInfo());
+        Assertions.assertFalse(spanBitFiled.isSetLoggingTransactionInfo());
 
         spanBitFiled.maskAll();
         spanBitFiled.setLoggingTransactionInfo(false);
-        Assert.assertFalse(spanBitFiled.isSetLoggingTransactionInfo());
+        Assertions.assertFalse(spanBitFiled.isSetLoggingTransactionInfo());
     }
 
 }

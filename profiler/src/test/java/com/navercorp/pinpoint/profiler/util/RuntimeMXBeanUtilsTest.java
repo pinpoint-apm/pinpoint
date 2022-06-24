@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-
-import java.util.Date;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -32,12 +27,12 @@ public class RuntimeMXBeanUtilsTest {
     @Test
     public void vmStartTime() {
         long vmStartTime = RuntimeMXBeanUtils.getVmStartTime();
-        Assert.assertNotSame(0, vmStartTime);
+        Assertions.assertNotSame(0, vmStartTime);
     }
 
     @Test
     public void pid() {
         int pid = RuntimeMXBeanUtils.getPid();
-        Assert.assertTrue(pid > 0);
+        Assertions.assertTrue(pid > 0);
     }
 }

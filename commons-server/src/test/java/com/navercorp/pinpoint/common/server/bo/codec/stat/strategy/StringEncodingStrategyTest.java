@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -33,7 +33,7 @@ public class StringEncodingStrategyTest {
             builder.addValue(string);
         }
         StrategyAnalyzer<String> build = builder.build();
-        Assert.assertEquals(build.getBestStrategy(), StringEncodingStrategy.NONE);
+        Assertions.assertEquals(build.getBestStrategy(), StringEncodingStrategy.NONE);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class StringEncodingStrategyTest {
             builder.addValue(string);
         }
         StrategyAnalyzer<String> build = builder.build();
-        Assert.assertEquals(build.getBestStrategy(), StringEncodingStrategy.REPEAT_COUNT);
+        Assertions.assertEquals(build.getBestStrategy(), StringEncodingStrategy.REPEAT_COUNT);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class StringEncodingStrategyTest {
         builder.addValue(STRING_CANDIDATES[0]);
 
         StrategyAnalyzer<String> build = builder.build();
-        Assert.assertEquals(build.getBestStrategy(), StringEncodingStrategy.ALWAYS_SAME_VALUE);
+        Assertions.assertEquals(build.getBestStrategy(), StringEncodingStrategy.ALWAYS_SAME_VALUE);
     }
 
 }

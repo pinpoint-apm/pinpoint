@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventMarker;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -37,7 +37,7 @@ public class AgentEventMarkerSerializerTest {
         AgentEventMarker marker = makeData();
         String jsonValue = mapper.writeValueAsString(marker);
         Map map = mapper.readValue(jsonValue, Map.class);
-        Assert.assertEquals(27, map.get("totalCount"));
+        Assertions.assertEquals(27, map.get("totalCount"));
         logger.debug(map.get("typeCounts").toString());
     }
 

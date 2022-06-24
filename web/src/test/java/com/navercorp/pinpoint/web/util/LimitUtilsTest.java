@@ -16,11 +16,8 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
-import com.navercorp.pinpoint.web.util.LimitUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -29,17 +26,17 @@ public class LimitUtilsTest {
     @Test
     public void testCheckLimit() {
         int equals = LimitUtils.checkRange(LimitUtils.MAX);
-        Assert.assertEquals(equals, LimitUtils.MAX);
+        Assertions.assertEquals(equals, LimitUtils.MAX);
 
         int over = LimitUtils.checkRange(LimitUtils.MAX + 1);
-        Assert.assertEquals(over, LimitUtils.MAX);
+        Assertions.assertEquals(over, LimitUtils.MAX);
 
         int low = LimitUtils.checkRange(0);
-        Assert.assertEquals(low, 0);
+        Assertions.assertEquals(low, 0);
 
         try {
             LimitUtils.checkRange(-1);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
 

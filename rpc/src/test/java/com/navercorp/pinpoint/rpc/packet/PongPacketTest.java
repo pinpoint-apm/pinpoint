@@ -16,13 +16,9 @@
 
 package com.navercorp.pinpoint.rpc.packet;
 
-import org.junit.Assert;
-
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.rpc.packet.PacketType;
-import com.navercorp.pinpoint.rpc.packet.PongPacket;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -34,7 +30,7 @@ public class PongPacketTest {
         ChannelBuffer channelBuffer = pongPacket.toBuffer();
 
         short pongCode = channelBuffer.readShort();
-        Assert.assertEquals(PacketType.CONTROL_PONG, pongCode);
+        Assertions.assertEquals(PacketType.CONTROL_PONG, pongCode);
 
 
     }

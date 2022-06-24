@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.sampler;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -36,7 +36,7 @@ public class SimpleSamplerTest {
         assertChoice(simpleSampler);
         assertChoice(simpleSampler);
 
-         CountingSampler simpleSampler2 = new CountingSampler(2);
+        CountingSampler simpleSampler2 = new CountingSampler(2);
         assertChoice(simpleSampler2);
         assertDrop(simpleSampler2);
         assertChoice(simpleSampler2);
@@ -54,11 +54,11 @@ public class SimpleSamplerTest {
 
     private void assertDrop(CountingSampler simpleSampler) {
         boolean sample = simpleSampler.isSampling();
-        Assert.assertFalse(sample);
+        Assertions.assertFalse(sample);
     }
 
     private void assertChoice(CountingSampler simpleSampler) {
         boolean sample = simpleSampler.isSampling();
-        Assert.assertTrue(sample);
+        Assertions.assertTrue(sample);
     }
 }

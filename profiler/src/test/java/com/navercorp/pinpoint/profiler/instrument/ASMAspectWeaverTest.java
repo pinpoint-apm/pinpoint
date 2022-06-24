@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassInputStreamProvider;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -66,26 +67,34 @@ public class ASMAspectWeaverTest {
         invoke(instance, "testMethodCall");
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void invalidHierarchy() throws Exception {
-        weaving(ORIGINAL_SUB, ASPECT);
+        Assertions.assertThrows(Exception.class, () -> {
+            weaving(ORIGINAL_SUB, ASPECT);
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void signatureMiss() throws Exception {
-        // not found method
-        getInstnace(ORIGINAL, ERROR_ASPECT1);
+        Assertions.assertThrows(Exception.class, () -> {
+            // not found method
+            getInstnace(ORIGINAL, ERROR_ASPECT1);
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void internalTypeMiss() throws Exception {
-        getInstnace(ORIGINAL, ERROR_ASPECT2);
+        Assertions.assertThrows(Exception.class, () -> {
+            getInstnace(ORIGINAL, ERROR_ASPECT2);
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void invalidExtend() throws Exception {
-        // invalid class hierarchy.
-        getInstnace(ORIGINAL, ERROR_ASPECT_INVALID_EXTENTS);
+        Assertions.assertThrows(Exception.class, () -> {
+            // invalid class hierarchy.
+            getInstnace(ORIGINAL, ERROR_ASPECT_INVALID_EXTENTS);
+        });
     }
 
     private Object getInstnace(final String originalName, final String aspectName) throws Exception {

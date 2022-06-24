@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
+import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.jar.JarFile;
 
@@ -39,9 +39,9 @@ public class PlainClassLoaderHandlerTest {
         ClassInjector plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
         try {
             plainClassLoaderHandler.injectClass(this.getClass().getClassLoader(), "com.navercorp.pinpoint.bootstrap.Test");
-            Assert.fail();
+            Assertions.fail();
         } catch (NullPointerException e) {
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception e) {
 
         }

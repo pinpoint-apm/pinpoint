@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.vo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,8 +55,8 @@ public class AgentActiveThreadCountListTest {
 
         Map map = om.readValue(listAsString, Map.class);
 
-        Assert.assertTrue(map.containsKey(hostName1));
-        Assert.assertTrue(map.containsKey(hostName2));
+        Assertions.assertTrue(map.containsKey(hostName1));
+        Assertions.assertTrue(map.containsKey(hostName2));
 
         assertDataWithSerializedJsonString((Map) map.get(hostName1), TRouteResult.NOT_ACCEPTABLE, null);
         assertDataWithSerializedJsonString((Map) map.get(hostName2), TRouteResult.OK, Arrays.asList(1, 2, 3, 4));
@@ -64,15 +64,15 @@ public class AgentActiveThreadCountListTest {
 
     void assertDataWithSerializedJsonString(Map data, TRouteResult routeResult, List<Integer> status) {
         if (routeResult == TRouteResult.OK) {
-            Assert.assertEquals(data.get("code"), 0);
+            Assertions.assertEquals(data.get("code"), 0);
         } else {
-            Assert.assertEquals(data.get("code"), -1);
+            Assertions.assertEquals(data.get("code"), -1);
         }
 
-        Assert.assertEquals(data.get("message"), routeResult.name());
+        Assertions.assertEquals(data.get("message"), routeResult.name());
 
         if (status != null) {
-            Assert.assertEquals(data.get("status"), status);
+            Assertions.assertEquals(data.get("status"), status);
         }
 
     }
@@ -100,9 +100,9 @@ public class AgentActiveThreadCountListTest {
 
         final List<AgentActiveThreadCount> sortedList = list.getAgentActiveThreadRepository();
 
-        Assert.assertEquals(sortedList.get(0).getAgentId(), "hostName1");
-        Assert.assertEquals(sortedList.get(1).getAgentId(), "hostName2");
-        Assert.assertEquals(sortedList.get(2).getAgentId(), "hostName3");
+        Assertions.assertEquals(sortedList.get(0).getAgentId(), "hostName1");
+        Assertions.assertEquals(sortedList.get(1).getAgentId(), "hostName2");
+        Assertions.assertEquals(sortedList.get(2).getAgentId(), "hostName3");
     }
 
 }

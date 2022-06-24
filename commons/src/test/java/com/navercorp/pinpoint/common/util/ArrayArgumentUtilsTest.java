@@ -1,8 +1,10 @@
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ArrayArgumentUtilsTest {
 
@@ -17,10 +19,10 @@ public class ArrayArgumentUtilsTest {
 
     @Test
     public void getTest_array() {
-        Object[] args = {new Object[] {"0-0"}, new Object[] {"1-0"} };
+        Object[] args = {new Object[]{"0-0"}, new Object[]{"1-0"}};
 
         Object[] arg0 = ArrayArgumentUtils.getArgument(args, 0, Object[].class);
-        assertArrayEquals(new Object[] {"0-0"}, arg0);
+        assertArrayEquals(new Object[]{"0-0"}, arg0);
     }
 
     @Test

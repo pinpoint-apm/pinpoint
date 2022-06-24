@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -44,18 +42,18 @@ public class FilterHintTest {
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
-        Assert.assertNotNull(hint);
-        Assert.assertEquals(2, hint.size());
+        Assertions.assertNotNull(hint);
+        Assertions.assertEquals(2, hint.size());
 
-        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
-        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
-        Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION3"));
+        Assertions.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assertions.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
+        Assertions.assertFalse(hint.containApplicationHint("TO_APPLICATION3"));
 
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
 
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
     }
 
     @Test
@@ -66,17 +64,17 @@ public class FilterHintTest {
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
-        Assert.assertNotNull(hint);
-        Assert.assertEquals(2, hint.size());
+        Assertions.assertNotNull(hint);
+        Assertions.assertEquals(2, hint.size());
 
-        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
-        Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION2"));
+        Assertions.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assertions.assertFalse(hint.containApplicationHint("TO_APPLICATION2"));
 
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
 
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP3", 3));
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP4", 4));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP3", 3));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP4", 4));
     }
 
     @Test
@@ -85,8 +83,8 @@ public class FilterHintTest {
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
-        Assert.assertNotNull(hint);
-        Assert.assertEquals(0, hint.size());
+        Assertions.assertNotNull(hint);
+        Assertions.assertEquals(0, hint.size());
 
     }
 
@@ -98,14 +96,14 @@ public class FilterHintTest {
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
-        Assert.assertNotNull(hint);
-        Assert.assertEquals(1, hint.size());
-        Assert.assertTrue(hint.getRpcHintList("TO_APPLICATION").get(0).getRpcTypeList().isEmpty());
+        Assertions.assertNotNull(hint);
+        Assertions.assertEquals(1, hint.size());
+        Assertions.assertTrue(hint.getRpcHintList("TO_APPLICATION").get(0).getRpcTypeList().isEmpty());
 
-        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
-        Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION2"));
+        Assertions.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assertions.assertFalse(hint.containApplicationHint("TO_APPLICATION2"));
 
-        Assert.assertFalse(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
+        Assertions.assertFalse(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
 
     }
 
@@ -116,14 +114,14 @@ public class FilterHintTest {
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
-        Assert.assertNotNull(hint);
-        Assert.assertEquals(2, hint.size());
+        Assertions.assertNotNull(hint);
+        Assertions.assertEquals(2, hint.size());
 
-        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
-        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
+        Assertions.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assertions.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
 
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
-        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
+        Assertions.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
 
     }
 }

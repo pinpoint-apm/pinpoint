@@ -1,18 +1,22 @@
 package com.navercorp.pinpoint.plugin.hbase.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HbaseClientMainInterceptorTest {
 
     @Mock
@@ -64,6 +68,6 @@ public class HbaseClientMainInterceptorTest {
         Object[] args = new Object[]{"foo", "bar"};
 
         HbaseClientMainInterceptor interceptor = new HbaseClientMainInterceptor(traceContext, descriptor, scope);
-        interceptor.after(target, args,null,null);
+        interceptor.after(target, args, null, null);
     }
 }

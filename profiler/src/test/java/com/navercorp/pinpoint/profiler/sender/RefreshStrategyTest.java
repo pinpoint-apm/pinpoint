@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetSocketAddress;
 
@@ -32,13 +32,13 @@ import static org.mockito.Mockito.when;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RefreshStrategyTest {
 
     @Mock
     private SocketAddressProvider socketAddressProvider;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
         when(socketAddressProvider.resolve()).thenReturn(address);
@@ -59,7 +59,7 @@ public class RefreshStrategyTest {
     @Test
     public void resolve_norefresh() {
 
-        UdpSocketAddressProvider refreshStrategy = new RefreshStrategy(socketAddressProvider, 10*1000, 0);
+        UdpSocketAddressProvider refreshStrategy = new RefreshStrategy(socketAddressProvider, 10 * 1000, 0);
         // first lookup
         refreshStrategy.resolve();
         // refresh lookup
@@ -70,7 +70,7 @@ public class RefreshStrategyTest {
 
     @Test
     public void handlePortUnreachable_refresh() {
-        UdpSocketAddressProvider refreshStrategy = new RefreshStrategy(socketAddressProvider, 10*1000, -1);
+        UdpSocketAddressProvider refreshStrategy = new RefreshStrategy(socketAddressProvider, 10 * 1000, -1);
         // first lookup
         refreshStrategy.resolve();
         refreshStrategy.handlePortUnreachable();
@@ -82,7 +82,7 @@ public class RefreshStrategyTest {
 
     @Test
     public void handlePortUnreachable_norefresh() {
-        UdpSocketAddressProvider refreshStrategy = new RefreshStrategy(socketAddressProvider, 10*1000, 10*1000);
+        UdpSocketAddressProvider refreshStrategy = new RefreshStrategy(socketAddressProvider, 10 * 1000, 10 * 1000);
         // first lookup
         refreshStrategy.resolve();
         refreshStrategy.handlePortUnreachable();

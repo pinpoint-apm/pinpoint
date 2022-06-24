@@ -17,11 +17,11 @@
 
 package com.navercorp.pinpoint.profiler.jdbc;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class BindValueUtilsTest {
 
@@ -29,35 +29,35 @@ public class BindValueUtilsTest {
     public void testBindValueToString() {
         String[] bindValue = {"a", "b"};
         String result = BindValueUtils.bindValueToString(bindValue);
-        Assert.assertEquals("a, b", result);
+        Assertions.assertEquals("a, b", result);
     }
 
     @Test
     public void testBindValueToString_limit1() {
         String[] bindValue = {"a", "b"};
         String result = BindValueUtils.bindValueToString(bindValue, 0);
-        Assert.assertEquals("...(2)", result);
+        Assertions.assertEquals("...(2)", result);
     }
 
     @Test
     public void testBindValueToString_limit2() {
         String[] bindValue = {"a", "b"};
         String result = BindValueUtils.bindValueToString(bindValue, 1);
-        Assert.assertEquals("a, ...(2)", result);
+        Assertions.assertEquals("a, ...(2)", result);
     }
 
     @Test
     public void testBindValueToString_limit3() {
         String[] bindValue = {"abc", "b"};
         String result = BindValueUtils.bindValueToString(bindValue, 1);
-        Assert.assertEquals("a...(3), ...(2)", result);
+        Assertions.assertEquals("a...(3), ...(2)", result);
     }
 
     @Test
     public void testBindValueToString_limit4() {
         String[] bindValue = {"abc", "b", "c"};
         String result = BindValueUtils.bindValueToString(bindValue, 1);
-        Assert.assertEquals("a...(3), ...(3)", result);
+        Assertions.assertEquals("a...(3), ...(3)", result);
     }
 
 
@@ -65,7 +65,7 @@ public class BindValueUtilsTest {
     public void testBindValueToString_limit5() {
         String[] bindValue = {"abc", "b", "c"};
         String result = BindValueUtils.bindValueToString(bindValue, 1024);
-        Assert.assertEquals("abc, b, c", result);
+        Assertions.assertEquals("abc, b, c", result);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class BindValueUtilsTest {
         String[] bindValue = {"a", "b", "1234567891012"};
         // limit is smaller than 3rd arg.
         String result = BindValueUtils.bindValueToString(bindValue, 10);
-        Assert.assertEquals("a, b, 1234567891...(13)", result);
+        Assertions.assertEquals("a, b, 1234567891...(13)", result);
     }
 
     @Test
@@ -81,34 +81,34 @@ public class BindValueUtilsTest {
         String[] bindValue = {"a", "12345678901", "c"};
         // limit is smaller than 2nd arg.
         String result = BindValueUtils.bindValueToString(bindValue, 10);
-        Assert.assertEquals("a, 1234567890...(11), ...(3)", result);
+        Assertions.assertEquals("a, 1234567890...(11), ...(3)", result);
     }
 
     @Test
     public void testBindValueToString_null() {
-        String result = BindValueUtils.bindValueToString((String[])null, 10);
-        Assert.assertEquals("", result);
+        String result = BindValueUtils.bindValueToString((String[]) null, 10);
+        Assertions.assertEquals("", result);
     }
 
     @Test
     public void testBindValueToString_native() {
         String[] bindValue = {"a", "b"};
         String result = BindValueUtils.bindValueToString(bindValue, -1);
-        Assert.assertEquals("...(2)", result);
+        Assertions.assertEquals("...(2)", result);
     }
 
     @Test
     public void testBindValueToString_singleLargeString() {
         String[] bindValue = {"123456"};
         String result = BindValueUtils.bindValueToString(bindValue, 5);
-        Assert.assertEquals("12345...(6)", result);
+        Assertions.assertEquals("12345...(6)", result);
     }
 
     @Test
     public void testBindValueToString_twoLargeString() {
         String[] bindValue = {"123456", "123456"};
         String result = BindValueUtils.bindValueToString(bindValue, 5);
-        Assert.assertEquals("12345...(6), ...(2)", result);
+        Assertions.assertEquals("12345...(6), ...(2)", result);
     }
 
     // #737 https://github.com/naver/pinpoint/issues/737
@@ -121,7 +121,7 @@ public class BindValueUtilsTest {
         bindValue.put(4, "4");
 
         String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
-        Assert.assertEquals("1, 2, , 4", bindValueToString);
+        Assertions.assertEquals("1, 2, , 4", bindValueToString);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class BindValueUtilsTest {
         bindValue.put(0, "0");
 
         String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
-        Assert.assertEquals("", bindValueToString);
+        Assertions.assertEquals("", bindValueToString);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class BindValueUtilsTest {
         bindValue.put(-2, "-2");
 
         String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
-        Assert.assertEquals("", bindValueToString);
+        Assertions.assertEquals("", bindValueToString);
     }
 
     @Test
@@ -151,14 +151,14 @@ public class BindValueUtilsTest {
         bindValue.put(3, "3");
 
         String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
-        Assert.assertEquals("1, , 3", bindValueToString);
+        Assertions.assertEquals("1, , 3", bindValueToString);
     }
 
     @Test
     public void test_NullElement() {
         String[] temp = {"1", null, "3"};
         String bindValueToString = BindValueUtils.bindValueToString(temp, 100);
-        Assert.assertEquals("1, , 3", bindValueToString);
+        Assertions.assertEquals("1, , 3", bindValueToString);
     }
 
 

@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.common.util.SystemProperty;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author HyunGil Jeong
  */
 public class SystemPropertyConditionTest {
-    
+
     @Test
     public void testMatch() {
         // Given
@@ -44,7 +44,7 @@ public class SystemPropertyConditionTest {
         assertTrue(firstKeyExists);
         assertTrue(secondKeyExists);
     }
-    
+
     @Test
     public void testNoMatch() {
         // Given
@@ -56,7 +56,7 @@ public class SystemPropertyConditionTest {
         // Then
         assertFalse(keyExists);
     }
-    
+
     @Test
     public void emptyConditionShouldNotMatch() {
         // Given
@@ -68,7 +68,7 @@ public class SystemPropertyConditionTest {
         // Then
         assertFalse(matches);
     }
-    
+
     @Test
     public void nullConditionShouldNotMatch() {
         // Given
@@ -80,22 +80,22 @@ public class SystemPropertyConditionTest {
         // Then
         assertFalse(matches);
     }
-    
+
     private static SystemProperty createTestProperty() {
         return new SystemProperty() {
-            
+
             private final Map<String, String> properties = new HashMap<>();
-            
+
             @Override
             public void setProperty(String key, String value) {
                 this.properties.put(key, value);
             }
-            
+
             @Override
             public String getProperty(String key) {
                 return this.properties.get(key);
             }
-            
+
             @Override
             public String getProperty(String key, String defaultValue) {
                 if (this.properties.containsKey(key)) {
@@ -106,8 +106,8 @@ public class SystemPropertyConditionTest {
             }
         };
     }
-    
-    private static SystemProperty createTestProperty(String ... keys) {
+
+    private static SystemProperty createTestProperty(String... keys) {
         SystemProperty property = createTestProperty();
         if (keys == null) {
             return property;
@@ -117,5 +117,5 @@ public class SystemPropertyConditionTest {
         }
         return property;
     }
-    
+
 }

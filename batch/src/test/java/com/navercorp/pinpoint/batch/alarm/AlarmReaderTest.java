@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.AlarmServiceImpl;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.batch.core.StepExecution;
@@ -40,8 +40,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -54,7 +54,7 @@ public class AlarmReaderTest {
     private static DataCollectorFactory dataCollectorFactory;
     private static final String APP_NAME = "app";
     private static final String SERVICE_TYPE = "tomcat";
-    
+
     @Test
     public void readTest() {
         StepExecution stepExecution = new StepExecution("alarmStep", null);
@@ -65,10 +65,10 @@ public class AlarmReaderTest {
 
         reader.beforeStep(stepExecution);
 
-        for(int i = 0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
             assertNotNull(reader.read());
         }
-        
+
         assertNull(reader.read());
     }
 
@@ -77,20 +77,20 @@ public class AlarmReaderTest {
         StepExecution stepExecution = new StepExecution("alarmStep", null);
         ExecutionContext executionContext = new ExecutionContext();
         stepExecution.setExecutionContext(executionContext);
-        
+
         AlarmServiceImpl alarmService = new AlarmServiceImpl(mock(AlarmDao.class), mock(WebhookSendInfoDao.class)) {
             @Override
             public List<Rule> selectRuleByApplicationId(String applicationId) {
                 return new LinkedList<>();
             }
         };
-        
+
         AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);
         reader.beforeStep(stepExecution);
         assertNull(reader.read());
     }
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void beforeClass() {
         applicationIndexDao = new ApplicationIndexDao() {
 
@@ -98,7 +98,7 @@ public class AlarmReaderTest {
             public List<Application> selectAllApplicationNames() {
                 List<Application> apps = new LinkedList<>();
 
-                for(int i = 0; i < 7; i++) {
+                for (int i = 0; i < 7; i++) {
                     apps.add(new Application(APP_NAME + i, ServiceType.STAND_ALONE));
                 }
                 return apps;
@@ -111,23 +111,32 @@ public class AlarmReaderTest {
                 return apps;
             }
 
-            @Override public List<String> selectAgentIds(String applicationName) {return null;}
-            @Override public void deleteApplicationName(String applicationName) { }
+            @Override
+            public List<String> selectAgentIds(String applicationName) {
+                return null;
+            }
 
             @Override
-            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {}
+            public void deleteApplicationName(String applicationName) {
+            }
 
-            @Override public void deleteAgentId(String applicationName, String agentId) {}
-            
+            @Override
+            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
+            }
+
+            @Override
+            public void deleteAgentId(String applicationName, String agentId) {
+            }
+
         };
 
         alarmService = new AlarmServiceImpl(mock(AlarmDao.class), mock(WebhookSendInfoDao.class)) {
-            private final Map<String, Rule> ruleMap ;
+            private final Map<String, Rule> ruleMap;
 
             {
                 ruleMap = new HashMap<>();
 
-                for(int i = 0; i <=6; i++) {
+                for (int i = 0; i <= 6; i++) {
                     ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, false, ""));
                 }
             }
@@ -139,7 +148,7 @@ public class AlarmReaderTest {
                 return rules;
             }
         };
-        
+
         dataCollectorFactory = mock(DataCollectorFactory.class);
         when(dataCollectorFactory.createDataCollector(any(), any(), anyLong())).thenAnswer(new Answer<DataCollector>() {
             @Override

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.strategy.impl;
 
 import com.navercorp.pinpoint.common.server.bo.codec.TypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategyTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;

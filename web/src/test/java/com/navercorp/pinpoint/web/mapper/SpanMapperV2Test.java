@@ -10,10 +10,10 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingC
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -64,30 +64,30 @@ public class SpanMapperV2Test {
         SpanDecodingContext decodingContext = new SpanDecodingContext();
         decoder.readSpanValue(buffer, readSpan, decodingContext);
 
-        Assert.assertEquals(readSpan.getSpanEventBoList().size(), 2);
+        Assertions.assertEquals(readSpan.getSpanEventBoList().size(), 2);
 
 
         // span
-        Assert.assertEquals(readSpan.getServiceType(), 1000);
-        Assert.assertEquals(readSpan.hasException(), true);
-        Assert.assertEquals(readSpan.getExceptionId(), 1);
-        Assert.assertEquals(readSpan.getExceptionMessage(), "spanException");
+        Assertions.assertEquals(readSpan.getServiceType(), 1000);
+        Assertions.assertEquals(readSpan.hasException(), true);
+        Assertions.assertEquals(readSpan.getExceptionId(), 1);
+        Assertions.assertEquals(readSpan.getExceptionMessage(), "spanException");
 
         List<SpanEventBo> spanEventBoList = readSpan.getSpanEventBoList();
         SpanEventBo readFirst = spanEventBoList.get(0);
         SpanEventBo readNext = spanEventBoList.get(1);
 
-        Assert.assertEquals(readFirst.getEndElapsed(), 100);
-        Assert.assertEquals(readNext.getEndElapsed(), 200);
+        Assertions.assertEquals(readFirst.getEndElapsed(), 100);
+        Assertions.assertEquals(readNext.getEndElapsed(), 200);
 
-        Assert.assertEquals(readFirst.getExceptionId(), 2);
-        Assert.assertEquals(readNext.hasException(), false);
+        Assertions.assertEquals(readFirst.getExceptionId(), 2);
+        Assertions.assertEquals(readNext.hasException(), false);
 
-        Assert.assertEquals(readFirst.getServiceType(), 1003);
-        Assert.assertEquals(readNext.getServiceType(), 2003);
+        Assertions.assertEquals(readFirst.getServiceType(), 1003);
+        Assertions.assertEquals(readNext.getServiceType(), 2003);
 
-        Assert.assertEquals(readFirst.getSequence(), 0);
-        Assert.assertEquals(readNext.getSequence(), 1);
+        Assertions.assertEquals(readFirst.getSequence(), 0);
+        Assertions.assertEquals(readNext.getSequence(), 1);
 
     }
 

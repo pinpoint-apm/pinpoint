@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -31,18 +31,18 @@ public class ArgsParserTest {
     public void parse() {
         ArgsParser parser = new ArgsParser();
         Map<String, String> parameter = parser.parse("a=1,b=2");
-        Assert.assertEquals("1", parameter.get("a"));
-        Assert.assertEquals("2", parameter.get("b"));
+        Assertions.assertEquals("1", parameter.get("a"));
+        Assertions.assertEquals("2", parameter.get("b"));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void parse_comma() {
         // TODO
         ArgsParser parser = new ArgsParser();
         Map<String, String> parameter = parser.parse("a=1\\,234,b=2");
-        Assert.assertEquals("1,234", parameter.get("a"));
-        Assert.assertEquals("2", parameter.get("b"));
+        Assertions.assertEquals("1,234", parameter.get("a"));
+        Assertions.assertEquals("2", parameter.get("b"));
     }
 
 }

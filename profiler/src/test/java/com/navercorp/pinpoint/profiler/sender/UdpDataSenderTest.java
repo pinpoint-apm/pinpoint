@@ -22,14 +22,12 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggerBinderInitializer;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-
-import org.junit.Assert;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.thrift.TBase;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -45,12 +43,13 @@ public class UdpDataSenderTest {
     private static final ServiceType APP_SERVICE_TYPE = ServiceType.STAND_ALONE;
 
     private final int PORT = SocketUtils.findAvailableUdpPort(9009);
-    @BeforeClass
+
+    @BeforeAll
     public static void before() {
         Log4j2LoggerBinderInitializer.beforeClass();
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         Log4j2LoggerBinderInitializer.afterClass();
     }
@@ -60,7 +59,7 @@ public class UdpDataSenderTest {
     public void sendAndFlushCheck() {
         final MessageConverter<TBase<?, ?>, TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
         final MessageSerializer<TBase<?, ?>, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer<>(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
-        UdpDataSender<TBase<?, ?>> sender = new UdpDataSender<>("localhost", PORT, "test", 128, 1000, 1024*64*100,
+        UdpDataSender<TBase<?, ?>> sender = new UdpDataSender<>("localhost", PORT, "test", 128, 1000, 1024 * 64 * 100,
                 thriftMessageSerializer);
 
         TAgentInfo agentInfo = new TAgentInfo();
@@ -86,10 +85,10 @@ public class UdpDataSenderTest {
 //        TAgentInfo agentInfo = new TAgentInfo();
 //        agentInfo.setAgentId(random);
 //        boolean limit = sendMessage_getLimit(agentInfo, 5000);
-//        Assert.assertTrue("limit overflow",limit);
+//        Assertions.assertTrue("limit overflow",limit);
 //
 //        boolean noLimit = sendMessage_getLimit(new TAgentInfo(), 5000);
-//        Assert.assertFalse("success", noLimit);
+//        Assertions.assertFalse("success", noLimit);
 //    }
 
     @Test
@@ -100,10 +99,10 @@ public class UdpDataSenderTest {
         boolean limit = sendMessage_getLimit(agentInfo, 1000);
 
         // do not execute.
-        Assert.assertFalse(limit);
+        Assertions.assertFalse(limit);
     }
 
-    
+
     private boolean sendMessage_getLimit(TBase<?, ?> tbase, long waitTimeMillis) throws InterruptedException {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
@@ -111,14 +110,14 @@ public class UdpDataSenderTest {
         final MessageSerializer<Object, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH) {
             @Override
             protected boolean isLimit(int interBufferSize) {
-                final boolean limit =  super.isLimit(interBufferSize);
+                final boolean limit = super.isLimit(interBufferSize);
                 limitCounter.set(limit);
                 latch.countDown();
                 return limit;
             }
         };
 
-        UdpDataSender<Object> sender = new UdpDataSender<>("localhost", PORT, "test", 128, 1000, 1024*64*100,
+        UdpDataSender<Object> sender = new UdpDataSender<>("localhost", PORT, "test", 128, 1000, 1024 * 64 * 100,
                 thriftMessageSerializer);
         try {
             sender.send(tbase);

@@ -3,10 +3,10 @@ package com.navercorp.pinpoint.common.server.scatter;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public class FuzzyRowKeyBuilderTest {
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = filter.filterKeyValue(keyValue);
-        Assert.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
+        Assertions.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class FuzzyRowKeyBuilderTest {
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = build.filterKeyValue(keyValue);
-        Assert.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class FuzzyRowKeyBuilderTest {
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = filter.filterKeyValue(keyValue);
-        Assert.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
+        Assertions.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class FuzzyRowKeyBuilderTest {
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = build.filterKeyValue(keyValue);
-        Assert.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
     }
 
     @Test
@@ -88,14 +88,14 @@ public class FuzzyRowKeyBuilderTest {
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = build.filterKeyValue(keyValue);
-        Assert.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
     }
 
     @Test
     public void build_skip_low2() throws IOException {
         final long high = 400;
         final long low = 200;
-        Byte slotNumber = fuzzyRowKeyFactory.getKey(409600+1);
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(409600 + 1);
 
         FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
         Filter build = builder.build(high, low);
@@ -103,7 +103,7 @@ public class FuzzyRowKeyBuilderTest {
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = build.filterKeyValue(keyValue);
-        Assert.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
     }
 
 

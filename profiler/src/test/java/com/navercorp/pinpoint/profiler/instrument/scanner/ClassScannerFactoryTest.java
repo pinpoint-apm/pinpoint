@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,7 +49,7 @@ public class ClassScannerFactoryTest {
         String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
-        Assert.assertTrue(exist);
+        Assertions.assertTrue(exist);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ClassScannerFactoryTest {
         String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
-        Assert.assertTrue(exist);
+        Assertions.assertTrue(exist);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ClassScannerFactoryTest {
         String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
-        Assert.assertTrue(exist);
+        Assertions.assertTrue(exist);
     }
 
     @Test
@@ -82,42 +82,42 @@ public class ClassScannerFactoryTest {
         String fileName = JavaAssistUtils.javaClassNameToJvmResourceName("test.Test");
         boolean exist = scanner.exist(fileName);
         scanner.close();
-        Assert.assertFalse(exist);
+        Assertions.assertFalse(exist);
     }
 
     @Test
     public void isFileProtocol() {
-        Assert.assertTrue(ClassScannerFactory.isFileProtocol("file"));
+        Assertions.assertTrue(ClassScannerFactory.isFileProtocol("file"));
         // for jboss vfs support
-        Assert.assertTrue(ClassScannerFactory.isFileProtocol("vfs"));
+        Assertions.assertTrue(ClassScannerFactory.isFileProtocol("vfs"));
 
-        Assert.assertFalse(ClassScannerFactory.isFileProtocol("cd"));
+        Assertions.assertFalse(ClassScannerFactory.isFileProtocol("cd"));
     }
 
     @Test
     public void isJarExtension() {
-        Assert.assertTrue(ClassScannerFactory.isJarExtension(".jar"));
-        Assert.assertTrue(ClassScannerFactory.isJarExtension(".war"));
-        Assert.assertTrue(ClassScannerFactory.isJarExtension(".ear"));
+        Assertions.assertTrue(ClassScannerFactory.isJarExtension(".jar"));
+        Assertions.assertTrue(ClassScannerFactory.isJarExtension(".war"));
+        Assertions.assertTrue(ClassScannerFactory.isJarExtension(".ear"));
 
-        Assert.assertFalse(ClassScannerFactory.isJarExtension(".zip"));
+        Assertions.assertFalse(ClassScannerFactory.isJarExtension(".zip"));
     }
 
     @Test
     public void isNestedJar() {
-        Assert.assertTrue(ClassScannerFactory.isNestedJar("file:/path/to/some.jar!/nested/another.jar!/"));
+        Assertions.assertTrue(ClassScannerFactory.isNestedJar("file:/path/to/some.jar!/nested/another.jar!/"));
 
-        Assert.assertFalse(ClassScannerFactory.isNestedJar(null));
-        Assert.assertFalse(ClassScannerFactory.isNestedJar(""));
-        Assert.assertFalse(ClassScannerFactory.isNestedJar("/path/to/some.jar"));
-        Assert.assertFalse(ClassScannerFactory.isNestedJar("/path/to/some.jar!/"));
-        Assert.assertFalse(ClassScannerFactory.isNestedJar("file:/path/to/some.jar"));
-        Assert.assertFalse(ClassScannerFactory.isNestedJar("file:/path/to/some.jar!/"));
+        Assertions.assertFalse(ClassScannerFactory.isNestedJar(null));
+        Assertions.assertFalse(ClassScannerFactory.isNestedJar(""));
+        Assertions.assertFalse(ClassScannerFactory.isNestedJar("/path/to/some.jar"));
+        Assertions.assertFalse(ClassScannerFactory.isNestedJar("/path/to/some.jar!/"));
+        Assertions.assertFalse(ClassScannerFactory.isNestedJar("file:/path/to/some.jar"));
+        Assertions.assertFalse(ClassScannerFactory.isNestedJar("file:/path/to/some.jar!/"));
     }
 
-   /*
-   * https://github.com/naver/pinpoint/issues/6670
-   */
+    /*
+     * https://github.com/naver/pinpoint/issues/6670
+     */
     @Test
     public void jar_file_prefix_github_6670() throws IOException, ClassNotFoundException {
         Class<?> testClass = Logger.class;
@@ -126,7 +126,7 @@ public class ClassScannerFactoryTest {
         URL classUrl = codeSource.getLocation();
 
         String jarURLSpec = ClassScannerFactory.JAR_URL_PREFIX + classUrl.toExternalForm() + ClassScannerFactory.JAR_URL_SEPARATOR;
-        Assert.assertTrue(jarURLSpec.startsWith(ClassScannerFactory.JAR_URL_PREFIX + ClassScannerFactory.FILE_URL_PREFIX));
+        Assertions.assertTrue(jarURLSpec.startsWith(ClassScannerFactory.JAR_URL_PREFIX + ClassScannerFactory.FILE_URL_PREFIX));
 
         URL url = new URL(jarURLSpec);
         ProtectionDomain protectionDomain = newProtectionDomain(url);
@@ -134,11 +134,11 @@ public class ClassScannerFactoryTest {
         String fileName = JavaAssistUtils.javaClassNameToJvmResourceName(testClass.getName());
         boolean exist = scanner.exist(fileName);
         scanner.close();
-        Assert.assertTrue(exist);
+        Assertions.assertTrue(exist);
     }
 
     private ProtectionDomain newProtectionDomain(URL url) {
-        CodeSource codeSource = new CodeSource(url, (CodeSigner[])null);
+        CodeSource codeSource = new CodeSource(url, (CodeSigner[]) null);
         return new ProtectionDomain(codeSource, null);
     }
 }

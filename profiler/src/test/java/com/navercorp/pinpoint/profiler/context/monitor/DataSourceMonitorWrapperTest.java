@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.when;
@@ -34,6 +34,6 @@ public class DataSourceMonitorWrapperTest {
         when(mock.getServiceType()).thenReturn(null);
 
         DataSourceMonitorWrapper dataSourceMonitorWrapper = new DataSourceMonitorWrapper(1, mock);
-        Assert.assertEquals(ServiceType.UNKNOWN, dataSourceMonitorWrapper.getServiceType());
+        Assertions.assertEquals(ServiceType.UNKNOWN, dataSourceMonitorWrapper.getServiceType());
     }
 }

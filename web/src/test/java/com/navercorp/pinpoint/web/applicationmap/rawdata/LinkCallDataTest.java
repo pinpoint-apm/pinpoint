@@ -1,16 +1,15 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Test;
-
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
 
 public class LinkCallDataTest {
     private final Logger logger = LogManager.getLogger(this.getClass());

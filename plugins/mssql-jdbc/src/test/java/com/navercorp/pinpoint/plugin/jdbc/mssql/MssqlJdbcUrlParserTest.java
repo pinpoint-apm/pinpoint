@@ -4,11 +4,11 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataRegistrar;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,7 +28,7 @@ public class MssqlJdbcUrlParserTest {
 
     private MssqlJdbcUrlParser jdbcUrlParser = new MssqlJdbcUrlParser();
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         ServiceTypeLocator serviceTypeLocator = mock(ServiceTypeLocator.class);
         ServiceType type = newServiceType(TYPE_CODE, TYPE_MSSQL_JDBC);
@@ -49,24 +49,24 @@ public class MssqlJdbcUrlParserTest {
     public void mssql_jdbc_string_should_be_parsed_1() {
         DatabaseInfo dbInfo = jdbcUrlParser
                 .parse("jdbc:sqlserver://ip_address;databaseName=database_name;integratedSecurity=true");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
-        Assert.assertEquals(("ip_address"), dbInfo.getHost().get(0));
-        Assert.assertEquals("database_name", dbInfo.getDatabaseId());
-        Assert.assertEquals("jdbc:sqlserver://ip_address;databaseName=database_name", dbInfo.getUrl());
+        Assertions.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
+        Assertions.assertEquals(("ip_address"), dbInfo.getHost().get(0));
+        Assertions.assertEquals("database_name", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:sqlserver://ip_address;databaseName=database_name", dbInfo.getUrl());
     }
 
     @Test
     public void mssql_jdbc_string_should_be_parsed_2() {
         DatabaseInfo dbInfo = jdbcUrlParser
                 .parse("jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;applicationName=MyApp");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
-        Assert.assertEquals(("localhost:1433"), dbInfo.getHost().get(0));
-        Assert.assertEquals("AdventureWorks", dbInfo.getDatabaseId());
-        Assert.assertEquals("jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks",
+        Assertions.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
+        Assertions.assertEquals(("localhost:1433"), dbInfo.getHost().get(0));
+        Assertions.assertEquals("AdventureWorks", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks",
                 dbInfo.getUrl());
     }
 
@@ -74,12 +74,12 @@ public class MssqlJdbcUrlParserTest {
     public void mssql_jdbc_string_should_be_parsed_3() {
         DatabaseInfo dbInfo = jdbcUrlParser
                 .parse("jdbc:sqlserver://localhost:1433;DatabaseName=AdventureWorks;integratedSecurity=true;applicationName=MyApp");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
-        Assert.assertEquals(("localhost:1433"), dbInfo.getHost().get(0));
-        Assert.assertEquals("AdventureWorks", dbInfo.getDatabaseId());
-        Assert.assertEquals("jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks",
+        Assertions.assertEquals(MssqlConstants.MSSQL_JDBC, dbInfo.getType());
+        Assertions.assertEquals(("localhost:1433"), dbInfo.getHost().get(0));
+        Assertions.assertEquals("AdventureWorks", dbInfo.getDatabaseId());
+        Assertions.assertEquals("jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks",
                 dbInfo.getUrl());
     }
 

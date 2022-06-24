@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.loadedclass;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DefaultLoadedClassMetricTest {
     @Test
     public void test() {
         LoadedClassMetric loadedClassMetric = new DefaultLoadedClassMetric();
         LoadedClassMetricSnapshot snapshot = loadedClassMetric.getSnapshot();
-        Assert.assertNotEquals(snapshot.getLoadedClassCount(), 0);
+        Assertions.assertNotEquals(snapshot.getLoadedClassCount(), 0);
     }
 }

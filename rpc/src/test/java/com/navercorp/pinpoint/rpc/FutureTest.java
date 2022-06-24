@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.rpc;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.FutureListener;
 
 /**
  * @author emeroad
@@ -40,13 +36,13 @@ public class FutureTest {
         future.setListener(listener1);
 //        future.addListener(listener2);
 
-        Assert.assertFalse(listener1.isFinished());
-//        Assert.assertFalse(listener2.isFinished());
+        Assertions.assertFalse(listener1.isFinished());
+//        Assertions.assertFalse(listener2.isFinished());
 
         future.setResult("Hello");
 
-        Assert.assertTrue(listener1.isFinished());
-//        Assert.assertTrue(listener2.isFinished());
+        Assertions.assertTrue(listener1.isFinished());
+//        Assertions.assertTrue(listener2.isFinished());
     }
 
     @Test
@@ -59,7 +55,7 @@ public class FutureTest {
 
         future.setListener(listener);
 
-        Assert.assertTrue(listener.isFinished());
+        Assertions.assertTrue(listener.isFinished());
     }
 
     static class SimpleListener<T> implements FutureListener<T> {

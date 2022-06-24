@@ -25,12 +25,13 @@ import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.thrift.TBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -53,14 +54,14 @@ public class NioUdpDataSenderTest {
     private int PORT = SocketUtils.findAvailableUdpPort(61112);
     private DatagramSocket receiver;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SocketException {
         receiver = new DatagramSocket(PORT);
         receiver.setSoTimeout(1000);
     }
 
-    @After
-    public void setDown()  {
+    @AfterEach
+    public void setDown() {
         IOUtils.closeQuietly(receiver);
         // port conflict happens when testcases run continuously so port number is increased.
         PORT = SocketUtils.findAvailableUdpPort(61112);
@@ -93,16 +94,18 @@ public class NioUdpDataSenderTest {
         return new NioUDPDataSender<>("localhost", PORT, "test", 128, 1000, 1024 * 64 * 100, messageConverter);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void exceedMessageSendTest() throws IOException {
-        String random = RandomStringUtils.randomAlphabetic(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH + 100);
+        Assertions.assertThrows(IOException.class, () -> {
+            String random = RandomStringUtils.randomAlphabetic(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH + 100);
 
-        MetaDataType metaData = new StringMetaData(1, random);
+            MetaDataType metaData = new StringMetaData(1, random);
 
-        NioUDPDataSender<MetaDataType> sender = newNioUdpDataSender();
-        sender.send(metaData);
+            NioUDPDataSender<MetaDataType> sender = newNioUdpDataSender();
+            sender.send(metaData);
 
-        waitMessageReceived(1);
+            waitMessageReceived(1);
+        });
     }
 
 

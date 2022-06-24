@@ -23,23 +23,25 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
-
 import org.apache.kafka.clients.ApiVersions;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.RecordBatch;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static org.mockito.Mockito.doReturn;
 
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ProducerAddHeaderInterceptorTest {
 
     @Mock
@@ -71,7 +73,7 @@ public class ProducerAddHeaderInterceptorTest {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
         Header[] headers = getHeadersWhenSampled();
-        Assert.assertEquals(6, headers.length);
+        Assertions.assertEquals(6, headers.length);
     }
 
     @Test
@@ -80,7 +82,7 @@ public class ProducerAddHeaderInterceptorTest {
         doReturn(false).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
 
         Header[] headers = getHeadersWhenSampled();
-        Assert.assertEquals(0, headers.length);
+        Assertions.assertEquals(0, headers.length);
     }
 
     private Header[] getHeadersWhenSampled() {
@@ -127,7 +129,7 @@ public class ProducerAddHeaderInterceptorTest {
         interceptor.before(apiVersionsGetter, args);
 
         Header[] headers = recordHeader.toArray();
-        Assert.assertEquals(1, headers.length);
+        Assertions.assertEquals(1, headers.length);
     }
 
     @Test
@@ -146,7 +148,7 @@ public class ProducerAddHeaderInterceptorTest {
         interceptor.before(apiVersionsGetter, args);
 
         Header[] headers = recordHeader.toArray();
-        Assert.assertEquals(0, headers.length);
+        Assertions.assertEquals(0, headers.length);
     }
 
 }

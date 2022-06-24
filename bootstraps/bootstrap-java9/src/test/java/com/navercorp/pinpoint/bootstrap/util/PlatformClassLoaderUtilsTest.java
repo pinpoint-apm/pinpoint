@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,14 +27,14 @@ public class PlatformClassLoaderUtilsTest {
     @Test
     public void findClassFromPlatformClassLoader_java9() {
         Class<?> sqlDate = PlatformClassLoaderUtils.findClassFromPlatformClassLoader("java.sql.Date");
-        Assert.assertNotNull(sqlDate);
+        Assertions.assertNotNull(sqlDate);
     }
 
     @Test
     public void getPlatformClassLoader_java9() {
         ClassLoader platformOrBootstrapClassLoader = PlatformClassLoaderUtils.getPlatformOrBootstrapClassLoader();
         ClassLoader platformClassLoader2 = ClassLoader.getPlatformClassLoader();
-        Assert.assertSame(platformClassLoader2, platformOrBootstrapClassLoader);
+        Assertions.assertSame(platformClassLoader2, platformOrBootstrapClassLoader);
     }
 
 }

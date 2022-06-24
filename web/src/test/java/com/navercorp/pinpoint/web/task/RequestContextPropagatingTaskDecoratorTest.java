@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.task;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RequestContextPropagatingTaskDecoratorTest {
 
     private final RequestContextPropagatingTaskDecorator decorator = new RequestContextPropagatingTaskDecorator();
@@ -42,7 +43,7 @@ public class RequestContextPropagatingTaskDecoratorTest {
     @Mock
     private RequestAttributes requestAttributes;
 
-    @Before
+    @BeforeEach
     public void setup() {
         executor.setTaskDecorator(decorator);
     }
@@ -74,6 +75,6 @@ public class RequestContextPropagatingTaskDecoratorTest {
         completeLatch.await(5, TimeUnit.SECONDS);
         // Then
         boolean testVerified = verifiedFlag.get();
-        Assert.assertTrue("RequestContext has not been propagated", testVerified);
+        Assertions.assertTrue(testVerified, "RequestContext has not been propagated");
     }
 }

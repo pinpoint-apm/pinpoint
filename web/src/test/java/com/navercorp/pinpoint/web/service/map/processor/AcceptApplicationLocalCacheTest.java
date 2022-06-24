@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
+import com.navercorp.pinpoint.web.vo.Application;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.vo.Application;
 
 
 public class AcceptApplicationLocalCacheTest {
@@ -44,13 +43,13 @@ public class AcceptApplicationLocalCacheTest {
 
         // found
         Set<AcceptApplication> acceptApplications = cache.get(rpc);
-        Assert.assertEquals(acceptApplications.size(), 1);
-        Assert.assertEquals(acceptApplications.iterator().next(), localhost);
+        Assertions.assertEquals(acceptApplications.size(), 1);
+        Assertions.assertEquals(acceptApplications.iterator().next(), localhost);
 
         // not found
         Set<AcceptApplication> unknown = cache.get(new RpcApplication("unknown:8080", tomcat));
-        Assert.assertTrue(unknown.isEmpty());
-        Assert.assertFalse(unknown.iterator().hasNext());
+        Assertions.assertTrue(unknown.isEmpty());
+        Assertions.assertFalse(unknown.iterator().hasNext());
 
     }
 

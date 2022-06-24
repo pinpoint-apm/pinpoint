@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class OsEnvSimplePropertyTest {
 
@@ -14,7 +14,7 @@ public class OsEnvSimplePropertyTest {
         String ip = "1.1.1.1";
         map.put("PROFILER_TRANSPORT_GRPC_COLLECTOR_IP", ip);
         OsEnvSimpleProperty osenv = new OsEnvSimpleProperty(map);
-        org.junit.Assert.assertEquals(ip, osenv.getProperty("profiler.transport.grpc.collector.ip"));
+        Assertions.assertEquals(ip, osenv.getProperty("profiler.transport.grpc.collector.ip"));
     }
 
 }

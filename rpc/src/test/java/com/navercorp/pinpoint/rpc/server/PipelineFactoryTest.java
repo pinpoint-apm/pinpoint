@@ -30,10 +30,9 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -50,7 +49,7 @@ public class PipelineFactoryTest {
 
     private static final char START_KEY = '!';
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
     }
@@ -76,7 +75,7 @@ public class PipelineFactoryTest {
 
             try {
                 assertMessageReceivedCount(2, discardServerHandler);
-                Assert.fail();
+                Assertions.fail();
             } catch (ConditionTimeoutException e) {
                 // ignore
             }

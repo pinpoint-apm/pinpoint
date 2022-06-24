@@ -20,12 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -41,6 +39,6 @@ public class DotSerializerTest {
         TransactionId transactionId = TransactionIdUtils.parseTransactionId("aigw.dev.1^1395798795017^1527177");
         Dot dot = new Dot(transactionId, 100, 99, 1, "agent");
         String jsonValue = mapper.writeValueAsString(dot);
-        Assert.assertEquals("[100,99,\"aigw.dev.1^1395798795017^1527177\",0]", jsonValue);
+        Assertions.assertEquals("[100,99,\"aigw.dev.1^1395798795017^1527177\",0]", jsonValue);
     }
 }

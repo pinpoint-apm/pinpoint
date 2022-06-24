@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.http;
 
 import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 

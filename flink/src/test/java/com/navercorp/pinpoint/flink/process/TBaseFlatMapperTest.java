@@ -16,17 +16,7 @@
 
 package com.navercorp.pinpoint.flink.process;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
+import com.navercorp.pinpoint.common.server.bo.stat.join.*;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.flink.vo.RawData;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
@@ -36,10 +26,9 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFDirectBuffer;
 import com.navercorp.pinpoint.thrift.dto.flink.TFFileDescriptor;
 import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
-
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,11 +36,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 /**
  * @author minwoo.jung
@@ -97,7 +85,7 @@ public class TBaseFlatMapperTest {
     private ApplicationCache newMockApplicationCache() {
         ApplicationCache applicationCache = mock(ApplicationCache.class);
         when(applicationCache.findApplicationId(any(ApplicationCache.ApplicationKey.class)))
-            .thenReturn(APPLICATION_ID);
+                .thenReturn(APPLICATION_ID);
         return applicationCache;
     }
 
@@ -157,7 +145,6 @@ public class TBaseFlatMapperTest {
 
         return tFAgentStatBatch;
     }
-
 
 
     @Test

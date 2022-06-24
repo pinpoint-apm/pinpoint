@@ -4,8 +4,8 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DruidMetadataProviderTest {
 
@@ -19,7 +19,7 @@ public class DruidMetadataProviderTest {
             @Override
             public void addServiceType(ServiceType serviceType) {
 
-                Assert.assertEquals(serviceType, DruidConstants.SERVICE_TYPE);
+                Assertions.assertEquals(serviceType, DruidConstants.SERVICE_TYPE);
             }
 
             @Override

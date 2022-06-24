@@ -16,11 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.util.TimeUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -32,7 +29,7 @@ public class TimeUtilsTest {
         long reverseTime = TimeUtils.reverseTimeMillis(currentTime);
         long recoveryTime = TimeUtils.recoveryTimeMillis(reverseTime);
 
-        Assert.assertEquals(currentTime, recoveryTime);
+        Assertions.assertEquals(currentTime, recoveryTime);
     }
 
     @Test
@@ -41,7 +38,7 @@ public class TimeUtilsTest {
         Thread.sleep(5);
         long l2 = TimeUtils.reverseCurrentTimeMillis();
 
-        Assert.assertTrue(l1 > l2);
+        Assertions.assertTrue(l1 > l2);
     }
 
 }

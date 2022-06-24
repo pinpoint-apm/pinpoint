@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.profiler.sql;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class OutputParameterParserTest {
         List<String> result = parser.parseOutputParameter(outputParam);
         logger.debug("parseResult:{}", result);
         try {
-            Assert.assertArrayEquals(result.toArray(new String[0]), params);
+            Assertions.assertArrayEquals(result.toArray(new String[0]), params);
         } catch (AssertionError e) {
             logger.warn("parseResult:{}", result);
             logger.warn("params:{}", (Object[]) params);

@@ -2,33 +2,33 @@ package com.navercorp.pinpoint.metric.collector;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:applicationContext-kafka-template-test.xml"})
 public class KafkaTemplateTest {
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTestTemplate;
 
-    @Ignore
+    @Disabled
     @Test
     public void testAutowiredTemplate() {
         kafkaTestTemplate.sendDefault("hello");
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testKafkaTemplate() {
         Map<String, Object> senderProps = senderProps();

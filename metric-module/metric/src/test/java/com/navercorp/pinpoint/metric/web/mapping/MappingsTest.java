@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.metric.web.mapping;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +35,9 @@ public class MappingsTest {
 
         Mappings mappings = mapper.readValue(resource, Mappings.class);
         Metric metric = mappings.getMappings().get(0);
-        Assert.assertEquals("cpu", metric.getName());
-        Assert.assertEquals("usage_user", metric.getFields().get(0).getName());
-//        Assert.assertEquals("");
+        Assertions.assertEquals("cpu", metric.getName());
+        Assertions.assertEquals("usage_user", metric.getFields().get(0).getName());
+//        Assertions.assertEquals("");
     }
 
 }

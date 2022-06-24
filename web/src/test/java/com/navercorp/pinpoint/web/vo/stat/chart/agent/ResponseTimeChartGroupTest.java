@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +96,7 @@ public class ResponseTimeChartGroupTest {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
             Point point = sampledResponseTime.getAvg();
 
-            Assert.assertEquals(avgChartPointList.get(i), point);
+            Assertions.assertEquals(avgChartPointList.get(i), point);
         }
 
         Chart<AgentStatPoint<Long>> maxChart = charts.get(ResponseTimeChart.ResponseTimeChartType.MAX);
@@ -105,7 +105,7 @@ public class ResponseTimeChartGroupTest {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
             AgentStatPoint<Long> point = sampledResponseTime.getMax();
 
-            Assert.assertEquals(maxChartPointList.get(i), point);
+            Assertions.assertEquals(maxChartPointList.get(i), point);
         }
 
     }

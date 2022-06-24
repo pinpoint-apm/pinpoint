@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public class ScatterDataTest {
         }
 
         List<Dot> dots = extractDotList(builder.build());
-        Assert.assertEquals(count, dots.size());
+        Assertions.assertEquals(count, dots.size());
     }
 
     @Test
@@ -82,11 +82,11 @@ public class ScatterDataTest {
         ScatterData scatterData = builder.build();
 
         List<DotGroups> values = scatterData.getScatterData();
-        Assert.assertEquals(1, values.size());
+        Assertions.assertEquals(1, values.size());
 
         for (DotGroups dotGroups : values) {
             Map<Dot, DotGroup> dotGroupLeaders = dotGroups.getDotGroupLeaders();
-            Assert.assertEquals(2, dotGroupLeaders.keySet().size());
+            Assertions.assertEquals(2, dotGroupLeaders.keySet().size());
         }
     }
 
@@ -115,7 +115,7 @@ public class ScatterDataTest {
         builder.addDot(dot2);
 
         List<Dot> dots = extractDotList(builder.build());
-        Assert.assertEquals(2, dots.size());
+        Assertions.assertEquals(2, dots.size());
     }
 
     private List<Dot> createDotList(String agentId, String transactionAgentId, int createSize, long from) {

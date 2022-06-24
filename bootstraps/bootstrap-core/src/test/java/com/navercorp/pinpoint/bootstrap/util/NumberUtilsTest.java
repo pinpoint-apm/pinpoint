@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import java.util.Random;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author poap
@@ -35,9 +33,9 @@ public class NumberUtilsTest {
     }
 
     private void assertLong(long longValue, long defaultLong) {
-        Assert.assertEquals(NumberUtils.parseLong(null, defaultLong), defaultLong);
-        Assert.assertEquals(NumberUtils.parseLong(String.valueOf(longValue), defaultLong), longValue);
-        Assert.assertEquals(NumberUtils.parseLong(notNumber, defaultLong), defaultLong);
+        Assertions.assertEquals(NumberUtils.parseLong(null, defaultLong), defaultLong);
+        Assertions.assertEquals(NumberUtils.parseLong(String.valueOf(longValue), defaultLong), longValue);
+        Assertions.assertEquals(NumberUtils.parseLong(notNumber, defaultLong), defaultLong);
     }
 
     @Test
@@ -48,9 +46,9 @@ public class NumberUtilsTest {
     }
 
     private void assertInteger(int integerValue, int defaultInt) {
-        Assert.assertEquals(NumberUtils.parseInteger(null, defaultInt), defaultInt);
-        Assert.assertEquals(NumberUtils.parseInteger(String.valueOf(integerValue), defaultInt), integerValue);
-        Assert.assertEquals(NumberUtils.parseInteger(notNumber, defaultInt), defaultInt);
+        Assertions.assertEquals(NumberUtils.parseInteger(null, defaultInt), defaultInt);
+        Assertions.assertEquals(NumberUtils.parseInteger(String.valueOf(integerValue), defaultInt), integerValue);
+        Assertions.assertEquals(NumberUtils.parseInteger(notNumber, defaultInt), defaultInt);
     }
 
     @Test
@@ -63,9 +61,9 @@ public class NumberUtilsTest {
     }
 
     private void assertShort(short shortValue, short defaultShort) {
-        Assert.assertEquals(NumberUtils.parseShort(null, shortValue), shortValue);
-        Assert.assertEquals(NumberUtils.parseShort(String.valueOf(shortValue), defaultShort), shortValue);
-        Assert.assertEquals(NumberUtils.parseShort(notNumber, shortValue), shortValue);
+        Assertions.assertEquals(NumberUtils.parseShort(null, shortValue), shortValue);
+        Assertions.assertEquals(NumberUtils.parseShort(String.valueOf(shortValue), defaultShort), shortValue);
+        Assertions.assertEquals(NumberUtils.parseShort(notNumber, shortValue), shortValue);
     }
 
     @Test
@@ -75,11 +73,11 @@ public class NumberUtilsTest {
         long oneLong = 1;
         String oneString = "1";
 
-        Assert.assertNull(NumberUtils.toInteger(null));
-        Assert.assertNull(NumberUtils.toInteger(oneShort));
-        Assert.assertEquals(NumberUtils.toInteger(oneInteger), (Integer) 1);
-        Assert.assertNull(NumberUtils.toInteger(oneLong));
-        Assert.assertNull(NumberUtils.toInteger(oneString));
-        Assert.assertNull(NumberUtils.toInteger(notNumber));
+        Assertions.assertNull(NumberUtils.toInteger(null));
+        Assertions.assertNull(NumberUtils.toInteger(oneShort));
+        Assertions.assertEquals(NumberUtils.toInteger(oneInteger), (Integer) 1);
+        Assertions.assertNull(NumberUtils.toInteger(oneLong));
+        Assertions.assertNull(NumberUtils.toInteger(oneString));
+        Assertions.assertNull(NumberUtils.toInteger(notNumber));
     }
 }

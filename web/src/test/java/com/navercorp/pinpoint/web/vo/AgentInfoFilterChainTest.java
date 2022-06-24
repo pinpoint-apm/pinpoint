@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class AgentInfoFilterChainTest {
 
@@ -18,7 +18,7 @@ public class AgentInfoFilterChainTest {
         AgentInfo info = new AgentInfo();
         info.setStatus(status);
 
-        Assert.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
+        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
     }
 
     @Test
@@ -33,6 +33,6 @@ public class AgentInfoFilterChainTest {
         AgentInfo info = new AgentInfo();
         info.setStatus(status);
 
-        Assert.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
+        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
     }
 }

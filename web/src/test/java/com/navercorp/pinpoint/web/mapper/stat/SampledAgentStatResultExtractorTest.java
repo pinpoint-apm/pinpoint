@@ -18,21 +18,21 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SampledAgentStatResultExtractorTest {
 
     private static final long DEFAULT_TIME_INTERVAL = 5 * 1000L;
@@ -63,7 +63,7 @@ public class SampledAgentStatResultExtractorTest {
     @Mock
     private AgentStatMapperV2<TestAgentStatDataPoint> rowMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this.getClass());
         when(this.resultScanner.iterator()).thenReturn(Arrays.asList(this.result).iterator());
@@ -88,7 +88,7 @@ public class SampledAgentStatResultExtractorTest {
         // Then
         for (TestSampledAgentStatDataPoint sampledDataPoint : sampledDataPoints) {
             List<TestAgentStatDataPoint> expectedSampledDataPoints = expectedDataPointSlotMap.get(sampledDataPoint.getBaseTimestamp());
-            Assert.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
+            Assertions.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
         }
     }
 
@@ -111,7 +111,7 @@ public class SampledAgentStatResultExtractorTest {
         // Then
         for (TestSampledAgentStatDataPoint sampledDataPoint : sampledDataPoints) {
             List<TestAgentStatDataPoint> expectedSampledDataPoints = expectedDataPointSlotMap.get(sampledDataPoint.getBaseTimestamp());
-            Assert.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
+            Assertions.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
         }
     }
 
@@ -134,7 +134,7 @@ public class SampledAgentStatResultExtractorTest {
         // Then
         for (TestSampledAgentStatDataPoint sampledDataPoint : sampledDataPoints) {
             List<TestAgentStatDataPoint> expectedSampledDataPoints = expectedDataPointSlotMap.get(sampledDataPoint.getBaseTimestamp());
-            Assert.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
+            Assertions.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
         }
     }
 

@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.bootstrap.java9.classloader;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -58,33 +58,32 @@ public class Java9ClassLoaderTest {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        Assert.assertSame(cl.getClass(), classLoaderType);
+        Assertions.assertSame(cl.getClass(), classLoaderType);
 
         try {
             cl.loadClass("test");
-            Assert.fail();
+            Assertions.fail();
         } catch (ClassNotFoundException ignored) {
         }
 
         Class<?> selfLoadClass = cl.loadClass(testClass.getName());
-        Assert.assertNotSame(testClass, selfLoadClass);
-        Assert.assertSame(cl, selfLoadClass.getClassLoader());
-        Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
+        Assertions.assertNotSame(testClass, selfLoadClass);
+        Assertions.assertSame(cl, selfLoadClass.getClassLoader());
+        Assertions.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
         return cl;
     }
-
 
 
     @Test
     public void loadClass_bootstrap() throws Exception {
 
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), new URL[]{}, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        Assert.assertTrue(cl instanceof Java9ClassLoader);
+        Assertions.assertTrue(cl instanceof Java9ClassLoader);
 
         Class<?> stringClazz1 = cl.loadClass("java.lang.String");
         Class<?> stringClazz2 = ClassLoader.getSystemClassLoader().loadClass("java.lang.String");
-        Assert.assertSame("reference", stringClazz1, stringClazz2);
-        Assert.assertSame("classLoader", stringClazz1.getClassLoader(), stringClazz2.getClassLoader());
+        Assertions.assertSame(stringClazz1, stringClazz2, "reference");
+        Assertions.assertSame(stringClazz1.getClassLoader(), stringClazz2.getClassLoader(), "classLoader");
 
         close(cl);
     }

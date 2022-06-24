@@ -16,21 +16,21 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +82,7 @@ public class FileDescriptorDataCollectorTest {
         FileDescriptorDataCollector fileDescriptorDataCollector = new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, application, fileDescriptorDao, applicationIndexDao, timeStamp, DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         fileDescriptorDataCollector.collect();
         Map<String, Long> fileDescriptorCount = fileDescriptorDataCollector.getFileDescriptorCount();
-        assertEquals(fileDescriptorCount.size(),2);
+        assertEquals(fileDescriptorCount.size(), 2);
         assertEquals(fileDescriptorCount.get(agentId1), new Long(300L));
         assertEquals(fileDescriptorCount.get(agentId2), new Long(350L));
     }

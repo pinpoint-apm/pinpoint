@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.cache;
 
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -44,16 +44,16 @@ public class LRUCacheTest {
     @Test
     public void testGetSize() {
         LRUCache<String> cache = new LRUCache<>(2);
-        Assert.assertEquals(cache.getSize(), 0);
+        Assertions.assertEquals(cache.getSize(), 0);
 
         String sqlObject = "test";
 
         boolean hit = cache.put(sqlObject);
-        Assert.assertTrue(hit);
-        Assert.assertEquals(cache.getSize(), 1);
+        Assertions.assertTrue(hit);
+        Assertions.assertEquals(cache.getSize(), 1);
 
         boolean hit2 = cache.put(sqlObject);
-        Assert.assertFalse(hit2);
+        Assertions.assertFalse(hit2);
         ConditionFactory await = Awaitility.await();
         await.until(cache::getSize, is(1L));
 //        "23 123";

@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.profiler.sampler;
 
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -90,11 +89,11 @@ public class PercentRateSamplerTest {
 
     private void assertDrop(Sampler simpleSampler) {
         boolean sample = simpleSampler.isSampling();
-        Assert.assertFalse(sample);
+        Assertions.assertFalse(sample);
     }
 
     private void assertChoice(Sampler simpleSampler) {
         boolean sample = simpleSampler.isSampling();
-        Assert.assertTrue(sample);
+        Assertions.assertTrue(sample);
     }
 }

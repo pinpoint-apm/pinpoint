@@ -30,12 +30,12 @@ import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor;
-import org.apache.logging.log4j.spi.LoggerContext;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.spi.LoggerContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
@@ -65,7 +65,7 @@ public class AccessorInjectionTest {
         return testClassLoader;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (applicationContext != null) {
             applicationContext.close();
@@ -111,38 +111,38 @@ public class AccessorInjectionTest {
         callA.invoke(testObject);
 
         Class<?> objectTraceValue = loader.loadClass(ObjectTraceValue.class.getName());
-        Assert.assertTrue("ObjectTraceValue implements fail", objectTraceValue.isInstance(testObject));
+        Assertions.assertTrue(objectTraceValue.isInstance(testObject), "ObjectTraceValue implements fail");
         objectTraceValue.getMethod("_$PINPOINT$_setTraceObject", Object.class).invoke(testObject, "a");
         Object get = objectTraceValue.getMethod("_$PINPOINT$_getTraceObject").invoke(testObject);
-        Assert.assertEquals("a", get);
+        Assertions.assertEquals("a", get);
 
         Class<?> intTraceValue = loader.loadClass(IntTraceValue.class.getName());
-        Assert.assertTrue("IntTraceValue implements fail", intTraceValue.isInstance(testObject));
+        Assertions.assertTrue(intTraceValue.isInstance(testObject), "IntTraceValue implements fail");
         intTraceValue.getMethod("_$PINPOINT$_setTraceInt", int.class).invoke(testObject, 1);
         int a = (Integer) intTraceValue.getMethod("_$PINPOINT$_getTraceInt").invoke(testObject);
-        Assert.assertEquals(1, a);
+        Assertions.assertEquals(1, a);
 
         Class<?> intArrayTraceValue = loader.loadClass(IntArrayTraceValue.class.getName());
-        Assert.assertTrue("IntArrayTraceValue implements fail", intArrayTraceValue.isInstance(testObject));
+        Assertions.assertTrue(intArrayTraceValue.isInstance(testObject), "IntArrayTraceValue implements fail");
         int[] expectedInts = {1, 2, 3};
         intArrayTraceValue.getMethod("_$PINPOINT$_setTraceIntArray", int[].class).invoke(testObject, expectedInts);
         int[] ints = (int[]) intArrayTraceValue.getMethod("_$PINPOINT$_getTraceIntArray").invoke(testObject);
-        Assert.assertEquals(expectedInts, ints);
+        Assertions.assertEquals(expectedInts, ints);
 
         Class<?> integerArrayTraceValue = loader.loadClass(IntegerArrayTraceValue.class.getName());
-        Assert.assertTrue("IntegerArrayTraceValue implements fail", integerArrayTraceValue.isInstance(testObject));
+        Assertions.assertTrue(integerArrayTraceValue.isInstance(testObject), "IntegerArrayTraceValue implements fail");
         Integer[] expectedIntegers = {1, 2};
         // wrap due to vararg expansion
         Object[] wrappedExpectedIntegers = new Object[]{expectedIntegers};
         integerArrayTraceValue.getMethod("_$PINPOINT$_setTraceIntegerArray", Integer[].class).invoke(testObject, wrappedExpectedIntegers);
         Integer[] integers = (Integer[]) integerArrayTraceValue.getMethod("_$PINPOINT$_getTraceIntegerArray").invoke(testObject);
-        Assert.assertArrayEquals(expectedIntegers, integers);
+        Assertions.assertArrayEquals(expectedIntegers, integers);
 
         Class<?> databaseTraceValue = loader.loadClass(DatabaseInfoTraceValue.class.getName());
-        Assert.assertTrue("DatabaseInfoTraceValue implements fail", databaseTraceValue.isInstance(testObject));
+        Assertions.assertTrue(databaseTraceValue.isInstance(testObject), "DatabaseInfoTraceValue implements fail");
         databaseTraceValue.getMethod("_$PINPOINT$_setTraceDatabaseInfo", DatabaseInfo.class).invoke(testObject, UnKnownDatabaseInfo.INSTANCE);
         Object databaseInfo = databaseTraceValue.getMethod("_$PINPOINT$_getTraceDatabaseInfo").invoke(testObject);
-        Assert.assertSame(UnKnownDatabaseInfo.INSTANCE, databaseInfo);
+        Assertions.assertSame(UnKnownDatabaseInfo.INSTANCE, databaseInfo);
     }
 
     @Test
@@ -179,10 +179,10 @@ public class AccessorInjectionTest {
         Class<?> intsGetter = loader.loadClass(IntArrayGetter.class.getName());
         Class<?> integersGetter = loader.loadClass(IntegerArrayGetter.class.getName());
 
-        Assert.assertTrue(stringGetter.isInstance(testObject));
-        Assert.assertTrue(intGetter.isInstance(testObject));
-        Assert.assertTrue(intsGetter.isInstance(testObject));
-        Assert.assertTrue(integersGetter.isInstance(testObject));
+        Assertions.assertTrue(stringGetter.isInstance(testObject));
+        Assertions.assertTrue(intGetter.isInstance(testObject));
+        Assertions.assertTrue(intsGetter.isInstance(testObject));
+        Assertions.assertTrue(integersGetter.isInstance(testObject));
 
         String value = "hehe";
         int intValue = 99;
@@ -193,19 +193,19 @@ public class AccessorInjectionTest {
         method.invoke(testObject, value);
 
         Method getString = stringGetter.getMethod("_$PINPOINT$_getString");
-        Assert.assertEquals(value, getString.invoke(testObject));
+        Assertions.assertEquals(value, getString.invoke(testObject));
 
         Method setIntValue = testObject.getClass().getMethod("setIntValue", int.class);
         setIntValue.invoke(testObject, intValue);
 
         Method getInt = intGetter.getMethod("_$PINPOINT$_getInt");
-        Assert.assertEquals(intValue, getInt.invoke(testObject));
+        Assertions.assertEquals(intValue, getInt.invoke(testObject));
 
         Method setIntValues = testObject.getClass().getMethod("setIntValues", int[].class);
         setIntValues.invoke(testObject, intValues);
 
         Method getIntValues = intsGetter.getMethod("_$PINPOINT$_getIntArray");
-        Assert.assertEquals(intValues, getIntValues.invoke(testObject));
+        Assertions.assertEquals(intValues, getIntValues.invoke(testObject));
 
         Method setIntegerValues = testObject.getClass().getMethod("setIntegerValues", Integer[].class);
         // wrap due to vararg expansion
@@ -213,7 +213,7 @@ public class AccessorInjectionTest {
         setIntegerValues.invoke(testObject, wrappedIntegerValues);
 
         Method getIntegerValues = integersGetter.getMethod("_$PINPOINT$_getIntegerArray");
-        Assert.assertEquals(integerValues, getIntegerValues.invoke(testObject));
+        Assertions.assertEquals(integerValues, getIntegerValues.invoke(testObject));
 
     }
 
@@ -247,9 +247,9 @@ public class AccessorInjectionTest {
         Class<?> intsSetter = loader.loadClass(IntArraySetter.class.getName());
         Class<?> integersSetter = loader.loadClass(IntegerArraySetter.class.getName());
 
-        Assert.assertTrue(intSetter.isInstance(testObject));
-        Assert.assertTrue(intsSetter.isInstance(testObject));
-        Assert.assertTrue(integersSetter.isInstance(testObject));
+        Assertions.assertTrue(intSetter.isInstance(testObject));
+        Assertions.assertTrue(intsSetter.isInstance(testObject));
+        Assertions.assertTrue(integersSetter.isInstance(testObject));
 
         int intValue = 99;
         int[] intValues = {99, 100};
@@ -258,19 +258,19 @@ public class AccessorInjectionTest {
         Method setInt = intSetter.getMethod("_$PINPOINT$_setInt", int.class);
         setInt.invoke(testObject, intValue);
         Method getInt = testObject.getClass().getMethod("getIntValue");
-        Assert.assertEquals(intValue, getInt.invoke(testObject));
+        Assertions.assertEquals(intValue, getInt.invoke(testObject));
 
         Method setInts = intsSetter.getMethod("_$PINPOINT$_setIntArray", int[].class);
         setInts.invoke(testObject, intValues);
         Method getInts = testObject.getClass().getMethod("getIntValues");
-        Assert.assertEquals(intValues, getInts.invoke(testObject));
+        Assertions.assertEquals(intValues, getInts.invoke(testObject));
 
         Method setIntegers = integersSetter.getMethod("_$PINPOINT$_setIntegerArray", Integer[].class);
         // wrap due to vararg expansion
         Object[] wrappedIntegerValues = new Object[]{integerValues};
         setIntegers.invoke(testObject, wrappedIntegerValues);
         Method getIntegers = testObject.getClass().getMethod("getIntegerValues");
-        Assert.assertEquals(integerValues, getIntegers.invoke(testObject));
+        Assertions.assertEquals(integerValues, getIntegers.invoke(testObject));
     }
 
 }

@@ -23,19 +23,18 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
-
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class AgentUriStatCodecV2Test extends AgentStatCodecTestBase<AgentUriStatBo> {
 
@@ -54,16 +53,16 @@ public class AgentUriStatCodecV2Test extends AgentStatCodecTestBase<AgentUriStat
 
     @Override
     protected void verify(AgentUriStatBo expected, AgentUriStatBo actual) {
-        Assert.assertEquals(expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals(expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals(expected.getAgentStatType(), actual.getAgentStatType());
-        Assert.assertEquals(expected.getBucketVersion(), actual.getBucketVersion());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId());
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp());
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp());
+        Assertions.assertEquals(expected.getAgentStatType(), actual.getAgentStatType());
+        Assertions.assertEquals(expected.getBucketVersion(), actual.getBucketVersion());
 
         List<EachUriStatBo> expectedEachUriStatBoList = expected.getEachUriStatBoList();
         List<EachUriStatBo> actualEachUriStatBoList = actual.getEachUriStatBoList();
 
-        Assert.assertEquals(expectedEachUriStatBoList.size(), actualEachUriStatBoList.size());
+        Assertions.assertEquals(expectedEachUriStatBoList.size(), actualEachUriStatBoList.size());
 
         int eachUriStatBoSize = actualEachUriStatBoList.size();
         for (int i = 0; i < eachUriStatBoSize; i++) {
@@ -72,7 +71,7 @@ public class AgentUriStatCodecV2Test extends AgentStatCodecTestBase<AgentUriStat
     }
 
     private void assertEachUriStatBo(EachUriStatBo expected, EachUriStatBo actual) {
-        Assert.assertEquals(expected.getUri(), actual.getUri());
+        Assertions.assertEquals(expected.getUri(), actual.getUri());
 
         assertUriStatHistogram(expected.getTotalHistogram(), actual.getTotalHistogram());
         assertUriStatHistogram(expected.getFailedHistogram(), actual.getFailedHistogram());
@@ -82,10 +81,10 @@ public class AgentUriStatCodecV2Test extends AgentStatCodecTestBase<AgentUriStat
         if (expected == null && actual == null) {
             return;
         }
-        Assert.assertEquals(expected.getCount(), actual.getCount());
-        Assert.assertEquals(AgentStatUtils.convertDoubleToLong(expected.getAvg()), AgentStatUtils.convertDoubleToLong(actual.getAvg()));
-        Assert.assertEquals(expected.getMax(), actual.getMax());
-        Assert.assertArrayEquals(expected.getTimestampHistogram(), actual.getTimestampHistogram());
+        Assertions.assertEquals(expected.getCount(), actual.getCount());
+        Assertions.assertEquals(AgentStatUtils.convertDoubleToLong(expected.getAvg()), AgentStatUtils.convertDoubleToLong(actual.getAvg()));
+        Assertions.assertEquals(expected.getMax(), actual.getMax());
+        Assertions.assertArrayEquals(expected.getTimestampHistogram(), actual.getTimestampHistogram());
     }
 
 }

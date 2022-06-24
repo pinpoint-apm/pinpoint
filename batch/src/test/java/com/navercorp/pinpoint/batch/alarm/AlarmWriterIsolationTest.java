@@ -22,110 +22,119 @@ import com.navercorp.pinpoint.batch.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AlarmWriterIsolationTest {
 
     private static final String APPLICATION_ID = "testService";
     private static final String CHECKER_NAME = CheckerCategory.SLOW_COUNT.getName();
     private static final String RULE_ID = "TEST_RULE";
-    
+
     private AlarmWriter writer;
-    
+
     @Mock
     AlarmMessageSender alarmMessageSender;
-    
+
     @Mock
     AlarmService alarmService;
 
     Map<String, CheckerResult> beforeCheckerResults;
-    
-    @Before
+
+    @BeforeEach
     public void setUp() throws Exception {
         writer = new AlarmWriter(alarmMessageSender, alarmService, Optional.empty());
 
         beforeCheckerResults = new HashMap<>();
     }
-    
+
     @Test
     public void whenSequenceCountIsLessThanTimingCountDoSendAlarm() throws Exception {
         // given
         Rule rule = getRuleStub(APPLICATION_ID, RULE_ID);
-        
+
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
-    
+
         List<AlarmChecker<?>> checkers = new LinkedList<>();
         checkers.add(checker);
-    
+
         mockingAlarmService(getBeforeCheckerStub(0, 1));
         mockingAlarmMessageSender(checker);
-        
+
         // when
         writer.write(checkers);
-        
+
         // then
         verify(alarmMessageSender, times(1)).sendSms(checker, 1, null);
         verify(alarmMessageSender, times(1)).sendEmail(checker, 1, null);
     }
-    
+
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void whenSequenceCountIsEqualToTimingCountDoNotSendAlarm() throws Exception {
         //given
         Rule rule = getRuleStub(APPLICATION_ID, RULE_ID);
-        
+
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
-    
+
         List<AlarmChecker<?>> checkers = new LinkedList<>();
         checkers.add(checker);
-    
+
         mockingAlarmService(getBeforeCheckerStub(1, 1));
         mockingAlarmMessageSender(checker);
-        
+
         // when
         writer.write(checkers);
-        
+
         // then
         verify(alarmMessageSender, times(0)).sendSms(checker, 1, null);
         verify(alarmMessageSender, times(0)).sendEmail(checker, 1, null);
     }
-    
+
     private void mockingAlarmService(CheckerResult beforeCheckerFixture) {
         beforeCheckerResults.put(RULE_ID, beforeCheckerFixture);
         when(alarmService.selectBeforeCheckerResults(APPLICATION_ID)).thenReturn(beforeCheckerResults);
     }
-    
+
     private void mockingAlarmMessageSender(AlarmChecker<Long> checker) {
         doNothing().when(alarmMessageSender).sendSms(checker, 1, null);
         doNothing().when(alarmMessageSender).sendEmail(checker, 1, null);
     }
-    
+
     private Rule getRuleStub(String appliationId, String ruleId) {
         Rule rule = new Rule(appliationId, "tomcat", CHECKER_NAME, 100, "testGroup", true, true, true, "");
         rule.setRuleId(ruleId);
         return rule;
     }
-    
+
     private CheckerResult getBeforeCheckerStub(int sequenceCount, int timingCount) {
         return new CheckerResult(RULE_ID, APPLICATION_ID, CHECKER_NAME, true, sequenceCount, timingCount);
     }
-    
+
     private AlarmChecker<Long> getCheckerStub(Rule rule, Long detectedValue) {
         return new SlowCountChecker(null, rule) {
             @Override
             public boolean isDetected() {
                 return true;
             }
-        
+
             @Override
             protected Long getDetectedValue() {
                 return detectedValue;

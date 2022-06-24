@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.transformer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,9 +29,9 @@ public class PinpointClassFilterTest {
 
         ClassFileFilter filter = new PinpointClassFilter();
 
-        Assert.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "java/test", null, null, null));
-        Assert.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "javax/test", null, null, null));
-        Assert.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "test", null, null, null));
+        Assertions.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "java/test", null, null, null));
+        Assertions.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "javax/test", null, null, null));
+        Assertions.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "test", null, null, null));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class PinpointClassFilterTest {
 
         ClassFileFilter filter = new PinpointClassFilter();
 
-        Assert.assertEquals(ClassFileFilter.SKIP, filter.accept(null, "com/navercorp/pinpoint/", null, null, null));
+        Assertions.assertEquals(ClassFileFilter.SKIP, filter.accept(null, "com/navercorp/pinpoint/", null, null, null));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class PinpointClassFilterTest {
 
         ClassFileFilter filter = new PinpointClassFilter();
 
-        Assert.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "com/navercorp/pinpoint/web/", null, null, null));
+        Assertions.assertEquals(ClassFileFilter.CONTINUE, filter.accept(null, "com/navercorp/pinpoint/web/", null, null, null));
 
     }
 }

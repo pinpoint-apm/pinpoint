@@ -19,13 +19,12 @@ package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;

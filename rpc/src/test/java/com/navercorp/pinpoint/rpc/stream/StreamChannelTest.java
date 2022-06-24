@@ -17,10 +17,9 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.RecordedStreamChannelMessageListener;
-
 import org.jboss.netty.channel.Channel;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /**
@@ -34,26 +33,28 @@ public class StreamChannelTest {
         NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), new RecordedStreamChannelMessageListener(0));
 
         sc.init();
-        Assert.assertEquals(StreamChannelStateCode.OPEN, sc.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.OPEN, sc.getCurrentState());
 
         boolean isChanged = sc.changeStateConnected();
-        Assert.assertFalse(isChanged);
-        Assert.assertEquals(StreamChannelStateCode.ILLEGAL_STATE, sc.getCurrentState());
+        Assertions.assertFalse(isChanged);
+        Assertions.assertEquals(StreamChannelStateCode.ILLEGAL_STATE, sc.getCurrentState());
     }
 
-    @Test(expected = StreamException.class)
+    @Test
     public void testName() throws Exception {
-        Channel mockChannel = Mockito.mock(Channel.class);
-        Mockito.when(mockChannel.write(Mockito.any())).thenReturn(null);
+        Assertions.assertThrows(StreamException.class, () -> {
+            Channel mockChannel = Mockito.mock(Channel.class);
+            Mockito.when(mockChannel.write(Mockito.any())).thenReturn(null);
 
-        RecordedStreamChannelMessageListener recordEventHandler = new RecordedStreamChannelMessageListener(0);
+            RecordedStreamChannelMessageListener recordEventHandler = new RecordedStreamChannelMessageListener(0);
 
-        NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), recordEventHandler);
+            NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), recordEventHandler);
 
-        sc.init();
-        Assert.assertEquals(StreamChannelStateCode.OPEN, recordEventHandler.getCurrentState());
+            sc.init();
+            Assertions.assertEquals(StreamChannelStateCode.OPEN, recordEventHandler.getCurrentState());
 
-        sc.connectAndAwait(new byte[0], 3000);
+            sc.connectAndAwait(new byte[0], 3000);
+        });
     }
 
 }

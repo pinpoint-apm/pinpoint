@@ -23,11 +23,10 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class EventHandlerTest {
     private static int bindPort;
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
     }
@@ -60,10 +59,10 @@ public class EventHandlerTest {
             testRawSocket.connect(bindPort);
 
             sendAndReceiveSimplePacket(testRawSocket);
-            Assert.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_WITHOUT_HANDSHAKE);
+            Assertions.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_WITHOUT_HANDSHAKE);
 
             int code = sendAndReceiveRegisterPacket(testRawSocket, PinpointRPCTestUtils.getParams());
-            Assert.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_DUPLEX);
+            Assertions.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_DUPLEX);
 
             sendAndReceiveSimplePacket(testRawSocket);
         } finally {
@@ -87,7 +86,7 @@ public class EventHandlerTest {
 
             sendAndReceiveSimplePacket(testRawSocket);
 
-            Assert.assertTrue(eventHandler.getErrorCount() > 0);
+            Assertions.assertTrue(eventHandler.getErrorCount() > 0);
         } finally {
             testRawSocket.close();
             PinpointRPCTestUtils.close(serverAcceptor);
@@ -102,7 +101,7 @@ public class EventHandlerTest {
 
     private void sendAndReceiveSimplePacket(TestRawSocket testRawSocket) throws IOException {
         testRawSocket.sendRequestPacket();
-        Assert.assertNotNull(testRawSocket.readResponsePacket(3000));
+        Assertions.assertNotNull(testRawSocket.readResponsePacket(3000));
     }
 
     static class EventHandler extends ServerStateChangeEventHandler {

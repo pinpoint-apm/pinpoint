@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 public class ASMMethodNodeAdapterAddDelegatorTest {
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
-    @Before
+    @BeforeEach
     public void before() {
         this.classLoader = ASMClassNodeLoader.getClassLoader();
     }

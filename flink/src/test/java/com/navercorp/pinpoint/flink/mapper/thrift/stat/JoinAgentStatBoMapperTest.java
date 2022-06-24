@@ -37,13 +37,12 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTotalThreadCount;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
 import com.navercorp.pinpoint.thrift.dto.flink.TFLoadedClass;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung

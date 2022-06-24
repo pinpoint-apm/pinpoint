@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.hbase.schema.dao.hbase.codec;
 
 import com.navercorp.pinpoint.hbase.schema.core.CheckSum;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 import java.util.UUID;

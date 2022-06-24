@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
@@ -31,7 +30,7 @@ public class StringTraceHeaderParserTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final StringTraceHeaderParser parser= new StringTraceHeaderParser();
+    private final StringTraceHeaderParser parser = new StringTraceHeaderParser();
 
     @Test
     public void getIdSize() {
@@ -48,16 +47,15 @@ public class StringTraceHeaderParserTest {
     }
 
 
-
     private void createAndParser(String uuid, int spanId, int pSpanId, int sampling, short flag) {
         String traceHeader = parser.createHeader(uuid, spanId, pSpanId, sampling, flag);
 
         TraceHeader header = parser.parseHeader(traceHeader);
-        Assert.assertEquals("id", uuid, header.getId());
-        Assert.assertEquals("spanId", String.valueOf(spanId), header.getSpanId());
-        Assert.assertEquals("pSpanId", String.valueOf(pSpanId), header.getParentSpanId());
-        Assert.assertEquals("sampling", String.valueOf(sampling), header.getSampling());
-        Assert.assertEquals("flag", String.valueOf(flag), header.getFlag());
+        Assertions.assertEquals(uuid, header.getId(), "id");
+        Assertions.assertEquals(String.valueOf(spanId), header.getSpanId(), "spanId");
+        Assertions.assertEquals(String.valueOf(pSpanId), header.getParentSpanId(), "pSpanId");
+        Assertions.assertEquals(String.valueOf(sampling), header.getSampling(), "sampling");
+        Assertions.assertEquals(String.valueOf(flag), header.getFlag(), "flag");
         logger.debug("parse:{}", header);
     }
 }

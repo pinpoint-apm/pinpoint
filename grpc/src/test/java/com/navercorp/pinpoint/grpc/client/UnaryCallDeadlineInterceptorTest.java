@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.MethodDescriptor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /**
@@ -40,7 +39,7 @@ public class UnaryCallDeadlineInterceptorTest {
 
         ClientCall<PAgentInfo, PResult> pAgentInfoPResultClientCall = unaryCallDeadlineInterceptor.interceptCall(createMethodDescritor(MethodDescriptor.MethodType.UNARY), CallOptions.DEFAULT.withAuthority("test"), channel);
 
-        Assert.assertNotNull(((TestChannel) channel).callOptions.getDeadline());
+        Assertions.assertNotNull(((TestChannel) channel).callOptions.getDeadline());
     }
 
     @Test
@@ -51,7 +50,7 @@ public class UnaryCallDeadlineInterceptorTest {
 
         unaryCallDeadlineInterceptor.interceptCall(createMethodDescritor(MethodDescriptor.MethodType.BIDI_STREAMING), CallOptions.DEFAULT.withAuthority("test"), channel);
 
-        Assert.assertNull(((TestChannel) channel).callOptions.getDeadline());
+        Assertions.assertNull(((TestChannel) channel).callOptions.getDeadline());
     }
 
     private MethodDescriptor createMethodDescritor(MethodDescriptor.MethodType methodType) {

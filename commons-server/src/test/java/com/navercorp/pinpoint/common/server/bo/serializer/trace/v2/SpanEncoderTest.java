@@ -12,10 +12,10 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -174,14 +174,14 @@ public class SpanEncoderTest {
         List<String> notSerializedField = newArrayList("parentApplicationId", "parentApplicationServiceType");
         List<String> excludeField = newArrayList("annotationBoList", "spanEventBoList");
         notSerializedField.addAll(excludeField);
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(decode, spanBo, notSerializedField));
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(decode, spanBo, notSerializedField));
 
         logger.debug("{} {}", spanBo.getAnnotationBoList(), decode.getAnnotationBoList());
-        Assert.assertTrue("annotation", EqualsBuilder.reflectionEquals(spanBo.getAnnotationBoList(), decode.getAnnotationBoList()));
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanBo.getAnnotationBoList(), decode.getAnnotationBoList()), "annotation");
 
         List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         List<SpanEventBo> decodedSpanEventBoList = decode.getSpanEventBoList();
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList));
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList));
     }
 
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
@@ -202,12 +202,12 @@ public class SpanEncoderTest {
         List<String> notSerializedField = newArrayList("endPoint", "serviceType", "applicationServiceType");
         List<String> excludeField = newArrayList("spanEventBoList", "localAsyncId");
         notSerializedField.addAll(excludeField);
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(decode, spanChunkBo, notSerializedField));
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(decode, spanChunkBo, notSerializedField));
 
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         List<SpanEventBo> decodedSpanEventBoList = decode.getSpanEventBoList();
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList));
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList));
 
     }
 

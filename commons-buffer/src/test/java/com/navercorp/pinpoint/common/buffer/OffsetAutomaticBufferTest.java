@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
@@ -40,12 +39,12 @@ public class OffsetAutomaticBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
-        Assert.assertNotSame("deepcopy", intBuffer, byteArray);
-        Assert.assertEquals(intBuffer.length, 4);
+        Assertions.assertNotSame(intBuffer, byteArray, "deepcopy");
+        Assertions.assertEquals(intBuffer.length, 4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
-        Assert.assertEquals(putValue, value);
+        Assertions.assertEquals(putValue, value);
     }
 
     @Test
@@ -57,12 +56,12 @@ public class OffsetAutomaticBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
-        Assert.assertSame("shallowcopy", intBuffer, byteArray);
-        Assert.assertEquals(intBuffer.length, 4);
+        Assertions.assertSame(intBuffer, byteArray, "shallowcopy");
+        Assertions.assertEquals(intBuffer.length, 4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
-        Assert.assertEquals(putValue, value);
+        Assertions.assertEquals(putValue, value);
     }
 
     @Test
@@ -74,12 +73,12 @@ public class OffsetAutomaticBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.copyBuffer();
-        Assert.assertNotSame("deepcopy", intBuffer, byteArray);
-        Assert.assertEquals(intBuffer.length, 4);
+        Assertions.assertNotSame(intBuffer, byteArray, "deepcopy");
+        Assertions.assertEquals(intBuffer.length, 4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
-        Assert.assertEquals(putValue, value);
+        Assertions.assertEquals(putValue, value);
     }
 
     @Test
@@ -91,9 +90,9 @@ public class OffsetAutomaticBufferTest {
         buffer.putInt(2);
 
         ByteBuffer byteBuffer = buffer.wrapByteBuffer();
-        Assert.assertSame("shallowcopy", byteArray, byteBuffer.array());
-        Assert.assertEquals(1, byteBuffer.getInt());
-        Assert.assertEquals(2, byteBuffer.getInt());
+        Assertions.assertSame(byteArray, byteBuffer.array(), "shallowcopy");
+        Assertions.assertEquals(1, byteBuffer.getInt());
+        Assertions.assertEquals(2, byteBuffer.getInt());
     }
 
 
@@ -102,7 +101,7 @@ public class OffsetAutomaticBufferTest {
         final int bufferSize = 4;
         int startOffset = 2;
         Buffer buffer = new OffsetAutomaticBuffer(new byte[bufferSize], startOffset, bufferSize - startOffset);
-        Assert.assertEquals("remaining", buffer.remaining(), 2);
+        Assertions.assertEquals(buffer.remaining(), 2, "remaining");
         buffer.putInt(1);
         buffer.putInt(2);
 
@@ -110,8 +109,8 @@ public class OffsetAutomaticBufferTest {
         logger.debug("remaining:{}", remaining);
 
         ByteBuffer byteBuffer = buffer.wrapByteBuffer();
-        Assert.assertEquals(1, byteBuffer.getInt());
-        Assert.assertEquals(2, byteBuffer.getInt());
+        Assertions.assertEquals(1, byteBuffer.getInt());
+        Assertions.assertEquals(2, byteBuffer.getInt());
 
     }
 
@@ -119,17 +118,17 @@ public class OffsetAutomaticBufferTest {
     public void testCheckExpand_test() {
         final int bufferSize = 4;
         Buffer buffer = new OffsetAutomaticBuffer(new byte[bufferSize], 0, bufferSize);
-        Assert.assertEquals("remaining", buffer.remaining(), 4);
+        Assertions.assertEquals(buffer.remaining(), 4, "remaining");
         buffer.putInt(1);
-        Assert.assertEquals("remaining", buffer.remaining(), 0);
+        Assertions.assertEquals(buffer.remaining(), 0, "remaining");
         buffer.putInt(2);
 
         int remaining = buffer.remaining();
         logger.debug("remaining:{}", remaining);
 
         ByteBuffer byteBuffer = buffer.wrapByteBuffer();
-        Assert.assertEquals(1, byteBuffer.getInt());
-        Assert.assertEquals(2, byteBuffer.getInt());
+        Assertions.assertEquals(1, byteBuffer.getInt());
+        Assertions.assertEquals(2, byteBuffer.getInt());
 
     }
 }

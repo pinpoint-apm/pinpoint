@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.bootstrap.classloader;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
-
 
 /**
  * @author emeroad
@@ -44,18 +43,18 @@ public class PinpointClassLoaderTest {
         URL testClassJar = CodeSourceUtils.getCodeLocation(testClass);
         URL[] urls = {testClassJar};
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        Assert.assertSame(cl.getClass(), classLoaderType);
+        Assertions.assertSame(cl.getClass(), classLoaderType);
 
         try {
             cl.loadClass("test");
-            Assert.fail();
+            Assertions.fail();
         } catch (ClassNotFoundException ignored) {
         }
 
         Class<?> selfLoadClass = cl.loadClass(testClass.getName());
-        Assert.assertNotSame(testClass, selfLoadClass);
-        Assert.assertSame(cl, selfLoadClass.getClassLoader());
-        Assert.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
+        Assertions.assertNotSame(testClass, selfLoadClass);
+        Assertions.assertSame(cl, selfLoadClass.getClassLoader());
+        Assertions.assertSame(testClass.getClassLoader(), this.getClass().getClassLoader());
         return cl;
     }
 

@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
@@ -29,8 +30,8 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogra
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.DefaultMetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -43,15 +44,16 @@ import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -65,7 +67,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyShort;
@@ -76,7 +78,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class FilteredMapServiceImplTest {
 
     private static final Random RANDOM = new Random();
@@ -107,7 +110,7 @@ public class FilteredMapServiceImplTest {
 
     private FilteredMapService filteredMapService;
 
-    @Before
+    @BeforeEach
     public void init() {
         when(applicationFactory.createApplication(anyString(), anyShort())).thenAnswer(invocation -> {
             String applicationName = invocation.getArgument(0);
@@ -127,7 +130,7 @@ public class FilteredMapServiceImplTest {
         filteredMapService = new FilteredMapServiceImpl(agentInfoService, traceDao, applicationTraceIndexDao, registry, applicationFactory, Optional.empty(), applicationMapBuilderFactory);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         executor.shutdown();
         try {
@@ -192,7 +195,7 @@ public class FilteredMapServiceImplTest {
 
         // Then
         Collection<Node> nodes = applicationMap.getNodes();
-        Assert.assertEquals(4, nodes.size());
+        Assertions.assertEquals(4, nodes.size());
         for (Node node : nodes) {
             Application application = node.getApplication();
             if (application.getName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
@@ -202,7 +205,7 @@ public class FilteredMapServiceImplTest {
                 Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
                 assertHistogram(applicationHistogram, 1, 0, 0, 0, 0);
                 Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-                Assert.assertTrue(agentHistogramMap.isEmpty());
+                Assertions.assertTrue(agentHistogramMap.isEmpty());
                 // time histogram
                 HistogramSchema histogramSchema = node.getServiceType().getHistogramSchema();
                 List<ResponseTimeViewModel.TimeCount> expectedTimeCounts = Collections.singletonList(
@@ -211,7 +214,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeViewModel> applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
-                Assert.assertTrue(agentTimeHistogram.getAgentResponseTimeViewModelList().isEmpty());
+                Assertions.assertTrue(agentTimeHistogram.getAgentResponseTimeViewModelList().isEmpty());
             } else if (application.getName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
                 // ROOT_APP node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
@@ -269,7 +272,7 @@ public class FilteredMapServiceImplTest {
         }
 
         Collection<Link> links = applicationMap.getLinks();
-        Assert.assertEquals(3, links.size());
+        Assertions.assertEquals(3, links.size());
         for (Link link : links) {
             Application fromApplication = link.getFrom().getApplication();
             Application toApplication = link.getTo().getApplication();
@@ -311,22 +314,22 @@ public class FilteredMapServiceImplTest {
                 );
                 assertTimeHistogram(linkApplicationTimeSeriesHistogram, targetHistogramSchema.getNormalSlot(), expectedTimeCounts);
             } else {
-                Assert.fail("Unexpected link : " + link);
+                fail("Unexpected link : " + link);
             }
         }
     }
 
     private void assertHistogram(Histogram histogram, int fastCount, int normalCount, int slowCount, int verySlowCount, int totalErrorCount) {
-        Assert.assertEquals(fastCount, histogram.getFastCount());
-        Assert.assertEquals(normalCount, histogram.getNormalCount());
-        Assert.assertEquals(slowCount, histogram.getSlowCount());
-        Assert.assertEquals(verySlowCount, histogram.getVerySlowCount());
-        Assert.assertEquals(totalErrorCount, histogram.getTotalErrorCount());
+        Assertions.assertEquals(fastCount, histogram.getFastCount());
+        Assertions.assertEquals(normalCount, histogram.getNormalCount());
+        Assertions.assertEquals(slowCount, histogram.getSlowCount());
+        Assertions.assertEquals(verySlowCount, histogram.getVerySlowCount());
+        Assertions.assertEquals(totalErrorCount, histogram.getTotalErrorCount());
     }
 
     private void assertTimeHistogram(List<TimeViewModel> histogramList, HistogramSlot histogramSlot, List<ResponseTimeViewModel.TimeCount> expectedTimeCounts) {
         if (CollectionUtils.isEmpty(histogramList)) {
-            Assert.fail("Checked against empty histogramList.");
+            fail("Checked against empty histogramList.");
         }
         String slotName = histogramSlot.getSlotName();
         for (TimeViewModel timeViewModel : histogramList) {
@@ -338,18 +341,18 @@ public class FilteredMapServiceImplTest {
                     for (ResponseTimeViewModel.TimeCount actualTimeCount : histogram.getColumnValue()) {
                         if (expectedTimeCount.getTime() == actualTimeCount.getTime()) {
                             expectedTimeCountExists = true;
-                            Assert.assertEquals("TimeCount mismatch for slot : " + slotName, expectedTimeCount.getCount(), actualTimeCount.getCount());
+                            Assertions.assertEquals(expectedTimeCount.getCount(), actualTimeCount.getCount(), "TimeCount mismatch for slot : " + slotName);
                             break;
                         }
                     }
                     if (!expectedTimeCountExists) {
-                        Assert.fail("Expected TimeCount for " + slotName + " not found, time : " + expectedTimeCount.getTime() + ", count : " + expectedTimeCount.getCount());
+                        fail("Expected TimeCount for " + slotName + " not found, time : " + expectedTimeCount.getTime() + ", count : " + expectedTimeCount.getCount());
                     }
                 }
                 return;
             }
         }
-        Assert.fail("Expected " + slotName + " but had none.");
+        fail("Expected " + slotName + " but had none.");
     }
 
     private void assertAgentHistogram(Map<String, Histogram> agentHistogramMap, String agentId, int fastCount, int normalCount, int slowCount, int verySlowCount, int totalErrorCount) {
@@ -358,7 +361,7 @@ public class FilteredMapServiceImplTest {
             assertHistogram(agentHistogram, fastCount, normalCount, slowCount, verySlowCount, totalErrorCount);
             return;
         }
-        Assert.fail("Histogram not found for agent : " + agentId);
+        fail("Histogram not found for agent : " + agentId);
     }
 
     private void assertAgentTimeHistogram(List<AgentResponseTimeViewModel> histogramList, String agentId, HistogramSlot histogramSlot, List<ResponseTimeViewModel.TimeCount> expectedTimeCounts) {
@@ -368,6 +371,6 @@ public class FilteredMapServiceImplTest {
                 return;
             }
         }
-        Assert.fail("Time histogram not found for agent : " + agentId);
+        fail("Time histogram not found for agent : " + agentId);
     }
 }

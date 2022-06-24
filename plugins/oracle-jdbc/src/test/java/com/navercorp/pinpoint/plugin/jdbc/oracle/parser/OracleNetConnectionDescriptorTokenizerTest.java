@@ -16,12 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorTokenizer;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Token;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -47,13 +43,11 @@ public class OracleNetConnectionDescriptorTokenizerTest {
     }
 
 
-
     private void assertTrimLeft(String token, String result) {
         OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
         int leftTrimIndex = tokenizer.trimLeft();
-        Assert.assertEquals(wrap(result), wrap(token.substring(leftTrimIndex)));
+        Assertions.assertEquals(wrap(result), wrap(token.substring(leftTrimIndex)));
     }
-
 
 
     @Test
@@ -72,7 +66,7 @@ public class OracleNetConnectionDescriptorTokenizerTest {
     private void assertTrimRight(String token, String result) {
         OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
         int rightTrimIndex = tokenizer.trimRight(token.length());
-        Assert.assertEquals(wrap(result), wrap(token.substring(0, rightTrimIndex)));
+        Assertions.assertEquals(wrap(result), wrap(token.substring(0, rightTrimIndex)));
     }
 
     @Test
@@ -105,7 +99,7 @@ public class OracleNetConnectionDescriptorTokenizerTest {
         tokenizer.parse();
 
         int index = 0;
-        while(true) {
+        while (true) {
             Token t = tokenizer.nextToken();
             // EOF makes test broken.
             if (t == OracleNetConnectionDescriptorTokenizer.TOKEN_EOF_OBJECT) {
@@ -115,14 +109,14 @@ public class OracleNetConnectionDescriptorTokenizerTest {
             if (t == null) {
                 break;
             }
-            Assert.assertEquals(t.getToken(), parsedTokens[index++]);
+            Assertions.assertEquals(t.getToken(), parsedTokens[index++]);
         }
     }
 
     private void AssertParseLiteral(String token, String result) {
         OracleNetConnectionDescriptorTokenizer tokenizer = new OracleNetConnectionDescriptorTokenizer(token);
         String literal = tokenizer.parseLiteral();
-        Assert.assertEquals(wrap(result), wrap(literal));
+        Assertions.assertEquals(wrap(result), wrap(literal));
     }
 
     private String wrap(String str) {

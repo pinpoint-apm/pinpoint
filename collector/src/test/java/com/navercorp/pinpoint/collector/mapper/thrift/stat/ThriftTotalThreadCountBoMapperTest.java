@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.TTotalThreadCount;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 public class ThriftTotalThreadCountBoMapperTest extends ThriftBoMapperTestBase<TTotalThreadCount, TotalThreadCountBo> {
 
@@ -39,6 +39,6 @@ public class ThriftTotalThreadCountBoMapperTest extends ThriftBoMapperTestBase<T
 
     @Override
     protected void verify(TTotalThreadCount original, TotalThreadCountBo mappedStatDataPoint) {
-        Assert.assertEquals("Total Thread Count", original.getTotalThreadCount(), mappedStatDataPoint.getTotalThreadCount());
+        Assertions.assertEquals(original.getTotalThreadCount(), mappedStatDataPoint.getTotalThreadCount(), "Total Thread Count");
     }
 }

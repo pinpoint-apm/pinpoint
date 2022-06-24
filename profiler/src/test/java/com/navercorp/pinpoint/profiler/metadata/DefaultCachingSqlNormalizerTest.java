@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -34,14 +34,14 @@ public class DefaultCachingSqlNormalizerTest {
         ParsingResult parsingResult = normalizer.wrapSql("select * from dual");
 
         boolean newCache = normalizer.normalizedSql(parsingResult);
-        Assert.assertTrue("newCacheState", newCache);
+        Assertions.assertTrue(newCache, "newCacheState");
 
         boolean notCached = normalizer.normalizedSql(parsingResult);
-        Assert.assertFalse("alreadyCached", notCached);
+        Assertions.assertFalse(notCached, "alreadyCached");
 
         ParsingResult alreadyCached = normalizer.wrapSql("select * from dual");
         boolean notCached2 = normalizer.normalizedSql(alreadyCached);
-        Assert.assertFalse("alreadyCached2", notCached2);
+        Assertions.assertFalse(notCached2, "alreadyCached2");
     }
 
 
@@ -51,16 +51,16 @@ public class DefaultCachingSqlNormalizerTest {
         CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
         ParsingResult parsingResult = normalizer.wrapSql("select * from table1");
         boolean newCache = normalizer.normalizedSql(parsingResult);
-        Assert.assertTrue("newCacheState", newCache);
+        Assertions.assertTrue(newCache, "newCacheState");
 
         // cache expire
         ParsingResult parsingResult2 = normalizer.wrapSql("select * from table2");
         boolean cached = normalizer.normalizedSql(parsingResult2);
-        Assert.assertTrue(cached);
+        Assertions.assertTrue(cached);
 
         ParsingResult parsingResult1_recached = normalizer.wrapSql("select * from table3");
         boolean newCache_parsingResult1_recached = normalizer.normalizedSql(parsingResult1_recached);
-        Assert.assertTrue(newCache_parsingResult1_recached);
+        Assertions.assertTrue(newCache_parsingResult1_recached);
     }
 
     private SimpleCache<String> newCache(int size) {

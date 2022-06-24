@@ -18,18 +18,16 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -43,7 +41,7 @@ public class SpanEventTest {
     @Test
     public void testMarkStartTime() {
         final DefaultTraceId traceId = new DefaultTraceId("agentId", 0, 0);
-        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(),0);
+        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(), 0);
 
         Span span = new Span(traceRoot);
         span.markBeforeTime();
@@ -65,8 +63,8 @@ public class SpanEventTest {
         compressorV1.preProcess(span, tSpan);
         compressorV1.postProcess(span, tSpan);
 
-        Assert.assertEquals("startTime", span.getStartTime() + tSpanEvent.getStartElapsed(), spanEvent.getStartTime());
-        Assert.assertEquals("endTime", span.getStartTime() + tSpanEvent.getStartElapsed() + spanEvent.getElapsedTime(), spanEvent.getAfterTime());
+        Assertions.assertEquals(span.getStartTime() + tSpanEvent.getStartElapsed(), spanEvent.getStartTime(), "startTime");
+        Assertions.assertEquals(span.getStartTime() + tSpanEvent.getStartElapsed() + spanEvent.getElapsedTime(), spanEvent.getAfterTime(), "endTime");
     }
 
     @Test

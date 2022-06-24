@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.ClassAgentPathFinder;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.InputArgumentAgentPathFinder;
 import com.navercorp.pinpoint.common.Version;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URI;
@@ -31,6 +31,8 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,7 +40,7 @@ import java.util.List;
 public class JavaAgentPathResolverTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    
+
     @Test
     public void testInputArgument() {
         Path agentPath = Paths.get("/pinpoint/agent/target/pinpoint-agent-" + Version.VERSION + "/pinpoint-bootstrap-" + Version.VERSION + ".jar");
@@ -51,7 +53,7 @@ public class JavaAgentPathResolverTest {
             }
         };
         Path resolveJavaAgentPath = javaAgentPathResolver.getPath();
-        org.junit.Assert.assertEquals(agentPath, resolveJavaAgentPath);
+        assertEquals(agentPath, resolveJavaAgentPath);
     }
 
     @Test
@@ -66,7 +68,7 @@ public class JavaAgentPathResolverTest {
             }
         };
         Path resolveJavaAgentPath = javaAgentPathResolver.getPath();
-        org.junit.Assert.assertEquals(agentPath, resolveJavaAgentPath);
+        assertEquals(agentPath, resolveJavaAgentPath);
     }
 
     @Test
@@ -78,11 +80,11 @@ public class JavaAgentPathResolverTest {
         Path resolveTargetPath = Paths.get(URI.create(jarLocation));
         logger.debug("{}", resolveTargetPath);
 
-        org.junit.Assert.assertTrue(resolveTargetPath.getFileName().toString().endsWith(".jar"));
+        assertTrue(resolveTargetPath.getFileName().toString().endsWith(".jar"));
 
         URL classLocation = clazz.getProtectionDomain().getCodeSource().getLocation();
         Path classFile = getPath(classLocation);
-        org.junit.Assert.assertEquals(classFile, resolveTargetPath);
+        assertEquals(classFile, resolveTargetPath);
     }
 
     private Path getPath(URL classLocation) {

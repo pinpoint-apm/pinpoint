@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.filter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -46,19 +46,19 @@ public class FilterDescriptorTest {
 
         FilterDescriptor.ResponseTime responseTime = descriptor.getResponseTime();
         FilterDescriptor.FromNode fromNode = descriptor.getFromNode();
-        Assert.assertEquals("FROM_APPLICATION", fromNode.getApplicationName());
-        Assert.assertEquals("FROM_SERVICE_TYPE", fromNode.getServiceType());
-        Assert.assertEquals("FROM_AGENT_ID", fromNode.getAgentId());
-        Assert.assertEquals((Long) 0L, descriptor.getResponseTime().getFromResponseTime());
+        Assertions.assertEquals("FROM_APPLICATION", fromNode.getApplicationName());
+        Assertions.assertEquals("FROM_SERVICE_TYPE", fromNode.getServiceType());
+        Assertions.assertEquals("FROM_AGENT_ID", fromNode.getAgentId());
+        Assertions.assertEquals((Long) 0L, descriptor.getResponseTime().getFromResponseTime());
 
         FilterDescriptor.ToNode toNode = descriptor.getToNode();
-        Assert.assertEquals("TO_APPLICATION", toNode.getApplicationName());
-        Assert.assertEquals("TO_SERVICE_TYPE", toNode.getServiceType());
-        Assert.assertEquals("TO_AGENT_ID", toNode.getAgentId());
-        Assert.assertEquals((Long) 1000L, responseTime.getToResponseTime());
+        Assertions.assertEquals("TO_APPLICATION", toNode.getApplicationName());
+        Assertions.assertEquals("TO_SERVICE_TYPE", toNode.getServiceType());
+        Assertions.assertEquals("TO_AGENT_ID", toNode.getAgentId());
+        Assertions.assertEquals((Long) 1000L, responseTime.getToResponseTime());
 
-        Assert.assertEquals(Boolean.TRUE, descriptor.getOption().getIncludeException());
-        Assert.assertEquals("/**", descriptor.getOption().getUrlPattern());
+        Assertions.assertEquals(Boolean.TRUE, descriptor.getOption().getIncludeException());
+        Assertions.assertEquals("/**", descriptor.getOption().getUrlPattern());
     }
 
     private String writeJsonString() throws IOException {
@@ -105,15 +105,15 @@ public class FilterDescriptorTest {
         List<FilterDescriptor> descriptor = mapper.readValue(arrayJson, new TypeReference<List<FilterDescriptor>>() {
         });
 
-        Assert.assertEquals(1, descriptor.size());
-        Assert.assertNotNull(descriptor.get(0));
+        Assertions.assertEquals(1, descriptor.size());
+        Assertions.assertNotNull(descriptor.get(0));
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void invalidJson() throws IOException {
-
-        mapper.readValue("INVALID", new TypeReference<List<FilterDescriptor>>() {
+        Assertions.assertThrows(IOException.class, () -> {
+            mapper.readValue("INVALID", new TypeReference<List<FilterDescriptor>>() {
+            });
         });
-
     }
 }

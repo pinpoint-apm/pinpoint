@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.Set;
 
@@ -31,7 +31,7 @@ public class DeadlockMonitorJobTest {
     private final Object lock1 = new Object();
     private final Object lock2 = new Object();
 
-    @Ignore
+    @Disabled
 //    @Test
     public void testName() throws Exception {
         Thread thread1 = null;

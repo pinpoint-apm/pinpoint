@@ -20,14 +20,14 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -36,7 +36,7 @@ import java.sql.PreparedStatement;
 /**
  * @author Hyunjoon Cho
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:/pinot/applicationContext-pinot-test.xml"})
 public class MybatisTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -50,24 +50,24 @@ public class MybatisTest {
     @Autowired
     SqlSessionTemplate sqlSessionTemplate;
 
-    @Ignore
+    @Disabled
     @Test
     public void testDataSource() throws Exception {
         Connection connection = dataSource.getConnection();
-        Assert.assertTrue(connection instanceof PinotConnectionDelegator);
+        Assertions.assertTrue(connection instanceof PinotConnectionDelegator);
         PreparedStatement preparedStatement = connection.prepareStatement("testSQL");
-        Assert.assertTrue(preparedStatement instanceof WrappedPinotPreparedStatement);
+        Assertions.assertTrue(preparedStatement instanceof WrappedPinotPreparedStatement);
         connection.close();
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testFactory() {
         SqlSession session = sqlSessionFactory.openSession();
         logger.info("session: {}", session);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testTemplate() {
         logger.info("sqlSessionTemplate: {}", sqlSessionTemplate);

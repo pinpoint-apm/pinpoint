@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +36,7 @@ public class AcceptUrlFilterTest {
         AcceptUrlFilter filter = new AcceptUrlFilter("/**/*");
         SpanBo spanBo = new SpanBo();
         spanBo.setRpc("/test");
-        Assert.assertTrue(filter.accept(Arrays.asList(spanBo)));
+        Assertions.assertTrue(filter.accept(Arrays.asList(spanBo)));
 
     }
 
@@ -46,7 +46,7 @@ public class AcceptUrlFilterTest {
         AcceptUrlFilter filter = new AcceptUrlFilter("/abc/*");
         SpanBo spanBo = new SpanBo();
         spanBo.setRpc("/test");
-        Assert.assertFalse(filter.accept(Arrays.asList(spanBo)));
+        Assertions.assertFalse(filter.accept(Arrays.asList(spanBo)));
 
     }
 

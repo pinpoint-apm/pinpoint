@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class LimitedListTest {
 
     @Test
     public void testMaxSize() {
-        Comparator<ThreadDump> threadDump =  Collections.reverseOrder(new ThreadDumpComparator());
+        Comparator<ThreadDump> threadDump = Collections.reverseOrder(new ThreadDumpComparator());
 
         final int maxSize = 10;
         Collection<ThreadDump> limitedList = new LimitedList<>(maxSize, threadDump);
@@ -66,14 +66,14 @@ public class LimitedListTest {
         List<ThreadDump> sortedList = new ArrayList<>(limitedList);
         Collections.sort(sortedList, threadDump);
         for (ThreadDump activeTraceSnapshot : sortedList) {
-            logger.debug("poll:{}", activeTraceSnapshot );
+            logger.debug("poll:{}", activeTraceSnapshot);
         }
 
         ThreadDump last = getLastObject(sortedList);
         logger.debug("last pool:{}", last);
         logger.debug("poll.startTime:{}", last.getActiveTraceSnapshot().getStartTime());
         logger.debug("startTime:{}", lastTime);
-        Assert.assertEquals(last.getActiveTraceSnapshot().getStartTime(), startTime);
+        Assertions.assertEquals(last.getActiveTraceSnapshot().getStartTime(), startTime);
 
     }
 
@@ -83,7 +83,7 @@ public class LimitedListTest {
     }
 
     private <T> int getLastIndex(List<T> testData) {
-        return testData.size() -1;
+        return testData.size() - 1;
     }
 
     private List<ThreadDump> newTestData(int localTransactionId, long startTime, long threadId, int size) {

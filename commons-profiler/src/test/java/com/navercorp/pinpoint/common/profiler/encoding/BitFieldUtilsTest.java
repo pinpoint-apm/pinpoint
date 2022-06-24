@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.profiler.encoding;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,13 +34,13 @@ public class BitFieldUtilsTest {
         int position = 5;
 
         bitField = BitFieldUtils.setBit(bitField, position, true);
-        Assert.assertTrue(BitFieldUtils.testBit(bitField, position));
+        Assertions.assertTrue(BitFieldUtils.testBit(bitField, position));
 
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
 
         bitField = -1;
         bitField = BitFieldUtils.clearBit(bitField, position);
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 0);
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 0);
     }
 
 
@@ -52,9 +51,9 @@ public class BitFieldUtilsTest {
         int position = 2;
 
         bitField = BitFieldUtils.setBit(bitField, position, true);
-        Assert.assertTrue(BitFieldUtils.testBit(bitField, position));
+        Assertions.assertTrue(BitFieldUtils.testBit(bitField, position));
 
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
     }
 
     @Test
@@ -64,36 +63,36 @@ public class BitFieldUtilsTest {
         int position = 2;
 
         bitField = BitFieldUtils.setBit(bitField, position, true);
-        Assert.assertTrue(BitFieldUtils.testBit(bitField, position));
+        Assertions.assertTrue(BitFieldUtils.testBit(bitField, position));
 
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
     }
 
     @Test
     public void testGetBit_int_unsigned_shift() {
 
         int bitField = 0;
-        int position = Integer.SIZE-1;
+        int position = Integer.SIZE - 1;
 
         bitField = BitFieldUtils.setBit(bitField, position, true);
-        Assert.assertTrue(BitFieldUtils.testBit(bitField, position));
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
+        Assertions.assertTrue(BitFieldUtils.testBit(bitField, position));
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
     }
 
     @Test
     public void testGetBit_long_unsigned_shift() {
 
         long bitField = 0;
-        int position = Long.SIZE -1;
+        int position = Long.SIZE - 1;
 
         bitField = BitFieldUtils.setBit(bitField, position, true);
-        Assert.assertTrue(BitFieldUtils.testBit(bitField, position));
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
+        Assertions.assertTrue(BitFieldUtils.testBit(bitField, position));
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 1);
 
 
         bitField = BitFieldUtils.setBit(bitField, position, false);
-        Assert.assertFalse(BitFieldUtils.testBit(bitField, position));
-        Assert.assertEquals(BitFieldUtils.getBit(bitField, position), 0);
+        Assertions.assertFalse(BitFieldUtils.testBit(bitField, position));
+        Assertions.assertEquals(BitFieldUtils.getBit(bitField, position), 0);
     }
 
     @Test
@@ -102,29 +101,29 @@ public class BitFieldUtilsTest {
         int bitField = 0;
         int position = 2;
 
-        Assert.assertEquals(BitFieldUtils.get2Bit(bitField, position), 0);
+        Assertions.assertEquals(BitFieldUtils.get2Bit(bitField, position), 0);
 
         bitField = set2Bit(bitField, position, true, false);
 
-        Assert.assertEquals(BitFieldUtils.get2Bit(bitField, position), 1);
+        Assertions.assertEquals(BitFieldUtils.get2Bit(bitField, position), 1);
 
         bitField = set2Bit(bitField, position, false, true);
-        Assert.assertEquals(BitFieldUtils.get2Bit(bitField, position), 2);
+        Assertions.assertEquals(BitFieldUtils.get2Bit(bitField, position), 2);
 
         bitField = set2Bit(bitField, position, true, true);
 
-        Assert.assertEquals(BitFieldUtils.get2Bit(bitField, position), 3);
+        Assertions.assertEquals(BitFieldUtils.get2Bit(bitField, position), 3);
 
         bitField = -1;
-        Assert.assertEquals(BitFieldUtils.get2Bit(bitField, position), 3);
+        Assertions.assertEquals(BitFieldUtils.get2Bit(bitField, position), 3);
 
         bitField = set2Bit(bitField, position, false, false);
-        Assert.assertEquals(BitFieldUtils.get2Bit(bitField, position), 0);
+        Assertions.assertEquals(BitFieldUtils.get2Bit(bitField, position), 0);
     }
 
     private int set2Bit(int bitField, int position, boolean first, boolean second) {
         bitField = BitFieldUtils.setBit(bitField, position, first);
-        bitField = BitFieldUtils.setBit(bitField, position+1, second);
+        bitField = BitFieldUtils.setBit(bitField, position + 1, second);
         return bitField;
     }
 

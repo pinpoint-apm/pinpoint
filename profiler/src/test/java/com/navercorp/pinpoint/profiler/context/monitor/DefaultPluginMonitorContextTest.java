@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -35,16 +35,16 @@ public class DefaultPluginMonitorContextTest {
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, remainingCapacity);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
 
         addOverDataSourceMonitor(dataSourceMonitorRegistryService);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             boolean unregister = dataSourceMonitorRegistryService.unregister(mockMonitor);
-            Assert.assertTrue(unregister);
+            Assertions.assertTrue(unregister);
         }
-        Assert.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        Assertions.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
 
     }
 
@@ -54,15 +54,15 @@ public class DefaultPluginMonitorContextTest {
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, remainingCapacity);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
 
         addOverDataSourceMonitor(dataSourceMonitorRegistryService);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             mockMonitor.close();
         }
-        Assert.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        Assertions.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
     }
 
     private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorRegistryService dataSourceMonitorRegistry, int remainingCapacity) {
@@ -70,7 +70,7 @@ public class DefaultPluginMonitorContextTest {
         for (int i = 0; i < remainingCapacity; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor();
             boolean register = dataSourceMonitorRegistry.register(mock);
-            Assert.assertTrue(register);
+            Assertions.assertTrue(register);
             mockDataSourceMonitors[i] = mock;
         }
         return mockDataSourceMonitors;
@@ -82,7 +82,7 @@ public class DefaultPluginMonitorContextTest {
         for (int i = 0; i < additionalRegisterCount; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor();
             boolean register = dataSourceMonitorRegistry.register(mock);
-            Assert.assertFalse(register);
+            Assertions.assertFalse(register);
         }
     }
 

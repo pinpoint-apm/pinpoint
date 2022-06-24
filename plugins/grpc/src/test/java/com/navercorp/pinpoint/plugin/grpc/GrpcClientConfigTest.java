@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.grpc;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -32,28 +32,28 @@ public class GrpcClientConfigTest {
     public void configTest1() throws Exception {
         GrpcClientConfig config = createConfig("false", "false");
 
-        Assert.assertFalse(config.isClientEnable());
+        Assertions.assertFalse(config.isClientEnable());
     }
 
     @Test
     public void configTest2() throws Exception {
         GrpcClientConfig config = createConfig("false", "true");
 
-        Assert.assertFalse(config.isClientEnable());
+        Assertions.assertFalse(config.isClientEnable());
     }
 
     @Test
     public void configTest3() throws Exception {
         GrpcClientConfig config = createConfig("true", "false");
 
-        Assert.assertTrue(config.isClientEnable());
+        Assertions.assertTrue(config.isClientEnable());
     }
 
     @Test
     public void configTest4() throws Exception {
         GrpcClientConfig config = createConfig("true", "true");
 
-        Assert.assertTrue(config.isClientEnable());
+        Assertions.assertTrue(config.isClientEnable());
     }
 
     private GrpcClientConfig createConfig(String clientEnable, String serverEnable) {

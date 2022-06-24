@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,9 +30,9 @@ public class SequenceSpanEventFilterTest {
         SpanEventFilter filter = new SequenceSpanEventFilter(100);
 
         final SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setSequence((short)11);
+        spanEventBo.setSequence((short) 11);
 
-        Assert.assertEquals(filter.filter(spanEventBo), SpanEventFilter.ACCEPT);
+        Assertions.assertEquals(filter.filter(spanEventBo), SpanEventFilter.ACCEPT);
 
     }
 
@@ -42,9 +42,9 @@ public class SequenceSpanEventFilterTest {
         SpanEventFilter filter = new SequenceSpanEventFilter(10);
 
         final SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setSequence((short)11);
+        spanEventBo.setSequence((short) 11);
 
-        Assert.assertEquals(filter.filter(spanEventBo), SpanEventFilter.REJECT);
+        Assertions.assertEquals(filter.filter(spanEventBo), SpanEventFilter.REJECT);
 
     }
 
@@ -54,7 +54,7 @@ public class SequenceSpanEventFilterTest {
 
         try {
             new SequenceSpanEventFilter(Short.MAX_VALUE + 1);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception e) {
         }
 

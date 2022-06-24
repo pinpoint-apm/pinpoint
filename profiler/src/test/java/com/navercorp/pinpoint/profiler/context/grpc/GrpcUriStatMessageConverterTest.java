@@ -22,9 +22,8 @@ import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatInfo;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,15 +81,15 @@ public class GrpcUriStatMessageConverterTest {
     }
 
     private void assertData(List<UriStatInfo> expected, PUriHistogram actual) {
-        Assert.assertEquals(expected.size(), actual.getCount());
-        Assert.assertEquals(getMax(expected), actual.getMax());
-        Assert.assertEquals(new Double(getAvg(expected)).longValue(), new Double(actual.getAvg()).longValue());
+        Assertions.assertEquals(expected.size(), actual.getCount());
+        Assertions.assertEquals(getMax(expected), actual.getMax());
+        Assertions.assertEquals(new Double(getAvg(expected)).longValue(), new Double(actual.getAvg()).longValue());
 
         List<Integer> histogramList = actual.getHistogramList();
         for (int i = 0; i < histogramList.size(); i++) {
             UriStatHistogramBucket valueByIndex = UriStatHistogramBucket.getValueByIndex(i);
             int bucketCount = getBucketCount(expected, valueByIndex);
-            Assert.assertEquals(new Integer(bucketCount), histogramList.get(i));
+            Assertions.assertEquals(new Integer(bucketCount), histogramList.get(i));
         }
     }
 

@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.common.hbase.util;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -23,7 +23,7 @@ public class CellUtilsTest {
         Cell[] cells = new Cell[]{cell};
         when(result.rawCells()).thenReturn(cells);
 
-        Assert.assertEquals(CellUtils.rowToString(result), value);
+        Assertions.assertEquals(CellUtils.rowToString(result), value);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class CellUtilsTest {
         when(cell.getQualifierOffset()).thenReturn(0);
         when(cell.getQualifierLength()).thenReturn(bytes.length);
 
-        Assert.assertEquals(CellUtils.qualifierToInt(cell), value);
+        Assertions.assertEquals(CellUtils.qualifierToInt(cell), value);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class CellUtilsTest {
         when(cell.getQualifierOffset()).thenReturn(0);
         when(cell.getQualifierLength()).thenReturn(bytes.length);
 
-        Assert.assertEquals(CellUtils.qualifierToString(cell), value);
+        Assertions.assertEquals(CellUtils.qualifierToString(cell), value);
     }
 
     @Test
@@ -59,6 +59,6 @@ public class CellUtilsTest {
         when(cell.getValueOffset()).thenReturn(0);
         when(cell.getValueLength()).thenReturn(bytes.length);
 
-        Assert.assertEquals(CellUtils.valueToShort(cell), value);
+        Assertions.assertEquals(CellUtils.valueToShort(cell), value);
     }
 }

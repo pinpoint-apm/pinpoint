@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.server.util.time;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -37,30 +37,30 @@ public class RangeTest {
 
         try {
             Range range3 = Range.between(0, -1);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
         }
     }
 
     @Test
     public void testRange() {
-        Range range1 =  Range.between(0, 0);
-        Assert.assertEquals(0, range1.durationMillis());
+        Range range1 = Range.between(0, 0);
+        Assertions.assertEquals(0, range1.durationMillis());
 
-        Range range2 =  Range.between(0, 1);
-        Assert.assertEquals(1, range2.durationMillis());
+        Range range2 = Range.between(0, 1);
+        Assertions.assertEquals(1, range2.durationMillis());
     }
 
     @Test
     public void testRange_String() {
-        Range range1 =  Range.between(0, 0);
-        Assert.assertTrue(range1.toString().contains(" = "));
+        Range range1 = Range.between(0, 0);
+        Assertions.assertTrue(range1.toString().contains(" = "));
 
-        Range range2 =  Range.between(0, 1);
-        Assert.assertTrue(range2.toString().contains(" < "));
+        Range range2 = Range.between(0, 1);
+        Assertions.assertTrue(range2.toString().contains(" < "));
 
-        Range range3 =  Range.newUncheckedRange(1, 0);
-        Assert.assertTrue(range3.toString().contains(" > "));
+        Range range3 = Range.newUncheckedRange(1, 0);
+        Assertions.assertTrue(range3.toString().contains(" > "));
     }
 
     @Test
@@ -76,6 +76,6 @@ public class RangeTest {
         Instant truncated = now.truncatedTo(ChronoUnit.MILLIS);
         Instant millis = Instant.ofEpochMilli(now.toEpochMilli());
 
-        Assert.assertEquals(millis, truncated);
+        Assertions.assertEquals(millis, truncated);
     }
 }

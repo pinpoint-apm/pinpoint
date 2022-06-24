@@ -19,11 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,7 +45,7 @@ public class AgentStatDataPointCodecTest {
         codec.encodeTimestamps(timestampBuffer, expectedTimestamps);
         // Then
         List<Long> decodedTimestamps = codec.decodeTimestamps(initialTimestamp, new FixedBuffer(timestampBuffer.getBuffer()), numValues);
-        Assert.assertEquals(expectedTimestamps, decodedTimestamps);
+        Assertions.assertEquals(expectedTimestamps, decodedTimestamps);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class AgentStatDataPointCodecTest {
         codec.encodeTimestamps(timestampBuffer, expectedTimestamp);
         // Then
         List<Long> decodedTimestamp = codec.decodeTimestamps(givenTimestamp, new FixedBuffer(timestampBuffer.getBuffer()), 1);
-        Assert.assertEquals(expectedTimestamp, decodedTimestamp);
+        Assertions.assertEquals(expectedTimestamp, decodedTimestamp);
     }
 
     private List<Long> createTimestamps(long initialTimestampMs, long intervalMs, long randomDelta, int numValues) {

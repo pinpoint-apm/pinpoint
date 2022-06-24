@@ -6,8 +6,8 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.json.Tags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,6 @@ public class TagListTypeHandlerTest {
         Tags tags = mapper.readValue(json, Tags.class);
         logger.debug("deserialize:{}", tags.getTags());
 
-        Assert.assertEquals(list, tags.getTags());
+        Assertions.assertEquals(list, tags.getTags());
     }
 }

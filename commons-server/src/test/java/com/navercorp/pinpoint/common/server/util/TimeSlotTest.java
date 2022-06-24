@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -38,8 +37,8 @@ public class TimeSlotTest {
 
         logger.debug("{} currentTime ", currentTime);
         logger.debug("{} timeSlot", timeSlot);
-        Assert.assertTrue(currentTime >= timeSlot);
-     }
+        Assertions.assertTrue(currentTime >= timeSlot);
+    }
 
     @Test
     public void testSlotTime1() throws Exception {
@@ -48,7 +47,7 @@ public class TimeSlotTest {
 
         logger.debug("{} slotTest ", slotTest);
         logger.debug("{} timeSlot", timeSlot);
-        Assert.assertEquals(slotTest, timeSlot);
+        Assertions.assertEquals(slotTest, timeSlot);
     }
 
     @Test
@@ -59,6 +58,6 @@ public class TimeSlotTest {
 
         logger.debug("{} slotTest ", slotTest);
         logger.debug("{} timeSlot", timeSlot);
-        Assert.assertEquals(sourceTest, timeSlot);
+        Assertions.assertEquals(sourceTest, timeSlot);
     }
 }

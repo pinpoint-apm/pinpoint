@@ -15,12 +15,6 @@
  */
 package com.navercorp.pinpoint.common.profiler.trace;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.List;
-
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyLocator;
@@ -31,34 +25,42 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
- *
  */
 public class ServiceTypeInitializerTest {
 
     private final CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
 
     private static final ServiceType[] TEST_TYPES = {
-        ServiceTypeFactory.of(1209, "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
+            ServiceTypeFactory.of(1209, "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
-    
+
     private static final AnnotationKey[] TEST_KEYS = {
-        AnnotationKeyFactory.of(1209, "Duplicate-API")
+            AnnotationKeyFactory.of(1209, "Duplicate-API")
     };
 
     private static final ServiceType[] DUPLICATED_CODE_WITH_DEFAULT_TYPE = {
-        ServiceTypeFactory.of(ServiceType.USER.getCode(), "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
+            ServiceTypeFactory.of(ServiceType.USER.getCode(), "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
-    
+
     private static final ServiceType[] DUPLICATED_NAME_WITH_DEFAULT_TYPE = {
-        ServiceTypeFactory.of(1209, ServiceType.USER.getName(), "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
+            ServiceTypeFactory.of(1209, ServiceType.USER.getName(), "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
-    
+
     private static final AnnotationKey[] DUPLICATED_CODE_WITH_DEFAULT_KEY = {
-        AnnotationKeyFactory.of(AnnotationKey.ARGS0.getCode(), "API")
+            AnnotationKeyFactory.of(AnnotationKey.ARGS0.getCode(), "API")
     };
 
     private void verifyAnnotationKeys(List<AnnotationKey> annotationKeys, AnnotationKeyLocator annotationKeyRegistry) {
@@ -81,83 +83,94 @@ public class ServiceTypeInitializerTest {
 
         verifyAnnotationKeys(Arrays.asList(TEST_KEYS), annotationKeyRegistry);
     }
-    
-    @Test(expected=RuntimeException.class)
+
+    @Test
     public void testDuplicated() {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
+                    new TestProvider(TEST_TYPES, TEST_KEYS),
+                    new TestProvider(new ServiceType[0], TEST_KEYS)
+            );
 
-        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
-                new TestProvider(TEST_TYPES, TEST_KEYS),
-                new TestProvider(new ServiceType[0], TEST_KEYS)
-        );
-
-        TraceMetadataLoader loader = new TraceMetadataLoader(StdoutCommonLoggerFactory.INSTANCE);
-        loader.load(providers);
+            TraceMetadataLoader loader = new TraceMetadataLoader(StdoutCommonLoggerFactory.INSTANCE);
+            loader.load(providers);
+        });
     }
-    
-    @Test(expected=RuntimeException.class)
+
+    @Test
     public void testDuplicated2() {
-        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
-                new TestProvider(TEST_TYPES, TEST_KEYS),
-                new TestProvider(TEST_TYPES, new AnnotationKey[0])
-        );
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
+                    new TestProvider(TEST_TYPES, TEST_KEYS),
+                    new TestProvider(TEST_TYPES, new AnnotationKey[0])
+            );
 
-        TraceMetadataLoader loader = new TraceMetadataLoader(StdoutCommonLoggerFactory.INSTANCE);
-        loader.load(providers);
+            TraceMetadataLoader loader = new TraceMetadataLoader(StdoutCommonLoggerFactory.INSTANCE);
+            loader.load(providers);
+        });
     }
-    
-    @Test(expected=RuntimeException.class)
+
+    @Test
     public void testDuplicated3() {
-        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
-                new TestProvider(TEST_TYPES, TEST_KEYS),
-                new TestProvider(TEST_TYPES, new AnnotationKey[0])
-        );
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
+                    new TestProvider(TEST_TYPES, TEST_KEYS),
+                    new TestProvider(TEST_TYPES, new AnnotationKey[0])
+            );
 
-        TraceMetadataLoader loader = new TraceMetadataLoader(StdoutCommonLoggerFactory.INSTANCE);
-        loader.load(providers);
+            TraceMetadataLoader loader = new TraceMetadataLoader(StdoutCommonLoggerFactory.INSTANCE);
+            loader.load(providers);
+        });
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test
     public void testDuplicatedWithDefault() {
-        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
-                new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
-        );
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
+                    new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
+            );
 
-        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(loggerFactory);
-        traceMetadataLoader.load(providers);
-        ServiceTypeLocator unused = traceMetadataLoader.createServiceTypeRegistry();
+            TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(loggerFactory);
+            traceMetadataLoader.load(providers);
+            ServiceTypeLocator unused = traceMetadataLoader.createServiceTypeRegistry();
+        });
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test
     public void testDuplicatedWithDefault2() {
-        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
-                new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
-        );
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
+                    new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
+            );
 
-        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(loggerFactory);
-        traceMetadataLoader.load(providers);
-        ServiceTypeLocator unused = traceMetadataLoader.createServiceTypeRegistry();
+            TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(loggerFactory);
+            traceMetadataLoader.load(providers);
+            ServiceTypeLocator unused = traceMetadataLoader.createServiceTypeRegistry();
+        });
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test
     public void testDuplicatedWithDefault3() {
-        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
-                new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
-        );
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
+                    new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
+            );
 
-        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(loggerFactory);
-        traceMetadataLoader.load(providers);
-        AnnotationKeyLocator unused = traceMetadataLoader.createAnnotationKeyRegistry();
+            TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader(loggerFactory);
+            traceMetadataLoader.load(providers);
+            AnnotationKeyLocator unused = traceMetadataLoader.createAnnotationKeyRegistry();
+        });
     }
 
     private static class TestProvider implements TraceMetadataProvider {
         private final ServiceType[] serviceTypes;
         private final AnnotationKey[] annotationKeys;
-        
+
         public TestProvider(ServiceType[] serviceTypes, AnnotationKey[] annotationKeys) {
             this.serviceTypes = serviceTypes;
             this.annotationKeys = annotationKeys;
         }
-        
+
         @Override
         public void setup(TraceMetadataSetupContext context) {
             for (ServiceType type : serviceTypes) {

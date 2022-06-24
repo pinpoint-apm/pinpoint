@@ -1,16 +1,15 @@
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +19,8 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AdminServiceImplTest {
 
     final String AGENT_ID1 = "TEST_AGENT_ID1";
@@ -44,11 +43,13 @@ public class AdminServiceImplTest {
 
     AdminService adminService;
 
-    @Mock ApplicationIndexDao applicationIndexDao;
+    @Mock
+    ApplicationIndexDao applicationIndexDao;
 
-    @Mock AgentInfoService agentInfoService;
+    @Mock
+    AgentInfoService agentInfoService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         adminService = new AdminServiceImpl(applicationIndexDao, agentInfoService);
     }
@@ -58,21 +59,21 @@ public class AdminServiceImplTest {
         try {
             new AdminServiceImpl(null, agentInfoService);
             fail("applicationIndexDao can not be null");
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             assertThat(e.getMessage(), is("applicationIndexDao"));
         }
 
         try {
             new AdminServiceImpl(applicationIndexDao, null);
             fail("agentInfoService can not be null");
-        } catch(NullPointerException e ) {
+        } catch (NullPointerException e) {
             assertThat(e.getMessage(), is("agentInfoService"));
         }
 
         try {
             new AdminServiceImpl(null, null);
             fail("applicationIndexDao and jvmGcDao can not be null");
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             assertThat(e.getMessage(), is("applicationIndexDao"));
         }
     }
@@ -107,13 +108,13 @@ public class AdminServiceImplTest {
             adminService.removeInactiveAgents(29);
             fail("Exception must be caught when durationDays is less than MIN_DURATION_DAYS_FOR_INACIVITY");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days")) ;
+            assertThat(e.getMessage(), is("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days"));
         }
 
         try {
             adminService.removeInactiveAgents(30);
             adminService.removeInactiveAgents(31);
-        } catch(Exception e) {
+        } catch (Exception e) {
             fail("Exception can not be caught when durationDays is more than MIN_DURATION_DAYS_FOR_INACTIVITY");
         }
     }
@@ -184,9 +185,9 @@ public class AdminServiceImplTest {
         // given
         when(applicationIndexDao.selectAllApplicationNames())
                 .thenReturn(Arrays.asList(
-                                new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
-                                new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),
-                                new Application(APPLICATION_NAME3, ServiceType.UNDEFINED)));
+                        new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
+                        new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),
+                        new Application(APPLICATION_NAME3, ServiceType.UNDEFINED)));
 
         when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1)))
                 .thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));

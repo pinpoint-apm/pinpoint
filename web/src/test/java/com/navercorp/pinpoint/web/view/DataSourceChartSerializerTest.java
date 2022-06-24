@@ -18,21 +18,21 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DataSourceChartSerializerTest {
 
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
@@ -57,7 +57,7 @@ public class DataSourceChartSerializerTest {
     @Mock
     private ServiceTypeRegistryService serviceTypeRegistryService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(serviceTypeRegistryService.findServiceType(any(Short.class))).thenReturn(ServiceType.UNKNOWN);
     }
@@ -73,11 +73,11 @@ public class DataSourceChartSerializerTest {
         String jsonValue = mapper.writeValueAsString(dataSourceChartGroup);
         Map<?, ?> map = mapper.readValue(jsonValue, Map.class);
 
-        Assert.assertTrue(map.containsKey("id"));
-        Assert.assertTrue(map.containsKey("jdbcUrl"));
-        Assert.assertTrue(map.containsKey("databaseName"));
-        Assert.assertTrue(map.containsKey("serviceType"));
-        Assert.assertTrue(map.containsKey("charts"));
+        Assertions.assertTrue(map.containsKey("id"));
+        Assertions.assertTrue(map.containsKey("jdbcUrl"));
+        Assertions.assertTrue(map.containsKey("databaseName"));
+        Assertions.assertTrue(map.containsKey("serviceType"));
+        Assertions.assertTrue(map.containsKey("charts"));
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {

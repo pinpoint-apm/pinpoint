@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory;
 import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -45,15 +45,15 @@ public class AgentDownloadInfoTest {
         String downloadUrl = "http://localhost:8080/pinpoint-agent-1.6.0.tar.gz";
 
         AgentDownloadInfoDao agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, downloadUrl, restTemplate);
-        Assert.assertTrue(agentDownloadInfoDao instanceof MemoryAgentDownloadInfoDao);
-        Assert.assertEquals(version, agentDownloadInfoDao.getDownloadInfoList().get(0).getVersion());
-        Assert.assertEquals(downloadUrl, agentDownloadInfoDao.getDownloadInfoList().get(0).getDownloadUrl());
+        Assertions.assertTrue(agentDownloadInfoDao instanceof MemoryAgentDownloadInfoDao);
+        Assertions.assertEquals(version, agentDownloadInfoDao.getDownloadInfoList().get(0).getVersion());
+        Assertions.assertEquals(downloadUrl, agentDownloadInfoDao.getDownloadInfoList().get(0).getDownloadUrl());
 
         agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, "", restTemplate);
-        Assert.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
+        Assertions.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
 
         agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create("   ", downloadUrl, restTemplate);
-        Assert.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
+        Assertions.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AgentDownloadInfoTest {
         TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<List<GithubAgentDownloadInfo>>() {};
         List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, typeReference);
 
-        Assert.assertEquals(15, agentDownloadInfoList.size());
+        Assertions.assertEquals(15, agentDownloadInfoList.size());
     }
 
     private String getMockJsonString() throws IOException {

@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -31,8 +30,8 @@ public class ApplicationTest {
         Application two = new Application("test", ServiceType.STAND_ALONE);
         Application three = new Application("other", ServiceType.INTERNAL_METHOD);
 
-        Assert.assertEquals(one, two);
+        Assertions.assertEquals(one, two);
 
-        Assert.assertNotEquals(one, three);
+        Assertions.assertNotEquals(one, three);
     }
 }

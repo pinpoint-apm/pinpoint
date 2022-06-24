@@ -29,12 +29,13 @@ import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -105,8 +106,8 @@ public class GrpcAnnotationValueMapperTest {
         PAnnotationValue container = mapper.buildPAnnotationValue(Annotations.of(1, intStringValue));
         PIntStringValue pAnnotation = container.getIntStringValue();
 
-        Assert.assertEquals(pAnnotation.getIntValue(), 1);
-        Assert.assertEquals(pAnnotation.getStringValue().getValue(), "2");
+        Assertions.assertEquals(pAnnotation.getIntValue(), 1);
+        Assertions.assertEquals(pAnnotation.getStringValue().getValue(), "2");
     }
 
 
@@ -117,8 +118,8 @@ public class GrpcAnnotationValueMapperTest {
         PAnnotationValue container = mapper.buildPAnnotationValue(Annotations.of(1, intStringValue));
         PStringStringValue pAnnotation = container.getStringStringValue();
 
-        Assert.assertEquals(pAnnotation.getStringValue1().getValue(), "1");
-        Assert.assertEquals(pAnnotation.getStringValue2().getValue(), "2");
+        Assertions.assertEquals(pAnnotation.getStringValue1().getValue(), "1");
+        Assertions.assertEquals(pAnnotation.getStringValue2().getValue(), "2");
     }
 
 
@@ -129,9 +130,9 @@ public class GrpcAnnotationValueMapperTest {
         PAnnotationValue container = mapper.buildPAnnotationValue(Annotations.of(1, intStringValue));
         PIntStringStringValue pAnnotation = container.getIntStringStringValue();
 
-        Assert.assertEquals(pAnnotation.getIntValue(), 1);
-        Assert.assertEquals(pAnnotation.getStringValue1().getValue(), "2");
-        Assert.assertEquals(pAnnotation.getStringValue2().getValue(), "3");
+        Assertions.assertEquals(pAnnotation.getIntValue(), 1);
+        Assertions.assertEquals(pAnnotation.getStringValue1().getValue(), "2");
+        Assertions.assertEquals(pAnnotation.getStringValue2().getValue(), "3");
     }
 
     @Test
@@ -142,12 +143,12 @@ public class GrpcAnnotationValueMapperTest {
         PAnnotationValue container = mapper.buildPAnnotationValue(Annotations.of(1, intStringValue));
         PLongIntIntByteByteStringValue pAnnotation = container.getLongIntIntByteByteStringValue();
 
-        Assert.assertEquals(pAnnotation.getLongValue(), 1);
-        Assert.assertEquals(pAnnotation.getIntValue1(), 2);
-        Assert.assertEquals(pAnnotation.getIntValue2(), 3);
-        Assert.assertEquals(pAnnotation.getByteValue1(), 4);
-        Assert.assertEquals(pAnnotation.getByteValue2(), 5);
-        Assert.assertEquals(pAnnotation.getStringValue().getValue(), "6");
+        Assertions.assertEquals(pAnnotation.getLongValue(), 1);
+        Assertions.assertEquals(pAnnotation.getIntValue1(), 2);
+        Assertions.assertEquals(pAnnotation.getIntValue2(), 3);
+        Assertions.assertEquals(pAnnotation.getByteValue1(), 4);
+        Assertions.assertEquals(pAnnotation.getByteValue2(), 5);
+        Assertions.assertEquals(pAnnotation.getStringValue().getValue(), "6");
     }
 
     @Test
@@ -158,9 +159,9 @@ public class GrpcAnnotationValueMapperTest {
         PAnnotationValue container = mapper.buildPAnnotationValue(Annotations.of(1, intStringValue));
         PIntBooleanIntBooleanValue pAnnotation = container.getIntBooleanIntBooleanValue();
 
-        Assert.assertEquals(pAnnotation.getIntValue1(), 1);
-        Assert.assertEquals(pAnnotation.getBoolValue1(), true);
-        Assert.assertEquals(pAnnotation.getIntValue2(), 3);
-        Assert.assertEquals(pAnnotation.getBoolValue2(), false);
+        Assertions.assertEquals(pAnnotation.getIntValue1(), 1);
+        Assertions.assertEquals(pAnnotation.getBoolValue1(), true);
+        Assertions.assertEquals(pAnnotation.getIntValue2(), 3);
+        Assertions.assertEquals(pAnnotation.getBoolValue2(), false);
     }
 }

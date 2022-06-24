@@ -23,13 +23,13 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -47,7 +47,7 @@ public class ResponseTimeCodecTest {
         encodedValueBuffer.putByte(responseTimeCodec.getVersion());
         responseTimeCodec.encodeValues(encodedValueBuffer, joinResponseTimeBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -57,7 +57,7 @@ public class ResponseTimeCodecTest {
 
         assertEquals(valueBuffer.readByte(), responseTimeCodec.getVersion());
         List<JoinResponseTimeBo> decodedJoinResponseTimeBoList = responseTimeCodec.decodeValues(valueBuffer, decodingContext);
-        for (int i = 0 ; i < decodedJoinResponseTimeBoList.size(); i++) {
+        for (int i = 0; i < decodedJoinResponseTimeBoList.size(); i++) {
             assertEquals(decodedJoinResponseTimeBoList.get(i), joinResponseTimeBoList.get(i));
         }
     }

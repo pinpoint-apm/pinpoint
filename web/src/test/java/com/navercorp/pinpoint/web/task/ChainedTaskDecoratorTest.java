@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.task;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskDecorator;
 
@@ -35,7 +35,7 @@ public class ChainedTaskDecoratorTest {
 
     private SimpleAsyncTaskExecutor executor;
 
-    @Before
+    @BeforeEach
     public void setup() {
         executor = new SimpleAsyncTaskExecutor("Test-Worker-");
     }
@@ -57,9 +57,9 @@ public class ChainedTaskDecoratorTest {
         }
         completeLatch.await(5L, TimeUnit.SECONDS);
         // Then
-        Assert.assertEquals(testCount, decorator1.getCount());
-        Assert.assertEquals(testCount, decorator2.getCount());
-        Assert.assertEquals(testCount, decorator3.getCount());
+        Assertions.assertEquals(testCount, decorator1.getCount());
+        Assertions.assertEquals(testCount, decorator2.getCount());
+        Assertions.assertEquals(testCount, decorator3.getCount());
     }
 
     private static class CountingTaskDecorator implements TaskDecorator {

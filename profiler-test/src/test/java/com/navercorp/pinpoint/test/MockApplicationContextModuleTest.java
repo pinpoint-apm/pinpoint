@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -85,13 +85,12 @@ public class MockApplicationContextModuleTest {
         // singleton check
         AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
         AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
-        Assert.assertSame(instance1, instance2);
+        Assertions.assertSame(instance1, instance2);
 
         ClassFileTransformer instance4 = injector.getInstance(ClassFileTransformer.class);
 
         applicationContext.close();
     }
-
 
 
 }

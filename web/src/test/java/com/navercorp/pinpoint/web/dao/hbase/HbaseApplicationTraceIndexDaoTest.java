@@ -16,22 +16,26 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.*;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartConfig;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -41,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -81,16 +86,18 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         ScatterChartConfig scatterChartConfig = new ScatterChartConfig();
         this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void scanTraceIndexExceptionTest() {
-        this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(0, 10), -20, false);
+        assertThrows(IllegalArgumentException.class, () -> {
+            this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(0, 10), -20, false);
+        });
     }
 
     @Test
@@ -100,19 +107,21 @@ public class HbaseApplicationTraceIndexDaoTest {
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<TransactionId>> result =
                 this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
-        Assert.assertEquals(1000L, result.getLimitedTime());
-        Assert.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
+        Assertions.assertEquals(1000L, result.getLimitedTime());
+        Assertions.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
 
         // using last row accessor
         result = this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 5, true);
-        Assert.assertEquals(-1L, result.getLimitedTime());
-        Assert.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
+        Assertions.assertEquals(-1L, result.getLimitedTime());
+        Assertions.assertEquals(ListListUtils.toList(scannedList), result.getScanData());
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void scanTraceScatterDataExceptionTest() {
-        this.applicationTraceIndexDao.scanTraceScatterData("app", Range.between(1000L, 5000L), -10, false);
+        assertThrows(IllegalArgumentException.class, () -> {
+            this.applicationTraceIndexDao.scanTraceScatterData("app", Range.between(1000L, 5000L), -10, false);
+        });
     }
 
     @Test
@@ -122,14 +131,14 @@ public class HbaseApplicationTraceIndexDaoTest {
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
-                = this.applicationTraceIndexDao.scanTraceScatterData("app", range,10, false);
+                = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         scanResult.getScanData().forEach(builder::addDot);
         ScatterData result = builder.build();
 
-        Assert.assertEquals(1000L, result.getFrom());
-        Assert.assertEquals(5000L, result.getTo());
-        Assert.assertEquals(0, result.getScatterData().size());
+        Assertions.assertEquals(1000L, result.getFrom());
+        Assertions.assertEquals(5000L, result.getTo());
+        Assertions.assertEquals(0, result.getScatterData().size());
     }
 
     @Test
@@ -139,14 +148,14 @@ public class HbaseApplicationTraceIndexDaoTest {
                 anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
-                = this.applicationTraceIndexDao.scanTraceScatterData("app", range,10, false);
+                = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         scanResult.getScanData().forEach(builder::addDot);
         ScatterData result = builder.build();
-        Assert.assertEquals(1000L, result.getFrom());
-        Assert.assertEquals(5000L, result.getTo());
-        Assert.assertEquals(2000L, result.getOldestAcceptedTime());
-        Assert.assertEquals(3000L, result.getLatestAcceptedTime());
+        Assertions.assertEquals(1000L, result.getFrom());
+        Assertions.assertEquals(5000L, result.getTo());
+        Assertions.assertEquals(2000L, result.getOldestAcceptedTime());
+        Assertions.assertEquals(3000L, result.getLatestAcceptedTime());
     }
 
     private List<List<Dot>> createScatterDotList() {
@@ -181,7 +190,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         when(dot.getAgentId()).thenReturn("agent");
         when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
 
-        Assert.assertTrue(dotStatusFilter.test(dot));
+        Assertions.assertTrue(dotStatusFilter.test(dot));
     }
 
     @Test
@@ -191,7 +200,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         when(dot.getAgentId()).thenReturn("agent");
         when(dot.getStatus()).thenReturn(Dot.Status.FAILED);
 
-        Assert.assertFalse(dotStatusFilter.test(dot));
+        Assertions.assertFalse(dotStatusFilter.test(dot));
 
     }
 
@@ -202,7 +211,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         when(dot.getAgentId()).thenReturn("xxx");
         when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
 
-        Assert.assertFalse(dotStatusFilter.test(dot));
+        Assertions.assertFalse(dotStatusFilter.test(dot));
 
     }
 

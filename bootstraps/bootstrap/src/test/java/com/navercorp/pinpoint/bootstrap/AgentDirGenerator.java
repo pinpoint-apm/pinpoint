@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.common.Version;
-import org.junit.Assert;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -86,9 +85,9 @@ public class AgentDirGenerator {
                 throw new RuntimeException(dirPath + " create fil", e);
             }
         }
-        Assert.assertTrue(dirPath + " not a directory", Files.isDirectory(dirPath));
+        Assertions.assertTrue(Files.isDirectory(dirPath), dirPath + " not a directory");
 
-        Assert.assertTrue(Files.isWritable(dirPath));
+        Assertions.assertTrue(Files.isWritable(dirPath));
 
         return dirPath;
     }

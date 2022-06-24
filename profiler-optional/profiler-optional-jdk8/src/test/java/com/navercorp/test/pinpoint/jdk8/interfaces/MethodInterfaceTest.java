@@ -28,10 +28,12 @@ import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinit
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -39,8 +41,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -60,12 +60,12 @@ public class MethodInterfaceTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         interceptorRegistryBinder.bind();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         interceptorRegistryBinder.unbind();
     }
@@ -109,7 +109,7 @@ public class MethodInterfaceTest {
         });
 
         // static method
-        Assert.assertFalse(SimpleInterceptor.before);
+        Assertions.assertFalse(SimpleInterceptor.before);
         logger.debug("Interface static method");
         Class<?> clazz = classLoader.loadClass(targetInterfaceName);
         Method method = clazz.getDeclaredMethod("currentTimeMillis");
@@ -120,7 +120,7 @@ public class MethodInterfaceTest {
         SimpleInterceptor.before = false;
 
         // default method
-        Assert.assertFalse(SimpleInterceptor.before);
+        Assertions.assertFalse(SimpleInterceptor.before);
         logger.debug("Interface default method");
         clazz = classLoader.loadClass(targetClassName);
         method = clazz.getDeclaredMethod("bar");
@@ -128,31 +128,33 @@ public class MethodInterfaceTest {
         assertTrue(SimpleInterceptor.before);
     }
 
-    @Test(expected = ClassFormatError.class)
+    @Test
     public void addField() throws Exception {
-        final String targetInterfaceName = "com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterface";
-        final String targetClassName = "com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterfaceClass";
-        final String accessorClassName = "com.navercorp.test.pinpoint.jdk8.interfaces.SimpleAccessor";
-        TestClassLoader classLoader = new TestClassLoader();
-        classLoader.addTargetClassName(targetClassName);
-        classLoader.addTargetClassName(targetInterfaceName);
-        classLoader.setTrace(false);
-        classLoader.setCallbackHandler(new CallbackHandler() {
-            @Override
-            public void handle(ClassNode classNode) {
-                logger.debug("Add field class={}", classNode.name);
-                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, null, classNode);
-                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), Type.getDescriptor(int.class));
-                classNodeAdapter.addInterface(accessorClassName);
-                ASMFieldNodeAdapter fieldNodeAdapter = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
-                classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNodeAdapter);
-                classNodeAdapter.addSetterMethod("_$PINPOINT$_setTraceInt", fieldNodeAdapter);
-            }
+        Assertions.assertThrows(ClassFormatError.class, () -> {
+            final String targetInterfaceName = "com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterface";
+            final String targetClassName = "com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterfaceClass";
+            final String accessorClassName = "com.navercorp.test.pinpoint.jdk8.interfaces.SimpleAccessor";
+            TestClassLoader classLoader = new TestClassLoader();
+            classLoader.addTargetClassName(targetClassName);
+            classLoader.addTargetClassName(targetInterfaceName);
+            classLoader.setTrace(false);
+            classLoader.setCallbackHandler(new CallbackHandler() {
+                @Override
+                public void handle(ClassNode classNode) {
+                    logger.debug("Add field class={}", classNode.name);
+                    ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, null, classNode);
+                    classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), Type.getDescriptor(int.class));
+                    classNodeAdapter.addInterface(accessorClassName);
+                    ASMFieldNodeAdapter fieldNodeAdapter = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
+                    classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNodeAdapter);
+                    classNodeAdapter.addSetterMethod("_$PINPOINT$_setTraceInt", fieldNodeAdapter);
+                }
+            });
+            logger.debug("Interface static method");
+            Class<?> clazz = classLoader.loadClass(targetInterfaceName);
+            Method method = clazz.getDeclaredMethod("currentTimeMillis");
+            method.invoke(null);
         });
-        logger.debug("Interface static method");
-        Class<?> clazz = classLoader.loadClass(targetInterfaceName);
-        Method method = clazz.getDeclaredMethod("currentTimeMillis");
-        method.invoke(null);
     }
 
     @Test

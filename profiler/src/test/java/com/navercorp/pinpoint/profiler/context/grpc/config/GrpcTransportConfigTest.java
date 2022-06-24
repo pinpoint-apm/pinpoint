@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim

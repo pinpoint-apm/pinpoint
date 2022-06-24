@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
@@ -35,12 +34,12 @@ public class OffsetFixedBufferTest {
         new OffsetFixedBuffer(new byte[10], 10, 0);
         try {
             new OffsetFixedBuffer(new byte[10], 11, 0);
-            Assert.fail();
+            Assertions.fail();
         } catch (IndexOutOfBoundsException ignored) {
         }
         try {
             new OffsetFixedBuffer(new byte[10], -1, 0);
-            Assert.fail();
+            Assertions.fail();
         } catch (IndexOutOfBoundsException ignored) {
         }
     }
@@ -49,7 +48,7 @@ public class OffsetFixedBufferTest {
     public void testFixedBuffer_length() {
         try {
             new OffsetFixedBuffer(new byte[10], 0, 11);
-            Assert.fail();
+            Assertions.fail();
         } catch (IndexOutOfBoundsException e) {
         }
 
@@ -64,11 +63,11 @@ public class OffsetFixedBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
-        Assert.assertEquals(intBuffer.length, 4);
+        Assertions.assertEquals(intBuffer.length, 4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
-        Assert.assertEquals(putValue, value);
+        Assertions.assertEquals(putValue, value);
     }
 
     @Test
@@ -79,11 +78,11 @@ public class OffsetFixedBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.copyBuffer();
-        Assert.assertEquals(intBuffer.length, 4);
+        Assertions.assertEquals(intBuffer.length, 4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
-        Assert.assertEquals(putValue, value);
+        Assertions.assertEquals(putValue, value);
     }
 
     @Test
@@ -95,8 +94,8 @@ public class OffsetFixedBufferTest {
         buffer.putInt(2);
 
         ByteBuffer byteBuffer = buffer.wrapByteBuffer();
-        Assert.assertEquals(1, byteBuffer.getInt());
-        Assert.assertEquals(2, byteBuffer.getInt());
+        Assertions.assertEquals(1, byteBuffer.getInt());
+        Assertions.assertEquals(2, byteBuffer.getInt());
     }
 
 }

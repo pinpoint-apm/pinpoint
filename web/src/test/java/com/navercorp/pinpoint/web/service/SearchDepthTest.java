@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -28,16 +28,16 @@ public class SearchDepthTest {
     public void testSearchDepth() {
         SearchDepth zero = new SearchDepth(2);
 
-        Assert.assertEquals(zero.getDepth(), 0);
-        Assert.assertFalse(zero.isDepthOverflow());
+        Assertions.assertEquals(zero.getDepth(), 0);
+        Assertions.assertFalse(zero.isDepthOverflow());
 
         SearchDepth oneDepth = zero.nextDepth();
-        Assert.assertEquals(oneDepth.getDepth(), 1);
-        Assert.assertFalse(oneDepth.isDepthOverflow());
+        Assertions.assertEquals(oneDepth.getDepth(), 1);
+        Assertions.assertFalse(oneDepth.isDepthOverflow());
 
         SearchDepth twoDepth = oneDepth.nextDepth();
-        Assert.assertEquals(twoDepth.getDepth(), 2);
-        Assert.assertTrue(twoDepth.isDepthOverflow());
+        Assertions.assertEquals(twoDepth.getDepth(), 2);
+        Assertions.assertTrue(twoDepth.isDepthOverflow());
     }
 
 }

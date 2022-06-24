@@ -16,27 +16,26 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
-
 import com.navercorp.pinpoint.web.service.RecorderFactoryProvider;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RecordFactoryTest {
 
     @Mock
@@ -76,9 +75,8 @@ public class RecordFactoryTest {
 
         Record exceptionRecord = factory.getException(0, 0, align);
 
-        Assert.assertNotNull(exceptionRecord.getArguments());
+        Assertions.assertNotNull(exceptionRecord.getArguments());
     }
-
 
 
     @Test
@@ -88,7 +86,7 @@ public class RecordFactoryTest {
 
         Record exceptionRecord = factory.getParameter(0, 0, "testMethod", null);
 
-        Assert.assertEquals(exceptionRecord.getArguments(), "null");
+        Assertions.assertEquals(exceptionRecord.getArguments(), "null");
     }
 
 }

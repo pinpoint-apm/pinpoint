@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -18,7 +18,7 @@ public class ErrorHandlerBuilderTest {
 
         // nested & parent
         Exception exception = new Exception(new NullPointerException());
-        Assert.assertTrue(errorHandler.handleError(exception));
+        Assertions.assertTrue(errorHandler.handleError(exception));
     }
 
 
@@ -29,7 +29,7 @@ public class ErrorHandlerBuilderTest {
 
         // nested & parent
         Exception exception = new Exception(new Exception());
-        Assert.assertFalse(errorHandler.handleError(exception));
+        Assertions.assertFalse(errorHandler.handleError(exception));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class ErrorHandlerBuilderTest {
 
         // nested
         Exception exception = new Exception(new RuntimeException());
-        Assert.assertTrue(errorHandler.handleError(exception));
+        Assertions.assertTrue(errorHandler.handleError(exception));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class ErrorHandlerBuilderTest {
 
         // parent
         Exception exception = new IllegalArgumentException(new Exception());
-        Assert.assertTrue(errorHandler.handleError(exception));
+        Assertions.assertTrue(errorHandler.handleError(exception));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ErrorHandlerBuilderTest {
 
         // parent
         Exception exception = new SQLException(new Exception());
-        Assert.assertFalse(errorHandler.handleError(exception));
+        Assertions.assertFalse(errorHandler.handleError(exception));
     }
 
 

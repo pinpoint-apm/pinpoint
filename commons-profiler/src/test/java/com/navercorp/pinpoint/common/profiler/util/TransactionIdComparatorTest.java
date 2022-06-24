@@ -16,18 +16,15 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdComparator;
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 public class TransactionIdComparatorTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -38,14 +35,14 @@ public class TransactionIdComparatorTest {
     public void sameAll() {
         TransactionId id1 = new TransactionId("A1", 1, 1);
         TransactionId id2 = new TransactionId("A1", 1, 1);
-        Assert.assertEquals(0, comparator.compare(id1, id2));
+        Assertions.assertEquals(0, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffAgentStartTimeAsc() {
         TransactionId id1 = new TransactionId("A1", 1, 1);
         TransactionId id2 = new TransactionId("A1", 2, 1);
-        Assert.assertEquals(-1, comparator.compare(id1, id2));
+        Assertions.assertEquals(-1, comparator.compare(id1, id2));
     }
 
     @Test
@@ -53,21 +50,21 @@ public class TransactionIdComparatorTest {
         TransactionId id1 = new TransactionId("A1", 2, 1);
         TransactionId id2 = new TransactionId("A1", 1, 1);
 
-        Assert.assertEquals(1, comparator.compare(id1, id2));
+        Assertions.assertEquals(1, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffSeqAsc() {
         TransactionId id1 = new TransactionId("A1", 1, 1);
         TransactionId id2 = new TransactionId("A1", 1, 2);
-        Assert.assertEquals(-1, comparator.compare(id1, id2));
+        Assertions.assertEquals(-1, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffSeqDesc() {
         TransactionId id1 = new TransactionId("A1", 1, 2);
         TransactionId id2 = new TransactionId("A1", 1, 1);
-        Assert.assertEquals(1, comparator.compare(id1, id2));
+        Assertions.assertEquals(1, comparator.compare(id1, id2));
     }
 
     @Test
@@ -87,7 +84,7 @@ public class TransactionIdComparatorTest {
         Collections.sort(list, comparator);
         int i = 0;
         for (TransactionId transactionId : list) {
-            Assert.assertEquals(i, transactionId.getTransactionSequence());
+            Assertions.assertEquals(i, transactionId.getTransactionSequence());
             i++;
         }
         logger.debug("{}", list);

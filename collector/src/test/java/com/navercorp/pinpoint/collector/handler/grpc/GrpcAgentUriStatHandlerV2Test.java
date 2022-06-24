@@ -31,17 +31,15 @@ import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-
 import io.grpc.Context;
 import io.grpc.StatusRuntimeException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.Mockito.times;
@@ -53,13 +51,13 @@ public class GrpcAgentUriStatHandlerV2Test {
 
     private Context prevContext;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Context root = Context.ROOT;
         prevContext = root.attach();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         Context root = Context.ROOT;
         if (prevContext != null) {
@@ -67,15 +65,17 @@ public class GrpcAgentUriStatHandlerV2Test {
         }
     }
 
-    @Test(expected = StatusRuntimeException.class)
+    @Test
     public void throwExceptionTest() {
-        AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
+            ServerRequest<GeneratedMessageV3> mockServerRequest = Mockito.mock(ServerRequest.class);
 
-        GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
+            GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
 
-        handler.handleSimple(mockServerRequest);
+            handler.handleSimple(mockServerRequest);
+        });
     }
 
     @Test

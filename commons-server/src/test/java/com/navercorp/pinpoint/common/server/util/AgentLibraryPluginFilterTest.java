@@ -18,28 +18,26 @@ package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.common.util.Filter;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AgentLibraryPluginFilterTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    
+
     @Test
     public void filtered() {
         String jvmClassName = getJvmClass(logger.getClass());
         Filter<URL> filter = new AgentLibraryPluginFilter(jvmClassName);
 
         URL loggerFactory = CodeSourceUtils.getCodeLocation(logger.getClass());
-        Assert.assertTrue(filter.filter(loggerFactory));
+        Assertions.assertTrue(filter.filter(loggerFactory));
 
     }
 
@@ -50,10 +48,9 @@ public class AgentLibraryPluginFilterTest {
         Filter<URL> filter = new AgentLibraryPluginFilter(jvmClassName);
 
         URL testCase = CodeSourceUtils.getCodeLocation(this.getClass());
-        Assert.assertFalse(filter.filter(testCase));
+        Assertions.assertFalse(filter.filter(testCase));
 
     }
-
 
 
     private String getJvmClass(Class<?> clazz) {

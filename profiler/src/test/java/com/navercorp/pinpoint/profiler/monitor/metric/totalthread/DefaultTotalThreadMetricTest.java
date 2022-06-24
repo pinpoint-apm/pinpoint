@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.totalthread;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DefaultTotalThreadMetricTest {
     @Test
     public void test() {
         TotalThreadMetric totalThreadMetric = new DefaultTotalThreadMetric();
         TotalThreadMetricSnapshot snapshot = totalThreadMetric.getSnapshot();
-        Assert.assertNotEquals(snapshot.getTotalThreadCount(), 0);
+        Assertions.assertNotEquals(snapshot.getTotalThreadCount(), 0);
     }
 }

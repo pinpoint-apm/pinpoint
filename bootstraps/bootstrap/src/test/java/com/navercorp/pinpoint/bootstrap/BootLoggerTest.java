@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)

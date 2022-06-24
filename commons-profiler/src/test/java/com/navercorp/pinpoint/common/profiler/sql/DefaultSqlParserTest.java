@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.profiler.sql;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -250,60 +249,60 @@ public class DefaultSqlParserTest {
         String expected = "select * from table a = 1 and b=50 and c='foo' and d='11'";
         List<String> bindValues = parameterParser.parseOutputParameter("foo");
         String result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table a = ? and b=? and c=? and d=?";
         expected = "select * from table a = '1' and b='50' and c=' foo ' and d='11'";
         bindValues = parameterParser.parseOutputParameter("1,50, foo ,11");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table id = \"foo ? bar\" and number=?";
         expected = "select * from table id = \"foo ? bar\" and number='99'";
         bindValues = parameterParser.parseOutputParameter("99");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table id = 'hi ? name''s foo' and number=?";
         expected = "select * from table id = 'hi ? name's foo' and number='99'";
         bindValues = parameterParser.parseOutputParameter("99");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         // check comment
         sql = "/** comment ? */ select * from table id = ?";
         expected = "/** comment ? */ select * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select /*! STRAIGHT_JOIN ? */ * from table id = ?";
         expected = "select /*! STRAIGHT_JOIN ? */ * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table id = ?; -- This ? comment";
         expected = "select * from table id = 'foo'; -- This ? comment";
         bindValues = parameterParser.parseOutputParameter("foo");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
     }
 
     private void assertCombine(String result, String sql, String outputParams) {
         List<String> output = this.outputParameterParser.parseOutputParameter(outputParams);
 
         NormalizedSql parsingResult = this.sqlParser.normalizedSql(result);
-        Assert.assertEquals("sql", parsingResult.getNormalizedSql(), sql);
+        Assertions.assertEquals(parsingResult.getNormalizedSql(), sql, "sql");
         String combine = this.sqlParser.combineOutputParams(sql, output);
-        Assert.assertEquals("combine", result, combine);
+        Assertions.assertEquals(result, combine, "combine");
     }
 
     private void assertCombineErrorCase(String expectedError, String sql, String outputParams) {
         List<String> output = this.outputParameterParser.parseOutputParameter(outputParams);
 //        ParsingResult parsingResult = this.sqlParser.normalizedSql(result);
         String combine = this.sqlParser.combineOutputParams(sql, output);
-        Assert.assertEquals("combine", expectedError, combine);
+        Assertions.assertEquals(expectedError, combine, "combine");
     }
 
 
@@ -311,7 +310,7 @@ public class DefaultSqlParserTest {
         NormalizedSql parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assert.assertEquals(expected, normalizedSql);
+            Assertions.assertEquals(expected, normalizedSql);
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
@@ -322,7 +321,7 @@ public class DefaultSqlParserTest {
         NormalizedSql parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assert.assertEquals(actual, normalizedSql);
+            Assertions.assertEquals(actual, normalizedSql);
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
@@ -337,21 +336,21 @@ public class DefaultSqlParserTest {
         String s = sqlParser.combineOutputParams(normalizedSql, outputParams);
         logger.debug("combine:" + s);
         try {
-            Assert.assertEquals("normalizedSql check", actual, normalizedSql);
+            Assertions.assertEquals(actual, normalizedSql, "normalizedSql check");
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }
 
-        Assert.assertEquals("outputParam check", outputExpected, parsingResult.getParseParameter());
+        Assertions.assertEquals(outputExpected, parsingResult.getParseParameter(), "outputParam check");
     }
 
     private void assertEqualObject(String expected) {
         NormalizedSql parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assert.assertEquals("normalizedSql check", expected, normalizedSql);
-            Assert.assertSame(expected, normalizedSql);
+            Assertions.assertEquals(expected, normalizedSql, "normalizedSql check");
+            Assertions.assertSame(expected, normalizedSql);
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;

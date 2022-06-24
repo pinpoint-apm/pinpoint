@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,7 +78,7 @@ public class TimeSeriesChartBuilderTest {
         Chart<TestPoint> chart = builder.build(timeWindow, points);
         // Then
         List<TestPoint> sampledPoints = chart.getPoints();
-        Assert.assertTrue(sampledPoints.isEmpty());
+        Assertions.assertTrue(sampledPoints.isEmpty());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class TimeSeriesChartBuilderTest {
         // Then
         List<TestPoint> sampledPoints = chart.getPoints();
         for (int i = 0; i < sampledPoints.size(); i++) {
-            Assert.assertEquals(i, sampledPoints.get(i).getYVal());
+            Assertions.assertEquals(i, sampledPoints.get(i).getYVal());
         }
 
     }

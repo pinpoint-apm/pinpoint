@@ -17,13 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.plugin.util;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.AssumptionViolatedException;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -46,7 +46,7 @@ public class SocketAddressUtilsTest {
 
     private static NameServiceReplacer NAME_SERVICE_REPLACER;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() {
         NAME_SERVICE_REPLACER = createNameServiceReplacer();
     }
@@ -91,7 +91,7 @@ public class SocketAddressUtilsTest {
     public void fromAddress() {
         String hostName = VALID_HOST;
         InetAddress inetAddress = createAddressFromHostName(hostName);
-        Assume.assumeNotNull(inetAddress);
+        Assumptions.assumeTrue(inetAddress != null);
 
         String address = inetAddress.getHostAddress();
         InetSocketAddress socketAddress = new InetSocketAddress(address, 80);
@@ -107,7 +107,7 @@ public class SocketAddressUtilsTest {
     public void fromLookedUpAddress() {
         String hostName = VALID_HOST;
         InetAddress inetAddress = createAddressFromHostName(hostName);
-        Assume.assumeNotNull(inetAddress);
+        Assumptions.assumeTrue(inetAddress != null);
 
         String address = inetAddress.getHostAddress();
         InetSocketAddress socketAddress = new InetSocketAddress(address, 80);
@@ -122,7 +122,7 @@ public class SocketAddressUtilsTest {
     @Test
     public void fromLocalAddress() {
         InetAddress inetAddress = createLocalAddress();
-        Assume.assumeNotNull(inetAddress);
+        Assumptions.assumeTrue(inetAddress != null);
 
         String address = inetAddress.getHostAddress();
         InetSocketAddress socketAddress = new InetSocketAddress(address, 80);
@@ -137,11 +137,11 @@ public class SocketAddressUtilsTest {
     // Helpers
 
     private static void assertResolved(InetSocketAddress socketAddress) {
-        Assert.assertFalse(socketAddress.isUnresolved());
+        Assertions.assertFalse(socketAddress.isUnresolved());
     }
 
     private static void assertUnresolved(InetSocketAddress socketAddress) {
-        Assert.assertTrue(socketAddress.isUnresolved());
+        Assertions.assertTrue(socketAddress.isUnresolved());
     }
 
     private static void verify(InetSocketAddress socketAddress, String expectedHostName, String expectedAddress) {
@@ -151,8 +151,8 @@ public class SocketAddressUtilsTest {
             String actualAddress = SocketAddressUtils.getAddressFirst(socketAddress);
             LOGGER.info("expectedHostName : {}, actualHostName : {}", expectedHostName, actualHostName);
             LOGGER.info("expectedAddress : {}, actualAddress : {}", expectedAddress, actualAddress);
-            Assert.assertEquals(expectedHostName, actualHostName);
-            Assert.assertEquals(expectedAddress, actualAddress);
+            Assertions.assertEquals(expectedHostName, actualHostName);
+            Assertions.assertEquals(expectedAddress, actualAddress);
         } finally {
             NAME_SERVICE_REPLACER.rollback();
         }
@@ -178,6 +178,7 @@ public class SocketAddressUtilsTest {
 
     private interface NameServiceReplacer {
         void replace();
+
         void rollback();
     }
 
@@ -199,7 +200,7 @@ public class SocketAddressUtilsTest {
         if (nameServiceClass == null) {
             LOGGER.error("[{}] {} - NameService class not found, skipping test.",
                     JvmUtils.getType(), JvmUtils.getVersion());
-            throw new AssumptionViolatedException("NameService class required for test not found.");
+            throw new TestAbortedException("NameService class required for test not found.");
         }
 
         ClassLoader cl = InetAddress.class.getClassLoader();
@@ -256,7 +257,7 @@ public class SocketAddressUtilsTest {
         }
 
         LOGGER.error("[{}] {} - Field for name service not found.", JvmUtils.getType(), JvmUtils.getVersion());
-        throw new AssumptionViolatedException("Cannot find field for name service.");
+        throw new TestAbortedException("Cannot find field for name service.");
     }
 
     private static Object getNameServiceFieldValue(String fieldName) {
@@ -270,7 +271,7 @@ public class SocketAddressUtilsTest {
         } catch (Exception e) {
             LOGGER.error("[{}] {} - Unexpected error while getting field [{}], skipping test",
                     JvmUtils.getType(), JvmUtils.getVersion(), fieldName, e);
-            throw new AssumptionViolatedException("Unexpected reflection exception", e);
+            throw new TestAbortedException("Unexpected reflection exception", e);
         }
     }
 
@@ -284,7 +285,7 @@ public class SocketAddressUtilsTest {
         } catch (Exception e) {
             LOGGER.error("[{}] {} - Unexpected error while setting field [{}], skipping test",
                     JvmUtils.getType(), JvmUtils.getVersion(), fieldName, e);
-            throw new AssumptionViolatedException("Unexpected reflection exception", e);
+            throw new TestAbortedException("Unexpected reflection exception", e);
         }
     }
 }

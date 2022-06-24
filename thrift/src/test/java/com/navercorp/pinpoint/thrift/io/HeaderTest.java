@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad

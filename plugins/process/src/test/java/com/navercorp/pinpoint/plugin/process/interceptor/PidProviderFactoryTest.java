@@ -18,13 +18,10 @@ package com.navercorp.pinpoint.plugin.process.interceptor;
 
 import com.navercorp.pinpoint.common.util.OsType;
 import com.navercorp.pinpoint.common.util.OsUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-
-import static org.mockito.Mockito.mock;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,7 +39,7 @@ public class PidProviderFactoryTest {
 
         ProcessBuilder pb = new ProcessBuilder("echo");
         Process start = pb.start();
-        Assert.assertNotEquals(pidProvider.getPid(start), null);
+        Assertions.assertNotEquals(pidProvider.getPid(start), null);
 
     }
 

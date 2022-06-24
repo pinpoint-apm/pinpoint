@@ -15,12 +15,12 @@
 package com.navercorp.pinpoint.plugin.spring.beans;
 
 import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim

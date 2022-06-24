@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,24 +75,24 @@ public class SystemMetricChartTest {
         SystemMetricChart.SystemMetricChartGroup systemMetricChartGroup = systemMetricChart.getSystemMetricChartGroup();
 
         List<List<Tag>> tagsList = systemMetricChartGroup.getTagsList();
-        Assert.assertEquals(2, tagsList.size());
-        Assert.assertEquals(tagList1, tagsList.get(0));
-        Assert.assertEquals(tagList2, tagsList.get(1));
+        Assertions.assertEquals(2, tagsList.size());
+        Assertions.assertEquals(tagList1, tagsList.get(0));
+        Assertions.assertEquals(tagList2, tagsList.get(1));
 
         List<Chart> chartList = systemMetricChartGroup.getCharts();
-        Assert.assertEquals(2, chartList.size());
+        Assertions.assertEquals(2, chartList.size());
 
         List<Point> pointsFromChart1 = chartList.get(0).getPoints();
         int index = 0;
         for (Point point : pointsFromChart1) {
-            Assert.assertTrue(point.equals(sampledSystemMetricList.get(index * 2).getPoint()));
+            Assertions.assertTrue(point.equals(sampledSystemMetricList.get(index * 2).getPoint()));
             index++;
         }
 
         List<Point> pointsFromChart2 = chartList.get(1).getPoints();
         index = 0;
         for (Point point : pointsFromChart2) {
-            Assert.assertTrue(point.equals(sampledSystemMetricList.get(index * 2 + 1).getPoint()));
+            Assertions.assertTrue(point.equals(sampledSystemMetricList.get(index * 2 + 1).getPoint()));
             index++;
         }
     }

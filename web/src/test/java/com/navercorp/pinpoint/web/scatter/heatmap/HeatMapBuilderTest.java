@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.web.scatter.heatmap;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,24 +17,24 @@ public class HeatMapBuilderTest {
     public void axix() {
         HeatMapBuilder.AxisResolver resolver = new HeatMapBuilder.DefaultAxisResolver(100, 0, 1000);
 
-        Assert.assertEquals(0L, resolver.getIndex(0));
-        Assert.assertEquals(10L, resolver.getIndex(100));
+        Assertions.assertEquals(0L, resolver.getIndex(0));
+        Assertions.assertEquals(10L, resolver.getIndex(100));
     }
 
     @Test
     public void axix_max_overflow() {
         HeatMapBuilder.AxisResolver resolver = new HeatMapBuilder.DefaultAxisResolver(100, 0, 1000);
 
-        Assert.assertEquals(100, resolver.getIndex(1000));
-        Assert.assertEquals(100, resolver.getIndex(1100));
+        Assertions.assertEquals(100, resolver.getIndex(1000));
+        Assertions.assertEquals(100, resolver.getIndex(1100));
     }
 
     @Test
     public void axix_max_overflow_start() {
         HeatMapBuilder.AxisResolver resolver = new HeatMapBuilder.DefaultAxisResolver(100, 100, 1100);
 
-        Assert.assertEquals(0, resolver.getIndex(100));
-        Assert.assertEquals(100, resolver.getIndex(1200));
+        Assertions.assertEquals(0, resolver.getIndex(100));
+        Assertions.assertEquals(100, resolver.getIndex(1200));
     }
 
     @Test
@@ -50,13 +50,13 @@ public class HeatMapBuilderTest {
         HeatMap heatMap = builder.build();
         List<Point> points = heatMap.getData();
 
-        Assert.assertEquals(points.size(), 2);
+        Assertions.assertEquals(points.size(), 2);
 
         long sum = points.stream().mapToLong(Point::getSuccess).sum();
-        Assert.assertEquals(3L, sum);
+        Assertions.assertEquals(3L, sum);
 
-        Assert.assertEquals(1, points.get(0).getSuccess());
-        Assert.assertEquals(2, points.get(1).getSuccess());
+        Assertions.assertEquals(1, points.get(0).getSuccess());
+        Assertions.assertEquals(2, points.get(1).getSuccess());
     }
 
     @Test
@@ -70,11 +70,11 @@ public class HeatMapBuilderTest {
         HeatMap heatMap = builder.build();
         List<Point> points = heatMap.getData();
 
-        Assert.assertEquals(points.size(), 2);
+        Assertions.assertEquals(points.size(), 2);
 
 
-        Assert.assertEquals(0, points.get(0).getY());
-        Assert.assertEquals(20, points.get(1).getY());
+        Assertions.assertEquals(0, points.get(0).getY());
+        Assertions.assertEquals(20, points.get(1).getY());
 
 
     }
@@ -85,11 +85,11 @@ public class HeatMapBuilderTest {
         long[] index = resolver.getIndex();
         logger.debug("{}", Arrays.toString(index));
 
-        Assert.assertEquals(10, index.length);
+        Assertions.assertEquals(10, index.length);
 
-        Assert.assertEquals(0, index[0]);
-        Assert.assertEquals(500, index[5]);
-        Assert.assertEquals(900, index[9]);
+        Assertions.assertEquals(0, index[0]);
+        Assertions.assertEquals(500, index[5]);
+        Assertions.assertEquals(900, index[9]);
     }
 
     @Test
@@ -98,10 +98,10 @@ public class HeatMapBuilderTest {
         long[] index = resolver.getIndex();
         logger.debug("{}", Arrays.toString(index));
 
-        Assert.assertEquals(10, index.length);
+        Assertions.assertEquals(10, index.length);
 
-        Assert.assertEquals(500, index[0]);
-        Assert.assertEquals(750, index[5]);
-        Assert.assertEquals(950, index[9]);
+        Assertions.assertEquals(500, index[0]);
+        Assertions.assertEquals(750, index[5]);
+        Assertions.assertEquals(950, index[9]);
     }
 }

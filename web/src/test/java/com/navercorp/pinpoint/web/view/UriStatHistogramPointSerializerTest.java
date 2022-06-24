@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.UriStatHistogramPoint;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.UriStatHistogramPoint;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
@@ -49,7 +48,7 @@ public class UriStatHistogramPointSerializerTest {
         String arrayAsString = Arrays.toString(newArrayValue);
         String replace = StringUtils.replace(arrayAsString, " ", "");
 
-        Assert.assertEquals(replace, jsonString);
+        Assertions.assertEquals(replace, jsonString);
     }
 
 }

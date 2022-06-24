@@ -21,18 +21,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class JvmGcDetailedCodecV2Test extends AgentStatCodecTestBase<JvmGcDetailedBo> {
 
@@ -53,18 +53,18 @@ public class JvmGcDetailedCodecV2Test extends AgentStatCodecTestBase<JvmGcDetail
 
     @Override
     protected void verify(JvmGcDetailedBo expected, JvmGcDetailedBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("agentStatType", expected.getAgentStatType(), actual.getAgentStatType());
-        Assert.assertEquals("gcNewCount", expected.getGcNewCount(), actual.getGcNewCount());
-        Assert.assertEquals("gcNewTime", expected.getGcNewTime(), actual.getGcNewTime());
-        Assert.assertEquals("codeCacheUsed", expected.getCodeCacheUsed(), actual.getCodeCacheUsed(), DOUBLE_COMPARISON_DELTA);
-        Assert.assertEquals("codeCacheUsed", expected.getCodeCacheUsed(), actual.getCodeCacheUsed(), DOUBLE_COMPARISON_DELTA);
-        Assert.assertEquals("newGenUsed", expected.getNewGenUsed(), actual.getNewGenUsed(), DOUBLE_COMPARISON_DELTA);
-        Assert.assertEquals("oldGenUsed", expected.getOldGenUsed(), actual.getOldGenUsed(), DOUBLE_COMPARISON_DELTA);
-        Assert.assertEquals("survivorSpaceUsed", expected.getSurvivorSpaceUsed(), actual.getSurvivorSpaceUsed(), DOUBLE_COMPARISON_DELTA);
-        Assert.assertEquals("permGenUsed", expected.getPermGenUsed(), actual.getPermGenUsed(), DOUBLE_COMPARISON_DELTA);
-        Assert.assertEquals("metaspaceUsed", expected.getMetaspaceUsed(), actual.getMetaspaceUsed(), DOUBLE_COMPARISON_DELTA);
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getAgentStatType(), actual.getAgentStatType(), "agentStatType");
+        Assertions.assertEquals(expected.getGcNewCount(), actual.getGcNewCount(), "gcNewCount");
+        Assertions.assertEquals(expected.getGcNewTime(), actual.getGcNewTime(), "gcNewTime");
+        Assertions.assertEquals(expected.getCodeCacheUsed(), actual.getCodeCacheUsed(), DOUBLE_COMPARISON_DELTA, "codeCacheUsed");
+        Assertions.assertEquals(expected.getCodeCacheUsed(), actual.getCodeCacheUsed(), DOUBLE_COMPARISON_DELTA, "codeCacheUsed");
+        Assertions.assertEquals(expected.getNewGenUsed(), actual.getNewGenUsed(), DOUBLE_COMPARISON_DELTA, "newGenUsed");
+        Assertions.assertEquals(expected.getOldGenUsed(), actual.getOldGenUsed(), DOUBLE_COMPARISON_DELTA, "oldGenUsed");
+        Assertions.assertEquals(expected.getSurvivorSpaceUsed(), actual.getSurvivorSpaceUsed(), DOUBLE_COMPARISON_DELTA, "survivorSpaceUsed");
+        Assertions.assertEquals(expected.getPermGenUsed(), actual.getPermGenUsed(), DOUBLE_COMPARISON_DELTA, "permGenUsed");
+        Assertions.assertEquals(expected.getMetaspaceUsed(), actual.getMetaspaceUsed(), DOUBLE_COMPARISON_DELTA, "metaspaceUsed");
     }
 }

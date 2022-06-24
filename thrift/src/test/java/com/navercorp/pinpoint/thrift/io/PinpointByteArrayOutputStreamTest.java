@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 /**
- * 
  * @author Taejin Koo
  */
 public class PinpointByteArrayOutputStreamTest {
@@ -35,14 +34,16 @@ public class PinpointByteArrayOutputStreamTest {
 
         pbaos.write(TEST_STRING.getBytes());
 
-        Assert.assertEquals(TEST_STRING, pbaos.toString());
+        Assertions.assertEquals(TEST_STRING, pbaos.toString());
     }
-    
-    @Test(expected = BufferOverflowException.class)
-    public void test2() throws IOException {
-        PinpointByteArrayOutputStream pbaos = new PinpointByteArrayOutputStream(8, false);
 
-        pbaos.write(TEST_STRING.getBytes());
+    @Test
+    public void test2() throws IOException {
+        Assertions.assertThrows(BufferOverflowException.class, () -> {
+            PinpointByteArrayOutputStream pbaos = new PinpointByteArrayOutputStream(8, false);
+
+            pbaos.write(TEST_STRING.getBytes());
+        });
     }
-    
+
 }

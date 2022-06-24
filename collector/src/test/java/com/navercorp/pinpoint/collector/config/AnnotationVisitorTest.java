@@ -17,16 +17,16 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.lang.reflect.Field;
 
@@ -36,7 +36,7 @@ import java.lang.reflect.Field;
  */
 @TestPropertySource(properties = "test.port=111")
 @ContextConfiguration(classes = AnnotationVisitorTest.TestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AnnotationVisitorTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -57,12 +57,12 @@ public class AnnotationVisitorTest {
             @Override
             public void visit(Field field, Object value) {
                 if (field.getName().equals("port")) {
-                    Assert.assertEquals(port , value);
+                    Assertions.assertEquals(port, value);
                     touch = true;
                 }
             }
         });
-        Assert.assertTrue(touch);
+        Assertions.assertTrue(touch);
     }
 
     public static class TestConfig {

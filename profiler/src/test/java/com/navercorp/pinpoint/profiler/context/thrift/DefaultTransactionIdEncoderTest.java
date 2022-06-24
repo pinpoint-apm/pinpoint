@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -58,9 +58,9 @@ public class DefaultTransactionIdEncoderTest {
         byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
         TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
-        Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime);
-        Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
+        Assertions.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
+        Assertions.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime);
+        Assertions.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
 
     @Test
@@ -74,9 +74,9 @@ public class DefaultTransactionIdEncoderTest {
         byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
         TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertEquals(parsedTxId.getAgentId(), agentId2);
-        Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
-        Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
+        Assertions.assertEquals(parsedTxId.getAgentId(), agentId2);
+        Assertions.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
+        Assertions.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
 
     @Test
@@ -90,11 +90,10 @@ public class DefaultTransactionIdEncoderTest {
         byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
         TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
-        Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
-        Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
+        Assertions.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
+        Assertions.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
+        Assertions.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
-
 
 
     private TraceRoot getRootTraceId() {

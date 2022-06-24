@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +32,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author hyungil.jeong
@@ -45,13 +46,13 @@ public class DefaultServerMetaDataRegistryServiceTest {
     private static final List<String> VM_ARGS = Arrays.asList("testVmArgs");
 
     private ExecutorService executorService;
-    
-    @Before
+
+    @BeforeEach
     public void setUp() {
         this.executorService = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         this.executorService.shutdown();
     }
@@ -91,7 +92,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         startLatch.countDown();
         endLatch.await();
         // Then
-        assertTrue("Failed with errors : " + exceptions, exceptions.isEmpty());
+        assertTrue(exceptions.isEmpty(), "Failed with errors : " + exceptions);
         ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
         assertEquals(SERVER_INFO, serverMetaData.getServerInfo());
         assertEquals(VM_ARGS, serverMetaData.getVmArgs());
@@ -111,7 +112,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
         final Queue<Exception> exceptions = new ConcurrentLinkedQueue<>();
-        
+
         final String serviceName = "/test";
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
         serverMetaDataRegistryService.setServerName(SERVER_INFO);
@@ -138,7 +139,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         startLatch.countDown();
         endLatch.await();
         // Then
-        assertTrue("Failed with exceptions : " + exceptions, exceptions.isEmpty());
+        assertTrue(exceptions.isEmpty(), "Failed with exceptions : " + exceptions);
         ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
         assertEquals(SERVER_INFO, serverMetaData.getServerInfo());
         assertEquals(VM_ARGS, serverMetaData.getVmArgs());

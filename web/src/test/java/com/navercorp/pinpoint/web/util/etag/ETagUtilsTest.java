@@ -16,22 +16,22 @@
 
 package com.navercorp.pinpoint.web.util.etag;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ETagUtilsTest {
 
     @Test
     public void parse_weak() {
         ETag eTag = ETagUtils.parseETag("W/\"0815\"");
-        Assert.assertEquals("0815", eTag.getTag());
-        Assert.assertTrue(eTag.isWeak());
+        Assertions.assertEquals("0815", eTag.getTag());
+        Assertions.assertTrue(eTag.isWeak());
     }
 
     @Test
     public void parse_string() {
         ETag eTag = ETagUtils.parseETag("\"0815\"");
-        Assert.assertEquals("0815", eTag.getTag());
-        Assert.assertFalse(eTag.isWeak());
+        Assertions.assertEquals("0815", eTag.getTag());
+        Assertions.assertFalse(eTag.isWeak());
     }
 }

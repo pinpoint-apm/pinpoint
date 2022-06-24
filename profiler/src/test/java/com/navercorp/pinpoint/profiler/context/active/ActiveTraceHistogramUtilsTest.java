@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,11 +32,11 @@ public class ActiveTraceHistogramUtilsTest {
         ActiveTraceHistogram emptyHistogram= new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
 
         List<Integer> zeroList = ActiveTraceHistogramUtils.asList(emptyHistogram);
-        Assert.assertEquals(zeroList.size(), 4);
-        Assert.assertEquals(emptyHistogram.getFastCount(), 0);
-        Assert.assertEquals(emptyHistogram.getNormalCount(), 0);
-        Assert.assertEquals(emptyHistogram.getSlowCount(), 0);
-        Assert.assertEquals(emptyHistogram.getVerySlowCount(), 0);
+        Assertions.assertEquals(zeroList.size(), 4);
+        Assertions.assertEquals(emptyHistogram.getFastCount(), 0);
+        Assertions.assertEquals(emptyHistogram.getNormalCount(), 0);
+        Assertions.assertEquals(emptyHistogram.getSlowCount(), 0);
+        Assertions.assertEquals(emptyHistogram.getVerySlowCount(), 0);
     }
 
 }

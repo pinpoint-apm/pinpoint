@@ -19,9 +19,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOperator;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -63,14 +65,18 @@ public class DefaultPackageBasedMatcherTest {
         assertEquals("java/lang", annotationInternalNameMatcherOperand.getPackageInternalName());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void getMatcherOperandWithPackageNameIsNull() {
-        final String packageName = null;
-        PackageBasedMatcher matcher = new DefaultPackageBasedMatcher(packageName);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            final String packageName = null;
+            PackageBasedMatcher matcher = new DefaultPackageBasedMatcher(packageName);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getMatcherOperandWithPackageNameIsEmpty() {
-        PackageBasedMatcher matcher = new DefaultPackageBasedMatcher("");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            PackageBasedMatcher matcher = new DefaultPackageBasedMatcher("");
+        });
     }
 }

@@ -17,11 +17,10 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,27 +29,27 @@ public class CollectionUtilsTest {
 
     @Test
     public void nullSafeSize() {
-        Assert.assertEquals(1, CollectionUtils.nullSafeSize(Collections.singletonList(123)));
+        Assertions.assertEquals(1, CollectionUtils.nullSafeSize(Collections.singletonList(123)));
 
-        Assert.assertEquals(0, CollectionUtils.nullSafeSize(Collections.emptyList()));
-        Assert.assertEquals(0, CollectionUtils.nullSafeSize(null));
+        Assertions.assertEquals(0, CollectionUtils.nullSafeSize(Collections.emptyList()));
+        Assertions.assertEquals(0, CollectionUtils.nullSafeSize(null));
     }
 
     @Test
     public void nullSafeSize_nullValue() {
-        Assert.assertEquals(-1, CollectionUtils.nullSafeSize(null, -1));
+        Assertions.assertEquals(-1, CollectionUtils.nullSafeSize(null, -1));
     }
 
     @Test
     public void isEmpty() {
-        Assert.assertTrue(CollectionUtils.isEmpty(null));
-        Assert.assertTrue(CollectionUtils.isEmpty(Collections.emptyList()));
+        Assertions.assertTrue(CollectionUtils.isEmpty(null));
+        Assertions.assertTrue(CollectionUtils.isEmpty(Collections.emptyList()));
     }
 
     @Test
     public void isNotEmpty() {
-        Assert.assertFalse(CollectionUtils.hasLength(null));
-        Assert.assertFalse(CollectionUtils.hasLength(Collections.emptyList()));
+        Assertions.assertFalse(CollectionUtils.hasLength(null));
+        Assertions.assertFalse(CollectionUtils.hasLength(Collections.emptyList()));
     }
 
 }

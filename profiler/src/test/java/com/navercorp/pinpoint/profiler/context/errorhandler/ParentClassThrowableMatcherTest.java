@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
@@ -32,11 +32,11 @@ public class ParentClassThrowableMatcherTest {
 
     @Test
     public void match() {
-        
-        ThrowableMatcher classNameMatcher = new ClassNameThrowableMatcher(new String[] {SQLException.class.getName()});
+
+        ThrowableMatcher classNameMatcher = new ClassNameThrowableMatcher(new String[]{SQLException.class.getName()});
         ThrowableMatcher matcher = new ParentClassThrowableMatcher(classNameMatcher);
 
-        Assert.assertTrue(matcher.match(SQLExceptionEx.class));
+        Assertions.assertTrue(matcher.match(SQLExceptionEx.class));
 
     }
 
@@ -44,10 +44,10 @@ public class ParentClassThrowableMatcherTest {
     @Test
     public void match_fail() {
 
-        ThrowableMatcher classNameMatcher = new ClassNameThrowableMatcher(new String[] {RuntimeException.class.getName()});
+        ThrowableMatcher classNameMatcher = new ClassNameThrowableMatcher(new String[]{RuntimeException.class.getName()});
         ThrowableMatcher matcher = new ParentClassThrowableMatcher(classNameMatcher);
 
-        Assert.assertFalse(matcher.match(SQLExceptionEx.class));
+        Assertions.assertFalse(matcher.match(SQLExceptionEx.class));
 
     }
 }

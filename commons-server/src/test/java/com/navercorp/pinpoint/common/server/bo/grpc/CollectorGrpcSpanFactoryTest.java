@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class CollectorGrpcSpanFactoryTest {
     private static final int MAX_SEQUENCE = 10;
-    
+
     private final GrpcSpanBinder binder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new SequenceSpanEventFilter(MAX_SEQUENCE);
     private final AcceptedTimeService acceptedTimeService = new EmptyAcceptedTimeService(System.currentTimeMillis());
@@ -52,7 +52,7 @@ public class CollectorGrpcSpanFactoryTest {
         SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, header);
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
-        Assert.assertTrue(spanEventBoList.isEmpty());
+        Assertions.assertTrue(spanEventBoList.isEmpty());
     }
 
     @Test
@@ -66,8 +66,8 @@ public class CollectorGrpcSpanFactoryTest {
 
         SpanEventBo spanEventBo0 = spanEventBoList.get(0);
         SpanEventBo spanEventBo1 = spanEventBoList.get(1);
-        Assert.assertEquals(1, spanEventBo0.getDepth());
-        Assert.assertEquals(1, spanEventBo1.getDepth());
+        Assertions.assertEquals(1, spanEventBo0.getDepth());
+        Assertions.assertEquals(1, spanEventBo1.getDepth());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CollectorGrpcSpanFactoryTest {
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         SpanEventBo spanEventBo0 = spanEventBoList.get(0);
-        Assert.assertEquals(1, spanEventBo0.getDepth());
+        Assertions.assertEquals(1, spanEventBo0.getDepth());
     }
 
     @Test
@@ -92,8 +92,8 @@ public class CollectorGrpcSpanFactoryTest {
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         SpanEventBo spanEventBo0 = spanEventBoList.get(0);
         SpanEventBo spanEventBo1 = spanEventBoList.get(1);
-        Assert.assertEquals(0, spanEventBo0.getDepth());
-        Assert.assertEquals(1, spanEventBo1.getDepth());
+        Assertions.assertEquals(0, spanEventBo0.getDepth());
+        Assertions.assertEquals(1, spanEventBo1.getDepth());
     }
 
 

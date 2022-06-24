@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.transaction;
 
-import static org.junit.Assert.*;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author HyunGil Jeong
@@ -32,7 +31,7 @@ public class DefaultTransactionMetricTest {
 
     private TransactionMetric transactionMetric;
 
-    @Before
+    @BeforeEach
     @SuppressWarnings("unchecked")
     public void setUp() {
         this.transactionCounter = new TestableTransactionCounter();
@@ -124,7 +123,7 @@ public class DefaultTransactionMetricTest {
         assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledNewCount());
         assertEquals(expectedNumberOfTransactions, snapshot.getUnsampledContinuationCount());
     }
-    
+
     @Test
     public void checkContinuousTransactions() {
         // Given
