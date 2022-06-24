@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -85,9 +86,9 @@ public class MSSqlIT extends DataBaseTestCase {
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
-        USERNAME = beforeAllResult.getProperty("USERNAME");
-        PASSWORD = beforeAllResult.getProperty("PASSWORD");
+        JDBC_URL = DatabaseContainers.getJdbcUrl(beforeAllResult);
+        USERNAME = DatabaseContainers.getUsername(beforeAllResult);
+        PASSWORD = DatabaseContainers.getPassword(beforeAllResult);
     }
 
     @BeforeClass

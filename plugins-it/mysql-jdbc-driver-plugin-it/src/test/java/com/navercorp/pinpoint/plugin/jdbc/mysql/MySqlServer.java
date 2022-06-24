@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +41,7 @@ public class MySqlServer implements SharedTestLifeCycle {
         mysqlDB.withUrlParam("useSSL", "false");
         mysqlDB.start();
 
-        Properties properties = new Properties();
-        properties.setProperty("JDBC_URL", mysqlDB.getJdbcUrl());
-        return properties;
+        return DatabaseContainers.toProperties(mysqlDB);
     }
 
     @Override

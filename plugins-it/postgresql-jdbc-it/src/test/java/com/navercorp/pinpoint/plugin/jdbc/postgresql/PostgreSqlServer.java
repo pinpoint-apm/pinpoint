@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,11 +23,7 @@ public class PostgreSqlServer implements SharedTestLifeCycle {
 
         postgreSql.start();
 
-        Properties properties = new Properties();
-        properties.setProperty("JDBC_URL", postgreSql.getJdbcUrl());
-        properties.setProperty("USERNAME", postgreSql.getUsername());
-        properties.setProperty("PASSWORD", postgreSql.getPassword());
-        return properties;
+        return DatabaseContainers.toProperties(postgreSql);
     }
 
     @Override
