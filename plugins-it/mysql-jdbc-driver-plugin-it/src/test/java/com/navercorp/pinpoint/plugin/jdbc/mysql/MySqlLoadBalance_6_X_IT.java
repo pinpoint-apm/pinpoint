@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +55,7 @@ import java.util.Properties;
 @Dependency({"mysql:mysql-connector-java:[6.min,6.max]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION, TestcontainersOption.MYSQLDB})
+@SharedTestLifeCycleClass(MySqlServer.class)
 public class MySqlLoadBalance_6_X_IT extends MySql_IT_Base {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
