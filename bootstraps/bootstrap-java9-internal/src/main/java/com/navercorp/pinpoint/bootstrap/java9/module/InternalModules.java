@@ -19,13 +19,8 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 import jdk.internal.loader.BootLoader;
 import jdk.internal.module.Modules;
 
-import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
-import java.lang.module.ModuleFinder;
 import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 final class InternalModules {
 
@@ -49,20 +44,10 @@ final class InternalModules {
      * The URI is for information purposes only.
      */
     static Module defineModule(ClassLoader loader,
-                                      ModuleDescriptor descriptor,
-                                      URI uri)
+                               ModuleDescriptor descriptor,
+                               URI uri)
     {
-        final String moduleName = descriptor.name();
-        final ModuleLayer parent = ModuleLayer.boot();
-
-        final ModuleFinder before = new SingleModuleFinder(descriptor, uri);
-        final Configuration cf = parent.configuration().resolve(before, ModuleFinder.of(), Set.of(moduleName));
-        final Module module = ModuleLayer.defineModules(cf, List.of(parent), name -> loader)
-                .layer()
-                .findModule(moduleName)
-                .orElse(null);
-
-        return Objects.requireNonNull(module, moduleName);
+        return Modules.defineModule(loader, descriptor, uri);
     }
 
 
