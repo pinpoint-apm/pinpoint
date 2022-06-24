@@ -20,18 +20,15 @@ import com.navercorp.pinpoint.bootstrap.module.Providers;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.module.Configuration;
 import java.lang.module.ModuleDescriptor;
+import java.lang.module.ModuleFinder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -68,11 +65,31 @@ class ModuleBuilder {
         }
 
         ModuleDescriptor moduleDescriptor = builder.build();
-        URI url = getInformationURI(urls);
+        URI uri = getInformationURI(urls);
 
-        Module module = InternalModules.defineModule(classLoader, moduleDescriptor , url);
-        logger.info("defineModule module:" + module);
-        return module;
+        ModuleLayer parent = ModuleLayer.boot();
+
+        ModuleFinder before = new SingleModuleFinder(moduleDescriptor, uri);
+        Configuration cf = parent.configuration().resolve(before, ModuleFinder.of(), Set.of(moduleName));
+
+        ModuleLayer moduleLayer = ModuleLayer.defineModules(cf, List.of(parent), name -> classLoader).layer();
+        Optional<Module> oModule = moduleLayer.findModule(moduleName);
+
+        if (!oModule.isPresent()) {
+            if (moduleLayer.modules().isEmpty()) {
+                logger.info("Attempt to create module " + moduleName + ", but nothing happened");
+            } else {
+                Module unknownModule = moduleLayer.modules().iterator().next();
+                logger.info("Attempt to create module " + moduleName + ", but ignored -> " + unknownModule.getName());
+            }
+            logger.info("module name: " + moduleDescriptor.name());
+            logger.info("  - packages: " + moduleDescriptor.packages());
+            logger.info("  - providers: " + moduleDescriptor.provides());
+            throw new IllegalStateException("Failed to create module-layer, module " + moduleName);
+        }
+
+        logger.info("defineModule module:" + oModule.get());
+        return oModule.get();
     }
 
     private Map<String, Set<String>> mergeServiceInfo(List<PackageInfo> packageInfos) {
