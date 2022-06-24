@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,9 +31,9 @@ public class TestParameterParserTest {
     public void parse() {
         TestParameterParser parser = new TestParameterParser();
         List<TestParameter> parameters = parser.parse(new String[] {"testId=dependency1"});
-        Assert.assertEquals(parameters.size(), 1);
+        Assertions.assertEquals(parameters.size(), 1);
         TestParameter one = parameters.get(0);
-        Assert.assertEquals(one.getTestId(), "testId" );
-        Assert.assertEquals(one.getMavenDependencies(), Collections.singletonList("dependency1"));
+        Assertions.assertEquals(one.getTestId(), "testId" );
+        Assertions.assertEquals(one.getMavenDependencies(), Collections.singletonList("dependency1"));
     }
 }

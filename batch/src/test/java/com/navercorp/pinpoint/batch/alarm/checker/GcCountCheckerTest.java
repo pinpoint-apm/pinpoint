@@ -19,12 +19,11 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -43,7 +42,7 @@ public class GcCountCheckerTest {
 
     private static AgentStatDao<CpuLoadBo> cpuLoadDao;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         jvmGcDao = new AgentStatDao<>() {
 
@@ -55,13 +54,13 @@ public class GcCountCheckerTest {
             @Override
             public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
                 List<JvmGcBo> jvmGcs = new LinkedList<>();
-                
+
                 for (int i = 36; i > 0; i--) {
                     JvmGcBo jvmGc = new JvmGcBo();
                     jvmGc.setGcOldCount(i);
                     jvmGcs.add(jvmGc);
                 }
-                
+
                 return jvmGcs;
             }
 
@@ -130,7 +129,7 @@ public class GcCountCheckerTest {
         };
     }
 
-    
+
 //    @Test
 //    public void checkTest1() {
 //        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.GC_COUNT.getName(), 35, "testGroup", false, false, "");

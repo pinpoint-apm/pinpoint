@@ -21,12 +21,13 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author minwoo.jung
@@ -46,7 +47,7 @@ public class JoinThriftActiveTraceBoMapperTest {
         activeTraceCount.add(20);
         activeTraceCount.add(40);
         activeTraceCount.add(50);
-        tFActiveTraceHistogram.setVersion((short)2);
+        tFActiveTraceHistogram.setVersion((short) 2);
         tFActiveTraceHistogram.setHistogramSchemaType(1);
         tFActiveTraceHistogram.setActiveTraceCount(activeTraceCount);
 

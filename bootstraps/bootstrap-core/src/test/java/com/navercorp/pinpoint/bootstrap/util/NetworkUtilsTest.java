@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -43,57 +43,57 @@ public class NetworkUtilsTest {
     @SuppressWarnings("deprecation")
     public void testGetMachineName2() {
         String machineName = NetworkUtils.getMachineName();
-        Assert.assertNotSame(machineName, NetworkUtils.ERROR_HOST_NAME);
+        Assertions.assertNotSame(machineName, NetworkUtils.ERROR_HOST_NAME);
     }
 
     @Test
     public void testGetHostName() {
         String hostName = NetworkUtils.getHostName();
-        Assert.assertNotSame(hostName, NetworkUtils.ERROR_HOST_NAME);
+        Assertions.assertNotSame(hostName, NetworkUtils.ERROR_HOST_NAME);
     }
 
     @Test
     public void testHostFromUrl() {
         String hostFromURL1 = NetworkUtils.getHostFromURL("http://www.naver.com");
-        Assert.assertEquals("www.naver.com", hostFromURL1);
+        Assertions.assertEquals("www.naver.com", hostFromURL1);
 
         String hostFromURL1_1 = NetworkUtils.getHostFromURL("http://www.naver.com/test");
-        Assert.assertEquals("www.naver.com", hostFromURL1_1);
+        Assertions.assertEquals("www.naver.com", hostFromURL1_1);
 
 
         // TODO how should we resolve host when the url includes the default port?
         String hostFromURL2 = NetworkUtils.getHostFromURL("http://www.naver.com:80");
-        Assert.assertEquals("www.naver.com:80", hostFromURL2);
+        Assertions.assertEquals("www.naver.com:80", hostFromURL2);
 
         String hostFromURL2_1 = NetworkUtils.getHostFromURL("http://www.naver.com:80/test");
-        Assert.assertEquals("www.naver.com:80", hostFromURL2_1);
+        Assertions.assertEquals("www.naver.com:80", hostFromURL2_1);
     }
 
     @Test
     public void testHostFromUrl_ErrorTest() {
         String nullUrl = NetworkUtils.getHostFromURL(null);
-        Assert.assertSame(nullUrl, null);
+        Assertions.assertSame(nullUrl, null);
 
         String emptyUrl = NetworkUtils.getHostFromURL("");
-        Assert.assertSame(emptyUrl, null);
+        Assertions.assertSame(emptyUrl, null);
     }
-    
+
     @Test
     public void hostIpTest() {
         List<String> hostIpList = NetworkUtils.getHostIpList();
         for (String hostIp : hostIpList) {
-            Assert.assertFalse(NetworkUtils.isLoopbackAddress(hostIp));
+            Assertions.assertFalse(NetworkUtils.isLoopbackAddress(hostIp));
         }
         int hostIpListSize = hostIpList.size();
 
         List<String> hostV4IpList = NetworkUtils.getHostV4IpList();
         for (String hostV4Ip : hostV4IpList) {
-            Assert.assertFalse(NetworkUtils.isLoopbackAddress(hostV4Ip));
-            Assert.assertTrue(NetworkUtils.validationIpV4FormatAddress(hostV4Ip));
+            Assertions.assertFalse(NetworkUtils.isLoopbackAddress(hostV4Ip));
+            Assertions.assertTrue(NetworkUtils.validationIpV4FormatAddress(hostV4Ip));
         }
         int hostV4IpListSize = hostV4IpList.size();
 
-        Assert.assertTrue(hostIpListSize >= hostV4IpListSize);
+        Assertions.assertTrue(hostIpListSize >= hostV4IpListSize);
     }
 
 }

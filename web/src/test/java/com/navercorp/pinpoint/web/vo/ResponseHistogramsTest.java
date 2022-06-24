@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ResponseHistogramsTest {
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
 
         // Then
-        Assert.assertTrue(responseTimeList.isEmpty());
+        Assertions.assertTrue(responseTimeList.isEmpty());
     }
 
     @Test
@@ -74,8 +74,8 @@ public class ResponseHistogramsTest {
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(nonExistentApplication);
 
         // Then
-        Assert.assertFalse(properResponseTimeList.isEmpty());
-        Assert.assertTrue(responseTimeList.isEmpty());
+        Assertions.assertFalse(properResponseTimeList.isEmpty());
+        Assertions.assertTrue(responseTimeList.isEmpty());
     }
 
     @Test
@@ -111,30 +111,30 @@ public class ResponseHistogramsTest {
 
         // Then
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
-        Assert.assertNotNull(responseTimeList);
-        Assert.assertEquals(3, responseTimeList.size());
+        Assertions.assertNotNull(responseTimeList);
+        Assertions.assertEquals(3, responseTimeList.size());
         for (ResponseTime responseTime : responseTimeList) {
             Histogram applicationResponseHistogram = responseTime.getApplicationResponseHistogram();
             long timeslotTimestamp = responseTime.getTimeStamp();
             if (timeslotTimestamp == timeslot1) {
-                Assert.assertEquals(1, applicationResponseHistogram.getFastCount());
-                Assert.assertEquals(1, applicationResponseHistogram.getNormalCount());
-                Assert.assertEquals(2, applicationResponseHistogram.getSuccessCount());
-                Assert.assertEquals(0, applicationResponseHistogram.getTotalErrorCount());
-                Assert.assertEquals(2, applicationResponseHistogram.getTotalCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getFastCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getNormalCount());
+                Assertions.assertEquals(2, applicationResponseHistogram.getSuccessCount());
+                Assertions.assertEquals(0, applicationResponseHistogram.getTotalErrorCount());
+                Assertions.assertEquals(2, applicationResponseHistogram.getTotalCount());
             } else if (timeslotTimestamp == timeslot2) {
-                Assert.assertEquals(1, applicationResponseHistogram.getSlowCount());
-                Assert.assertEquals(1, applicationResponseHistogram.getVerySlowCount());
-                Assert.assertEquals(2, applicationResponseHistogram.getSuccessCount());
-                Assert.assertEquals(0, applicationResponseHistogram.getTotalErrorCount());
-                Assert.assertEquals(2, applicationResponseHistogram.getTotalCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getSlowCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getVerySlowCount());
+                Assertions.assertEquals(2, applicationResponseHistogram.getSuccessCount());
+                Assertions.assertEquals(0, applicationResponseHistogram.getTotalErrorCount());
+                Assertions.assertEquals(2, applicationResponseHistogram.getTotalCount());
             } else if (timeslotTimestamp == timeslot3) {
-                Assert.assertEquals(1, applicationResponseHistogram.getFastErrorCount());
-                Assert.assertEquals(1, applicationResponseHistogram.getTotalErrorCount());
-                Assert.assertEquals(0, applicationResponseHistogram.getSuccessCount());
-                Assert.assertEquals(1, applicationResponseHistogram.getTotalCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getFastErrorCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getTotalErrorCount());
+                Assertions.assertEquals(0, applicationResponseHistogram.getSuccessCount());
+                Assertions.assertEquals(1, applicationResponseHistogram.getTotalCount());
             } else {
-                Assert.fail("unexpected responseTime in timeslot : " + timeslotTimestamp);
+                Assertions.fail("unexpected responseTime in timeslot : " + timeslotTimestamp);
             }
         }
     }
@@ -172,21 +172,21 @@ public class ResponseHistogramsTest {
 
         // Then
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
-        Assert.assertNotNull(responseTimeList);
-        Assert.assertEquals(1, responseTimeList.size());
+        Assertions.assertNotNull(responseTimeList);
+        Assertions.assertEquals(1, responseTimeList.size());
         ResponseTime responseTime = responseTimeList.get(0);
-        Assert.assertEquals(5, responseTime.getAgentResponseHistogramList().size());
+        Assertions.assertEquals(5, responseTime.getAgentResponseHistogramList().size());
 
         Histogram fastAgentHistogram = responseTime.findHistogram(fastAgentId);
-        Assert.assertEquals(1, fastAgentHistogram.getFastCount());
+        Assertions.assertEquals(1, fastAgentHistogram.getFastCount());
         Histogram normalAgentHistogram = responseTime.findHistogram(normalAgentId);
-        Assert.assertEquals(1, normalAgentHistogram.getNormalCount());
+        Assertions.assertEquals(1, normalAgentHistogram.getNormalCount());
         Histogram slowAgentHistogram = responseTime.findHistogram(slowAgentId);
-        Assert.assertEquals(1, slowAgentHistogram.getSlowCount());
+        Assertions.assertEquals(1, slowAgentHistogram.getSlowCount());
         Histogram verySlowAgentHistogram = responseTime.findHistogram(verySlowAgentId);
-        Assert.assertEquals(1, verySlowAgentHistogram.getVerySlowCount());
+        Assertions.assertEquals(1, verySlowAgentHistogram.getVerySlowCount());
         Histogram errorAgentHistogram = responseTime.findHistogram(errorAgentId);
-        Assert.assertEquals(1, errorAgentHistogram.getFastErrorCount());
+        Assertions.assertEquals(1, errorAgentHistogram.getFastErrorCount());
     }
 
     @Test
@@ -221,17 +221,17 @@ public class ResponseHistogramsTest {
 
         // Then
         List<ResponseTime> appAResponseTimeList = responseHistograms.getResponseTimeList(appA);
-        Assert.assertEquals(1, appAResponseTimeList.size());
+        Assertions.assertEquals(1, appAResponseTimeList.size());
         ResponseTime appAResponseTime = appAResponseTimeList.get(0);
         Histogram appAAgentHistogram = appAResponseTime.findHistogram(appAAgentId);
-        Assert.assertEquals(2, appAAgentHistogram.getFastCount());
-        Assert.assertEquals(2, appAAgentHistogram.getTotalCount());
+        Assertions.assertEquals(2, appAAgentHistogram.getFastCount());
+        Assertions.assertEquals(2, appAAgentHistogram.getTotalCount());
 
         List<ResponseTime> appBResponseTimeList = responseHistograms.getResponseTimeList(appB);
-        Assert.assertEquals(1, appBResponseTimeList.size());
+        Assertions.assertEquals(1, appBResponseTimeList.size());
         ResponseTime appBResponseTime = appBResponseTimeList.get(0);
         Histogram appBAgentHistogram = appBResponseTime.findHistogram(appBAgentId);
-        Assert.assertEquals(3, appBAgentHistogram.getNormalCount());
-        Assert.assertEquals(3, appBAgentHistogram.getTotalCount());
+        Assertions.assertEquals(3, appBAgentHistogram.getNormalCount());
+        Assertions.assertEquals(3, appBAgentHistogram.getTotalCount());
     }
 }

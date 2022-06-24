@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -28,13 +28,13 @@ public class MapUtilsTest {
 
     @Test
     public void isEmpty() {
-        Assert.assertTrue(MapUtils.isEmpty(null));
-        Assert.assertTrue(MapUtils.isEmpty(Collections.emptyMap()));
+        Assertions.assertTrue(MapUtils.isEmpty(null));
+        Assertions.assertTrue(MapUtils.isEmpty(Collections.emptyMap()));
     }
 
     @Test
     public void isNotEmpty() {
-        Assert.assertFalse(MapUtils.hasLength(null));
-        Assert.assertFalse(MapUtils.hasLength(Collections.emptyMap()));
+        Assertions.assertFalse(MapUtils.hasLength(null));
+        Assertions.assertFalse(MapUtils.hasLength(Collections.emptyMap()));
     }
 }

@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,12 +44,13 @@ public class TraceMetadataRegistrarTest {
         TraceMetadataRegistrar.registerServiceTypes(serviceTypeRegistry);
         try {
             ServiceTypeProvider.getByCode(unknownServiceType.getCode());
-            Assert.fail("Retrieving UNDEFINED ServiceType by code should throw IllegalStateException");
+            Assertions.fail("Retrieving UNDEFINED ServiceType by code should throw IllegalStateException");
         } catch (IllegalStateException expected1) {
             try {
                 ServiceTypeProvider.getByName(unknownServiceType.getName());
-                Assert.fail("Retrieving UNDEFINED ServiceType by name should throw IllegalStateException");
-            } catch (IllegalStateException expected2) {}
+                Assertions.fail("Retrieving UNDEFINED ServiceType by name should throw IllegalStateException");
+            } catch (IllegalStateException expected2) {
+            }
         }
     }
 
@@ -64,10 +65,10 @@ public class TraceMetadataRegistrarTest {
         when(serviceTypeRegistry.findServiceTypeByName(plugin2ServiceType.getName())).thenReturn(plugin2ServiceType);
 
         TraceMetadataRegistrar.registerServiceTypes(serviceTypeRegistry);
-        Assert.assertSame(plugin1ServiceType, ServiceTypeProvider.getByCode(plugin1ServiceType.getCode()));
-        Assert.assertSame(plugin1ServiceType, ServiceTypeProvider.getByName(plugin1ServiceType.getName()));
-        Assert.assertSame(plugin2ServiceType, ServiceTypeProvider.getByCode(plugin2ServiceType.getCode()));
-        Assert.assertSame(plugin2ServiceType, ServiceTypeProvider.getByName(plugin2ServiceType.getName()));
+        Assertions.assertSame(plugin1ServiceType, ServiceTypeProvider.getByCode(plugin1ServiceType.getCode()));
+        Assertions.assertSame(plugin1ServiceType, ServiceTypeProvider.getByName(plugin1ServiceType.getName()));
+        Assertions.assertSame(plugin2ServiceType, ServiceTypeProvider.getByCode(plugin2ServiceType.getCode()));
+        Assertions.assertSame(plugin2ServiceType, ServiceTypeProvider.getByName(plugin2ServiceType.getName()));
     }
 
     @Test
@@ -79,8 +80,9 @@ public class TraceMetadataRegistrarTest {
         TraceMetadataRegistrar.registerAnnotationKeys(annotationKeyRegistry);
         try {
             AnnotationKeyProvider.getByCode(unknownAnnotationKey.getCode());
-            Assert.fail("Retrieving UNKNOWN AnnotationKey should throw IllegalStateException");
-        } catch (IllegalStateException expected) {}
+            Assertions.fail("Retrieving UNKNOWN AnnotationKey should throw IllegalStateException");
+        } catch (IllegalStateException expected) {
+        }
     }
 
     @Test
@@ -92,7 +94,7 @@ public class TraceMetadataRegistrarTest {
         when(annotationKeyRegistry.findAnnotationKey(annotationKey2.getCode())).thenReturn(annotationKey2);
 
         TraceMetadataRegistrar.registerAnnotationKeys(annotationKeyRegistry);
-        Assert.assertSame(annotationKey1, AnnotationKeyProvider.getByCode(annotationKey1.getCode()));
-        Assert.assertSame(annotationKey2, AnnotationKeyProvider.getByCode(annotationKey2.getCode()));
+        Assertions.assertSame(annotationKey1, AnnotationKeyProvider.getByCode(annotationKey1.getCode()));
+        Assertions.assertSame(annotationKey2, AnnotationKeyProvider.getByCode(annotationKey2.getCode()));
     }
 }

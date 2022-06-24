@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.util.CollectionUtils;
 
 import java.nio.ByteBuffer;
@@ -114,17 +113,17 @@ public class BulkIncrementerTestClazz {
             long expectedCount = testDataSet.getCount();
             Map<ByteBuffer, Map<ByteBuffer, Long>> rows = resultMap.get(expectedTableName);
             if (rows == null) {
-                Assert.fail("Expected rows not found for " + testDataSet);
+                Assertions.fail("Expected rows not found for " + testDataSet);
             }
             Map<ByteBuffer, Long> keyValues = rows.get(ByteBuffer.wrap(expectedRowKey.getRowKey()));
             if (keyValues == null) {
-                Assert.fail("Expected row not found for " + testDataSet);
+                Assertions.fail("Expected row not found for " + testDataSet);
             }
             Long actualCount = keyValues.get(ByteBuffer.wrap(expectedColumnName.getColumnName()));
             if (actualCount == null) {
-                Assert.fail("Expected column not found for " + testDataSet);
+                Assertions.fail("Expected column not found for " + testDataSet);
             }
-            Assert.assertEquals("Expected counts do not match for " + testDataSet, expectedCount, (long) actualCount);
+            Assertions.assertEquals(expectedCount, (long) actualCount, "Expected counts do not match for " + testDataSet);
         }
     }
 

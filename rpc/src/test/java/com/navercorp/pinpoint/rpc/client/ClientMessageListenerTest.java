@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -111,15 +111,15 @@ public class ClientMessageListenerTest {
             }
         }, Matchers.<SendPacket>hasSize(greaterThan(0)));
 
-        Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
+        Assertions.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }
 
     private void assertRequestMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) {
         byte[] response = PinpointRPCTestUtils.request(writableServer, message.getBytes());
-        Assert.assertEquals(message, new String(response));
+        Assertions.assertEquals(message, new String(response));
 
         if (echoMessageListener != null) {
-            Assert.assertEquals(message, new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
+            Assertions.assertEquals(message, new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
         }
     }
 

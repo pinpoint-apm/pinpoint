@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -41,8 +44,10 @@ public class PackageInternalNameMatcherOperandTest {
         assertTrue(operand.match("org"));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void packageNameisNull() {
-        PackageInternalNameMatcherOperand operand = new PackageInternalNameMatcherOperand(null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            PackageInternalNameMatcherOperand operand = new PackageInternalNameMatcherOperand(null);
+        });
     }
 }

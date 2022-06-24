@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.transformer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -25,7 +25,10 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -52,10 +55,10 @@ public class DynamicTransformServiceTest {
 
         try {
             dynamicTransformService.retransform(String.class, classFileTransformer);
-            Assert.fail("expected retransform fail");
+            Assertions.fail("expected retransform fail");
         } catch (Exception e) {
         }
-        Assert.assertEquals(listener.size(), 0);
+        Assertions.assertEquals(listener.size(), 0);
     }
 
 //    @Test

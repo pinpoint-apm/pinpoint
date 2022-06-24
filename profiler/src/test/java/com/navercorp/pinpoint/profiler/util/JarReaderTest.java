@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.commons.lang.CharRange;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.List;
@@ -59,7 +59,7 @@ public class JarReaderTest {
 
         JarFile jarFile = new JarFile(location.getPath());
         JarReader jarReader = new JarReader(jarFile);
-        Assert.assertNotNull(jarReader.getInputStream("org/apache/commons/lang/CharRange.class"));
-        Assert.assertNull(jarReader.getInputStream("org/apache/commons/lang/NotFound.class"));
+        Assertions.assertNotNull(jarReader.getInputStream("org/apache/commons/lang/CharRange.class"));
+        Assertions.assertNull(jarReader.getInputStream("org/apache/commons/lang/NotFound.class"));
     }
 }

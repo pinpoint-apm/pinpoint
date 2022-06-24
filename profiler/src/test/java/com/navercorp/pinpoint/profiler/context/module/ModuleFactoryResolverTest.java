@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.Module;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -31,7 +31,7 @@ public class ModuleFactoryResolverTest {
         ModuleFactoryResolver provider = new DefaultModuleFactoryResolver(TestModuleFactory.class.getName());
         ModuleFactory moduleFactory = provider.resolve();
 
-        Assert.assertEquals(TestModuleFactory.class, moduleFactory.getClass());
+        Assertions.assertEquals(TestModuleFactory.class, moduleFactory.getClass());
     }
 
     @Test
@@ -39,13 +39,15 @@ public class ModuleFactoryResolverTest {
         ModuleFactoryResolver provider = new DefaultModuleFactoryResolver();
         ModuleFactory moduleFactory = provider.resolve();
 
-        Assert.assertEquals(ApplicationContextModuleFactory.class, moduleFactory.getClass());
+        Assertions.assertEquals(ApplicationContextModuleFactory.class, moduleFactory.getClass());
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test3() {
-        ModuleFactoryResolver provider = new DefaultModuleFactoryResolver("abcde");
-        provider.resolve();
+        Assertions.assertThrows(Exception.class, () -> {
+            ModuleFactoryResolver provider = new DefaultModuleFactoryResolver("abcde");
+            provider.resolve();
+        });
     }
 
     public static class TestModuleFactory implements ModuleFactory {

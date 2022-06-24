@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.bootstrap.config.util;
 
 import com.navercorp.pinpoint.bootstrap.config.Value;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -25,14 +25,14 @@ public class ValueAnnotationProcessorTest {
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
-        Assert.assertEquals(1, config.intValue);
-        Assert.assertEquals(2, config.longValue);
-        Assert.assertEquals(true, config.booleanValue);
-        Assert.assertEquals(3, config.doubleValue, 0);
-        Assert.assertEquals(4, config.flotValue, 0);
-        Assert.assertEquals(5, config.shortValue);
-        Assert.assertEquals(6, config.byteValue);
-        Assert.assertEquals('a', config.charValue);
+        Assertions.assertEquals(1, config.intValue);
+        Assertions.assertEquals(2, config.longValue);
+        Assertions.assertEquals(true, config.booleanValue);
+        Assertions.assertEquals(3, config.doubleValue, 0);
+        Assertions.assertEquals(4, config.flotValue, 0);
+        Assertions.assertEquals(5, config.shortValue);
+        Assertions.assertEquals(6, config.byteValue);
+        Assertions.assertEquals('a', config.charValue);
 
     }
 
@@ -76,9 +76,9 @@ public class ValueAnnotationProcessorTest {
         ValueAnnotationProcessor processor = new ValueAnnotationProcessor();
         processor.process(config, properties);
 
-        Assert.assertEquals(Integer.valueOf(1), config.integerValue);
-        Assert.assertEquals(Long.valueOf(2), config.longValue);
-        Assert.assertEquals("abc", config.stringValue);
+        Assertions.assertEquals(Integer.valueOf(1), config.integerValue);
+        Assertions.assertEquals(Long.valueOf(2), config.longValue);
+        Assertions.assertEquals("abc", config.stringValue);
     }
 
     public static class Config {
@@ -112,7 +112,7 @@ public class ValueAnnotationProcessorTest {
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
-        Assert.assertEquals(TYPE.B, config.test);
+        Assertions.assertEquals(TYPE.B, config.test);
 
     }
 
@@ -130,8 +130,8 @@ public class ValueAnnotationProcessorTest {
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
-        Assert.assertEquals("p-A", config.a);
-        Assert.assertEquals("prefix-B", config.b);
+        Assertions.assertEquals("p-A", config.a);
+        Assertions.assertEquals("prefix-B", config.b);
     }
 
     public static class PrefixConfig {
@@ -153,7 +153,7 @@ public class ValueAnnotationProcessorTest {
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
-        Assert.assertEquals("A", config.a);
+        Assertions.assertEquals("A", config.a);
     }
 
     public static class MethodConfig {
@@ -184,8 +184,8 @@ public class ValueAnnotationProcessorTest {
         ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
         reader.process(config, properties);
 
-        Assert.assertEquals(-1, config.intValue);
-        Assert.assertEquals(-2, config.longValue);
+        Assertions.assertEquals(-1, config.intValue);
+        Assertions.assertEquals(-2, config.longValue);
 
     }
 

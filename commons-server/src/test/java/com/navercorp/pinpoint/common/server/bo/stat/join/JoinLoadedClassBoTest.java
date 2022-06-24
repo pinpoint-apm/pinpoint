@@ -16,22 +16,22 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JoinLoadedClassBoTest {
     @Test
-    public void joinLoadedClassBoListTest () {
+    public void joinLoadedClassBoListTest() {
         List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>();
         JoinLoadedClassBo joinLoadedClassBo1 = new JoinLoadedClassBo("agent1", 35, 10, "agent1", 67, "agent1", 35, 10, "agent1", 67, "agent1", 1496988667231L);
         JoinLoadedClassBo joinLoadedClassBo2 = new JoinLoadedClassBo("agent2", 39, 2, "agent2", 164, "agent2", 39, 2, "agent2", 164, "agent2", 1496988667231L);
-        JoinLoadedClassBo joinLoadedClassBo3 = new JoinLoadedClassBo("agent3", 52, 1, "agent3", 236, "agent3",52, 1, "agent3", 236, "agent3", 1496988667231L);
-        JoinLoadedClassBo joinLoadedClassBo4 = new JoinLoadedClassBo("agent4", 1, 0, "agent4", 2, "agent4",1, 0, "agent4", 2, "agent4", 1496988667231L);
-        JoinLoadedClassBo joinLoadedClassBo5 = new JoinLoadedClassBo("agent5", 3, 4, "agent5", 5, "agent5", 3, 4, "agent5", 5, "agent5",1496988667231L);
+        JoinLoadedClassBo joinLoadedClassBo3 = new JoinLoadedClassBo("agent3", 52, 1, "agent3", 236, "agent3", 52, 1, "agent3", 236, "agent3", 1496988667231L);
+        JoinLoadedClassBo joinLoadedClassBo4 = new JoinLoadedClassBo("agent4", 1, 0, "agent4", 2, "agent4", 1, 0, "agent4", 2, "agent4", 1496988667231L);
+        JoinLoadedClassBo joinLoadedClassBo5 = new JoinLoadedClassBo("agent5", 3, 4, "agent5", 5, "agent5", 3, 4, "agent5", 5, "agent5", 1496988667231L);
 
         joinLoadedClassBoList.add(joinLoadedClassBo1);
         joinLoadedClassBoList.add(joinLoadedClassBo2);
@@ -45,6 +45,7 @@ public class JoinLoadedClassBoTest {
         assertEquals(new JoinLongFieldBo(26L, 2L, "agent4", 10L, "agent1"), joinLoadedClassBo.getLoadedClassJoinValue());
         assertEquals(new JoinLongFieldBo(26L, 2L, "agent4", 10L, "agent1"), joinLoadedClassBo.getUnloadedClassJoinValue());
     }
+
     @Test
     public void joinLoadedClassBoList2Test() {
         List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>();

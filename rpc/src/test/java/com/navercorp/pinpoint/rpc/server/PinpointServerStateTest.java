@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import org.awaitility.Awaitility;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -54,12 +54,12 @@ public class PinpointServerStateTest {
 
             PinpointSocket pinpointServer = testPinpointServerAcceptor.getConnectedPinpointSocketList().get(0);
             if (pinpointServer instanceof PinpointServer) {
-                Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
+                Assertions.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
 
                 testPinpointClient.disconnect();
                 assertPinpointServerState(SocketStateCode.CLOSED_BY_CLIENT, (PinpointServer) pinpointServer);
             } else {
-                Assert.fail();
+                Assertions.fail();
             }
         } finally {
             testPinpointClient.closeAll();
@@ -79,7 +79,7 @@ public class PinpointServerStateTest {
             testPinpointServerAcceptor.assertAwaitClientConnected(1000);
 
             PinpointSocket pinpointServer = testPinpointServerAcceptor.getConnectedPinpointSocketList().get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
+            Assertions.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
 
             testPinpointServerAcceptor.close();
             assertPinpointServerState(SocketStateCode.CLOSED_BY_SERVER, (PinpointServer) pinpointServer);
@@ -104,10 +104,10 @@ public class PinpointServerStateTest {
             PinpointSocket pinpointServer = testPinpointServerAcceptor.getConnectedPinpointSocketList().get(0);
             if (!(pinpointServer instanceof PinpointServer)) {
                 testRawSocket.close();
-                Assert.fail();
+                Assertions.fail();
             }
 
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
+            Assertions.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
             testRawSocket.close();
             assertPinpointServerState(SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT, (PinpointServer) pinpointServer);
         } finally {
@@ -127,7 +127,7 @@ public class PinpointServerStateTest {
             testPinpointServerAcceptor.assertAwaitClientConnected(1000);
 
             PinpointSocket pinpointServer = testPinpointServerAcceptor.getConnectedPinpointSocketList().get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
+            Assertions.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
 
             ((DefaultPinpointServer) pinpointServer).stop(true);
             assertPinpointServerState(SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, (PinpointServer) pinpointServer);

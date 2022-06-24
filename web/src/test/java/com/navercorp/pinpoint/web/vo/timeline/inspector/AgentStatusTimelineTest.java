@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.web.vo.timeline.inspector;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,8 +43,8 @@ public class AgentStatusTimelineTest {
         // When
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, null).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -56,8 +56,8 @@ public class AgentStatusTimelineTest {
         // When
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, null).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -71,8 +71,8 @@ public class AgentStatusTimelineTest {
         AgentStatus initialStatus = createAgentStatus(50, expectedState);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -86,8 +86,8 @@ public class AgentStatusTimelineTest {
         AgentStatus initialStatus = createAgentStatus(50, expectedState);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus, null).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -105,8 +105,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentA, 190, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -125,8 +125,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
@@ -145,8 +145,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -166,8 +166,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -186,8 +186,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -209,8 +209,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -232,8 +232,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -255,8 +255,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -281,8 +281,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
@@ -304,8 +304,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
@@ -325,8 +325,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
@@ -351,8 +351,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentC, 190, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
@@ -378,8 +378,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentC, 190, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
@@ -412,8 +412,8 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentD, 290, AgentEventType.AGENT_CLOSED_BY_SERVER)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     private AgentStatus createAgentStatus(long timestamp, AgentLifeCycleState state) {

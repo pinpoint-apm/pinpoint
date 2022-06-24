@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -39,12 +38,12 @@ public class LinkVisitCheckerTest {
         LinkVisitChecker checker = new LinkVisitChecker();
 
         Application testApplication = new Application("test", ServiceType.STAND_ALONE);
-        Assert.assertFalse(checker.visitCaller(testApplication));
-        Assert.assertTrue(checker.visitCaller(testApplication));
+        Assertions.assertFalse(checker.visitCaller(testApplication));
+        Assertions.assertTrue(checker.visitCaller(testApplication));
 
         Application newApp = new Application("newApp", ServiceType.STAND_ALONE);
-        Assert.assertFalse(checker.visitCaller(newApp));
-        Assert.assertTrue(checker.visitCaller(newApp));
+        Assertions.assertFalse(checker.visitCaller(newApp));
+        Assertions.assertTrue(checker.visitCaller(newApp));
     }
 
     @Test
@@ -52,12 +51,12 @@ public class LinkVisitCheckerTest {
         LinkVisitChecker checker = new LinkVisitChecker();
 
         Application testApplication = new Application("test", ServiceType.STAND_ALONE);
-        Assert.assertFalse(checker.visitCallee(testApplication));
-        Assert.assertTrue(checker.visitCallee(testApplication));
+        Assertions.assertFalse(checker.visitCallee(testApplication));
+        Assertions.assertTrue(checker.visitCallee(testApplication));
 
         Application newApp = new Application("newApp", ServiceType.STAND_ALONE);
-        Assert.assertFalse(checker.visitCallee(newApp));
-        Assert.assertTrue(checker.visitCallee(newApp));
+        Assertions.assertFalse(checker.visitCallee(newApp));
+        Assertions.assertTrue(checker.visitCallee(newApp));
     }
 
     @Test
@@ -80,8 +79,8 @@ public class LinkVisitCheckerTest {
         }
         submitLatch.countDown();
         visitedLatch.await();
-        Assert.assertEquals(1, firstVisitCount.get());
-        Assert.assertEquals(concurrency - 1, alreadyVisitedCount.get());
+        Assertions.assertEquals(1, firstVisitCount.get());
+        Assertions.assertEquals(concurrency - 1, alreadyVisitedCount.get());
     }
 
     @Test
@@ -112,8 +111,8 @@ public class LinkVisitCheckerTest {
         }
         submitLatch.countDown();
         visitedLatch.await();
-        Assert.assertEquals(3, firstVisitCount.get());
-        Assert.assertEquals(concurrency - 3, alreadyVisitedCount.get());
+        Assertions.assertEquals(3, firstVisitCount.get());
+        Assertions.assertEquals(concurrency - 3, alreadyVisitedCount.get());
     }
 
     private static class VisitJobContext {

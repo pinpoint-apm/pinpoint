@@ -22,9 +22,10 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.web.cluster.ClusterId;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
-
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -34,14 +35,12 @@ import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.hamcrest.collection.IsEmptyCollection;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.util.SocketUtils;
 
 import java.util.List;
@@ -76,7 +75,7 @@ public class ZookeeperClusterTest {
         return conditionFactory;
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         int acceptorPort = SocketUtils.findAvailableTcpPort();
         zookeeperPort = SocketUtils.findAvailableTcpPort(acceptorPort + 1);
@@ -105,12 +104,12 @@ public class ZookeeperClusterTest {
         return mockWebClusterConfig;
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         closeZookeeperServer(ts);
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         ts.restart();
     }
@@ -136,11 +135,11 @@ public class ZookeeperClusterTest {
 
             awaitCheckAgentRegistered(manager, "a", "b", 1L);
             List<ClusterId> agentList = manager.getRegisteredAgentList("a", "b", 1L);
-            Assert.assertEquals(1, agentList.size());
-            Assert.assertEquals("test", agentList.get(0).getCollectorId());
+            Assertions.assertEquals(1, agentList.size());
+            Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             agentList = manager.getRegisteredAgentList("b", "c", 1L);
-            Assert.assertEquals(0, agentList.size());
+            Assertions.assertEquals(0, agentList.size());
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
             awaitCheckAgentUnRegistered(manager, "a", "b", 1L);
 
@@ -182,19 +181,19 @@ public class ZookeeperClusterTest {
 
             awaitCheckAgentRegistered(manager, "a", "b", 1L);
             List<ClusterId> agentList = manager.getRegisteredAgentList("a", "b", 1L);
-            Assert.assertEquals(1, agentList.size());
-            Assert.assertEquals("test", agentList.get(0).getCollectorId());
+            Assertions.assertEquals(1, agentList.size());
+            Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
             awaitCheckAgentRegistered(manager, "c", "d", 2L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);
-            Assert.assertEquals(1, agentList.size());
-            Assert.assertEquals("test", agentList.get(0).getCollectorId());
+            Assertions.assertEquals(1, agentList.size());
+            Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             agentList = manager.getRegisteredAgentList("c", "d", 2L);
-            Assert.assertEquals(1, agentList.size());
-            Assert.assertEquals("test", agentList.get(0).getCollectorId());
+            Assertions.assertEquals(1, agentList.size());
+            Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
             Thread.sleep(10000);
@@ -202,10 +201,10 @@ public class ZookeeperClusterTest {
             awaitCheckAgentUnRegistered(manager, "a", "b", 1L);
 
             agentList = manager.getRegisteredAgentList("a", "b", 1L);
-            Assert.assertEquals(0, agentList.size());
+            Assertions.assertEquals(0, agentList.size());
 
             agentList = manager.getRegisteredAgentList("c", "d", 2L);
-            Assert.assertEquals(0, agentList.size());
+            Assertions.assertEquals(0, agentList.size());
         } finally {
             closeZk(zookeeper);
             closeManager(manager);
@@ -255,10 +254,10 @@ public class ZookeeperClusterTest {
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assert.assertEquals(registeredIpList.length, ipList.size());
+        Assertions.assertEquals(registeredIpList.length, ipList.size());
 
         for (String ip : registeredIpList) {
-            Assert.assertTrue(ipList.contains(ip));
+            Assertions.assertTrue(ipList.contains(ip));
         }
     }
 

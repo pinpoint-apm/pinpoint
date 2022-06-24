@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author minwoo.jung 
+ * @author minwoo.jung
  * @author jaehong.kim
- *
  */
 public class HttpClient4PluginTest {
 

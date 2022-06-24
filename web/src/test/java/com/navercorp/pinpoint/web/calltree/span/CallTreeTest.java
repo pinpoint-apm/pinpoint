@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * 

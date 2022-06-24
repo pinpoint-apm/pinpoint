@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.thrift.dto.TLoadedClass;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 public class ThriftLoadedClassCountBoMapperTest extends ThriftBoMapperTestBase<TLoadedClass, LoadedClassBo> {
 
@@ -40,7 +40,7 @@ public class ThriftLoadedClassCountBoMapperTest extends ThriftBoMapperTestBase<T
 
     @Override
     protected void verify(TLoadedClass original, LoadedClassBo mappedStatDataPoint) {
-        Assert.assertEquals("Loaded Class Count", original.getLoadedClassCount(), mappedStatDataPoint.getLoadedClassCount());
-        Assert.assertEquals("Unloaded Class Count", original.getUnloadedClassCount(), mappedStatDataPoint.getUnloadedClassCount());
+        Assertions.assertEquals(original.getLoadedClassCount(), mappedStatDataPoint.getLoadedClassCount(), "Loaded Class Count");
+        Assertions.assertEquals(original.getUnloadedClassCount(), mappedStatDataPoint.getUnloadedClassCount(), "Unloaded Class Count");
     }
 }

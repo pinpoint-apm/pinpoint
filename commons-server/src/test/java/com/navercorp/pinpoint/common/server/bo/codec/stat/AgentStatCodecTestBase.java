@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public abstract class AgentStatCodecTestBase<T extends AgentStatDataPoint> {
 
         Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         List<T> actualAgentStats = getCodec().decodeValues(valueBuffer, decodingContext);
-        Assert.assertEquals(expectedAgentStats.size(), actualAgentStats.size());
+        Assertions.assertEquals(expectedAgentStats.size(), actualAgentStats.size());
         for (int i = 0; i < expectedAgentStats.size(); i++) {
             T expectedAgentStat = expectedAgentStats.get(i);
             T actualAgentStat = actualAgentStats.get(i);

@@ -21,9 +21,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.monitor.metric.rpc.HistogramSnapshot;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.rpc.LongAdderHistogram;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HistogramTest {
 
@@ -53,11 +52,11 @@ public class HistogramTest {
 
 
         HistogramSnapshot snapshot = histogram.createSnapshot();
-        Assert.assertEquals(snapshot.getFastCount(), 1);
-        Assert.assertEquals(snapshot.getNormalCount(), 2);
-        Assert.assertEquals(snapshot.getSlowCount(), 3);
-        Assert.assertEquals(snapshot.getVerySlowCount(), 4);
-        Assert.assertEquals(snapshot.getFastErrorCount(), 5);
+        Assertions.assertEquals(snapshot.getFastCount(), 1);
+        Assertions.assertEquals(snapshot.getNormalCount(), 2);
+        Assertions.assertEquals(snapshot.getSlowCount(), 3);
+        Assertions.assertEquals(snapshot.getVerySlowCount(), 4);
+        Assertions.assertEquals(snapshot.getFastErrorCount(), 5);
     }
 
 }

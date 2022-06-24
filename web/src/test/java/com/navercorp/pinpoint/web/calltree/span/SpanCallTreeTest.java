@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Predicate;
 
@@ -18,7 +18,7 @@ public class SpanCallTreeTest {
         SpanCallTree callTreeNodes = new SpanCallTree(rootAlign);
 
         Predicate<SpanBo> spanBoPredicate = SpanFilters.agentIdFilter("root");
-        Assert.assertTrue(callTreeNodes.filterSpan(spanBoPredicate));
+        Assertions.assertTrue(callTreeNodes.filterSpan(spanBoPredicate));
     }
 
     @Test
@@ -30,7 +30,7 @@ public class SpanCallTreeTest {
         SpanCallTree callTreeNodes = new SpanCallTree(rootAlign);
 
         Predicate<SpanBo> spanBoPredicate = SpanFilters.agentIdFilter("unknown");
-        Assert.assertFalse(callTreeNodes.filterSpan(spanBoPredicate));
+        Assertions.assertFalse(callTreeNodes.filterSpan(spanBoPredicate));
     }
 
     @Test
@@ -38,13 +38,13 @@ public class SpanCallTreeTest {
         SpanCallTree rootCallTreeNodes = childTree("root", "child1", "child2");
 
         Predicate<SpanBo> spanBoPredicate = SpanFilters.agentIdFilter("root");
-        Assert.assertTrue(rootCallTreeNodes.filterSpan(spanBoPredicate));
+        Assertions.assertTrue(rootCallTreeNodes.filterSpan(spanBoPredicate));
 
         Predicate<SpanBo> spanBoPredicate1 = SpanFilters.agentIdFilter("child1");
-        Assert.assertTrue(rootCallTreeNodes.filterSpan(spanBoPredicate1));
+        Assertions.assertTrue(rootCallTreeNodes.filterSpan(spanBoPredicate1));
 
         Predicate<SpanBo> spanBoPredicate2 = SpanFilters.agentIdFilter("child2");
-        Assert.assertTrue(rootCallTreeNodes.filterSpan(spanBoPredicate2));
+        Assertions.assertTrue(rootCallTreeNodes.filterSpan(spanBoPredicate2));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class SpanCallTreeTest {
         SpanCallTree rootCallTreeNodes = childTree("root", "child2", "child3");
 
         Predicate<SpanBo> spanBoPredicate = SpanFilters.agentIdFilter("xxx");
-        Assert.assertFalse(rootCallTreeNodes.filterSpan(spanBoPredicate));
+        Assertions.assertFalse(rootCallTreeNodes.filterSpan(spanBoPredicate));
     }
 
     private SpanCallTree childTree(String parentAgentId, String childAgentId1, String childAgentId2) {

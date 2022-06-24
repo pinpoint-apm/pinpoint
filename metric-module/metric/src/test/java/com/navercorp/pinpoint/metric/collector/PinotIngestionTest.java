@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.metric.collector;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.Properties;
@@ -31,7 +31,7 @@ import java.util.Random;
 public class PinotIngestionTest {
     Random random = new Random();
 
-    @Ignore
+    @Disabled
     @Test
     public void testFixedMetric() {
         KafkaProducer<String, String> producer = createProducer();
@@ -47,7 +47,7 @@ public class PinotIngestionTest {
         producer.close();
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testRandomMetric() {
 

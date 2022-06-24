@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.plugin.druid;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DruidConfigTest {
 
@@ -11,9 +11,9 @@ public class DruidConfigTest {
 
         DruidConfig config = new DruidConfig(new DefaultProfilerConfig());
 
-        Assert.assertNotNull(config);
-        Assert.assertFalse(config.isPluginEnable());
-        Assert.assertFalse(config.isProfileClose());
+        Assertions.assertNotNull(config);
+        Assertions.assertFalse(config.isPluginEnable());
+        Assertions.assertFalse(config.isProfileClose());
 
     }
 

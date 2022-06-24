@@ -14,9 +14,9 @@
  */
 package com.navercorp.pinpoint.profiler.util;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author poap
@@ -24,7 +24,7 @@ import org.junit.Test;
 public class NameValueListTest {
     private NameValueList<Integer> list;
 
-    @Before
+    @BeforeEach
     public void beforeTest() {
         list = new NameValueList<>();
         list.add("one", 1);
@@ -34,41 +34,41 @@ public class NameValueListTest {
 
     @Test
     public void add() {
-        Assert.assertEquals(list.add("one", 11).intValue(), 1);
-        Assert.assertEquals(list.add("two", 22).intValue(), 2);
-        Assert.assertEquals(list.add("three", 33).intValue(), 3);
-        Assert.assertNull(list.add("four", 4));
-        Assert.assertEquals(list.add("one", 111).intValue(), 11);
-        Assert.assertEquals(list.add("two", 222).intValue(), 22);
-        Assert.assertEquals(list.add("three", 333).intValue(), 33);
-        Assert.assertEquals(list.add("four", 44).intValue(), 4);
-        Assert.assertNull(list.add("five", 5));
+        Assertions.assertEquals(list.add("one", 11).intValue(), 1);
+        Assertions.assertEquals(list.add("two", 22).intValue(), 2);
+        Assertions.assertEquals(list.add("three", 33).intValue(), 3);
+        Assertions.assertNull(list.add("four", 4));
+        Assertions.assertEquals(list.add("one", 111).intValue(), 11);
+        Assertions.assertEquals(list.add("two", 222).intValue(), 22);
+        Assertions.assertEquals(list.add("three", 333).intValue(), 33);
+        Assertions.assertEquals(list.add("four", 44).intValue(), 4);
+        Assertions.assertNull(list.add("five", 5));
     }
 
     @Test
     public void get() {
-        Assert.assertEquals(list.get("one").intValue(), 1);
-        Assert.assertEquals(list.get("two").intValue(), 2);
-        Assert.assertEquals(list.get("three").intValue(), 3);
-        Assert.assertNull(list.get("four"));
+        Assertions.assertEquals(list.get("one").intValue(), 1);
+        Assertions.assertEquals(list.get("two").intValue(), 2);
+        Assertions.assertEquals(list.get("three").intValue(), 3);
+        Assertions.assertNull(list.get("four"));
     }
 
     @Test
     public void remove() {
-        Assert.assertEquals(list.remove("one").intValue(), 1);
-        Assert.assertEquals(list.remove("two").intValue(), 2);
-        Assert.assertEquals(list.remove("three").intValue(), 3);
-        Assert.assertNull(list.remove("four"));
-        Assert.assertNull(list.remove("three"));
-        Assert.assertNull(list.remove("two"));
-        Assert.assertNull(list.remove("four"));
+        Assertions.assertEquals(list.remove("one").intValue(), 1);
+        Assertions.assertEquals(list.remove("two").intValue(), 2);
+        Assertions.assertEquals(list.remove("three").intValue(), 3);
+        Assertions.assertNull(list.remove("four"));
+        Assertions.assertNull(list.remove("three"));
+        Assertions.assertNull(list.remove("two"));
+        Assertions.assertNull(list.remove("four"));
     }
 
     @Test
     public void clear() {
         list.clear();
-        Assert.assertNull(list.get("one"));
-        Assert.assertNull(list.get("two"));
-        Assert.assertNull(list.get("three"));
+        Assertions.assertNull(list.get("one"));
+        Assertions.assertNull(list.get("two"));
+        Assertions.assertNull(list.get("three"));
     }
 }

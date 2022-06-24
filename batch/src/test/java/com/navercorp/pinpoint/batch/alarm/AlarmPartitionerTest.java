@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
 
 import java.util.Map;
@@ -27,11 +27,11 @@ import java.util.Optional;
 public class AlarmPartitionerTest {
 
     private static ApplicationIndexDao dao;
-    
+
     @Test
     public void partitionTest() {
         AlarmPartitioner partitioner = new AlarmPartitioner(Optional.empty());
         Map<String, ExecutionContext> partitions = partitioner.partition(0);
-        Assert.assertEquals(1, partitions.size());
+        Assertions.assertEquals(1, partitions.size());
     }
 }

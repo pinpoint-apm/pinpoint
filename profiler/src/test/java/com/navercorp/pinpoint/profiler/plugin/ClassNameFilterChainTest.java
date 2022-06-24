@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -34,9 +34,9 @@ public class ClassNameFilterChainTest {
         ClassNameFilterChain chain = new ClassNameFilterChain(Arrays.asList(include, exclude));
 
 
-        Assert.assertTrue(chain.accept("com.include"));
-        Assert.assertFalse(chain.accept("com.exclude"));
+        Assertions.assertTrue(chain.accept("com.include"));
+        Assertions.assertFalse(chain.accept("com.exclude"));
 
-        Assert.assertFalse(chain.accept("unknown"));
+        Assertions.assertFalse(chain.accept("unknown"));
     }
 }

@@ -1,9 +1,8 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.Version;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -36,7 +35,7 @@ public class LibraryFinderTest {
                 result.add(Paths.get(url.getPath()));
             }
         }
-        Assert.assertEquals(2, result.size());
+        Assertions.assertEquals(2, result.size());
     }
 
     @Test
@@ -48,15 +47,15 @@ public class LibraryFinderTest {
 
         String matchPath = "pinpoint-*-plugin-" + Version.VERSION + ".jar";
         Path result = globMatches(jarPath, matchPath);
-        Assert.assertNull(result);
+        Assertions.assertNull(result);
 
         matchPath = "*" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar";
         result = globMatches(jarPath, matchPath);
-        Assert.assertNull(result);
+        Assertions.assertNull(result);
 
         matchPath = "**" + File.separator + "pinpoint-*-plugin-" + Version.VERSION + ".jar";
         result = globMatches(jarPath, matchPath);
-        Assert.assertEquals(Paths.get(jarPath), result);
+        Assertions.assertEquals(Paths.get(jarPath), result);
     }
 
     private Path globMatches(String jarPath, String matchPath) throws MalformedURLException {

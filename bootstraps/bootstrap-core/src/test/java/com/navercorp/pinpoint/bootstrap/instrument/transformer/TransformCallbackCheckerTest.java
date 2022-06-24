@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.mock.PrivateConstructor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.mock.PublicConstructor;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.security.ProtectionDomain;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,9 +35,11 @@ public class TransformCallbackCheckerTest {
         TransformCallbackChecker.validate(PublicConstructor.class);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void validate_private() {
-        TransformCallbackChecker.validate(PrivateConstructor.class);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            TransformCallbackChecker.validate(PrivateConstructor.class);
+        });
     }
 
     @Test
@@ -46,14 +48,18 @@ public class TransformCallbackCheckerTest {
     }
 
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void validate_inner_non_static() {
-        TransformCallbackChecker.validate(NotStatic.class);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            TransformCallbackChecker.validate(NotStatic.class);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void validate_inner_no_constructor() {
-        TransformCallbackChecker.validate(NoConstructor.class);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            TransformCallbackChecker.validate(NoConstructor.class);
+        });
     }
 
 
@@ -84,27 +90,31 @@ public class TransformCallbackCheckerTest {
     }
 
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void transform_local_inner() {
-        class LocalInner implements TransformCallback {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            class LocalInner implements TransformCallback {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                return null;
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    return null;
+                }
             }
-        }
-        TransformCallbackChecker.validate(LocalInner.class);
+            TransformCallbackChecker.validate(LocalInner.class);
+        });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void transform_anonymous_inner_class() {
-        TransformCallback anonymousCallback = new TransformCallback() {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            TransformCallback anonymousCallback = new TransformCallback() {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                return null;
-            }
-        };
-        TransformCallbackChecker.validate(anonymousCallback.getClass());
+                @Override
+                public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                    return null;
+                }
+            };
+            TransformCallbackChecker.validate(anonymousCallback.getClass());
+        });
     }
 }

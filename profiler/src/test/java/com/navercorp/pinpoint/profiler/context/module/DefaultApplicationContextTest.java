@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.instrument.Instrumentation;
@@ -60,12 +60,12 @@ public class DefaultApplicationContextTest {
 
                 if (isPinpointBinding(key)) {
                     boolean isSingletonScoped = Scopes.isSingleton(binding);
-                    Assert.assertTrue("Binding " + key + " is not Singleton scoped", isSingletonScoped);
+                    Assertions.assertTrue(isSingletonScoped, "Binding " + key + " is not Singleton scoped");
                 }
             }
             AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
             AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
-            Assert.assertSame(instance1, instance2);
+            Assertions.assertSame(instance1, instance2);
         } finally {
             applicationContext.close();
         }

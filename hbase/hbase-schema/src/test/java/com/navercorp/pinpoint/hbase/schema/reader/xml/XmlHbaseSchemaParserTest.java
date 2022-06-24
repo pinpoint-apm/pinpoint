@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.CreateTableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ModifyTableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 
 import java.io.InputStream;

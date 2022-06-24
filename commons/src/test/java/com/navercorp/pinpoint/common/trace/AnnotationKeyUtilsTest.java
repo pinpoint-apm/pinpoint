@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.common.trace;
 
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -28,7 +28,7 @@ import org.apache.logging.log4j.LogManager;
 public class AnnotationKeyUtilsTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-//    @Test
+    //    @Test
     public void intSize() {
 //        2147483647
         logger.debug("{}", Integer.MAX_VALUE);
@@ -38,20 +38,20 @@ public class AnnotationKeyUtilsTest {
 
     @Test
     public void isArgsKey() {
-        Assert.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS0.getCode()));
-        Assert.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGSN.getCode()));
-        Assert.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS5.getCode()));
+        Assertions.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS0.getCode()));
+        Assertions.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGSN.getCode()));
+        Assertions.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS5.getCode()));
 
-        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS0.getCode() +1));
-        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGSN.getCode() -1));
-        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(Integer.MAX_VALUE));
-        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(Integer.MIN_VALUE));
+        Assertions.assertFalse(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS0.getCode() + 1));
+        Assertions.assertFalse(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGSN.getCode() - 1));
+        Assertions.assertFalse(AnnotationKeyUtils.isArgsKey(Integer.MAX_VALUE));
+        Assertions.assertFalse(AnnotationKeyUtils.isArgsKey(Integer.MIN_VALUE));
 
     }
 
     @Test
     public void isCachedArgsToArgs() {
         int i = AnnotationKeyUtils.cachedArgsToArgs(AnnotationKey.CACHE_ARGS0.getCode());
-        Assert.assertEquals(i, AnnotationKey.ARGS0.getCode());
+        Assertions.assertEquals(i, AnnotationKey.ARGS0.getCode());
     }
 }

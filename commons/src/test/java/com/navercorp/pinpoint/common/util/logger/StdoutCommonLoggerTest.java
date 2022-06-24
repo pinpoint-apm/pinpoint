@@ -17,10 +17,10 @@
 
 package com.navercorp.pinpoint.common.util.logger;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -56,7 +56,7 @@ public class StdoutCommonLoggerTest {
 
     private void assertMessage(String out, String message) {
         logger.debug("log-message {}", out);
-        Assert.assertTrue(out.contains(message));
+        Assertions.assertTrue(out.contains(message));
 
     }
 

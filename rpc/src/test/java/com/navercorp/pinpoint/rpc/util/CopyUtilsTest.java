@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-
-import org.junit.Test;
-
 
 public class CopyUtilsTest {
 
@@ -31,16 +29,16 @@ public class CopyUtilsTest {
         Map<Object, Object> original = createSimpleMap("key", 2);
 
         Map<Object, Object> copied = CopyUtils.mediumCopyMap(original);
-        Assert.assertEquals(2, copied.get("key"));
-        Assert.assertEquals(2, original.get("key"));
+        Assertions.assertEquals(2, copied.get("key"));
+        Assertions.assertEquals(2, original.get("key"));
 
         original.put("key", 4);
         copied.put("key", 3);
         copied.put("new", "new");
 
-        Assert.assertEquals(3, copied.get("key"));
-        Assert.assertEquals("new", copied.get("new"));
-        Assert.assertEquals(4, original.get("key"));
+        Assertions.assertEquals(3, copied.get("key"));
+        Assertions.assertEquals("new", copied.get("new"));
+        Assertions.assertEquals(4, original.get("key"));
     }
 
     @Test
@@ -52,10 +50,10 @@ public class CopyUtilsTest {
 
         Map<Object, Object> copied = CopyUtils.mediumCopyMap(original);
 
-        Assert.assertEquals(2, copied.get("key"));
-        Assert.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
-        Assert.assertEquals(2, original.get("key"));
-        Assert.assertEquals("inner", ((Map) original.get("map")).get("innerKey"));
+        Assertions.assertEquals(2, copied.get("key"));
+        Assertions.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
+        Assertions.assertEquals(2, original.get("key"));
+        Assertions.assertEquals("inner", ((Map) original.get("map")).get("innerKey"));
 
         original.put("key", 3);
         copied.put("key", 4);
@@ -64,12 +62,12 @@ public class CopyUtilsTest {
         Map<Object, Object> copiedInnerMap = (Map) copied.get("map");
         copiedInnerMap.put("test", "test");
 
-        Assert.assertEquals(4, copied.get("key"));
-        Assert.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
-        Assert.assertEquals("test", ((Map) copied.get("map")).get("test"));
-        Assert.assertEquals(3, original.get("key"));
-        Assert.assertEquals("key", ((Map) original.get("map")).get("innerKey"));
-        Assert.assertFalse(((Map) original.get("map")).containsKey("test"));
+        Assertions.assertEquals(4, copied.get("key"));
+        Assertions.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
+        Assertions.assertEquals("test", ((Map) copied.get("map")).get("test"));
+        Assertions.assertEquals(3, original.get("key"));
+        Assertions.assertEquals("key", ((Map) original.get("map")).get("innerKey"));
+        Assertions.assertFalse(((Map) original.get("map")).containsKey("test"));
     }
 
     private Map<Object, Object> createSimpleMap(Object key, Object value) {

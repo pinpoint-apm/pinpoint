@@ -16,27 +16,27 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HBaseClientVersionTest {
 
     @Test
     public void acceptVersion() {
         HBaseClientVersion v1 = HBaseClientVersion.V1;
-        Assert.assertTrue(v1.acceptVersion("1.4.0"));
-        Assert.assertFalse(v1.acceptVersion("2.0.0"));
+        Assertions.assertTrue(v1.acceptVersion("1.4.0"));
+        Assertions.assertFalse(v1.acceptVersion("2.0.0"));
     }
 
 
     @Test
     public void getHBaseVersion() {
-        Assert.assertEquals(HBaseClientVersion.V1, HBaseClientVersion.getHBaseVersion("0.9.0"));
-        Assert.assertEquals(HBaseClientVersion.V1, HBaseClientVersion.getHBaseVersion("1.4.0"));
+        Assertions.assertEquals(HBaseClientVersion.V1, HBaseClientVersion.getHBaseVersion("0.9.0"));
+        Assertions.assertEquals(HBaseClientVersion.V1, HBaseClientVersion.getHBaseVersion("1.4.0"));
 
-        Assert.assertEquals(HBaseClientVersion.V2, HBaseClientVersion.getHBaseVersion("2.0.0"));
+        Assertions.assertEquals(HBaseClientVersion.V2, HBaseClientVersion.getHBaseVersion("2.0.0"));
 
-        Assert.assertEquals(null, HBaseClientVersion.getHBaseVersion("4.0.0"));
+        Assertions.assertEquals(null, HBaseClientVersion.getHBaseVersion("4.0.0"));
 
     }
 }

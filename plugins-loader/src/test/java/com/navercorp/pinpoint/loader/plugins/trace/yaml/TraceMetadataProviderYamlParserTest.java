@@ -16,18 +16,9 @@
 
 package com.navercorp.pinpoint.loader.plugins.trace.yaml;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
-import com.navercorp.pinpoint.common.trace.DefaultServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
+import com.navercorp.pinpoint.common.trace.*;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,7 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author HyunGil Jeong

@@ -28,11 +28,11 @@ import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -44,10 +44,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
@@ -55,17 +55,17 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
     private ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         interceptorRegistryBinder.bind();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         interceptorRegistryBinder.unbind();
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         this.classLoader = ASMClassNodeLoader.getClassLoader();
     }
@@ -94,7 +94,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         addInterceptor(interceptorId, BasicInterceptor.class);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void addExceptionInterceptor() throws Exception {
         ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
@@ -325,64 +325,64 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
         final String name = clazz.getName() + "." + methodName;
         if (interceptorClass == ArgsArrayInterceptor.class) {
-            assertEquals(name, true, ArgsArrayInterceptor.before);
-            assertEquals(name, true, ArgsArrayInterceptor.after);
+            assertEquals(true, ArgsArrayInterceptor.before, name);
+            assertEquals(true, ArgsArrayInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, ArgsArrayInterceptor.beforeTarget);
-                assertNull(name, ArgsArrayInterceptor.afterTarget);
+                assertNull(ArgsArrayInterceptor.beforeTarget, name);
+                assertNull(ArgsArrayInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, ArgsArrayInterceptor.beforeTarget);
-                assertNotNull(name, ArgsArrayInterceptor.afterTarget);
+                assertNotNull(ArgsArrayInterceptor.beforeTarget, name);
+                assertNotNull(ArgsArrayInterceptor.afterTarget, name);
             }
-            assertEquals(name, ArgsArrayInterceptor.beforeTarget, ArgsArrayInterceptor.afterTarget);
+            assertEquals(ArgsArrayInterceptor.beforeTarget, ArgsArrayInterceptor.afterTarget, name);
 
-            if(ArgsArrayInterceptor.beforeArgs != null) {
-                assertEquals(name, args.length, ArgsArrayInterceptor.beforeArgs.length);
+            if (ArgsArrayInterceptor.beforeArgs != null) {
+                assertEquals(args.length, ArgsArrayInterceptor.beforeArgs.length, name);
             }
 
-            if(ArgsArrayInterceptor.afterArgs != null) {
-                assertEquals(name, args.length, ArgsArrayInterceptor.afterArgs.length);
+            if (ArgsArrayInterceptor.afterArgs != null) {
+                assertEquals(args.length, ArgsArrayInterceptor.afterArgs.length, name);
             }
-            assertEquals(name, returnValue, ArgsArrayInterceptor.result);
+            assertEquals(returnValue, ArgsArrayInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, ArgsArrayInterceptor.throwable);
+                assertNotNull(ArgsArrayInterceptor.throwable, name);
             }
         } else if (interceptorClass == ExceptionInterceptor.class) {
-            assertEquals(name, true, ExceptionInterceptor.before);
-            assertEquals(name, true, ExceptionInterceptor.after);
+            assertEquals(true, ExceptionInterceptor.before, name);
+            assertEquals(true, ExceptionInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, ExceptionInterceptor.beforeTarget);
-                assertNull(name, ExceptionInterceptor.afterTarget);
+                assertNull(ExceptionInterceptor.beforeTarget, name);
+                assertNull(ExceptionInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, ExceptionInterceptor.beforeTarget);
-                assertNotNull(name, ExceptionInterceptor.afterTarget);
+                assertNotNull(ExceptionInterceptor.beforeTarget, name);
+                assertNotNull(ExceptionInterceptor.afterTarget, name);
             }
-            assertEquals(name, ExceptionInterceptor.beforeTarget, ExceptionInterceptor.afterTarget);
+            assertEquals(ExceptionInterceptor.beforeTarget, ExceptionInterceptor.afterTarget, name);
 
-            if(ExceptionInterceptor.beforeArgs != null) {
-                assertEquals(name, args.length, ExceptionInterceptor.beforeArgs.length);
-            }
-
-            if(ExceptionInterceptor.afterArgs != null) {
-                assertEquals(name, args.length, ExceptionInterceptor.afterArgs.length);
+            if (ExceptionInterceptor.beforeArgs != null) {
+                assertEquals(args.length, ExceptionInterceptor.beforeArgs.length, name);
             }
 
-            assertEquals(name, returnValue, ExceptionInterceptor.result);
+            if (ExceptionInterceptor.afterArgs != null) {
+                assertEquals(args.length, ExceptionInterceptor.afterArgs.length, name);
+            }
+
+            assertEquals(returnValue, ExceptionInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, ExceptionInterceptor.throwable);
+                assertNotNull(ExceptionInterceptor.throwable, name);
             }
         } else if (interceptorClass == StaticInterceptor.class) {
             assertEquals(true, StaticInterceptor.before);
             assertEquals(true, StaticInterceptor.after);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, StaticInterceptor.beforeTarget);
-                assertNull(name, StaticInterceptor.afterTarget);
+                assertNull(StaticInterceptor.beforeTarget, name);
+                assertNull(StaticInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, StaticInterceptor.beforeTarget);
-                assertNotNull(name, StaticInterceptor.afterTarget);
+                assertNotNull(StaticInterceptor.beforeTarget, name);
+                assertNotNull(StaticInterceptor.afterTarget, name);
             }
             assertEquals(StaticInterceptor.beforeTarget, StaticInterceptor.afterTarget);
 
@@ -393,58 +393,58 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertNotNull(StaticInterceptor.afterMethodName);
             assertNotNull(StaticInterceptor.afterParameterDescription);
 
-            if(StaticInterceptor.beforeArgs != null) {
+            if (StaticInterceptor.beforeArgs != null) {
                 assertEquals(args.length, StaticInterceptor.beforeArgs.length);
             }
 
-            if(StaticInterceptor.afterArgs != null) {
+            if (StaticInterceptor.afterArgs != null) {
                 assertEquals(args.length, StaticInterceptor.afterArgs.length);
             }
 
             assertEquals(returnValue, StaticInterceptor.result);
             if (throwable) {
-                assertNotNull(name, StaticInterceptor.throwable);
+                assertNotNull(StaticInterceptor.throwable, name);
             }
         } else if (interceptorClass == ApiIdAwareInterceptor.class) {
-            assertEquals(name, true, ApiIdAwareInterceptor.before);
-            assertEquals(name, true, ApiIdAwareInterceptor.after);
+            assertEquals(true, ApiIdAwareInterceptor.before, name);
+            assertEquals(true, ApiIdAwareInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, ApiIdAwareInterceptor.beforeTarget);
-                assertNull(name, ApiIdAwareInterceptor.afterTarget);
+                assertNull(ApiIdAwareInterceptor.beforeTarget, name);
+                assertNull(ApiIdAwareInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, ApiIdAwareInterceptor.beforeTarget);
-                assertNotNull(name, ApiIdAwareInterceptor.afterTarget);
+                assertNotNull(ApiIdAwareInterceptor.beforeTarget, name);
+                assertNotNull(ApiIdAwareInterceptor.afterTarget, name);
             }
-            assertEquals(name, ApiIdAwareInterceptor.beforeTarget, ApiIdAwareInterceptor.afterTarget);
+            assertEquals(ApiIdAwareInterceptor.beforeTarget, ApiIdAwareInterceptor.afterTarget, name);
 
             assertEquals(99, ApiIdAwareInterceptor.beforeApiId);
             assertEquals(99, ApiIdAwareInterceptor.afterApiId);
 
-            if(ApiIdAwareInterceptor.beforeArgs != null) {
-                assertEquals(name, args.length, ApiIdAwareInterceptor.beforeArgs.length);
+            if (ApiIdAwareInterceptor.beforeArgs != null) {
+                assertEquals(args.length, ApiIdAwareInterceptor.beforeArgs.length, name);
             }
 
-            if(ApiIdAwareInterceptor.afterArgs != null) {
-                assertEquals(name, args.length, ApiIdAwareInterceptor.afterArgs.length);
+            if (ApiIdAwareInterceptor.afterArgs != null) {
+                assertEquals(args.length, ApiIdAwareInterceptor.afterArgs.length, name);
             }
 
-            assertEquals(name, returnValue, ApiIdAwareInterceptor.result);
+            assertEquals(returnValue, ApiIdAwareInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, ApiIdAwareInterceptor.throwable);
+                assertNotNull(ApiIdAwareInterceptor.throwable, name);
             }
         } else if (interceptorClass == BasicInterceptor.class) {
-            assertEquals(name, true, BasicInterceptor.before);
-            assertEquals(name, true, BasicInterceptor.after);
+            assertEquals(true, BasicInterceptor.before, name);
+            assertEquals(true, BasicInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, BasicInterceptor.beforeTarget);
-                assertNull(name, BasicInterceptor.afterTarget);
+                assertNull(BasicInterceptor.beforeTarget, name);
+                assertNull(BasicInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, BasicInterceptor.beforeTarget);
-                assertNotNull(name, BasicInterceptor.afterTarget);
+                assertNotNull(BasicInterceptor.beforeTarget, name);
+                assertNotNull(BasicInterceptor.afterTarget, name);
             }
-            assertEquals(name, BasicInterceptor.beforeTarget, BasicInterceptor.afterTarget);
+            assertEquals(BasicInterceptor.beforeTarget, BasicInterceptor.afterTarget, name);
 
 
             if (args != null && args.length >= 1) {
@@ -471,9 +471,9 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 assertEquals(args[4], BasicInterceptor.afterArg4);
             }
 
-            assertEquals(name, returnValue, BasicInterceptor.result);
+            assertEquals(returnValue, BasicInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, BasicInterceptor.throwable);
+                assertNotNull(BasicInterceptor.throwable, name);
             }
         }
     }

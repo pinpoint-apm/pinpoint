@@ -25,13 +25,13 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -49,7 +49,7 @@ public class DataSourceCodecTest {
         encodedValueBuffer.putByte(dataSourceCodec.getVersion());
         dataSourceCodec.encodeValues(encodedValueBuffer, joinDataSourceListBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -59,7 +59,7 @@ public class DataSourceCodecTest {
 
         assertEquals(valueBuffer.readByte(), dataSourceCodec.getVersion());
         List<JoinDataSourceListBo> decodedJoinDataSourceListBoList = dataSourceCodec.decodeValues(valueBuffer, decodingContext);
-        for (int i = 0 ; i < decodedJoinDataSourceListBoList.size(); ++i) {
+        for (int i = 0; i < decodedJoinDataSourceListBoList.size(); ++i) {
             assertEquals(decodedJoinDataSourceListBoList.get(i), joinDataSourceListBoList.get(i));
         }
     }
@@ -86,11 +86,11 @@ public class DataSourceCodecTest {
     private List<JoinDataSourceBo> createJoinDataSourceBoList(int plus) {
         List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
 
-        JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short)1000, "jdbc:mysql", 30 + plus, 25 + plus, "agent_id_1", 60 + plus, "agent_id_6");
-        JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short)2000, "jdbc:mssql", 20 + plus, 5 + plus, "agent_id_2", 30 + plus, "agent_id_7");
-        JoinDataSourceBo joinDataSourceBo3 = new JoinDataSourceBo((short)3000, "jdbc:postgre", 10 + plus, 25 + plus, "agent_id_3", 50 + plus, "agent_id_8");
-        JoinDataSourceBo joinDataSourceBo4 = new JoinDataSourceBo((short)4000, "jdbc:oracle", 40 + plus, 5 + plus, "agent_id_4", 70 + plus, "agent_id_9");
-        JoinDataSourceBo joinDataSourceBo5 = new JoinDataSourceBo((short)5000, "jdbc:cubrid", 50 + plus, 25 + plus, "agent_id_5", 80 + plus, "agent_id_10");
+        JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 30 + plus, 25 + plus, "agent_id_1", 60 + plus, "agent_id_6");
+        JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short) 2000, "jdbc:mssql", 20 + plus, 5 + plus, "agent_id_2", 30 + plus, "agent_id_7");
+        JoinDataSourceBo joinDataSourceBo3 = new JoinDataSourceBo((short) 3000, "jdbc:postgre", 10 + plus, 25 + plus, "agent_id_3", 50 + plus, "agent_id_8");
+        JoinDataSourceBo joinDataSourceBo4 = new JoinDataSourceBo((short) 4000, "jdbc:oracle", 40 + plus, 5 + plus, "agent_id_4", 70 + plus, "agent_id_9");
+        JoinDataSourceBo joinDataSourceBo5 = new JoinDataSourceBo((short) 5000, "jdbc:cubrid", 50 + plus, 25 + plus, "agent_id_5", 80 + plus, "agent_id_10");
 
         joinDataSourceBoList.add(joinDataSourceBo1);
         joinDataSourceBoList.add(joinDataSourceBo2);

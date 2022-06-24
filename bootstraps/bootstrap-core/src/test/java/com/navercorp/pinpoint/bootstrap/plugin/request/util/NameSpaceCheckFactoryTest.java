@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapperAdaptor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ public class NameSpaceCheckFactoryTest {
         ServerRequestWrapper serverRequestWrapper = mock(ServerRequestWrapper.class);
         when(serverRequestWrapper.getHeader(anyString())).thenReturn(myNamespace);
 
-        Assert.assertTrue(myNamespaceChecker.checkNamespace(serverRequestWrapper));
+        Assertions.assertTrue(myNamespaceChecker.checkNamespace(serverRequestWrapper));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class NameSpaceCheckFactoryTest {
         ServerRequestWrapper serverRequestWrapper = mock(ServerRequestWrapper.class);
         when(serverRequestWrapper.getHeader(anyString())).thenReturn(null);
 
-        Assert.assertTrue(myNamespaceChecker.checkNamespace(serverRequestWrapper));
+        Assertions.assertTrue(myNamespaceChecker.checkNamespace(serverRequestWrapper));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class NameSpaceCheckFactoryTest {
         ServerRequestWrapper serverRequestWrapper = mock(ServerRequestWrapper.class);
         when(serverRequestWrapper.getHeader(anyString())).thenReturn("collision_namespace");
 
-        Assert.assertFalse(myNamespaceChecker.checkNamespace(serverRequestWrapper));
+        Assertions.assertFalse(myNamespaceChecker.checkNamespace(serverRequestWrapper));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class NameSpaceCheckFactoryTest {
         ServerRequestWrapper serverRequestWrapper = mock(ServerRequestWrapper.class);
         when(serverRequestWrapper.getHeader(anyString())).thenReturn("invalid_namespace");
 
-        Assert.assertTrue(myNamespaceChecker.checkNamespace(serverRequestWrapper));
+        Assertions.assertTrue(myNamespaceChecker.checkNamespace(serverRequestWrapper));
     }
 
     private NameSpaceChecker<ServerRequestWrapper> newNameSpaceChecker(String myNamespace) {

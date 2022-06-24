@@ -18,9 +18,13 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
-import org.junit.*;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -31,7 +35,7 @@ import java.net.SocketException;
 /**
  * @author emeroad
  */
-@Ignore
+@Disabled
 public class UdpSocketTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass().getName());
@@ -46,14 +50,14 @@ public class UdpSocketTest {
     private DatagramSocket receiver;
     private DatagramSocket sender;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SocketException {
         receiver = new DatagramSocket(PORT);
         sender = new DatagramSocket();
         sender.connect(new InetSocketAddress("localhost", PORT));
     }
 
-    @After
+    @AfterEach
     public void setDown() throws InterruptedException {
         IOUtils.closeQuietly(sender);
         IOUtils.closeQuietly(receiver);
@@ -76,11 +80,11 @@ public class UdpSocketTest {
 
         DatagramPacket r1 = newDatagramPacket(2000);
         receiver.receive(r1);
-        Assert.assertEquals(r1.getLength(), 1000);
+        Assertions.assertEquals(r1.getLength(), 1000);
 
         DatagramPacket r2 = newDatagramPacket(2000);
         receiver.receive(r2);
-        Assert.assertEquals(r2.getLength(), 500);
+        Assertions.assertEquals(r2.getLength(), 500);
 
     }
 
@@ -90,7 +94,7 @@ public class UdpSocketTest {
         DatagramPacket packet1 = newDatagramPacket(size);
         try {
             sender.send(packet1);
-            Assert.fail("expected fail, but succeed");
+            Assertions.fail("expected fail, but succeed");
         } catch (IOException ignored) {
         }
     }
@@ -103,7 +107,7 @@ public class UdpSocketTest {
 
         DatagramPacket r1 = newDatagramPacket(AcceptedSize);
         receiver.receive(r1);
-        Assert.assertEquals(r1.getLength(), AcceptedSize);
+        Assertions.assertEquals(r1.getLength(), AcceptedSize);
     }
 
 
@@ -155,13 +159,13 @@ public class UdpSocketTest {
 
         try {
             so.send(newDatagramPacket(AcceptedSize + 1));
-            Assert.fail("failed");
+            Assertions.fail("failed");
         } catch (IOException ignored) {
         }
 
         try {
             so.send(newDatagramPacket(70000));
-            Assert.fail("failed");
+            Assertions.fail("failed");
         } catch (IOException ignored) {
         }
 

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.hikaricp;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -32,32 +32,32 @@ public class HikariCpConfigTest {
     public void configTest1() throws Exception {
         HikariCpConfig hikariCpConfig = createHikariCpConfig("false", "false");
 
-        Assert.assertFalse(hikariCpConfig.isPluginEnable());
-        Assert.assertFalse(hikariCpConfig.isProfileClose());
+        Assertions.assertFalse(hikariCpConfig.isPluginEnable());
+        Assertions.assertFalse(hikariCpConfig.isProfileClose());
     }
 
     @Test
     public void configTest2() throws Exception {
         HikariCpConfig hikariCpConfig = createHikariCpConfig("false", "true");
 
-        Assert.assertFalse(hikariCpConfig.isPluginEnable());
-        Assert.assertTrue(hikariCpConfig.isProfileClose());
+        Assertions.assertFalse(hikariCpConfig.isPluginEnable());
+        Assertions.assertTrue(hikariCpConfig.isProfileClose());
     }
 
     @Test
     public void configTest3() throws Exception {
         HikariCpConfig hikariCpConfig = createHikariCpConfig("true", "false");
 
-        Assert.assertTrue(hikariCpConfig.isPluginEnable());
-        Assert.assertFalse(hikariCpConfig.isProfileClose());
+        Assertions.assertTrue(hikariCpConfig.isPluginEnable());
+        Assertions.assertFalse(hikariCpConfig.isProfileClose());
     }
 
     @Test
     public void configTest4() throws Exception {
         HikariCpConfig hikariCpConfig = createHikariCpConfig("true", "true");
 
-        Assert.assertTrue(hikariCpConfig.isPluginEnable());
-        Assert.assertTrue(hikariCpConfig.isProfileClose());
+        Assertions.assertTrue(hikariCpConfig.isPluginEnable());
+        Assertions.assertTrue(hikariCpConfig.isProfileClose());
     }
 
     private HikariCpConfig createHikariCpConfig(String pluginEnable, String profileConnectionCloseEnable) {

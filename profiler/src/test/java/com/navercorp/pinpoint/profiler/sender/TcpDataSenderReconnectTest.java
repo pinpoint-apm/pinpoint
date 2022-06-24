@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.server.LoggingServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.hamcrest.Matchers;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -39,7 +39,7 @@ public class TcpDataSenderReconnectTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-        private ConditionFactory awaitility() {
+    private ConditionFactory awaitility() {
         ConditionFactory conditionFactory = Awaitility.await()
                 .pollDelay(100, TimeUnit.MILLISECONDS)
                 .timeout(5000, TimeUnit.MILLISECONDS);
@@ -74,7 +74,7 @@ public class TcpDataSenderReconnectTest {
         newTestPinpointServerAcceptor.close();
         clientFactory.release();
     }
-    
+
     private PinpointClientFactory createPinpointClientFactory() {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);
@@ -85,12 +85,12 @@ public class TcpDataSenderReconnectTest {
     }
 
     private void waitClientDisconnected(final TcpDataSender sender) {
-            awaitility().until(new Callable<Boolean>() {
-                @Override
-                public Boolean call() {
-                    return sender.isConnected();
-                }
-            }, Matchers.not(true));
+        awaitility().until(new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                return sender.isConnected();
+            }
+        }, Matchers.not(true));
     }
 
 }

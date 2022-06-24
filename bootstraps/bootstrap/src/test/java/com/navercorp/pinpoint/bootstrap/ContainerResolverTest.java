@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -30,14 +30,14 @@ public class ContainerResolverTest {
     public void noKeyShouldReturnFalse() {
         Properties properties = new Properties();
         ContainerResolver containerResolver = new ContainerResolver(properties);
-        Assert.assertFalse(containerResolver.isContainer());
+        Assertions.assertFalse(containerResolver.isContainer());
     }
 
     @Test
     public void noKeyAndDockerEnvShouldReturnFalse() {
         Properties properties = new Properties();
         ContainerResolver containerResolver = new ContainerResolver(properties);
-        Assert.assertFalse(containerResolver.isContainer());
+        Assertions.assertFalse(containerResolver.isContainer());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class ContainerResolverTest {
         Properties properties = new Properties();
         properties.put(ContainerResolver.CONTAINER_PROPERTY_KEY, "");
         ContainerResolver containerResolver = new ContainerResolver(properties);
-        Assert.assertTrue(containerResolver.isContainer());
+        Assertions.assertTrue(containerResolver.isContainer());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ContainerResolverTest {
         Properties properties = new Properties();
         properties.put(ContainerResolver.CONTAINER_PROPERTY_KEY, "tRue");
         ContainerResolver containerResolver = new ContainerResolver(properties);
-        Assert.assertTrue(containerResolver.isContainer());
+        Assertions.assertTrue(containerResolver.isContainer());
     }
 
     @Test
@@ -61,6 +61,6 @@ public class ContainerResolverTest {
         Properties properties = new Properties();
         properties.put(ContainerResolver.CONTAINER_PROPERTY_KEY, "FALSE");
         ContainerResolver containerResolver = new ContainerResolver(properties);
-        Assert.assertFalse(containerResolver.isContainer());
+        Assertions.assertFalse(containerResolver.isContainer());
     }
 }

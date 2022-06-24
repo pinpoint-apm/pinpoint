@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 

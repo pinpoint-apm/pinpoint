@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher.operand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOperator;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.NotMatcherOperator;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.OrMatcherOperator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim

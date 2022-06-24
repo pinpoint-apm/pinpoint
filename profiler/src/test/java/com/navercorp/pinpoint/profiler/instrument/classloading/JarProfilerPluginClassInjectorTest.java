@@ -17,23 +17,21 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
-import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
-import com.navercorp.pinpoint.profiler.plugin.Plugin;
-import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
+import com.navercorp.pinpoint.profiler.plugin.Plugin;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
+import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
 import org.apache.commons.lang.CharRange;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,8 +61,8 @@ public class JarProfilerPluginClassInjectorTest {
         final Class<?> commonsLangClass = injector.injectClass(contextTypeMatchClassLoader, className);
 
         logger.debug("ClassLoader{}", commonsLangClass.getClassLoader());
-        Assert.assertEquals("check className", commonsLangClass.getName(), className);
-        Assert.assertEquals("check ClassLoader", commonsLangClass.getClassLoader().getClass().getName(), CONTEXT_TYPE_MATCH_CLASS_LOADER);
+        Assertions.assertEquals(commonsLangClass.getName(), className, "check className");
+        Assertions.assertEquals(commonsLangClass.getClassLoader().getClass().getName(), CONTEXT_TYPE_MATCH_CLASS_LOADER, "check ClassLoader");
 
     }
 

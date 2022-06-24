@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -50,7 +50,7 @@ public class SchemaChangeLogServiceImplTest {
 
     private SchemaChangeLogService schemaChangeLogService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         schemaChangeLogService = new SchemaChangeLogServiceImpl(schemaChangeLogDao);
@@ -149,44 +149,48 @@ public class SchemaChangeLogServiceImplTest {
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getSchemaChangeLogs_shouldFailOnDuplicateOrder() {
-        // Given
-        final int numSchemaChangeLogs = random.nextInt(100) + 1;
-        final List<SchemaChangeLog> schemaChangeLogs = new ArrayList<>();
-        int order = 1;
-        for (int i = 0; i < numSchemaChangeLogs; i++) {
-            schemaChangeLogs.add(newSchemaChangeLog("id" + order, order));
-            order++;
-        }
-        // add schema change log with duplicate order
-        final int duplicateOrder = random.nextInt(numSchemaChangeLogs) + 1;
-        schemaChangeLogs.add(newSchemaChangeLog("duplicateOrderedId", duplicateOrder));
-        when(schemaChangeLogDao.getChangeLogs(anyString())).thenReturn(schemaChangeLogs);
-        // When
-        schemaChangeLogService.getSchemaChangeLogs("namespace");
-        // Then
-        Assert.fail();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            // Given
+            final int numSchemaChangeLogs = random.nextInt(100) + 1;
+            final List<SchemaChangeLog> schemaChangeLogs = new ArrayList<>();
+            int order = 1;
+            for (int i = 0; i < numSchemaChangeLogs; i++) {
+                schemaChangeLogs.add(newSchemaChangeLog("id" + order, order));
+                order++;
+            }
+            // add schema change log with duplicate order
+            final int duplicateOrder = random.nextInt(numSchemaChangeLogs) + 1;
+            schemaChangeLogs.add(newSchemaChangeLog("duplicateOrderedId", duplicateOrder));
+            when(schemaChangeLogDao.getChangeLogs(anyString())).thenReturn(schemaChangeLogs);
+            // When
+            schemaChangeLogService.getSchemaChangeLogs("namespace");
+            // Then
+            Assertions.fail();
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getSchemaChangeLogs_shouldFailOnDuplicateId() {
-        // Given
-        final int numSchemaChangeLogs = random.nextInt(100) + 1;
-        final List<SchemaChangeLog> schemaChangeLogs = new ArrayList<>();
-        int order = 1;
-        for (int i = 0; i < numSchemaChangeLogs; i++) {
-            schemaChangeLogs.add(newSchemaChangeLog("id" + order, order));
-            order++;
-        }
-        // add duplicate element
-        final String duplicateId = "id" + (random.nextInt(numSchemaChangeLogs) + 1);
-        schemaChangeLogs.add(newSchemaChangeLog(duplicateId, order));
-        when(schemaChangeLogDao.getChangeLogs(anyString())).thenReturn(schemaChangeLogs);
-        // When
-        schemaChangeLogService.getSchemaChangeLogs("namespace");
-        // Then
-        Assert.fail();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            // Given
+            final int numSchemaChangeLogs = random.nextInt(100) + 1;
+            final List<SchemaChangeLog> schemaChangeLogs = new ArrayList<>();
+            int order = 1;
+            for (int i = 0; i < numSchemaChangeLogs; i++) {
+                schemaChangeLogs.add(newSchemaChangeLog("id" + order, order));
+                order++;
+            }
+            // add duplicate element
+            final String duplicateId = "id" + (random.nextInt(numSchemaChangeLogs) + 1);
+            schemaChangeLogs.add(newSchemaChangeLog(duplicateId, order));
+            when(schemaChangeLogDao.getChangeLogs(anyString())).thenReturn(schemaChangeLogs);
+            // When
+            schemaChangeLogService.getSchemaChangeLogs("namespace");
+            // Then
+            Assertions.fail();
+        });
     }
 
     private static ChangeSet newChangeSet(String id) {

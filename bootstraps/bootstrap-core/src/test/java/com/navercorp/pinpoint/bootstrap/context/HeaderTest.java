@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.common.util.DelegateEnumeration;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -39,9 +39,9 @@ public class HeaderTest {
 
     @Test
     public void isHeaderKey() {
-        Assert.assertTrue(Header.startWithPinpointHeader(Header.HTTP_FLAGS.toString()));
-        Assert.assertFalse(Header.startWithPinpointHeader("Not_Exist"));
-        Assert.assertFalse(Header.startWithPinpointHeader(null));
+        Assertions.assertTrue(Header.startWithPinpointHeader(Header.HTTP_FLAGS.toString()));
+        Assertions.assertFalse(Header.startWithPinpointHeader("Not_Exist"));
+        Assertions.assertFalse(Header.startWithPinpointHeader(null));
     }
 
     @Test
@@ -56,17 +56,17 @@ public class HeaderTest {
         int count = 0;
         while (enumeration.hasMoreElements()) {
             count++;
-            Assert.assertFalse(Header.startWithPinpointHeader((String) enumeration.nextElement()));
+            Assertions.assertFalse(Header.startWithPinpointHeader((String) enumeration.nextElement()));
         }
-        Assert.assertEquals(count, 2);
+        Assertions.assertEquals(count, 2);
     }
 
     @Test
     public void startWithPinpointHeader() {
-        Assert.assertTrue(Header.startWithPinpointHeader("Pinpoint-Unknown"));
-        Assert.assertTrue(Header.startWithPinpointHeader("pinpoint-unknown"));
-        Assert.assertFalse(Header.startWithPinpointHeader("unknown-pinpoint"));
-        Assert.assertFalse(Header.startWithPinpointHeader("unknown"));
+        Assertions.assertTrue(Header.startWithPinpointHeader("Pinpoint-Unknown"));
+        Assertions.assertTrue(Header.startWithPinpointHeader("pinpoint-unknown"));
+        Assertions.assertFalse(Header.startWithPinpointHeader("unknown-pinpoint"));
+        Assertions.assertFalse(Header.startWithPinpointHeader("unknown"));
     }
 
 }

@@ -17,11 +17,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class BytecodeUtilsTest {
 
@@ -41,6 +38,6 @@ public class BytecodeUtilsTest {
         // SystemClassLoader class
         Class<String> stringClass = String.class;
         byte[] stringClassBytes = BytecodeUtils.getClassFile(stringClass.getClassLoader(), stringClass.getName());
-        Assert.assertNotNull(stringClassBytes);
+        Assertions.assertNotNull(stringClassBytes);
     }
 }

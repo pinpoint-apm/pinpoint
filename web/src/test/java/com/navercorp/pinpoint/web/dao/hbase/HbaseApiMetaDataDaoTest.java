@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HbaseApiMetaDataDaoTest {
 

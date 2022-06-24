@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,26 +43,30 @@ public class AgentHeaderReaderTest {
         Metadata metadata = newMetadata();
         Header header = reader.extract(metadata);
 
-        Assert.assertEquals(header.getAgentId(), AGENT_ID);
-        Assert.assertEquals(header.getAgentName(), AGENT_NAME);
-        Assert.assertEquals(header.getApplicationName(), APPLICATION_NAME);
-        Assert.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
-        Assert.assertEquals(header.getSocketId(), SOCKET_ID);
-        Assert.assertEquals(header.getServiceType(), SERVICE_TYPE);
+        Assertions.assertEquals(header.getAgentId(), AGENT_ID);
+        Assertions.assertEquals(header.getAgentName(), AGENT_NAME);
+        Assertions.assertEquals(header.getApplicationName(), APPLICATION_NAME);
+        Assertions.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
+        Assertions.assertEquals(header.getSocketId(), SOCKET_ID);
+        Assertions.assertEquals(header.getServiceType(), SERVICE_TYPE);
     }
 
-    @Test(expected = StatusRuntimeException.class)
+    @Test
     public void extract_fail_agentId() {
-        Metadata metadata = newMetadata();
-        metadata.put(Header.AGENT_ID_KEY, "!!agentId");
-        reader.extract(metadata);
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            Metadata metadata = newMetadata();
+            metadata.put(Header.AGENT_ID_KEY, "!!agentId");
+            reader.extract(metadata);
+        });
     }
 
-    @Test(expected = StatusRuntimeException.class)
+    @Test
     public void extract_fail_agentName() {
-        Metadata metadata = newMetadata();
-        metadata.put(Header.AGENT_NAME_KEY, "!!agentName");
-        reader.extract(metadata);
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            Metadata metadata = newMetadata();
+            metadata.put(Header.AGENT_NAME_KEY, "!!agentName");
+            reader.extract(metadata);
+        });
     }
 
     @Test
@@ -70,14 +74,16 @@ public class AgentHeaderReaderTest {
         Metadata metadata = newMetadata();
         metadata.remove(Header.AGENT_NAME_KEY, AGENT_NAME);
         final Header header = reader.extract(metadata);
-        Assert.assertNull(header.getAgentName());
+        Assertions.assertNull(header.getAgentName());
     }
 
-    @Test(expected = StatusRuntimeException.class)
+    @Test
     public void extract_fail_applicationName() {
-        Metadata metadata = newMetadata();
-        metadata.put(Header.APPLICATION_NAME_KEY, "!!applicationName");
-        reader.extract(metadata);
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            Metadata metadata = newMetadata();
+            metadata.put(Header.APPLICATION_NAME_KEY, "!!applicationName");
+            reader.extract(metadata);
+        });
     }
 
     private Metadata newMetadata() {

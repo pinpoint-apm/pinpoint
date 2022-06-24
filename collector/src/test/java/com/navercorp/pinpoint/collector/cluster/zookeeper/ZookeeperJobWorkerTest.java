@@ -33,8 +33,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,7 +86,7 @@ public class ZookeeperJobWorkerTest {
             }
 
             waitZookeeperServerData(random, zookeeperClient);
-            Assert.assertEquals(random, manager.getClusterData().size());
+            Assertions.assertEquals(random, manager.getClusterData().size());
         } finally {
             manager.stop();
         }
@@ -106,11 +106,11 @@ public class ZookeeperJobWorkerTest {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
             clusterPointStateChangedEventHandler.stateUpdated(mockServer, SocketStateCode.RUN_DUPLEX);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            Assertions.assertEquals(1, manager.getClusterData().size());
 
             clusterPointStateChangedEventHandler.stateUpdated(mockServer, SocketStateCode.CLOSED_BY_CLIENT);
             waitZookeeperServerData(0, zookeeperClient);
-            Assert.assertEquals(0, manager.getClusterData().size());
+            Assertions.assertEquals(0, manager.getClusterData().size());
         } finally {
             manager.stop();
         }
@@ -130,7 +130,7 @@ public class ZookeeperJobWorkerTest {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
             clusterPointStateChangedEventHandler.stateUpdated(mockServer, SocketStateCode.RUN_DUPLEX);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            Assertions.assertEquals(1, manager.getClusterData().size());
 
             zookeeperClient.createPath(PATH);
             CreateNodeMessage createNodeMessage = new CreateNodeMessage(PATH, new byte[0]);
@@ -145,11 +145,11 @@ public class ZookeeperJobWorkerTest {
             }
 
             waitZookeeperServerData(0, zookeeperClient);
-            Assert.assertEquals(0, manager.getClusterData().size());
+            Assertions.assertEquals(0, manager.getClusterData().size());
 
             manager.refresh();
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            Assertions.assertEquals(1, manager.getClusterData().size());
         } finally {
             manager.stop();
         }
@@ -173,11 +173,11 @@ public class ZookeeperJobWorkerTest {
             clusterPointStateChangedEventHandler.stateUpdated(mockServer2, SocketStateCode.RUN_DUPLEX);
 
             waitZookeeperServerData(2, zookeeperClient);
-            Assert.assertEquals(2, manager.getClusterData().size());
+            Assertions.assertEquals(2, manager.getClusterData().size());
 
             clusterPointStateChangedEventHandler.stateUpdated(mockServer1, SocketStateCode.CLOSED_BY_SERVER);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            Assertions.assertEquals(1, manager.getClusterData().size());
         } finally {
             manager.stop();
         }

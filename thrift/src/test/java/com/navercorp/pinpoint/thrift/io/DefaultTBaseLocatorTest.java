@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,6 +29,6 @@ public class DefaultTBaseLocatorTest {
     @Test
     public void getTypeLocator() {
         TypeLocator<TBase<?, ?>> typeLocator = DefaultTBaseLocator.getTypeLocator();
-        Assert.assertNotNull(typeLocator.bodyLookup(DefaultTBaseLocator.SPAN));
+        Assertions.assertNotNull(typeLocator.bodyLookup(DefaultTBaseLocator.SPAN));
     }
 }

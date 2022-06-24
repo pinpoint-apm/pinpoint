@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.logging.jul;
 
 import org.apache.logging.log4j.core.LoggerContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;

@@ -20,18 +20,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author Roy Kim
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class DirectBufferCodecV2Test extends AgentStatCodecTestBase<DirectBufferBo> {
 
@@ -50,13 +50,13 @@ public class DirectBufferCodecV2Test extends AgentStatCodecTestBase<DirectBuffer
 
     @Override
     protected void verify(DirectBufferBo expected, DirectBufferBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("agentStatType", expected.getAgentStatType(), actual.getAgentStatType());
-        Assert.assertEquals("directCount", expected.getDirectCount(), actual.getDirectCount());
-        Assert.assertEquals("directMemoryUsed", expected.getDirectMemoryUsed(), actual.getDirectMemoryUsed());
-        Assert.assertEquals("mappedCount", expected.getMappedCount(), actual.getMappedCount());
-        Assert.assertEquals("mappedMemoryUsed", expected.getMappedMemoryUsed(), actual.getMappedMemoryUsed());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getAgentStatType(), actual.getAgentStatType(), "agentStatType");
+        Assertions.assertEquals(expected.getDirectCount(), actual.getDirectCount(), "directCount");
+        Assertions.assertEquals(expected.getDirectMemoryUsed(), actual.getDirectMemoryUsed(), "directMemoryUsed");
+        Assertions.assertEquals(expected.getMappedCount(), actual.getMappedCount(), "mappedCount");
+        Assertions.assertEquals(expected.getMappedMemoryUsed(), actual.getMappedMemoryUsed(), "mappedMemoryUsed");
     }
 }

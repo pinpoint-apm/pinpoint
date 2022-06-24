@@ -6,23 +6,25 @@ import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.dao.memory.MemoryWebhookDao;
 import com.navercorp.pinpoint.web.dao.memory.MemoryWebhookSendInfoDao;
 import com.navercorp.pinpoint.web.vo.Webhook;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebhookServiceImplTest {
 
     private List<Webhook> webhookList;
 
-    @Before
+    @BeforeEach
     public void before() {
         webhookList = new ArrayList<>(2);
         webhookList.add(new Webhook("1340", "webhook", "testUrl", "testApp", "testGroup"));

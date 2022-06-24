@@ -4,10 +4,10 @@ import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author minwoo.jung
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MetricDataTypeCacheTest {
 
     @Test
@@ -28,7 +28,7 @@ public class MetricDataTypeCacheTest {
         when(systemMetricDataTypeDao.selectMetricDataType(metricDataName)).thenReturn(null);
         MetricData metricDataResult = metricDataTypeCache.getMetricDataType(metricDataName);
 
-        Assert.assertNull(metricDataResult);
+        Assertions.assertNull(metricDataResult);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class MetricDataTypeCacheTest {
         when(systemMetricDataTypeDao.selectMetricDataType(metricDataName)).thenReturn(metricData);
         MetricData metricDataResult = metricDataTypeCache.getMetricDataType(metricDataName);
 
-        Assert.assertEquals(metricData, metricDataResult);
+        Assertions.assertEquals(metricData, metricDataResult);
     }
 
     @Test
@@ -53,6 +53,6 @@ public class MetricDataTypeCacheTest {
         MetricDataName metricDataName = new MetricDataName(metricData.getMetricName(), metricData.getFieldName());
         MetricData metricDataResult = metricDataTypeCache.saveMetricDataType(metricDataName, metricData);
 
-        Assert.assertEquals(metricData, metricDataResult);
+        Assertions.assertEquals(metricData, metricDataResult);
     }
 }

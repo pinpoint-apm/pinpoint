@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.common.util;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
 
 public class IOUtilsTest {
 
@@ -91,7 +91,7 @@ public class IOUtilsTest {
 
         byte[] bytes = IOUtils.toByteArray(inputStream);
 
-        org.junit.Assert.assertArrayEquals(source, bytes);
+        Assertions.assertArrayEquals(source, bytes);
     }
 
 }

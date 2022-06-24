@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author HyunGil Jeong
@@ -29,7 +29,7 @@ public class DefaultTransactionCounterTest {
     private AtomicIdGenerator idGenerator;
     private TransactionCounter transactionCounter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.idGenerator = new AtomicIdGenerator();
         this.transactionCounter = new DefaultTransactionCounter(this.idGenerator);
@@ -207,10 +207,10 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             this.idGenerator.nextContinuedDisabledId();
         }
-        for(int i = 0; i < expectedSkippedNewCount; i++) {
+        for (int i = 0; i < expectedSkippedNewCount; i++) {
             this.idGenerator.nextSkippedId();
         }
-        for(int i = 0; i < expectedSkippedContinuationCount; i++) {
+        for (int i = 0; i < expectedSkippedContinuationCount; i++) {
             this.idGenerator.nextContinuedSkippedId();
         }
         final long actualSampledNewCount = this.transactionCounter.getSampledNewCount();

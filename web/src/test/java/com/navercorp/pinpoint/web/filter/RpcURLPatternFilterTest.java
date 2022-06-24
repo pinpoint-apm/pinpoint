@@ -19,16 +19,16 @@ package com.navercorp.pinpoint.web.filter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +48,7 @@ public class RpcURLPatternFilterTest {
 
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         serviceTypeRegistryService = new ServiceTypeRegistryService() {
             @Override
@@ -98,7 +98,7 @@ public class RpcURLPatternFilterTest {
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
-        Assert.assertFalse(accept);
+        Assertions.assertFalse(accept);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class RpcURLPatternFilterTest {
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
-        Assert.assertTrue(accept);
+        Assertions.assertTrue(accept);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class RpcURLPatternFilterTest {
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
-        Assert.assertTrue(accept);
+        Assertions.assertTrue(accept);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class RpcURLPatternFilterTest {
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
-        Assert.assertTrue(accept);
+        Assertions.assertTrue(accept);
     }
 
     @Test
@@ -146,7 +146,7 @@ public class RpcURLPatternFilterTest {
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
-        Assert.assertTrue(accept);
+        Assertions.assertTrue(accept);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class RpcURLPatternFilterTest {
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
-        Assert.assertTrue(accept);
+        Assertions.assertTrue(accept);
     }
 
     private List<SpanBo> createTestRpcSpans(String... rpcUrls) {

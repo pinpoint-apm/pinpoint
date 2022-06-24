@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author koo.taejin
@@ -35,34 +35,34 @@ public class TCommandRegistryTest {
     public void registryTest1() {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.UNKNOWN);
 
-        Assert.assertFalse(registry.isSupport(TCommandType.RESULT.getCode()));
-        Assert.assertFalse(registry.isSupport(TCommandType.THREAD_DUMP.getCode()));
+        Assertions.assertFalse(registry.isSupport(TCommandType.RESULT.getCode()));
+        Assertions.assertFalse(registry.isSupport(TCommandType.THREAD_DUMP.getCode()));
 
-        Assert.assertFalse(registry.isSupport(TResult.class));
-        Assert.assertFalse(registry.isSupport(TCommandThreadDump.class));
+        Assertions.assertFalse(registry.isSupport(TResult.class));
+        Assertions.assertFalse(registry.isSupport(TCommandThreadDump.class));
     }
 
     public void registryTest2() throws TException {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.UNKNOWN);
 
-        Assert.assertNull(registry.headerLookup(new TResult()));
+        Assertions.assertNull(registry.headerLookup(new TResult()));
     }
 
     public void registryTest3() throws TException {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.UNKNOWN);
 
-        Assert.assertNull(registry.bodyLookup(TCommandType.RESULT.getCode()));
+        Assertions.assertNull(registry.bodyLookup(TCommandType.RESULT.getCode()));
     }
 
     @Test
     public void registryTest4() {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
-        Assert.assertTrue(registry.isSupport(TCommandType.RESULT.getCode()));
-        Assert.assertTrue(registry.isSupport(TCommandType.THREAD_DUMP.getCode()));
+        Assertions.assertTrue(registry.isSupport(TCommandType.RESULT.getCode()));
+        Assertions.assertTrue(registry.isSupport(TCommandType.THREAD_DUMP.getCode()));
 
-        Assert.assertTrue(registry.isSupport(TResult.class));
-        Assert.assertTrue(registry.isSupport(TCommandThreadDump.class));
+        Assertions.assertTrue(registry.isSupport(TResult.class));
+        Assertions.assertTrue(registry.isSupport(TCommandThreadDump.class));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TCommandRegistryTest {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         Header header = registry.headerLookup(new TResult());
-        Assert.assertNotNull(header);
+        Assertions.assertNotNull(header);
     }
 
     @Test
@@ -78,10 +78,10 @@ public class TCommandRegistryTest {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         TBase<?, ?> tBase = registry.bodyLookup(TCommandType.RESULT.getCode());
-        Assert.assertEquals(tBase.getClass(), TResult.class);
+        Assertions.assertEquals(tBase.getClass(), TResult.class);
 
         tBase = registry.bodyLookup(TCommandType.THREAD_DUMP.getCode());
-        Assert.assertEquals(tBase.getClass(), TCommandThreadDump.class);
+        Assertions.assertEquals(tBase.getClass(), TCommandThreadDump.class);
     }
 
     @Test
@@ -89,21 +89,21 @@ public class TCommandRegistryTest {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         boolean isSupport = registry.isSupport(TResult.class);
-        Assert.assertTrue(isSupport);
+        Assertions.assertTrue(isSupport);
 
         isSupport = registry.isSupport(TCommandTransferResponse.class);
-        Assert.assertFalse(isSupport);
+        Assertions.assertFalse(isSupport);
     }
 
-//    @Test
+    //    @Test
     public void isSupportTest_Inheritance() throws TException {
         TypeLocator<TBase<?, ?>> registry = TCommandRegistry.build(TCommandTypeVersion.V_1_0_2_SNAPSHOT);
 
         boolean isSupport = registry.isSupport(TResultEx.class);
-        Assert.assertTrue(isSupport);
+        Assertions.assertTrue(isSupport);
 
         isSupport = registry.isSupport(TCommandTransferResponse.class);
-        Assert.assertFalse(isSupport);
+        Assertions.assertFalse(isSupport);
     }
 
     class TResultEx extends TResult {

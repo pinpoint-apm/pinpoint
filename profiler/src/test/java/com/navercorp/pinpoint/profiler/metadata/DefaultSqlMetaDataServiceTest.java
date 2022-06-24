@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -44,11 +44,11 @@ public class DefaultSqlMetaDataServiceTest {
 
         boolean newValue = sqlMetaDataService.cacheSql(parsingResult);
 
-        Assert.assertTrue(newValue);
+        Assertions.assertTrue(newValue);
         verify(dataSender, times(1)).request(any(SqlMetaData.class));
 
         boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult);
-        Assert.assertFalse(notNewValue);
+        Assertions.assertFalse(notNewValue);
         verify(dataSender, times(1)).request(any(SqlMetaData.class));
     }
 }

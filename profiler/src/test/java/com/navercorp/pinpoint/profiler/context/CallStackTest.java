@@ -16,13 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import static org.junit.Assert.*;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author emeroad
@@ -35,7 +37,9 @@ public abstract class CallStackTest {
     protected CallStack.Factory<SpanEvent> factory = new SpanEventFactory();
 
     abstract CallStack<SpanEvent> newCallStack();
+
     abstract CallStack<SpanEvent> newCallStack(int depth);
+
     abstract CallStack<SpanEvent> newCallStack(int depth, int sequence);
 
     public SpanEvent getSpanEvent() {
@@ -46,10 +50,10 @@ public abstract class CallStackTest {
     public void testPush() {
         CallStack<SpanEvent> callStack = newCallStack();
         int initialIndex = callStack.getIndex();
-        assertEquals("initial index", initialIndex, 0);
+        assertEquals(initialIndex, 0, "initial index");
         SpanEvent spanEvent = factory.newInstance();
         int index = callStack.push(spanEvent);
-        assertEquals("initial index", index, 1);
+        assertEquals(index, 1, "initial index");
         callStack.pop();
     }
 
@@ -58,14 +62,14 @@ public abstract class CallStackTest {
     public void testLargePush() {
         CallStack<SpanEvent> callStack = newCallStack();
         int initialIndex = callStack.getIndex();
-        Assert.assertEquals("initial index", initialIndex, 0);
+        assertEquals(initialIndex, 0, "initial index");
 
         final int pushCount = 32;
         for (int i = 0; i < pushCount; i++) {
             int push = callStack.push(getSpanEvent());
-            Assert.assertEquals("push index", i + 1, push);
+            assertEquals(i + 1, push, "push index");
             int index = callStack.getIndex();
-            Assert.assertEquals("index", i + 1, index);
+            assertEquals(i + 1, index, "index");
         }
         for (int i = 0; i < pushCount - 1; i++) {
             callStack.pop();
@@ -111,7 +115,7 @@ public abstract class CallStackTest {
         callStack.push(spanEvent1);
 
         SpanEvent spanEvent2 = callStack.newInstance();
-        Assert.assertTrue(callStack.getFactory().isDisable(spanEvent2));
+        assertTrue(callStack.getFactory().isDisable(spanEvent2));
     }
 
     @Test
@@ -121,7 +125,7 @@ public abstract class CallStackTest {
         DefaultCallStack<SpanEvent> callStack = (DefaultCallStack<SpanEvent>) newCallStack(maxDepth);
         assertEquals(maxDepth, callStack.getMaxDepth());
 
-        for(int i = 0; i < maxDepth; i++) {
+        for (int i = 0; i < maxDepth; i++) {
             assertEquals(i + 1, callStack.push(getSpanEvent()));
         }
         // overflow
@@ -138,7 +142,7 @@ public abstract class CallStackTest {
         assertEquals(maxDepth, callStack.getIndex());
 
         // normal
-        for(int i = maxDepth; i > 0; i--) {
+        for (int i = maxDepth; i > 0; i--) {
             assertNotNull(callStack.peek());
             assertNotNull(callStack.pop());
             assertEquals(i - 1, callStack.getIndex());

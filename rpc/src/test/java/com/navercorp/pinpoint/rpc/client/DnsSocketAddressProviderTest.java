@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,8 +33,8 @@ public class DnsSocketAddressProviderTest {
         String hostName = "127.0.0.1";
         int port = 80;
         DnsSocketAddressProvider localhost = new DnsSocketAddressProvider(hostName, port);
-        Assert.assertEquals(localhost.resolve(), new InetSocketAddress(hostName, port));
-        Assert.assertEquals(localhost.resolve(), new InetSocketAddress(hostName, port));
+        Assertions.assertEquals(localhost.resolve(), new InetSocketAddress(hostName, port));
+        Assertions.assertEquals(localhost.resolve(), new InetSocketAddress(hostName, port));
 
     }
 
@@ -45,8 +44,8 @@ public class DnsSocketAddressProviderTest {
         String hostName = "empty";
         int port = 80;
         DnsSocketAddressProvider empty = new DnsSocketAddressProvider(hostName, port);
-        Assert.assertEquals(empty.resolve(), new InetSocketAddress(hostName, port));
-        Assert.assertEquals(empty.resolve(), new InetSocketAddress(hostName, port));
+        Assertions.assertEquals(empty.resolve(), new InetSocketAddress(hostName, port));
+        Assertions.assertEquals(empty.resolve(), new InetSocketAddress(hostName, port));
 
     }
 
@@ -61,6 +60,7 @@ public class DnsSocketAddressProviderTest {
         int port = 80;
         DnsSocketAddressProvider empty = new DnsSocketAddressProvider("empty", port) {
             private int i = 0;
+
             @Override
             InetAddress getByName(String host) throws UnknownHostException {
                 if (i == 0) {
@@ -71,7 +71,7 @@ public class DnsSocketAddressProviderTest {
                 }
             }
         };
-        Assert.assertEquals(empty.resolve(), new InetSocketAddress(host1, port));
-        Assert.assertEquals(empty.resolve(), new InetSocketAddress(host2, port));
+        Assertions.assertEquals(empty.resolve(), new InetSocketAddress(host1, port));
+        Assertions.assertEquals(empty.resolve(), new InetSocketAddress(host2, port));
     }
 }

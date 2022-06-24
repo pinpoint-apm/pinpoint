@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.filter;
 
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.util.BytesUtils;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 public class PrefixFilterTest {
     private final Logger logger = LogManager.getLogger(this.getClass());

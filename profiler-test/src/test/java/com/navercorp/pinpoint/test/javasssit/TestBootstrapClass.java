@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.test.javasssit;
 
 import java.lang.reflect.Method;
 
-import org.junit.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Test;
 
 
 /**

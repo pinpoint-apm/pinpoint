@@ -16,11 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilableClassFilter;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -30,10 +27,10 @@ public class ProfilableClassFilterTest {
     public void testIsProfilableClassWithNoConfiguration() throws IOException {
         ProfilableClassFilter filter = new ProfilableClassFilter("com.navercorp.pinpoint.testweb.controller.*,com.navercorp.pinpoint.testweb.MyClass");
 
-        Assert.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/controllers/MyController"));
-        Assert.assertFalse(filter.filter("net/spider/king/wang/Jjang"));
-        Assert.assertFalse(filter.filter("com/navercorp/pinpoint/testweb2/controller/MyController"));
-        Assert.assertFalse(filter.filter("com/navercorp/pinpoint/testweb2/MyClass"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/controllers/MyController"));
+        Assertions.assertFalse(filter.filter("net/spider/king/wang/Jjang"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb2/controller/MyController"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb2/MyClass"));
     }
 
     /**
@@ -48,12 +45,12 @@ public class ProfilableClassFilterTest {
     public void testIsProfilableClass() throws IOException {
         ProfilableClassFilter filter = new ProfilableClassFilter("com.navercorp.pinpoint.testweb.controller.*,com.navercorp.pinpoint.testweb.MyClass");
 
-        Assert.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/MyClass"));
-        Assert.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/controller/MyController"));
-        Assert.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/controller/customcontroller/MyCustomController"));
+        Assertions.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/MyClass"));
+        Assertions.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/controller/MyController"));
+        Assertions.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/controller/customcontroller/MyCustomController"));
 
-        Assert.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/MyUnknownClass"));
-        Assert.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/controller2/MyController"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/MyUnknownClass"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/controller2/MyController"));
     }
 
 }

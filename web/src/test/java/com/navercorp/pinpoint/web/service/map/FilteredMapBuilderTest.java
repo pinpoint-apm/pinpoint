@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
@@ -28,14 +29,15 @@ import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +46,8 @@ import java.util.Random;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class FilteredMapBuilderTest {
 
     private static final Random RANDOM = new Random();
@@ -56,7 +59,7 @@ public class FilteredMapBuilderTest {
 
     private ApplicationFactory applicationFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.applicationFactory = new DefaultApplicationFactory(registry);
     }
@@ -131,25 +134,25 @@ public class FilteredMapBuilderTest {
         ResponseHistograms responseHistograms = filteredMap.getResponseHistograms();
         Application rootApplication = new Application("ROOT_APP", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE));
         List<ResponseTime> rootAppResponseTimes = responseHistograms.getResponseTimeList(rootApplication);
-        Assert.assertNotNull(rootAppResponseTimes);
-        Assert.assertEquals(1, rootAppResponseTimes.size());
+        Assertions.assertNotNull(rootAppResponseTimes);
+        Assertions.assertEquals(1, rootAppResponseTimes.size());
         Application applicationA = new Application("APP_A", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE));
         List<ResponseTime> appAResponseTimes = responseHistograms.getResponseTimeList(applicationA);
-        Assert.assertNotNull(appAResponseTimes);
-        Assert.assertEquals(1, appAResponseTimes.size());
+        Assertions.assertNotNull(appAResponseTimes);
+        Assertions.assertEquals(1, appAResponseTimes.size());
     }
 
     private void assertSourceLinkData(LinkDataMap sourceLinkDataMap, String fromApplicationName, ServiceType fromServiceType, String toApplicationName, ServiceType toServiceType) {
         LinkKey linkKey = new LinkKey(fromApplicationName, fromServiceType, toApplicationName, toServiceType);
         LinkData sourceLinkData = sourceLinkDataMap.getLinkData(linkKey);
         String assertMessage = String.format("%s[%s] to %s[%s] source link data does not exist", fromApplicationName, fromServiceType.getName(), toApplicationName, toServiceType.getName());
-        Assert.assertNotNull(assertMessage, sourceLinkData);
+        Assertions.assertNotNull(sourceLinkData, assertMessage);
     }
 
     private void assertTargetLinkData(LinkDataMap targetLinkDataMap, String fromApplicationName, ServiceType fromServiceType, String toApplicationName, ServiceType toServiceType) {
         LinkKey linkKey = new LinkKey(fromApplicationName, fromServiceType, toApplicationName, toServiceType);
         LinkData targetLinkData = targetLinkDataMap.getLinkData(linkKey);
         String assertMessage = String.format("%s[%s] from %s[%s] target link data does not exist", toApplicationName, toServiceType.getName(), fromApplicationName, fromServiceType.getName());
-        Assert.assertNotNull(assertMessage, targetLinkData);
+        Assertions.assertNotNull(targetLinkData, assertMessage);
     }
 }

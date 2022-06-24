@@ -2,11 +2,12 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StatefulAsyncContextTest extends AsyncContextTest {
     @Mock
@@ -19,6 +20,7 @@ public class StatefulAsyncContextTest extends AsyncContextTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void testGetAsyncState() {
         StatefulAsyncContext asyncContext = (StatefulAsyncContext) newAsyncContext(true);
 

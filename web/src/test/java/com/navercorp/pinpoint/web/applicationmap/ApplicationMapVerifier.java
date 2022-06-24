@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +53,7 @@ public class ApplicationMapVerifier {
             String nodeNameToFind = otherNode.getNodeName();
             Node thisNode = findNode(thisNodes, nodeNameToFind);
             if (thisNode == null) {
-                Assert.fail(otherNode + " not in " + thisNodes);
+                Assertions.fail(otherNode + " not in " + thisNodes);
             }
             verifyNode(thisNode, otherNode);
         }
@@ -70,9 +70,9 @@ public class ApplicationMapVerifier {
     }
 
     private void verifyNode(Node node1, Node node2) {
-        Assert.assertEquals(node1.getApplication(), node2.getApplication());
-        Assert.assertEquals(node1.getApplicationTextName(), node2.getApplicationTextName());
-        Assert.assertEquals(node1.getServiceType(), node2.getServiceType());
+        Assertions.assertEquals(node1.getApplication(), node2.getApplication());
+        Assertions.assertEquals(node1.getApplicationTextName(), node2.getApplicationTextName());
+        Assertions.assertEquals(node1.getServiceType(), node2.getServiceType());
 
         verifyServerInstanceList(node1.getServerInstanceList(), node2.getServerInstanceList());
         verifyNodeHistogram(node1.getNodeHistogram(), node2.getNodeHistogram());
@@ -84,21 +84,21 @@ public class ApplicationMapVerifier {
             return;
         }
 
-        Assert.assertEquals(serverInstanceList1.getInstanceCount(), serverInstanceList2.getInstanceCount());
+        Assertions.assertEquals(serverInstanceList1.getInstanceCount(), serverInstanceList2.getInstanceCount());
 
-        Assert.assertTrue(serverInstanceList1.getAgentIdList().containsAll(serverInstanceList2.getAgentIdList()));
-        Assert.assertEquals(serverInstanceList1.getAgentIdList().size(), serverInstanceList2.getAgentIdList().size());
+        Assertions.assertTrue(serverInstanceList1.getAgentIdList().containsAll(serverInstanceList2.getAgentIdList()));
+        Assertions.assertEquals(serverInstanceList1.getAgentIdList().size(), serverInstanceList2.getAgentIdList().size());
 
         Map<String, List<ServerInstance>> serverInstancesMap1 = serverInstanceList1.getServerInstanceList();
         Map<String, List<ServerInstance>> serverInstancesMap2 = serverInstanceList2.getServerInstanceList();
-        Assert.assertEquals(serverInstancesMap1.size(), serverInstancesMap2.size());
+        Assertions.assertEquals(serverInstancesMap1.size(), serverInstancesMap2.size());
         for (Map.Entry<String, List<ServerInstance>> e : serverInstancesMap1.entrySet()) {
             String hostName = e.getKey();
             List<ServerInstance> serverInstances1 = e.getValue();
             List<ServerInstance> serverInstances2 = serverInstancesMap2.get(hostName);
-            Assert.assertNotNull(serverInstances2);
-            Assert.assertTrue(serverInstances1.containsAll(serverInstances2));
-            Assert.assertEquals(serverInstances1.size(), serverInstances2.size());
+            Assertions.assertNotNull(serverInstances2);
+            Assertions.assertTrue(serverInstances1.containsAll(serverInstances2));
+            Assertions.assertEquals(serverInstances1.size(), serverInstances2.size());
         }
     }
 
@@ -112,12 +112,12 @@ public class ApplicationMapVerifier {
 
         Map<String, Histogram> agentHistogramMap1 = nodeHistogram1.getAgentHistogramMap();
         Map<String, Histogram> agentHistogramMap2 = nodeHistogram2.getAgentHistogramMap();
-        Assert.assertEquals(agentHistogramMap1.size(), agentHistogramMap2.size());
+        Assertions.assertEquals(agentHistogramMap1.size(), agentHistogramMap2.size());
         for (Map.Entry<String, Histogram> e : agentHistogramMap1.entrySet()) {
             String agentId = e.getKey();
             Histogram agentHistogram1 = e.getValue();
             Histogram agentHistogram2 = agentHistogramMap2.get(agentId);
-            Assert.assertNotNull(agentHistogram2);
+            Assertions.assertNotNull(agentHistogram2);
             verifyHistogram(agentHistogram1, agentHistogram2);
         }
     }
@@ -127,18 +127,18 @@ public class ApplicationMapVerifier {
         if (histogram1 == null && histogram2 == null) {
             return;
         }
-        Assert.assertEquals(histogram1.getHistogramSchema(), histogram2.getHistogramSchema());
-        Assert.assertEquals(histogram1.getTotalCount(), histogram2.getTotalCount());
-        Assert.assertEquals(histogram1.getSuccessCount(), histogram2.getSuccessCount());
-        Assert.assertEquals(histogram1.getErrorCount(), histogram2.getErrorCount());
-        Assert.assertEquals(histogram1.getFastCount(), histogram2.getFastCount());
-        Assert.assertEquals(histogram1.getFastErrorCount(), histogram2.getFastErrorCount());
-        Assert.assertEquals(histogram1.getNormalCount(), histogram2.getNormalCount());
-        Assert.assertEquals(histogram1.getNormalErrorCount(), histogram2.getNormalErrorCount());
-        Assert.assertEquals(histogram1.getSlowCount(), histogram2.getSlowCount());
-        Assert.assertEquals(histogram1.getSlowErrorCount(), histogram2.getSlowErrorCount());
-        Assert.assertEquals(histogram1.getVerySlowCount(), histogram2.getVerySlowCount());
-        Assert.assertEquals(histogram1.getVerySlowErrorCount(), histogram2.getVerySlowErrorCount());
+        Assertions.assertEquals(histogram1.getHistogramSchema(), histogram2.getHistogramSchema());
+        Assertions.assertEquals(histogram1.getTotalCount(), histogram2.getTotalCount());
+        Assertions.assertEquals(histogram1.getSuccessCount(), histogram2.getSuccessCount());
+        Assertions.assertEquals(histogram1.getErrorCount(), histogram2.getErrorCount());
+        Assertions.assertEquals(histogram1.getFastCount(), histogram2.getFastCount());
+        Assertions.assertEquals(histogram1.getFastErrorCount(), histogram2.getFastErrorCount());
+        Assertions.assertEquals(histogram1.getNormalCount(), histogram2.getNormalCount());
+        Assertions.assertEquals(histogram1.getNormalErrorCount(), histogram2.getNormalErrorCount());
+        Assertions.assertEquals(histogram1.getSlowCount(), histogram2.getSlowCount());
+        Assertions.assertEquals(histogram1.getSlowErrorCount(), histogram2.getSlowErrorCount());
+        Assertions.assertEquals(histogram1.getVerySlowCount(), histogram2.getVerySlowCount());
+        Assertions.assertEquals(histogram1.getVerySlowErrorCount(), histogram2.getVerySlowErrorCount());
     }
 
     private void verifyLinks(Collection<Link> otherLinks) {
@@ -148,7 +148,7 @@ public class ApplicationMapVerifier {
             LinkKey linkKeyToFind = otherLink.getLinkKey();
             Link thisLink = findLink(thisLinks, linkKeyToFind);
             if (thisLink == null) {
-                Assert.fail(otherLink + " not in " + thisLinks);
+                Assertions.fail(otherLink + " not in " + thisLinks);
             }
             verifyLink(thisLink, otherLink);
         }
@@ -174,15 +174,15 @@ public class ApplicationMapVerifier {
     }
 
     private <T> void verifySize(Collection<T> collection1, Collection<T> collection2) {
-        Assert.assertEquals(new ArrayList<>(collection1).size(), new ArrayList<>(collection2).size());
+        Assertions.assertEquals(new ArrayList<>(collection1).size(), new ArrayList<>(collection2).size());
     }
 
     private <T> void verifyNullable(T nullable1, T nullable2) {
         if (nullable1 == null && nullable2 != null) {
-            Assert.fail();
+            Assertions.fail();
         }
         if (nullable1 != null && nullable2 == null) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 }

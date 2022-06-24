@@ -20,9 +20,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryFilter;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DefaultCustomMetricRegistryFilter;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -40,16 +39,16 @@ public class CustomMetricRegistryFilterTest {
 
         TestIntCounter testIntCount = new TestIntCounter(allowedMetricName);
         boolean filtered = filter.filter(testIntCount);
-        Assert.assertFalse(filtered);
+        Assertions.assertFalse(filtered);
 
         TestIntCounter testIntCount2 = new TestIntCounter("test2");
         filtered = filter.filter(testIntCount2);
-        Assert.assertTrue(filtered);
+        Assertions.assertTrue(filtered);
 
 
         TestLongCounter testLongCount = new TestLongCounter(allowedMetricName);
         filtered = filter.filter(testLongCount);
-        Assert.assertTrue(filtered);
+        Assertions.assertTrue(filtered);
     }
 
     private static class TestIntCounter implements IntCounter {

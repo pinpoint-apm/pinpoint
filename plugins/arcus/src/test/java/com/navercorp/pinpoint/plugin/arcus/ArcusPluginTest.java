@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.plugin.arcus;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 //@RunWith(ForkRunner.class)
 //@PinpointConfig("pinpoint-test.config")
@@ -10,9 +10,9 @@ import org.junit.Test;
 public class ArcusPluginTest {
 
     // TODO how to test intercpetor?
-    
+
     @Test
-    @Ignore // until arcus modifier/interceptors are removed from pinpoint-profiler
+    @Disabled // until arcus modifier/interceptors are removed from pinpoint-profiler
     public void test() throws Exception {
 //
 //        Class<?> arcusClient = Class.forName("net.spy.memcached.ArcusClient");

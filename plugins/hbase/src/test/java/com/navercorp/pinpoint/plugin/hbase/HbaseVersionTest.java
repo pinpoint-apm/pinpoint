@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.plugin.hbase;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HbaseVersionTest {
 
@@ -9,7 +9,7 @@ public class HbaseVersionTest {
     public void getVersion() {
         ClassLoader testCL = this.getClass().getClassLoader();
         int version = HbaseVersion.getVersion(testCL);
-        Assert.assertEquals(HbaseVersion.HBASE_VERSION_1, version);
+        Assertions.assertEquals(HbaseVersion.HBASE_VERSION_1, version);
     }
 
     @Test
@@ -26,6 +26,6 @@ public class HbaseVersionTest {
         };
 
         int version = HbaseVersion.getVersion(childCL);
-        Assert.assertEquals(HbaseVersion.HBASE_VERSION_0, version);
+        Assertions.assertEquals(HbaseVersion.HBASE_VERSION_0, version);
     }
 }

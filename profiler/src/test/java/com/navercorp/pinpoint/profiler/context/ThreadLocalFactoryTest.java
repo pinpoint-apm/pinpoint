@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.exception.PinpointException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ public abstract class ThreadLocalFactoryTest {
         return traceFactory;
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         sampledTraceFactory.removeTraceObject();
         unsampledTraceFactory.removeTraceObject();
@@ -67,13 +67,13 @@ public abstract class ThreadLocalFactoryTest {
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace currentTraceObject = traceFactory.currentTraceObject();
-        Assert.assertNull(currentTraceObject);
+        Assertions.assertNull(currentTraceObject);
 
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
-        Assert.assertNull(rawTraceObject);
+        Assertions.assertNull(rawTraceObject);
 
         traceFactory.newTraceObject();
-        Assert.assertNotNull(traceFactory.currentRawTraceObject());
+        Assertions.assertNotNull(traceFactory.currentRawTraceObject());
     }
 
 
@@ -84,8 +84,8 @@ public abstract class ThreadLocalFactoryTest {
         Trace newTrace = traceFactory.newTraceObject();
         Trace currentTrace = traceFactory.currentTraceObject();
 
-        Assert.assertNotNull(currentTrace);
-        Assert.assertSame(newTrace, currentTrace);
+        Assertions.assertNotNull(currentTrace);
+        Assertions.assertSame(newTrace, currentTrace);
     }
 
     @Test
@@ -95,8 +95,8 @@ public abstract class ThreadLocalFactoryTest {
         Trace newTrace = traceFactory.newTraceObject();
         Trace currentTrace = traceFactory.currentTraceObject();
 
-        Assert.assertNull(currentTrace);
-        Assert.assertNotEquals(newTrace, currentTrace);
+        Assertions.assertNull(currentTrace);
+        Assertions.assertNotEquals(newTrace, currentTrace);
     }
 
 
@@ -107,8 +107,8 @@ public abstract class ThreadLocalFactoryTest {
         Trace trace = traceFactory.newTraceObject();
         Trace rawTrace = traceFactory.currentRawTraceObject();
 
-        Assert.assertNotNull(rawTrace);
-        Assert.assertSame(trace, rawTrace);
+        Assertions.assertNotNull(rawTrace);
+        Assertions.assertSame(trace, rawTrace);
     }
 
     @Test
@@ -118,8 +118,8 @@ public abstract class ThreadLocalFactoryTest {
         Trace trace = traceFactory.newTraceObject();
         Trace rawTrace = traceFactory.currentRawTraceObject();
 
-        Assert.assertNotNull(rawTrace);
-        Assert.assertSame(trace, rawTrace);
+        Assertions.assertNotNull(rawTrace);
+        Assertions.assertSame(trace, rawTrace);
     }
 
     @Test
@@ -130,8 +130,8 @@ public abstract class ThreadLocalFactoryTest {
         Trace trace = traceFactory.disableSampling();
         Trace rawTrace = traceFactory.currentRawTraceObject();
 
-        Assert.assertNotNull(rawTrace);
-        Assert.assertSame(trace, rawTrace);
+        Assertions.assertNotNull(rawTrace);
+        Assertions.assertSame(trace, rawTrace);
     }
 
     @Test
@@ -144,18 +144,19 @@ public abstract class ThreadLocalFactoryTest {
 
         traceFactory.newTraceObject();
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
-        Assert.assertNotNull(rawTraceObject);
+        Assertions.assertNotNull(rawTraceObject);
 
     }
 
 
-    @Test(expected = PinpointException.class)
+    @Test
     public void duplicatedTraceStart() {
-        TraceFactory traceFactory = sampledTraceFactory;
+        Assertions.assertThrows(PinpointException.class, () -> {
+            TraceFactory traceFactory = sampledTraceFactory;
 
-        traceFactory.newTraceObject();
-        traceFactory.newTraceObject();
-
+            traceFactory.newTraceObject();
+            traceFactory.newTraceObject();
+        });
     }
 
     @Test
@@ -166,6 +167,6 @@ public abstract class ThreadLocalFactoryTest {
         traceFactory.removeTraceObject();
 
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
-        Assert.assertNull(rawTraceObject);
+        Assertions.assertNull(rawTraceObject);
     }
 }

@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -27,9 +27,9 @@ public class ExceptionReaderTest {
         Exception readException = reader.read(parsedMessage[1], parsedMessage[2], error);
         logger.debug("reader", readException);
 
-        Assert.assertEquals(getExceptionClass(readException), RuntimeException.class.getName());
+        Assertions.assertEquals(getExceptionClass(readException), RuntimeException.class.getName());
         Throwable cause = readException.getCause();
-        Assert.assertEquals(getExceptionClass(cause), Exception.class.getName());
+        Assertions.assertEquals(getExceptionClass(cause), Exception.class.getName());
 
     }
 

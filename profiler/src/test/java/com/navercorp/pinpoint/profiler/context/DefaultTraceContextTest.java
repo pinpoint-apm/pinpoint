@@ -30,13 +30,13 @@ import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerConfig;
 import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.mockito.Mockito.spy;
 
@@ -49,7 +49,7 @@ public class DefaultTraceContextTest {
 
     private DefaultApplicationContext applicationContext;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ProfilerConfig profilerConfig = getProfilerConfig();
 
@@ -57,7 +57,7 @@ public class DefaultTraceContextTest {
         applicationContext.start();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (applicationContext != null) {
             applicationContext.close();
@@ -66,7 +66,7 @@ public class DefaultTraceContextTest {
 
     @Test
     public void parseTest() {
-        String agent= "test";
+        String agent = "test";
         long agentStartTime = System.currentTimeMillis();
         long agentTransactionCount = 10;
         TraceId traceId = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
@@ -76,9 +76,9 @@ public class DefaultTraceContextTest {
 
         TransactionId transactionid = TransactionIdUtils.parseTransactionId(id);
 
-        Assert.assertEquals(transactionid.getAgentId(), agent);
-        Assert.assertEquals(transactionid.getAgentStartTime(), agentStartTime);
-        Assert.assertEquals(transactionid.getTransactionSequence(), agentTransactionCount);
+        Assertions.assertEquals(transactionid.getAgentId(), agent);
+        Assertions.assertEquals(transactionid.getAgentStartTime(), agentStartTime);
+        Assertions.assertEquals(transactionid.getTransactionSequence(), agentTransactionCount);
     }
 
     @Test
@@ -86,8 +86,8 @@ public class DefaultTraceContextTest {
 
         TraceContext traceContext = applicationContext.getTraceContext();
         Trace trace = traceContext.disableSampling();
-        Assert.assertNotNull(trace);
-        Assert.assertFalse(trace.canSampled());
+        Assertions.assertNotNull(trace);
+        Assertions.assertFalse(trace.canSampled());
 
         traceContext.removeTraceObject();
     }
@@ -96,7 +96,7 @@ public class DefaultTraceContextTest {
     public void threadLocalBindTest() {
 
         TraceContext traceContext = applicationContext.getTraceContext();
-        Assert.assertNotNull(traceContext.newTraceObject());
+        Assertions.assertNotNull(traceContext.newTraceObject());
 
         ProfilerConfig profilerConfig = getProfilerConfig();
 
@@ -107,13 +107,13 @@ public class DefaultTraceContextTest {
         Trace notExist = traceContext2.currentRawTraceObject();
         applicationContext2.close();
 
-        Assert.assertNull(notExist);
+        Assertions.assertNull(notExist);
 
-        Assert.assertNotNull(traceContext.currentRawTraceObject());
+        Assertions.assertNotNull(traceContext.currentRawTraceObject());
         traceContext.removeTraceObject();
-        Assert.assertNull(traceContext.currentRawTraceObject());
+        Assertions.assertNull(traceContext.currentRawTraceObject());
     }
-    
+
     @Test
     public void transactionCountTest() {
         final int samplingRate = 5;
@@ -132,20 +132,19 @@ public class DefaultTraceContextTest {
 
 
         final long newTransactionCount = 22L;
-        @SuppressWarnings("unused")
-        final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
+        @SuppressWarnings("unused") final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
         final long expectedUnsampledNewCount = newTransactionCount - expectedSampledNewCount;
         for (int i = 0; i < newTransactionCount; i++) {
             traceContext.newTraceObject();
             traceContext.removeTraceObject();
         }
-        
+
         final long expectedSampledContinuationCount = 5L;
         for (int i = 0; i < expectedSampledContinuationCount; i++) {
             traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, i));
             traceContext.removeTraceObject();
         }
-        
+
         final long expectedUnsampledContinuationCount = 10L;
         for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             traceContext.disableSampling();
@@ -156,11 +155,11 @@ public class DefaultTraceContextTest {
 
         final long expectedTotalTransactionCount = expectedSampledNewCount + expectedUnsampledNewCount + expectedSampledContinuationCount + expectedUnsampledContinuationCount;
 
-        Assert.assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
-        Assert.assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
-        Assert.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
-        Assert.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
-        Assert.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
+        Assertions.assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
+        Assertions.assertEquals(expectedUnsampledNewCount, transactionCounter.getUnSampledNewCount());
+        Assertions.assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
+        Assertions.assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
+        Assertions.assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
     }
 
     public ProfilerConfig getProfilerConfig() {

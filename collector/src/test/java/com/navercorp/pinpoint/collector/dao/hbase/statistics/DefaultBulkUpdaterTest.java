@@ -22,18 +22,17 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTest
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestData;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestDataSet;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestVerifier;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +48,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultBulkUpdaterTest {
 
     private static final byte[] CF = Bytes.toBytes("CF");
@@ -60,7 +59,7 @@ public class DefaultBulkUpdaterTest {
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
             new DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         bulkIncrementerFactory.close();
     }
@@ -68,7 +67,7 @@ public class DefaultBulkUpdaterTest {
     @Mock
     private RowKeyDistributorByHashPrefix rowKeyDistributor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(rowKeyDistributor.getDistributedKey(any(byte[].class))).then(invocation -> invocation.getArgument(0));
     }

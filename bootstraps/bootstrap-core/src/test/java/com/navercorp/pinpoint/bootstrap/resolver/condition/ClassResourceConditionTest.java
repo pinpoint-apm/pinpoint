@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
@@ -31,7 +31,7 @@ public class ClassResourceConditionTest {
         // When
         boolean match = ClassResourceCondition.INSTANCE.check(resource);
         // Then
-        Assert.assertTrue(match);
+        Assertions.assertTrue(match);
     }
 
     @Test
@@ -41,18 +41,18 @@ public class ClassResourceConditionTest {
         // When
         boolean match = ClassResourceCondition.INSTANCE.check(nonExistingResource);
         // Then
-        Assert.assertFalse(match);
+        Assertions.assertFalse(match);
     }
 
     @Test
     public void testNullParameter() {
         boolean match = ClassResourceCondition.INSTANCE.check(null);
-        Assert.assertFalse(match);
+        Assertions.assertFalse(match);
     }
 
     @Test
     public void testEmptyResource() {
         boolean match = ClassResourceCondition.INSTANCE.check("");
-        Assert.assertFalse(match);
+        Assertions.assertFalse(match);
     }
 }

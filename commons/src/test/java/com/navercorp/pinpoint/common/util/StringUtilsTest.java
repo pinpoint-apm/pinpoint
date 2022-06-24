@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,18 +34,18 @@ public class StringUtilsTest {
 
     @Test
     public void defaultString() {
-        Assert.assertNull(StringUtils.defaultString(null, null));
-        Assert.assertEquals(StringUtils.defaultString(null, shortString), shortString);
-        Assert.assertEquals(StringUtils.defaultString(shortString, null), shortString);
-        Assert.assertEquals(StringUtils.defaultString(shortString, shortString), shortString);
+        Assertions.assertNull(StringUtils.defaultString(null, null));
+        Assertions.assertEquals(StringUtils.defaultString(null, shortString), shortString);
+        Assertions.assertEquals(StringUtils.defaultString(shortString, null), shortString);
+        Assertions.assertEquals(StringUtils.defaultString(shortString, shortString), shortString);
     }
 
     @Test
     public void defaultIfEmpty() {
-        Assert.assertNull(StringUtils.defaultIfEmpty("", null));
-        Assert.assertEquals(StringUtils.defaultIfEmpty("", shortString), shortString);
-        Assert.assertEquals(StringUtils.defaultIfEmpty(shortString, null), shortString);
-        Assert.assertEquals(StringUtils.defaultIfEmpty(shortString, shortString), shortString);
+        Assertions.assertNull(StringUtils.defaultIfEmpty("", null));
+        Assertions.assertEquals(StringUtils.defaultIfEmpty("", shortString), shortString);
+        Assertions.assertEquals(StringUtils.defaultIfEmpty(shortString, null), shortString);
+        Assertions.assertEquals(StringUtils.defaultIfEmpty(shortString, shortString), shortString);
     }
 
 
@@ -53,41 +53,41 @@ public class StringUtilsTest {
     public void toStringTest() {
         int[] array = {0, 1};
 
-        Assert.assertEquals(StringUtils.toString(null), "null");
-        Assert.assertEquals(StringUtils.toString(1), "1");
-        Assert.assertEquals(StringUtils.toString(1234.567), "1234.567");
-        Assert.assertEquals(StringUtils.toString(shortString), shortString);
-        Assert.assertEquals(StringUtils.toString(array), array.toString());
+        Assertions.assertEquals(StringUtils.toString(null), "null");
+        Assertions.assertEquals(StringUtils.toString(1), "1");
+        Assertions.assertEquals(StringUtils.toString(1234.567), "1234.567");
+        Assertions.assertEquals(StringUtils.toString(shortString), shortString);
+        Assertions.assertEquals(StringUtils.toString(array), array.toString());
     }
 
     @Test
     public void abbreviate() {
 
-        Assert.assertEquals(StringUtils.abbreviate(null), "null");
-        Assert.assertEquals(StringUtils.abbreviate(null, 4), "null");
-        Assert.assertEquals(StringUtils.abbreviate(null, 0), "null");
-        Assert.assertEquals(StringUtils.abbreviate(null, -4), "null");
+        Assertions.assertEquals(StringUtils.abbreviate(null), "null");
+        Assertions.assertEquals(StringUtils.abbreviate(null, 4), "null");
+        Assertions.assertEquals(StringUtils.abbreviate(null, 0), "null");
+        Assertions.assertEquals(StringUtils.abbreviate(null, -4), "null");
 
-        Assert.assertEquals(StringUtils.abbreviate(longString), "This is a very long string for testing drop function. Length of ...(100)");
-        Assert.assertEquals(StringUtils.abbreviate(longString, 4), "This...(100)");
-        Assert.assertEquals(StringUtils.abbreviate(longString, 0), "...(100)");
+        Assertions.assertEquals(StringUtils.abbreviate(longString), "This is a very long string for testing drop function. Length of ...(100)");
+        Assertions.assertEquals(StringUtils.abbreviate(longString, 4), "This...(100)");
+        Assertions.assertEquals(StringUtils.abbreviate(longString, 0), "...(100)");
         try {
             StringUtils.abbreviate(longString, -4);
-            Assert.fail();
+            Assertions.fail();
         } catch (IllegalArgumentException ignored) {
         } catch (Exception e) {
-            Assert.fail();
+            Assertions.fail();
         }
 
-        Assert.assertEquals(StringUtils.abbreviate(shortString), shortString);
-        Assert.assertEquals(StringUtils.abbreviate(shortString, 4), "This...(22)");
-        Assert.assertEquals(StringUtils.abbreviate(shortString, 0), "...(22)");
+        Assertions.assertEquals(StringUtils.abbreviate(shortString), shortString);
+        Assertions.assertEquals(StringUtils.abbreviate(shortString, 4), "This...(22)");
+        Assertions.assertEquals(StringUtils.abbreviate(shortString, 0), "...(22)");
         try {
             StringUtils.abbreviate(shortString, -4);
-            Assert.fail();
+            Assertions.fail();
         } catch (IllegalArgumentException ignored) {
         } catch (Exception e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -96,19 +96,19 @@ public class StringUtilsTest {
         StringBuilder buffer = new StringBuilder();
 
         StringUtils.appendAbbreviate(buffer, null, 4);
-        Assert.assertEquals(buffer.toString(), "");
+        Assertions.assertEquals(buffer.toString(), "");
 
         StringUtils.appendAbbreviate(buffer, null, 0);
-        Assert.assertEquals(buffer.toString(), "");
+        Assertions.assertEquals(buffer.toString(), "");
 
         StringUtils.appendAbbreviate(buffer, null, -4);
-        Assert.assertEquals(buffer.toString(), "");
+        Assertions.assertEquals(buffer.toString(), "");
 
         StringUtils.appendAbbreviate(buffer, shortString, 4);
-        Assert.assertEquals(buffer.toString(), "This...(22)");
+        Assertions.assertEquals(buffer.toString(), "This...(22)");
 
         StringUtils.appendAbbreviate(buffer, longString, 16);
-        Assert.assertEquals(buffer.toString(), "This...(22)This is a very l...(100)");
+        Assertions.assertEquals(buffer.toString(), "This...(22)This is a very l...(100)");
     }
 
 
@@ -116,28 +116,28 @@ public class StringUtilsTest {
     public void testAbbreviate1() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 1);
-        Assert.assertEquals("a...(3)", drop);
+        Assertions.assertEquals("a...(3)", drop);
     }
 
     @Test
     public void testAbbreviate2() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 5);
-        Assert.assertEquals("abc", drop);
+        Assertions.assertEquals("abc", drop);
     }
 
     @Test
     public void testAbbreviate3() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 3);
-        Assert.assertEquals("abc", drop);
+        Assertions.assertEquals("abc", drop);
     }
 
     @Test
     public void testAbbreviate4() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 0);
-        Assert.assertEquals("...(3)", drop);
+        Assertions.assertEquals("...(3)", drop);
 
     }
 
@@ -146,7 +146,7 @@ public class StringUtilsTest {
         String string = "abc";
         try {
             StringUtils.abbreviate(string, -1);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception ignored) {
             // skip
         }
@@ -154,10 +154,10 @@ public class StringUtilsTest {
 
     @Test
     public void testIsEmpty() {
-        Assert.assertTrue(StringUtils.isEmpty(""));
-        Assert.assertTrue(StringUtils.isEmpty(null));
+        Assertions.assertTrue(StringUtils.isEmpty(""));
+        Assertions.assertTrue(StringUtils.isEmpty(null));
 
-        Assert.assertFalse(StringUtils.isEmpty("a"));
+        Assertions.assertFalse(StringUtils.isEmpty("a"));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class StringUtilsTest {
 
         final String sample = "a, b,  ,,   c";
         List<String> tokenList = StringUtils.tokenizeToStringList(sample, ",");
-        Assert.assertEquals(Arrays.asList("a", "b", "c"), tokenList);
+        Assertions.assertEquals(Arrays.asList("a", "b", "c"), tokenList);
 
 
     }
@@ -178,7 +178,7 @@ public class StringUtilsTest {
         List<String> tokenList = StringUtils.tokenizeToStringList(sample, ",");
 
         List<String> backup_splitAndTrim = backup_splitAndTrim(sample, ",");
-        Assert.assertEquals(tokenList, backup_splitAndTrim);
+        Assertions.assertEquals(tokenList, backup_splitAndTrim);
 
     }
 
@@ -186,7 +186,7 @@ public class StringUtilsTest {
     public void testTokenizeToStringList_nullValue() {
 
         List<String> tokenList = StringUtils.tokenizeToStringList(null, ",");
-        Assert.assertEquals(tokenList.size(), 0);
+        Assertions.assertEquals(tokenList.size(), 0);
 
     }
 
@@ -215,47 +215,47 @@ public class StringUtilsTest {
 
     @Test
     public void testGetLength() {
-        Assert.assertEquals(StringUtils.getLength(null), 0);
+        Assertions.assertEquals(StringUtils.getLength(null), 0);
 
-        Assert.assertEquals(StringUtils.getLength(""), 0);
-        Assert.assertEquals(StringUtils.getLength("abc"), 3);
+        Assertions.assertEquals(StringUtils.getLength(""), 0);
+        Assertions.assertEquals(StringUtils.getLength("abc"), 3);
     }
 
     @Test
     public void testGetLength_defaultNull() {
-        Assert.assertEquals(StringUtils.getLength(null, -1), -1);
+        Assertions.assertEquals(StringUtils.getLength(null, -1), -1);
 
-        Assert.assertEquals(StringUtils.getLength("", -1), 0);
-        Assert.assertEquals(StringUtils.getLength("abc"), 3);
+        Assertions.assertEquals(StringUtils.getLength("", -1), 0);
+        Assertions.assertEquals(StringUtils.getLength("abc"), 3);
     }
 
 
     @Test
     public void testHasLength() {
 
-        Assert.assertTrue(StringUtils.hasLength("1"));
-        Assert.assertTrue(StringUtils.hasLength(" "));
+        Assertions.assertTrue(StringUtils.hasLength("1"));
+        Assertions.assertTrue(StringUtils.hasLength(" "));
 
 
-        Assert.assertFalse(StringUtils.hasLength(null));
-        Assert.assertFalse(StringUtils.hasLength(""));
+        Assertions.assertFalse(StringUtils.hasLength(null));
+        Assertions.assertFalse(StringUtils.hasLength(""));
     }
 
     @Test
     public void testHasText() {
 
-        Assert.assertTrue(StringUtils.hasText("1"));
-        Assert.assertTrue(StringUtils.hasText("  1"));
+        Assertions.assertTrue(StringUtils.hasText("1"));
+        Assertions.assertTrue(StringUtils.hasText("  1"));
 
-        Assert.assertFalse(StringUtils.hasText(null));
-        Assert.assertFalse(StringUtils.hasText(""));
-        Assert.assertFalse(StringUtils.hasText("  "));
+        Assertions.assertFalse(StringUtils.hasText(null));
+        Assertions.assertFalse(StringUtils.hasText(""));
+        Assertions.assertFalse(StringUtils.hasText("  "));
 
     }
 
     @Test
     public void abbreviateBufferSize() {
-        Assert.assertEquals("a...(123)".length(), StringUtils.abbreviateBufferSize(1, 123));
+        Assertions.assertEquals("a...(123)".length(), StringUtils.abbreviateBufferSize(1, 123));
     }
 
 

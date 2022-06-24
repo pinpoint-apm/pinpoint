@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Roy Kim
@@ -43,10 +43,10 @@ public class ThriftDirectBufferBoMapperTest extends ThriftBoMapperTestBase<TDire
 
     @Override
     protected void verify(TDirectBuffer original, DirectBufferBo mappedStatDataPoint) {
-        Assert.assertEquals("DirectCount", original.getDirectCount(), mappedStatDataPoint.getDirectCount(), 0);
-        Assert.assertEquals("DirectMemoryUsed", original.getDirectMemoryUsed(), mappedStatDataPoint.getDirectMemoryUsed(), 0);
-        Assert.assertEquals("MappedCount", original.getMappedCount(), mappedStatDataPoint.getMappedCount(), 0);
-        Assert.assertEquals("MappedMemoryUsed", original.getMappedMemoryUsed(), mappedStatDataPoint.getMappedMemoryUsed(), 0);
+        Assertions.assertEquals(original.getDirectCount(), mappedStatDataPoint.getDirectCount(), 0, "DirectCount");
+        Assertions.assertEquals(original.getDirectMemoryUsed(), mappedStatDataPoint.getDirectMemoryUsed(), 0, "DirectMemoryUsed");
+        Assertions.assertEquals(original.getMappedCount(), mappedStatDataPoint.getMappedCount(), 0, "MappedCount");
+        Assertions.assertEquals(original.getMappedMemoryUsed(), mappedStatDataPoint.getMappedMemoryUsed(), 0, "MappedMemoryUsed");
     }
 
 }

@@ -16,23 +16,24 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.common.util.PropertySnapshot;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemPropertyKey;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import com.navercorp.pinpoint.common.util.PropertySnapshot;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemPropertyKey;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author HyunGil Jeong
  */
 public class MainClassConditionTest {
-    
+
     private static final String TEST_MAIN_CLASS = "main.class.for.Test";
-    
+
     @Test
     public void getValueShouldReturnBootstrapMainClass() {
         // Given
@@ -43,7 +44,7 @@ public class MainClassConditionTest {
         // Then
         assertEquals(TEST_MAIN_CLASS, expectedMainClass);
     }
-    
+
     @Test
     public void getValueShouldReturnEmptyStringWhenMainClassCannotBeResolved() {
         // Given
@@ -54,7 +55,7 @@ public class MainClassConditionTest {
         // Then
         assertEquals("", expectedMainClass);
     }
-    
+
     @Test
     public void testMatch() {
         // Given
@@ -65,7 +66,7 @@ public class MainClassConditionTest {
         // Then
         assertTrue(matches);
     }
-    
+
     @Test
     public void testNoMatch() {
         // Given
@@ -77,7 +78,7 @@ public class MainClassConditionTest {
         // Then
         assertFalse(matches);
     }
-    
+
     @Test
     public void nullConditionShouldNotMatch() {
         // Given
@@ -88,7 +89,7 @@ public class MainClassConditionTest {
         // Then
         assertFalse(matches);
     }
-    
+
     @Test
     public void shouldNotMatchWhenMainClassCannotBeResolved() {
         // Given
@@ -99,7 +100,7 @@ public class MainClassConditionTest {
         // Then
         assertFalse(matches);
     }
-    
+
     @Test
     public void shouldNotMatchWhenWhenJarFileCannotBeFound() {
         // Given
@@ -110,15 +111,15 @@ public class MainClassConditionTest {
         // Then
         assertFalse(matches);
     }
-    
+
     private static SimpleProperty createTestProperty() {
         return new PropertySnapshot(new Properties());
     }
-    
+
     private static SimpleProperty createTestProperty(String testMainClass) {
         SimpleProperty testProperty = createTestProperty();
         testProperty.setProperty(SystemPropertyKey.SUN_JAVA_COMMAND.getKey(), testMainClass);
         return testProperty;
     }
-    
+
 }

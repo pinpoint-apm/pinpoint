@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,8 +38,8 @@ public class MergedEnumeration2Test {
 
         List<String> list = Collections.list(mergedEnumeration);
 
-        Assert.assertEquals(6, list.size());
-        Assert.assertEquals(Arrays.asList("a", "b", "c", "1", "2", "3"), list);
+        Assertions.assertEquals(6, list.size());
+        Assertions.assertEquals(Arrays.asList("a", "b", "c", "1", "2", "3"), list);
     }
 
     private <T> Enumeration<T> newEnumeration(T... t) {
@@ -55,8 +55,8 @@ public class MergedEnumeration2Test {
 
         List<String> list = Collections.list(mergedEnumeration);
 
-        Assert.assertEquals(3, list.size());
-        Assert.assertEquals(Arrays.asList("1", "2", "3"), list);
+        Assertions.assertEquals(3, list.size());
+        Assertions.assertEquals(Arrays.asList("1", "2", "3"), list);
     }
 
 
@@ -69,8 +69,8 @@ public class MergedEnumeration2Test {
 
         List<String> list = Collections.list(mergedEnumeration);
 
-        Assert.assertEquals(3, list.size());
-        Assert.assertEquals(Arrays.asList("a", "b", "c"), list);
+        Assertions.assertEquals(3, list.size());
+        Assertions.assertEquals(Arrays.asList("a", "b", "c"), list);
     }
 
 }

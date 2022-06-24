@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.loadedclass;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class LoadedClassMetricProviderTest {
     @Test
@@ -28,7 +28,7 @@ public class LoadedClassMetricProviderTest {
         Provider<LoadedClassMetric> provider = new LoadedClassMetricProvider();
         LoadedClassMetric loadedClassMetric = provider.get();
         LoadedClassMetricSnapshot snapshot = loadedClassMetric.getSnapshot();
-        Assert.assertNotEquals(0, snapshot.getLoadedClassCount());
+        Assertions.assertNotEquals(0, snapshot.getLoadedClassCount());
 
     }
 }

@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.common.util.concurrent.SettableFuture;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -29,6 +29,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class PingStreamContextTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Test
     public void test() throws InterruptedException, ExecutionException, TimeoutException {
         SettableFuture<Object> future = SettableFuture.create();

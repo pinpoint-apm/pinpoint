@@ -23,9 +23,10 @@ import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
-
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -33,13 +34,11 @@ import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.hamcrest.collection.IsEmptyCollection;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.SocketUtils;
 
 import java.nio.charset.Charset;
@@ -48,7 +47,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +85,7 @@ public class ClusterTest {
 
     private static TestingServer ts = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         zookeeperPort = SocketUtils.findAvailableTcpPort(28000);
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
@@ -120,7 +120,7 @@ public class ClusterTest {
         clusterDataManager.registerWebCluster(acceptorAddress, convertIpListToBytes(localV4IpList, "\r\n"));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         closeZookeeperServer(ts);
 
@@ -168,7 +168,7 @@ public class ClusterTest {
         return stringBuilder.toString().getBytes(UTF_8_CHARSET);
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         ts.restart();
     }
@@ -203,9 +203,9 @@ public class ClusterTest {
         awaitZookeeperDisconnected(zookeeper);
         try {
             zookeeper.getData(CLUSTER_NODE_PATH, null, null);
-            Assert.fail();
+            Assertions.fail();
         } catch (KeeperException e) {
-            Assert.assertEquals(KeeperException.Code.CONNECTIONLOSS, e.code());
+            Assertions.assertEquals(KeeperException.Code.CONNECTIONLOSS, e.code());
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -231,12 +231,12 @@ public class ClusterTest {
             });
             awaitZookeeperConnected(zookeeper);
 
-            Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
+            Assertions.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
             testPinpointClient.connect(DEFAULT_IP, acceptorPort);
             awaitPinpointClientConnected(clusterConnectionManager);
 
-            Assert.assertEquals(1, clusterConnectionManager.getClusterList().size());
+            Assertions.assertEquals(1, clusterConnectionManager.getClusterList().size());
         } finally {
             testPinpointClient.closeAll();
             if (zookeeper != null) {
@@ -266,10 +266,10 @@ public class ClusterTest {
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assert.assertEquals(registeredIpList.length, ipList.size());
+        Assertions.assertEquals(registeredIpList.length, ipList.size());
 
         for (String ip : registeredIpList) {
-            Assert.assertTrue(ipList.contains(ip));
+            Assertions.assertTrue(ipList.contains(ip));
         }
     }
 

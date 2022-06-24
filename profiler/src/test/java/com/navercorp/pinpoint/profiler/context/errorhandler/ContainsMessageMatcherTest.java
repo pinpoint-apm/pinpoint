@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,8 +28,8 @@ public class ContainsMessageMatcherTest {
     public void match() {
         MessageMatcher matcher = new ContainsMessageMatcher(new String[] {"error"});
 
-        Assert.assertTrue(matcher.match("aa error  bb"));
+        Assertions.assertTrue(matcher.match("aa error  bb"));
 
-        Assert.assertFalse(matcher.match("success"));
+        Assertions.assertFalse(matcher.match("success"));
     }
 }

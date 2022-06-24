@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -64,7 +64,7 @@ public class PinpointWebSocketTimerTaskDecoratorTest {
                 }
             }).start();
         }
-        Assert.assertTrue("Timed out waiting for timer task completion", schedulerLatch.await(2 * DELAY_MS, TimeUnit.MILLISECONDS));
+        Assertions.assertTrue(schedulerLatch.await(2 * DELAY_MS, TimeUnit.MILLISECONDS), "Timed out waiting for timer task completion");
     }
 
     private static class TestTimerTask extends TimerTask {
@@ -81,9 +81,9 @@ public class PinpointWebSocketTimerTaskDecoratorTest {
         public void run() {
             try {
                 SecurityContext securityContext = SecurityContextHolder.getContext();
-                Assert.assertNotNull(securityContext);
+                Assertions.assertNotNull(securityContext);
                 Authentication actualAuthentication = securityContext.getAuthentication();
-                Assert.assertSame(expectedAuthentication, actualAuthentication);
+                Assertions.assertSame(expectedAuthentication, actualAuthentication);
             } finally {
                 executeLatch.countDown();
             }

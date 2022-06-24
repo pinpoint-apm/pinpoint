@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ThroughputSamplerTest {
 
@@ -29,7 +29,7 @@ public class ThroughputSamplerTest {
     public void isSampling_1() {
         // 1 per seconds
         TraceSampler sampler = newTraceSampler(1);
-        Assert.assertTrue(sampler.isNewSampled().isSampled());
+        Assertions.assertTrue(sampler.isNewSampled().isSampled());
 
     }
 
@@ -37,7 +37,7 @@ public class ThroughputSamplerTest {
     public void isSampling_1000() {
         // 1000 per seconds
         TraceSampler sampler = newTraceSampler(1000);
-        Assert.assertTrue(sampler.isNewSampled().isSampled());
+        Assertions.assertTrue(sampler.isNewSampled().isSampled());
     }
 
 

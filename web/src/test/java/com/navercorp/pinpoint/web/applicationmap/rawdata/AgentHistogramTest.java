@@ -20,11 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -45,14 +44,14 @@ public class AgentHistogramTest {
         agentHistogram.addTimeHistogram(histogram);
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
-        Assert.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
+        Assertions.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
         histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
-        Assert.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
+        Assertions.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
 
-        Assert.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
+        Assertions.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
 
     }
 
@@ -66,12 +65,12 @@ public class AgentHistogramTest {
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
         logger.debug(copy.getHistogram().toString());
-        Assert.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
+        Assertions.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
         histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
-        Assert.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
+        Assertions.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
 
         String callJson = mapper.writeValueAsString(agentHistogram);
         String before = originalJson(agentHistogram);
@@ -80,7 +79,7 @@ public class AgentHistogramTest {
         logger.debug("BEFORE:{}", before);
         HashMap beforeJsonHashMap = mapper.readValue(before, HashMap.class);
         logger.debug("{} {}", callJsonHashMap, beforeJsonHashMap);
-        Assert.assertEquals(callJsonHashMap, beforeJsonHashMap);
+        Assertions.assertEquals(callJsonHashMap, beforeJsonHashMap);
     }
 
 

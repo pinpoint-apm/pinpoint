@@ -19,14 +19,14 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,13 +40,13 @@ public class RequestManagerTest {
     private Timer timer;
     private RequestManager requestManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.timer = new HashedWheelTimer(10, TimeUnit.MICROSECONDS);
         this.requestManager = new RequestManager(timer, 3000);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (this.timer != null) {
             this.timer.stop();
@@ -61,10 +61,10 @@ public class RequestManagerTest {
         final int requestId = requestManager.nextRequestId();
         final Future<ResponseMessage> future = requestManager.register(requestId, 50);
 
-        Assert.assertTrue(future.await(200));
-        Assert.assertTrue(future.isReady());
-        Assert.assertFalse(future.isSuccess());
-        Assert.assertTrue(future.getCause().getMessage().contains("timeout"));
+        Assertions.assertTrue(future.await(200));
+        Assertions.assertTrue(future.isReady());
+        Assertions.assertFalse(future.isSuccess());
+        Assertions.assertTrue(future.getCause().getMessage().contains("timeout"));
         logger.debug(future.getCause().getMessage());
     }
 
@@ -77,7 +77,7 @@ public class RequestManagerTest {
         future.setFailure(new RuntimeException());
 
         Future<ResponseMessage> nullFuture = requestManager.removeMessageFuture(requestId);
-        Assert.assertNull(nullFuture);
+        Assertions.assertNull(nullFuture);
     }
 
 }

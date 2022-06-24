@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.java9.classloader.Java9ClassLoader;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.module.ModuleDescriptor;
@@ -66,8 +66,8 @@ public class ModuleBuilderTest {
         Class<?> slf4jModule = classLoader.loadClass(slf4jClass.getName());
         logger.debug("slf4j:{}", slf4jModule);
 
-        Assert.assertSame(module, slf4jModule.getModule());
-        Assert.assertEquals(module.getName(), slf4jModule.getModule().getName());
+        Assertions.assertSame(module, slf4jModule.getModule());
+        Assertions.assertEquals(module.getName(), slf4jModule.getModule().getName());
 
         classLoader.close();
 

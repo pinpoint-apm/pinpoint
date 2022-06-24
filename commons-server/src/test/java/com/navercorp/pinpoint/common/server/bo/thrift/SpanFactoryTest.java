@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanFactoryAssert;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,10 +103,10 @@ public class SpanFactoryTest {
     @Test
     public void testBuildSpanBo() {
         TSpan tSpan = random.randomTSpan();
-        TSpanEvent tSpanEvent1 = random.randomTSpanEvent((short)0);
-        TSpanEvent tSpanEvent2 = random.randomTSpanEvent((short)1);
-        TSpanEvent tSpanEvent3 = random.randomTSpanEvent((short)5);
-        TSpanEvent tSpanEvent4 = random.randomTSpanEvent((short)2);
+        TSpanEvent tSpanEvent1 = random.randomTSpanEvent((short) 0);
+        TSpanEvent tSpanEvent2 = random.randomTSpanEvent((short) 1);
+        TSpanEvent tSpanEvent3 = random.randomTSpanEvent((short) 5);
+        TSpanEvent tSpanEvent4 = random.randomTSpanEvent((short) 2);
         tSpan.setSpanEventList(Arrays.asList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
 
         SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
@@ -126,10 +126,10 @@ public class SpanFactoryTest {
     @Test
     public void testBuildSpanChunkBo() {
         TSpanChunk tSpanChunk = random.randomTSpanChunk();
-        TSpanEvent tSpanEvent1 = random.randomTSpanEvent((short)0);
-        TSpanEvent tSpanEvent2 = random.randomTSpanEvent((short)1);
-        TSpanEvent tSpanEvent3 = random.randomTSpanEvent((short)5);
-        TSpanEvent tSpanEvent4 = random.randomTSpanEvent((short)2);
+        TSpanEvent tSpanEvent1 = random.randomTSpanEvent((short) 0);
+        TSpanEvent tSpanEvent2 = random.randomTSpanEvent((short) 1);
+        TSpanEvent tSpanEvent3 = random.randomTSpanEvent((short) 5);
+        TSpanEvent tSpanEvent4 = random.randomTSpanEvent((short) 2);
         tSpanChunk.setSpanEventList(Arrays.asList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
 
         SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(tSpanChunk);
@@ -155,9 +155,9 @@ public class SpanFactoryTest {
         SpanBo spanBo = spanFactory.newSpanBo(tSpan);
         TransactionId transactionId = spanBo.getTransactionId();
 
-        Assert.assertEquals(transactionId.getAgentId(), "agentId");
-        Assert.assertEquals(transactionId.getAgentStartTime(), 1);
-        Assert.assertEquals(transactionId.getTransactionSequence(), 2);
+        Assertions.assertEquals(transactionId.getAgentId(), "agentId");
+        Assertions.assertEquals(transactionId.getAgentStartTime(), 1);
+        Assertions.assertEquals(transactionId.getTransactionSequence(), 2);
     }
 
     @Test
@@ -170,9 +170,9 @@ public class SpanFactoryTest {
         SpanBo spanBo = spanFactory.newSpanBo(tSpan);
         TransactionId transactionId = spanBo.getTransactionId();
 
-        Assert.assertEquals(transactionId.getAgentId(), "transactionAgentId");
-        Assert.assertEquals(transactionId.getAgentStartTime(), 1);
-        Assert.assertEquals(transactionId.getTransactionSequence(), 2);
+        Assertions.assertEquals(transactionId.getAgentId(), "transactionAgentId");
+        Assertions.assertEquals(transactionId.getAgentStartTime(), 1);
+        Assertions.assertEquals(transactionId.getTransactionSequence(), 2);
     }
 
 
@@ -186,8 +186,8 @@ public class SpanFactoryTest {
         tSpanEvent.setAsyncSequence(asyncSequence);
         LocalAsyncIdBo localAsyncIdBo = spanFactory.fastLocalAsyncIdBo(Collections.singletonList(tSpanEvent));
 
-        Assert.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
-        Assert.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
+        Assertions.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
+        Assertions.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class SpanFactoryTest {
         TSpanEvent tSpanEvent = new TSpanEvent();
 
         LocalAsyncIdBo localAsyncIdBo = spanFactory.fastLocalAsyncIdBo(Collections.singletonList(tSpanEvent));
-        Assert.assertNull(localAsyncIdBo);
+        Assertions.assertNull(localAsyncIdBo);
     }
 
     @Test
@@ -212,8 +212,8 @@ public class SpanFactoryTest {
 
         LocalAsyncIdBo localAsyncIdBo = spanFactory.fullScanLocalAsyncIdBo(tSpanChunk);
 
-        Assert.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
-        Assert.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
+        Assertions.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
+        Assertions.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class SpanFactoryTest {
         tSpanChunk.setSpanEventList(Arrays.asList(tSpanEvent, tSpanEvent));
 
         LocalAsyncIdBo localAsyncIdBo = spanFactory.fullScanLocalAsyncIdBo(tSpanChunk);
-        Assert.assertNull(localAsyncIdBo);
+        Assertions.assertNull(localAsyncIdBo);
     }
 
 }

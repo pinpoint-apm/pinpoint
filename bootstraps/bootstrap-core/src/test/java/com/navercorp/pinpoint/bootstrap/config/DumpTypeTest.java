@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -37,7 +34,7 @@ public class DumpTypeTest {
 
         try {
             DumpType.valueOf("error");
-            Assert.fail("not found");
+            Assertions.fail("not found");
         } catch (IllegalArgumentException ignored) {
 
         }

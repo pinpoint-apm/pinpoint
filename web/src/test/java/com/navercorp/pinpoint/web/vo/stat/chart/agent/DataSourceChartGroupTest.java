@@ -28,9 +28,9 @@ import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -55,7 +55,7 @@ public class DataSourceChartGroupTest {
     @Mock
     private ServiceTypeRegistryService serviceTypeRegistryService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(serviceTypeRegistryService.findServiceType(any(Short.class))).thenReturn(ServiceType.UNKNOWN);
@@ -80,16 +80,16 @@ public class DataSourceChartGroupTest {
         List<SampledDataSource> sampledDataSourceList = List.of();
         DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
-        Assert.assertEquals(-1, dataSourceChartGroup.getId());
-        Assert.assertNull(dataSourceChartGroup.getJdbcUrl());
-        Assert.assertNull(dataSourceChartGroup.getDatabaseName());
-        Assert.assertNull(dataSourceChartGroup.getServiceType());
+        Assertions.assertEquals(-1, dataSourceChartGroup.getId());
+        Assertions.assertNull(dataSourceChartGroup.getJdbcUrl());
+        Assertions.assertNull(dataSourceChartGroup.getDatabaseName());
+        Assertions.assertNull(dataSourceChartGroup.getServiceType());
 
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> charts = dataSourceChartGroup.getCharts().getCharts();
-        Assert.assertEquals(2, charts.size());
+        Assertions.assertEquals(2, charts.size());
 
         for (Chart<? extends Point> chart : charts.values()) {
-            Assert.assertTrue(CollectionUtils.isEmpty(chart.getPoints()));
+            Assertions.assertTrue(CollectionUtils.isEmpty(chart.getPoints()));
         }
     }
 
@@ -124,7 +124,7 @@ public class DataSourceChartGroupTest {
             SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
             Point point = sampledDataSource.getActiveConnectionSize();
 
-            Assert.assertEquals(activeConnectionSizeChartPointList.get(i), point);
+            Assertions.assertEquals(activeConnectionSizeChartPointList.get(i), point);
         }
 
         Chart<AgentStatPoint<Integer>> maxConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartType.MAX_CONNECTION_SIZE);
@@ -133,7 +133,7 @@ public class DataSourceChartGroupTest {
             SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
             AgentStatPoint<Integer> point = sampledDataSource.getMaxConnectionSize();
 
-            Assert.assertEquals(maxConnectionSizeChartPointList.get(i), point);
+            Assertions.assertEquals(maxConnectionSizeChartPointList.get(i), point);
         }
     }
 

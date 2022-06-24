@@ -25,9 +25,8 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -59,7 +58,7 @@ public class HbaseSchemaServiceImplTest {
 
     private HbaseSchemaService hbaseSchemaService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         hbaseSchemaService = new HbaseSchemaServiceImpl(hbaseAdminOperation, schemaChangeLogService, hbaseSchemaVerifier);

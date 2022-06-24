@@ -16,16 +16,13 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.regex.Pattern;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
 /**
- * 
  * @author netspider
- * 
  */
 public class ValidIdCheckerTest {
 
@@ -33,22 +30,22 @@ public class ValidIdCheckerTest {
 
     @Test
     public void checkValidId() {
-        Assert.assertFalse(p.matcher("PINPOINT123").find());
-        Assert.assertFalse(p.matcher("P1NPOINT").find());
-        Assert.assertFalse(p.matcher("1PNPOINT").find());
-        Assert.assertFalse(p.matcher("P1NPOINT.DEV").find());
-        Assert.assertFalse(p.matcher("P1NPOINT..DEV").find());
-        Assert.assertFalse(p.matcher("P1N.POINT.DEV").find());
-        Assert.assertFalse(p.matcher("P1NPOINT-DEV").find());
-        Assert.assertFalse(p.matcher("P1NPOINT_DEV").find());
-        Assert.assertFalse(p.matcher("P1N_POINT_DEV").find());
+        Assertions.assertFalse(p.matcher("PINPOINT123").find());
+        Assertions.assertFalse(p.matcher("P1NPOINT").find());
+        Assertions.assertFalse(p.matcher("1PNPOINT").find());
+        Assertions.assertFalse(p.matcher("P1NPOINT.DEV").find());
+        Assertions.assertFalse(p.matcher("P1NPOINT..DEV").find());
+        Assertions.assertFalse(p.matcher("P1N.POINT.DEV").find());
+        Assertions.assertFalse(p.matcher("P1NPOINT-DEV").find());
+        Assertions.assertFalse(p.matcher("P1NPOINT_DEV").find());
+        Assertions.assertFalse(p.matcher("P1N_POINT_DEV").find());
     }
 
     @Test
     public void checkInvalidId() {
-        Assert.assertTrue(p.matcher("P1NPOINT가").find()); //include Korean character for test
-        Assert.assertTrue(p.matcher("P1NPOINT ").find());
-        Assert.assertTrue(p.matcher("P1NPOINT+").find());
-        Assert.assertTrue(p.matcher("PINPO+INT").find());
+        Assertions.assertTrue(p.matcher("P1NPOINT가").find()); //include Korean character for test
+        Assertions.assertTrue(p.matcher("P1NPOINT ").find());
+        Assertions.assertTrue(p.matcher("P1NPOINT+").find());
+        Assertions.assertTrue(p.matcher("PINPO+INT").find());
     }
 }

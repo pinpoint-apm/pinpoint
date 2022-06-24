@@ -1,15 +1,13 @@
 package com.navercorp.pinpoint.profiler.sampler;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SamplerTypeTest {
 
     @Test
     public void of() {
-        Assert.assertEquals(SamplerType.COUNTING, SamplerType.of("counting"));
-        Assert.assertEquals(SamplerType.PERCENT, SamplerType.of("percent"));
+        Assertions.assertEquals(SamplerType.COUNTING, SamplerType.of("counting"));
+        Assertions.assertEquals(SamplerType.PERCENT, SamplerType.of("percent"));
     }
 }

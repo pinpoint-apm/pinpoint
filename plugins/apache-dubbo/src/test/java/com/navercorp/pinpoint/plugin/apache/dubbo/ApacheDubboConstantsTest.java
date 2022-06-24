@@ -16,27 +16,27 @@
 
 package com.navercorp.pinpoint.plugin.apache.dubbo;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ApacheDubboConstantsTest {
 
     @Test
     public void test() {
-        Assert.assertEquals(ApacheDubboConstants.DUBBO_PROVIDER_SERVICE_TYPE.getCode(), 1999);
-        Assert.assertEquals(ApacheDubboConstants.DUBBO_CONSUMER_SERVICE_TYPE.getCode(), 9997);
-        Assert.assertEquals(ApacheDubboConstants.DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE.getCode(), 9999);
-        Assert.assertEquals(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY.getCode(), 997);
-        Assert.assertEquals(ApacheDubboConstants.DUBBO_RESULT_ANNOTATION_KEY.getCode(), 998);
-        Assert.assertEquals(ApacheDubboConstants.DUBBO_RPC_ANNOTATION_KEY.getCode(), 999);
+        Assertions.assertEquals(ApacheDubboConstants.DUBBO_PROVIDER_SERVICE_TYPE.getCode(), 1999);
+        Assertions.assertEquals(ApacheDubboConstants.DUBBO_CONSUMER_SERVICE_TYPE.getCode(), 9997);
+        Assertions.assertEquals(ApacheDubboConstants.DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE.getCode(), 9999);
+        Assertions.assertEquals(ApacheDubboConstants.DUBBO_ARGS_ANNOTATION_KEY.getCode(), 997);
+        Assertions.assertEquals(ApacheDubboConstants.DUBBO_RESULT_ANNOTATION_KEY.getCode(), 998);
+        Assertions.assertEquals(ApacheDubboConstants.DUBBO_RPC_ANNOTATION_KEY.getCode(), 999);
 
-        Assert.assertEquals(ApacheDubboConstants.META_DO_NOT_TRACE, "_DUBBO_DO_NOT_TRACE");
-        Assert.assertEquals(ApacheDubboConstants.META_TRANSACTION_ID, "_DUBBO_TRASACTION_ID");
-        Assert.assertEquals(ApacheDubboConstants.META_SPAN_ID, "_DUBBO_SPAN_ID");
-        Assert.assertEquals(ApacheDubboConstants.META_PARENT_SPAN_ID, "_DUBBO_PARENT_SPAN_ID");
-        Assert.assertEquals(ApacheDubboConstants.META_PARENT_APPLICATION_NAME, "_DUBBO_PARENT_APPLICATION_NAME");
-        Assert.assertEquals(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, "_DUBBO_PARENT_APPLICATION_TYPE");
-        Assert.assertEquals(ApacheDubboConstants.META_FLAGS, "_DUBBO_FLAGS");
-        Assert.assertEquals(ApacheDubboConstants.MONITOR_SERVICE_FQCN, "org.apache.dubbo.monitor.MonitorService");
+        Assertions.assertEquals(ApacheDubboConstants.META_DO_NOT_TRACE, "_DUBBO_DO_NOT_TRACE");
+        Assertions.assertEquals(ApacheDubboConstants.META_TRANSACTION_ID, "_DUBBO_TRASACTION_ID");
+        Assertions.assertEquals(ApacheDubboConstants.META_SPAN_ID, "_DUBBO_SPAN_ID");
+        Assertions.assertEquals(ApacheDubboConstants.META_PARENT_SPAN_ID, "_DUBBO_PARENT_SPAN_ID");
+        Assertions.assertEquals(ApacheDubboConstants.META_PARENT_APPLICATION_NAME, "_DUBBO_PARENT_APPLICATION_NAME");
+        Assertions.assertEquals(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, "_DUBBO_PARENT_APPLICATION_TYPE");
+        Assertions.assertEquals(ApacheDubboConstants.META_FLAGS, "_DUBBO_FLAGS");
+        Assertions.assertEquals(ApacheDubboConstants.MONITOR_SERVICE_FQCN, "org.apache.dubbo.monitor.MonitorService");
     }
 }

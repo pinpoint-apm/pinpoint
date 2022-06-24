@@ -16,18 +16,19 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class BytesUtilsTest {
@@ -38,37 +39,39 @@ public class BytesUtilsTest {
         final int strLength = 24;
         byte[] bytes = BytesUtils.stringLongLongToBytes("123", strLength, 12345, 54321);
 
-        Assert.assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, strLength));
-        Assert.assertEquals(12345, BytesUtils.bytesToLong(bytes, strLength));
-        Assert.assertEquals(54321, BytesUtils.bytesToLong(bytes, strLength + BytesUtils.LONG_BYTE_LENGTH));
+        assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, strLength));
+        assertEquals(12345, BytesUtils.bytesToLong(bytes, strLength));
+        assertEquals(54321, BytesUtils.bytesToLong(bytes, strLength + BytesUtils.LONG_BYTE_LENGTH));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void testStringLongLongToBytes_error() {
-        BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+            BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
+        });
     }
 
     @Test
     public void testStringLongLongToBytes2() {
         byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
         String s = BytesUtils.toStringAndRightTrim(bytes, 0, 10);
-        Assert.assertEquals("123", s);
+        assertEquals("123", s);
         long l = BytesUtils.bytesToLong(bytes, 10);
-        Assert.assertEquals(l, 1);
+        assertEquals(l, 1);
         long l2 = BytesUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
-        Assert.assertEquals(l2, 2);
+        assertEquals(l2, 2);
     }
 
     @Test
     public void testRightTrim() {
         String trim = BytesUtils.rightTrim("test  ");
-        Assert.assertEquals("test", trim);
+        assertEquals("test", trim);
 
         String trim1 = BytesUtils.rightTrim("test");
-        Assert.assertEquals("test", trim1);
+        assertEquals("test", trim1);
 
         String trim2 = BytesUtils.rightTrim("  test");
-        Assert.assertEquals("  test", trim2);
+        assertEquals("  test", trim2);
 
     }
 
@@ -90,52 +93,58 @@ public class BytesUtilsTest {
     private void checkInt(int i) {
         byte[] bytes = intToByteArray(i);
         int i2 = BytesUtils.bytesToInt(bytes, 0);
-        Assert.assertEquals(i, i2);
+        assertEquals(i, i2);
         int i3 = byteArrayToInt(bytes);
-        Assert.assertEquals(i, i3);
+        assertEquals(i, i3);
     }
 
     @Test
     public void testAddStringLong() {
         byte[] testAgents = BytesUtils.add("testAgent", 11L);
         byte[] buf = ByteBuffer.allocate(17).put("testAgent".getBytes()).putLong(11L).array();
-        Assert.assertArrayEquals(testAgents, buf);
+        Assertions.assertArrayEquals(testAgents, buf);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testAddStringLong_NullError() {
-        BytesUtils.add((String) null, 11L);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            BytesUtils.add((String) null, 11L);
+        });
     }
 
     @Test
     public void testToFixedLengthBytes() {
         byte[] testValue = BytesUtils.toFixedLengthBytes("test", 10);
-        Assert.assertEquals(testValue.length, 10);
-        Assert.assertEquals(testValue[5], 0);
+        assertEquals(testValue.length, 10);
+        assertEquals(testValue[5], 0);
 
         byte[] testValue2 = BytesUtils.toFixedLengthBytes(null, 10);
-        Assert.assertEquals(testValue2.length, 10);
+        assertEquals(testValue2.length, 10);
 
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void testToFixedLengthBytes_fail1() {
-        BytesUtils.toFixedLengthBytes("test", 2);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+            BytesUtils.toFixedLengthBytes("test", 2);
+        });
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void testToFixedLengthBytes_fail2() {
-        BytesUtils.toFixedLengthBytes("test", -1);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+            BytesUtils.toFixedLengthBytes("test", -1);
+        });
     }
 
     @Test
     public void testConcat() {
-        byte[] b1 = new byte[] { 1, 2 };
-        byte[] b2 = new byte[] { 3, 4 };
+        byte[] b1 = new byte[]{1, 2};
+        byte[] b2 = new byte[]{3, 4};
 
         byte[] b3 = BytesUtils.concat(b1, b2);
 
-        Assert.assertArrayEquals(new byte[] { 1, 2, 3, 4 }, b3);
+        Assertions.assertArrayEquals(new byte[]{1, 2, 3, 4}, b3);
     }
 
     @Test
@@ -149,27 +158,26 @@ public class BytesUtilsTest {
     private void testEncodingDecodingZigZag(int value) {
         int encode = BytesUtils.intToZigZag(value);
         int decode = BytesUtils.zigzagToInt(encode);
-        Assert.assertEquals(value, decode);
+        assertEquals(value, decode);
     }
-
 
 
     @Test
     public void testWriteBytes1() {
         byte[] buffer = new byte[10];
-        byte[] write = new byte[] { 1, 2, 3, 4 };
+        byte[] write = new byte[]{1, 2, 3, 4};
 
-        Assert.assertEquals(BytesUtils.writeBytes(buffer, 0, write), write.length);
-        Assert.assertArrayEquals(Arrays.copyOf(buffer, write.length), write);
+        assertEquals(BytesUtils.writeBytes(buffer, 0, write), write.length);
+        Assertions.assertArrayEquals(Arrays.copyOf(buffer, write.length), write);
     }
 
     @Test
     public void testWriteBytes2() {
         byte[] buffer = new byte[10];
-        byte[] write = new byte[] { 1, 2, 3, 4 };
+        byte[] write = new byte[]{1, 2, 3, 4};
         int startOffset = 1;
-        Assert.assertEquals(BytesUtils.writeBytes(buffer, startOffset, write), write.length + startOffset);
-        Assert.assertArrayEquals(Arrays.copyOfRange(buffer, startOffset, write.length + startOffset), write);
+        assertEquals(BytesUtils.writeBytes(buffer, startOffset, write), write.length + startOffset);
+        Assertions.assertArrayEquals(Arrays.copyOfRange(buffer, startOffset, write.length + startOffset), write);
     }
 
     @Test
@@ -182,23 +190,25 @@ public class BytesUtilsTest {
         src[3] = 4;
         src[4] = 5;
         // proper return?
-        Assert.assertEquals(3, BytesUtils.writeBytes(dst, 1, src, 2, 2));
+        assertEquals(3, BytesUtils.writeBytes(dst, 1, src, 2, 2));
         // successful write?
-        Assert.assertEquals(3, dst[1]);
-        Assert.assertEquals(4, dst[2]);
+        assertEquals(3, dst[1]);
+        assertEquals(4, dst[2]);
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test
     public void testOverflowDestinationWriteBytes() {
-        byte[] dst = new byte[5];
-        byte[] src = new byte[10];
-        for (int i = 0; i < 10; i++) {
-            src[i] = (byte) (i + 1);
-        }
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+            byte[] dst = new byte[5];
+            byte[] src = new byte[10];
+            for (int i = 0; i < 10; i++) {
+                src[i] = (byte) (i + 1);
+            }
 
-        // overflow!
-        BytesUtils.writeBytes(dst, 0, src);
-        // if it does not catch any errors, it means memory leak!
+            // overflow!
+            BytesUtils.writeBytes(dst, 0, src);
+            // if it does not catch any errors, it means memory leak!
+        });
     }
 
     @Test
@@ -208,24 +218,28 @@ public class BytesUtilsTest {
         for (i = 0; i < 12; i++) {
             such_long[i] = (byte) ((i << 4) + i);
         }
-        Assert.assertEquals(0x33445566778899AAl, BytesUtils.bytesToLong(such_long, 3));
+        assertEquals(0x33445566778899AAl, BytesUtils.bytesToLong(such_long, 3));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void testOverflowBytesToLong() {
-        byte[] such_long = new byte[12];
-        int i;
-        for (i = 0; i < 12; i++) {
-            such_long[i] = (byte) ((i << 4) + i);
-        }
-        // overflow!
-        BytesUtils.bytesToLong(such_long, 9);
-        // if it does not catch any errors, it means memory leak!
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+            byte[] such_long = new byte[12];
+            int i;
+            for (i = 0; i < 12; i++) {
+                such_long[i] = (byte) ((i << 4) + i);
+            }
+            // overflow!
+            BytesUtils.bytesToLong(such_long, 9);
+            // if it does not catch any errors, it means memory leak!
+        });
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testWriteLong_npe() {
-        BytesUtils.writeLong(1234, null, 0);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            BytesUtils.writeLong(1234, null, 0);
+        });
     }
 
     @Test()
@@ -246,7 +260,7 @@ public class BytesUtilsTest {
 
         BytesUtils.writeLong(-1l, such_long, 2);
         for (int i = 2; i < 10; i++) {
-            Assert.assertEquals((byte) 0xFF, such_long[i]);
+            assertEquals((byte) 0xFF, such_long[i]);
         }
     }
 
@@ -254,22 +268,22 @@ public class BytesUtilsTest {
     public void testRightTrim2() {
         // no space
         String testStr = "0123456789 abc";
-        Assert.assertEquals("0123456789 abc", BytesUtils.rightTrim(testStr));
+        assertEquals("0123456789 abc", BytesUtils.rightTrim(testStr));
         // right spaced
         testStr = "0123456789 abcabc!       ";
-        Assert.assertEquals("0123456789 abcabc!", BytesUtils.rightTrim(testStr));
+        assertEquals("0123456789 abcabc!", BytesUtils.rightTrim(testStr));
     }
 
     @Test
     public void testByteRightTrim1() {
         byte[] bytes = writeBytes(3, "123", 0, 3);
-        Assert.assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, 3));
+        assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, 3));
 
         byte[] testByte2 = writeBytes(10, "123", 0, 3);
-        Assert.assertEquals("123", BytesUtils.toStringAndRightTrim(testByte2, 0, 10));
+        assertEquals("123", BytesUtils.toStringAndRightTrim(testByte2, 0, 10));
 
         byte[] testByte3 = writeBytes(10, "", 0, 3);
-        Assert.assertEquals("", BytesUtils.toStringAndRightTrim(testByte3, 0, 10));
+        assertEquals("", BytesUtils.toStringAndRightTrim(testByte3, 0, 10));
     }
 
     private byte[] writeBytes(int bufferSize, String s, int offset, int length) {
@@ -283,30 +297,30 @@ public class BytesUtilsTest {
     public void testByteRightTrim2() {
         // no space
         byte[] testByte1 = "0123456789 abc".getBytes(StandardCharsets.UTF_8);
-        Assert.assertEquals("23456789", BytesUtils.toStringAndRightTrim(testByte1, 2, 9));
+        assertEquals("23456789", BytesUtils.toStringAndRightTrim(testByte1, 2, 9));
         // right spaced
         byte[] testByte2 = "0123456789 abcabc!       ".getBytes(StandardCharsets.UTF_8);
-        Assert.assertEquals(" abcabc!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
+        assertEquals(" abcabc!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
     }
 
     @Test
     public void testRightTrimIndex1() {
         String testStr = "0123  ";
         byte[] testBytes = testStr.getBytes(StandardCharsets.UTF_8);
-        Assert.assertEquals(testStr.trim().length(), BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
+        assertEquals(testStr.trim().length(), BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
     }
 
     @Test
     public void testRightTrimIndex2() {
         String testStr = "0123  ";
         byte[] testBytes = testStr.getBytes(StandardCharsets.UTF_8);
-        Assert.assertEquals(testStr.trim().length(), BytesUtils.rightTrimIndex(testBytes, 1, testBytes.length - 1));
+        assertEquals(testStr.trim().length(), BytesUtils.rightTrimIndex(testBytes, 1, testBytes.length - 1));
     }
 
     @Test
     public void testRightTrimIndex3() {
         byte[] testBytes = new byte[0];
-        Assert.assertEquals(0, BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
+        assertEquals(0, BytesUtils.rightTrimIndex(testBytes, 0, testBytes.length));
     }
 
     @Test
@@ -337,9 +351,9 @@ public class BytesUtilsTest {
 //    @Test
     public void testBoundaryValueVar32() {
         int boundSize = 0;
-        for (int i =0; i< Integer.MAX_VALUE; i++) {
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
             final int size = BytesUtils.computeVar32Size(i);
-            if (size> boundSize) {
+            if (size > boundSize) {
                 boundSize = size;
                 logger.debug("bound {}->{}", boundSize, i);
             }
@@ -362,9 +376,9 @@ public class BytesUtilsTest {
 //    @Test
     public void testBoundaryValueVar64() {
         int boundSize = 0;
-        for (long i =0; i< Long.MAX_VALUE; i++) {
+        for (long i = 0; i < Long.MAX_VALUE; i++) {
             final int size = BytesUtils.computeVar64Size(i);
-            if (size> boundSize) {
+            if (size > boundSize) {
                 boundSize = size;
                 logger.debug("bound {}->{}", boundSize, i);
             }
@@ -385,10 +399,10 @@ public class BytesUtilsTest {
 
         assertVar32(268435455);
         assertVar32(268435456);
-        assertVar32(Integer.MAX_VALUE-1);
+        assertVar32(Integer.MAX_VALUE - 1);
         assertVar32(Integer.MAX_VALUE);
         assertVar32(Integer.MIN_VALUE);
-        assertVar32(Integer.MIN_VALUE+1);
+        assertVar32(Integer.MIN_VALUE + 1);
 
         assertVar32(-127);
         assertVar32(-128);
@@ -405,16 +419,16 @@ public class BytesUtilsTest {
 
         final Buffer buffer = new FixedBuffer(bytes);
         final int varInt = buffer.readVInt();
-        Assert.assertEquals("check value", value, varInt);
-        assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
+        assertEquals(value, varInt, "check value");
+        assertEquals(buffer.getOffset(), computeBufferSize, "check buffer size");
 
         final int varInt_ByteUtils1 = BytesUtils.bytesToVar32(buffer.getBuffer(), 0);
-        Assert.assertEquals("check value", value, varInt_ByteUtils1);
+        assertEquals(value, varInt_ByteUtils1, "check value");
 
         final byte[] max_buffer = new byte[BytesUtils.VLONG_MAX_SIZE];
         BytesUtils.writeVar32(value, max_buffer, 0);
         final int varInt_ByteUtils2 = BytesUtils.bytesToVar32(max_buffer, 0);
-        Assert.assertEquals("check value", value, varInt_ByteUtils2);
+        assertEquals(value, varInt_ByteUtils2, "check value");
 
 
     }
@@ -438,10 +452,10 @@ public class BytesUtilsTest {
         assertVar64(34359738368L);
 
 
-        assertVar64(Long.MAX_VALUE-1);
+        assertVar64(Long.MAX_VALUE - 1);
         assertVar64(Long.MAX_VALUE);
         assertVar64(Long.MIN_VALUE);
-        assertVar64(Long.MIN_VALUE+1);
+        assertVar64(Long.MIN_VALUE + 1);
 
         assertVar64(-127);
         assertVar64(-128);
@@ -461,7 +475,7 @@ public class BytesUtilsTest {
     }
 
     private void assertIntToSVar32(int value) {
-        Assert.assertEquals(BytesUtils.bytesToSVar32(BytesUtils.intToSVar32(value), 0), value);
+        assertEquals(BytesUtils.bytesToSVar32(BytesUtils.intToSVar32(value), 0), value);
     }
 
     @Test
@@ -474,7 +488,7 @@ public class BytesUtilsTest {
     }
 
     private void assertIntToVar32(int value) {
-        Assert.assertEquals(BytesUtils.bytesToVar32(BytesUtils.intToVar32(value), 0), value);
+        assertEquals(BytesUtils.bytesToVar32(BytesUtils.intToVar32(value), 0), value);
     }
 
     private void assertVar64(long value) {
@@ -484,16 +498,16 @@ public class BytesUtilsTest {
 
         final Buffer buffer = new FixedBuffer(bytes);
         final long varLong = buffer.readVLong();
-        Assert.assertEquals("check value", value, varLong);
-        assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
+        assertEquals(value, varLong, "check value");
+        assertEquals(buffer.getOffset(), computeBufferSize, "check buffer size");
 
         final long varLong_ByteUtils1 = BytesUtils.bytesToVar64(buffer.getBuffer(), 0);
-        Assert.assertEquals("check value", value, varLong_ByteUtils1);
+        assertEquals(value, varLong_ByteUtils1, "check value");
 
         final byte[] max_buffer = new byte[BytesUtils.VLONG_MAX_SIZE];
         BytesUtils.writeVar64(value, max_buffer, 0);
         final long varLong_ByteUtils2 = BytesUtils.bytesToVar64(max_buffer, 0);
-        Assert.assertEquals("check value", value, varLong_ByteUtils2);
+        assertEquals(value, varLong_ByteUtils2, "check value");
     }
 
     @Test
@@ -510,25 +524,25 @@ public class BytesUtilsTest {
 
         try {
             BytesUtils.checkBounds(buffer, buffer.length, buffer.length);
-            Assert.fail("bound check fail");
+            fail("bound check fail");
         } catch (Exception ignored) {
         }
 
         try {
             BytesUtils.checkBounds(buffer, 2, buffer.length);
-            Assert.fail("bound check fail");
+            fail("bound check fail");
         } catch (Exception ignored) {
         }
 
         try {
             BytesUtils.checkBounds(buffer, -1, buffer.length);
-            Assert.fail("bound check fail");
+            fail("bound check fail");
         } catch (Exception ignored) {
         }
 
         try {
             BytesUtils.bytesToSVar32(new byte[10], 10);
-            Assert.fail("bound check fail");
+            fail("bound check fail");
         } catch (Exception ignored) {
         }
 
@@ -536,10 +550,10 @@ public class BytesUtilsTest {
 
     @Test
     public void testShortToUnsignedShort() {
-        Assert.assertEquals(BytesUtils.shortToUnsignedShort((short)0), 0);
-        Assert.assertEquals(BytesUtils.shortToUnsignedShort(Short.MAX_VALUE), 32767);
+        assertEquals(BytesUtils.shortToUnsignedShort((short) 0), 0);
+        assertEquals(BytesUtils.shortToUnsignedShort(Short.MAX_VALUE), 32767);
         final short maxOver = (short) (Short.MAX_VALUE + 1);
-        Assert.assertEquals(BytesUtils.shortToUnsignedShort(maxOver), 32768);
-        Assert.assertEquals(BytesUtils.shortToUnsignedShort((short)-1), 65535);
+        assertEquals(BytesUtils.shortToUnsignedShort(maxOver), 32768);
+        assertEquals(BytesUtils.shortToUnsignedShort((short) -1), 65535);
     }
 }

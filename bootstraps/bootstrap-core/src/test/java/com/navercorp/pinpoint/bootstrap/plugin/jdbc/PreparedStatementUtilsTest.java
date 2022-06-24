@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Method;
 import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
@@ -42,9 +41,9 @@ public class PreparedStatementUtilsTest {
 
     @Test
     public void testMatch() {
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setNCString"));
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setInt"));
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setTestTeTst"));
+        Assertions.assertTrue(PreparedStatementUtils.isSetter("setNCString"));
+        Assertions.assertTrue(PreparedStatementUtils.isSetter("setInt"));
+        Assertions.assertTrue(PreparedStatementUtils.isSetter("setTestTeTst"));
 
     }
 }

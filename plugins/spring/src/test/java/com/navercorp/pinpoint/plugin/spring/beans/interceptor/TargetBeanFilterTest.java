@@ -14,20 +14,21 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import java.util.Properties;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
-import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jongho Moon

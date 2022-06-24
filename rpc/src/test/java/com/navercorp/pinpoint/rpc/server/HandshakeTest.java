@@ -24,13 +24,13 @@ import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import org.jboss.netty.util.Timer;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jboss.netty.util.Timer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,12 +47,12 @@ public class HandshakeTest {
 
     private static Timer timer = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         timer = TimerFactory.createHashedWheelTimer(HandshakeTest.class.getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         if (timer != null) {
             timer.stop();
@@ -91,10 +91,10 @@ public class HandshakeTest {
             testPinpointServerAcceptor.assertAwaitClientConnected(1, 3000);
 
             PinpointSocket writableServer = getWritableServer("application", "agent", (Long) params.get(HandshakePropertyType.START_TIMESTAMP.getName()), testPinpointServerAcceptor.getConnectedPinpointSocketList());
-            Assert.assertNotNull(writableServer);
+            Assertions.assertNotNull(writableServer);
 
             writableServer = getWritableServer("application", "agent", (Long) params.get(HandshakePropertyType.START_TIMESTAMP.getName()) + 1, testPinpointServerAcceptor.getConnectedPinpointSocketList());
-            Assert.assertNull(writableServer);
+            Assertions.assertNull(writableServer);
         } finally {
             testPinpointClient.closeAll();
             testPinpointServerAcceptor.close();
@@ -110,9 +110,9 @@ public class HandshakeTest {
         PinpointClientHandshaker handshaker = new PinpointClientHandshaker(emptyMap, timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeComplete(null);
 
-        Assert.assertEquals(null, handshaker.getHandshakeResult());
+        Assertions.assertEquals(null, handshaker.getHandshakeResult());
 
-        Assert.assertTrue(handshaker.isFinished());
+        Assertions.assertTrue(handshaker.isFinished());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class HandshakeTest {
         PinpointClientHandshaker handshaker = new PinpointClientHandshaker(emptyMap, timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeAbort();
 
-        Assert.assertTrue(handshaker.isFinished());
+        Assertions.assertTrue(handshaker.isFinished());
     }
 
     private PinpointSocket getWritableServer(String applicationName, String agentId, long startTimeMillis, List<PinpointSocket> writableServerList) {
@@ -144,8 +144,8 @@ public class HandshakeTest {
 
         for (PinpointSocket writableServer : writableServerList) {
 
-            if (writableServer instanceof  PinpointServer) {
-                Map agentProperties = ((PinpointServer)writableServer).getChannelProperties();
+            if (writableServer instanceof PinpointServer) {
+                Map agentProperties = ((PinpointServer) writableServer).getChannelProperties();
 
                 if (!applicationName.equals(agentProperties.get(HandshakePropertyType.APPLICATION_NAME.getName()))) {
                     continue;

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.response.CodeResult;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CodeResultTest {
 
@@ -22,7 +22,7 @@ public class CodeResultTest {
         String jsonString = mapper.writeValueAsString(result);
         JsonNode jsonNode = mapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode.get("code"));
-        Assert.assertNull(jsonNode.get("result"));
+        Assertions.assertNotNull(jsonNode.get("code"));
+        Assertions.assertNull(jsonNode.get("result"));
     }
 }

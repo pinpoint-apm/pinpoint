@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.vo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -29,10 +29,12 @@ import java.util.Arrays;
  */
 public class AgentActiveThreadCountFactoryTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void assertAgentIdTest() {
-        AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
-        factory.create(new TCmdActiveThreadCountRes());
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+            factory.create(new TCmdActiveThreadCountRes());
+        });
     }
 
     @Test
@@ -44,8 +46,8 @@ public class AgentActiveThreadCountFactoryTest {
         factory.setAgentId("test");
         AgentActiveThreadCount agentActiveThreadCount = factory.create(response);
 
-        Assert.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
-        Assert.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
+        Assertions.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
+        Assertions.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
     }
 
     @Test
@@ -57,8 +59,8 @@ public class AgentActiveThreadCountFactoryTest {
         factory.setAgentId("test");
         AgentActiveThreadCount agentActiveThreadCount = factory.create(response);
 
-        Assert.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
-        Assert.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
+        Assertions.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
+        Assertions.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
     }
 
     @Test
@@ -69,8 +71,8 @@ public class AgentActiveThreadCountFactoryTest {
         factory.setAgentId("test");
         AgentActiveThreadCount agentActiveThreadCount = factory.create(response);
 
-        Assert.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
-        Assert.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
+        Assertions.assertEquals(factory.INTERNAL_ERROR.getCode(), agentActiveThreadCount.getCode());
+        Assertions.assertEquals(0, CollectionUtils.nullSafeSize(agentActiveThreadCount.getActiveThreadCountList()));
     }
 
 }

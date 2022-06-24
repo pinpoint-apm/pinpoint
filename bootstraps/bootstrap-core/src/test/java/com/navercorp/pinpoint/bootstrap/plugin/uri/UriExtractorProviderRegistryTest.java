@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.uri;
 
 import com.navercorp.pinpoint.common.trace.UriExtractorType;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +45,13 @@ public class UriExtractorProviderRegistryTest {
 
         UriExtractorProviderRegistry registry = new UriExtractorProviderRegistry(uriExtractorProviderList);
         List<UriMappingExtractorProvider> result = registry.get(UriMappingExtractorProvider.class, UriExtractorType.SERVLET_REQUEST_ATTRIBUTE);
-        Assert.assertEquals(2, result.size());
+        Assertions.assertEquals(2, result.size());
 
         result = registry.get(UriMappingExtractorProvider.class, UriExtractorType.NONE);
-        Assert.assertEquals(0, result.size());
+        Assertions.assertEquals(0, result.size());
 
         List<MockUriExtractorProvider> result2 = registry.get(MockUriExtractorProvider.class, UriExtractorType.SERVLET_REQUEST_ATTRIBUTE);
-        Assert.assertEquals(0, result2.size());
+        Assertions.assertEquals(0, result2.size());
     }
 
     static class MockUriExtractorProvider implements UriExtractorProvider {

@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
@@ -48,7 +48,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
+        Assertions.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
+        Assertions.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
+        Assertions.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
     }
 
     @Test
@@ -99,6 +99,6 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
+        Assertions.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
     }
 }

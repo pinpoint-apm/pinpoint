@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
 import org.apache.thrift.TBase;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
@@ -73,7 +73,7 @@ public class ActiveThreadServiceTest {
             MatcherAssert.assertThat(activeThreadCount.get(2), is(SLOW_COUNT));
             MatcherAssert.assertThat(activeThreadCount.get(3), is(VERY_SLOW_COUNT));
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 

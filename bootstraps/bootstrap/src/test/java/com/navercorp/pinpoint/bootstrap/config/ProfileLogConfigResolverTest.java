@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ProfileLogConfigResolverTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Test
     public void getLogPath() {
         URL resource = getClass().getClassLoader().getResource("log4j2-test.xml");

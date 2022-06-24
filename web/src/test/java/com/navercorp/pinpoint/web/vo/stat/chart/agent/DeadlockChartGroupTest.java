@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +91,7 @@ public class DeadlockChartGroupTest {
             SampledDeadlock sampledDeadlock = sampledDeadlockList.get(i);
             AgentStatPoint<Integer> point = sampledDeadlock.getDeadlockedThreadCount();
 
-            Assert.assertEquals(deadlockCountChartPointList.get(i), point);
+            Assertions.assertEquals(deadlockCountChartPointList.get(i), point);
         }
     }
 

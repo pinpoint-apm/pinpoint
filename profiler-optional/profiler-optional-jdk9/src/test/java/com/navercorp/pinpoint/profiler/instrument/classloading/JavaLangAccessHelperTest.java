@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.lang.invoke.MethodHandle;
-
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author jaehong.kim

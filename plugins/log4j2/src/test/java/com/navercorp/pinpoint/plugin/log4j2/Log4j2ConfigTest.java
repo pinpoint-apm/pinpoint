@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 
@@ -32,8 +32,8 @@ public class Log4j2ConfigTest {
     public void testLog4j2Config() {
         ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
         Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
-        Assert.assertTrue(StringUtils.hasLength(log4j2Config.toString()));
-        Assert.assertFalse(log4j2Config.isLog4j2LoggingTransactionInfo());
+        Assertions.assertTrue(StringUtils.hasLength(log4j2Config.toString()));
+        Assertions.assertFalse(log4j2Config.isLog4j2LoggingTransactionInfo());
     }
 
 }

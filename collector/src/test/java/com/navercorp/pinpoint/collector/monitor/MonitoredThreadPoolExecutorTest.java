@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.collector.monitor;
 
 import com.codahale.metrics.MetricRegistry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -38,14 +38,14 @@ public class MonitoredThreadPoolExecutorTest {
     private RunnableDecorator runnableDecorator;
     private MonitoredThreadPoolExecutor threadPoolExecutor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MetricRegistry metricRegistry = new MetricRegistry();
         this.runnableDecorator = spy(new BypassRunnableDecorator("test"));
         this.threadPoolExecutor = new MonitoredThreadPoolExecutor(1, 1, 1000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), runnableDecorator);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (this.threadPoolExecutor != null) {
             this.threadPoolExecutor.shutdown();

@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.management.ThreadInfo;
 import java.util.Arrays;
@@ -33,7 +32,7 @@ public class ThreadMXBeanUtilsTest {
     public void testName() {
         ThreadInfo[] threadInfos = ThreadMXBeanUtils.dumpAllThread();
 
-        Assert.assertNotNull(threadInfos);
+        Assertions.assertNotNull(threadInfos);
         logger.trace("thread:{}", Arrays.toString(threadInfos));
     }
 
@@ -48,22 +47,22 @@ public class ThreadMXBeanUtilsTest {
 
         String threadName = "ThreadMXBeanUtils-test-thread";
 
-        Assert.assertFalse(ThreadMXBeanUtils.findThreadName(threadName));
+        Assertions.assertFalse(ThreadMXBeanUtils.findThreadName(threadName));
 
         WaitingRunnable waiting = new WaitingRunnable();
         Thread thread = new Thread(waiting, threadName);
         thread.start();
 
-        Assert.assertTrue(ThreadMXBeanUtils.findThreadName(threadName));
+        Assertions.assertTrue(ThreadMXBeanUtils.findThreadName(threadName));
 
         waiting.stop();
         try {
             thread.join(2000);
         } catch (InterruptedException e) {
-            Assert.fail();
+            Assertions.fail();
         }
 
-        Assert.assertFalse(ThreadMXBeanUtils.findThreadName(threadName));
+        Assertions.assertFalse(ThreadMXBeanUtils.findThreadName(threadName));
     }
 
     private static class WaitingRunnable implements Runnable {

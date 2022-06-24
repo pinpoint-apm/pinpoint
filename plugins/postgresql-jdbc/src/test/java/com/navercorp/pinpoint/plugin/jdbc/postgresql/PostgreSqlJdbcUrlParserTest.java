@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * https://jdbc.postgresql.org/documentation/head/connect.html
@@ -35,24 +35,24 @@ public class PostgreSqlJdbcUrlParserTest {
     @Test
     public void postgresqlParse1() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://host1:5432/database_name?user=fred");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
-        Assert.assertEquals(dbInfo.getHost().get(0), ("host1:5432"));
-        Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432/database_name");
+        Assertions.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
+        Assertions.assertEquals(dbInfo.getHost().get(0), ("host1:5432"));
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "database_name");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432/database_name");
     }
 
     @Test
     public void postgresqlParse2() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://host1:5432/databaseName");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
-        Assert.assertEquals(dbInfo.getHost().get(0), "host1:5432");
+        Assertions.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "host1:5432");
 
-        Assert.assertEquals(dbInfo.getDatabaseId(), "databaseName");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432/databaseName");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "databaseName");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432/databaseName");
         logger.info(dbInfo.toString());
         logger.info(dbInfo.getMultipleHost());
     }
@@ -60,24 +60,24 @@ public class PostgreSqlJdbcUrlParserTest {
     @Test
     public void postgresqlParse3() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://host1/databaseName?user=fred");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
-        Assert.assertEquals(dbInfo.getHost().get(0), "host1");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "databaseName");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1/databaseName");
+        Assertions.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "host1");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "databaseName");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1/databaseName");
         logger.info(dbInfo.toString());
     }
 
     @Test
     public void postgresqlParseFailover1() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://host1:5432/databaseName?user=fred");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
-        Assert.assertEquals(dbInfo.getHost().get(0), "host1:5432");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "databaseName");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432/databaseName");
+        Assertions.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "host1:5432");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "databaseName");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432/databaseName");
         logger.info(dbInfo.toString());
     }
 
@@ -85,13 +85,13 @@ public class PostgreSqlJdbcUrlParserTest {
     @Test
     public void postgresqlParseFailover2() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:postgresql://host1:5432,host2:5432/databaseName?user=fred");
-        Assert.assertTrue(dbInfo.isParsingComplete());
+        Assertions.assertTrue(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
-        Assert.assertEquals(dbInfo.getHost().get(0), "host1:5432");
-        Assert.assertEquals(dbInfo.getHost().get(1), "host2:5432");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "databaseName");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432,host2:5432/databaseName");
+        Assertions.assertEquals(dbInfo.getType(), PostgreSqlConstants.POSTGRESQL);
+        Assertions.assertEquals(dbInfo.getHost().get(0), "host1:5432");
+        Assertions.assertEquals(dbInfo.getHost().get(1), "host2:5432");
+        Assertions.assertEquals(dbInfo.getDatabaseId(), "databaseName");
+        Assertions.assertEquals(dbInfo.getUrl(), "jdbc:postgresql://host1:5432,host2:5432/databaseName");
         logger.info(dbInfo.toString());
     }
 
@@ -99,17 +99,17 @@ public class PostgreSqlJdbcUrlParserTest {
     @Test
     public void parseFailTest1() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse(null);
-        Assert.assertFalse(dbInfo.isParsingComplete());
+        Assertions.assertFalse(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+        Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
     @Test
     public void parseFailTest2() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://host1:5432/databaseName?user=fred");
-        Assert.assertFalse(dbInfo.isParsingComplete());
+        Assertions.assertFalse(dbInfo.isParsingComplete());
 
-        Assert.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
+        Assertions.assertEquals(ServiceType.UNKNOWN_DB, dbInfo.getType());
     }
 
 }

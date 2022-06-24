@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.thrift.dto.TResponseTime;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Taejin Koo
@@ -46,8 +46,8 @@ public class ThriftResponseTimeBoMapperTest extends ThriftBoMapperTestBase<TResp
 
     @Override
     protected void verify(TResponseTime original, ResponseTimeBo mappedStatDataPoint) {
-        Assert.assertEquals("avg", original.getAvg(), mappedStatDataPoint.getAvg());
-        Assert.assertEquals("max", original.getMax(), mappedStatDataPoint.getMax());
+        Assertions.assertEquals(original.getAvg(), mappedStatDataPoint.getAvg(), "avg");
+        Assertions.assertEquals(original.getMax(), mappedStatDataPoint.getMax(), "max");
     }
 
 }

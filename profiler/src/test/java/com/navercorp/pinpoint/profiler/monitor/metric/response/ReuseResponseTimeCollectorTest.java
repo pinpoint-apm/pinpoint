@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -48,12 +48,12 @@ public class ReuseResponseTimeCollectorTest {
         }
 
         ResponseTimeValue responseTimeValue = reuseResponseTimeCollector.resetAndGetValue();
-        Assert.assertEquals(totalValue / count, responseTimeValue.getAvg());
-        Assert.assertEquals(maxValue, responseTimeValue.getMax());
+        Assertions.assertEquals(totalValue / count, responseTimeValue.getAvg());
+        Assertions.assertEquals(maxValue, responseTimeValue.getMax());
 
         responseTimeValue = reuseResponseTimeCollector.resetAndGetValue();
-        Assert.assertEquals(0, responseTimeValue.getAvg());
-        Assert.assertEquals(0, responseTimeValue.getMax());
+        Assertions.assertEquals(0, responseTimeValue.getAvg());
+        Assertions.assertEquals(0, responseTimeValue.getMax());
     }
 
 }

@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.bootstrap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BootLogLevelTest {
 
@@ -17,56 +17,56 @@ public class BootLogLevelTest {
 
     @Test
     public void of() {
-        assertEquals("trace", TRACE, BootLogLevel.of(TRACE.name()));
-        assertEquals("debug", DEBUG, BootLogLevel.of(DEBUG.name()));
-        assertEquals("info", INFO, BootLogLevel.of(INFO.name()));
-        assertEquals("warn", WARN, BootLogLevel.of(WARN.name()));
-        assertEquals("error", ERROR, BootLogLevel.of(ERROR.name()));
-        assertNull("invalid", BootLogLevel.of("notExist"));
+        assertEquals(TRACE, BootLogLevel.of(TRACE.name()), "trace");
+        assertEquals(DEBUG, BootLogLevel.of(DEBUG.name()), "debug");
+        assertEquals(INFO, BootLogLevel.of(INFO.name()), "info");
+        assertEquals(WARN, BootLogLevel.of(WARN.name()), "warn");
+        assertEquals(ERROR, BootLogLevel.of(ERROR.name()), "error");
+        assertNull(BootLogLevel.of("notExist"), "invalid");
     }
 
     @Test
     public void logTrace() {
-        assertTrue("trace", TRACE.logTrace());
-        assertFalse("debug", DEBUG.logTrace());
-        assertFalse("info", INFO.logTrace());
-        assertFalse("warn", WARN.logTrace());
-        assertFalse("error", ERROR.logTrace());
+        assertTrue(TRACE.logTrace(), "trace");
+        assertFalse(DEBUG.logTrace(), "debug");
+        assertFalse(INFO.logTrace(), "info");
+        assertFalse(WARN.logTrace(), "warn");
+        assertFalse(ERROR.logTrace(), "error");
     }
 
     @Test
     public void logDebug() {
-        assertTrue("trace", TRACE.logDebug());
-        assertTrue("debug", DEBUG.logDebug());
-        assertFalse("info", INFO.logDebug());
-        assertFalse("warn", WARN.logDebug());
-        assertFalse("error", ERROR.logDebug());
+        assertTrue(TRACE.logDebug(), "trace");
+        assertTrue(DEBUG.logDebug(), "debug");
+        assertFalse(INFO.logDebug(), "info");
+        assertFalse(WARN.logDebug(), "warn");
+        assertFalse(ERROR.logDebug(), "error");
     }
 
     @Test
     public void logInfo() {
-        assertTrue("trace", TRACE.logInfo());
-        assertTrue("debug", DEBUG.logInfo());
-        assertTrue("info", INFO.logInfo());
-        assertFalse("warn", WARN.logInfo());
-        assertFalse("error", ERROR.logInfo());
+        assertTrue(TRACE.logInfo(), "trace");
+        assertTrue(DEBUG.logInfo(), "debug");
+        assertTrue(INFO.logInfo(), "info");
+        assertFalse(WARN.logInfo(), "warn");
+        assertFalse(ERROR.logInfo(), "error");
     }
 
     @Test
     public void logWarn() {
-        assertTrue("trace", TRACE.logWarn());
-        assertTrue("debug", DEBUG.logWarn());
-        assertTrue("info", INFO.logWarn());
-        assertTrue("warn", WARN.logWarn());
-        assertFalse("error", ERROR.logWarn());
+        assertTrue(TRACE.logWarn(), "trace");
+        assertTrue(DEBUG.logWarn(), "debug");
+        assertTrue(INFO.logWarn(), "info");
+        assertTrue(WARN.logWarn(), "warn");
+        assertFalse(ERROR.logWarn(), "error");
     }
 
     @Test
     public void logError() {
-        assertTrue("trace", TRACE.logError());
-        assertTrue("debug", DEBUG.logError());
-        assertTrue("info", INFO.logError());
-        assertTrue("warn", WARN.logError());
-        assertTrue("error", ERROR.logError());
+        assertTrue(TRACE.logError(), "trace");
+        assertTrue(DEBUG.logError(), "debug");
+        assertTrue(INFO.logError(), "info");
+        assertTrue(WARN.logError(), "warn");
+        assertTrue(ERROR.logError(), "error");
     }
 }

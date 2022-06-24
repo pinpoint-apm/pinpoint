@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -31,40 +31,47 @@ public class RetryMessageTest {
     @Test
     public void availableTest1() {
         RetryMessage retryMessage = new RetryMessage(1, new byte[0]);
-        Assert.assertTrue(retryMessage.isRetryAvailable());
+        Assertions.assertTrue(retryMessage.isRetryAvailable());
 
         retryMessage.fail();
-        Assert.assertFalse(retryMessage.isRetryAvailable());
+        Assertions.assertFalse(retryMessage.isRetryAvailable());
     }
 
     @Test
     public void availableTest2() {
         RetryMessage retryMessage = new RetryMessage(1, 2, new byte[0]);
-        Assert.assertTrue(retryMessage.isRetryAvailable());
+        Assertions.assertTrue(retryMessage.isRetryAvailable());
 
         retryMessage.fail();
-        Assert.assertFalse(retryMessage.isRetryAvailable());
+        Assertions.assertFalse(retryMessage.isRetryAvailable());
     }
 
     @Test
     public void availableTest3() {
         RetryMessage retryMessage = new RetryMessage(2, 2, new byte[0]);
-        Assert.assertFalse(retryMessage.isRetryAvailable());
+        Assertions.assertFalse(retryMessage.isRetryAvailable());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void illegalArgumentTest1() {
-        RetryMessage retryMessage = new RetryMessage(-1, new byte[0]);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RetryMessage retryMessage = new RetryMessage(-1, new byte[0]);
+        });
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void illegalArgumentTest2() {
-        RetryMessage retryMessage = new RetryMessage(-1, 5, new byte[0]);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RetryMessage retryMessage = new RetryMessage(-1, 5, new byte[0]);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void illegalArgumentTest3() {
-        RetryMessage retryMessage = new RetryMessage(10, 9, new byte[0]);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RetryMessage retryMessage = new RetryMessage(10, 9, new byte[0]);
+        });
     }
 
     @Test

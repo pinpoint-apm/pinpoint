@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +33,6 @@ public class ReflectionDependencyResolverTest {
     public void get() throws Exception {
         ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(Thread.currentThread().getContextClassLoader(), new String[]{});
         List<File> files = dependencyResolver.lookup(Collections.singletonList("commons-logging:commons-logging:1.2"));
-        Assert.assertEquals(files.size(), 1);
+        Assertions.assertEquals(files.size(), 1);
     }
 }

@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.WeakAtomicReferenceArray;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * raceCondition generate fail.~~~~ hmm
  */
-@Ignore
+@Disabled
 public class WeakAtomicReferenceArrayTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -57,7 +56,7 @@ public class WeakAtomicReferenceArrayTest {
 
     private final AtomicInteger failCounter = new AtomicInteger();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         writer = (ThreadPoolExecutor) Executors.newFixedThreadPool(writerThreadSize);
         reader = (ThreadPoolExecutor) Executors.newFixedThreadPool(readThreadSize);
@@ -69,7 +68,7 @@ public class WeakAtomicReferenceArrayTest {
     }
 
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         writer.shutdownNow();
         reader.shutdownNow();
@@ -96,7 +95,7 @@ public class WeakAtomicReferenceArrayTest {
 
         private final AtomicInteger nextId = new AtomicInteger(0);
         private final AtomicMaxUpdater maxIndex = new AtomicMaxUpdater();
-//        private final ConcurrentLinkedQueue<Integer> updateIndex = new ConcurrentLinkedQueue<>();
+        //        private final ConcurrentLinkedQueue<Integer> updateIndex = new ConcurrentLinkedQueue<>();
         private final WeakAtomicReferenceArray<Integer> ref;
         private final AtomicInteger afterLast = new AtomicInteger(-1);
         private final AtomicReference<ChangedValue> lastChangeValue = new AtomicReference<>();
@@ -149,7 +148,7 @@ public class WeakAtomicReferenceArrayTest {
 
         public boolean checkChangeId() {
             ChangedValue changedValue = lastChangeValue.get();
-            if (changedValue == null){
+            if (changedValue == null) {
                 return true;
             }
             Integer findResult = ref.get(changedValue.index);
@@ -179,7 +178,6 @@ public class WeakAtomicReferenceArrayTest {
 //            }
 //            return checkInteger(findIndex, findResult);
 //        }
-
 
 
         public boolean randomGet() {
@@ -213,28 +211,27 @@ public class WeakAtomicReferenceArrayTest {
     @Test
     public void testLastGet() {
         AtomicReferenceTest mock = new AtomicReferenceTest();
-        Assert.assertTrue(mock.lastGet());
+        Assertions.assertTrue(mock.lastGet());
 
         mock.nextId();
-        Assert.assertTrue(mock.lastGet());
+        Assertions.assertTrue(mock.lastGet());
         for (int i = 0; i < 10; i++) {
-            Assert.assertTrue(mock.lastGet());
+            Assertions.assertTrue(mock.lastGet());
         }
     }
 
     @Test
     public void testRandomGet() {
         AtomicReferenceTest mock = new AtomicReferenceTest();
-        Assert.assertTrue(mock.randomGet());
+        Assertions.assertTrue(mock.randomGet());
         mock.nextId();
         mock.nextId();
         mock.nextId();
-        Assert.assertTrue(mock.randomGet());
+        Assertions.assertTrue(mock.randomGet());
         for (int i = 0; i < 10; i++) {
-            Assert.assertTrue(mock.randomGet());
+            Assertions.assertTrue(mock.randomGet());
         }
     }
-
 
 
     @Test
@@ -243,9 +240,9 @@ public class WeakAtomicReferenceArrayTest {
         mock.nextId();
         mock.nextId();
         mock.nextId();
-        Assert.assertTrue(mock.randomGet());
+        Assertions.assertTrue(mock.randomGet());
         for (int i = 0; i < 100; i++) {
-            Assert.assertTrue(mock.randomGet());
+            Assertions.assertTrue(mock.randomGet());
         }
     }
 
@@ -257,7 +254,7 @@ public class WeakAtomicReferenceArrayTest {
             @Override
             public void run() {
                 logger.debug("WriteJob-start");
-                int i =0;
+                int i = 0;
                 while (start.get()) {
 
                     AtomicReferenceTest referenceTest = getTestMock();
@@ -317,7 +314,7 @@ public class WeakAtomicReferenceArrayTest {
         }
         start.set(false);
         Thread.sleep(1000);
-        Assert.assertEquals("raceCondition test", failCounter.get(), 0);
+        Assertions.assertEquals(failCounter.get(), 0, "raceCondition test");
         writer.shutdown();
         reader.shutdown();
 

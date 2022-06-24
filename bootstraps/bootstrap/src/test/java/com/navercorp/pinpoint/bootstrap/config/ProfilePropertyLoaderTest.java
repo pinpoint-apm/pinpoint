@@ -17,12 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -30,19 +31,19 @@ import java.util.Properties;
  * @author Woonduk Kang(emeroad)
  */
 public class ProfilePropertyLoaderTest {
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public Path temp;
 
     @Test
-    public void isAllowPinpointProperty() {
+    public void isAllowPinpointProperty() throws IOException {
         PropertySnapshot properties = new PropertySnapshot(new Properties());
 
         properties.setProperty("pinpoint.test", "a");
-        File root = folder.getRoot();
+        File root = new File(temp.toString());
         ProfilePropertyLoader loader = new ProfilePropertyLoader(properties, properties, root.toPath(), Paths.get("test"), new String[]{"test"});
-        Assert.assertTrue(loader.isAllowPinpointProperty("pinpoint.test"));
+        Assertions.assertTrue(loader.isAllowPinpointProperty("pinpoint.test"));
 
-        Assert.assertFalse(loader.isAllowPinpointProperty("unknown.test"));
+        Assertions.assertFalse(loader.isAllowPinpointProperty("unknown.test"));
 
     }
 }

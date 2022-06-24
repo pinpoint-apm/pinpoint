@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_10;
 import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_11;
@@ -27,9 +27,9 @@ import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_8;
 import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_9;
 import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_RECENT;
 import static com.navercorp.pinpoint.common.util.JvmVersion.UNSUPPORTED;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author hyungil.jeong

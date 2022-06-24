@@ -18,9 +18,8 @@
 package com.navercorp.pinpoint.profiler.context.scope;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,13 +34,13 @@ public class ConcurrentPoolTest {
         final String OBJECT_NAME = "test";
 
         InterceptorScope addedScope = pool.get(OBJECT_NAME);
-        Assert.assertSame(pool.get(OBJECT_NAME), addedScope);
+        Assertions.assertSame(pool.get(OBJECT_NAME), addedScope);
 
         InterceptorScope exist = pool.get(OBJECT_NAME);
-        Assert.assertSame(exist, addedScope);
+        Assertions.assertSame(exist, addedScope);
 
         InterceptorScope another = pool.get("another");
-        Assert.assertNotSame(exist, another);
+        Assertions.assertNotSame(exist, another);
     }
 
 }

@@ -19,9 +19,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternal
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOperator;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -53,10 +55,12 @@ public class DefaultClassBasedMatcherTest {
         assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void getMatcherOperandWithClassNameIsNull() {
-        final String className = null;
-        DefaultClassBasedMatcher matcher = new DefaultClassBasedMatcher(null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            final String className = null;
+            DefaultClassBasedMatcher matcher = new DefaultClassBasedMatcher(null);
+        });
     }
 
 }

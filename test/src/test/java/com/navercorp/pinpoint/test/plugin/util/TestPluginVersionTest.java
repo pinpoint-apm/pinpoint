@@ -1,11 +1,13 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestPluginVersionTest {
     @Test
     public void test() {
-        org.junit.Assert.assertNotNull(TestPluginVersion.getVersion());
+        assertNotNull(TestPluginVersion.getVersion());
     }
 
 }

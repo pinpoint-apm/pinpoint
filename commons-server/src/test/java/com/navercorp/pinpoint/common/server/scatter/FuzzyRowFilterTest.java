@@ -4,10 +4,10 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FuzzyRowFilter;
 import org.apache.hadoop.hbase.util.Pair;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -26,11 +26,11 @@ public class FuzzyRowFilterTest {
 
         KeyValue keyValue = new KeyValue(new byte[]{0, 1}, 1L);
         Filter.ReturnCode returnCode = filter.filterKeyValue(keyValue);
-        Assert.assertEquals(returnCode, Filter.ReturnCode.SEEK_NEXT_USING_HINT);
+        Assertions.assertEquals(returnCode, Filter.ReturnCode.SEEK_NEXT_USING_HINT);
 
         KeyValue keyValue2 = new KeyValue(new byte[]{0, 5}, 1L);
         Filter.ReturnCode returnCode2 = filter.filterKeyValue(keyValue2);
-        Assert.assertEquals(returnCode2, Filter.ReturnCode.INCLUDE);
+        Assertions.assertEquals(returnCode2, Filter.ReturnCode.INCLUDE);
     }
 
     @Test

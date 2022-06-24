@@ -16,38 +16,38 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResponseCountCheckerTest {
 
-    
+
     private static final String SERVICE_NAME = "local_service";
     private static final String SERVICE_TYPE = "tomcat";
-    
+
     private static MapResponseDao mockMapResponseDAO;
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void before() {
         mockMapResponseDAO = new MapResponseDao() {
-            
+
             @Override
             public List<ResponseTime> selectResponseTime(Application application, Range range) {
                 List<ResponseTime> list = new LinkedList<>();
@@ -56,8 +56,8 @@ public class ResponseCountCheckerTest {
                 list.add(responseTime);
                 TimeHistogram histogram = null;
 
-                for (int i=0 ; i < 5; i++) {
-                    for (int j=0 ; j < 5; j++) {
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 5; j++) {
                         histogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
                         histogram.addCallCountByElapsedTime(1000, false);
                         histogram.addCallCountByElapsedTime(3000, false);
@@ -66,10 +66,10 @@ public class ResponseCountCheckerTest {
                         histogram.addCallCountByElapsedTime(1000, true);
                         responseTime.addResponseTime("agent_" + i + "_" + j, histogram);
                     }
-                    
+
                     timeStamp += 1;
                 }
-                
+
                 return list;
             }
         };
@@ -84,11 +84,11 @@ public class ResponseCountCheckerTest {
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 125, "testGroup", false, false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
-    
+
         filter.check();
         assertTrue(filter.isDetected());
     }
-    
+
     /*
      * alert conditions not satisfied
      */
@@ -98,7 +98,7 @@ public class ResponseCountCheckerTest {
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.TOTAL_COUNT.getName(), 126, "testGroup", false, false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
-    
+
         filter.check();
         assertFalse(filter.isDetected());
     }

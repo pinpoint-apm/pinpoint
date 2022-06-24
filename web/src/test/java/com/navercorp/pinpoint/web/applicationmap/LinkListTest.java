@@ -16,21 +16,20 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-
-import java.util.List;
-
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 /**
  * @author emeroad
@@ -38,12 +37,12 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 public class LinkListTest {
     private static final ServiceType TOMCAT = ServiceTypeFactory.of(1010, "TOMCAT", RECORD_STATISTICS);
     private static final ServiceType BLOC = ServiceTypeFactory.of(1011, "BLOC", RECORD_STATISTICS);
-      
-    
+
+
     @Test
     public void testGetLinkList() {
         LinkList linkList = new LinkList();
-        Assert.assertEquals(linkList.getLinkList().size(), 0);
+        Assertions.assertEquals(linkList.getLinkList().size(), 0);
     }
 
     @Test
@@ -54,11 +53,11 @@ public class LinkListTest {
 
         LinkList original = new LinkList();
         original.addLinkList(copy);
-        Assert.assertEquals(original.size(), 1);
+        Assertions.assertEquals(original.size(), 1);
 
         // don't copy in case of duplicated node
         original.addLinkList(copy);
-        Assert.assertEquals(original.size(), 1);
+        Assertions.assertEquals(original.size(), 1);
 
     }
 
@@ -89,15 +88,15 @@ public class LinkListTest {
         // find all links requesting "to"
         Application toBloc = new Application("to", BLOC);
         List<Link> findToLink = list.findToLink(toBloc);
-        Assert.assertEquals(findToLink.size(), 1);
+        Assertions.assertEquals(findToLink.size(), 1);
 
         for (Link link : findToLink) {
             Application to = link.getTo().getApplication();
-            Assert.assertEquals(toBloc + " " + to, toBloc, to);
+            Assertions.assertEquals(toBloc, to, toBloc + " " + to);
         }
 
         List<Link> unknown = list.findToLink(new Application("unknown", BLOC));
-        Assert.assertEquals(unknown.size(), 0);
+        Assertions.assertEquals(unknown.size(), 0);
     }
 
     @Test
@@ -111,33 +110,33 @@ public class LinkListTest {
         // find all links for "from" to request
         Application tomcat = new Application("from", TOMCAT);
         List<Link> findFromLink = list.findFromLink(tomcat);
-        Assert.assertEquals(findFromLink.size(), 2);
+        Assertions.assertEquals(findFromLink.size(), 2);
         for (Link link : findFromLink) {
             Application linkFrom = link.getFrom().getApplication();
-            Assert.assertEquals(linkFrom, tomcat);
+            Assertions.assertEquals(linkFrom, tomcat);
         }
 
         List<Link> unknown = list.findFromLink(new Application("unknown", TOMCAT));
-        Assert.assertEquals(unknown.size(), 0);
+        Assertions.assertEquals(unknown.size(), 0);
     }
 
     @Test
     public void testContainsNode() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
         LinkList list = new LinkList();
-        Assert.assertFalse(list.containsNode(tomcatToBlocLink));
+        Assertions.assertFalse(list.containsNode(tomcatToBlocLink));
 
         list.addLink(tomcatToBlocLink);
 
-        Assert.assertTrue(list.containsNode(tomcatToBlocLink));
+        Assertions.assertTrue(list.containsNode(tomcatToBlocLink));
     }
 
     @Test
     public void testSize() {
         LinkList list = new LinkList();
-        Assert.assertEquals(list.size(), 0);
+        Assertions.assertEquals(list.size(), 0);
 
         list.addLink(createTomcatToTomcatLink());
-        Assert.assertEquals(list.size(), 1);
+        Assertions.assertEquals(list.size(), 1);
     }
 }

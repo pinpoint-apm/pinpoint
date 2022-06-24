@@ -15,13 +15,10 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.Test;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -29,6 +26,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
@@ -472,9 +471,9 @@ public class CallTreeIteratorTest {
             for (CallTreeNode callTreeNode : callTree) {
                 Align align = callTreeNode.getAlign();
                 final StackEvent stackEvent = stackEventQueue.poll();
-                assertEquals("depth " + index, stackEvent.getDepth(), align.getDepth());
-                assertEquals("gap " + index, stackEvent.getGap(), align.getGap());
-                assertEquals("exec " + index, stackEvent.getExec(), align.getExecutionMilliseconds());
+                assertEquals(stackEvent.getDepth(), align.getDepth(), "depth " + index);
+                assertEquals(stackEvent.getGap(), align.getGap(), "gap " + index);
+                assertEquals(stackEvent.getExec(), align.getExecutionMilliseconds(), "exec " + index);
                 index++;
             }
         }

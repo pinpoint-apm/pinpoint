@@ -20,15 +20,14 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -90,7 +89,7 @@ public class AnnotationTranscoderTest {
         byte[] bytes = transcoder.encode(value, typeCode);
         Object decode = transcoder.decode(typeCode, bytes);
 
-        Assert.assertEquals(value, decode);
+        Assertions.assertEquals(value, decode);
     }
 
     private void typeUnsupportCode(Object value) {
@@ -100,7 +99,7 @@ public class AnnotationTranscoderTest {
         byte[] bytes = transcoder.encode(value, typeCode);
         Object decode = transcoder.decode(typeCode, bytes);
 
-        Assert.assertEquals(value.toString(), decode.toString());
+        Assertions.assertEquals(value.toString(), decode.toString());
     }
 
     private void typeBinaryCode(byte[] value) {
@@ -110,7 +109,7 @@ public class AnnotationTranscoderTest {
         byte[] bytes = transcoder.encode(value, typeCode);
         Object decode = transcoder.decode(typeCode, bytes);
 
-        Assert.assertArrayEquals(value, (byte[]) decode);
+        Assertions.assertArrayEquals(value, (byte[]) decode);
     }
 
     @Test
@@ -144,13 +143,13 @@ public class AnnotationTranscoderTest {
         IntStringValue tIntStringValue = new IntStringValue(intValue, stringValue);
         byte[] encode = transcoder.encode(tIntStringValue, AnnotationTranscoder.CODE_INT_STRING);
         IntStringValue decode = (IntStringValue) transcoder.decode(AnnotationTranscoder.CODE_INT_STRING, encode);
-        Assert.assertEquals(tIntStringValue.getIntValue(), decode.getIntValue());
-        Assert.assertEquals(tIntStringValue.getStringValue(), decode.getStringValue());
+        Assertions.assertEquals(tIntStringValue.getIntValue(), decode.getIntValue());
+        Assertions.assertEquals(tIntStringValue.getStringValue(), decode.getStringValue());
     }
 
     @Test
     public void testLongIntIntByteByteString() {
-        testLongIntIntByteByteString(999999, 0, 123, (byte)99, (byte)1, "app7");
+        testLongIntIntByteByteString(999999, 0, 123, (byte) 99, (byte) 1, "app7");
     }
 
     private void testLongIntIntByteByteString(long longValue, int intValue1, int intValue2, byte byteValue1, byte byteValue2, String stringValue) {
@@ -160,12 +159,12 @@ public class AnnotationTranscoderTest {
 
         byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_LONG_INT_INT_BYTE_BYTE_STRING);
         LongIntIntByteByteStringValue decode = (LongIntIntByteByteStringValue) transcoder.decode(AnnotationTranscoder.CODE_LONG_INT_INT_BYTE_BYTE_STRING, encode);
-        Assert.assertEquals(value.getLongValue(), decode.getLongValue());
-        Assert.assertEquals(value.getIntValue1(), decode.getIntValue1());
-        Assert.assertEquals(value.getIntValue2(), decode.getIntValue2());
-        Assert.assertEquals(value.getByteValue1(), decode.getByteValue1());
-        Assert.assertEquals(value.getByteValue2(), decode.getByteValue2());
-        Assert.assertEquals(value.getStringValue(), decode.getStringValue());
+        Assertions.assertEquals(value.getLongValue(), decode.getLongValue());
+        Assertions.assertEquals(value.getIntValue1(), decode.getIntValue1());
+        Assertions.assertEquals(value.getIntValue2(), decode.getIntValue2());
+        Assertions.assertEquals(value.getByteValue1(), decode.getByteValue1());
+        Assertions.assertEquals(value.getByteValue2(), decode.getByteValue2());
+        Assertions.assertEquals(value.getStringValue(), decode.getStringValue());
     }
 
     @Test
@@ -175,10 +174,10 @@ public class AnnotationTranscoderTest {
 
         byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN);
         IntBooleanIntBooleanValue decode = (IntBooleanIntBooleanValue) transcoder.decode(AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN, encode);
-        Assert.assertEquals(value.getIntValue1(), decode.getIntValue1());
-        Assert.assertFalse(decode.isBooleanValue1());
-        Assert.assertEquals(value.getIntValue2(), decode.getIntValue2());
-        Assert.assertTrue(decode.isBooleanValue2());
+        Assertions.assertEquals(value.getIntValue1(), decode.getIntValue1());
+        Assertions.assertFalse(decode.isBooleanValue1());
+        Assertions.assertEquals(value.getIntValue2(), decode.getIntValue2());
+        Assertions.assertTrue(decode.isBooleanValue2());
     }
 
     private void write(int value) throws TException {

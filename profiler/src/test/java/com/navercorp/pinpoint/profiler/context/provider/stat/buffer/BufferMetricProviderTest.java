@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,6 +32,6 @@ public class BufferMetricProviderTest {
         Provider<BufferMetric> provider = new BufferMetricProvider();
         BufferMetric bufferMetric = provider.get();
         BufferMetricSnapshot snapshot = bufferMetric.getSnapshot();
-        Assert.assertEquals(snapshot.getDirectCount(), BufferMetric.UNCOLLECTED_VALUE);
+        Assertions.assertEquals(snapshot.getDirectCount(), BufferMetric.UNCOLLECTED_VALUE);
     }
 }

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -36,10 +36,10 @@ public class PropertiesVerificationTest {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase-root.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
-        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
+        Assertions.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
 
         String clientPort = properties.getProperty("hbase.client.port");
-        Assert.assertEquals("2181", clientPort);
+        Assertions.assertEquals("2181", clientPort);
     }
 
     @Test
@@ -47,13 +47,13 @@ public class PropertiesVerificationTest {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-web-root.properties");
 
         String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
-        Assert.assertEquals(LOCAL_HOST, pinpointZKAddress);
+        Assertions.assertEquals(LOCAL_HOST, pinpointZKAddress);
 
         String zookeeperAddress = properties.getProperty("cluster.zookeeper.address");
-        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
+        Assertions.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
 
         String connectAddress = properties.getProperty("cluster.connect.address");
-        Assert.assertTrue(StringUtils.isEmpty(connectAddress));
+        Assertions.assertTrue(StringUtils.isEmpty(connectAddress));
     }
 
 }

@@ -18,14 +18,12 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -66,7 +64,7 @@ public class HeaderTBaseSerializerTest {
         TAgentInfo deserialize = (TAgentInfo) message.getData();
         logger.debug("deserializer:{}", deserialize.getClass());
 
-        Assert.assertEquals(deserialize, tAgentInfo);
+        Assertions.assertEquals(deserialize, tAgentInfo);
     }
 
     public void dump(byte[] data) {

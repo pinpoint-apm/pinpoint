@@ -16,21 +16,21 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TBaseStreamTest {
 
@@ -43,7 +43,7 @@ public class TBaseStreamTest {
     private static final short SERVICE_TYPE = Short.valueOf("1");
 
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
-    
+
     @Test
     public void clear() throws Exception {
         TBaseStream stream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);

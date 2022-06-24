@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,12 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReplaceListCompactProtocolTest {
 
@@ -39,7 +38,7 @@ public class ReplaceListCompactProtocolTest {
     final byte[] buf = new byte[1024];
 
 
-    @Before
+    @BeforeEach
     public void before() {
         // add dummy span-event list
         List<TSpanEvent> spanEventList = new ArrayList<>();
@@ -74,7 +73,7 @@ public class ReplaceListCompactProtocolTest {
         protocol01.addReplaceField("spanEventList", nodes01);
         span.write(protocol01);
         assertEquals(1, writeTo01.get());
-        
+
 
         TReplaceListProtocol protocol02 = new TReplaceListProtocol(new TCompactProtocol(transport));
         protocol02.addReplaceField("spanEventList", nodes02);

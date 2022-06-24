@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat.header;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class BitCountingHeaderEncoderTest {
             int code = decoder.getCode();
             decodedCodes.add(code);
         }
-        Assert.assertEquals(givenCodes, decodedCodes);
+        Assertions.assertEquals(givenCodes, decodedCodes);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BitCountingHeaderEncoderTest {
         // Then
         AgentStatHeaderDecoder decoder = new BitCountingHeaderDecoder(header);
         for (int i = 0; i < numCodes; i++) {
-            Assert.assertEquals(0, decoder.getCode());
+            Assertions.assertEquals(0, decoder.getCode());
         }
     }
 
@@ -99,7 +99,7 @@ public class BitCountingHeaderEncoderTest {
         for (int i = 0; i < numTotalCodes; i++) {
             decodedCodes.add(decoder.getCode());
         }
-        Assert.assertEquals(givenCodes, decodedCodes);
+        Assertions.assertEquals(givenCodes, decodedCodes);
     }
 
     @Test
@@ -107,6 +107,6 @@ public class BitCountingHeaderEncoderTest {
         AgentStatHeaderEncoder encoder = new BitCountingHeaderEncoder();
         final byte[] header = encoder.getHeader();
         AgentStatHeaderDecoder decoder = new BitCountingHeaderDecoder(header);
-        Assert.assertEquals(0, decoder.getCode());
+        Assertions.assertEquals(0, decoder.getCode());
     }
 }

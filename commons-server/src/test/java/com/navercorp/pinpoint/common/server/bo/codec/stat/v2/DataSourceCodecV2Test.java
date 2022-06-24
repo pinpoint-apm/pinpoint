@@ -21,18 +21,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceListBo> {
 
@@ -51,10 +51,10 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
 
     @Override
     protected void verify(DataSourceListBo expected, DataSourceListBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals(expected.size(), actual.size());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.size(), actual.size());
 
         List<DataSourceBo> expectedDataSourceList = expected.getList();
         List<DataSourceBo> actualDataSourceList = actual.getList();
@@ -65,16 +65,16 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
     }
 
     private void verify(DataSourceBo expected, DataSourceBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
 
-        Assert.assertEquals("id", expected.getId(), actual.getId());
-        Assert.assertEquals("serviceTypeCode", expected.getServiceTypeCode(), actual.getServiceTypeCode());
-        Assert.assertEquals("name", expected.getDatabaseName(), actual.getDatabaseName());
-        Assert.assertEquals("jdbcUrl", expected.getJdbcUrl(), actual.getJdbcUrl());
-        Assert.assertEquals("activeConnectionSize", expected.getActiveConnectionSize(), actual.getActiveConnectionSize());
-        Assert.assertEquals("maxConnectionSize", expected.getMaxConnectionSize(), actual.getMaxConnectionSize());
+        Assertions.assertEquals(expected.getId(), actual.getId(), "id");
+        Assertions.assertEquals(expected.getServiceTypeCode(), actual.getServiceTypeCode(), "serviceTypeCode");
+        Assertions.assertEquals(expected.getDatabaseName(), actual.getDatabaseName(), "name");
+        Assertions.assertEquals(expected.getJdbcUrl(), actual.getJdbcUrl(), "jdbcUrl");
+        Assertions.assertEquals(expected.getActiveConnectionSize(), actual.getActiveConnectionSize(), "activeConnectionSize");
+        Assertions.assertEquals(expected.getMaxConnectionSize(), actual.getMaxConnectionSize(), "maxConnectionSize");
     }
 
 }

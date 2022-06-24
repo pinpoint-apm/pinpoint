@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class SpanAlignerTest {
 
     private ServiceTypeRegistryService serviceTypeRegistryService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         serviceTypeRegistryService = Mockito.mock(ServiceTypeRegistryService.class);
         Mockito.when(serviceTypeRegistryService.findServiceType(Mockito.anyShort())).thenReturn(ServiceType.UNKNOWN);

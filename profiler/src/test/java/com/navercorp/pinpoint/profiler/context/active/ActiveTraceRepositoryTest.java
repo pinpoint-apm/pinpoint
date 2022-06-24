@@ -16,7 +16,27 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import static org.junit.Assert.*;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
+import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerConfig;
+import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,28 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
-import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
-import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
-import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerConfig;
-import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
-import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author HyunGil Jeong
@@ -65,7 +64,7 @@ public class ActiveTraceRepositoryTest {
 
     private DefaultApplicationContext applicationContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         ProfilerConfig profilerConfig = Mockito.spy(new DefaultProfilerConfig());
@@ -81,7 +80,7 @@ public class ActiveTraceRepositoryTest {
         this.activeTraceRepository = applicationContext.getInjector().getInstance(ActiveTraceRepository.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (applicationContext != null) {
             applicationContext.close();
@@ -92,8 +91,7 @@ public class ActiveTraceRepositoryTest {
     public void verifyActiveTraceCollectionAndTransactionCount() throws Exception {
         // Given
         final int newTransactionCount = 50;
-        @SuppressWarnings("unused")
-        final int expectedSampledNewCount = newTransactionCount / SAMPLING_RATE + (newTransactionCount % SAMPLING_RATE > 0 ? 1 : 0);
+        @SuppressWarnings("unused") final int expectedSampledNewCount = newTransactionCount / SAMPLING_RATE + (newTransactionCount % SAMPLING_RATE > 0 ? 1 : 0);
         final int expectedUnsampledNewCount = newTransactionCount - expectedSampledNewCount;
         final int expectedSampledContinuationCount = 20;
         final int expectedUnsampledContinuationCount = 30;
@@ -127,7 +125,7 @@ public class ActiveTraceRepositoryTest {
         assertEquals(expectedSampledContinuationCount, transactionCounter.getSampledContinuationCount());
         assertEquals(expectedUnsampledContinuationCount, transactionCounter.getUnSampledContinuationCount());
         assertEquals(expectedTotalTransactionCount, transactionCounter.getTotalTransactionCount());
-        
+
         for (ActiveTraceSnapshot activeTraceInfo : activeTraceInfos) {
             TraceThreadTuple executedTrace = executedTraceMap.get(activeTraceInfo.getLocalTransactionId());
             assertEquals(executedTrace.getId(), activeTraceInfo.getLocalTransactionId());

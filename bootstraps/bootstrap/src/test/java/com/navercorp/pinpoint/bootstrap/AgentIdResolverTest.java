@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.bootstrap;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -19,9 +19,9 @@ public class AgentIdResolverTest {
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap));
         AgentIds resolve = resolver.resolve();
 
-        Assert.assertEquals("agentId", resolve.getAgentId());
-        Assert.assertEquals("agentName", resolve.getAgentName());
-        Assert.assertEquals("appName", resolve.getApplicationName());
+        Assertions.assertEquals("agentId", resolve.getAgentId());
+        Assertions.assertEquals("agentName", resolve.getAgentName());
+        Assertions.assertEquals("appName", resolve.getApplicationName());
     }
 
     @Test
@@ -34,9 +34,9 @@ public class AgentIdResolverTest {
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap));
         AgentIds resolve = resolver.resolve();
 
-        Assert.assertEquals("agentId", resolve.getAgentId());
-        Assert.assertEquals("appName", resolve.getApplicationName());
-        Assert.assertEquals("", resolve.getAgentName());
+        Assertions.assertEquals("agentId", resolve.getAgentId());
+        Assertions.assertEquals("appName", resolve.getApplicationName());
+        Assertions.assertEquals("", resolve.getAgentName());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class AgentIdResolverTest {
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap));
         AgentIds resolve = resolver.resolve();
 
-        Assert.assertNull(resolve);
+        Assertions.assertNull(resolve);
     }
 
     @Test
@@ -66,9 +66,9 @@ public class AgentIdResolverTest {
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
         AgentIds resolve = resolver.resolve();
 
-        Assert.assertEquals("agentId1", resolve.getAgentId());
-        Assert.assertEquals("appName2", resolve.getApplicationName());
-        Assert.assertEquals("agentName1", resolve.getAgentName());
+        Assertions.assertEquals("agentId1", resolve.getAgentId());
+        Assertions.assertEquals("appName2", resolve.getApplicationName());
+        Assertions.assertEquals("agentName1", resolve.getAgentName());
     }
 
     @Test
@@ -88,8 +88,8 @@ public class AgentIdResolverTest {
         AgentIdResolver resolver = new AgentIdResolver(Arrays.asList(ap, ap2));
         AgentIds resolve = resolver.resolve();
 
-        Assert.assertEquals("agentId2", resolve.getAgentId());
-        Assert.assertEquals("appName2", resolve.getApplicationName());
-        Assert.assertEquals("agentName2", resolve.getAgentName());
+        Assertions.assertEquals("agentId2", resolve.getAgentId());
+        Assertions.assertEquals("appName2", resolve.getApplicationName());
+        Assertions.assertEquals("agentName2", resolve.getAgentName());
     }
 }

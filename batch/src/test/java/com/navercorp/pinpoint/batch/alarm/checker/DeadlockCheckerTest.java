@@ -16,25 +16,25 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DeadlockCheckerTest {
 
     private static final String APPLICATION_NAME = "local_service";
@@ -68,7 +68,7 @@ public class DeadlockCheckerTest {
     @Mock
     private ApplicationIndexDao mockApplicationIndexDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         when(mockApplicationIndexDao.selectAgentIds(APPLICATION_NAME)).thenReturn(Arrays.asList(AGENT_ID_1, AGENT_ID_2, AGENT_ID_3));
     }
@@ -90,13 +90,13 @@ public class DeadlockCheckerTest {
         AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, application, mockAgentEventDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DeadlockChecker checker = new DeadlockChecker(dataCollector, rule);
         checker.check();
-        Assert.assertTrue(checker.isDetected());
+        Assertions.assertTrue(checker.isDetected());
 
         String emailMessage = checker.getEmailMessage();
-        Assert.assertTrue(StringUtils.hasLength(emailMessage));
+        Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertEquals(1, smsMessage.size());
+        Assertions.assertEquals(1, smsMessage.size());
     }
 
     @Test
@@ -112,13 +112,13 @@ public class DeadlockCheckerTest {
         AgentEventDataCollector dataCollector = new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, application, mockAgentEventDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DeadlockChecker checker = new DeadlockChecker(dataCollector, rule);
         checker.check();
-        Assert.assertFalse(checker.isDetected());
+        Assertions.assertFalse(checker.isDetected());
 
         String emailMessage = checker.getEmailMessage();
-        Assert.assertTrue(StringUtils.isEmpty(emailMessage));
+        Assertions.assertTrue(StringUtils.isEmpty(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assert.assertTrue(smsMessage.isEmpty());
+        Assertions.assertTrue(smsMessage.isEmpty());
     }
 
     private AgentEventBo createAgentEvent(String agentId, long eventTimestamp, AgentEventType agentEventType) {

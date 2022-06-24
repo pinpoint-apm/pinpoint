@@ -19,16 +19,14 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HbaseHostApplicationMapDaoTest {
 
@@ -47,8 +45,8 @@ public class HbaseHostApplicationMapDaoTest {
         short code = readBuffer.readShort();
         long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());
 
-        Assert.assertEquals("applicationName check",appName, "parentApp");
-        Assert.assertEquals("serviceType check", code, ServiceType.STAND_ALONE.getCode());
-        Assert.assertEquals("time check", statisticsRowSlot, time);
+        Assertions.assertEquals(appName, "parentApp", "applicationName check");
+        Assertions.assertEquals(code, ServiceType.STAND_ALONE.getCode(), "serviceType check");
+        Assertions.assertEquals(statisticsRowSlot, time, "time check");
     }
 }

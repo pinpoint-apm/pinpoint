@@ -18,20 +18,19 @@ package com.navercorp.pinpoint.profiler.instrument.config;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
-
 
 public class DefaultInstrumentConfigTest {
     private final ValueAnnotationProcessor valueAnnotationProcessor = new ValueAnnotationProcessor();
 
     @Test
-    public void defaultProfilableClassFilter(){
+    public void defaultProfilableClassFilter() {
         InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
         Filter<String> profilableClassFilter = instrumentConfig.getProfilableClassFilter();
-        Assert.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
+        Assertions.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
     }
 
     @Test
@@ -41,22 +40,22 @@ public class DefaultInstrumentConfigTest {
 
         // Read
         InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);;
+        valueAnnotationProcessor.process(instrumentConfig, properties);
 
-        Assert.assertEquals(instrumentConfig.getCallStackMaxDepth(), 64);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxDepth(), 64);
 
         // Unlimited
         properties.setProperty("profiler.callstack.max.depth", "-1");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assert.assertEquals(instrumentConfig.getCallStackMaxDepth(), -1);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxDepth(), -1);
 
         // Minimum calibration
         properties.setProperty("profiler.callstack.max.depth", "0");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
 
-        Assert.assertEquals(instrumentConfig.getCallStackMaxDepth(), 2);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxDepth(), 2);
     }
 
     @Test
@@ -66,33 +65,33 @@ public class DefaultInstrumentConfigTest {
 
         // Read
         InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
-        valueAnnotationProcessor.process(instrumentConfig, properties);;
+        valueAnnotationProcessor.process(instrumentConfig, properties);
 
-        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 5000);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 5000);
 
         // Unlimited
         properties.setProperty("profiler.callstack.max.sequence", "-1");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
 
         properties.setProperty("profiler.callstack.max.sequence", "-73");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
 
         // short overflow
         properties.setProperty("profiler.callstack.max.sequence", "1048576");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
-        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 32767);
 
         // Minimum calibration
         properties.setProperty("profiler.callstack.max.sequence", "0");
         instrumentConfig = new DefaultInstrumentConfig();
         valueAnnotationProcessor.process(instrumentConfig, properties);
 
-        Assert.assertEquals(instrumentConfig.getCallStackMaxSequence(), 4);
+        Assertions.assertEquals(instrumentConfig.getCallStackMaxSequence(), 4);
     }
 
 }

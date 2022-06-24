@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -126,31 +126,31 @@ public class UnidirectionalLinkSelectorTest extends LinkSelectorTestBase {
         // APP_IN_IN -> APP_IN (callee)
         LinkKey linkKey_IN_IN_to_IN = new LinkKey(APP_IN_IN, APP_IN);
         LinkData linkData_IN_IN_to_IN = linkDataDuplexMap.getTargetLinkData(linkKey_IN_IN_to_IN);
-        Assert.assertNotNull(linkData_IN_IN_to_IN);
-        Assert.assertEquals(callCount, linkData_IN_IN_to_IN.getTotalCount());
+        Assertions.assertNotNull(linkData_IN_IN_to_IN);
+        Assertions.assertEquals(callCount, linkData_IN_IN_to_IN.getTotalCount());
         // APP_IN -> APP_A (callee)
         LinkKey linkKey_IN_to_A = new LinkKey(APP_IN, APP_A);
         LinkData linkData_IN_to_A = linkDataDuplexMap.getTargetLinkData(linkKey_IN_to_A);
-        Assert.assertNotNull(linkData_IN_to_A);
-        Assert.assertEquals(callCount, linkData_IN_to_A.getTotalCount());
+        Assertions.assertNotNull(linkData_IN_to_A);
+        Assertions.assertEquals(callCount, linkData_IN_to_A.getTotalCount());
         // APP_IN (caller) -> APP_IN_OUT should not exist
         LinkKey linkKey_IN_to_IN_OUT = new LinkKey(APP_IN, APP_IN_OUT);
         LinkData linkData_IN_to_IN_OUT = linkDataDuplexMap.getSourceLinkData(linkKey_IN_to_IN_OUT);
-        Assert.assertNull(linkData_IN_to_IN_OUT);
+        Assertions.assertNull(linkData_IN_to_IN_OUT);
 
         // APP_A (caller) -> APP_OUT
         LinkKey linkKey_A_to_OUT = new LinkKey(APP_A, APP_OUT);
         LinkData linkData_A_to_OUT = linkDataDuplexMap.getSourceLinkData(linkKey_A_to_OUT);
-        Assert.assertNotNull(linkData_A_to_OUT);
-        Assert.assertEquals(callCount, linkData_A_to_OUT.getTotalCount());
+        Assertions.assertNotNull(linkData_A_to_OUT);
+        Assertions.assertEquals(callCount, linkData_A_to_OUT.getTotalCount());
         // APP_OUT (caller) -> APP_OUT_OUT
         LinkKey linkKey_OUT_to_OUT_OUT = new LinkKey(APP_OUT, APP_OUT_OUT);
         LinkData linkData_OUT_to_OUT_OUT = linkDataDuplexMap.getSourceLinkData(linkKey_OUT_to_OUT_OUT);
-        Assert.assertNotNull(linkData_OUT_to_OUT_OUT);
-        Assert.assertEquals(callCount, linkData_OUT_to_OUT_OUT.getTotalCount());
+        Assertions.assertNotNull(linkData_OUT_to_OUT_OUT);
+        Assertions.assertEquals(callCount, linkData_OUT_to_OUT_OUT.getTotalCount());
         // APP_OUT_IN -> APP_OUT (callee) should not exist
         LinkKey linkKey_OUT_IN_to_OUT = new LinkKey(APP_OUT_IN, APP_OUT);
         LinkData linkData_OUT_IN_to_OUT = linkDataDuplexMap.getTargetLinkData(linkKey_OUT_IN_to_OUT);
-        Assert.assertNull(linkData_OUT_IN_to_OUT);
+        Assertions.assertNull(linkData_OUT_IN_to_OUT);
     }
 }

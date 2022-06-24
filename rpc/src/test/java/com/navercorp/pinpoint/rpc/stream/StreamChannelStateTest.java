@@ -16,67 +16,66 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import org.junit.Assert;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class StreamChannelStateTest {
 
     @Test
     public void functionTest1() {
         StreamChannelState state = new StreamChannelState();
-        Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
         state.to(StreamChannelStateCode.OPEN);
-        Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 
         state.to(StreamChannelStateCode.CONNECT_AWAIT);
-        Assert.assertEquals(StreamChannelStateCode.CONNECT_AWAIT, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.CONNECT_AWAIT, state.getCurrentState());
 
         state.to(StreamChannelStateCode.CONNECTED);
-        Assert.assertEquals(StreamChannelStateCode.CONNECTED, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.CONNECTED, state.getCurrentState());
 
         state.to(StreamChannelStateCode.CLOSED);
-        Assert.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
     }
 
     @Test
     public void functionTest2() {
         StreamChannelState state = new StreamChannelState();
-        Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
         state.to(StreamChannelStateCode.OPEN);
-        Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 
         state.to(StreamChannelStateCode.CONNECT_ARRIVED);
-        Assert.assertEquals(StreamChannelStateCode.CONNECT_ARRIVED, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.CONNECT_ARRIVED, state.getCurrentState());
 
         state.to(StreamChannelStateCode.CONNECTED);
-        Assert.assertEquals(StreamChannelStateCode.CONNECTED, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.CONNECTED, state.getCurrentState());
 
         state.to(StreamChannelStateCode.CLOSED);
-        Assert.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
     }
 
     @Test
     public void functionTest3() {
         StreamChannelState state = new StreamChannelState();
-        Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
         boolean result = state.to(StreamChannelStateCode.CONNECTED);
-        Assert.assertFalse(result);
+        Assertions.assertFalse(result);
     }
 
     @Test
     public void functionTest4() {
         StreamChannelState state = new StreamChannelState();
-        Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
         state.to(StreamChannelStateCode.OPEN);
-        Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
+        Assertions.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 
         boolean result = state.to(StreamChannelStateCode.CONNECTED);
-        Assert.assertFalse(result);
+        Assertions.assertFalse(result);
     }
 
 }

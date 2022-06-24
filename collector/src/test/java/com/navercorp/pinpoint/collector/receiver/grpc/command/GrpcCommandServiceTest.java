@@ -43,8 +43,8 @@ import org.apache.curator.utils.ZKPaths;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.awaitility.core.ConditionTimeoutException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -106,14 +106,14 @@ public class GrpcCommandServiceTest {
             final TempServerCallStreamObserver<PCmdRequest> requestObserver = new TempServerCallStreamObserver<>();
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(requestObserver);
 
-            Assert.assertThrows(ConditionTimeoutException.class, () -> {
+            Assertions.assertThrows(ConditionTimeoutException.class, () -> {
                         Awaitility.await("oldVersionHandshakeFailTest")
                                 .timeout(400, TimeUnit.MILLISECONDS)
                                 .until(manager::getClusterData, hasSize(1));
                     }
             );
 
-            Assert.assertNotNull(requestObserver.getLatestException());
+            Assertions.assertNotNull(requestObserver.getLatestException());
         }
     }
 
@@ -153,23 +153,23 @@ public class GrpcCommandServiceTest {
         RecordedStreamObserver<Empty> recordedStreamObserver = new RecordedStreamObserver<>();
         PCmdEchoResponse defaultInstance = PCmdEchoResponse.getDefaultInstance();
         commandService.commandEcho(defaultInstance, recordedStreamObserver);
-        Assert.assertNull(recordedStreamObserver.getLatestThrowable());
+        Assertions.assertNull(recordedStreamObserver.getLatestThrowable());
 
         attachContext(createTransportMetaData(transportMetaData.getRemoteAddress(), transportMetaData.getTransportId() + 1));
         commandService.commandEcho(defaultInstance, recordedStreamObserver);
-        Assert.assertNotNull(recordedStreamObserver.getLatestThrowable());
+        Assertions.assertNotNull(recordedStreamObserver.getLatestThrowable());
 
         StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<>());
-        Assert.assertNotNull(pCmdActiveThreadCountResStreamObserver);
+        Assertions.assertNotNull(pCmdActiveThreadCountResStreamObserver);
 
         attachContext(transportMetaData);
         TempServerCallStreamObserver<Empty> streamConnectionManagerObserver = new TempServerCallStreamObserver<>();
 
         pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(streamConnectionManagerObserver);
-        Assert.assertNull(streamConnectionManagerObserver.getLatestException());
+        Assertions.assertNull(streamConnectionManagerObserver.getLatestException());
 
         pCmdActiveThreadCountResStreamObserver.onNext(PCmdActiveThreadCountRes.getDefaultInstance());
-        Assert.assertNotNull(streamConnectionManagerObserver.getLatestException());
+        Assertions.assertNotNull(streamConnectionManagerObserver.getLatestException());
     }
 
     private TransportMetadata createTransportMetaData(InetSocketAddress remoteAddress, long transportId) {

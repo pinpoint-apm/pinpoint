@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.profiler.sampler;
 
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PercentSamplerFactoryTest {
 
@@ -23,7 +23,7 @@ public class PercentSamplerFactoryTest {
 
     private void assertDoubleParse(long expected, String strValue) {
         long v = PercentSamplerFactory.parseSamplingRate(strValue);
-        Assert.assertEquals(expected, v);
+        Assertions.assertEquals(expected, v);
     }
 
     @Test
@@ -31,10 +31,10 @@ public class PercentSamplerFactoryTest {
         SamplerFactory factory = new PercentSamplerFactory(50_00);
         Sampler sampler = factory.createSampler();
 
-        Assert.assertEquals(true, sampler.isSampling());
-        Assert.assertEquals(false, sampler.isSampling());
-        Assert.assertEquals(true, sampler.isSampling());
-        Assert.assertEquals(false, sampler.isSampling());
+        Assertions.assertEquals(true, sampler.isSampling());
+        Assertions.assertEquals(false, sampler.isSampling());
+        Assertions.assertEquals(true, sampler.isSampling());
+        Assertions.assertEquals(false, sampler.isSampling());
     }
 
 }

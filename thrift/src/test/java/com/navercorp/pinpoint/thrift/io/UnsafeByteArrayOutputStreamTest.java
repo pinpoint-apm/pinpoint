@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 /**
- * 
  * @author Taejin Koo
  */
 public class UnsafeByteArrayOutputStreamTest {
-    
+
     private final String TEST_STRING1 = "hello pinpoint";
     private final String TEST_STRING2 = "hi pinpoint";
 
@@ -35,22 +34,24 @@ public class UnsafeByteArrayOutputStreamTest {
         UnsafeByteArrayOutputStream ubaos = new UnsafeByteArrayOutputStream(32);
 
         ubaos.write(TEST_STRING1.getBytes());
-        Assert.assertEquals(TEST_STRING1, ubaos.toString());
+        Assertions.assertEquals(TEST_STRING1, ubaos.toString());
 
         ubaos.reset();
 
         ubaos.write(TEST_STRING2.getBytes());
-        Assert.assertEquals(TEST_STRING2, ubaos.toString());
+        Assertions.assertEquals(TEST_STRING2, ubaos.toString());
 
         byte[] data = ubaos.toByteArray();
-        Assert.assertEquals(TEST_STRING2 + "int", new String(data).trim());
+        Assertions.assertEquals(TEST_STRING2 + "int", new String(data).trim());
     }
-    
-    @Test (expected = BufferOverflowException.class)
-    public void test2() throws IOException {
-        UnsafeByteArrayOutputStream ubaos = new UnsafeByteArrayOutputStream(8, false);
 
-        ubaos.write(TEST_STRING1.getBytes());
+    @Test
+    public void test2() throws IOException {
+        Assertions.assertThrows(BufferOverflowException.class, () -> {
+            UnsafeByteArrayOutputStream ubaos = new UnsafeByteArrayOutputStream(8, false);
+
+            ubaos.write(TEST_STRING1.getBytes());
+        });
     }
-    
+
 }

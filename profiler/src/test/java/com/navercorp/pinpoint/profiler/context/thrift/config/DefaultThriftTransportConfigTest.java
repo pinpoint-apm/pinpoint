@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.profiler.context.thrift.config;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -23,9 +23,9 @@ public class DefaultThriftTransportConfigTest {
 
 
         ThriftTransportConfig thriftTransportConfig = loadThriftTransportConfig(properties);
-        Assert.assertEquals(thriftTransportConfig.getCollectorSpanServerIp(), "placeHolder1");
-        Assert.assertEquals(thriftTransportConfig.getCollectorStatServerIp(), "placeHolder1");
-        Assert.assertEquals(thriftTransportConfig.getCollectorTcpServerIp(), "placeHolder2");
+        Assertions.assertEquals(thriftTransportConfig.getCollectorSpanServerIp(), "placeHolder1");
+        Assertions.assertEquals(thriftTransportConfig.getCollectorStatServerIp(), "placeHolder1");
+        Assertions.assertEquals(thriftTransportConfig.getCollectorTcpServerIp(), "placeHolder2");
     }
 
 
@@ -35,7 +35,7 @@ public class DefaultThriftTransportConfigTest {
         properties.put("profiler.tcpdatasender.command.accept.enable", "true");
 
         ThriftTransportConfig thriftTransportConfig = loadThriftTransportConfig(properties);
-        Assert.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
+        Assertions.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class DefaultThriftTransportConfigTest {
         properties.put("profiler.tcpdatasender.command.accept.enable", "true");
 
         ThriftTransportConfig thriftTransportConfig = loadThriftTransportConfig(properties);
-        Assert.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
+        Assertions.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
     }
 
 
@@ -66,11 +66,11 @@ public class DefaultThriftTransportConfigTest {
 
         DefaultThriftTransportConfig thriftTransportConfig = new DefaultThriftTransportConfig();
         thriftTransportConfig.read(properties);
-        Assert.assertEquals("6m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferHighWaterMark());
-        Assert.assertEquals("5m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferLowWaterMark());
-        Assert.assertEquals("4m", thriftTransportConfig.getSpanDataSenderWriteBufferHighWaterMark());
-        Assert.assertEquals("3m", thriftTransportConfig.getSpanDataSenderWriteBufferLowWaterMark());
-        Assert.assertEquals("2m", thriftTransportConfig.getStatDataSenderWriteBufferHighWaterMark());
-        Assert.assertEquals("1m", thriftTransportConfig.getStatDataSenderWriteBufferLowWaterMark());
+        Assertions.assertEquals("6m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferHighWaterMark());
+        Assertions.assertEquals("5m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferLowWaterMark());
+        Assertions.assertEquals("4m", thriftTransportConfig.getSpanDataSenderWriteBufferHighWaterMark());
+        Assertions.assertEquals("3m", thriftTransportConfig.getSpanDataSenderWriteBufferLowWaterMark());
+        Assertions.assertEquals("2m", thriftTransportConfig.getStatDataSenderWriteBufferHighWaterMark());
+        Assertions.assertEquals("1m", thriftTransportConfig.getStatDataSenderWriteBufferLowWaterMark());
     }
 }

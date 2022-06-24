@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -58,14 +58,14 @@ public class IgnoreAddressFilterTest {
     private void assertAddressFilter(List<String> ignoreFilterAddressList, List<InetAddress> ignoreAddresses, List<InetAddress> successAddresses) {
         AddressFilter filter = new IgnoreAddressFilter(ignoreFilterAddressList);
         for (InetAddress ignoreAddress : ignoreAddresses) {
-            Assert.assertFalse(filter.accept(ignoreAddress));
+            Assertions.assertFalse(filter.accept(ignoreAddress));
         }
 
         for (InetAddress successAddress : successAddresses) {
-            Assert.assertTrue(filter.accept(successAddress));
+            Assertions.assertTrue(filter.accept(successAddress));
         }
 
-        Assert.assertTrue(filter.accept(null));
+        Assertions.assertTrue(filter.accept(null));
     }
 
 }

@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -48,7 +48,7 @@ public class JoinFileDescriptorBoTest {
     }
 
     @Test
-    public void  joinFileDescriptorBo2List() {
+    public void joinFileDescriptorBo2List() {
         List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>();
         JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, 1496988667231L);
         assertEquals(joinFileDescriptorBo, JoinFileDescriptorBo.EMPTY_JOIN_FILE_DESCRIPTOR_BO);

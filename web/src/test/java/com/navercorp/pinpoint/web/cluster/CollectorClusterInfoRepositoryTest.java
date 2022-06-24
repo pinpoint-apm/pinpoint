@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.cluster;
 
 import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
@@ -47,10 +47,10 @@ public class CollectorClusterInfoRepositoryTest {
 
         List<ClusterId> collectorList = info.get(agent1);
         logger.debug("{}", collectorList);
-        Assert.assertEquals(clusterId, collectorList.get(0));
+        Assertions.assertEquals(clusterId, collectorList.get(0));
 
         info.remove(clusterId);
-        Assert.assertTrue("Not found", info.get(agent1).isEmpty());
+        Assertions.assertTrue(info.get(agent1).isEmpty(), "Not found");
     }
 
 

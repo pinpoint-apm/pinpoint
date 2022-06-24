@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.mapper.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.Random;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JvmGcSamplerTest {
 
     private static final Random RANDOM = new Random();
@@ -59,8 +59,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = gcTime - previousGcTime;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -80,8 +80,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = 0L;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -109,8 +109,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = secondGcTime - previousGcTime;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -134,8 +134,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = secondGcTime - firstGcTime;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -177,8 +177,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -216,8 +216,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -248,8 +248,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = secondGcTime - previousGcTime;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -275,8 +275,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = secondGcTime - firstGcTime;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
 
     }
 
@@ -305,8 +305,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = secondGcTime - firstGcTime;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -355,8 +355,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -401,8 +401,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
 
     @Test
@@ -452,8 +452,8 @@ public class JvmGcSamplerTest {
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
         long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
         long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
-        Assert.assertEquals(expectedGcCount, actualGcCount);
-        Assert.assertEquals(expectedGcTime, actualGcTime);
+        Assertions.assertEquals(expectedGcCount, actualGcCount);
+        Assertions.assertEquals(expectedGcTime, actualGcTime);
 
     }
 

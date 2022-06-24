@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.test.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class BiHashMapTest {
     @Test
@@ -9,9 +9,9 @@ public class BiHashMapTest {
         BiHashMap<Integer, String> map = new BiHashMap<>();
         map.put(1, "a");
         map.put(1, "b");
-        Assert.assertEquals("b", map.get(1));
+        Assertions.assertEquals("b", map.get(1));
         map.put(2, "b");
-        Assert.assertEquals(2, map.reverseGet("b").intValue());
+        Assertions.assertEquals(2, map.reverseGet("b").intValue());
     }
 
 }

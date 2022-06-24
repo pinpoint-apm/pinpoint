@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -68,13 +68,13 @@ public class DataSourceSamplerTest {
             sumMaxConnectionSize += maxConnectionSize;
         }
 
-        Assert.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMinYVal(), minActiveConnectionSize);
-        Assert.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMaxYVal(), maxActiveConnectionSize);
-        Assert.assertEquals((int) sampledDataSource.getActiveConnectionSize().getSumYVal(), sumActiveConnectionSize);
+        Assertions.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMinYVal(), minActiveConnectionSize);
+        Assertions.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMaxYVal(), maxActiveConnectionSize);
+        Assertions.assertEquals((int) sampledDataSource.getActiveConnectionSize().getSumYVal(), sumActiveConnectionSize);
 
-        Assert.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMinYVal(), minMaxConnectionSize);
-        Assert.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMaxYVal(), maxMaxConnectionSize);
-        Assert.assertEquals((int) sampledDataSource.getMaxConnectionSize().getSumYVal(), sumMaxConnectionSize);
+        Assertions.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMinYVal(), minMaxConnectionSize);
+        Assertions.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMaxYVal(), maxMaxConnectionSize);
+        Assertions.assertEquals((int) sampledDataSource.getMaxConnectionSize().getSumYVal(), sumMaxConnectionSize);
     }
 
 }

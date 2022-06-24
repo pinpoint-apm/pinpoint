@@ -60,8 +60,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
@@ -76,8 +76,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AgentInfoSenderTest {
 
@@ -96,7 +96,7 @@ public class AgentInfoSenderTest {
     private AgentInfoFactory agentInfoFactory;
     private MessageConverter<Object, ResultResponse> resultResponseMessageConverter;
 
-    @Before
+    @BeforeEach
     public void init() {
         agentInformation = createAgentInformation();
         serverMetaDataRegistryService = new ServerMetaDataRegistryServiceProvider().get();
@@ -467,7 +467,7 @@ public class AgentInfoSenderTest {
             testPinpointServerAcceptor.close();
         }
         // Then
-        assertTrue("Failed with exceptions : " + exceptions, exceptions.isEmpty());
+        assertTrue(exceptions.isEmpty(), "Failed with exceptions : " + exceptions);
         assertEquals(threadCount, messageListener.getRequestCount());
         assertEquals(threadCount, messageListener.getSuccessCount());
     }
@@ -631,7 +631,7 @@ public class AgentInfoSenderTest {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);
         clientFactory.setRequestTimeoutMillis(1000 * 5);
-        clientFactory.setProperties(Collections.<String, Object> emptyMap());
+        clientFactory.setProperties(Collections.<String, Object>emptyMap());
 
         return clientFactory;
     }

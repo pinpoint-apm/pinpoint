@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.grpc;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,7 +35,7 @@ public class GrpcAnnotationHandlerTest {
 
         Object value = handler.getValue(pAnnotation);
 
-        Assert.assertEquals("testStringField", value);
+        Assertions.assertEquals("testStringField", value);
 
     }
 }

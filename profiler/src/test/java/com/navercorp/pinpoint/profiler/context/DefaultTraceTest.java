@@ -32,10 +32,13 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,7 +46,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author emeroad
  */
-@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultTraceTest {
 
     private final String agentId = "agentId";
@@ -62,13 +65,13 @@ public class DefaultTraceTest {
 
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
 
-    @BeforeClass
+    @BeforeAll
     public static void before() throws Exception {
         Log4j2LoggerBinderInitializer.beforeClass();
     }
 
-    @AfterClass
-    public static void after()  throws Exception {
+    @AfterAll
+    public static void after() throws Exception {
         Log4j2LoggerBinderInitializer.afterClass();
     }
 
@@ -92,7 +95,7 @@ public class DefaultTraceTest {
         recorder2.attachFrameObject("2");
         trace.traceBlockEnd();
         // access the previous SpanEvent
-        Assert.assertEquals(recorder1.getFrameObject(), "1");
+        Assertions.assertEquals(recorder1.getFrameObject(), "1");
         trace.traceBlockEnd();
         trace.close();
     }
@@ -116,11 +119,11 @@ public class DefaultTraceTest {
     @Test
     public void overflowUnlimit() {
         Trace trace = newTrace(-1);
-        for(int i = 0; i < 256; i++) {
+        for (int i = 0; i < 256; i++) {
             trace.traceBlockBegin();
         }
 
-        for(int i = 0; i < 256; i++) {
+        for (int i = 0; i < 256; i++) {
             trace.traceBlockEnd();
         }
     }

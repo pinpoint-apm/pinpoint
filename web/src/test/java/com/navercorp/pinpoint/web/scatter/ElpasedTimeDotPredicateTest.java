@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 public class ElpasedTimeDotPredicateTest {
@@ -11,12 +11,12 @@ public class ElpasedTimeDotPredicateTest {
     @Test
     public void newDragAreaDotPredicate() {
         ElpasedTimeDotPredicate dragAreaDotPredicate = new ElpasedTimeDotPredicate(100, 0);
-        Assert.assertTrue(dragAreaDotPredicate.test(newDot(0)));
-        Assert.assertTrue(dragAreaDotPredicate.test(newDot(1)));
-        Assert.assertTrue(dragAreaDotPredicate.test(newDot(100)));
+        Assertions.assertTrue(dragAreaDotPredicate.test(newDot(0)));
+        Assertions.assertTrue(dragAreaDotPredicate.test(newDot(1)));
+        Assertions.assertTrue(dragAreaDotPredicate.test(newDot(100)));
 
-        Assert.assertFalse(dragAreaDotPredicate.test(newDot(200)));
-        Assert.assertFalse(dragAreaDotPredicate.test(newDot(-1)));
+        Assertions.assertFalse(dragAreaDotPredicate.test(newDot(200)));
+        Assertions.assertFalse(dragAreaDotPredicate.test(newDot(-1)));
     }
 
     private Dot newDot(int elapsedTime) {

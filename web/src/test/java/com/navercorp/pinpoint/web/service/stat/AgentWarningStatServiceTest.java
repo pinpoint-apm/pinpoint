@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AgentWarningStatServiceTest {
 
     private static final long CURRENT_TIME = System.currentTimeMillis();
@@ -49,7 +49,7 @@ public class AgentWarningStatServiceTest {
 
     private AgentWarningStatService agentWarningStatService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.agentWarningStatService = new AgentWarningStatServiceImpl(deadlockDao);
     }
@@ -61,7 +61,7 @@ public class AgentWarningStatServiceTest {
         List<DeadlockThreadCountBo> mockData = createMockData(10, 5000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
         List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
-        Assert.assertEquals(1, timelineSegmentList.size());
+        Assertions.assertEquals(1, timelineSegmentList.size());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class AgentWarningStatServiceTest {
         List<DeadlockThreadCountBo> mockData = createMockData(10, 70000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
         List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
-        Assert.assertEquals(10, timelineSegmentList.size());
+        Assertions.assertEquals(10, timelineSegmentList.size());
     }
 
     private List<DeadlockThreadCountBo> createMockData(int mockSize, long interval) {

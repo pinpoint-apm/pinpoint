@@ -17,21 +17,21 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DefaultParsingResultTest {
 
     @Test
     public void testId() {
         DefaultParsingResult result = new DefaultParsingResult("");
-        Assert.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
+        Assertions.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
 
         // update
-        Assert.assertTrue(result.setId(1));
+        Assertions.assertTrue(result.setId(1));
 
         // already updated
-        Assert.assertFalse(result.setId(1));
+        Assertions.assertFalse(result.setId(1));
     }
 }
 

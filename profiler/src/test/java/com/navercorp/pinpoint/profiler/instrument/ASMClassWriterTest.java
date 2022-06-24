@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -27,7 +27,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +40,7 @@ public class ASMClassWriterTest {
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(pluginContext.injectClass(ArgumentMatchers.isNull(), anyString())).thenAnswer(new Answer<Class<?>>() {
 

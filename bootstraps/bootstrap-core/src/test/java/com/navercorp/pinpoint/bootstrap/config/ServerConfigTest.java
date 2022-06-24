@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -36,7 +36,7 @@ public class ServerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
-        Assert.assertFalse(serverConfig.isHidePinpointHeader(propertyName));
+        Assertions.assertFalse(serverConfig.isHidePinpointHeader(propertyName));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class ServerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
-        Assert.assertFalse(serverConfig.isTraceRequestParam(propertyName));
+        Assertions.assertFalse(serverConfig.isTraceRequestParam(propertyName));
     }
 
     @Test
@@ -63,8 +63,8 @@ public class ServerConfigTest {
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Filter<String> filter = serverConfig.getExcludeUrlFilter(propertyName);
-        Assert.assertTrue(filter.filter("/healthcheck"));
-        Assert.assertFalse(filter.filter("/l7check"));
+        Assertions.assertTrue(filter.filter("/healthcheck"));
+        Assertions.assertFalse(filter.filter("/l7check"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ServerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
-        Assert.assertEquals("X-Forwarded-For", serverConfig.getRealIpHeader(propertyName));
+        Assertions.assertEquals("X-Forwarded-For", serverConfig.getRealIpHeader(propertyName));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ServerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
-        Assert.assertEquals("UNKNOWN", serverConfig.getRealIpEmptyValue(propertyName));
+        Assertions.assertEquals("UNKNOWN", serverConfig.getRealIpEmptyValue(propertyName));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ServerConfigTest {
         ServerConfig serverConfig = new ServerConfig(profilerConfig);
 
         Filter<String> filter = serverConfig.getExcludeMethodFilter(propertyName);
-        Assert.assertTrue(filter.filter("HEAD"));
-        Assert.assertFalse(filter.filter("POST"));
+        Assertions.assertTrue(filter.filter("HEAD"));
+        Assertions.assertFalse(filter.filter("POST"));
     }
 }

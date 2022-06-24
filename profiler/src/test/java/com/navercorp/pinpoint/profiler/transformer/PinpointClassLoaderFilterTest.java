@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.transformer;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -35,11 +35,11 @@ public class PinpointClassLoaderFilterTest {
         final URLClassLoader agentClassLoader = new URLClassLoader(new URL[0]);
         ClassFileFilter filter = new PinpointClassLoaderFilter(agentClassLoader);
 
-        Assert.assertSame("bootstrap test", filter.accept(null, "test", null, null, null), ClassFileFilter.CONTINUE);
+        Assertions.assertSame(filter.accept(null, "test", null, null, null), ClassFileFilter.CONTINUE, "bootstrap test");
 
         final ClassLoader defaultClassLoader = ClassLoaderUtils.getDefaultClassLoader();
-        Assert.assertSame(filter.accept(defaultClassLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
+        Assertions.assertSame(filter.accept(defaultClassLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
 
-        Assert.assertSame(filter.accept(agentClassLoader, "test", null, null, null), ClassFileFilter.SKIP);
+        Assertions.assertSame(filter.accept(agentClassLoader, "test", null, null, null), ClassFileFilter.SKIP);
     }
 }

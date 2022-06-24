@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.common.server.util;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 
 public class ServerBootLoggerTest {
 

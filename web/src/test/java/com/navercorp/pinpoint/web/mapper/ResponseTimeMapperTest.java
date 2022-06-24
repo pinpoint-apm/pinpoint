@@ -23,15 +23,14 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeyValue;
-import org.junit.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 
@@ -59,11 +58,11 @@ public class ResponseTimeMapperTest {
 
         Histogram agentHistogram = responseTime.findHistogram("agent");
         long fastCount = agentHistogram.getFastCount();
-        Assert.assertEquals(fastCount, 1);
+        Assertions.assertEquals(fastCount, 1);
         long normal = agentHistogram.getNormalCount();
-        Assert.assertEquals(normal, 0);
+        Assertions.assertEquals(normal, 0);
         long slow = agentHistogram.getSlowCount();
-        Assert.assertEquals(slow, 0);
+        Assertions.assertEquals(slow, 0);
 
     }
 }

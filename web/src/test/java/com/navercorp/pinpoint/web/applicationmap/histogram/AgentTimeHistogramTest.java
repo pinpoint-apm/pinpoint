@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -82,13 +82,13 @@ public class AgentTimeHistogramTest {
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
         List<SampledApdexScore> sampledApdexScore1 = histogram.getSampledAgentApdexScoreList("test3");
-        Assert.assertEquals(sampledApdexScore1.size(), 2);
+        Assertions.assertEquals(sampledApdexScore1.size(), 2);
 
         List<SampledApdexScore> sampledApdexScore2 = histogram.getSampledAgentApdexScoreList("test4");
-        Assert.assertEquals(sampledApdexScore2.size(), 2);
+        Assertions.assertEquals(sampledApdexScore2.size(), 2);
 
         List<SampledApdexScore> wrongSampledApdexScore = histogram.getSampledAgentApdexScoreList("wrongAgentName");
-        Assert.assertEquals(wrongSampledApdexScore.size(), 0);
+        Assertions.assertEquals(wrongSampledApdexScore.size(), 0);
     }
 
     @Test
@@ -101,11 +101,11 @@ public class AgentTimeHistogramTest {
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
         List<DoubleApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
-        Assert.assertEquals(applicationStatPointList.size(), 2);
-        Assert.assertEquals(applicationStatPointList.get(0).getXVal(), 0);
-        Assert.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
-        Assert.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
-        Assert.assertEquals(applicationStatPointList.get(1).getYValForAvg(), 0.5, 0.001);
+        Assertions.assertEquals(applicationStatPointList.size(), 2);
+        Assertions.assertEquals(applicationStatPointList.get(0).getXVal(), 0);
+        Assertions.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
+        Assertions.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
+        Assertions.assertEquals(applicationStatPointList.get(1).getYValForAvg(), 0.5, 0.001);
     }
 
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {

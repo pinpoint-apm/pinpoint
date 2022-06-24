@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -27,15 +27,15 @@ public class AtomicMaxUpdaterTest {
     public void update() {
         AtomicMaxUpdater updater = new AtomicMaxUpdater();
 
-        Assert.assertFalse(updater.update(0));
+        Assertions.assertFalse(updater.update(0));
 
 
-        Assert.assertTrue(updater.update(1));
+        Assertions.assertTrue(updater.update(1));
 
-        Assert.assertTrue(updater.update(10));
+        Assertions.assertTrue(updater.update(10));
 
-        Assert.assertFalse(updater.update(5));
-        Assert.assertEquals(updater.getIndex(), 10);
+        Assertions.assertFalse(updater.update(5));
+        Assertions.assertEquals(updater.getIndex(), 10);
 
 
     }

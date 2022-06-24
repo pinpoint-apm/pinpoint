@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.strategy;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public abstract class EncodingStrategyTestBase {
         strategy.encodeValues(encodeBuffer, expectedValues);
         Buffer decodeBuffer = new FixedBuffer(encodeBuffer.getBuffer());
         List<T> actualValues = strategy.decodeValues(decodeBuffer, expectedValues.size());
-        Assert.assertEquals(expectedValues, actualValues);
+        Assertions.assertEquals(expectedValues, actualValues);
     }
 
     public List<Short> createRandomShorts(int numTestValues, boolean unsigned) {

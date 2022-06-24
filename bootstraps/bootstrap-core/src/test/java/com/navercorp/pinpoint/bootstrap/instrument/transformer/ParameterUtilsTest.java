@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
@@ -38,14 +38,16 @@ public class ParameterUtilsTest {
         ParameterUtils.checkParameterType(new Class[]{Integer.class});
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void checkSupportType_fail() {
-        ParameterUtils.checkParameterType(new Class[]{Date.class});
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ParameterUtils.checkParameterType(new Class[]{Date.class});
+        });
     }
 
 
     @Test
     public void getComponentType() {
-        Assert.assertEquals(ParameterUtils.getRawComponentType(int[][].class), int.class);
+        Assertions.assertEquals(ParameterUtils.getRawComponentType(int[][].class), int.class);
     }
 }

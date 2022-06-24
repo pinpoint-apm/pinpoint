@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.common.profiler.concurrent;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -45,12 +43,12 @@ public class PinpointThreadFactoryTest {
         thread.start();
         thread.join();
 
-        Assert.assertEquals(counter.get(), 1);
+        Assertions.assertEquals(counter.get(), 1);
 
         String threadName = thread.getName();
         logger.debug(threadName);
-        Assert.assertTrue(threadName.startsWith("pinpoint("));
-        Assert.assertTrue(threadName.endsWith(")"));
+        Assertions.assertTrue(threadName.startsWith("pinpoint("));
+        Assertions.assertTrue(threadName.endsWith(")"));
 
         Thread thread2 = pinpoint.newThread(new Runnable() {
             @Override

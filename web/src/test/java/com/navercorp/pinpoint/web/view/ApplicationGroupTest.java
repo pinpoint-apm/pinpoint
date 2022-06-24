@@ -5,10 +5,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,9 +33,9 @@ public class ApplicationGroupTest {
         logger.debug("json:{}", json);
 
         Map<String, String> ele1 = list.get(0);
-        Assert.assertEquals("test1", ele1.get("applicationName"));
-        Assert.assertEquals("TEST", ele1.get("serviceType"));
-        Assert.assertEquals("5", ele1.get("code"));
+        Assertions.assertEquals("test1", ele1.get("applicationName"));
+        Assertions.assertEquals("TEST", ele1.get("serviceType"));
+        Assertions.assertEquals("5", ele1.get("code"));
 
     }
 }

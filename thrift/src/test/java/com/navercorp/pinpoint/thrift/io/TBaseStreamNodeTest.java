@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import org.junit.Test;
-
-import com.navercorp.pinpoint.thrift.io.ByteArrayOutputStreamTransport;
-import com.navercorp.pinpoint.thrift.io.TBaseStreamNode;
-import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TBaseStreamNodeTest {
 

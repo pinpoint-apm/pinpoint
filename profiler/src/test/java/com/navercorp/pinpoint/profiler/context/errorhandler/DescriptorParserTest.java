@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.profiler.context.errorhandler;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -21,16 +21,16 @@ public class DescriptorParserTest {
 
         DescriptorParser parser = new DescriptorParser(map);
         List<Descriptor> descriptorList = parser.parse();
-        Assert.assertEquals(descriptorList.size(), 1);
+        Assertions.assertEquals(descriptorList.size(), 1);
 
         ErrorHandlerBuilder builder = new ErrorHandlerBuilder(descriptorList);
         IgnoreErrorHandler errorHandler = builder.build();
 
-        Assert.assertTrue(errorHandler.handleError(new RuntimeException(" error ")));
+        Assertions.assertTrue(errorHandler.handleError(new RuntimeException(" error ")));
 
-        Assert.assertFalse(errorHandler.handleError(new RuntimeException(" success")));
-        Assert.assertFalse(errorHandler.handleError(new SQLException(" success")));
-        Assert.assertFalse(errorHandler.handleError(new SQLException(" error")));
+        Assertions.assertFalse(errorHandler.handleError(new RuntimeException(" success")));
+        Assertions.assertFalse(errorHandler.handleError(new SQLException(" success")));
+        Assertions.assertFalse(errorHandler.handleError(new SQLException(" error")));
     }
 
     @Test
@@ -44,8 +44,8 @@ public class DescriptorParserTest {
 
         Map<String, String> errorHandlerProperties = config.readPattern(OptionKey.PATTERN_REGEX);
 
-        Assert.assertEquals(errorHandlerProperties.get(OptionKey.getClassName(errorHandlerId)), "java.lang.RuntimeException");
-        Assert.assertEquals(errorHandlerProperties.get(OptionKey.getExceptionMessageContains(errorHandlerId)), "test");
+        Assertions.assertEquals(errorHandlerProperties.get(OptionKey.getClassName(errorHandlerId)), "java.lang.RuntimeException");
+        Assertions.assertEquals(errorHandlerProperties.get(OptionKey.getExceptionMessageContains(errorHandlerId)), "test");
 
     }
 }

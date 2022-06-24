@@ -21,10 +21,9 @@ import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -54,7 +53,7 @@ public class PinotSystemMetricDaoTest {
     @Mock
     private LongMetric longMetric;
 
-    @Before
+    @BeforeEach
     public void setupTemplate() {
         MockitoAnnotations.initMocks(this);
 
@@ -75,7 +74,7 @@ public class PinotSystemMetricDaoTest {
 
         longDao.insert("hostGroupName", "hostName", longMetricList);
 
-        Assert.assertEquals(longMetricList.size(), sendCount.getSendCount());
+        Assertions.assertEquals(longMetricList.size(), sendCount.getSendCount());
     }
 
     private List<LongMetric> createLongCounterList() {

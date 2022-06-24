@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.*;
 import com.navercorp.pinpoint.thrift.dto.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -32,8 +33,11 @@ import org.mockito.Spy;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
@@ -88,10 +92,10 @@ public class ThriftAgentStatHandlerV2Test {
     private ThriftAgentStatHandlerV2 thriftAgentStatHandlerV2;
     private HBaseAgentStatService hBaseAgentStatService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        hBaseAgentStatService = new HBaseAgentStatService(new AgentStatDao[] {jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
+        hBaseAgentStatService = new HBaseAgentStatService(new AgentStatDao[]{jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
                 activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao,
                 directBufferDao, totalThreadCountDao, loadedClassDao});
         agentStatServiceList.add(hBaseAgentStatService);
@@ -198,14 +202,16 @@ public class ThriftAgentStatHandlerV2Test {
         verifyZeroInteractions(loadedClassDao);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void handleShouldThrowIllegalArgumentExceptionForIncorrectTBaseObjects() {
-        // Given
-        final TAgentInfo wrongTBaseObject = new TAgentInfo();
-        // When
-        thriftAgentStatHandlerV2.handleSimple(wrongTBaseObject);
-        // Then
-        fail();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            // Given
+            final TAgentInfo wrongTBaseObject = new TAgentInfo();
+            // When
+            thriftAgentStatHandlerV2.handleSimple(wrongTBaseObject);
+            // Then
+            fail();
+        });
     }
 
     private TAgentStatBatch createAgentStatBatch(String agentId, long startTimestamp, int numBatches) {

@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.collector.thrift.config;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
 @ContextConfiguration(classes = AgentBaseDataReceiverConfiguration.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AgentBaseDataReceiverConfigurationTest {
 
     @Autowired
@@ -36,11 +35,11 @@ public class AgentBaseDataReceiverConfigurationTest {
     @Test
     public void properties() {
 
-        Assert.assertEquals(configuration.getBindIp(), "0.0.0.2");
-        Assert.assertEquals(configuration.getBindPort(), 39994);
-        Assert.assertEquals(configuration.getWorkerThreadSize(), 33);
-        Assert.assertEquals(configuration.getWorkerQueueSize(), 29);
-        Assert.assertTrue(configuration.isWorkerMonitorEnable());
+        Assertions.assertEquals(configuration.getBindIp(), "0.0.0.2");
+        Assertions.assertEquals(configuration.getBindPort(), 39994);
+        Assertions.assertEquals(configuration.getWorkerThreadSize(), 33);
+        Assertions.assertEquals(configuration.getWorkerQueueSize(), 29);
+        Assertions.assertTrue(configuration.isWorkerMonitorEnable());
 
     }
 }

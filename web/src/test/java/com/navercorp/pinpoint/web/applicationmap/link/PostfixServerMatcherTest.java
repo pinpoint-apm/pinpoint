@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo.LinkType;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author minwoo.jung

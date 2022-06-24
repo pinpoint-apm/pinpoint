@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Predicate;
 
@@ -22,7 +22,7 @@ public class SpanFiltersTest {
 
         Predicate<SpanBo> filter = SpanFilters.agentIdFilter(agentId);
         SpanBo spanBo = new SpanBo();
-        Assert.assertFalse(filter.test(spanBo));
+        Assertions.assertFalse(filter.test(spanBo));
     }
 
     @Test
@@ -33,7 +33,7 @@ public class SpanFiltersTest {
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
         spanBo.setAgentId(agentId);
         spanBo.setSpanId(spanId);
-        Assert.assertTrue(filter.test(spanBo));
+        Assertions.assertTrue(filter.test(spanBo));
     }
 
     @Test
@@ -43,10 +43,10 @@ public class SpanFiltersTest {
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
         spanBo.setAgentId(agentId);
         spanBo.setSpanId(1234);
-        Assert.assertTrue(filter.test(spanBo));
+        Assertions.assertTrue(filter.test(spanBo));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void buildViewPointFilter_chain_name() {
         Predicate<SpanBo> filter = SpanFilters.spanFilter(-1, agentId, collectorAcceptTime);

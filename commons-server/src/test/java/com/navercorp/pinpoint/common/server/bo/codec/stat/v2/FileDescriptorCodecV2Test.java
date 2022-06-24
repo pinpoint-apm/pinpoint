@@ -20,18 +20,18 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author Roy Kim
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class FileDescriptorCodecV2Test extends AgentStatCodecTestBase<FileDescriptorBo> {
 
@@ -50,10 +50,10 @@ public class FileDescriptorCodecV2Test extends AgentStatCodecTestBase<FileDescri
 
     @Override
     protected void verify(FileDescriptorBo expected, FileDescriptorBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("agentStatType", expected.getAgentStatType(), actual.getAgentStatType());
-        Assert.assertEquals("openFileDescriptor", expected.getOpenFileDescriptorCount(), actual.getOpenFileDescriptorCount());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getAgentStatType(), actual.getAgentStatType(), "agentStatType");
+        Assertions.assertEquals(expected.getOpenFileDescriptorCount(), actual.getOpenFileDescriptorCount(), "openFileDescriptor");
     }
 }

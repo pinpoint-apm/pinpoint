@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import static org.junit.Assert.*;
+import org.apache.thrift.transport.TTransportException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import org.apache.thrift.transport.TTransportException;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.thrift.io.ByteArrayOutputStreamTransport;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ByteArrayOutputStreamTransportTest {
     private ByteArrayOutputStream out;
     private ByteArrayOutputStreamTransport transport;
     private byte[] buf = "foo".getBytes();
 
-    @Before
+    @BeforeEach
     public void before() {
         out = new ByteArrayOutputStream();
         transport = new ByteArrayOutputStreamTransport(out);
@@ -54,18 +54,22 @@ public class ByteArrayOutputStreamTransportTest {
     public void flush() throws TTransportException {
         transport.write(buf, 0, buf.length);
         assertEquals(buf.length, out.size());
-        
+
         transport.flush();
         assertEquals(0, out.size());
     }
 
-    @Test(expected = TTransportException.class)
+    @Test
     public void read() throws TTransportException {
-        transport.read(buf, 0, 1);
+        Assertions.assertThrows(TTransportException.class, () -> {
+            transport.read(buf, 0, 1);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void consumeBuffer() throws TTransportException {
-        transport.consumeBuffer(1);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            transport.consumeBuffer(1);
+        });
     }
 }

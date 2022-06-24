@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -81,12 +81,12 @@ public class ExpectedTraceFieldTest {
 
 
     private void assertField(ExpectedTraceField expectedTraceField, boolean boolean1, boolean boolean2, boolean boolean3, boolean boolean4, boolean boolean5, boolean boolean6) {
-        Assert.assertEquals(boolean1, expectedTraceField.isEquals(message));
-        Assert.assertEquals(boolean2, expectedTraceField.isEquals(message1));
-        Assert.assertEquals(boolean3, expectedTraceField.isEquals(message2));
-        Assert.assertEquals(boolean4, expectedTraceField.isEquals(failMessage));
-        Assert.assertEquals(boolean5, expectedTraceField.isEquals(emptyMessage));
-        Assert.assertEquals(boolean6, expectedTraceField.isEquals(nullMessage));
+        Assertions.assertEquals(boolean1, expectedTraceField.isEquals(message));
+        Assertions.assertEquals(boolean2, expectedTraceField.isEquals(message1));
+        Assertions.assertEquals(boolean3, expectedTraceField.isEquals(message2));
+        Assertions.assertEquals(boolean4, expectedTraceField.isEquals(failMessage));
+        Assertions.assertEquals(boolean5, expectedTraceField.isEquals(emptyMessage));
+        Assertions.assertEquals(boolean6, expectedTraceField.isEquals(nullMessage));
     }
 
 }

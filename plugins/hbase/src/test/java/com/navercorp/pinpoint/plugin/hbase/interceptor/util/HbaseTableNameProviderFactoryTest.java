@@ -5,8 +5,8 @@ import com.navercorp.pinpoint.plugin.hbase.HbaseVersion;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Table;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,12 +19,12 @@ public class HbaseTableNameProviderFactoryTest {
         HbaseTableNameProvider nameProvider = HbaseTableNameProviderFactory.getTableNameProvider(HbaseVersion.HBASE_VERSION_1);
 
         // Select hbase 1.x Implementation
-        Assert.assertSame(Hbase1TableNameProvider.class, nameProvider.getClass());
+        Assertions.assertSame(Hbase1TableNameProvider.class, nameProvider.getClass());
 
         Table table = mock(Table.class);
         when(table.getName()).thenReturn(TableName.valueOf("testTable"));
 
-        Assert.assertEquals("testTable", nameProvider.getName(table));
+        Assertions.assertEquals("testTable", nameProvider.getName(table));
     }
 
     @Test
@@ -34,7 +34,7 @@ public class HbaseTableNameProviderFactoryTest {
         Table table = mock(Table.class);
         when(table.getName()).thenReturn(TableName.valueOf("testTable"));
 
-        Assert.assertEquals("testTable", nameProvider.getName(table));
+        Assertions.assertEquals("testTable", nameProvider.getName(table));
     }
 
     @Test
@@ -45,6 +45,6 @@ public class HbaseTableNameProviderFactoryTest {
         HTableInterface table = mock(HTableInterface.class);
         when(table.getTableName()).thenReturn(BytesUtils.toBytes("testTable"));
 
-        Assert.assertEquals("testTable", nameProvider.getName(table));
+        Assertions.assertEquals("testTable", nameProvider.getName(table));
     }
 }

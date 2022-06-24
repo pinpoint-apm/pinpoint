@@ -24,10 +24,10 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
-import org.awaitility.Awaitility;
-import org.junit.Assert;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.Map;
 import java.util.Objects;
@@ -162,7 +162,7 @@ public class TestServerMessageListenerFactory implements ServerMessageListenerFa
                 Awaitility.waitAtMost(maxWaitTime, TimeUnit.MILLISECONDS)
                         .untilAtomic(handlePingCount, is(expectedCount));
             } else {
-                Assert.assertTrue(expectedCount == handlePingCount.get());
+                Assertions.assertTrue(expectedCount == handlePingCount.get());
             }
         }
 

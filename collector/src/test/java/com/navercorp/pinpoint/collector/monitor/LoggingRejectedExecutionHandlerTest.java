@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;

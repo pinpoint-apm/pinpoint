@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
 
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.util.TypeLocator;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChunkHeaderTBaseDeserializerTest {
     private static final TypeLocator<TBase<?, ?>> DEFAULT_TBASE_LOCATOR = DefaultTBaseLocator.getTypeLocator();

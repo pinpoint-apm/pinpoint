@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,7 +33,7 @@ public class StringJoinUtilsTest {
         stringList.add("abc");
 
         String join = StringJoinUtils.join(stringList, ",");
-        Assert.assertEquals(join, "abc");
+        Assertions.assertEquals(join, "abc");
 
     }
 
@@ -46,7 +44,7 @@ public class StringJoinUtilsTest {
         stringList.add("bcd");
 
         String join = StringJoinUtils.join(stringList, ",");
-        Assert.assertEquals(join, "abc,bcd");
+        Assertions.assertEquals(join, "abc,bcd");
 
     }
 
@@ -58,7 +56,7 @@ public class StringJoinUtilsTest {
         stringList.add("f");
 
         String join = StringJoinUtils.join(stringList, ",");
-        Assert.assertEquals(join, "abc,bcd,f");
+        Assertions.assertEquals(join, "abc,bcd,f");
 
     }
 }

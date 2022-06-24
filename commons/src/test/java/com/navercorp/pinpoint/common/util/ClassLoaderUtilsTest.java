@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.After;
-import org.junit.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -43,13 +41,13 @@ public class ClassLoaderUtilsTest {
 
     private ClassLoader beforeSetupClassLoader;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Thread currentThread = Thread.currentThread();
         beforeSetupClassLoader = currentThread.getContextClassLoader();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         Thread currentThread = Thread.currentThread();
         currentThread.setContextClassLoader(beforeSetupClassLoader);
@@ -62,7 +60,7 @@ public class ClassLoaderUtilsTest {
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
 
-        Assert.assertSame(contextClassLoader, classLoader);
+        Assertions.assertSame(contextClassLoader, classLoader);
     }
 
     @Test
@@ -72,7 +70,7 @@ public class ClassLoaderUtilsTest {
         currentThread.setContextClassLoader(FAKE_CLASS_LOADER);
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
 
-        Assert.assertSame(classLoader, FAKE_CLASS_LOADER);
+        Assertions.assertSame(classLoader, FAKE_CLASS_LOADER);
     }
 
     @Test
@@ -83,7 +81,7 @@ public class ClassLoaderUtilsTest {
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader(FAKE_CLASS_LOADER_CALLABLE);
 
-        Assert.assertSame(classLoader, FAKE_CLASS_LOADER);
+        Assertions.assertSame(classLoader, FAKE_CLASS_LOADER);
 
     }
 
@@ -101,11 +99,11 @@ public class ClassLoaderUtilsTest {
 
     @Test
     public void test() {
-        Assert.assertTrue(ClassLoaderUtils.isJvmClassLoader(ClassLoader.getSystemClassLoader()));
-        Assert.assertTrue(ClassLoaderUtils.isJvmClassLoader(ClassLoader.getSystemClassLoader().getParent()));
-        Assert.assertTrue(ClassLoaderUtils.isJvmClassLoader(Object.class.getClassLoader()));
+        Assertions.assertTrue(ClassLoaderUtils.isJvmClassLoader(ClassLoader.getSystemClassLoader()));
+        Assertions.assertTrue(ClassLoaderUtils.isJvmClassLoader(ClassLoader.getSystemClassLoader().getParent()));
+        Assertions.assertTrue(ClassLoaderUtils.isJvmClassLoader(Object.class.getClassLoader()));
 
-        Assert.assertFalse(ClassLoaderUtils.isJvmClassLoader(new URLClassLoader(new URL[0])));
+        Assertions.assertFalse(ClassLoaderUtils.isJvmClassLoader(new URLClassLoader(new URL[0])));
 
     }
 }

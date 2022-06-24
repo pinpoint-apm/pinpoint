@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.transformer;
 
-import org.junit.Assert;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -30,13 +29,13 @@ public class UnmodifiableClassFilterTest {
     public void testDoFilter_Package() {
         ClassFileFilter filter = new UnmodifiableClassFilter();
 
-        Assert.assertSame(filter.accept(null, "java/test", null, null, null), ClassFileFilter.SKIP);
-        Assert.assertSame(filter.accept(null, "javax/test", null, null, null), ClassFileFilter.SKIP);
+        Assertions.assertSame(filter.accept(null, "java/test", null, null, null), ClassFileFilter.SKIP);
+        Assertions.assertSame(filter.accept(null, "javax/test", null, null, null), ClassFileFilter.SKIP);
 
 
-        Assert.assertSame(filter.accept(null, "com/navercorp/pinpoint/", null, null, null), ClassFileFilter.CONTINUE);
+        Assertions.assertSame(filter.accept(null, "com/navercorp/pinpoint/", null, null, null), ClassFileFilter.CONTINUE);
 
-        Assert.assertSame(filter.accept(null, "test", null, null, null), ClassFileFilter.CONTINUE);
+        Assertions.assertSame(filter.accept(null, "test", null, null, null), ClassFileFilter.CONTINUE);
     }
 
 
@@ -44,9 +43,9 @@ public class UnmodifiableClassFilterTest {
     public void testDoFilter_ClassLoader() {
         ClassFileFilter filter = new UnmodifiableClassFilter();
 
-        Assert.assertSame(filter.accept(this.getClass().getClassLoader(), "test", null, null, null), ClassFileFilter.CONTINUE);
+        Assertions.assertSame(filter.accept(this.getClass().getClassLoader(), "test", null, null, null), ClassFileFilter.CONTINUE);
 
         URLClassLoader classLoader = new URLClassLoader(new URL[]{});
-        Assert.assertSame(filter.accept(classLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
+        Assertions.assertSame(filter.accept(classLoader, "test", null, null, null), ClassFileFilter.CONTINUE);
     }
 }

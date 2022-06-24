@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,23 +66,23 @@ public class ThriftActiveTraceBoMapperTest extends ThriftBoMapperTestBase<TActiv
 
     @Override
     protected void verify(TActiveTrace original, ActiveTraceBo mappedStatDataPoint) {
-        Assert.assertEquals("version", original.getHistogram().getVersion(), mappedStatDataPoint.getVersion());
-        Assert.assertEquals("schemaType", original.getHistogram().getHistogramSchemaType(), mappedStatDataPoint.getHistogramSchemaType());
+        Assertions.assertEquals(original.getHistogram().getVersion(), mappedStatDataPoint.getVersion(), "version");
+        Assertions.assertEquals(original.getHistogram().getHistogramSchemaType(), mappedStatDataPoint.getHistogramSchemaType(), "schemaType");
 
         List<Integer> activeTraceCountList = original.getHistogram().getActiveTraceCount();
         for (int i = 0; i < activeTraceCountList.size(); i++) {
             int activeTraceCount = activeTraceCountList.get(i);
             final ActiveTraceHistogram activeTraceHistogram = mappedStatDataPoint.getActiveTraceHistogram();
             if (i == 0) {
-                Assert.assertEquals("FAST", activeTraceCount, activeTraceHistogram.getFastCount());
+                Assertions.assertEquals(activeTraceCount, activeTraceHistogram.getFastCount(), "FAST");
             } else if (i == 1) {
-                Assert.assertEquals("NORMAL", activeTraceCount, activeTraceHistogram.getNormalCount());
+                Assertions.assertEquals(activeTraceCount, activeTraceHistogram.getNormalCount(), "NORMAL");
             } else if (i == 2) {
-                Assert.assertEquals("SLOW", activeTraceCount, activeTraceHistogram.getSlowCount());
+                Assertions.assertEquals(activeTraceCount, activeTraceHistogram.getSlowCount(), "SLOW");
             } else if (i == 3) {
-                Assert.assertEquals("VERY_SLOW", activeTraceCount, activeTraceHistogram.getVerySlowCount());
+                Assertions.assertEquals(activeTraceCount, activeTraceHistogram.getVerySlowCount(), "VERY_SLOW");
             } else {
-                Assert.fail();
+                Assertions.fail();
             }
         }
     }

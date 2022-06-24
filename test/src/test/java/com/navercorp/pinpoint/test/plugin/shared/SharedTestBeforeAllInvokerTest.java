@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -14,11 +14,11 @@ public class SharedTestBeforeAllInvokerTest {
         SharedTestBeforeAllInvoker mock = new SharedTestBeforeAllInvoker(TestClass.class);
 
         List<Method> methods = mock.getMethods(TestClass.class, mock::beforeAllFilter);
-        Assert.assertEquals(1, methods.size());
-        Assert.assertEquals("setBeforeAllResult", methods.get(0).getName());
+        Assertions.assertEquals(1, methods.size());
+        Assertions.assertEquals("setBeforeAllResult", methods.get(0).getName());
 
         mock.invoke(new Properties());
-        Assert.assertNotNull(TestClass.properties);
+        Assertions.assertNotNull(TestClass.properties);
     }
 
     @Test
@@ -26,11 +26,11 @@ public class SharedTestBeforeAllInvokerTest {
         SharedTestBeforeAllInvoker mock = new SharedTestBeforeAllInvoker(ChildTestClass.class);
 
         List<Method> methods = mock.getMethods(ChildTestClass.class, mock::beforeAllFilter);
-        Assert.assertEquals(1, methods.size());
-        Assert.assertEquals("setBeforeAllResult", methods.get(0).getName());
+        Assertions.assertEquals(1, methods.size());
+        Assertions.assertEquals("setBeforeAllResult", methods.get(0).getName());
 
         mock.invoke(new Properties());
-        Assert.assertNotNull(ChildTestClass.properties);
+        Assertions.assertNotNull(ChildTestClass.properties);
     }
 
     public static class TestClass {

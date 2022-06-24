@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -38,9 +38,9 @@ public class AgentInstallationInfoTest {
 
         System.out.println(map);
 
-        Assert.assertTrue(map.containsKey("version"));
-        Assert.assertTrue(map.containsKey("downloadUrl"));
-        Assert.assertTrue(map.containsKey("installationArgument"));
+        Assertions.assertTrue(map.containsKey("version"));
+        Assertions.assertTrue(map.containsKey("downloadUrl"));
+        Assertions.assertTrue(map.containsKey("installationArgument"));
     }
 
 }

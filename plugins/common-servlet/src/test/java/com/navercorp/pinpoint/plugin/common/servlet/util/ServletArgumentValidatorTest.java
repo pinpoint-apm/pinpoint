@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.plugin.common.servlet.util;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -33,7 +33,8 @@ import static org.mockito.Mockito.mock;
 public class ServletArgumentValidatorTest {
 
     private ArgumentValidator validator;
-    @Before
+
+    @BeforeEach
     public void setUp() throws Exception {
         PLogger logger = PLoggerFactory.getLogger(this.getClass());
         this.validator = new ServletArgumentValidator(logger, 0, ServletRequest.class, 1, ServletResponse.class);
@@ -45,20 +46,20 @@ public class ServletArgumentValidatorTest {
         Object[] argument = new Object[2];
         argument[0] = mock(ServletRequest.class);
         argument[1] = mock(ServletResponse.class);
-        Assert.assertTrue(validator.validate(argument));
+        Assertions.assertTrue(validator.validate(argument));
     }
 
     @Test
     public void valid_boundary_check() {
 
-        Assert.assertFalse(validator.validate(null));
-        Assert.assertFalse(validator.validate(new Object[0]));
-        Assert.assertFalse(validator.validate(new Object[1]));
+        Assertions.assertFalse(validator.validate(null));
+        Assertions.assertFalse(validator.validate(new Object[0]));
+        Assertions.assertFalse(validator.validate(new Object[1]));
 
         Object[] argument = new Object[10];
         argument[0] = mock(ServletRequest.class);
         argument[1] = mock(ServletResponse.class);
-        Assert.assertTrue(validator.validate(argument));
+        Assertions.assertTrue(validator.validate(argument));
     }
 
     @Test
@@ -66,7 +67,7 @@ public class ServletArgumentValidatorTest {
         Object[] argument = new Object[2];
         argument[0] = mock(ServletRequest.class);
         argument[1] = new Object();
-        Assert.assertFalse(validator.validate(argument));
+        Assertions.assertFalse(validator.validate(argument));
     }
 
 
@@ -76,6 +77,6 @@ public class ServletArgumentValidatorTest {
         Object[] argument = new Object[2];
         argument[0] = new Object();
         argument[1] = mock(ServletResponse.class);
-        Assert.assertFalse(validator.validate(argument));
+        Assertions.assertFalse(validator.validate(argument));
     }
 }

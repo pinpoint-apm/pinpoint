@@ -17,16 +17,15 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.batch.common.BatchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +33,7 @@ import java.util.Arrays;
 @TestPropertySource(locations = "classpath:batch-root.properties",
         properties = {"batch.flink.server=1,2"})
 @ContextConfiguration(classes = BatchConfiguration.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class BatchConfigurationTest {
 
     @Autowired
@@ -42,8 +41,8 @@ public class BatchConfigurationTest {
 
     @Test
     public void test() {
-        Assert.assertEquals("release", configuration.getBatchEnv());
-        Assert.assertEquals(Arrays.asList("1", "2"), configuration.getFlinkServerList());
+        Assertions.assertEquals("release", configuration.getBatchEnv());
+        Assertions.assertEquals(Arrays.asList("1", "2"), configuration.getFlinkServerList());
     }
 
     @Test
@@ -54,9 +53,9 @@ public class BatchConfigurationTest {
         String cleanupInactiveAgentsCron = configuration.getCleanupInactiveAgentsCron();
         int cleanupInactiveAgentsDurationDays = configuration.getCleanupInactiveAgentsDurationDays();
 
-        Assert.assertEquals(false, enableCleanupInactiveAgents);
-        Assert.assertEquals("0 0 0 29 2 ?", cleanupInactiveAgentsCron);
-        Assert.assertEquals(30, cleanupInactiveAgentsDurationDays);
+        Assertions.assertEquals(false, enableCleanupInactiveAgents);
+        Assertions.assertEquals("0 0 0 29 2 ?", cleanupInactiveAgentsCron);
+        Assertions.assertEquals(30, cleanupInactiveAgentsDurationDays);
     }
 
 }

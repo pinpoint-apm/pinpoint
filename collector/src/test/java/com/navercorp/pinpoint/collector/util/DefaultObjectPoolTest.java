@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.DatagramPacket;
 
@@ -31,10 +31,10 @@ public class DefaultObjectPoolTest {
         DefaultObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(new DatagramPacketFactory(), 1);
 
         PooledObject<DatagramPacket> pooledObject = pool.getObject();
-        Assert.assertEquals(0, pool.size());
+        Assertions.assertEquals(0, pool.size());
 
         pooledObject.returnObject();
-        Assert.assertEquals(1, pool.size());
+        Assertions.assertEquals(1, pool.size());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class DefaultObjectPoolTest {
 
         DatagramPacket check = pooledObject.getObject();
 
-        Assert.assertSame(check, packet);
-        Assert.assertEquals(packet.getLength(), DatagramPacketFactory.UDP_MAX_PACKET_LENGTH);
+        Assertions.assertSame(check, packet);
+        Assertions.assertEquals(packet.getLength(), DatagramPacketFactory.UDP_MAX_PACKET_LENGTH);
     }
 }

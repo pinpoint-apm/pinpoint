@@ -18,12 +18,11 @@ package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,6 +40,6 @@ public class DefaultLambdaClassFileResolverTest {
         LambdaClassFileResolver resolver = new DefaultLambdaClassFileResolver();
         String resolve = resolver.resolve(null, null, null, bytes);
 
-        Assert.assertEquals(resolve, stringName);
+        Assertions.assertEquals(resolve, stringName);
     }
 }

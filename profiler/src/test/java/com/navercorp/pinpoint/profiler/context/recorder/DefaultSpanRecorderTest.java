@@ -25,10 +25,11 @@ import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultSpanRecorderTest {
 
     @Mock
@@ -61,7 +62,7 @@ public class DefaultSpanRecorderTest {
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);
 
-        Assert.assertEquals("API ID", span.getApiId(), API_ID);
+        Assertions.assertEquals(span.getApiId(), API_ID, "API ID");
     }
 
     @Test

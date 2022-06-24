@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,6 +26,6 @@ public class MavenCentralTest {
 
     @Test
     public void getAddress() {
-        Assert.assertEquals(MavenCentral.MAVEN_CENTRAL_SECURE, MavenCentral.getAddress());
+        Assertions.assertEquals(MavenCentral.MAVEN_CENTRAL_SECURE, MavenCentral.getAddress());
     }
 }

@@ -19,10 +19,13 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.navercorp.pinpoint.profiler.cache.IdAllocator;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -39,11 +42,11 @@ public class DefaultStringMetaDataServiceTest {
 
         int first = stringMetaDataService.cacheString(str);
 
-        Assert.assertNotEquals("not exist", first, 0);
+        Assertions.assertNotEquals(first, 0, "not exist");
         verify(dataSender, times(1)).request(any(StringMetaData.class));
 
         int second = stringMetaDataService.cacheString(str);
-        Assert.assertEquals("check cache", first, second);
+        Assertions.assertEquals(first, second, "check cache");
         verify(dataSender, times(1)).request(any(StringMetaData.class));
     }
 

@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.profiler.context.thrift.ThreadStateThriftMessageConverter;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -35,22 +36,22 @@ public class ThreadDumpUtilsTest {
         ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
         TThreadState newState = threadStateThriftMessageConverter.toMessage(Thread.State.NEW);
-        Assert.assertEquals(newState, TThreadState.NEW);
+        Assertions.assertEquals(newState, TThreadState.NEW);
 
         TThreadState runnable = threadStateThriftMessageConverter.toMessage(Thread.State.RUNNABLE);
-        Assert.assertEquals(runnable, TThreadState.RUNNABLE);
+        Assertions.assertEquals(runnable, TThreadState.RUNNABLE);
 
         TThreadState blocked = threadStateThriftMessageConverter.toMessage(Thread.State.BLOCKED);
-        Assert.assertEquals(blocked, TThreadState.BLOCKED);
+        Assertions.assertEquals(blocked, TThreadState.BLOCKED);
 
 
         TThreadState waiting = threadStateThriftMessageConverter.toMessage(Thread.State.WAITING);
-        Assert.assertEquals(waiting, TThreadState.WAITING);
+        Assertions.assertEquals(waiting, TThreadState.WAITING);
 
         TThreadState timedWaiting = threadStateThriftMessageConverter.toMessage(Thread.State.TIMED_WAITING);
-        Assert.assertEquals(timedWaiting, TThreadState.TIMED_WAITING);
+        Assertions.assertEquals(timedWaiting, TThreadState.TIMED_WAITING);
 
         TThreadState terminated = threadStateThriftMessageConverter.toMessage(Thread.State.TERMINATED);
-        Assert.assertEquals(terminated, TThreadState.TERMINATED);
+        Assertions.assertEquals(terminated, TThreadState.TERMINATED);
     }
 }

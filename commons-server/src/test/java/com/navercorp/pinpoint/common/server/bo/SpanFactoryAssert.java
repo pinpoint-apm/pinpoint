@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -36,36 +36,36 @@ import java.util.Map;
 public class SpanFactoryAssert {
 
     public void assertSpan(TSpan tSpan, SpanBo spanBo) {
-        Assert.assertEquals(tSpan.getAgentId(), spanBo.getAgentId());
-        Assert.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationId());
-        Assert.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
+        Assertions.assertEquals(tSpan.getAgentId(), spanBo.getAgentId());
+        Assertions.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationId());
+        Assertions.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
 
         TransactionId transactionId = spanBo.getTransactionId();
         ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        Assert.assertEquals(ByteBuffer.wrap(tSpan.getTransactionId()), byteBuffer);
+        Assertions.assertEquals(ByteBuffer.wrap(tSpan.getTransactionId()), byteBuffer);
 
-        Assert.assertEquals(tSpan.getSpanId(), spanBo.getSpanId());
-        Assert.assertEquals(tSpan.getParentSpanId(), spanBo.getParentSpanId());
-        Assert.assertEquals(tSpan.getStartTime(), spanBo.getStartTime());
-        Assert.assertEquals(tSpan.getElapsed(), spanBo.getElapsed());
-        Assert.assertEquals(tSpan.getElapsed(), spanBo.getElapsed());
-        Assert.assertEquals(tSpan.getRpc(), spanBo.getRpc());
+        Assertions.assertEquals(tSpan.getSpanId(), spanBo.getSpanId());
+        Assertions.assertEquals(tSpan.getParentSpanId(), spanBo.getParentSpanId());
+        Assertions.assertEquals(tSpan.getStartTime(), spanBo.getStartTime());
+        Assertions.assertEquals(tSpan.getElapsed(), spanBo.getElapsed());
+        Assertions.assertEquals(tSpan.getElapsed(), spanBo.getElapsed());
+        Assertions.assertEquals(tSpan.getRpc(), spanBo.getRpc());
 
-        Assert.assertEquals(tSpan.getServiceType(), spanBo.getServiceType());
-        Assert.assertEquals(tSpan.getEndPoint(), spanBo.getEndPoint());
-        Assert.assertEquals(tSpan.getRemoteAddr(), spanBo.getRemoteAddr());
+        Assertions.assertEquals(tSpan.getServiceType(), spanBo.getServiceType());
+        Assertions.assertEquals(tSpan.getEndPoint(), spanBo.getEndPoint());
+        Assertions.assertEquals(tSpan.getRemoteAddr(), spanBo.getRemoteAddr());
 
         assertAnnotation(tSpan.getAnnotations(), spanBo.getAnnotationBoList());
 
-        Assert.assertEquals(tSpan.getFlag(), spanBo.getFlag());
-        Assert.assertEquals(tSpan.getErr(), spanBo.getErrCode());
+        Assertions.assertEquals(tSpan.getFlag(), spanBo.getFlag());
+        Assertions.assertEquals(tSpan.getErr(), spanBo.getErrCode());
 
-        Assert.assertEquals(tSpan.getParentApplicationName(), spanBo.getParentApplicationId());
-        Assert.assertEquals(tSpan.getParentApplicationType(), spanBo.getParentApplicationServiceType());
-        Assert.assertEquals(tSpan.getAcceptorHost(), spanBo.getAcceptorHost());
+        Assertions.assertEquals(tSpan.getParentApplicationName(), spanBo.getParentApplicationId());
+        Assertions.assertEquals(tSpan.getParentApplicationType(), spanBo.getParentApplicationServiceType());
+        Assertions.assertEquals(tSpan.getAcceptorHost(), spanBo.getAcceptorHost());
 
-        Assert.assertEquals(tSpan.getApiId(), spanBo.getApiId());
-        Assert.assertEquals(tSpan.getApplicationServiceType(), spanBo.getApplicationServiceType());
+        Assertions.assertEquals(tSpan.getApiId(), spanBo.getApiId());
+        Assertions.assertEquals(tSpan.getApplicationServiceType(), spanBo.getApplicationServiceType());
 
         List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         List<TSpanEvent> spanEventList = tSpan.getSpanEventList();
@@ -73,13 +73,13 @@ public class SpanFactoryAssert {
 
 
         boolean hasException = tSpan.getExceptionInfo() != null;
-        Assert.assertEquals(hasException, spanBo.hasException());
+        Assertions.assertEquals(hasException, spanBo.hasException());
         if (hasException) {
-            Assert.assertEquals(tSpan.getExceptionInfo().getIntValue(), spanBo.getExceptionId());
-            Assert.assertEquals(tSpan.getExceptionInfo().getStringValue(), spanBo.getExceptionMessage());
+            Assertions.assertEquals(tSpan.getExceptionInfo().getIntValue(), spanBo.getExceptionId());
+            Assertions.assertEquals(tSpan.getExceptionInfo().getStringValue(), spanBo.getExceptionMessage());
         }
 
-        Assert.assertEquals(tSpan.getLoggingTransactionInfo(), spanBo.getLoggingTransactionInfo());
+        Assertions.assertEquals(tSpan.getLoggingTransactionInfo(), spanBo.getLoggingTransactionInfo());
 
     }
 
@@ -87,7 +87,7 @@ public class SpanFactoryAssert {
         if (CollectionUtils.isEmpty(tAnnotationList) && CollectionUtils.isEmpty(annotationBoList)) {
             return;
         }
-        Assert.assertEquals(tAnnotationList.size(), annotationBoList.size());
+        Assertions.assertEquals(tAnnotationList.size(), annotationBoList.size());
         if (tAnnotationList.isEmpty()) {
             return;
         }
@@ -97,56 +97,56 @@ public class SpanFactoryAssert {
             TAnnotation tAnnotation = tAnnotationList.get(i);
             AnnotationBo annotationBo = annotationBoList.get(i);
 
-            Assert.assertEquals(tAnnotation.getKey(), annotationBo.getKey());
-            Assert.assertEquals(tAnnotation.getValue().getStringValue(), annotationBo.getValue());
+            Assertions.assertEquals(tAnnotation.getKey(), annotationBo.getKey());
+            Assertions.assertEquals(tAnnotation.getValue().getStringValue(), annotationBo.getValue());
         }
     }
 
     public void assertSpanEvent(TSpanEvent tSpanEvent, SpanEventBo spanEventBo) {
-        Assert.assertEquals(tSpanEvent.getSequence(), spanEventBo.getSequence());
-        Assert.assertEquals(tSpanEvent.getStartElapsed(), spanEventBo.getStartElapsed());
-        Assert.assertEquals(tSpanEvent.getEndElapsed(), spanEventBo.getEndElapsed());
+        Assertions.assertEquals(tSpanEvent.getSequence(), spanEventBo.getSequence());
+        Assertions.assertEquals(tSpanEvent.getStartElapsed(), spanEventBo.getStartElapsed());
+        Assertions.assertEquals(tSpanEvent.getEndElapsed(), spanEventBo.getEndElapsed());
 
-        Assert.assertEquals(tSpanEvent.getRpc(), spanEventBo.getRpc());
-        Assert.assertEquals(tSpanEvent.getServiceType(), spanEventBo.getServiceType());
-        Assert.assertEquals(tSpanEvent.getEndPoint(), spanEventBo.getEndPoint());
+        Assertions.assertEquals(tSpanEvent.getRpc(), spanEventBo.getRpc());
+        Assertions.assertEquals(tSpanEvent.getServiceType(), spanEventBo.getServiceType());
+        Assertions.assertEquals(tSpanEvent.getEndPoint(), spanEventBo.getEndPoint());
 
         assertAnnotation(tSpanEvent.getAnnotations(), spanEventBo.getAnnotationBoList());
 
-        Assert.assertEquals(tSpanEvent.getDepth(), spanEventBo.getDepth());
-        Assert.assertEquals(tSpanEvent.getNextSpanId(), spanEventBo.getNextSpanId());
-        Assert.assertEquals(tSpanEvent.getDestinationId(), spanEventBo.getDestinationId());
+        Assertions.assertEquals(tSpanEvent.getDepth(), spanEventBo.getDepth());
+        Assertions.assertEquals(tSpanEvent.getNextSpanId(), spanEventBo.getNextSpanId());
+        Assertions.assertEquals(tSpanEvent.getDestinationId(), spanEventBo.getDestinationId());
 
-        Assert.assertEquals(tSpanEvent.getApiId(), spanEventBo.getApiId());
+        Assertions.assertEquals(tSpanEvent.getApiId(), spanEventBo.getApiId());
 
         boolean hasException = tSpanEvent.getExceptionInfo() != null;
-        Assert.assertEquals(hasException, spanEventBo.hasException());
+        Assertions.assertEquals(hasException, spanEventBo.hasException());
         if (hasException) {
-            Assert.assertEquals(tSpanEvent.getExceptionInfo().getIntValue(), spanEventBo.getExceptionId());
-            Assert.assertEquals(tSpanEvent.getExceptionInfo().getStringValue(), spanEventBo.getExceptionMessage());
+            Assertions.assertEquals(tSpanEvent.getExceptionInfo().getIntValue(), spanEventBo.getExceptionId());
+            Assertions.assertEquals(tSpanEvent.getExceptionInfo().getStringValue(), spanEventBo.getExceptionMessage());
         }
 
-        Assert.assertEquals(tSpanEvent.getNextAsyncId(), spanEventBo.getNextAsyncId());
+        Assertions.assertEquals(tSpanEvent.getNextAsyncId(), spanEventBo.getNextAsyncId());
 
-        Assert.assertEquals(-1, spanEventBo.getAsyncId());
-        Assert.assertEquals(-1, spanEventBo.getAsyncSequence());
+        Assertions.assertEquals(-1, spanEventBo.getAsyncId());
+        Assertions.assertEquals(-1, spanEventBo.getAsyncSequence());
     }
 
 
     public void assertSpanChunk(TSpanChunk tSpanChunk, SpanChunkBo spanChunkBo) {
-        Assert.assertEquals(tSpanChunk.getAgentId(), spanChunkBo.getAgentId());
-        Assert.assertEquals(tSpanChunk.getApplicationName(), spanChunkBo.getApplicationId());
-        Assert.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
+        Assertions.assertEquals(tSpanChunk.getAgentId(), spanChunkBo.getAgentId());
+        Assertions.assertEquals(tSpanChunk.getApplicationName(), spanChunkBo.getApplicationId());
+        Assertions.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
 
 
         TransactionId transactionId = spanChunkBo.getTransactionId();
         ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        Assert.assertEquals(ByteBuffer.wrap(tSpanChunk.getTransactionId()), byteBuffer);
+        Assertions.assertEquals(ByteBuffer.wrap(tSpanChunk.getTransactionId()), byteBuffer);
 
-        Assert.assertEquals(tSpanChunk.getSpanId(), spanChunkBo.getSpanId());
+        Assertions.assertEquals(tSpanChunk.getSpanId(), spanChunkBo.getSpanId());
 
-        Assert.assertEquals(tSpanChunk.getEndPoint(), spanChunkBo.getEndPoint());
-        Assert.assertEquals(tSpanChunk.getApplicationServiceType(), spanChunkBo.getApplicationServiceType());
+        Assertions.assertEquals(tSpanChunk.getEndPoint(), spanChunkBo.getEndPoint());
+        Assertions.assertEquals(tSpanChunk.getApplicationServiceType(), spanChunkBo.getApplicationServiceType());
 
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
@@ -156,18 +156,18 @@ public class SpanFactoryAssert {
     }
 
     private void assertSpanEventList(List<SpanEventBo> spanEventBoList, List<TSpanEvent> spanEventList) {
-        Assert.assertEquals(CollectionUtils.isEmpty(spanEventBoList), CollectionUtils.isEmpty(spanEventList));
+        Assertions.assertEquals(CollectionUtils.isEmpty(spanEventBoList), CollectionUtils.isEmpty(spanEventList));
         if (CollectionUtils.isNotEmpty(spanEventBoList)) {
             Map<Integer, SpanEventBo> spanEventBoMap = new HashMap<>();
             for (int i = 0; i < spanEventBoList.size(); i++) {
                 SpanEventBo spanEventBo = spanEventBoList.get(i);
-                spanEventBoMap.put((int)spanEventBo.getSequence(), spanEventBo);
+                spanEventBoMap.put((int) spanEventBo.getSequence(), spanEventBo);
             }
 
             for (int i = 0; i < spanEventList.size(); i++) {
                 TSpanEvent tSpanEvent = spanEventList.get(i);
                 SpanEventBo spanEventBo = spanEventBoMap.get((int) tSpanEvent.getSequence());
-                Assert.assertNotNull(spanEventBo);
+                Assertions.assertNotNull(spanEventBo);
                 assertSpanEvent(tSpanEvent, spanEventBo);
             }
         }

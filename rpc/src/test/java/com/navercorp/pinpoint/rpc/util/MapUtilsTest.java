@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.rpc.util;
 
-import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.HashMap;
 
 public class MapUtilsTest {
 
@@ -29,15 +29,15 @@ public class MapUtilsTest {
         hashMap.put("bar", "222");
         hashMap.put(1, "333");
 
-        Assert.assertNull(MapUtils.getString(null, "foo"));
-        Assert.assertNull(MapUtils.getString(hashMap, "1"));
+        Assertions.assertNull(MapUtils.getString(null, "foo"));
+        Assertions.assertNull(MapUtils.getString(hashMap, "1"));
 
-        Assert.assertEquals("222", MapUtils.getString(hashMap, "bar"));
-        Assert.assertEquals("222",
+        Assertions.assertEquals("222", MapUtils.getString(hashMap, "bar"));
+        Assertions.assertEquals("222",
                 MapUtils.getString(hashMap, "bar", "dValue"));
-        Assert.assertEquals("dValue",
+        Assertions.assertEquals("dValue",
                 MapUtils.getString(null, "foo", "dValue"));
-        Assert.assertEquals("dValue",
+        Assertions.assertEquals("dValue",
                 MapUtils.getString(hashMap, "1", "dValue"));
     }
 
@@ -47,13 +47,13 @@ public class MapUtilsTest {
         hashMap.put("foo", true);
         hashMap.put("bar", "111");
 
-        Assert.assertTrue(MapUtils.getBoolean(hashMap, "foo"));
-        Assert.assertTrue(MapUtils.getBoolean(hashMap, "foo", true));
-        Assert.assertTrue(MapUtils.getBoolean(null, "foo", true));
-        Assert.assertTrue(MapUtils.getBoolean(hashMap, "bar", true));
+        Assertions.assertTrue(MapUtils.getBoolean(hashMap, "foo"));
+        Assertions.assertTrue(MapUtils.getBoolean(hashMap, "foo", true));
+        Assertions.assertTrue(MapUtils.getBoolean(null, "foo", true));
+        Assertions.assertTrue(MapUtils.getBoolean(hashMap, "bar", true));
 
-        Assert.assertFalse(MapUtils.getBoolean(null, "foo"));
-        Assert.assertFalse(MapUtils.getBoolean(hashMap, "bar"));
+        Assertions.assertFalse(MapUtils.getBoolean(null, "foo"));
+        Assertions.assertFalse(MapUtils.getBoolean(hashMap, "bar"));
     }
 
     @Test
@@ -63,16 +63,16 @@ public class MapUtilsTest {
         hashMap.put("bar", "222");
         hashMap.put("baz", 333);
 
-        Assert.assertNull(MapUtils.getInteger(null, "foo"));
-        Assert.assertNull(MapUtils.getInteger(hashMap, "bar"));
+        Assertions.assertNull(MapUtils.getInteger(null, "foo"));
+        Assertions.assertNull(MapUtils.getInteger(hashMap, "bar"));
 
-        Assert.assertEquals(new Integer(333),
+        Assertions.assertEquals(new Integer(333),
                 MapUtils.getInteger(hashMap, "baz"));
-        Assert.assertEquals(new Integer(333),
+        Assertions.assertEquals(new Integer(333),
                 MapUtils.getInteger(hashMap, "baz", 88));
-        Assert.assertEquals(new Integer(88),
+        Assertions.assertEquals(new Integer(88),
                 MapUtils.getInteger(null, "foo", 88));
-        Assert.assertEquals(new Integer(88),
+        Assertions.assertEquals(new Integer(88),
                 MapUtils.getInteger(hashMap, "bar", 88));
     }
 
@@ -83,12 +83,12 @@ public class MapUtilsTest {
         hashMap.put("bar", "222");
         hashMap.put("baz", 2L);
 
-        Assert.assertNull(MapUtils.getLong(null, "foo"));
-        Assert.assertNull(MapUtils.getLong(hashMap, "bar"));
+        Assertions.assertNull(MapUtils.getLong(null, "foo"));
+        Assertions.assertNull(MapUtils.getLong(hashMap, "bar"));
 
-        Assert.assertEquals(2L, MapUtils.getLong(hashMap, "baz"), 0);
-        Assert.assertEquals(2L, MapUtils.getLong(hashMap, "baz", 88L), 0);
-        Assert.assertEquals(88L, MapUtils.getLong(null, "foo", 88L), 0);
-        Assert.assertEquals(88L, MapUtils.getLong(hashMap, "bar", 88L), 0);
+        Assertions.assertEquals(2L, MapUtils.getLong(hashMap, "baz"), 0);
+        Assertions.assertEquals(2L, MapUtils.getLong(hashMap, "baz", 88L), 0);
+        Assertions.assertEquals(88L, MapUtils.getLong(null, "foo", 88L), 0);
+        Assertions.assertEquals(88L, MapUtils.getLong(hashMap, "bar", 88L), 0);
     }
 }

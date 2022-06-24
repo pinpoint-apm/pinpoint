@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.hbase.schema.reader.core;
 
 import com.navercorp.pinpoint.hbase.schema.core.CheckSum;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
@@ -32,7 +32,7 @@ public class CheckSumTest {
         String randomValue = UUID.randomUUID().toString();
         CheckSum checkSum = CheckSum.compute(CheckSum.getCurrentVersion(), randomValue);
         CheckSum parsedCheckSum = CheckSum.parse(checkSum.toString());
-        Assert.assertEquals(checkSum.getVersion(), parsedCheckSum.getVersion());
-        Assert.assertEquals(checkSum.getCheckSum(), parsedCheckSum.getCheckSum());
+        Assertions.assertEquals(checkSum.getVersion(), parsedCheckSum.getVersion());
+        Assertions.assertEquals(checkSum.getCheckSum(), parsedCheckSum.getCheckSum());
     }
 }

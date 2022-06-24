@@ -17,12 +17,10 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
-
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -39,21 +37,21 @@ public class TimeWindowTest {
         TimeWindow window = new TimeWindow(Range.between(0L, 1000));
         logger.debug("{}", window.getWindowRange());
         Iterator<Long> iterator = window.iterator();
-        Assert.assertEquals(iterator.next(), (Long)0L);
+        Assertions.assertEquals(iterator.next(), (Long)0L);
         try {
             iterator.next();
-            Assert.fail("no more element");
+            Assertions.fail("no more element");
         } catch (Exception ignored) {
         }
 
         TimeWindow window2 = new TimeWindow(Range.between(0L, TimeUnit.MINUTES.toMillis(1)));
         logger.debug("{}", window2.getWindowRange());
         Iterator<Long> iterator2 = window2.iterator();
-        Assert.assertEquals(iterator2.next(), (Long)0L);
-        Assert.assertEquals(iterator2.next(), (Long)(1000*60L));
+        Assertions.assertEquals(iterator2.next(), (Long)0L);
+        Assertions.assertEquals(iterator2.next(), (Long)(1000*60L));
         try {
             iterator2.next();
-            Assert.fail("no more element");
+            Assertions.fail("no more element");
         } catch (Exception ignored) {
         }
     }
@@ -66,7 +64,7 @@ public class TimeWindowTest {
         for (Long aLong : window) {
             i++;
         }
-        Assert.assertEquals(i, 2);
+        Assertions.assertEquals(i, 2);
     }
 
     @Test
@@ -78,7 +76,7 @@ public class TimeWindowTest {
             logger.debug("{}", aLong);
             i++;
         }
-        Assert.assertEquals(i, 2);
+        Assertions.assertEquals(i, 2);
     }
 
     @Test
@@ -107,8 +105,8 @@ public class TimeWindowTest {
         Range windowRange = window.getWindowRange();
         // 1 should be replace by 0.
         logger.debug("{}", windowRange);
-        Assert.assertEquals(windowRange.getFrom(), 0);
-        Assert.assertEquals(windowRange.getTo(), TimeUnit.MINUTES.toMillis(1));
+        Assertions.assertEquals(windowRange.getFrom(), 0);
+        Assertions.assertEquals(windowRange.getTo(), TimeUnit.MINUTES.toMillis(1));
 
     }
 
@@ -118,7 +116,7 @@ public class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         long windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
-        Assert.assertEquals(1, windowRangeLength);
+        Assertions.assertEquals(1, windowRangeLength);
 
     }
 
@@ -128,7 +126,7 @@ public class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         long windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
-        Assert.assertEquals(2, windowRangeLength);
+        Assertions.assertEquals(2, windowRangeLength);
     }
 
     @Test
@@ -137,7 +135,7 @@ public class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(2);
         logger.debug("{}", index);
-        Assert.assertEquals(0, index);
+        Assertions.assertEquals(0, index);
     }
 
     @Test
@@ -146,6 +144,6 @@ public class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(1000 * 60L);
         logger.debug("{}", index);
-        Assert.assertEquals(1, index);
+        Assertions.assertEquals(1, index);
     }
 }

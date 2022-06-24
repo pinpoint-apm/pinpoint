@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.config;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.util.Map;
@@ -19,8 +19,8 @@ public class ExperimentalConfigTest {
 
         Map<String, Object> map = config.getProperties();
 
-        Assert.assertEquals(1, map.size());
-        Assert.assertEquals("strValue", map.get(key));
+        Assertions.assertEquals(1, map.size());
+        Assertions.assertEquals("strValue", map.get(key));
     }
 
     @Test
@@ -38,8 +38,8 @@ public class ExperimentalConfigTest {
         Map<String, Object> map = config.getProperties();
 
 
-        Assert.assertEquals(Boolean.FALSE, map.get(falseKey));
-        Assert.assertEquals(Boolean.TRUE, map.get(trueKey));
+        Assertions.assertEquals(Boolean.FALSE, map.get(falseKey));
+        Assertions.assertEquals(Boolean.TRUE, map.get(trueKey));
     }
 
 
