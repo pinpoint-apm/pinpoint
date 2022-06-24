@@ -29,21 +29,13 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.Repository;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.output.OutputFrame;
 
-import java.io.IOException;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 /**
  * @author Jongho Moon
@@ -55,30 +47,10 @@ import java.util.function.Consumer;
 @Dependency({"net.sourceforge.jtds:jtds:[1.2.8],[1.3.1,)", "com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
+@SharedTestLifeCycleClass(MsSqlServer.class)
 public class JtdsIT extends DataBaseTestCase {
     private static final String MSSQL = "MSSQL";
     private static final String MSSQL_EXECUTE_QUERY = "MSSQL_EXECUTE_QUERY";
-
-    private static final Logger logger = LoggerFactory.getLogger(JtdsIT.class);
-
-
-    public static final JdbcDatabaseContainer mssqlserver = newMSSQLServerContainer(logger.getName());
-
-    public static JdbcDatabaseContainer newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-latest");
-        mssqlServerContainer.addEnv("ACCEPT_EULA", "y");
-        mssqlServerContainer.withInitScript("sql/init_mssql.sql");
-        mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);
-
-
-        mssqlServerContainer.withLogConsumer(new Consumer<OutputFrame>() {
-            @Override
-            public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
-            }
-        });
-        return mssqlServerContainer;
-    }
 
     private static DriverProperties driverProperties;
     private static JDBCDriverClass driverClass;
@@ -86,25 +58,21 @@ public class JtdsIT extends DataBaseTestCase {
 
     private static JdbcUrlParserV2 jdbcUrlParser;
 
-    private static String address;
+    protected static String JDBC_URL;
 
-    @BeforeSharedClass
-    public static void sharedSetUp() throws Exception {
-        mssqlserver.start();
-        setAddress(mssqlserver.getJdbcUrl());
-
+    public static String getJdbcUrl() {
+        return JDBC_URL;
     }
 
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        if (mssqlserver != null) {
-            mssqlserver.stop();
-        }
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
     }
+
 
     @BeforeClass
-    public static void beforeClass() throws IOException, InterruptedException {
-        String serverJdbcUrl = getAddress();
+    public static void beforeClass() {
+        String serverJdbcUrl = getJdbcUrl();
         String address = serverJdbcUrl.substring(JtdsITConstants.JDBC_URL_PREFIX.length());
         String jdbcUrl = JtdsITConstants.JTDS_URL_PREFIX + address;
 
@@ -126,14 +94,6 @@ public class JtdsIT extends DataBaseTestCase {
     @Before
     public void before() {
         setup(MSSQL, MSSQL_EXECUTE_QUERY, driverProperties, jdbcUrlParser, jdbcApi);
-    }
-
-    public static String getAddress() {
-        return address;
-    }
-
-    public static void setAddress(String address) {
-        JtdsIT.address = address;
     }
 
 }
