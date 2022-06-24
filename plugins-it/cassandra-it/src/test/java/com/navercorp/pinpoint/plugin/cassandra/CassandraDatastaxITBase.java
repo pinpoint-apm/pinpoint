@@ -27,17 +27,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
-
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.CassandraContainer;
 
 import java.lang.reflect.Method;
+import java.util.Properties;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
@@ -46,13 +46,13 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
  * @author HyunGil Jeong
  */
 public abstract class CassandraDatastaxITBase {
-
+    private static final Logger logger = LogManager.getLogger(CassandraDatastaxITBase.class);
     // com.navercorp.pinpoint.plugin.cassandra.CassandraConstants
     private static final String CASSANDRA = "CASSANDRA";
     private static final String CASSANDRA_EXECUTE_QUERY = "CASSANDRA_EXECUTE_QUERY";
 
-    private static final String TEST_KEYSPACE = "mykeyspace";
-    private static final String TEST_TABLE = "mytable";
+    private static final String TEST_KEYSPACE = CassandraITConstants.TEST_KEYSPACE;
+    private static final String TEST_TABLE = CassandraITConstants.TEST_TABLE;
     private static final String TEST_COL_ID = "id";
     private static final String TEST_COL_VALUE = "value";
 
@@ -66,71 +66,35 @@ public abstract class CassandraDatastaxITBase {
 
     private static String CASSANDRA_ADDRESS = HOST + ":" + CassandraContainer.CQL_PORT;
 
-    public static CassandraContainer cassandra;
-
+    private static int PORT;
     private static Cluster cluster;
 
-    public static int getPORT() {
+
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        logger.info("CassandraServer result {}", beforeAllResult);
+        PORT = Integer.parseInt(beforeAllResult.getProperty("PORT"));
+    }
+
+    public static int getPort() {
         return PORT;
     }
 
-    public static void setPORT(int port) {
-        CassandraDatastaxITBase.PORT = port;
-    }
-
-    private static int PORT;
-
-    public static void startCassandra(String dockerImageVersion) {
-        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
-
-        cassandra = new CassandraContainer(dockerImageVersion);
-        cassandra.start();
-
-//        String containerIpAddress = cassandra.getContainerIpAddress();
-        final int port = cassandra.getMappedPort(CassandraContainer.CQL_PORT);
-        setPORT(port);
-
-        cluster = newCluster(HOST, getPORT());
-        init(cluster);
-    }
-
-    @AfterSharedClass
-    public static void sharedTearDown() {
-        if (cassandra != null) {
-            cassandra.stop();
-        }
-    }
 
     @BeforeClass
     public static void setup() {
-        CASSANDRA_ADDRESS = HOST + ":" + getPORT();
-        cluster = newCluster(HOST, getPORT());
+        CASSANDRA_ADDRESS = HOST + ":" + getPort();
+        cluster = CassandraServer.newCluster(HOST, getPort());
+        logger.info("setup cluster {}", CASSANDRA_ADDRESS);
     }
 
     @AfterClass
     public static void tearDown() {
-        if (cluster == null) {
+        if (cluster != null) {
             cluster.close();
         }
     }
 
-    private static Cluster newCluster(String host, int port) {
-        Cluster.Builder builder = Cluster.builder();
-        builder.addContactPoint(host);
-        builder.withPort(port);
-        builder.withoutMetrics();
-        return builder.build();
-    }
-
-    public static void init(Cluster cluster) {
-        try (Session systemSession = cluster.connect()) {
-            String createKeyspace = String.format("CREATE KEYSPACE IF NOT EXISTS %s WITH replication = " +
-                    "{'class':'SimpleStrategy','replication_factor':'1'};", TEST_KEYSPACE);
-            systemSession.execute(createKeyspace);
-            String createTable = String.format("CREATE TABLE %s.%s (id text, value text, PRIMARY KEY(id))", TEST_KEYSPACE, TEST_TABLE);
-            systemSession.execute(createTable);
-        }
-    }
 
     private static Session openSession(Cluster cluster) {
         return cluster.connect(TEST_KEYSPACE);
@@ -259,5 +223,6 @@ public abstract class CassandraDatastaxITBase {
             verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(cqlDelete, null)));
         }
     }
+
 
 }
