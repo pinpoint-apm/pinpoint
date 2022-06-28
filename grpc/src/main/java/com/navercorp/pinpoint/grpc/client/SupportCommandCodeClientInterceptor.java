@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
-import com.navercorp.pinpoint.common.util.StringJoiner;
 import com.navercorp.pinpoint.grpc.Header;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -29,6 +28,7 @@ import io.grpc.MethodDescriptor;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 
 public class SupportCommandCodeClientInterceptor implements ClientInterceptor {
 

@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
 import java.util.Collection;
+import java.util.StringJoiner;
 
 public final class StringUtils {
     private StringUtils() {

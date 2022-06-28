@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.test.plugin;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
-import com.navercorp.pinpoint.test.plugin.util.TLSOption;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.TestPluginVersion;
 
@@ -67,7 +66,6 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
 
     public AbstractPinpointPluginTestSuite(Class<?> testClass) throws InitializationError {
         super(testClass, Collections.<Runner>emptyList());
-        TLSOption.applyTLSv12();
 
         PinpointAgent agent = testClass.getAnnotation(PinpointAgent.class);
         this.agentJar = resolveAgentPath(agent);

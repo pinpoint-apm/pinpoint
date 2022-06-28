@@ -15,9 +15,9 @@
 package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.StringJoiner;
 
 /**
  * @author Jongho Moon

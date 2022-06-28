@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -41,13 +39,6 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
 
     @Override
     public BufferMetric get() {
-
-        final JvmVersion jvmVersion = JvmUtils.getVersion();
-        if (!jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            logger.debug("Unsupported JVM version. {}", jvmVersion);
-            return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
-        }
-
         BufferMetric bufferMetric = createBufferMetric(BUFFER_METRIC);
         logger.info("loaded : {}", bufferMetric);
         return bufferMetric;
