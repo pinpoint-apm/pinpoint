@@ -50,9 +50,14 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation(libs.aspectjweaver)
+    implementation(libs.curator.client) {
+        exclude(group = "org.apache.zookeeper", module = "zookeeper")
+        exclude(group = "org.apache.curator", module = "curator-test")
+    }
     implementation(libs.curator.framework) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")
         exclude(group = "org.apache.curator", module = "curator-test")
+        exclude(group = "org.apache.curator", module = "curator-client")
     }
     runtimeOnly(libs.commons.lang)
     runtimeOnly(libs.slf4j.api)

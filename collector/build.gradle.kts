@@ -56,11 +56,15 @@ dependencies {
     implementation(libs.hbasewd) {
         exclude(group = "log4j", module = "log4j")
     }
-    implementation(libs.curator.framework) {
+    implementation(libs.curator.client) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")
         exclude(group = "org.apache.curator", module = "curator-test")
     }
-
+    implementation(libs.curator.framework) {
+        exclude(group = "org.apache.zookeeper", module = "zookeeper")
+        exclude(group = "org.apache.curator", module = "curator-test")
+        exclude(group = "org.apache.curator", module = "curator-client")
+    }
     implementation(libs.grpc.core) {
         exclude(group = "io.opencensus", module = "opencensus-api")
         exclude(group = "io.opencensus", module = "opencensus-contrib-grpc-metrics")

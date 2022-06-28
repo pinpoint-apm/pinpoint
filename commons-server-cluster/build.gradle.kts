@@ -7,9 +7,14 @@ dependencies {
     implementation(libs.spring.context)
     implementation(libs.spring.boot)
     implementation(libs.log4j.api.jdk7)
+    implementation(libs.curator.client) {
+        exclude(group = "org.apache.zookeeper", module = "zookeeper")
+        exclude(group = "org.apache.curator", module = "curator-test")
+    }
     implementation(libs.curator.framework) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")
         exclude(group = "org.apache.curator", module = "curator-test")
+        exclude(group = "org.apache.curator", module = "curator-client")
     }
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.slf4j.impl)

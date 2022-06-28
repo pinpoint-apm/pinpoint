@@ -25,9 +25,14 @@ dependencies {
         exclude(group = "com.papertrail", module = "profiler")
     }
     implementation(libs.zookeeper)
+    implementation(libs.curator.client) {
+        exclude(group = "org.apache.zookeeper", module = "zookeeper")
+        exclude(group = "org.apache.curator", module = "curator-test")
+    }
     implementation(libs.curator.framework) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")
         exclude(group = "org.apache.curator", module = "curator-test")
+        exclude(group = "org.apache.curator", module = "curator-client")
     }
     runtimeOnly(libs.slf4j.api)
     testImplementation(libs.log4j.jcl)
