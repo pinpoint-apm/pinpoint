@@ -268,11 +268,6 @@ public class SharedPinpointPluginTest {
                     } catch (Throwable th) {
                         logger.error(th, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
                     }
-                    try {
-                        MethodUtils.invokeSetMethod(testClazz, properties);
-                    } catch (Exception e) {
-                        logger.error(e, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
-                    }
 
                     try {
                         JUnitCore junit = new JUnitCore();
