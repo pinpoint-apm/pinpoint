@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.response.CodeResult;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Objects;
 
@@ -64,14 +66,14 @@ public class ApplicationController {
     public ResponseEntity<CodeResult> isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
-            return CodeResult.badRequest("length range is 1 ~ 24");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");
         }
         if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-            return CodeResult.badRequest("invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
 
         if (applicationService.isExistApplicationName(applicationName)) {
-            return CodeResult.serverError("already exist applicationName");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "applicationName already exists");
         }
 
         return CodeResult.ok("OK");
