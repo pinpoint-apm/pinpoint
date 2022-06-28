@@ -33,11 +33,13 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -63,12 +65,13 @@ public class AgentCommandController {
                                           @RequestParam(value = "threadName", required = false) List<String> threadNameList,
                                           @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
-            return CodeResult.serverError("Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+
         }
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return CodeResult.serverError(String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadDump threadDump = new TCmdActiveThreadDump();
@@ -98,9 +101,9 @@ public class AgentCommandController {
                     return CodeResult.ok(responseData);
                 }
             }
-            return handleFailedResponse(pinpointRouteResponse);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, handleFailedResponseMessage(pinpointRouteResponse));
         } catch (TException e) {
-            return CodeResult.serverError(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -158,12 +161,12 @@ public class AgentCommandController {
                                                                @RequestParam(value = "threadName", required = false) List<String> threadNameList,
                                                                @RequestParam(value = "localTraceId", required = false) List<Long> localTraceIdList) {
         if (!webProperties.isEnableActiveThreadDump()) {
-            return CodeResult.serverError("Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Disable activeThreadDump option. 'config.enable.activeThreadDump=false'");
         }
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId);
         if (agentInfo == null) {
-            return CodeResult.serverError(String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable Agent(%s/%s)", applicationName, agentId));
         }
 
         TCmdActiveThreadLightDump threadDump = new TCmdActiveThreadLightDump();
@@ -189,29 +192,29 @@ public class AgentCommandController {
                     AgentActiveThreadDumpList activeThreadDumpList = factory.create2(activeThreadDumps);
 
                     ThreadDumpResult responseData = createResponseData(activeThreadDumpList, activeThreadDumpResponse.getType(), activeThreadDumpResponse.getSubType(), activeThreadDumpResponse.getVersion());
-                    return CodeResult.ok( responseData);
+                    return CodeResult.ok(responseData);
                 }
             }
-            return handleFailedResponse(pinpointRouteResponse);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, handleFailedResponseMessage(pinpointRouteResponse));
         } catch (TException e) {
-            return CodeResult.serverError(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
-    private ResponseEntity<CodeResult> handleFailedResponse(PinpointRouteResponse response) {
+    private String handleFailedResponseMessage(PinpointRouteResponse response) {
         if (response == null) {
-            return CodeResult.serverError("response is null");
+            return "response is null";
         }
 
         TRouteResult routeResult = response.getRouteResult();
         if (routeResult != TRouteResult.OK) {
-            return CodeResult.serverError(routeResult.name());
+            return routeResult.name();
         } else {
             TBase<?, ?> tBase = response.getResponse();
             if (tBase instanceof TResult) {
-                return CodeResult.serverError(((TResult) tBase).getMessage());
+                return ((TResult) tBase).getMessage();
             } else {
-                return CodeResult.serverError("unknown");
+                return "unknown";
             }
         }
     }

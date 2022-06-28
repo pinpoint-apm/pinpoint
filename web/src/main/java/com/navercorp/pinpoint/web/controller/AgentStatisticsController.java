@@ -16,17 +16,18 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.web.response.ErrorResponse;
 import com.navercorp.pinpoint.web.response.Response;
 import com.navercorp.pinpoint.web.response.SuccessResponse;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -53,7 +54,7 @@ public class AgentStatisticsController {
     @GetMapping(value = "/insertAgentCount", params = {"agentCount", "timestamp"})
     public ResponseEntity<Response> insertAgentCount(@RequestParam("agentCount") int agentCount, @RequestParam("timestamp") long timestamp) {
         if (timestamp < 0) {
-            return ErrorResponse.badRequest("negative timestamp.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "negative timestamp.");
         }
 
         AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateTimeUtils.timestampToStartOfDay(timestamp));
@@ -62,7 +63,7 @@ public class AgentStatisticsController {
         if (success) {
             return SuccessResponse.ok();
         } else {
-            return ErrorResponse.serverError("insert DAO error.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "insert DAO error.");
         }
     }
 
@@ -85,6 +86,4 @@ public class AgentStatisticsController {
 
         return agentCountStatisticsList;
     }
-
-
 }

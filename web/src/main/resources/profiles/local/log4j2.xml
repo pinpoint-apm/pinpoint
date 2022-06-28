@@ -100,7 +100,9 @@
         <Logger name="org.apache.hadoop" level="DEBUG" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
-
+        <Logger name="org.springframework.boot.web.servlet.support.ErrorPageFilter" level="ERROR" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>

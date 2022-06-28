@@ -31,11 +31,13 @@ import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -178,16 +180,14 @@ public class AgentInfoController {
     public ResponseEntity<CodeResult> isAvailableAgentId(@RequestParam("agentId") String agentId) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(agentId, PinpointConstants.AGENT_ID_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
-            return CodeResult.badRequest("length range is 1 ~ 24");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");
         }
         if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-            return CodeResult.badRequest("invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
-
         if (agentInfoService.isExistAgentId(agentId)) {
-            return CodeResult.serverError("already exist agentId");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "agentId already exists");
         }
-
         return CodeResult.ok("OK");
     }
 

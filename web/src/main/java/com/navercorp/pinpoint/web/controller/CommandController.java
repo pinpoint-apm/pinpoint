@@ -27,11 +27,13 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Objects;
 
@@ -56,7 +58,7 @@ public class CommandController {
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
         if (agentInfo == null) {
-            return CodeResult.serverError(String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandEcho echo = new TCommandEcho();
@@ -67,19 +69,19 @@ public class CommandController {
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {
-                    return CodeResult.serverError("result null.");
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "result null.");
                 } else if (result instanceof TCommandEcho) {
                     return CodeResult.ok(((TCommandEcho) result).getMessage());
                 } else if (result instanceof TResult) {
-                    return CodeResult.serverError(((TResult) result).getMessage());
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, (((TResult) result).getMessage()));
                 } else {
-                    return CodeResult.serverError(result.toString());
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, result.toString());
                 }
             } else {
-                return CodeResult.serverError("unknown");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "unknown");
             }
         } catch (TException e) {
-            return CodeResult.serverError(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
