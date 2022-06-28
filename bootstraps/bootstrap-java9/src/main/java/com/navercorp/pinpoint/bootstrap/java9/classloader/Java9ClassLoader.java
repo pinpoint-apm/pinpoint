@@ -60,10 +60,6 @@ public class Java9ClassLoader extends URLClassLoader {
         return super.getResourceAsStream(name);
     }
 
-    private Object getClassLoadingLock0(String name) {
-        return getClassLoadingLock(name);
-    }
-
     @Override
     public URL getResource(String name) {
         URL url = findResource(name);
@@ -94,7 +90,7 @@ public class Java9ClassLoader extends URLClassLoader {
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        synchronized (getClassLoadingLock0(name)) {
+        synchronized (getClassLoadingLock(name)) {
             // First, check if the class has already been loaded
             Class clazz = findLoadedClass(name);
             if (clazz == null) {
