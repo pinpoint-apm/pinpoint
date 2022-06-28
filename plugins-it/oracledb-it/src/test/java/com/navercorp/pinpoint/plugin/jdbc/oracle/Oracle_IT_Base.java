@@ -20,31 +20,20 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
-import com.navercorp.pinpoint.pluginit.utils.LogUtils;
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
-import org.junit.Assume;
 import org.junit.Before;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.containers.output.OutputFrame;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.time.Duration;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 public abstract class Oracle_IT_Base {
     private static final JDBCDriverClass driverClass = new OracleJDBCDriverClass();
     protected static final OracleJDBCApi JDBC_API = new OracleJDBCApi(driverClass);
     protected static OracleItHelper helper;
-    public static OracleContainer oracle;
 
     private static DriverProperties driverProperties;
 
@@ -63,7 +52,6 @@ public abstract class Oracle_IT_Base {
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-
         driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
     }
 
@@ -72,12 +60,6 @@ public abstract class Oracle_IT_Base {
         return driverProperties;
     }
 
-    @AfterSharedClass
-    public static void sharedTearDown() throws Exception {
-        if (oracle != null) {
-            oracle.stop();
-        }
-    }
 
     @Before
     public void registerDriver() throws Exception {

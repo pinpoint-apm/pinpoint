@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
@@ -76,7 +77,7 @@ public class JtdsConnectionIT {
             private final Logger logger = LogManager.getLogger(loggerName);
             @Override
             public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
+                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
         return mssqlServerContainer;
@@ -91,7 +92,7 @@ public class JtdsConnectionIT {
         String address = mssqlserver.getJdbcUrl().substring(JtdsITConstants.JDBC_URL_PREFIX.length());
         String jdbcUrl = JtdsITConstants.JTDS_URL_PREFIX + address;
 
-        driverProperties = new DriverProperties(jdbcUrl, JtdsITConstants.USER_NAME, JtdsITConstants.PASSWORD, new Properties());
+        driverProperties = new DriverProperties(jdbcUrl, JtdsITConstants.USER_NAME, JtdsITConstants.PASSWORD);
     }
 
     @AfterClass

@@ -38,34 +38,16 @@ public abstract class PostgreSqlBase {
 
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private static String JDBC_URL;
-    private static String USERNAME;
-    private static String PASSWORD;
-
-    public static String getJdbcUrl() {
-        return JDBC_URL;
-    }
-
-    public static String getUserName() {
-        return USERNAME;
-    }
-
-    public static String getPassWord() {
-        return PASSWORD;
-    }
+    protected static DriverProperties driverProperties;
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = DatabaseContainers.getJdbcUrl(beforeAllResult);
-        USERNAME = DatabaseContainers.getUsername(beforeAllResult);
-        PASSWORD = DatabaseContainers.getPassword(beforeAllResult);
+        driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
     }
 
     public static DriverProperties getDriverProperties() {
-        DriverProperties driverProperties = new DriverProperties(getJdbcUrl(), getUserName(), getPassWord(), new Properties());
         return driverProperties;
     }
-
 
     @Before
     public void registerDriver() throws Exception {

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.postgresql;
 
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -36,7 +37,7 @@ public class PostgreSQLContainerFactory {
             private final Logger logger = LogManager.getLogger();
             @Override
             public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
+                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
         return container;

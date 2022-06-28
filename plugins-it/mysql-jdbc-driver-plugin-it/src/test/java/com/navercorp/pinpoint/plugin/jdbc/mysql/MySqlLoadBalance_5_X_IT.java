@@ -68,8 +68,8 @@ public class MySqlLoadBalance_5_X_IT extends MySql_IT_Base {
     }
 
     public static DriverProperties getDriverProperties() {
-        String loadbalance = UrlUtils.getLoadbalanceUrl(JDBC_URL);
-        return new DriverProperties(loadbalance, MySqlServer.USERNAME, MySqlServer.PASSWORD, new Properties());
+        String loadbalance = UrlUtils.getLoadbalanceUrl(driverProperties.getUrl());
+        return new DriverProperties(loadbalance, driverProperties.getUser(), driverProperties.getPassword());
     }
 
     @Test

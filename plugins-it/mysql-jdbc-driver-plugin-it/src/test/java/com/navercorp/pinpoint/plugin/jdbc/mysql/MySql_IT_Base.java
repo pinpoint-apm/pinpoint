@@ -38,17 +38,11 @@ import java.util.Properties;
 public abstract class MySql_IT_Base {
     private final Logger logger = LogManager.getLogger(MySql_IT_Base.class);
 
-    protected static String JDBC_URL;
-    protected static final String USERNAME = MySqlServer.USERNAME;
-    protected static final String PASSWORD = MySqlServer.PASSWORD;
-
-    public static String getJdbcUrl() {
-        return JDBC_URL;
-    }
+    protected static DriverProperties driverProperties;
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = DatabaseContainers.getJdbcUrl(beforeAllResult);
+        driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
     }
 
 
@@ -71,7 +65,7 @@ public abstract class MySql_IT_Base {
     }
 
     public static DriverProperties getDriverProperties() {
-        return new DriverProperties(JDBC_URL, MySqlServer.USERNAME, MySqlServer.PASSWORD, new Properties());
+        return driverProperties;
     }
 
 }
