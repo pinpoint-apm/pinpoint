@@ -38,7 +38,6 @@
         <build.frontend.skip>false</build.frontend.skip>
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-        <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
         <thrift.version>${thrift-jdk8.version}</thrift.version>
 
         <pinpoint.web.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.web.executable.name>
