@@ -32,7 +32,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-        <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
 
         <spring-boot-build-skip>false</spring-boot-build-skip>
         <pinpoint.plugintest.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.plugintest.executable.name>

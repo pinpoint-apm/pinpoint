@@ -33,7 +33,6 @@
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
-        <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
     </properties>
 
     <dependencies>

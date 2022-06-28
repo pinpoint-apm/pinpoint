@@ -32,7 +32,6 @@
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
 
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-        <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
 
         <pinpoint.collector.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.collector.executable.name>
     </properties>
