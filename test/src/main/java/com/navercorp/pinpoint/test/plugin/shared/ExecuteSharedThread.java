@@ -20,10 +20,6 @@ import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 
 import org.tinylog.TaggedLogger;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -137,26 +133,14 @@ public class ExecuteSharedThread {
         private volatile Throwable throwable;
         @Override
         public void run() {
-            Class<?> testClazz = null;
             try {
-                testClazz = loadClass();
+                Class<?> testClazz = loadClass();
 
                 logger.debug("Execute testClazz:{} cl:{}", testClazz.getName(), testClazz.getClassLoader());
 
                 sharedTestLifeCycleWrapper = SharedTestLifeCycleWrapper.newVersionTestLifeCycleWrapper(testClazz);
                 if (sharedTestLifeCycleWrapper != null) {
                     sharedTestLifeCycleWrapper.beforeAll();
-                }
-
-                runBeforeSharedClass(testClazz);
-                Map<String, Object> result = getProperties(testClazz);
-                if (result.size() > 0) {
-                    // bind parameter
-                    for (Map.Entry<String, Object> entry : result.entrySet()) {
-                        if (entry.getValue() != null) {
-                            properties.put(entry.getKey(), entry.getValue());
-                        }
-                    }
                 }
             } catch (Throwable th) {
                 logger.warn("{} testclass error", testClazzName, th);
@@ -166,7 +150,6 @@ public class ExecuteSharedThread {
             }
 
             awaitAfterStart();
-            runAfterSharedClass(testClazz);
             if (sharedTestLifeCycleWrapper != null) {
                 sharedTestLifeCycleWrapper.afterAll();
             }
@@ -181,37 +164,5 @@ public class ExecuteSharedThread {
             }
         }
     }
-
-    private void runBeforeSharedClass(final Class<?> testClazz) {
-        try {
-            MethodFilter beforeSharedMethodFilter = MethodUtils.createBeforeSharedMethodFilter();
-            List<Method> beforeSharedMethods = MethodUtils.getMethod(testClazz, beforeSharedMethodFilter);
-            MethodUtils.invokeStaticAndNoParametersMethod(beforeSharedMethods);
-        } catch (Exception e) {
-            logger.error(e, "execute beforeSharedClass failed. testClazz:{}", testClazzName);
-        }
-    }
-
-    private Map<String, Object> getProperties(final Class<?> testClazz) {
-        try {
-            return MethodUtils.invokeGetMethod(testClazz);
-        } catch (Exception e) {
-            logger.error(e, "invokeGetMethod execute failed. message:{}", e.getMessage());
-        }
-
-        return Collections.emptyMap();
-    }
-
-    private void runAfterSharedClass(final Class<?> testClazz) {
-        try {
-            MethodFilter afterSharedMethodFilter = MethodUtils.createAfterSharedMethodFilter();
-            List<Method> afterSharedMethods = MethodUtils.getMethod(testClazz, afterSharedMethodFilter);
-            MethodUtils.invokeStaticAndNoParametersMethod(afterSharedMethods);
-        } catch (Exception e) {
-            logger.error(e, "execute afterSharedClass failed. testClazz:{}", testClazzName);
-        }
-
-    }
-
 
 }
