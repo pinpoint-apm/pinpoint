@@ -33,7 +33,6 @@ dependencies {
         implementation("log4j:log4j:1.2.17")
 
         // curator-framework exclusion
-        implementation("org.apache.curator:curator-client:4.2.0")
         testImplementation("org.apache.curator:curator-test:2.13.0")
         testImplementation("org.apache.zookeeper:zookeeper:3.4.14")
 
