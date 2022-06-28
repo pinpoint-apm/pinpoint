@@ -16,10 +16,7 @@
     <properties>
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
-        <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-        <spring.version>${spring5.version}</spring.version>
-        <spring.security.version>${spring.security5.version}</spring.security.version>
         <log4j2.version>${log4j2-jdk8.version}</log4j2.version>
 
         <pinpoint.collector.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.collector.executable.name>
