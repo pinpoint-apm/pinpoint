@@ -1,15 +1,12 @@
 package com.navercorp.pinpoint.pluginit.jdbc.testcontainers;
 
+import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import java.util.Objects;
 import java.util.Properties;
 
 public final class DatabaseContainers {
-
-    public static final String JDBC_URL = "JDBC_URL";
-    public static final String USERNAME = "USERNAME";
-    public static final String PASSWORD = "PASSWORD";
 
     private DatabaseContainers() {
     }
@@ -18,22 +15,19 @@ public final class DatabaseContainers {
         Objects.requireNonNull(container, "container");
 
         Properties properties = new Properties();
-        properties.setProperty(JDBC_URL, container.getJdbcUrl());
-        properties.setProperty(USERNAME, container.getUsername());
-        properties.setProperty(PASSWORD, container.getPassword());
+        properties.setProperty(DriverProperties.URL, container.getJdbcUrl());
+        properties.setProperty(DriverProperties.USER, container.getUsername());
+        properties.setProperty(DriverProperties.PASSWARD, container.getPassword());
         return properties;
     }
 
-    public static String getJdbcUrl(Properties p) {
-        return p.getProperty(JDBC_URL);
-    }
+    public static DriverProperties readDriverProperties(Properties properties) {
+        Objects.requireNonNull(properties, "properties");
 
-    public static String getUsername(Properties p) {
-        return p.getProperty(USERNAME);
-    }
-
-    public static String getPassword(Properties p) {
-        return p.getProperty(PASSWORD);
+        String url = properties.getProperty(DriverProperties.URL);
+        String user = properties.getProperty(DriverProperties.USER);
+        String password = properties.getProperty(DriverProperties.PASSWARD);
+        return new DriverProperties(url, user, password, properties);
     }
 
 }
