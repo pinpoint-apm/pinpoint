@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testcontainers.containers.MSSQLServerContainer;
@@ -38,7 +39,7 @@ public final class MSSQLServerContainerFactory {
             private final Logger logger = LogManager.getLogger(loggerName);
             @Override
             public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
+                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
         return mssqlServerContainer;

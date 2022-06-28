@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
 import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +30,7 @@ public class MySqlServer implements SharedTestLifeCycle {
         mysqlDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
+                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
         mysqlDB.withDatabaseName(DATABASE_NAME);

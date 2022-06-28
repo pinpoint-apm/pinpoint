@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.plugin.jdbc;
 
 import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +29,7 @@ public class MariaDBServer implements SharedTestLifeCycle {
         mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {
-                logger.info(outputFrame.getUtf8String());
+                logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
         mariaDB.withDatabaseName(DATABASE_NAME);

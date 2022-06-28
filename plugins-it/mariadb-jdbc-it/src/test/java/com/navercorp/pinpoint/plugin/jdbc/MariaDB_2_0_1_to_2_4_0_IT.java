@@ -83,7 +83,7 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbStatement#executeQuery(String)
         Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
@@ -101,7 +101,7 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareStatement(String)
         Method prepareStatement = jdbcApi.getConnection().getPrepareStatement();
@@ -122,7 +122,7 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareCall(String)
         Method prepareCall = jdbcApi.getConnection().getPrepareCall();

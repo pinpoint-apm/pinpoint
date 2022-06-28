@@ -62,27 +62,19 @@ public abstract class MariaDB_IT_Base {
 
     protected static DriverProperties driverProperties;
 
-    protected static final String USERNAME = MariaDBServer.USERNAME;
-    protected static final String PASSWORD = MariaDBServer.PASSWORD;
-
     protected static final String DB_TYPE = "MARIADB";
     protected static final String DB_EXECUTE_QUERY = "MARIADB_EXECUTE_QUERY";
 
-    protected static String JDBC_URL;
     protected static String URL;
 
     public String getJdbcUrl() {
-        return JDBC_URL;
-    }
-
-    public static String getURL() {
-        return URL;
+        return driverProperties.getUrl();
     }
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = DatabaseContainers.getJdbcUrl(beforeAllResult);
-        URL = beforeAllResult.getProperty("URL");
+        driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
+        URL = driverProperties.getProperty("URL");
     }
 
     abstract JDBCDriverClass getJDBCDriverClass();
@@ -118,14 +110,14 @@ public abstract class MariaDB_IT_Base {
             }
             assertEquals(expectedResultSize, resultCount);
         } finally {
-            closeResultSet(rs);
-            closeStatement(statement);
-            closeConnection(connection);
+            closeQuietly(rs);
+            closeQuietly(statement);
+            closeQuietly(connection);
         }
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+        return DriverManager.getConnection(driverProperties.getUrl(), driverProperties.getUser(), driverProperties.getPassword());
     }
 
     protected final void executePreparedStatement() throws Exception {
@@ -149,9 +141,9 @@ public abstract class MariaDB_IT_Base {
             }
             assertEquals(expectedResultSize, resultCount);
         } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(connection);
+            closeQuietly(rs);
+            closeQuietly(ps);
+            closeQuietly(connection);
         }
     }
 
@@ -188,37 +180,17 @@ public abstract class MariaDB_IT_Base {
             assertEquals(expectedTotalCount, totalCount);
 
         } finally {
-            closeResultSet(rs);
-            closeStatement(cs);
-            closeConnection(conn);
+            closeQuietly(rs);
+            closeQuietly(cs);
+            closeQuietly(conn);
         }
     }
 
-    private void closeConnection(Connection conn) {
-        if (conn != null) {
+    private void closeQuietly(AutoCloseable closeable) {
+        if (closeable != null) {
             try {
-                conn.close();
-            } catch (SQLException e) {
-                // empty
-            }
-        }
-    }
-
-    private void closeResultSet(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                // empty
-            }
-        }
-    }
-
-    private void closeStatement(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
+                closeable.close();
+            } catch (Exception ignored) {
                 // empty
             }
         }

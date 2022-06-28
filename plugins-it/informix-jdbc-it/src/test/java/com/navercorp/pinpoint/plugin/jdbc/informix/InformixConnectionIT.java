@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jdbc.informix;
 
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
@@ -75,7 +76,7 @@ public class InformixConnectionIT extends BasePinpointTest {
         container.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {
-                LOGGER.info(outputFrame.getUtf8String());
+                LOGGER.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
         container.start();

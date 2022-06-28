@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -53,30 +54,26 @@ public class JtdsIT extends DataBaseTestCase {
     private static final String MSSQL_EXECUTE_QUERY = "MSSQL_EXECUTE_QUERY";
 
     private static DriverProperties driverProperties;
+    private static DriverProperties jtdsDriverProperties;
     private static JDBCDriverClass driverClass;
     private static JDBCApi jdbcApi;
 
     private static JdbcUrlParserV2 jdbcUrlParser;
 
-    protected static String JDBC_URL;
-
-    public static String getJdbcUrl() {
-        return JDBC_URL;
-    }
 
     @SharedTestBeforeAllResult
     public static void setBeforeAllResult(Properties beforeAllResult) {
-        JDBC_URL = beforeAllResult.getProperty("JDBC_URL");
+        driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
     }
 
 
     @BeforeClass
     public static void beforeClass() {
-        String serverJdbcUrl = getJdbcUrl();
+        String serverJdbcUrl = driverProperties.getUrl();
         String address = serverJdbcUrl.substring(JtdsITConstants.JDBC_URL_PREFIX.length());
         String jdbcUrl = JtdsITConstants.JTDS_URL_PREFIX + address;
 
-        driverProperties = new DriverProperties(jdbcUrl, JtdsITConstants.USER_NAME, JtdsITConstants.PASSWORD, new Properties());
+        jtdsDriverProperties = new DriverProperties(jdbcUrl, driverProperties.getUser(), driverProperties.getPassword(), new Properties());
 
         driverClass = new JtdsJDBCDriverClass();
         jdbcApi = new DefaultJDBCApi(driverClass);
@@ -93,7 +90,7 @@ public class JtdsIT extends DataBaseTestCase {
 
     @Before
     public void before() {
-        setup(MSSQL, MSSQL_EXECUTE_QUERY, driverProperties, jdbcUrlParser, jdbcApi);
+        setup(MSSQL, MSSQL_EXECUTE_QUERY, jtdsDriverProperties, jdbcUrlParser, jdbcApi);
     }
 
 }

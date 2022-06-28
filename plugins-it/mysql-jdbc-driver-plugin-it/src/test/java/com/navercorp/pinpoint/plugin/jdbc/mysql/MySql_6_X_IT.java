@@ -32,7 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Properties;
 
 /**
  * @author Jongho Moon
@@ -61,7 +60,6 @@ public class MySql_6_X_IT extends MySql_IT_Base {
 
         driverClass.getDriver();
 
-        DriverProperties driverProperties = new DriverProperties(JDBC_URL, USERNAME, PASSWORD, new Properties());
         HELPER = new MySqlItHelper(driverProperties);
     }
 
