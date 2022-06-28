@@ -13,6 +13,12 @@ repositories {
             releasesOnly()
         }
     }
+    maven {
+        url = uri("file://${rootDir}/libs")
+        mavenContent {
+            releasesOnly()
+        }
+    }
 }
 
 dependencies {
