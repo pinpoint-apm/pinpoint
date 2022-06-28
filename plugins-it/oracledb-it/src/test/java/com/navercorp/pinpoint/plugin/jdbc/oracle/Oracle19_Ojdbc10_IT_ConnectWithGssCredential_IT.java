@@ -18,32 +18,30 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.*;
-import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.testcontainers.containers.wait.strategy.Wait;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.oracle.database.jdbc:ojdbc10:[19,19.9)", JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
+@Dependency({"com.oracle.database.jdbc:ojdbc10:[19,19.9)", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
 @JvmVersion(11)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
+@SharedTestLifeCycleClass(OracleServer19x.class)
 public class Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT extends Oracle_IT_Base {
-    private static final Logger logger = LogManager.getLogger(Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT.class);
-
-    @BeforeSharedClass
-    public static void sharedSetup() throws Exception {
-        logger.info("Setting up oracle db...");
-        startOracleDB(OracleITConstants.ORACLE_18_X_IMAGE, Wait.forLogMessage(".*Completed.*", 1));
-    }
+    private final Logger logger = LogManager.getLogger(Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT.class);
 
     @BeforeClass
-    public static void setup() throws Exception {
+    public static void setup() {
         DriverProperties driverProperties = createDriverProperties();
         helper = new OracleItHelper(driverProperties);
     }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.pluginit.jdbc;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -28,21 +29,28 @@ public class DriverProperties {
 
     private final Properties properties;
 
-    private static final String URL = "url";
-    private static final String USER = "user";
-    private static final String PASSWARD = "password";
+    public static final String URL = "url";
+    public static final String USER = "user";
+    public static final String PASSWARD = "password";
     private final String url;
     private final String user;
     private final String password;
 
     public static DriverProperties load(String propertyPath, String prefix) {
         Properties properties = load(propertyPath);
-        String url = getDatabaseProperty(properties, prefix, URL);
-        String user = getDatabaseProperty(properties, prefix, USER);
-        String password = getDatabaseProperty(properties, prefix, PASSWARD);
+
+        PrefixReader reader = new PrefixReader(prefix, properties);
+        String url = reader.getProperty(URL);
+        String user = reader.getProperty(USER);
+        String password = reader.getProperty(PASSWARD);
+
         return new DriverProperties(url, user, password, properties);
     }
 
+    public DriverProperties(String url, String user, String password) {
+        this(url, user, password, new Properties());
+    }
+    
     public DriverProperties(String url, String user, String password, Properties properties) {
         this.properties = properties;
         this.url = url;
@@ -50,15 +58,24 @@ public class DriverProperties {
         this.password = password;
     }
 
-    private static String getDatabaseProperty(Properties properties, String prefix, String postfix) {
-        final String key = prefix + "." + postfix;
-        final String value = properties.getProperty(key);
-        if (value == null) {
-            throw new IllegalArgumentException(key + " not found");
-        }
-        return value;
-    }
+    private static class PrefixReader {
+        private final Properties properties;
+        private final String prefix;
 
+        private PrefixReader(String prefix, Properties properties) {
+            this.prefix = Objects.requireNonNull(prefix, "prefix");
+            this.properties = properties;
+        }
+
+        private String getProperty(String postfix) {
+            final String key = prefix + "." + postfix;
+            final String value = properties.getProperty(key);
+            if (value == null) {
+                throw new IllegalArgumentException(key + " not found");
+            }
+            return value;
+        }
+    }
 
     private static Properties load(String propertyPath) {
         try {
