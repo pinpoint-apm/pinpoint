@@ -187,6 +187,16 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protoc.version}</version>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.springframework</groupId>
