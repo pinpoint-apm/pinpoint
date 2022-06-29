@@ -52,6 +52,10 @@ import com.navercorp.pinpoint.plugin.kafka.interceptor.SocketChannelRegisterInte
 
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -101,11 +105,33 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 transformTemplate.transform("org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter$IntegrationBatchMessageListener", BatchMessagingMessageListenerAdapterTransform.class);
             }
 
-            if (StringUtils.hasText(config.getKafkaEntryPoint())) {
-                transformEntryPoint(config.getKafkaEntryPoint());
+            if (config.getKafkaEntryPoints() != null && config.getKafkaEntryPoints().size() > 0) {
+                // merge
+                final Map<String, Set<String>> methods = parseEntryPointsMethods(config.getKafkaEntryPoints());
+                if (logger.isInfoEnabled()) {
+                    logger.info("Kafka EntryPoints entry points={}", methods);
+                }
+
+                // add kafka consumer include methods
+                for (Map.Entry<String, Set<String>> entry : methods.entrySet()) {
+                    try {
+                        addkafkaConsumerEntryPointClass(entry.getKey(), entry.getValue());
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Add kafka consumer include class interceptor {}.{}", entry.getKey(), entry.getValue());
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Failed to add kafka consumer include class(" + entry.getKey() + "." + entry.getValue() + ").", e);
+                    }
+                }
             }
         }
     }
+
+    private void addkafkaConsumerEntryPointClass(final String className, final Set<String> methodNames) {
+        final String[] methodNameArray = methodNames.toArray(new String[0]);
+        transformTemplate.transform(className, EntryPointTransform.class, new Object[]{methodNameArray}, new Class[]{String[].class});
+    }
+
 
     public static class KafkaProducerTransform implements TransformCallback {
 
@@ -286,7 +312,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private boolean enableConsumerTransform(KafkaConfig config) {
-        if (config.isConsumerEnable() && StringUtils.hasText(config.getKafkaEntryPoint())) {
+        if (config.isConsumerEnable()) {
             return true;
         }
 
@@ -298,22 +324,20 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         this.transformTemplate = transformTemplate;
     }
 
-    public void transformEntryPoint(String entryPoint) {
-        final String clazzName = toClassName(entryPoint);
-
-        transformTemplate.transform(clazzName, EntryPointTransform.class);
-    }
 
     public static class EntryPointTransform implements TransformCallback {
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
+        private final String[] methodNames;
+
+        public EntryPointTransform(String[] methodNames) {
+            this.methodNames = methodNames;
+        }
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            final KafkaConfig config = new KafkaConfig(instrumentor.getProfilerConfig());
-            final String methodName = toMethodName(config.getKafkaEntryPoint());
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodNames))) {
                 try {
                     String[] parameterTypes = method.getParameterTypes();
                     if (parameterTypes == null) {
@@ -340,25 +364,9 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             return target.toBytecode();
         }
 
-        private String toMethodName(String fullQualifiedMethodName) {
-            final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf('.');
-            if (methodBeginPosition <= 0 || methodBeginPosition + 1 >= fullQualifiedMethodName.length()) {
-                throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
-            }
-
-            return fullQualifiedMethodName.substring(methodBeginPosition + 1);
-        }
 
     }
 
-    private String toClassName(String fullQualifiedMethodName) {
-        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
-        if (classEndPosition <= 0) {
-            throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
-        }
-
-        return fullQualifiedMethodName.substring(0, classEndPosition);
-    }
 
     public static class KafkaSelectorTransform implements TransformCallback {
 
@@ -453,6 +461,41 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             return target.toBytecode();
         }
 
+    }
+
+
+    private Map<String, Set<String>> parseEntryPointsMethods(List<String> fullyQualifiedMethodNames) {
+        Map<String, Set<String>> userMethods = new HashMap<String, Set<String>>();
+        for (String fullyQualifiedMethodName : fullyQualifiedMethodNames) {
+            try {
+                final String className = toClassName(fullyQualifiedMethodName);
+                final String methodName = toMethodName(fullyQualifiedMethodName);
+                Set<String> methodNames = userMethods.computeIfAbsent(className, k -> new HashSet<String>());
+                methodNames.add(methodName);
+            } catch (Exception e) {
+                logger.warn("Failed to parse user method(" + fullyQualifiedMethodName + ").", e);
+            }
+        }
+        return userMethods;
+    }
+
+
+    private String toClassName(String fullQualifiedMethodName) {
+        final int classEndPosition = fullQualifiedMethodName.lastIndexOf('.');
+        if (classEndPosition <= 0) {
+            throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
+        }
+
+        return fullQualifiedMethodName.substring(0, classEndPosition);
+    }
+
+    private String toMethodName(String fullQualifiedMethodName) {
+        final int methodBeginPosition = fullQualifiedMethodName.lastIndexOf('.');
+        if (methodBeginPosition <= 0 || methodBeginPosition + 1 >= fullQualifiedMethodName.length()) {
+            throw new IllegalArgumentException("invalid full qualified method name(" + fullQualifiedMethodName + "). not found method");
+        }
+
+        return fullQualifiedMethodName.substring(methodBeginPosition + 1);
     }
 
 }
