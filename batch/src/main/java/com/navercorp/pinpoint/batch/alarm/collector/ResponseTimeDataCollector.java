@@ -38,6 +38,8 @@ public class ResponseTimeDataCollector extends DataCollector {
     private final long slotInterval;
     private final AtomicBoolean init =new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
 
+    private long fastCount = 0;
+    private long normalCount = 0;
     private long slowCount = 0;
     private long errorCount = 0;
     private long totalCount = 0;
@@ -89,11 +91,21 @@ public class ResponseTimeDataCollector extends DataCollector {
 
     private void sum(Collection<TimeHistogram> timeHistograms) {
         for (TimeHistogram timeHistogram : timeHistograms) {
+            fastCount += timeHistogram.getFastCount();
+            normalCount += timeHistogram.getNormalCount();
             slowCount += timeHistogram.getSlowCount();
             slowCount += timeHistogram.getVerySlowCount();
             errorCount += timeHistogram.getTotalErrorCount();
             totalCount += timeHistogram.getTotalCount();
         }
+    }
+
+    public long getFastCount() {
+        return fastCount;
+    }
+
+    public long getNormalCount() {
+        return normalCount;
     }
 
     public long getSlowCount() {
