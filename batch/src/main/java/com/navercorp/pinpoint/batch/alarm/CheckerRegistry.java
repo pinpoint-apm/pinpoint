@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.batch.alarm.checker.ApdexScoreChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.DataSourceConnectionUsageRateChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.DeadlockChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.ErrorCountChecker;
@@ -86,6 +87,13 @@ public class CheckerRegistry {
             @Override
             public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
                 return new ResponseCountChecker((ResponseTimeDataCollector) dataCollector, rule);
+            }
+        });
+
+        put(CheckerCategory.APDEX_SCORE, new AlarmCheckerFactory() {
+            @Override
+            public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
+                return new ApdexScoreChecker((ResponseTimeDataCollector) dataCollector, rule);
             }
         });
 

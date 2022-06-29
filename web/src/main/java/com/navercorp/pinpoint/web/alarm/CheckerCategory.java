@@ -35,6 +35,8 @@ public enum CheckerCategory {
     ERROR_RATE("ERROR RATE", DataCollectorCategory.RESPONSE_TIME),
     
     TOTAL_COUNT("TOTAL COUNT", DataCollectorCategory.RESPONSE_TIME),
+
+    APDEX_SCORE("APDEX SCORE", DataCollectorCategory.RESPONSE_TIME),
     
     SLOW_COUNT_TO_CALLEE("SLOW COUNT TO CALLEE", DataCollectorCategory.CALLER_STAT),
     
