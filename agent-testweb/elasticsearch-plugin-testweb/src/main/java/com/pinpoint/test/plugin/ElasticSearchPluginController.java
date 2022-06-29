@@ -32,9 +32,9 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class ElasticSearchPluginController {
 
-    private final EmbeddedElasticServer elasticServer;
+    private final ElasticSearchServer elasticServer;
 
-    public ElasticSearchPluginController(EmbeddedElasticServer elasticServer) {
+    public ElasticSearchPluginController(ElasticSearchServer elasticServer) {
         this.elasticServer = Objects.requireNonNull(elasticServer, "elasticServer");
     }
 

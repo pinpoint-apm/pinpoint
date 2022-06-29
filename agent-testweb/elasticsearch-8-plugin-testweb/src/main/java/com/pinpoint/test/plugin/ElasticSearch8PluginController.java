@@ -32,9 +32,9 @@ import java.util.Objects;
 @RestController
 public class ElasticSearch8PluginController {
 
-    private final EmbeddedElasticServer elasticServer;
+    private final ElasticSearchServer elasticServer;
 
-    public ElasticSearch8PluginController(EmbeddedElasticServer elasticServer) {
+    public ElasticSearch8PluginController(ElasticSearchServer elasticServer) {
         this.elasticServer = Objects.requireNonNull(elasticServer, "elasticServer");
     }
 
