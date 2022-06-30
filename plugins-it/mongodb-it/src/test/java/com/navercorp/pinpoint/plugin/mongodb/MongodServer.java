@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.mongodb;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -27,18 +28,28 @@ public class MongodServer {
     private final MongodExecutable mongodExecutable;
     private MongodProcess mongod;
 
+    private final int port = SocketUtils.findAvailableTcpPort(MongoDBITConstants.DEFAULT_PORT);
+
     public MongodServer() throws IOException {
         MongodStarter starter = newStarter();
 
         MongodConfig mongodConfig = MongodConfig.builder()
                 .version(Version.Main.V4_4)
-                .net(new Net(MongoDBITConstants.BIND_ADDRESS, MongoDBITConstants.PORT, Network.localhostIsIPv6()))
+                .net(new Net(MongoDBITConstants.BIND_ADDRESS, port, Network.localhostIsIPv6()))
                 .build();
         this.mongodExecutable = starter.prepare(mongodConfig);
     }
 
     public void start() throws IOException {
         mongod = mongodExecutable.start();
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getAddress() {
+        return MongoDBITConstants.BIND_ADDRESS + ":" + port;
     }
 
     private String getTempPath() throws IOException {

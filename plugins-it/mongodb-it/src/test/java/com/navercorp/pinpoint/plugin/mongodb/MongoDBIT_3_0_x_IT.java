@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
@@ -65,7 +64,7 @@ public class MongoDBIT_3_0_x_IT extends MongoDBITBase {
 
     @Override
     public void setClient() {
-        mongoClient = new com.mongodb.MongoClient(MongoDBITConstants.BIND_ADDRESS, MongoDBITConstants.PORT);
+        mongoClient = new com.mongodb.MongoClient(MongoDBITConstants.BIND_ADDRESS, mongod.getPort());
 
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
     }

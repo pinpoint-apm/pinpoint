@@ -151,7 +151,7 @@ public abstract class MongoDBITBase {
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(document);
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -209,7 +209,7 @@ public abstract class MongoDBITBase {
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(document);
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -223,7 +223,7 @@ public abstract class MongoDBITBase {
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(doc);
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -238,7 +238,7 @@ public abstract class MongoDBITBase {
         Method updateOne = getMethod(mongoDatabaseImpl, "updateOne", Bson.class, Bson.class);
         NormalizedBson parsedBson = parseBson(doc, doc2);
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -251,7 +251,7 @@ public abstract class MongoDBITBase {
 
         Method find = getMethod(mongoDatabaseImpl, "find");
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")));
 
@@ -279,7 +279,7 @@ public abstract class MongoDBITBase {
         Method deleteMany = getMethod(mongoDatabaseImpl, "deleteMany", Bson.class);
         NormalizedBson parsedBson = parseBson(doc);
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -294,7 +294,7 @@ public abstract class MongoDBITBase {
 
         MongoCursor<Document> cursor = collection.find(bson).iterator();
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
@@ -309,7 +309,7 @@ public abstract class MongoDBITBase {
 
         MongoCursor<Document> cursor = collection.find(bson).iterator();
 
-        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, MongoDBITConstants.MONGODB_ADDRESS, null
+        verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, mongod.getAddress(), null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
