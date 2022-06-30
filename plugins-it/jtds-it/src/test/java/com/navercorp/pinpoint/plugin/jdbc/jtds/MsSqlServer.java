@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.Assume;
@@ -34,9 +35,7 @@ public class MsSqlServer implements SharedTestLifeCycle {
         });
         mssqlserver.start();
 
-        Properties properties = new Properties();
-        properties.setProperty("JDBC_URL", mssqlserver.getJdbcUrl());
-        return properties;
+        return DatabaseContainers.toProperties(mssqlserver);
     }
 
     @Override
