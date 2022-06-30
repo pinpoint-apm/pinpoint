@@ -44,7 +44,7 @@ public class AlarmServiceImpl implements AlarmService {
     
     @Override
     public String insertRule(Rule rule) {
-        return alarmDao.insertRule(rule);
+        return alarmDao.insertRuleExceptWebhookSend(rule);
     }
 
     @Override
