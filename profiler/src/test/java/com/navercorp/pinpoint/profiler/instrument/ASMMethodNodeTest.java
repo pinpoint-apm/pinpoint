@@ -44,10 +44,11 @@ import static org.mockito.Mockito.when;
  */
 public class ASMMethodNodeTest {
 
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Before
     public void setUp() {
@@ -73,7 +74,7 @@ public class ASMMethodNodeTest {
         when(declaringClass.getName()).thenReturn(targetClassName);
         EngineComponent engineComponent = mock(EngineComponent.class);
 
-        final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, methodName);
+        final MethodNode methodNode = loader.get(targetClassName, methodName);
 
         ASMMethod method = new ASMMethod(engineComponent, pluginContext, declaringClass, methodNode);
         assertEquals(methodName, method.getName());

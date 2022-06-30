@@ -134,6 +134,7 @@ public class ASMClassTest {
 
     private final EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorRegistryBinder, interceptorDefinitionFactory, apiMetaDataService, scopeFactory);
 
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Before
     public void setUp() {
@@ -692,7 +693,7 @@ public class ASMClassTest {
 
 
     private ASMClass getClass(final String targetClassName) throws Exception {
-        ClassNode classNode = ASMClassNodeLoader.get(targetClassName);
+        ClassNode classNode = loader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return new ASMClass(engineComponent, pluginContext, classLoader, getClass().getProtectionDomain(), classNode);
     }

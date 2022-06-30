@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -43,11 +44,18 @@ import static org.mockito.Mockito.when;
  */
 public class ASMClassNodeLoader {
 
-    private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private final InstrumentContext pluginContext;
 
+    public ASMClassNodeLoader(InstrumentContext pluginContext) {
+        this.pluginContext = Objects.requireNonNull(pluginContext, "pluginContext");
+    }
 
-    static {
+    public ASMClassNodeLoader() {
+        this(newMockInstrumentContext());
+    }
 
+    private static InstrumentContext newMockInstrumentContext() {
+        InstrumentContext pluginContext = mock(InstrumentContext.class);
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
             @Override
@@ -65,17 +73,18 @@ public class ASMClassNodeLoader {
             public InputStream answer(InvocationOnMock invocation) throws Throwable {
                 ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
                 String name = (String) invocation.getArguments()[1];
-                if(loader == null) {
+                if (loader == null) {
                     loader = ClassLoader.getSystemClassLoader();
                 }
 
                 return loader.getResourceAsStream(name);
             }
         });
+        return pluginContext;
     }
 
     // only use for test.
-    public static ClassNode get(final String className) throws IOException {
+    public ClassNode get(final String className) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(JavaAssistUtils.javaClassNameToJvmResourceName(className));
         byte[] bytes = IOUtils.toByteArray(inputStream);
@@ -86,7 +95,7 @@ public class ASMClassNodeLoader {
         return classNode;
     }
 
-    public static MethodNode get(final String classInternalName, final String methodName) throws Exception {
+    public MethodNode get(final String classInternalName, final String methodName) throws IOException {
         ClassNode classNode = get(classInternalName);
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
@@ -105,8 +114,8 @@ public class ASMClassNodeLoader {
     public static class TestClassLoader extends ClassLoader {
         private final Logger logger = LogManager.getLogger(this.getClass());
 
+        private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
         private String targetClassName;
-        private String targetMethodName;
         private CallbackHandler callbackHandler;
         private boolean trace;
         private boolean verify;
@@ -127,15 +136,18 @@ public class ASMClassNodeLoader {
             this.verify = verify;
         }
 
+        public ASMClassNodeLoader getLoader() {
+            return loader;
+        }
+
         @Override
         public Class<?> loadClass(final String name) throws ClassNotFoundException {
-            if ((targetClassName == null || name.equals(targetClassName))) {
+            if (targetClassName == null || name.equals(targetClassName)) {
                 try {
-                    ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
-
+                    ClassNode classNode = loader.get(JavaAssistUtils.javaNameToJvmName(name));
                     if (this.trace) {
                         logger.debug("## original #############################################################");
-                        ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
+                        ASMClassWriter cw = new ASMClassWriter(loader.pluginContext, 0, null);
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));
                         classNode.accept(tcv);
                     }
@@ -144,7 +156,7 @@ public class ASMClassNodeLoader {
                         callbackHandler.handle(classNode);
                     }
 
-                     ASMClassWriter cw = new ASMClassWriter(pluginContext, ClassWriter.COMPUTE_FRAMES, null);
+                    ASMClassWriter cw = new ASMClassWriter(loader.pluginContext, ClassWriter.COMPUTE_FRAMES, null);
                     if (this.trace) {
                         logger.debug("## modified #############################################################");
                         TraceClassVisitor tcv = new TraceClassVisitor(cw, new PrintWriter(System.out));

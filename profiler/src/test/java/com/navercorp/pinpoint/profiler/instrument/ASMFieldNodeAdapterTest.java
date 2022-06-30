@@ -27,9 +27,11 @@ import static org.junit.Assert.*;
  * @author jaehong.kim
  */
 public class ASMFieldNodeAdapterTest {
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
+
     @Test
     public void getName() throws Exception {
-        ClassNode classNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
+        ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
         List<FieldNode> fieldNodes = classNode.fields;
         for (FieldNode fieldNode : fieldNodes) {
             ASMFieldNodeAdapter adapter = new ASMFieldNodeAdapter(fieldNode);

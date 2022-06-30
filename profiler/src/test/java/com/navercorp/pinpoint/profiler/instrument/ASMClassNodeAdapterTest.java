@@ -40,8 +40,9 @@ import static org.junit.Assert.fail;
 
 public class ASMClassNodeAdapterTest {
 
-    private final ClassInputStreamProvider pluginClassInputStreamProvider = new SimpleClassInputStreamProvider();
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ClassInputStreamProvider pluginClassInputStreamProvider = new SimpleClassInputStreamProvider();
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Test
     public void get() {
@@ -226,7 +227,7 @@ public class ASMClassNodeAdapterTest {
 
     @Test
     public void addMethod() throws Exception {
-        final MethodNode methodNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", "arg");
+        final MethodNode methodNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", "arg");
         final ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter("com/navercorp/pinpoint/profiler/instrument/mock/ArgsClass", methodNode);
 
         final ASMClassNodeLoader.TestClassLoader testClassLoader = ASMClassNodeLoader.getClassLoader();
