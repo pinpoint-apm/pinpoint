@@ -27,7 +27,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,10 +38,11 @@ import static org.mockito.Mockito.when;
 public class ASMClassWriterTest {
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Before
     public void setUp() {
-        when(pluginContext.injectClass(ArgumentMatchers.<ClassLoader>isNull(), anyString())).thenAnswer(new Answer<Class<?>>() {
+        when(pluginContext.injectClass(ArgumentMatchers.isNull(), anyString())).thenAnswer(new Answer<Class<?>>() {
 
             @Override
             public Class<?> answer(InvocationOnMock invocation) throws Throwable {
@@ -52,7 +53,7 @@ public class ASMClassWriterTest {
             }
 
         });
-        when(pluginContext.getResourceAsStream(ArgumentMatchers.<ClassLoader>isNull(), anyString())).thenAnswer(new Answer<InputStream>() {
+        when(pluginContext.getResourceAsStream(ArgumentMatchers.isNull(), anyString())).thenAnswer(new Answer<InputStream>() {
 
             @Override
             public InputStream answer(InvocationOnMock invocation) throws Throwable {
@@ -71,7 +72,7 @@ public class ASMClassWriterTest {
     @Test
     public void accept() throws Exception {
         final String className = "com.navercorp.pinpoint.profiler.instrument.mock.SampleClass";
-        ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(className));
+        ClassNode classNode = loader.get(JavaAssistUtils.javaNameToJvmName(className));
 
         ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
         TraceClassVisitor tcv = new TraceClassVisitor(cw, null);
@@ -79,7 +80,7 @@ public class ASMClassWriterTest {
     }
 
     @Test
-    public void getCommonSuperClass() throws Exception {
+    public void getCommonSuperClass() {
         ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
         // java/lang/object.
         assertEquals("java/lang/Object", cw.getCommonSuperClass("java/util/Iterator", "java/lang/Object"));
@@ -105,7 +106,7 @@ public class ASMClassWriterTest {
     }
 
     @Test
-    public void getCommonSuperClassByClass() throws Exception {
+    public void getCommonSuperClassByClass() {
         // class, class
         // Object
         assertCommonSuperClass("java/lang/Object", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$A", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$B");
@@ -133,7 +134,7 @@ public class ASMClassWriterTest {
     }
 
     @Test
-    public void getCommonSuperClassByInterface() throws Exception {
+    public void getCommonSuperClassByInterface() {
         // interface, class
         // Object
         assertCommonSuperClass("java/lang/Object", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$I", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$A");

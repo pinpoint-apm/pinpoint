@@ -29,7 +29,8 @@ import org.objectweb.asm.tree.MethodNode;
 import static org.junit.Assert.*;
 
 public class ASMMethodNodeAdapterTest {
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Test
     public void isVisited() throws Exception {
@@ -38,7 +39,7 @@ public class ASMMethodNodeAdapterTest {
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass";
-        final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, "arg");
+        final MethodNode methodNode = loader.get(targetClassName, "arg");
         ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(targetClassName), methodNode);
         assertEquals(false, adapter.hasInterceptor());
 
@@ -49,7 +50,7 @@ public class ASMMethodNodeAdapterTest {
     @Test
     public void methodAccess() throws Exception {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.MethodClass";
-        final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, "publicStaticMethod");
+        final MethodNode methodNode = loader.get(targetClassName, "publicStaticMethod");
         ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(targetClassName), methodNode);
         assertEquals(true, adapter.isStatic());
         assertEquals(false, adapter.isAbstract());
@@ -60,7 +61,7 @@ public class ASMMethodNodeAdapterTest {
     @Test
     public void getLineNumber() throws Exception {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.NormalClass";
-        final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, "sum");
+        final MethodNode methodNode = loader.get(targetClassName, "sum");
         ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(targetClassName), methodNode);
         assertEquals(44, adapter.getLineNumber());
     }
@@ -68,7 +69,7 @@ public class ASMMethodNodeAdapterTest {
     @Test
     public void hasAnnotation() throws Exception {
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.AnnotationClass";
-        final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, "pointCut");
+        final MethodNode methodNode = loader.get(targetClassName, "pointCut");
         ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(targetClassName), methodNode);
         assertEquals(true, adapter.hasAnnotation(PointCut.class));
         assertEquals(false, adapter.hasAnnotation(JointPoint.class));

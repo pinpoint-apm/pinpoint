@@ -37,7 +37,7 @@ import java.util.jar.JarFile;
 import static org.mockito.Mockito.mock;
 
 public class ASMMethodNodeAdapterTestMain {
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private int interceptorId;
 
     public ASMMethodNodeAdapterTestMain() {
@@ -45,7 +45,7 @@ public class ASMMethodNodeAdapterTestMain {
         this.interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
     }
 
-    public void search() throws Exception {
+    public void search() {
         final String classpath = System.getProperty("java.class.path");
         final String[] paths = classpath.split(";");
         for (String path : paths) {
@@ -60,7 +60,7 @@ public class ASMMethodNodeAdapterTestMain {
         }
     }
 
-    public void searchFile(final String classPath, final String path) throws Exception {
+    public void searchFile(final String classPath, final String path) {
         File file = new File(path);
         if (file.isDirectory()) {
             for (String name : file.list()) {
@@ -73,29 +73,31 @@ public class ASMMethodNodeAdapterTestMain {
     }
 
     public void searchJar(final String path) throws Exception {
-        JarFile jar = new JarFile(path);
-        Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-        Set<String> result = new HashSet<String>(); //avoid duplicates in case it is a subdirectory
-        while (entries.hasMoreElements()) {
-            String name = entries.nextElement().getName();
-            if (name.endsWith(".class")) {
-                final String className = name.substring(0, name.length() - 6);
-                addInterceptor(className);
+        try (JarFile jar = new JarFile(path)) {
+            Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
+            Set<String> result = new HashSet<>(); //avoid duplicates in case it is a subdirectory
+            while (entries.hasMoreElements()) {
+                String name = entries.nextElement().getName();
+                if (name.endsWith(".class")) {
+                    final String className = name.substring(0, name.length() - 6);
+                    addInterceptor(className);
+                }
             }
         }
     }
 
-    private void addInterceptor(final String className) throws Exception {
+    private void addInterceptor(final String className) {
         final boolean trace = false;
         final boolean verify = false;
 
         final String classInternalName = JavaAssistUtils.jvmNameToJavaName(className);
+        final ASMClassNodeLoader loader = new ASMClassNodeLoader();
         ClassLoader classLoader = new ClassLoader() {
             @Override
             public Class<?> loadClass(String name) throws ClassNotFoundException {
                 if (!name.startsWith("java") && !name.startsWith("sun") && super.findLoadedClass(name) == null) {
                     try {
-                        ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(name));
+                        ClassNode classNode = loader.get(JavaAssistUtils.javaNameToJvmName(name));
                         EngineComponent engineComponent = mock(DefaultEngineComponent.class);
                         ASMClass asmClass = new ASMClass(engineComponent, null, null, null, classNode);
                         if (asmClass.isInterceptable()) {
