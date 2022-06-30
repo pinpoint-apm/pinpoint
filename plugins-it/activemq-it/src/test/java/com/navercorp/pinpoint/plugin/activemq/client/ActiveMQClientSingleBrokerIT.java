@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.activemq.client;
 
 import com.navercorp.pinpoint.plugin.activemq.client.util.ActiveMQClientITHelper;
+import com.navercorp.pinpoint.plugin.activemq.client.util.PortUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -29,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author HyunGil Jeong
@@ -43,11 +45,12 @@ import java.util.Arrays;
 public class ActiveMQClientSingleBrokerIT extends ActiveMQClientITBase {
 
     private static final String BROKER_NAME = "Test_Broker";
-    private static final String BROKER_URL = TestBroker.DEFAULT_BROKER_URL;
+
+    private static final String BROKER_URL = PortUtils.findAvailableUrl(PortUtils.DEFAULT_PORT);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        ActiveMQClientITHelper.startBrokers(Arrays.asList(
+        ActiveMQClientITHelper.startBrokers(Collections.singletonList(
                 new TestBroker.TestBrokerBuilder(BROKER_NAME)
                         .addConnector(BROKER_URL)
                         .build()

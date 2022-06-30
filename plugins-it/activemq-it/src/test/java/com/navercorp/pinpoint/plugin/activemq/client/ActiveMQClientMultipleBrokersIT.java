@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.activemq.client;
 
 import com.navercorp.pinpoint.plugin.activemq.client.util.ActiveMQClientITHelper;
+import com.navercorp.pinpoint.plugin.activemq.client.util.PortUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -46,14 +47,12 @@ public class ActiveMQClientMultipleBrokersIT extends ActiveMQClientITBase {
     private static final String PRODUCER_BROKER = "Producer_Broker";
     private static final String CONSUMER_BROKER = "Consumer_Broker";
 
-    private static String PRODUCER_BROKER_URL;
-    private static String CONSUMER_BROKER_URL;
+    private static final int PORT = SocketUtils.findAvailableTcpPort(PortUtils.DEFAULT_PORT);
+    private static final String PRODUCER_BROKER_URL = PortUtils.findAvailableUrl(PORT);
+    private static final String CONSUMER_BROKER_URL = PortUtils.findAvailableUrl(PORT + 1);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        int producerPort = SocketUtils.findAvailableTcpPort(61616);
-        PRODUCER_BROKER_URL = "tcp://127.0.0.1:" + producerPort;
-        CONSUMER_BROKER_URL = "tcp://127.0.0.1:" + (producerPort + 1);
         ActiveMQClientITHelper.startBrokers(Arrays.asList(
                 // Consumer broker
                 new TestBroker.TestBrokerBuilder(CONSUMER_BROKER)

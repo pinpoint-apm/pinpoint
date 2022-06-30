@@ -34,8 +34,6 @@ import java.util.Set;
  */
 public class TestBroker {
 
-    public static final String DEFAULT_BROKER_URL = "tcp://127.0.0.1:61616";
-
     private final String brokerName;
     private final BrokerService brokerService;
     private final Map<String, ActiveMQConnectionFactory> connectionFactories;
@@ -51,7 +49,7 @@ public class TestBroker {
         return this.brokerName;
     }
 
-    ActiveMQConnection getConnection(String connectUri) throws JMSException {
+    ActiveMQConnection getConnection(String connectUri) {
         if (!this.connections.containsKey(connectUri)) {
             throw new IllegalArgumentException("Connection for connectUri [" + connectUri + "] does not exist");
         }
@@ -104,7 +102,7 @@ public class TestBroker {
 
         public TestBroker build() throws Exception {
             if (this.connectors.isEmpty()) {
-                this.connectors.add(DEFAULT_BROKER_URL);
+                throw new IllegalStateException("bindAddress is empty");
             }
             BrokerService brokerService = new BrokerService();
             brokerService.setBrokerName(this.brokerName);
