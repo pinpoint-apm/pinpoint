@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -50,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 public class SharedPinpointPluginTest {
     private static final TaggedLogger logger = TestLogger.getLogger();
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Exception {
         final String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
         if (mavenDependencyResolverClassPaths == null) {
             logger.error("mavenDependencyResolverClassPaths must not be empty");
@@ -202,7 +201,7 @@ public class SharedPinpointPluginTest {
         }
     }
 
-    public void execute() throws Throwable {
+    public void execute() throws Exception {
         logTestInformation();
         ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(mavenDependencyResolverClassPaths));
         File testClazzLocation = new File(testLocation);
@@ -211,34 +210,24 @@ public class SharedPinpointPluginTest {
         executes(testInfos);
     }
 
-    private void executes(List<TestInfo> testInfos) throws Throwable {
+    private void executes(List<TestInfo> testInfos) {
         if (!CollectionUtils.hasLength(testInfos)) {
             return;
         }
 
         TestInfo firstTestInfo = testInfos.get(0);
-        final ClassLoader testClassLoader = createTestClassLoader(firstTestInfo);
-        ExecuteSharedThread executeSharedThread = new ExecuteSharedThread(testClazzName, testClassLoader);
+        final ClassLoader sharedClassLoader = createTestClassLoader(firstTestInfo);
+        SharedTestExecutor sharedTestExecutor = new SharedTestExecutor(testClazzName, sharedClassLoader);
 
-        executeSharedThread.startBefore();
-        executeSharedThread.awaitBeforeCompleted(10, TimeUnit.MINUTES);
-        Throwable runnableError = executeSharedThread.getRunnableError();
-        if (runnableError != null) {
-            throw runnableError;
-        }
-        Properties properties = executeSharedThread.getProperties();
-        if (logger.isDebugEnabled()) {
-            logger.debug("sharedThread properties:{}", properties);
-        }
+        sharedTestExecutor.startBefore(10, TimeUnit.MINUTES);
 
-        final SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper = executeSharedThread.getSharedClassWrapper();
+
+        final SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper = sharedTestExecutor.getSharedClassWrapper();
         for (TestInfo testInfo : testInfos) {
-            execute(testInfo, properties, sharedTestLifeCycleWrapper);
+            execute(testInfo, sharedTestLifeCycleWrapper);
         }
 
-        executeSharedThread.startAfter();
-
-        executeSharedThread.join(TimeUnit.MINUTES.toMillis(5));
+        sharedTestExecutor.startAfter(5, TimeUnit.MINUTES);
     }
 
     private ClassLoader createTestClassLoader(TestInfo testInfo) {
@@ -249,11 +238,10 @@ public class SharedPinpointPluginTest {
             }
         }
         URL[] urls = URLUtils.fileToUrls(dependencyFileList);
-        final ClassLoader testClassLoader = new ChildFirstClassLoader(urls, ProfilerClass.PINPOINT_PROFILER_CLASS);
-        return testClassLoader;
+        return new ChildFirstClassLoader(urls, ProfilerClass.PINPOINT_PROFILER_CLASS);
     }
 
-    private void execute(final TestInfo testInfo, final Properties properties, SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper) {
+    private void execute(final TestInfo testInfo, SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper) {
         try {
             final ClassLoader testClassLoader = createTestClassLoader(testInfo);
 
@@ -294,7 +282,9 @@ public class SharedPinpointPluginTest {
                 }
             };
             String threadName = testClazzName + " " + testInfo.getTestId() + " Thread";
-            Thread testThread = newThread(runnable, threadName, testClassLoader);
+
+            ThreadFactory threadFactory = new ThreadFactory(threadName, testClassLoader);
+            Thread testThread = threadFactory.newThread(runnable);
             testThread.start();
 
             testThread.join(TimeUnit.MINUTES.toMillis(5));
@@ -311,14 +301,6 @@ public class SharedPinpointPluginTest {
         if (testThread.isAlive()) {
             throw new IllegalStateException(testInfo + " not finished");
         }
-    }
-
-    private Thread newThread(Runnable runnable, String threadName, ClassLoader testClassLoader) {
-        Thread testThread = new Thread(runnable);
-        testThread.setName(threadName);
-        testThread.setContextClassLoader(testClassLoader);
-        testThread.setDaemon(true);
-        return testThread;
     }
 
 }

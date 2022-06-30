@@ -10,7 +10,7 @@ public class SharedTestLifeCycleWrapper {
     private final SharedTestLifeCycle sharedTestLifecycle;
     private Properties lifeCycleResult;
 
-    private static Class<? extends SharedTestLifeCycle> getVersionTestLifeCycle(final Class<?> testClazz) {
+    private static Class<? extends SharedTestLifeCycle> getSharedTestLifeCycle(final Class<?> testClazz) {
         SharedTestLifeCycleClass sharedTestLifeCycleClass = testClazz.getAnnotation(SharedTestLifeCycleClass.class);
         if (sharedTestLifeCycleClass == null) {
             return null;
@@ -18,8 +18,8 @@ public class SharedTestLifeCycleWrapper {
         return sharedTestLifeCycleClass.value();
     }
 
-    public static SharedTestLifeCycleWrapper newVersionTestLifeCycleWrapper(final Class<?> testClazz) {
-        Class<? extends SharedTestLifeCycle> versionTestClazz = getVersionTestLifeCycle(testClazz);
+    public static SharedTestLifeCycleWrapper newSharedTestLifeCycleWrapper(final Class<?> testClazz) {
+        Class<? extends SharedTestLifeCycle> versionTestClazz = getSharedTestLifeCycle(testClazz);
         if (versionTestClazz == null) {
             return null;
         }
