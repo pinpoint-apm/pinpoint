@@ -243,7 +243,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
             boolean sign = RANDOM.nextBoolean();
             for (int i = 0; i < numValues - 1; i++) {
                 T fluctuation = this.createValue(minFluctuation, maxFluctuation);
-                // randomly add or substract fluctuation
+                // randomly add or subtract fluctuation
                 if (sign) {
                     value = add(value, fluctuation);
                 } else {
