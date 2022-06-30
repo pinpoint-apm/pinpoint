@@ -82,7 +82,7 @@ public interface HbaseOperations2 {
     /**
      * Atomically checks if a row/family/qualifier value matches the expected
      * value. If it does, it adds the put.  If the passed value is null, the check
-     * is for the lack of column (ie: non-existance)
+     * is for the lack of column (ie: non-existence)
      *
      * @param tableName  target table
      * @param rowName to check
