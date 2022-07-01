@@ -2,7 +2,7 @@ import React, { FC, memo, useState, useMemo, useEffect, useCallback } from 'reac
 import styled from '@emotion/styled';
 import { subDays } from 'date-fns';
 
-import { useSkipFirstEffect } from '@/hooks/render';
+import { useSkipFirstEffect } from '../../hooks/render';
 import { QuickButtons } from './QuickButtons';
 import { RangeDropdown } from './RangeDropdown';
 import DateRangeContext, { DateRange, DateRangeContextType, DateRangeTime, DateStateType } from './DateRangeContext';

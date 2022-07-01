@@ -1,21 +1,10 @@
-import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-
-export const CSSFlexVCentered = css`
-  display: flex;
-  align-items: center;
-`
-
-export const CSSFlexVHCentered = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
+import { StyleFlexVCentered, StyleFlexVHCentered } from './styles';
 
 export const StyledFlexVCenteredDiv = styled.div`
-  ${CSSFlexVCentered}
+  ${StyleFlexVCentered}
 `
 
 export const StyledFlexVHCenteredDiv = styled.div`
-  ${CSSFlexVHCentered}
+  ${StyleFlexVHCentered}
 `
