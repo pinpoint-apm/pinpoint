@@ -8,7 +8,9 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.springdoc.openapi.ui)
     implementation("org.apache.dubbo:dubbo:2.7.7")
-    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.7")
+    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.7") {
+        exclude(group = "org.apache.curator", module = "curator-framework")
+    }
     compileOnly(libs.spring.boot.starter.tomcat)
 }
 
