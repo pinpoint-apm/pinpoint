@@ -1,11 +1,11 @@
 import React from 'react';
 
 const DropdownContext = React.createContext<{
-  show: boolean,
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
+  open: boolean,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 }>({
-  show: false,
-  setShow: () => {},
+  open: false, 
+  setOpen: () => {},
 })
 
 export default DropdownContext;
