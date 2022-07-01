@@ -70,6 +70,8 @@ jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-d
 snakeyaml = { module = "org.yaml:snakeyaml", version = "1.27" }
 
 hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.1" }
+hbase-client = { module = "org.apache.hbase:hbase-client", version = "2.4.11" }
+
 jackson-core-asl = { module = "org.codehaus.jackson:jackson-core-asl", version.ref = "jacksonASL" }
 jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jacksonASL" }
 hbasewd = { module = "com.sematext.hbasewd:hbasewd", version = "0.1.0" }
