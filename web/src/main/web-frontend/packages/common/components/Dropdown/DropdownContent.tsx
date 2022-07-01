@@ -13,15 +13,15 @@ export const DropdownContent: FC<DropdownContentProps> = memo(({
   children,
   closeAfterClick = false,
 }: DropdownContentProps) => {
-  const { show, setShow } = React.useContext(DropdownContext)
+  const { open, setOpen } = React.useContext(DropdownContext)
 
   function handleClick() {
-    closeAfterClick && setShow(false);
+    closeAfterClick && setOpen(false);
   }
 
   return (
     <StyledContainer 
-      show={show}
+      open={open}
       className={className} 
       onClick={handleClick}
     >
@@ -30,8 +30,8 @@ export const DropdownContent: FC<DropdownContentProps> = memo(({
   );
 });
 
-const StyledContainer = styled.div<{ show: boolean }>`
-  display: ${({ show }) => show ? 'block' : 'none'};
+const StyledContainer = styled.div<{ open: boolean }>`
+  display: ${({ open }) => open ? 'block' : 'none'};
   position: absolute;
   width: 100%;
   top: 100%;

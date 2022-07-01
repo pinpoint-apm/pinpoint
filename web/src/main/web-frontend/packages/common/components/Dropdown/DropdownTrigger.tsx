@@ -1,10 +1,13 @@
-import styled from '@emotion/styled';
 import React, { FC, memo, useContext, ReactNode } from 'react';
+import styled from '@emotion/styled';
+import classNames from 'classnames';
+
 import DropdownContext from './DropdownContext';
 
 export interface DropdownTriggerProps {
   className?: string;
   children?: ReactNode;
+  disable?: boolean;
   onClick?: () => void;
 }
 
@@ -12,21 +15,23 @@ export const DropdownTrigger: FC<DropdownTriggerProps> = memo(({
   children,
   onClick,
   className,
+  disable,
 }: DropdownTriggerProps) => {
-  const { show, setShow } = useContext(DropdownContext)
+  const { open, setOpen } = useContext(DropdownContext)
 
   function handleClick() {
-    setShow?.(!show)
-    onClick?.();
+    if (!disable) {
+      setOpen(!open)
+      onClick?.();
+    }
   }
 
   return (
-    <StyledContainer className={className} onClick={handleClick}>
+    <div 
+      className={classNames('dropdown-trigger', className)} 
+      onClick={handleClick}
+    >
       {children}
-    </StyledContainer>
+    </div>
   );
 });
-
-const StyledContainer = styled.div`
-  width: 100%;
-`;

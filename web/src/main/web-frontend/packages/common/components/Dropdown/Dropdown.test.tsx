@@ -22,12 +22,6 @@ function renderDropdown(props?: Partial<DropdownProps>) {
   }
   function pressEscapeKey() {
     userEvent.keyboard('{esc}');
-    // fireEvent.keyDown(document.body, {
-    //   key: 'Escape',
-    //   code: 'Escape',
-    //   keyCode: 27,
-    //   charCode: 27
-    // });
   }
 
   return {
