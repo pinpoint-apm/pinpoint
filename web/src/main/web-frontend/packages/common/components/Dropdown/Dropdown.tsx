@@ -1,7 +1,7 @@
 import React, { FC, memo, useState, useRef, useImperativeHandle, useMemo, useEffect } from 'react';
 import { css } from '@emotion/react';
 
-import { useCaptureKeydown, useOutsideClick } from '@/hooks/interaction';
+import { useCaptureKeydown, useOutsideClick } from '../../hooks/interaction';
 import { DropdownContent, DropdownContentProps } from './DropdownContent';
 import { DropdownTrigger, DropdownTriggerProps } from './DropdownTrigger';
 import DropdownContext from './DropdownContext';
@@ -13,52 +13,58 @@ export interface DropdownRef {
 export interface DropdownProps {
   className?: string;
   children?: React.ReactNode[];
-  onChange?: ({ show }: { show: boolean }) => void;
-  ref: React.MutableRefObject<DropdownRef>;
+  onChange?: ({ open }: { open: boolean }) => void;
+  hoverable?: boolean;
 }
 
-const Dropdown = React.forwardRef(({
+
+const Dropdown: FC<DropdownProps> = ({
   className,
   children,
   onChange,
+  hoverable,
 }: DropdownProps, ref) => {
-  const [ show, setShow ] = useState(false);
+  const [ open, setOpen ] = useState(false);
   const dropdownRef = useRef(null);
 
   useOutsideClick(dropdownRef, () => {
-    show && setShow(false);
+    setOpen(false);
   })
 
   useCaptureKeydown(event => {
     if(event.code === 'Escape') {
-      show && setShow(false);
+      open && setOpen(false);
     }
   })
 
   useEffect(() => {
     onChange?.({
-      show,
+      open,
     })
-  }, [ show ])
+  }, [ open, onChange ])
 
-  useImperativeHandle(ref, () => ({
-    close() {
-      closeContent();
-    }
-  }))
+  function handleMouseEnter() {
+    hoverable && setOpen(true);
+  }
 
-  function closeContent() {
-    setShow(false);
+  function handleMouseLeave() {
+    hoverable && setOpen(false);
   }
 
   return (
-    <DropdownContext.Provider value={{ show, setShow: useMemo(() => setShow, [ setShow ]) }}>
-      <div ref={dropdownRef} className={className} css={css`position: relative;`}>
+    <DropdownContext.Provider value={{ open, setOpen: useMemo(() => setOpen, [ setOpen ]) }}>
+      <div 
+        ref={dropdownRef} 
+        className={className} 
+        css={css`position: relative;`}
+        onMouseLeave={handleMouseLeave}
+        onMouseEnter={handleMouseEnter}
+      >
         {children}
       </div>
     </DropdownContext.Provider>
   );
-});
+};
 
 export default Object.assign(Dropdown, {
   Trigger: DropdownTrigger,
