@@ -6,7 +6,7 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.logging)
     implementation(libs.spring.boot.starter.actuator)
-    implementation("org.springdoc:springdoc-openapi-ui:1.4.4")
+    implementation(libs.springdoc.openapi.ui)
     implementation("org.apache.dubbo:dubbo:2.7.7")
     implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.7")
     compileOnly(libs.spring.boot.starter.tomcat)
