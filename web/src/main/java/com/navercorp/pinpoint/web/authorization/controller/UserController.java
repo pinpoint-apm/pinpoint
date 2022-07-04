@@ -25,9 +25,7 @@ import com.navercorp.pinpoint.web.response.SuccessResponse;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,7 +56,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<Response> insertUser(@RequestBody User user) {
+    public Response insertUser(@RequestBody User user) {
         if (!ValueValidator.validateUser(user)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User information validation failed to creating user information.");
         }
@@ -67,7 +65,7 @@ public class UserController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<Response> deletetUser(@RequestBody User user) {
+    public Response deletetUser(@RequestBody User user) {
         if (StringUtils.isEmpty(user.getUserId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not userId in params to delete user");
         }
@@ -95,7 +93,7 @@ public class UserController {
     }
 
     @PutMapping()
-    public ResponseEntity<Response> updateUser(@RequestBody User user) {
+    public Response updateUser(@RequestBody User user) {
         if (!ValueValidator.validateUser(user)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User information validation failed to creating user infomation.");
         }

@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,7 +62,7 @@ public class ApplicationController {
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
-    public ResponseEntity<CodeResult> isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
+    public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");

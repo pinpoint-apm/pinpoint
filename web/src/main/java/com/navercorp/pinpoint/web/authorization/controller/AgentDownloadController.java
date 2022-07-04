@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.web.service.AgentDownLoadService;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentInstallationInfo;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,7 +21,7 @@ public class AgentDownloadController {
     }
 
     @RequestMapping(value = "/getAgentInstallationInfo")
-    public ResponseEntity<CodeResult> getAgentDownloadUrl() {
+    public CodeResult getAgentDownloadUrl() {
         AgentDownloadInfo latestStableAgentDownloadInfo = agentDownLoadService.getLatestStableAgentDownloadInfo();
         if (latestStableAgentDownloadInfo != null) {
             return CodeResult.ok(new AgentInstallationInfo(latestStableAgentDownloadInfo));

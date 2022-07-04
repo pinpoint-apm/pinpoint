@@ -17,9 +17,6 @@
 package com.navercorp.pinpoint.web.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * @author Taejin Koo
@@ -34,8 +31,8 @@ public class CodeResult {
     private final int code;
     private final Object message;
 
-    public static ResponseEntity<CodeResult> ok(Object message) {
-        return ResponseEntity.ok(new CodeResult(CODE_SUCCESS, message));
+    public static CodeResult ok(Object message) {
+        return new CodeResult(CODE_SUCCESS, message);
     }
 
     public CodeResult(int code) {
