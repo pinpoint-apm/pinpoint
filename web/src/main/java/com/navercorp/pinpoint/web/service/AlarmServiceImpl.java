@@ -81,13 +81,14 @@ public class AlarmServiceImpl implements AlarmService {
     
     @Override
     public void updateRule(Rule rule) {
-        alarmDao.updateRule(rule);
+        alarmDao.updateRuleExceptWebhookSend(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
     }
 
     @Override
     public void updateRuleWithWebhooks(Rule rule, List<String> webhookIds) {
-        updateRule(rule);
+        alarmDao.updateRule(rule);
+        alarmDao.deleteCheckerResult(rule.getRuleId());
 
         List<WebhookSendInfo> oldListofWebhookInfos = webhookSendInfoDao.selectWebhookSendInfoByRuleId(rule.getRuleId());
 
