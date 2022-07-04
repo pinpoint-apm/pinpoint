@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,7 +58,7 @@ public class AgentCommandController {
     }
 
     @GetMapping(value = "/activeThreadDump")
-    public ResponseEntity<CodeResult> getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
+    public CodeResult getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                           @RequestParam(value = "agentId") String agentId,
                                           @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                           @RequestParam(value = "threadName", required = false) List<String> threadNameList,
@@ -155,7 +154,7 @@ public class AgentCommandController {
     }
 
     @GetMapping(value = "/activeThreadLightDump")
-    public ResponseEntity<CodeResult> getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
+    public CodeResult getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
                                                                @RequestParam(value = "agentId") String agentId,
                                                                @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                                                @RequestParam(value = "threadName", required = false) List<String> threadNameList,

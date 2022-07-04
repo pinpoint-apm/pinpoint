@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,14 +58,14 @@ public class UserGroupController {
     }
 
     @PostMapping()
-    public ResponseEntity<Response> createUserGroup(@RequestBody UserGroup userGroup) {
+    public Response createUserGroup(@RequestBody UserGroup userGroup) {
         if (!ValueValidator.validateUserGroupId(userGroup.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usergroupId pattern is invalid to create user group");
         }
 
         try {
             String userGroupNumber = userGroupService.createUserGroup(userGroup);
-            return ResponseEntity.ok(new CreateUserGroupResponse("SUCCESS", userGroupNumber));
+            return new CreateUserGroupResponse("SUCCESS", userGroupNumber);
         } catch (PinpointUserGroupException e) {
             logger.error(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -74,7 +73,7 @@ public class UserGroupController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<Response> deleteUserGroup(@RequestBody UserGroup userGroup) {
+    public Response deleteUserGroup(@RequestBody UserGroup userGroup) {
         if (StringUtils.isEmpty(userGroup.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is id of userGroup in params to delete user group");
         }
@@ -99,7 +98,7 @@ public class UserGroupController {
     }
 
     @PostMapping(value = "/member")
-    public ResponseEntity<Response> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
+    public Response insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getUserGroupId())) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "there is not userGroupId or memberId in params to insert user group member");
         }
@@ -108,7 +107,7 @@ public class UserGroupController {
     }
 
     @DeleteMapping(value = "/member")
-    public ResponseEntity<Response> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
+    public Response deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not userGroupId or memberId in params to delete user group member");
         }

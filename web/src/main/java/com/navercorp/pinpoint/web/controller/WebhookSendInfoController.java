@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,7 +35,7 @@ public class WebhookSendInfoController {
 
 
     @PostMapping()
-    public ResponseEntity<Response> insertWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
+    public Response insertWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
         if (!webhookEnable) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
         }
@@ -45,11 +44,11 @@ public class WebhookSendInfoController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be ruleId and webhookIdto insert webhookSendInfo");
         }
         String webhookSendInfoId = webhookSendInfoService.insertWebhookSendInfo(webhookSendInfo);
-        return ResponseEntity.ok(new WebhookSendInfoResponse("SUCCESS", webhookSendInfoId));
+        return new WebhookSendInfoResponse("SUCCESS", webhookSendInfoId);
     }
 
     @DeleteMapping()
-    public ResponseEntity<Response> deleteWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
+    public Response deleteWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
         if (!webhookEnable) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
         }
@@ -80,7 +79,7 @@ public class WebhookSendInfoController {
     }
 
     @PutMapping()
-    public ResponseEntity<Response> updateWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
+    public Response updateWebhookSendInfo(@RequestBody WebhookSendInfo webhookSendInfo) {
         if (!webhookEnable) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
         }

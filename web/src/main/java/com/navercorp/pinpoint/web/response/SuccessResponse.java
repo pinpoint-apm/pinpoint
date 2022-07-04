@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Objects;
 
@@ -9,12 +8,12 @@ public class SuccessResponse implements Response {
     private final String result;
     private final String message;
 
-    public static ResponseEntity<Response> ok() {
-        return ResponseEntity.ok(new SuccessResponse("SUCCESS"));
+    public static Response ok() {
+        return new SuccessResponse("SUCCESS");
     }
 
-    public static ResponseEntity<Response> ok(String message) {
-        return ResponseEntity.ok(new SuccessResponse("SUCCESS", message));
+    public static Response ok(String message) {
+        return new SuccessResponse("SUCCESS", message);
     }
 
     public SuccessResponse(String result) {

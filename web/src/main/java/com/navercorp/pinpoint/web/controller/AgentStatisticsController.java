@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,12 +46,12 @@ public class AgentStatisticsController {
     }
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount"})
-    public ResponseEntity<Response> insertAgentCount(@RequestParam("agentCount") int agentCount) {
+    public Response insertAgentCount(@RequestParam("agentCount") int agentCount) {
         return insertAgentCount(agentCount, new Date().getTime());
     }
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount", "timestamp"})
-    public ResponseEntity<Response> insertAgentCount(@RequestParam("agentCount") int agentCount, @RequestParam("timestamp") long timestamp) {
+    public Response insertAgentCount(@RequestParam("agentCount") int agentCount, @RequestParam("timestamp") long timestamp) {
         if (timestamp < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "negative timestamp.");
         }

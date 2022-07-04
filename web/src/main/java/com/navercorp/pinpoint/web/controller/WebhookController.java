@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,7 +35,7 @@ public class WebhookController {
     }
 
     @PostMapping()
-    public ResponseEntity<Response> insertWebhook(@RequestBody Webhook webhook) {
+    public Response insertWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
         }
@@ -46,11 +45,11 @@ public class WebhookController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "there should be url, applicationId/serviceName to insert webhook");
         }
         String webhookId = webhookService.insertWebhook(webhook);
-        return ResponseEntity.ok(new WebhookResponse("SUCCESS", webhookId));
+        return new WebhookResponse("SUCCESS", webhookId);
     }
 
     @DeleteMapping()
-    public ResponseEntity<Response> deleteWebhook(@RequestBody Webhook webhook) {
+    public Response deleteWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
         }
@@ -86,7 +85,7 @@ public class WebhookController {
     }
 
     @PutMapping()
-    public ResponseEntity<Response> updateWebhook(@RequestBody Webhook webhook) {
+    public Response updateWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
         }

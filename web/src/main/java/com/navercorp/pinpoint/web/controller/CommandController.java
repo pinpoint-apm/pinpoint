@@ -28,7 +28,6 @@ import org.apache.thrift.TException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,7 +52,7 @@ public class CommandController {
     }
 
     @GetMapping(value = "/echo")
-    public ResponseEntity<CodeResult> echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
+    public CodeResult echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
                                           @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
         AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
