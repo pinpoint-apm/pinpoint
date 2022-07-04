@@ -80,13 +80,18 @@ public class AdminServiceImpl implements AdminService {
             applicationNames.add(application.getName());
         }
         for (String applicationName : applicationNames) {
-            List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-            Collections.sort(agentIds);
-            List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
-            if (CollectionUtils.hasLength(inactiveAgentIds)) {
-                inactiveAgentMap.put(applicationName, inactiveAgentIds);
+            try {
+                List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+                Collections.sort(agentIds);
+                List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
+                if (CollectionUtils.hasLength(inactiveAgentIds)) {
+                    inactiveAgentMap.put(applicationName, inactiveAgentIds);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to find inactive agents for {}, duration: {}", applicationName, durationDays, e);
             }
         }
+
         // map may become big, but realistically won't cause OOM
         // if it becomes an issue, consider deleting inside the loop above
         logger.info("deleting {}", inactiveAgentMap);
