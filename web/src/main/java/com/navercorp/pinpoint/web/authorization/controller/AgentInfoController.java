@@ -89,21 +89,21 @@ public class AgentInfoController {
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        AgentInfoFilter containerFilter = new AgentInfoFilterChain(
+        AgentInfoFilter currentRunnedFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
         long timestamp = to;
-        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, containerFilter, applicationName, timestamp);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, currentRunnedFilter, applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application", "timestamp"})
     public ApplicationAgentsList getAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
-        AgentInfoFilter runningContainerFilter = new AgentInfoFilterChain(
-                new DefaultAgentInfoFilter(Long.MAX_VALUE)
+        AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
+                AgentInfoFilter::filterRunning
         );
-        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningContainerFilter, applicationName, timestamp);
+        return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningAgentFilter, applicationName, timestamp);
     }
 
     @GetMapping(value = "/getAgentInfo")
