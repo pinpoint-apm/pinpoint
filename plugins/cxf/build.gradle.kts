@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.cxf:cxf-rt-frontend-jaxrs:3.0.16") {
         exclude(group = "javax.annotation", module = "javax.annotation-api")
     }
@@ -13,6 +13,7 @@ dependencies {
     }
     compileOnly("org.apache.cxf:cxf-rt-transports-http:3.0.16")
     compileOnly("org.apache.cxf:cxf-rt-rs-client:3.0.16")
+    testCompileOnly("org.apache.cxf:cxf-core:3.0.16")
 }
 
 description = "pinpoint-cxf-plugin"

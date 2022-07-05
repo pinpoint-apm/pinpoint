@@ -8,6 +8,7 @@ dependencies {
     testImplementation("org.testcontainers:cassandra:1.16.2")
     testImplementation(project(":pinpoint-commons-profiler"))
     testImplementation(project(":pinpoint-plugin-it-utils"))
+    testImplementation(project(":pinpoint-test"))
 }
 
 description = "pinpoint-cassandra-plugin-it"
