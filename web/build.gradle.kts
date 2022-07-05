@@ -20,7 +20,12 @@ dependencies {
     implementation(libs.commons.lang3)
     implementation("org.apache.commons:commons-text:1.9")
     implementation(libs.commons.collections4)
-    implementation(libs.libthrift)
+    implementation(libs.libthrift) {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+        exclude(group = "org.apache.httpcomponents", module = "httpcore")
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "javax.annotation", module = "javax.annotation-api")
+    }
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
@@ -48,7 +53,7 @@ dependencies {
     implementation(libs.commons.codec)
     implementation(libs.jakarta.mail)
     implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation(libs.jakarta.bind.api)
     implementation(libs.aspectjweaver)
     implementation(libs.curator.client) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")

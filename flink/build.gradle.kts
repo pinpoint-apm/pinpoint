@@ -9,7 +9,12 @@ dependencies {
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-rpc"))
     api(project(":pinpoint-grpc"))
-    implementation(libs.libthrift)
+    implementation(libs.libthrift) {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+        exclude(group = "org.apache.httpcomponents", module = "httpcore")
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "javax.annotation", module = "javax.annotation-api")
+    }
     api(project(":pinpoint-web"))
     api(project(":pinpoint-collector"))
     implementation(libs.spring.core) {
@@ -17,6 +22,7 @@ dependencies {
     }
     implementation(libs.spring.context)
     implementation(libs.spring.context.support)
+    implementation(libs.jakarta.annotation.api)
     implementation(libs.caffeine)
     implementation(libs.log4j.api)
     implementation(libs.metrics.core)
@@ -35,7 +41,9 @@ dependencies {
         exclude(group = "org.apache.curator", module = "curator-client")
     }
     runtimeOnly(libs.slf4j.api)
-    testImplementation(libs.log4j.jcl)
+    testImplementation(libs.log4j.jcl) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     testImplementation(libs.log4j.slf4j.impl)
     testImplementation(libs.log4j.core)
     testImplementation(libs.spring.test)

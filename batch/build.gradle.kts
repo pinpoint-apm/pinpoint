@@ -11,7 +11,12 @@ dependencies {
     api(platform(project(":pinpoint-plugins")))
     api(platform(project(":pinpoint-agent-plugins")))
 
-    implementation(libs.libthrift)
+    implementation(libs.libthrift) {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+        exclude(group = "org.apache.httpcomponents", module = "httpcore")
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "javax.annotation", module = "javax.annotation-api")
+    }
     implementation(libs.spring.boot.starter.web) {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
@@ -20,7 +25,10 @@ dependencies {
     implementation(libs.spring.context.support)
     implementation(libs.spring.jdbc)
     implementation(libs.jakarta.mail)
-    implementation("org.springframework.batch:spring-batch-core:4.3.3")
+    implementation("org.springframework.batch:spring-batch-core:4.3.3") {
+        exclude(group = "javax.annotation", module = "javax.annotation-api")
+    }
+    implementation(libs.jakarta.annotation.api)
     implementation(libs.hikariCP)
     implementation(libs.mybatis)
     implementation(libs.mybatis.spring)

@@ -20,7 +20,12 @@ dependencies {
     implementation(libs.netty)
     implementation(libs.commons.lang3)
     implementation(libs.commons.collections4)
-    implementation(libs.libthrift)
+    implementation(libs.libthrift) {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+        exclude(group = "org.apache.httpcomponents", module = "httpcore")
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "javax.annotation", module = "javax.annotation-api")
+    }
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.databind)

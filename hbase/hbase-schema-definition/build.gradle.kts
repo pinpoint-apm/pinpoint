@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation(libs.jakarta.annotation.api)
     implementation(libs.jakarta.bind.api)
     runtimeOnly(libs.jakarta.jaxb.impl)
 }
