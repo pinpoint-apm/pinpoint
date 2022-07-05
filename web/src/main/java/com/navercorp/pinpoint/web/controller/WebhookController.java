@@ -13,6 +13,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,13 +40,23 @@ public class WebhookController {
     @PostMapping()
     public Response insertWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
+            logger.info("Unavailable: webhook disabled");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
         }
 
         if (!StringUtils.hasText(webhook.getUrl()) || !(StringUtils.hasText(webhook.getApplicationId())
                 || StringUtils.hasText(webhook.getServiceName()))) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "there should be url, applicationId/serviceName to insert webhook");
+            logger.info("Missing arguments: webhook.url, applicationId/serviceName");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing arguments: webhook.url and applicationId/serviceName");
         }
+
+        try {
+            validateURL(webhook);
+        } catch (MalformedURLException | URISyntaxException e) {
+            logger.info("Malformed argument: webhook.url");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed argument: webhook.url");
+        }
+
         String webhookId = webhookService.insertWebhook(webhook);
         return new WebhookResponse("SUCCESS", webhookId);
     }
@@ -51,11 +64,13 @@ public class WebhookController {
     @DeleteMapping()
     public Response deleteWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
+            logger.info("Unavailable: webhook disabled");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
         }
 
         if (!StringUtils.hasText(webhook.getWebhookId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be webhookId to delete webhook");
+            logger.info("Missing argument: webhookId");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing argument: webhook.id");
         }
         webhookService.deleteWebhook(webhook);
         return SuccessResponse.ok();
@@ -66,11 +81,13 @@ public class WebhookController {
                                     @RequestParam(value=SERVICE_NAME, required=false) String serviceName,
                                     @RequestParam(value=ALARM_RULE_ID, required=false) String ruleId) {
         if (!webhookEnable) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
+            logger.info("Unavailable: webhook disabled");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
         }
 
         if (!StringUtils.hasText(applicationId) && !StringUtils.hasText(serviceName) && !StringUtils.hasText(ruleId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "applicationId / serviceName / ruleId is needed to get webhooks");
+            logger.info("Missing argument: applicationId/serviceName/ruleId");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing argument: applicationId / serviceName / ruleId");
         }
 
         if (StringUtils.hasText(ruleId)) {
@@ -87,14 +104,29 @@ public class WebhookController {
     @PutMapping()
     public Response updateWebhook(@RequestBody Webhook webhook) {
         if (!webhookEnable) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "webhook function is disabled");
+            logger.info("Unavailable: webhook disabled");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unavailable: webhook disabled");
         }
         
         if (!StringUtils.hasText(webhook.getWebhookId()) || !StringUtils.hasText(webhook.getUrl()) ||
                 !(StringUtils.hasText(webhook.getApplicationId()) || StringUtils.hasText(webhook.getServiceName()))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be webhookId, url, applicationId/serviceName to update webhook");
+            logger.info("Missing arguments: webhook.id, webhook.url, applicationId/serviceName");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing arguments: webhook.id, webhook.url, applicationId/serviceName");
         }
+
+        try {
+            validateURL(webhook);
+        } catch (MalformedURLException | URISyntaxException e) {
+            logger.info("Malformed argument: webhook.url");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed argument: webhook.url");
+        }
+
         webhookService.updateWebhook(webhook);
         return SuccessResponse.ok();
+    }
+
+    private void validateURL(Webhook webhook) throws MalformedURLException, URISyntaxException {
+        URL u = new URL(webhook.getUrl());
+        webhook.setUrl(u.toURI().toString());
     }
 }

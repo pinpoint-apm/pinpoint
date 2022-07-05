@@ -34,6 +34,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -83,14 +86,21 @@ public class WebhookSenderImpl implements WebhookSender {
         for (Webhook webhook : webhookSendInfoList) {
             try {
                 HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
-                restTemplate.exchange(webhook.getUrl(), HttpMethod.POST, httpEntity, String.class);
+                String validatedUrl = validateURL(webhook.getUrl());
+                restTemplate.exchange(validatedUrl, HttpMethod.POST, httpEntity, String.class);
                 logger.info("Successfully sent webhook : {}", webhook);
+            } catch (MalformedURLException | URISyntaxException e) {
+                logger.warn("Webhook url is not valid. Failed Webhook : {} for Rule : {}", webhook, rule, e);
             } catch (RestClientException e) {
                 logger.warn("Failed at sending webhook. Failed Webhook : {} for Rule : {}", webhook, rule, e);
             }
         }
         logger.info("Finished sending webhooks for rule : {}", rule);
+    }
 
+    private String validateURL(String url) throws MalformedURLException, URISyntaxException {
+        URL u = new URL(url);
+        return u.toURI().toString();
     }
 
     private static UserMember newUser(User user) {
