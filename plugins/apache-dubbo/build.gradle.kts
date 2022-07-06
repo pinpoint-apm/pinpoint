@@ -3,10 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.apache.dubbo:dubbo:2.7.2")
-    testImplementation(project(":pinpoint-bootstrap-core"))
-    testImplementation("org.apache.dubbo:dubbo:2.7.2")
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi("org.apache.dubbo:dubbo:2.7.2")
 }
 
 description = "pinpoint-apache-dubbo-plugin"
