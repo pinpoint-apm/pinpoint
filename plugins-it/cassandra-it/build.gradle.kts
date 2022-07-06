@@ -8,7 +8,9 @@ dependencies {
     testImplementation("org.testcontainers:cassandra:1.16.2")
     testImplementation(project(":pinpoint-commons-profiler"))
     testImplementation(project(":pinpoint-plugin-it-utils"))
-    testImplementation(project(":pinpoint-test"))
+    testImplementation(project(":pinpoint-test")) {
+        exclude(group = "org.tinylog", module = "slf4j-tinylog")
+    }
 }
 
 description = "pinpoint-cassandra-plugin-it"
