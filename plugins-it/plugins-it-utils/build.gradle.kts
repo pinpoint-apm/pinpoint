@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-commons"))
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
+    implementation(libs.nanohttpd)
 }
 
 description = "pinpoint-plugin-it-utils"

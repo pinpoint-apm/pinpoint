@@ -13,6 +13,9 @@ dependencies {
     }
     testImplementation("org.apache.cxf:cxf-rt-transports-http:3.0.16")
     testImplementation("org.apache.cxf:cxf-rt-rs-client:3.0.16")
+    testImplementation(project(":pinpoint-bootstrap-core"))
+    testImplementation(project(":pinpoint-test"))
+    testImplementation(libs.nanohttpd)
 }
 
 description = "pinpoint-cxf-plugin-it"
