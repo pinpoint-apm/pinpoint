@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.response.CodeResult;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,7 @@ import java.util.Objects;
 
 @RestController
 public class ApplicationController {
+    public static final int MAX_PAGING_LIMIT = 100;
 
     private final AgentInfoService agentInfoService;
 
@@ -46,19 +48,15 @@ public class ApplicationController {
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
     }
 
-    @GetMapping(value = "/getApplicationHostInfo", params = {"!durationDays"})
-    public ApplicationAgentHostList getApplicationHostInfo (
-            @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit) {
-        return agentInfoService.getApplicationAgentHostList(offset, limit);
-    }
-
-    @GetMapping(value = "/getApplicationHostInfo", params = {"durationDays"})
+    @GetMapping(value = "/getApplicationHostInfo")
     public ApplicationAgentHostList getApplicationHostInfo (
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
-            @RequestParam(value = "durationDays") int durationDays) {
-        return agentInfoService.getApplicationAgentHostList(offset, limit, durationDays);
+            @RequestParam(value = "durationDays", required = false) Integer durationDays) {
+        int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
+        durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
+
+        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDays);
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")

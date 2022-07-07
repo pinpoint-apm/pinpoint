@@ -36,11 +36,11 @@ import java.util.Set;
  */
 public interface AgentInfoService {
 
+     int NO_DURATION = -1;
+
     ApplicationAgentsList getAllApplicationAgentsList(AgentInfoFilter filter, long timestamp);
 
     ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy key, AgentInfoFilter filter, String applicationName, long timestamp);
-
-    ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 
