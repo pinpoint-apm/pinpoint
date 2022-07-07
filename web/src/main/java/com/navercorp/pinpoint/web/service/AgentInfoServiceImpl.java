@@ -157,7 +157,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             String applicationName = applicationNameList.get(i);
 
             List<String> agentIdList = getAgentIdList(applicationName, durationDays);
-            List<AgentInfo> agentInfoList = this.agentInfoDao.getAgentInfos(agentIdList, timeStamp);
+            List<AgentInfo> agentInfoList = this.agentInfoDao.getSimpleAgentInfos(agentIdList, timeStamp);
             builder.addAgentInfo(applicationName, agentInfoList);
         }
         return builder.build();
@@ -248,7 +248,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIds, timestamp);
+        List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, timestamp);
 
         return agentInfos.stream()
                 .filter(Objects::nonNull)

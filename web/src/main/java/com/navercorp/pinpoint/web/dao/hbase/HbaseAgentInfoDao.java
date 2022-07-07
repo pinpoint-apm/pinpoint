@@ -113,7 +113,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
 
-        Scan scan = createScan(agentId, timestamp);
+        Scan scan = createScan(agentId, timestamp, AgentInfoColumn.all());
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
@@ -141,7 +141,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         final long startTime = agentStartTime - deltaTimeInMilliSeconds;
         final long endTime = agentStartTime + deltaTimeInMilliSeconds;
 
-        Scan scan = createScan(agentId, startTime, endTime);
+        Scan scan = createScan(agentId, startTime, endTime, AgentInfoColumn.all());
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
@@ -149,24 +149,33 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Override
     public List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp) {
+        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.all());
+    }
+
+
+    public List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp) {
+        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.identifier());
+    }
+
+    public List<AgentInfo> getAgentInfos0(List<String> agentIds, long timestamp, AgentInfoColumn column) {
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
 
         List<Scan> scans = new ArrayList<>(agentIds.size());
         for (String agentId : agentIds) {
-            scans.add(createScan(agentId, timestamp));
+            scans.add(createScan(agentId, timestamp, column));
         }
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
-    private Scan createScan(String agentId, long currentTime) {
-        return createScan(agentId, currentTime, Long.MAX_VALUE);
+    private Scan createScan(String agentId, long currentTime, AgentInfoColumn column) {
+        return createScan(agentId, currentTime, Long.MAX_VALUE, column);
     }
 
-    private Scan createScan(String agentId, long startTime, long endTime) {
+    private Scan createScan(String agentId, long startTime, long endTime, AgentInfoColumn column) {
         Scan scan = new Scan();
 
         byte[] startKeyBytes;
@@ -181,7 +190,17 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
-        scan.addFamily(DESCRIPTOR.getName());
+
+        final byte[] family = DESCRIPTOR.getName();
+        if (column.identifier) {
+            scan.addColumn(family, DESCRIPTOR.QUALIFIER_IDENTIFIER);
+        }
+        if (column.serverMetaData) {
+            scan.addColumn(family, DESCRIPTOR.QUALIFIER_SERVER_META_DATA);
+        }
+        if (column.jvm) {
+            scan.addColumn(family, DESCRIPTOR.QUALIFIER_JVM);
+        }
 
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);
@@ -189,4 +208,23 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return scan;
     }
 
+    private static class AgentInfoColumn {
+        private final boolean identifier;
+        private final boolean serverMetaData;
+        private final boolean jvm;
+
+        public AgentInfoColumn(boolean identifier, boolean serverMetaData, boolean jvm) {
+            this.identifier = identifier;
+            this.serverMetaData = serverMetaData;
+            this.jvm = jvm;
+        }
+
+        public static AgentInfoColumn all() {
+            return new AgentInfoColumn(true, true, true);
+        }
+
+        public static AgentInfoColumn identifier() {
+            return new AgentInfoColumn(true, false, false);
+        }
+    }
 }
