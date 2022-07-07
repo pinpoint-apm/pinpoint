@@ -105,21 +105,22 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
         } else {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_PERIOD, selectedPeriod);
 
-            const tree = this.router.parseUrl(this.router.url);
-            const g = tree.root.children[PRIMARY_OUTLET];
-            const s = g.segments;
+            // TODO: Handle it considering metric page
+            // const tree = this.router.parseUrl(this.router.url);
+            // const g = tree.root.children[PRIMARY_OUTLET];
+            // const s = g.segments;
 
             this.urlRouteManagerService.move({
                 url: [
                     this.newUrlStateNotificationService.getStartPath(),
-                    // this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                     // this.router.url[1],
-                    s[1].path,
+                    // s[1].path,
                     selectedPeriod
                 ],
                 needServerTimeRequest: true,
-                // nextUrl: this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : []
-                nextUrl: s[4] ? [s[4].path] : []
+                nextUrl: this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : []
+                // nextUrl: s[4] ? [s[4].path] : []
             });
         }
     }
