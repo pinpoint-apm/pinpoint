@@ -381,6 +381,23 @@ interface IServerErrorShortFormat {
     errorCode: string;
     errorMessage: string;
 }
+interface IServerError {
+    timestamp: number;
+    status: number;
+    error: string;
+    exception: string;
+    trace: string;
+    message: string;
+    path: string;
+    data: {
+        requestInfo: {
+            method: string;
+            url: string;
+            headers: {[key: string]: string[]};
+            parameters: {[key: string]: string[]};
+        }
+    }
+}
 interface ISystemConfiguration {
     editUserInfo: boolean;
     enableServerMapRealTime: boolean;

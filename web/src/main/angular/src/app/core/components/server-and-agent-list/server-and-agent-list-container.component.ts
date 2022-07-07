@@ -75,6 +75,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
 
                     return this.serverAndAgentListDataService.getData(appName, range).pipe(
                         filter((res: {[key: string]: IServerAndAgentData[]} | IServerErrorShortFormat) => {
+                            // TODO: 민우님께 에러구분 여쭤보기. 401이면 AuthService 활용한다? 근데이럼 IS_ACCESS_DENYED 출처 불분명같은 문제가 있지않을까..
                             if (isThatType<IServerErrorShortFormat>(res, 'errorCode', 'errorMessage')) {
                                 this.errorMessage = res.errorMessage;
                                 this.messageQueueService.sendMessage({to: MESSAGE_TO.IS_ACCESS_DENYED, param: true});
@@ -120,7 +121,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                                 param: {range, now}
                             });
                         }),
-                        catchError((error: IServerErrorFormat) => {
+                        catchError((error: IServerError) => {
                             this.dynamicPopupService.openPopup({
                                 data: {
                                     title: 'Error',

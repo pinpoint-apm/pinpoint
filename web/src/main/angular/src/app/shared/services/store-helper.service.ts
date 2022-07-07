@@ -31,10 +31,10 @@ export class StoreHelperService {
     getApplicationList(unsubscribe?: Subject<void>): Observable<IApplication[]> {
         return this.store.pipe(select(applicationList));
     }
-    getApplicationListError(): Observable<IServerErrorFormat> {
+    getApplicationListError(): Observable<IServerError> {
         const selectError = pipe(
             select(applicationListError),
-            filter((error: IServerErrorFormat) => error && !isEmpty(error))
+            filter((error: IServerError) => error && !isEmpty(error))
         );
 
         return this.store.pipe(selectError);
@@ -42,7 +42,7 @@ export class StoreHelperService {
     getFavoriteApplicationList(unsubscribe?: Subject<void>): Observable<IApplication[]> {
         return this.store.pipe(select(favoriteApplicationList));
     }
-    getFavoriteApplicationListError(): Observable<IServerErrorFormat> {
+    getFavoriteApplicationListError(): Observable<IServerError> {
         const selectError = pipe(
             select(favoriteApplicationListError),
             filter((error) => error && !isEmpty(error)),
@@ -52,7 +52,7 @@ export class StoreHelperService {
 
         return this.store.pipe(selectError);
     }
-    getFavoriteApplicationAddError(): Observable<IServerErrorFormat> {
+    getFavoriteApplicationAddError(): Observable<IServerError> {
         const selectError = pipe(
             select(favoriteApplicationListError),
             filter((error) => error && !isEmpty(error)),
@@ -62,7 +62,7 @@ export class StoreHelperService {
 
         return this.store.pipe(selectError);
     }
-    getFavoriteApplicationRemoveError(): Observable<IServerErrorFormat> {
+    getFavoriteApplicationRemoveError(): Observable<IServerError> {
         const selectError = pipe(
             select(favoriteApplicationListError),
             filter((error) => error && !isEmpty(error)),
@@ -75,10 +75,10 @@ export class StoreHelperService {
     getHostGroupList(): Observable<string[]> {
         return this.store.pipe(select(hostGroupList));
     }
-    getHostGroupListError(): Observable<IServerErrorFormat> {
+    getHostGroupListError(): Observable<IServerError> {
         const selectError = pipe(
             select(hostGroupListError),
-            filter((error: IServerErrorFormat) => error && !isEmpty(error))
+            filter((error: IServerError) => error && !isEmpty(error))
         );
 
         return this.store.pipe(selectError);

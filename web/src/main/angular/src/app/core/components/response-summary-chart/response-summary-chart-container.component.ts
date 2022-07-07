@@ -111,7 +111,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
         this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
             // map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
             pluck('agentHistogram', this.selectedAgent),
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
                 this.dynamicPopupService.openPopup({
                     data: {

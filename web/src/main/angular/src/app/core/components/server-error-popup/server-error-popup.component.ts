@@ -8,17 +8,21 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class ServerErrorPopupComponent implements OnInit {
     @Input() data: any;
     @Output() outClosePopup = new EventEmitter<void>();
-    errorInfo: IServerErrorFormat;
+
+    errorInfo: IServerError;
     showHeader = false;
     showParam = false;
     showStackTrace = false;
+
     constructor() {}
     ngOnInit() {
         this.errorInfo = this.data.contents;
     }
+
     onClose(): void {
         this.outClosePopup.emit();
     }
+
     getState(state: boolean): string {
         return state ? 'fa-angle-up' : 'fa-angle-down';
     }

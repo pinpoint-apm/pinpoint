@@ -118,7 +118,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                             }
                         });
                     }),
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Error',

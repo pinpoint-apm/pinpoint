@@ -101,7 +101,7 @@ export class ResponseAvgMaxChartContainerComponent implements OnInit, OnDestroy 
         this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
             // map((data: any) => this.isAllAgent() ? data['responseStatistics'] : data['agentResponseStatistics'][this.selectedAgent]),
             pluck('agentResponseStatistics', this.selectedAgent),
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
                 this.dynamicPopupService.openPopup({
                     data: {

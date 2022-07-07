@@ -10,8 +10,8 @@ export class ServerAndAgentListDataService {
         private http: HttpClient,
     ) {}
 
-    getData(applicationName: string, range: number[]): Observable<{[key: string]: IServerAndAgentData[]} | IServerErrorShortFormat> {
-        return this.http.get<{[key: string]: IServerAndAgentData[]} | IServerErrorShortFormat>(this.url, this.makeRequestOptionsArgs(applicationName, range));
+    getData(applicationName: string, range: number[]): Observable<{[key: string]: IServerAndAgentData[]}> {
+        return this.http.get<{[key: string]: IServerAndAgentData[]}>(this.url, this.makeRequestOptionsArgs(applicationName, range));
     }
 
     private makeRequestOptionsArgs(application: string, [from, to]: number[]): object {

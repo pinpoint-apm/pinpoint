@@ -43,8 +43,8 @@ export class ThreadDumpLogContainerComponent implements OnInit, OnDestroy {
                             : message.threadDumpData.length > 0 ? message.threadDumpData[0].detailMessage
                             : 'There is no message(may be completed)';
                     }),
-                    catchError((error: IServerErrorFormat) => {
-                        return of(error.exception.message);
+                    catchError((error: IServerError) => {
+                        return of(error.message);
                     }),
                 );
             }),

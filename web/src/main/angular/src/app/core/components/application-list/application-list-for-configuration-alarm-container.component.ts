@@ -87,7 +87,7 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
 
         this.storeHelperService.getApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {

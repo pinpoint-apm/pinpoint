@@ -88,7 +88,7 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
             this.agentData = agentData;
             this.dataRequestSuccess = true;
             this.completed();
-        }, (_: IServerErrorFormat) => {
+        }, (_: IServerError) => {
             this.dataRequestSuccess = false;
             this.completed();
         });

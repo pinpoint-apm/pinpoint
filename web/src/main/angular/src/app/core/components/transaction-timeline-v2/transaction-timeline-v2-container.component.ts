@@ -55,7 +55,7 @@ export class TransactionTimelineV2ContainerComponent implements OnInit, OnDestro
                 const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(urlService.getQueryValue(UrlQuery.TRANSACTION_INFO));
 
                 return this.transactionDetailDataService.getTimelineData(agentId, spanId, traceId, collectorAcceptTime).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Error',

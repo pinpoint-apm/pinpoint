@@ -140,9 +140,9 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
             tap(({range}: ISourceForChart) => this.previousRange = range),
             switchMap(({range}: ISourceForChart) => {
                 return this.chartContainer.getData(range).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.activeLayer = Layer.RETRY;
-                        this.setRetryMessage(error.exception.message);
+                        this.setRetryMessage(error.message);
                         return of(null);
                     })
                 );
@@ -165,9 +165,9 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
         this.chartContainer.getData(this.previousRange).pipe(
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
-                this.setRetryMessage(error.exception.message);
+                this.setRetryMessage(error.message);
                 return of(null);
             }),
             filter((data: IInspectorChartData | null) => !!data)

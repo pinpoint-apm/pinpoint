@@ -80,22 +80,18 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     }
 
     private loadCheckerList(): void {
-        this.alarmRuleDataService.getCheckerList().subscribe((result: string[] | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
-                ? this.errorMessage = result.errorMessage
-                : this.checkerList = result as string[];
-        }, (error: IServerErrorFormat) => {
-            this.errorMessage = error.exception.message;
+        this.alarmRuleDataService.getCheckerList().subscribe((result: string[]) => {
+            this.checkerList = result as string[];
+        }, (error: IServerError) => {
+            this.errorMessage = error.message;
         });
     }
 
     private loadUserGroupList(): void {
-        this.userGroupDataSerivce.retrieve().subscribe((result: IUserGroup[] | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
-                ? this.errorMessage = result.errorMessage
-                : this.userGroupList = result.map((userGroup: IUserGroup) => userGroup.id);
-        }, (error: IServerErrorFormat) => {
-            this.errorMessage = error.exception.message;
+        this.userGroupDataSerivce.retrieve().subscribe((result: IUserGroup[]) => {
+            this.userGroupList = result.map((userGroup: IUserGroup) => userGroup.id);
+        }, (error: IServerError) => {
+            this.errorMessage = error.message;
         });
     }
 
@@ -145,14 +141,12 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
 
     private getAlarmData(): void {
         this.showProcessing();
-        this.alarmRuleDataService.retrieve(this.selectedApplication.getApplicationName()).subscribe((result: IAlarmRule[] | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
-                ? this.errorMessage = result.errorMessage
-                : this.alarmRuleList = result;
+        this.alarmRuleDataService.retrieve(this.selectedApplication.getApplicationName()).subscribe((result: IAlarmRule[]) => {
+            this.alarmRuleList = result;
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
@@ -169,32 +163,22 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             forkJoin(
                 this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName),
                 this.webhookDataService.getWebhookListByAlarmId(this.editAlarm.ruleId),
-            ).subscribe(([webhookList, checkedWebhookList]: IWebhook[][] | IServerErrorShortFormat[]) => {
-                if (isThatType<IServerErrorShortFormat>(webhookList, 'errorCode', 'errorMessage')) {
-                    this.errorMessage = webhookList.errorMessage;
-                } else if (isThatType<IServerErrorShortFormat>(checkedWebhookList, 'errorCode', 'errorMessage')) {
-                    this.errorMessage = checkedWebhookList.errorMessage;
-                } else {
-                    this.webhookList = webhookList;
-                    this.checkedWebhookList = checkedWebhookList.map(({webhookId}) => webhookId);
-                }
+            ).subscribe(([webhookList, checkedWebhookList]: IWebhook[][]) => {
+                this.webhookList = webhookList;
+                this.checkedWebhookList = checkedWebhookList.map(({webhookId}) => webhookId);
 
                 blockWebhook(false);
-            }, (error: IServerErrorFormat) => {
-                this.errorMessage = error.exception.message;
+            }, (error: IServerError) => {
+                this.errorMessage = error.message;
                 blockWebhook(false);
             });
         } else {
-            this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName).subscribe((result: IWebhook[] | IServerErrorShortFormat) => {
-                if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
-                    this.errorMessage = result.errorMessage;
-                } else {
-                    this.webhookList = result;
-                }
+            this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName).subscribe((result: IWebhook[]) => {
+                this.webhookList = result;
 
                 blockWebhook(false);
-            }, (error: IServerErrorFormat) => {
-                this.errorMessage = error.exception.message;
+            }, (error: IServerError) => {
+                this.errorMessage = error.message;
                 blockWebhook(false);
             });
         }
@@ -221,17 +205,12 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             ? this.alarmRuleDataService.createWithWebhook(param as IAlarmWithWebhook)
             : this.alarmRuleDataService.create(param);
 
-        postAlarmRule.subscribe((response: IAlarmRuleCreated | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = response.errorMessage;
-                this.hideProcessing();
-            } else {
-                this.getAlarmData();
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_ALARM);
-            }
-        }, (error: IServerErrorFormat) => {
+        postAlarmRule.subscribe((response: IAlarmRuleCreated) => {
+            this.getAlarmData();
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_ALARM);
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
@@ -259,17 +238,12 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             ? this.alarmRuleDataService.updateWithWebhook(param as IAlarmWithWebhook)
             : this.alarmRuleDataService.update(param as IAlarmRule);
 
-        putAlarmRule.subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = (response as IServerErrorShortFormat).errorMessage;
-                this.hideProcessing();
-            } else {
-                this.getAlarmData();
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.UPDATE_ALARM);
-            }
-        }, (error: IServerErrorFormat) => {
+        putAlarmRule.subscribe((response: IAlarmRuleResponse) => {
+            this.getAlarmData();
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.UPDATE_ALARM);
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
@@ -300,17 +274,12 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
             applicationId: this.selectedApplication.getApplicationName(),
         };
 
-        this.alarmRuleDataService.remove(params).subscribe((response: IAlarmRuleResponse | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = (response as IServerErrorShortFormat).errorMessage;
-                this.hideProcessing();
-            } else {
-                this.getAlarmData();
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_ALARM);
-            }
-        }, (error: IServerErrorFormat) => {
+        this.alarmRuleDataService.remove(params).subscribe((response: IAlarmRuleResponse) => {
+            this.getAlarmData();
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_ALARM);
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 

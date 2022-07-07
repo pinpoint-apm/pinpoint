@@ -28,7 +28,7 @@ export class SyntaxHighlightPopupContainerComponent implements OnInit, AfterView
     ngOnInit() {
         this.data$ = iif(() => !!this.data.bindValue,
             this.syntaxHighlightDataService.getData(this.data).pipe(
-                catchError((error: IServerErrorFormat) => {
+                catchError((error: IServerError) => {
                     this.dynamicPopupService.openPopup({
                         data: {
                             title: 'Error',

@@ -73,14 +73,13 @@ export class UserGroupContainerComponent implements OnInit {
     }
 
     private getUserGroupList(params: any): void  {
-        this.userGroupDataService.retrieve(params).subscribe((data: IUserGroup[] | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')
-                ? this.errorMessage = data.errorMessage
-                : (this.userGroupList = data, this.isEmpty = isEmpty(this.userGroupList));
+        this.userGroupDataService.retrieve(params).subscribe((data: IUserGroup[]) => {
+            this.userGroupList = data;
+            this.isEmpty = isEmpty(this.userGroupList);
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
@@ -90,44 +89,35 @@ export class UserGroupContainerComponent implements OnInit {
 
     onRemoveUserGroup(id: string): void {
         this.showProcessing();
-        this.userGroupDataService.remove(id, this.userId).subscribe((response: IUserGroupDeleted | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = response.errorMessage;
-                this.hideProcessing();
+        this.userGroupDataService.remove(id, this.userId).subscribe((response: IUserGroupDeleted) => {
+            if (response.result === 'SUCCESS') {
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
+                    param: ''
+                });
+                this.getUserGroupList(this.makeUserGroupQuery());
+                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER_GROUP);
             } else {
-                if (response.result === 'SUCCESS') {
-                    this.messageQueueService.sendMessage({
-                        to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
-                        param: ''
-                    });
-                    this.getUserGroupList(this.makeUserGroupQuery());
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER_GROUP);
-                } else {
-                    this.hideProcessing();
-                }
+                this.hideProcessing();
             }
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
     onCreateUserGroup(newUserGroupName: string): void {
         this.showProcessing();
-        this.userGroupDataService.create(newUserGroupName, this.userId).subscribe((data: IUserGroupCreated | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')) {
-                this.errorMessage = data.errorMessage;
-            } else {
-                this.userGroupList.push({
-                    id: newUserGroupName,
-                    number: data.number
-                });
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER_GROUP);
-            }
+        this.userGroupDataService.create(newUserGroupName, this.userId).subscribe((data: IUserGroupCreated) => {
+            this.userGroupList.push({
+                id: newUserGroupName,
+                number: data.number
+            });
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER_GROUP);
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 

@@ -83,8 +83,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
                         })];
                     }, []);
                 }),
-                catchError((error: IServerErrorFormat) => {
-                    this.errorMessage = error.exception.message;
+                catchError((error: IServerError) => {
+                    this.errorMessage = error.message;
                     this.hideProcessing();
                     return EMPTY;
                 }),
@@ -156,8 +156,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
                 this.selectedApplication = null;
                 this.removeType = REMOVE_TYPE.NONE;
                 this.hideProcessing();
-            }, (error: IServerErrorFormat) => {
-                this.errorMessage = error.exception.message;
+            }, (error: IServerError) => {
+                this.errorMessage = error.message;
                 this.hideProcessing();
             });
         } else {
@@ -171,8 +171,8 @@ export class RemovableAgentListContainerComponent implements OnInit, OnDestroy {
             ).subscribe(() => {
                 this.removeType = REMOVE_TYPE.NONE;
                 this.outAgentRemove.next();
-            }, (error: IServerErrorFormat) => {
-                this.errorMessage = error.exception.message;
+            }, (error: IServerError) => {
+                this.errorMessage = error.message;
                 this.hideProcessing();
             });
         }

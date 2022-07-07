@@ -7,12 +7,12 @@ import {
 
 export interface IHostGroupListState {
     item: string[];
-    error: IServerErrorFormat;
+    error: IServerError;
 }
 
 const initialState: IHostGroupListState = {
     item: [] as string[],
-    error: {} as IServerErrorFormat
+    error: {} as IServerError
 };
 
 const hostGroupListReducer = createReducer(

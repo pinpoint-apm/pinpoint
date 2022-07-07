@@ -67,8 +67,8 @@ export class AgentIdDuplicationCheckContainerComponent implements OnInit {
             pluck('value')
         ).subscribe((value: string) => {
             this.onCheckSuccess(value, '');
-        }, (error: IServerErrorFormat) => {
-            this.onCheckFail(error.exception.message);
+        }, (error: IServerError) => {
+            this.onCheckFail(error.message);
         });
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHECK_AGENT_NAME_DUPLICATION);
     }

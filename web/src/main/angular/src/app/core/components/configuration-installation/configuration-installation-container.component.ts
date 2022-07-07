@@ -48,7 +48,7 @@ export class ConfigurationInstallationContainerComponent implements OnInit {
                     return data.code === 0;
                 }),
                 pluck('message'),
-                catchError((error: IServerErrorFormat) => {
+                catchError((error: IServerError) => {
                     this.dynamicPopupService.openPopup({
                         data: {
                             title: 'Error',

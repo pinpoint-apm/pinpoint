@@ -105,9 +105,9 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
             tap(({range}: ISourceForChart) => this.previousRange = range),
             switchMap(({range}: ISourceForChart) => {
                 return this.inspectorChartDataService.getData(range).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.activeLayer = Layer.RETRY;
-                        this.setRetryMessage(error.exception.message);
+                        this.setRetryMessage(error.exception);
                         return of(null);
                     })
                 );
@@ -130,9 +130,9 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
         this.inspectorChartDataService.getData(this.previousRange).pipe(
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
-                this.setRetryMessage(error.exception.message);
+                this.setRetryMessage(error.exception);
                 return of(null);
             }),
             filter((data: IApplicationDataSourceChart[] | null) => !!data)

@@ -77,7 +77,7 @@ export class ServerMapForFilteredMapDataService {
                             this.storeHelperService.dispatch(new Actions.UpdateServerMapLoadingState('completed'));
                         }
                     }),
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Server Error',

@@ -37,6 +37,23 @@ export class MockHttpCallInterceptor implements HttpInterceptor {
                 // error.message = 'Error Occurred';
                 // return throwError();
                 // return next.handle(req);
+            // case 'getScatterData':
+            //     // const error = new HttpErrorResponse({status: 501, url: 'https://test.com'});
+            //     const error = new HttpErrorResponse({error: {
+            //         trace: 'com.navercorp.pinpoint.web.PinpointError',
+            //         message: 'message test',
+            //         data: {
+            //             requestInfo: {
+            //                 method: 'POST',
+            //                 url: '/some.pinpoint',
+            //                 headers: {},
+            //                 parameters: {}
+            //             }
+            //         }
+            //     }});
+
+            //     return throwError(error);
+                // return next.handle(req);
             default:
                 return next.handle(req);
         }

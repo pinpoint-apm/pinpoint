@@ -17,7 +17,7 @@ export const enum ErrorType {
 
 export interface IErrorState {
     errorType: ErrorType;
-    error: IServerErrorFormat;
+    error: IServerError;
 }
 
 export interface IFavoriteApplicationListState {

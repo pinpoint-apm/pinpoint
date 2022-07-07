@@ -126,13 +126,12 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
 
     private getPinpointUserList(query?: string): void  {
         this.showProcessing();
-        this.pinpointUserDataService.retrieve(query).subscribe((result: IUserProfile[] | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
-                ? this.errorMessage = result.errorMessage
-                : (this.pinpointUserList = result, this.isEmpty = isEmpty(this.pinpointUserList));
+        this.pinpointUserDataService.retrieve(query).subscribe((result: IUserProfile[]) => {
+            this.pinpointUserList = result;
+            this.isEmpty = isEmpty(this.pinpointUserList);
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
-            this.errorMessage = error.exception.message;
+        }, (error: IServerError) => {
+            this.errorMessage = error.message;
             this.hideProcessing();
         });
     }
@@ -181,68 +180,56 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
 
     // TODO: Refactor - Avoid nested subscribe syntax.
     onCreatePinpointUser(userInfo: IUserProfile): void {
-        this.pinpointUserDataService.create(userInfo).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
-                ? this.errorMessage = response.errorMessage
-                : (
-                    this.getPinpointUserList(this.searchQuery),
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER)
-                );
+        this.pinpointUserDataService.create(userInfo).subscribe((response: IPinpointUserResponse) => {
+            this.getPinpointUserList(this.searchQuery),
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER)
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
     // TODO: Refactor - Avoid nested subscribe syntax.
     onUpdatePinpointUser(userInfo: IUserProfile): void {
         this.showProcessing();
-        this.pinpointUserDataService.update(userInfo).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = response.errorMessage;
-            } else {
-                this.getPinpointUserList(this.searchQuery);
-                if (this.isUserGroupSelected) {
-                    this.messageQueueService.sendMessage({
-                        to: MESSAGE_TO.PINPOINT_USER_UPDATE_USER,
-                        param: {
-                            userId: userInfo.userId,
-                            department: userInfo.department,
-                            name: userInfo.name
-                        }
-                    });
-                }
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.UPDATE_USER);
+        this.pinpointUserDataService.update(userInfo).subscribe((response: IPinpointUserResponse) => {
+            this.getPinpointUserList(this.searchQuery);
+            if (this.isUserGroupSelected) {
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.PINPOINT_USER_UPDATE_USER,
+                    param: {
+                        userId: userInfo.userId,
+                        department: userInfo.department,
+                        name: userInfo.name
+                    }
+                });
             }
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.UPDATE_USER);
 
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 
     // TODO: Refactor - Avoid nested subscribe syntax.
     onRemovePinpointUser(userId: string): void {
         this.showProcessing();
-        this.pinpointUserDataService.remove(userId).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = response.errorMessage;
-            } else {
-                this.getPinpointUserList(this.searchQuery);
-                if (this.isUserGroupSelected) {
-                    this.messageQueueService.sendMessage({
-                        to: MESSAGE_TO.PINPOINT_USER_REMOVE_USER,
-                        param: userId
-                    });
-                }
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER);
+        this.pinpointUserDataService.remove(userId).subscribe((response: IPinpointUserResponse) => {
+            this.getPinpointUserList(this.searchQuery);
+            if (this.isUserGroupSelected) {
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.PINPOINT_USER_REMOVE_USER,
+                    param: userId
+                });
             }
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER);
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
 

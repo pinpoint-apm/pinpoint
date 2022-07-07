@@ -28,7 +28,7 @@ export class FavoriteApplicationListEffect {
             filter(([_, favAppList]: [null, IApplication[]]) => favAppList === null),
             switchMap(() => this.favoriteApplicationListDataService.getFavoriteApplicationList().pipe(
                 map((favAppList: IApplication[]) => getFavApplicationListSuccess(favAppList)),
-                catchError((error: IServerErrorFormat) => of(getFavApplicationListFail(error)))
+                catchError((error: IServerError) => of(getFavApplicationListFail(error)))
             )),
         )
     );
@@ -38,7 +38,7 @@ export class FavoriteApplicationListEffect {
             ofType(addFavApplication),
             concatMap(({favApp}: {favApp: IApplication}) => this.webAppSettingDataService.addFavoriteApplication(favApp).pipe(
                 map((app: IApplication) => addFavApplicationSuccess(app)),
-                catchError((error: IServerErrorFormat) => of(addFavApplicationFail(error)))
+                catchError((error: IServerError) => of(addFavApplicationFail(error)))
             ))
         )
     );
@@ -48,7 +48,7 @@ export class FavoriteApplicationListEffect {
             ofType(removeFavApplication),
             concatMap(({favApp}: {favApp: IApplication}) => this.webAppSettingDataService.removeFavoriteApplication(favApp).pipe(
                 map((app: IApplication) => removeFavApplicationSuccess(app)),
-                catchError((error: IServerErrorFormat) => of(removeFavApplicationFail(error)))
+                catchError((error: IServerError) => of(removeFavApplicationFail(error)))
             ))
         )
     );

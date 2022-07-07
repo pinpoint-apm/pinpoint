@@ -95,7 +95,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
             tap((transactionInfo: ITransactionMetaData) => this.transactionInfo = transactionInfo),
             switchMap(({agentId, spanId, traceId, collectorAcceptTime}: ITransactionMetaData) => {
                 return this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Error',
