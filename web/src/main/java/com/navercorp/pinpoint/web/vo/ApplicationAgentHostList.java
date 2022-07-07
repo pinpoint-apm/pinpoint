@@ -15,63 +15,184 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.ApplicationAgentHostListSerializer;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Taejin Koo
  */
-@JsonSerialize(using = ApplicationAgentHostListSerializer.class)
 public class ApplicationAgentHostList {
-
-    private final Map<String, List<AgentInfo>> map = new LinkedHashMap<>();
 
     private final int startApplicationIndex;
     private final int endApplicationIndex;
     private final int totalApplications;
 
-    public ApplicationAgentHostList(int startApplicationIndex, int endApplicationIndex, int totalApplications) {
+    private final List<ApplicationInfo> applications;
+
+    public ApplicationAgentHostList(int startApplicationIndex, int endApplicationIndex, int totalApplications,
+                                    List<ApplicationInfo> applications) {
         this.startApplicationIndex = startApplicationIndex;
         this.endApplicationIndex = endApplicationIndex;
         this.totalApplications = totalApplications;
+        this.applications = Objects.requireNonNull(applications, "applications");
     }
 
+    @JsonProperty("startIndex")
     public int getStartApplicationIndex() {
         return startApplicationIndex;
     }
 
+    @JsonProperty("endIndex")
     public int getEndApplicationIndex() {
         return endApplicationIndex;
     }
 
+    @JsonProperty("totalApplications")
     public int getTotalApplications() {
         return totalApplications;
     }
 
-    public Map<String, List<AgentInfo>> getMap() {
-        return map;
+    public List<ApplicationInfo> getApplications() {
+        return applications;
     }
 
-    public void put(String applicationName, List<AgentInfo> agentInfoList) {
-        if (applicationName == null) {
-            return;
+    @Override
+    public String toString() {
+        return "ApplicationAgentHostList{" +
+                "startApplicationIndex=" + startApplicationIndex +
+                ", endApplicationIndex=" + endApplicationIndex +
+                ", totalApplications=" + totalApplications +
+                ", applications=" + applications +
+                '}';
+    }
+
+    public static Builder newBuilder(ServiceTypeRegistryService serviceTypeRegistryService,
+                                     int startApplicationIndex, int endApplicationIndex, int totalApplications) {
+        return new Builder(startApplicationIndex, endApplicationIndex, totalApplications, serviceTypeRegistryService);
+    }
+
+    public static class Builder {
+        private final int startApplicationIndex;
+        private final int endApplicationIndex;
+        private final int totalApplications;
+        private final ServiceTypeRegistryService serviceTypeRegistryService;
+
+        private final Map<String, List<AgentHost>> map = new HashMap<>();
+
+        public Builder(int startApplicationIndex, int endApplicationIndex, int totalApplications, ServiceTypeRegistryService serviceTypeRegistryService) {
+            this.startApplicationIndex = startApplicationIndex;
+            this.endApplicationIndex = endApplicationIndex;
+            this.totalApplications = totalApplications;
+            this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         }
 
-        List<AgentInfo> value = map.computeIfAbsent(applicationName, k -> new ArrayList<>());
 
-        if (agentInfoList == null) {
-            return;
-        }
-
-        for (AgentInfo agentInfo : agentInfoList) {
-            if (agentInfo != null) {
-                value.add(agentInfo);
+        public void addAgentInfo(String applicationName, List<AgentInfo> agentInfoList) {
+            if (applicationName == null) {
+                return;
             }
+
+            List<AgentHost> value = map.computeIfAbsent(applicationName, k -> new ArrayList<>());
+
+            if (agentInfoList == null) {
+                return;
+            }
+
+            for (AgentInfo agentInfo : agentInfoList) {
+                if (agentInfo != null) {
+                    value.add(newAgentHost(agentInfo));
+                }
+            }
+        }
+
+        private AgentHost newAgentHost(AgentInfo agentInfo) {
+            String agentId = StringUtils.defaultString(agentInfo.getAgentId(), "");
+            String hostName = StringUtils.defaultString(agentInfo.getHostName(), "");
+            String ip = StringUtils.defaultString(agentInfo.getIp(), "");
+            String serviceType = serviceTypeRegistryService.findServiceType(agentInfo.getServiceTypeCode()).getDesc();
+            return new AgentHost(agentId, hostName, ip, serviceType);
+        }
+
+        public ApplicationAgentHostList build() {
+            List<ApplicationInfo> applicationInfos = buildApplicationInfo(this.map);
+            ApplicationAgentHostList agents = new ApplicationAgentHostList(startApplicationIndex, endApplicationIndex, totalApplications,
+                    applicationInfos);
+            return agents;
+        }
+
+        private List<ApplicationInfo> buildApplicationInfo(Map<String, List<AgentHost>> map) {
+            List<ApplicationInfo> applications = map.entrySet().stream()
+                    .map(Builder::newApplication)
+                    .sorted(Comparator.comparing(ApplicationInfo::getApplicationName))
+                    .collect(Collectors.toList());
+            return applications;
+        }
+
+
+        private static ApplicationInfo newApplication(Map.Entry<String, List<AgentHost>> entry) {
+            String applicationName = entry.getKey();
+
+            List<AgentHost> agentHosts = entry.getValue();
+            agentHosts.sort(Comparator.comparing(AgentHost::getAgentId));
+
+            return new ApplicationInfo(applicationName, agentHosts);
+        }
+    }
+
+    public static class ApplicationInfo {
+        private final String applicationName;
+        private final List<AgentHost> agents;
+
+        public ApplicationInfo(String applicationName, List<AgentHost> agents) {
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+            this.agents = Objects.requireNonNull(agents, "agents");
+        }
+
+        public String getApplicationName() {
+            return applicationName;
+        }
+
+        public List<AgentHost> getAgents() {
+            return agents;
+        }
+    }
+
+    public static class AgentHost {
+        private final String agentId;
+        private final String hostName;
+        private final String ip;
+        private final String serviceType;
+
+        public AgentHost(String agentId, String hostName, String ip, String serviceType) {
+            this.agentId = Objects.requireNonNull(agentId, "agentId");
+            this.hostName = Objects.requireNonNull(hostName, "hostName");
+            this.ip = Objects.requireNonNull(ip, "ip");
+            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        }
+
+        public String getAgentId() {
+            return agentId;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public String getIp() {
+            return ip;
+        }
+
+        public String getServiceType() {
+            return serviceType;
         }
     }
 

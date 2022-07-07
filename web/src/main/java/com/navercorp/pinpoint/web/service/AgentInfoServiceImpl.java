@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -79,16 +80,20 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentStatDao<JvmGcBo> jvmGcDao;
 
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
+
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
-                                AgentStatDao<JvmGcBo> jvmGcDao) {
+                                AgentStatDao<JvmGcBo> jvmGcDao,
+                                ServiceTypeRegistryService serviceTypeRegistryService) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @Override
@@ -138,22 +143,29 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, int durationDays) {
         List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
         if (offset > applicationNameList.size()) {
-            return new ApplicationAgentHostList(offset, offset, applicationNameList.size());
+            ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
+            return builder.build();
         }
 
-        long timeStamp = System.currentTimeMillis();
+        final long timeStamp = System.currentTimeMillis();
 
-        int startIndex = offset - 1;
-        int endIndex = Math.min(startIndex + limit, applicationNameList.size());
-        ApplicationAgentHostList applicationAgentHostList = new ApplicationAgentHostList(offset, endIndex, applicationNameList.size());
+        final int startIndex = offset - 1;
+        final int endIndex = Math.min(startIndex + limit, applicationNameList.size());
+
+        ApplicationAgentHostList.Builder builder = newBuilder(offset, endIndex, applicationNameList.size());
         for (int i = startIndex; i < endIndex; i++) {
             String applicationName = applicationNameList.get(i);
 
             List<String> agentIdList = getAgentIdList(applicationName, durationDays);
             List<AgentInfo> agentInfoList = this.agentInfoDao.getAgentInfos(agentIdList, timeStamp);
-            applicationAgentHostList.put(applicationName, agentInfoList);
+            builder.addAgentInfo(applicationName, agentInfoList);
         }
-        return applicationAgentHostList;
+        return builder.build();
+    }
+
+    private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {
+        return ApplicationAgentHostList.newBuilder(serviceTypeRegistryService,
+                offset, endIndex, totalApplications);
     }
 
     private List<String> getAgentIdList(String applicationName, int durationDays) {
