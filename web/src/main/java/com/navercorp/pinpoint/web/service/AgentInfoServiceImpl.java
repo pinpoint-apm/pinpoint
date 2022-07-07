@@ -124,18 +124,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit) {
-        if (offset <= 0 || limit <= 0) {
-            throw new IllegalArgumentException("Value must be greater than 0.");
-        }
-
-        return getApplicationAgentHostList0(offset, limit, -1);
-    }
-
-    @Override
     public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays) {
-        if (offset <= 0 || limit <= 0) {
-            throw new IllegalArgumentException("Value must be greater than 0.");
+        if (offset <= 0) {
+            throw new IllegalArgumentException("offset must be greater than 0");
+        }
+        if (limit <= 0) {
+            throw new IllegalArgumentException("limit must be greater than 0");
         }
 
         return getApplicationAgentHostList0(offset, limit, durationDays);
