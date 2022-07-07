@@ -81,7 +81,7 @@ export class ConfigurationAgentStatisticContainerComponent implements OnInit, On
         this.agentStatisticDataService.getData().subscribe((agentList: IAgentList) => {
             this.storeHelperService.dispatch(new Actions.UpdateAdminAgentList(agentList));
             this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.dynamicPopupService.openPopup({
                 data: {
                     title: 'Error',

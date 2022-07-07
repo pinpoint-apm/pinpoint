@@ -55,7 +55,7 @@ export class HostGroupAndHostListContainerComponent implements OnInit, OnDestroy
             map((urlService: NewUrlStateNotificationService) => urlService.getPathValue(UrlPathId.HOST_GROUP)),
             tap((hostGroup: string) => this.selectedHostGroup = hostGroup),
             switchMap((hostGroup: string) => this.hostGroupAndHostListDataService.getHostList(hostGroup).pipe(
-                catchError((error: IServerErrorFormat) => {
+                catchError((error: IServerError) => {
                     this.dynamicPopupService.openPopup({
                         data: {
                             title: 'Server Error',

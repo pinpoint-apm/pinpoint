@@ -76,33 +76,23 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     }
     private getGroupMemberList(): void {
         this.showProcessing();
-        this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((data: IGroupMember[] | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')) {
-                this.sendMessageCurrentGroupMemberList(this.getMemberIdList());
-                this.errorMessage = data.errorMessage;
-            } else {
-                this.groupMemberList = data;
-                this.sortGroupMemberList();
-                this.sendMessageCurrentGroupMemberList(this.getMemberIdList());
-            }
-            this.hideProcessing();
-        }, (error: IServerErrorFormat) => {
+        this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((data: IGroupMember[]) => {
+            this.groupMemberList = data;
+            this.sortGroupMemberList();
             this.sendMessageCurrentGroupMemberList(this.getMemberIdList());
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+        }, (error: IServerError) => {
+            this.sendMessageCurrentGroupMemberList(this.getMemberIdList());
+            this.hideProcessing();
+            this.errorMessage = error.message;
         });
     }
     private addGroupMember(userId: string): void {
-        this.groupMemberDataService.create(userId, this.currentUserGroupId).subscribe((response: IGroupMemberResponse | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = response.errorMessage;
-                this.hideProcessing();
-            } else {
-                this.doAfterAddAndRemoveAction(response);
-            }
-        }, (error: IServerErrorFormat) => {
+        this.groupMemberDataService.create(userId, this.currentUserGroupId).subscribe((response: IGroupMemberResponse) => {
+            this.doAfterAddAndRemoveAction(response);
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
     private getMemberIdList(): string[] {
@@ -142,17 +132,12 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     }
     onRemoveGroupMember(id: string): void {
         this.showProcessing();
-        this.groupMemberDataService.remove(id, this.currentUserGroupId).subscribe((response: IGroupMemberResponse | IServerErrorShortFormat) => {
-            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
-                this.errorMessage = response.errorMessage;
-                this.hideProcessing();
-            } else {
-                this.doAfterAddAndRemoveAction(response);
-                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_GROUP_MEMBER);
-            }
-        }, (error: IServerErrorFormat) => {
+        this.groupMemberDataService.remove(id, this.currentUserGroupId).subscribe((response: IGroupMemberResponse) => {
+            this.doAfterAddAndRemoveAction(response);
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_GROUP_MEMBER);
+        }, (error: IServerError) => {
             this.hideProcessing();
-            this.errorMessage = error.exception.message;
+            this.errorMessage = error.message;
         });
     }
     onCloseErrorMessage(): void {

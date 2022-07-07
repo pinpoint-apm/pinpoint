@@ -145,13 +145,13 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
 
         this.scatterChartDataService.outScatterErrorData$.pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.scatterChartInteractionService.setError(error);
             this.cd.detectChanges();
         });
         this.scatterChartDataService.outRealTimeScatterErrorData$.pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
         });
 
         this.connectStore();

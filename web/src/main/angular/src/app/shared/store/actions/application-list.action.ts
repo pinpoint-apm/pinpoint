@@ -4,4 +4,4 @@ export const initApplicationList = createAction('[Application List] Init Applica
 
 export const getApplicationList = createAction('[Application List] Get Application List', (force = false) => ({force}));
 export const getApplicationListSuccess = createAction('[Application List] Get Application List Success', (appList: IApplication[]) => ({appList}));
-export const getApplicationListFail = createAction('[Application List] Get Application List Fail', (error: IServerErrorFormat) => ({error}));
+export const getApplicationListFail = createAction('[Application List] Get Application List Fail', (error: IServerError) => ({error}));

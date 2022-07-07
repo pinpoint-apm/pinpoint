@@ -110,15 +110,10 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
         };
 
         this.webhookDataService.addWebhook(webhook).subscribe((result) => {
-            if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
-                this.errorMessage = result.errorMessage;
-            } else {
-                this.getWebhookList();
-            }
-
+            this.getWebhookList();
             this.hideProcessing();
-        }, (error) => {
-            this.errorMessage = error.exception.message;
+        }, (error: IServerError) => {
+            this.errorMessage = error.message;
             this.hideProcessing();
         });
     }
@@ -134,15 +129,10 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
         };
 
         this.webhookDataService.editWebhook(webhook).subscribe((result) => {
-            if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
-                this.errorMessage = result.errorMessage;
-            } else {
-                this.getWebhookList();
-            }
-
+            this.getWebhookList();
             this.hideProcessing();
-        }, (error) => {
-            this.errorMessage = error.exception.message;
+        }, (error: IServerError) => {
+            this.errorMessage = error.message;
             this.hideProcessing();
         });
     }
@@ -151,15 +141,10 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
         this.showProcessing();
 
         this.webhookDataService.removeWebhook(webhook).subscribe((result) => {
-            if (isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')) {
-                this.errorMessage = result.errorMessage;
-            } else {
-                this.getWebhookList();
-            }
-
+            this.getWebhookList();
             this.hideProcessing();
-        }, (error) => {
-            this.errorMessage = error.exception.message;
+        }, (error: IServerError) => {
+            this.errorMessage = error.message;
             this.hideProcessing();
         });
     }
@@ -183,12 +168,11 @@ export class WebhookListContainerComponent implements OnInit, OnDestroy {
         if (this.isApplicationSelected()) {
             this.showProcessing();
             this.webhookDataService.getWebhookListByAppId(this.selectedApplication.applicationName).subscribe((result) => {
-                isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
-                    ? this.errorMessage = result.errorMessage
-                    : this.webhookList = result;
+                this.webhookList = result;
                 this.hideProcessing();
-            }, (error) => {
-                this.errorMessage = error.exception.message;
+            }, (error: IServerError) => {
+                this.errorMessage = error.message;
+                this.hideProcessing();
             });
         }
     }

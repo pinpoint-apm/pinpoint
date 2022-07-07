@@ -52,7 +52,7 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
                 const host = urlService.getPathValue(UrlPathId.HOST);
 
                 return this.metricContentsDataService.getMetricList({hostGroup, host}).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Server Error',

@@ -22,7 +22,7 @@ export class ConfigurationInspectorChartManagerContainerComponent implements OnI
             takeUntil(this.unsubscribe)
         ).subscribe((applicationData: {[key: string]: IChartLayoutInfo[]}) => {
             this.storeHelperService.dispatch(new Actions.UpdateApplicationInspectorChartLayout(applicationData));
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.storeHelperService.dispatch(new Actions.UpdateApplicationInspectorChartLayout({
                 applicationInspectorChart: []
             }));
@@ -31,7 +31,7 @@ export class ConfigurationInspectorChartManagerContainerComponent implements OnI
             takeUntil(this.unsubscribe)
         ).subscribe((agentData: {[key: string]: IChartLayoutInfo[]}) => {
             this.storeHelperService.dispatch(new Actions.UpdateAgentInspectorChartLayout(agentData));
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             this.storeHelperService.dispatch(new Actions.UpdateAgentInspectorChartLayout({
                 applicationInspectorChart: []
             }));

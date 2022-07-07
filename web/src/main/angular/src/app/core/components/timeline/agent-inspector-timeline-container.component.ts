@@ -84,7 +84,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
             }),
             switchMap(({range, agentId}: {range: number[], agentId: string}) => {
                 return this.agentTimelineDataService.getData(agentId, range).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Error',

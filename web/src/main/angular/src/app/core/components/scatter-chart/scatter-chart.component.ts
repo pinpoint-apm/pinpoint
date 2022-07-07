@@ -181,7 +181,7 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
         });
         this.scatterChartInteractionService.onError$.pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hasError = true;
             this.dataLoaded = true;
             this.scatterChartInstance.reset(this.application, this.agent, this.fromX, this.toX, this.mode);

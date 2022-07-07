@@ -7,13 +7,13 @@ import {
 
 export interface IApplicationListState {
     item: IApplication[];
-    error: IServerErrorFormat;
+    error: IServerError;
 }
 
 const initialState: IApplicationListState = {
     // item: [] as IApplication[],
     item: null as IApplication[],
-    error: {} as IServerErrorFormat
+    error: {} as IServerError
 };
 
 const applicationListReducer = createReducer(

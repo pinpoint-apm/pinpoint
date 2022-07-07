@@ -15,46 +15,37 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> | Observable<never> {
         return next.handle(req).pipe(
-            retry(3),
-            switchMap((event: HttpEvent<any>) => {
-                if (event instanceof HttpResponse) {
-                    if (isThatType<IServerErrorFormat>(event.body, 'exception')) {
-                        return throwError(new HttpErrorResponse({error: event.body}));
-                    } else {
-                        return of(event);
-                    }
-                }
-                return of(event);
-            }),
             catchError((error: HttpErrorResponse) => {
                 if (error.error instanceof ErrorEvent) {
                     // * client-side error
                     console.error('client-side error has occurred', error.error);
+                    // TODO: Test client-side error
                     return throwError({
-                        exception: {
-                            request: {
+                        message: error.error.message,
+                        data: {
+                            requestInfo: {
                                 url: error.error.filename
-                            },
-                            message: error.error.message
+                            }
                         }
                     });
+                    // return throwError({
+                    //     exception: {
+                    //         request: {
+                    //             url: error.error.filename
+                    //         },
+                    //         message: error.error.message
+                    //     }
+                    // });
                 } else {
-                    if (isThatType<IServerErrorFormat>(error.error, 'exception')) {
-                        return throwError(error.error);
-                    } else if (error.status === 401) {
+                    if (error.status === 401) {
                         this.authService.onAuthError();
                         return EMPTY;
                     } else {
+                        // TODO: Test server-side error
                         // * server-side error
                         console.error('server-side error has occurred', error);
-                        return throwError({
-                            exception: {
-                                request: {
-                                    url: error.url
-                                },
-                                message: error.message
-                            }
-                        });
+                        // return throwError(error);
+                        return throwError(error.error);
                     }
                 }
             })

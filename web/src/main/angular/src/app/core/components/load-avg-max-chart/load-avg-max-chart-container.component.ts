@@ -93,7 +93,7 @@ export class LoadAvgMaxChartContainerComponent implements OnInit, OnDestroy {
 
         this.agentHistogramDataService.getData(this.serverMapData, this.previousRange, target).pipe(
             pluck('agentTimeSeriesHistogram', this.selectedAgent),
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
                 this.dynamicPopupService.openPopup({
                     data: {

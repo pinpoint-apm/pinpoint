@@ -45,8 +45,8 @@ export class ScatterChartInteractionService {
     private outReset = new Subject<IResetParam>();
     public onReset$: Observable<IResetParam>;
 
-    private outError = new Subject<IServerErrorFormat>();
-    public onError$: Observable<IServerErrorFormat>;
+    private outError = new Subject<IServerError>();
+    public onError$: Observable<IServerError>;
     constructor() {
         this.onChartData$ = this.outChartData.asObservable();
         this.onViewType$ = this.outViewType.asObservable();
@@ -87,7 +87,7 @@ export class ScatterChartInteractionService {
             mode,
         });
     }
-    setError(error: IServerErrorFormat): void {
+    setError(error: IServerError): void {
         this.outError.next(error);
     }
 }

@@ -92,19 +92,19 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
 
         this.storeHelperService.getApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
         });
 
         this.storeHelperService.getFavoriteApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
         });
 
         this.storeHelperService.getFavoriteApplicationRemoveError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {

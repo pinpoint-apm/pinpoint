@@ -117,7 +117,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             switchMap((range: number[]) => {
                 this.serverMapRangeHandlerService.setReservedNextTo(range[1] + this.interval);
                 return this.serverMapDataService.getData(range).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Server Error',

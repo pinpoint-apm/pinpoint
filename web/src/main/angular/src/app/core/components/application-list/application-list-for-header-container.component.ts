@@ -125,7 +125,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
         this.storeHelperService.getApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {
@@ -144,7 +144,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
         this.storeHelperService.getFavoriteApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {

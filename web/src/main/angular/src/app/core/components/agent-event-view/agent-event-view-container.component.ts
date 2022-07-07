@@ -41,7 +41,7 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_SELECTED_EVENT_STATUS).pipe(
             switchMap((eventSegment: ITimelineEventSegment) => {
                 return this.agentEventsDataService.getData(eventSegment.startTimestamp, eventSegment.endTimestamp).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Error',

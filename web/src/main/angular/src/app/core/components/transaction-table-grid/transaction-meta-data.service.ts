@@ -70,7 +70,7 @@ export class TransactionMetaDataService {
         if (this.enableServerSideScan) {
             this.http.get<{metadata: ITransactionMetaData[], resultFrom: number, complete: boolean}>(this.requestURLV2, this.makeV2RequestOptionsArgs())
                 .pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.onError({
                             data: {title: 'Error', contents: error},
                             component: ServerErrorPopupContainerComponent
@@ -115,7 +115,7 @@ export class TransactionMetaDataService {
                 this.http.post<{metadata: ITransactionMetaData[]}>(this.requestURLV1, this.makeV1RequestOptionsArgs(), {
                     headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
                 }).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.onError({
                             data: {title: 'Error', contents: error},
                             component: ServerErrorPopupContainerComponent

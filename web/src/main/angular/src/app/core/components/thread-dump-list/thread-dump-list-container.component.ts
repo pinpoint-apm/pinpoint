@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, Observable, of, throwError } from 'rxjs';
-import { filter, switchMap } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
+import { filter, switchMap, map } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import { StoreHelperService, NewUrlStateNotificationService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ActiveThreadDumpListDataService, IActiveThreadDump } from './active-thread-dump-list-data.service';
 import { IThreadDumpData } from './thread-dump-list.component';
-import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-thread-dump-list-container',
@@ -41,40 +40,21 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
 
                 return this.activeThreadDumpListDataService.getData(applicationName, agentId);
             }),
-            filter((data: {[key: string]: any} | IServerErrorShortFormat) => {
-                if (isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')) {
-                    this.errorMessage = data.errorMessage;
-                    this.showLoading = false;
-                    return false;
-                } else {
-                    this.errorMessage = '';
-                    return true;
-                }
-            }),
-            switchMap((data: {[key: string]: any}) => {
-                if (data.code === -1)  {
-                    return throwError({
-                        exception: {
-                            request: {},
-                            message: data.message
-                        }
-                    });
-                } else {
-                    return of(data.message.threadDumpData.map((threadDump: IActiveThreadDump, index: number) => {
-                        return <IThreadDumpData>{
-                            index: index + 1,
-                            id: threadDump.threadId,
-                            name: threadDump.threadName,
-                            state: threadDump.threadState,
-                            startTime: threadDump.startTime,
-                            exec: threadDump.execTime,
-                            sampled: threadDump.sampled,
-                            path: threadDump.entryPoint,
-                            transactionId: threadDump.transactionId,
-                            localTraceId: threadDump.localTraceId
-                        };
-                    }));
-                }
+            map((data: {[key: string]: any}) => {
+                return data.message.threadDumpData.map((threadDump: IActiveThreadDump, index: number) => {
+                    return <IThreadDumpData>{
+                        index: index + 1,
+                        id: threadDump.threadId,
+                        name: threadDump.threadName,
+                        state: threadDump.threadState,
+                        startTime: threadDump.startTime,
+                        exec: threadDump.execTime,
+                        sampled: threadDump.sampled,
+                        path: threadDump.entryPoint,
+                        transactionId: threadDump.transactionId,
+                        localTraceId: threadDump.localTraceId
+                    };
+                });
             })
         );
     }

@@ -32,14 +32,14 @@ export class ScatterChartDataService {
     private outScatterData = new Subject<IScatterData>();
     private savedScatterData = new ReplaySubject<IScatterData>();
     private outRealTimeScatterData = new Subject<IScatterData>();
-    private outScatterErrorData = new Subject<IServerErrorFormat>();
-    private outRealTimeScatterErrorData = new Subject<IServerErrorFormat>();
+    private outScatterErrorData = new Subject<IServerError>();
+    private outRealTimeScatterErrorData = new Subject<IServerError>();
     private outReset = new Subject<void>();
 
     outScatterData$: Observable<IScatterData>;
-    outScatterErrorData$: Observable<IServerErrorFormat>;
+    outScatterErrorData$: Observable<IServerError>;
     outRealTimeScatterData$: Observable<IScatterData>;
-    outRealTimeScatterErrorData$: Observable<IServerErrorFormat>;
+    outRealTimeScatterErrorData$: Observable<IServerError>;
     savedScatterData$: Observable<IScatterData>;
     onReset$: Observable<void>;
 
@@ -61,7 +61,7 @@ export class ScatterChartDataService {
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     filter(() => this.loadStart),
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.outScatterErrorData.next(error);
                         return EMPTY;
                     })
@@ -75,21 +75,22 @@ export class ScatterChartDataService {
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     filter(() => this.loadStart && this.newUrlStateNotificationService.isRealTimeMode()),
-                    catchError((error: IServerErrorFormat) => of(error)),
-                    filter((res: IScatterData | IServerErrorFormat) => {
-                        if (isThatType(res, 'exception')) {
-                            this.outReset.next();
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    })
+                    // catchError((error: IServerError) => of(error)),
+                    // filter((res: IScatterData | IServerError) => {
+                    //     if (isThatType(res, 'exception')) {
+                    //         this.outReset.next();
+                    //         return false;
+                    //     } else {
+                    //         return true;
+                    //     }
+                    // })
                 );
             }),
         ).subscribe((scatterData: IScatterData) => {
             this.subscribeRealTimeRequest(scatterData);
-        }, (error: IServerErrorFormat) => {
+        }, (error: IServerError) => {
             // this.outScatterErrorData.next(error);
+            this.outReset.next();
         });
     }
     private requestHttp(params: IScatterRequest): Observable<IScatterData> {

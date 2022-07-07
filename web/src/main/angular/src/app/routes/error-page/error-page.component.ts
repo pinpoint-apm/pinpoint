@@ -40,15 +40,15 @@ export class ErrorPageComponent implements OnInit {
     private checkServerTime(type: string): void {
         this.serverTimeDataService.getServerTime().subscribe((time: number) => {
             this.setState(type, true, false);
-        }, (error: IServerErrorFormat) => {
-            this.setState(type, false, false, error.exception.message);
+        }, (error: IServerError) => {
+            this.setState(type, false, false, error.message);
         });
     }
     private checkSystemConfiguration(type: string): void {
         this.systemConfigurationDataService.getConfiguration().subscribe((configuration: ISystemConfiguration) => {
             this.setState(type, true, false);
-        }, (error: IServerErrorFormat) => {
-            this.setState(type, false, false, error.exception.message);
+        }, (error: IServerError) => {
+            this.setState(type, false, false, error.message);
         });
     }
     getErrorMessage(type: string): string {

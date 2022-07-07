@@ -18,7 +18,7 @@ export class ApplicationListEffect {
             filter(([{force}, appList]: [{force: boolean}, IApplication[]]) => force || appList === null),
             switchMap(([{force}]: [{force: boolean}, IApplication[]]) => this.applicationListDataService.getApplicationList(force).pipe(
                 map((appList: IApplication[]) => getApplicationListSuccess(appList)),
-                catchError((error: IServerErrorFormat) => of(getApplicationListFail(error)))
+                catchError((error: IServerError) => of(getApplicationListFail(error)))
             )),
         )
     );

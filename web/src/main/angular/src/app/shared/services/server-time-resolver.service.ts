@@ -13,7 +13,7 @@ export class ServerTimeResolverService implements Resolve<number> {
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<number> {
         return this.serverTimeService.getServerTime().pipe(
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 return of(Date.now());
             })
         );

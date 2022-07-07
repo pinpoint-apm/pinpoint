@@ -83,9 +83,9 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
             tap((param: object) => this.previousParam = param),
             switchMap((param: object) => {
                 return this.metricDataService.getMetricData(param).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.activeLayer = Layer.RETRY;
-                        this.setRetryMessage(error.exception.message);
+                        this.setRetryMessage(error.message);
                         return EMPTY;
                     })
                 );
@@ -169,9 +169,9 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
         this.metricDataService.getMetricData(this.previousParam).pipe(
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
-                this.setRetryMessage(error.exception.message);
+                this.setRetryMessage(error.message);
                 return EMPTY;
             }),
         ).subscribe((data: IMetricData) => {

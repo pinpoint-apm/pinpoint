@@ -17,7 +17,7 @@ export class HostGroupListEffect {
             filter(([{force}, hostGroupList]: [{force: boolean}, string[]]) => force || isEmpty(hostGroupList)),
             switchMap(() => this.hostGroupListDataService.getHostGroupList().pipe(
                 map((hostGroupList: string[]) => getHostGroupListSuccess(hostGroupList)),
-                catchError((error: IServerErrorFormat) => of(getHostGroupListFail(error)))
+                catchError((error: IServerError) => of(getHostGroupListFail(error)))
             )),
         )
     );

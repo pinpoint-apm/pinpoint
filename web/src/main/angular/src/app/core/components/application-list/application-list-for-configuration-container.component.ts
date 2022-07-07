@@ -95,7 +95,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
 
         this.storeHelperService.getApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {
@@ -114,7 +114,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
 
         this.storeHelperService.getFavoriteApplicationListError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {
@@ -133,7 +133,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
 
         this.storeHelperService.getFavoriteApplicationAddError().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((error: IServerErrorFormat) => {
+        ).subscribe((error: IServerError) => {
             this.hideProcessing();
             this.dynamicPopupService.openPopup({
                 data: {

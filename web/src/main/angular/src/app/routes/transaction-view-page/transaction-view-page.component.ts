@@ -101,7 +101,7 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy, AfterVie
                 const {agentId, spanId, traceId, collectorAcceptTime} = JSON.parse(urlService.getQueryValue(UrlQuery.TRANSACTION_INFO));
 
                 return this.transactionDetailDataService.getData(agentId, spanId, traceId, collectorAcceptTime).pipe(
-                    catchError((error: IServerErrorFormat) => {
+                    catchError((error: IServerError) => {
                         this.dynamicPopupService.openPopup({
                             data: {
                                 title: 'Error',

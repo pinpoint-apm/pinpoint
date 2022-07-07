@@ -131,9 +131,9 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
 
     private getChartData(range: number[]): void {
         this.chartContainer.getData(range).pipe(
-            catchError((error: IServerErrorFormat) => {
+            catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
-                this.setRetryMessage(error.exception.message);
+                this.setRetryMessage(error.message);
                 return of(null);
             }),
             filter((data: IInspectorChartData | null) => !!data)
