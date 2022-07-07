@@ -35,4 +35,9 @@ public interface AgentInfoDao {
     AgentInfo getAgentInfo(String agentId, long agentStartTime, int deltaTimeInMilliSeconds);
 
     List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp);
+
+    /**
+     * No ServerMetaData, No JvmInfo
+     */
+    List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp);
 }

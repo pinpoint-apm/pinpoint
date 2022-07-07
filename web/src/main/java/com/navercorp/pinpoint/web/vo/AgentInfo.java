@@ -123,9 +123,6 @@ public class AgentInfo {
         return ports;
     }
 
-    public void setPorts(String ports) {
-        this.ports = ports;
-    }
 
     public short getServiceTypeCode() {
         return serviceTypeCode;
@@ -139,49 +136,30 @@ public class AgentInfo {
         return pid;
     }
 
-    public void setPid(int pid) {
-        this.pid = pid;
-    }
 
     public String getVmVersion() {
         return vmVersion;
-    }
-
-    public void setVmVersion(String vmVersion) {
-        this.vmVersion = vmVersion;
     }
 
     public String getAgentVersion() {
         return agentVersion;
     }
 
-    public void setAgentVersion(String agentVersion) {
-        this.agentVersion = agentVersion;
-    }
 
     public ServerMetaDataBo getServerMetaData() {
         return serverMetaData;
     }
 
-    public void setServerMetaData(ServerMetaDataBo serverMetaData) {
-        this.serverMetaData = serverMetaData;
-    }
 
     public JvmInfoBo getJvmInfo() {
         return jvmInfo;
     }
 
-    public void setJvmInfo(JvmInfoBo jvmInfo) {
-        this.jvmInfo = jvmInfo;
-    }
 
     public long getInitialStartTimestamp() {
         return initialStartTimestamp;
     }
 
-    public void setInitialStartTimestamp(long initialStartTimestamp) {
-        this.initialStartTimestamp = initialStartTimestamp;
-    }
 
     public boolean isContainer() {
         return container;
@@ -232,6 +210,7 @@ public class AgentInfo {
         sb.append(", pid=").append(pid);
         sb.append(", vmVersion='").append(vmVersion).append('\'');
         sb.append(", agentVersion='").append(agentVersion).append('\'');
+        sb.append(", serverMetaData='").append(serverMetaData).append('\'');
         sb.append(", jvmInfo=").append(jvmInfo);
         sb.append(", initialStartTimestamp=").append(initialStartTimestamp);
         sb.append(", container=").append(container);
