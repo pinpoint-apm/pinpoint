@@ -47,7 +47,7 @@ dependencies {
     testImplementation(libs.log4j.slf4j.impl)
     testImplementation(libs.log4j.core)
     testImplementation(libs.spring.test)
-    compileOnly("org.apache.flink:flink-java:1.14.2")
+    compileOnlyApi("org.apache.flink:flink-java:1.14.2")
     compileOnly("org.apache.flink:flink-streaming-java_2.11:1.14.2")
     compileOnly("org.apache.flink:flink-clients_2.11:1.14.2")
 
