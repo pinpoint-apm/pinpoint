@@ -14,7 +14,9 @@ dependencies {
     testImplementation("org.apache.cxf:cxf-rt-transports-http:3.0.16")
     testImplementation("org.apache.cxf:cxf-rt-rs-client:3.0.16")
     testImplementation(project(":pinpoint-bootstrap-core"))
-    testImplementation(project(":pinpoint-test"))
+    testImplementation(project(":pinpoint-test")) {
+        exclude(group = "org.tinylog", module = "slf4j-tinylog")
+    }
     testImplementation(libs.nanohttpd)
 }
 
