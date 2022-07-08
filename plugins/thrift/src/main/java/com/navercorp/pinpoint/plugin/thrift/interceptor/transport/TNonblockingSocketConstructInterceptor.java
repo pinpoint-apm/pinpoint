@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.transport;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.thrift.transport.TNonblockingSocket;
 
@@ -46,36 +47,34 @@ public class TNonblockingSocketConstructInterceptor implements AroundInterceptor
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (validate(target, args)) {
-            Socket socket = ((TNonblockingSocket)target).getSocketChannel().socket();
-            ((SocketFieldAccessor)target)._$PINPOINT$_setSocket(socket);
-            if (args[2] instanceof SocketAddress) {
-                SocketAddress socketAddress = (SocketAddress)args[2];
-                ((SocketAddressFieldAccessor)target)._$PINPOINT$_setSocketAddress(socketAddress);
+        if (validate(target)) {
+            final Socket socket = ((TNonblockingSocket) target).getSocketChannel().socket();
+            ((SocketFieldAccessor) target)._$PINPOINT$_setSocket(socket);
+
+            SocketAddress socketAddress = ArrayArgumentUtils.getArgument(args, 2, SocketAddress.class);
+            if (socketAddress == null) {
+                socketAddress = ArrayArgumentUtils.getArgument(args, 3, SocketAddress.class);
             }
+            if (socketAddress == null) {
+                logger.info("Unexpected arguments. arg[2] or arg[3] is a SocketAddress class. args={}", args);
+                return;
+            }
+            ((SocketAddressFieldAccessor) target)._$PINPOINT$_setSocketAddress(socketAddress);
         }
     }
 
-    private boolean validate(Object target, Object[] args) {
+    private boolean validate(Object target) {
         if (!(target instanceof TNonblockingSocket)) {
             return false;
         }
-        if (ArrayUtils.getLength(args) != 3) {
-            return false;
-        }
         if (!(target instanceof SocketFieldAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
-            }
+            logger.info("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
             return false;
         }
         if (!(target instanceof SocketAddressFieldAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", SocketAddressFieldAccessor.class.getName());
-            }
+            logger.info("Invalid target object. Need field accessor({}).", SocketAddressFieldAccessor.class.getName());
             return false;
         }
         return true;
     }
-
 }
