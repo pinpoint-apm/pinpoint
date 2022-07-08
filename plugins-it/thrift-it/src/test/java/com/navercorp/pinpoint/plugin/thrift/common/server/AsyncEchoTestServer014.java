@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,39 +16,39 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.server;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
-
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import org.apache.thrift.TBaseAsyncProcessor;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
+import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.client.EchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient014;
+import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer;
-import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TThreadedSelectorServer;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
 
 /**
  * @author HyunGil Jeong
  */
-public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> extends ThriftEchoTestServer<T> {
+public abstract class AsyncEchoTestServer014<T extends AbstractNonblockingServer> extends ThriftEchoTestServer<T> {
 
-    protected AsyncEchoTestServer(T server, TestEnvironment environment) {
+    protected AsyncEchoTestServer014(T server, TestEnvironment environment) {
         super(server, environment);
     }
 
@@ -81,58 +81,58 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
             });
         }
 
-        public static AsyncEchoTestServer<TThreadedSelectorServer> threadedSelectorServer(
+        public static AsyncEchoTestServer014<TThreadedSelectorServer> threadedSelectorServer(
                 final TestEnvironment environment) throws TTransportException {
             TThreadedSelectorServer server = new TThreadedSelectorServer(new TThreadedSelectorServer.Args(
                     new TNonblockingServerSocket(environment.getPort())).processor(getAsyncProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
-            return new AsyncEchoTestServer<TThreadedSelectorServer>(server, environment) {
+            return new AsyncEchoTestServer014<TThreadedSelectorServer>(server, environment) {
                 @Override
-                public SyncEchoTestClient getSynchronousClient() throws Exception {
-                    return new SyncEchoTestClient.ClientForNonblockingServer(environment);
+                public EchoTestClient getSynchronousClient() throws Exception {
+                    return new SyncEchoTestClient014.ClientForNonblockingServer(environment);
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
+                public EchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
         }
 
-        public static AsyncEchoTestServer<TNonblockingServer> nonblockingServer(final TestEnvironment environment)
+        public static AsyncEchoTestServer014<TNonblockingServer> nonblockingServer(final TestEnvironment environment)
                 throws TTransportException {
             TNonblockingServer server = new TNonblockingServer(new TNonblockingServer.Args(
                     new TNonblockingServerSocket(environment.getPort())).processor(getAsyncProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
-            return new AsyncEchoTestServer<TNonblockingServer>(server, environment) {
+            return new AsyncEchoTestServer014<TNonblockingServer>(server, environment) {
                 @Override
-                public SyncEchoTestClient getSynchronousClient() throws Exception {
-                    return new SyncEchoTestClient.ClientForNonblockingServer(environment);
+                public EchoTestClient getSynchronousClient() throws Exception {
+                    return new SyncEchoTestClient014.ClientForNonblockingServer(environment);
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
+                public EchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
         }
 
-        public static AsyncEchoTestServer<THsHaServer> halfSyncHalfAsyncServer(final TestEnvironment environment)
+        public static AsyncEchoTestServer014<THsHaServer> halfSyncHalfAsyncServer(final TestEnvironment environment)
                 throws TTransportException {
             THsHaServer server = new THsHaServer(new THsHaServer.Args(new TNonblockingServerSocket(
                     environment.getPort())).processor(getAsyncProcessor())
                     .inputProtocolFactory(environment.getProtocolFactory())
                     .outputProtocolFactory(environment.getProtocolFactory()));
-            return new AsyncEchoTestServer<THsHaServer>(server, environment) {
+            return new AsyncEchoTestServer014<THsHaServer>(server, environment) {
                 @Override
-                public SyncEchoTestClient getSynchronousClient() throws Exception {
-                    return new SyncEchoTestClient.ClientForNonblockingServer(environment);
+                public EchoTestClient getSynchronousClient() throws Exception {
+                    return new SyncEchoTestClient014.ClientForNonblockingServer(environment);
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
+                public EchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
