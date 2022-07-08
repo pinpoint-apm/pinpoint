@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
     compileOnly(project(":pinpoint-commons"))
     compileOnly("io.grpc:grpc-core:1.14.0")
 }
