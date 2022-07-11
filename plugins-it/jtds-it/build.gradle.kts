@@ -9,6 +9,10 @@ dependencies {
     testImplementation(project(":pinpoint-jtds-plugin"))
     testImplementation("org.testcontainers:mssqlserver:1.16.2")
     testImplementation(project(":pinpoint-profiler-test"))
+    testImplementation(project(":pinpoint-test")) {
+        exclude(group = "org.tinylog", module = "slf4j-tinylog")
+    }
+    testImplementation(libs.log4j.api)
 }
 
 description = "pinpoint-jtds-plugin-it"
