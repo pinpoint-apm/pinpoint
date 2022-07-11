@@ -1,8 +1,9 @@
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import Dropdown, { DropdownProps } from './Dropdown';
 
 function renderDropdown(props?: Partial<DropdownProps>) {
+  const user = userEvent.setup();
   const rendered = render(
     <Dropdown {...props}>
       <Dropdown.Trigger>Trigger</Dropdown.Trigger>
@@ -14,14 +15,15 @@ function renderDropdown(props?: Partial<DropdownProps>) {
   const Content = () => rendered.getByText('Content');
 
   function clickTrigger() {
-    userEvent.click(Trigger());
+    user.click(Trigger());
   }
 
   function clickOutside() {
-    userEvent.click(document.body);
+    user.click(document.body);
   }
+  
   function pressEscapeKey() {
-    userEvent.keyboard('{esc}');
+    user.keyboard('{Escape}');
   }
 
   return {
@@ -34,16 +36,16 @@ function renderDropdown(props?: Partial<DropdownProps>) {
 }
 
 describe('Dropdown', () => {
-  it('open Content when click Trigger.', () => {
+  it('open Content when click Trigger.', async () => {
     const {
       Content,
       clickTrigger,
     } = renderDropdown();
     clickTrigger();
-    expect(Content()).toBeVisible();
+    await waitFor(() => expect(Content()).toBeVisible());
   })
 
-  it('close Content when click out side', () => {
+  it('close Content when click out side', async () => {
     const {
       Content,
       clickTrigger,
@@ -51,12 +53,12 @@ describe('Dropdown', () => {
     } = renderDropdown();
 
     clickTrigger();
-    expect(Content()).toBeVisible();
+    await waitFor(() => expect(Content()).toBeVisible());
     clickOutside();
-    expect(Content()).not.toBeVisible();
+    await waitFor(() => expect(Content()).not.toBeVisible());
   })
 
-  it('close Content when press ESC key', () => {
+  it('close Content when press ESC key', async () => {
     const {
       Content,
       clickTrigger,
@@ -64,8 +66,8 @@ describe('Dropdown', () => {
     } = renderDropdown();
 
     clickTrigger();
-    expect(Content()).toBeVisible();
+    await waitFor(() => expect(Content()).toBeVisible());
     pressEscapeKey();
-    expect(Content()).not.toBeVisible();
+    await waitFor(() => expect(Content()).not.toBeVisible());
   })
 }) 
