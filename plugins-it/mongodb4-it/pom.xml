@@ -24,7 +24,7 @@
         <version>2.4.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-mongodb-plugin-it</artifactId>
+    <artifactId>pinpoint-mongodb4-plugin-it</artifactId>
 
     <packaging>jar</packaging>
 
@@ -59,10 +59,16 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.6.1</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-reactivestreams</artifactId>
+            <version>4.6.1</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>

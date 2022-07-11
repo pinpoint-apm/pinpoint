@@ -30,4 +30,7 @@ public final class TestcontainersOption {
     public static final String MYSQLDB = "org.testcontainers:mysql:" + VERSION;
     public static final String MARIADB = "org.testcontainers:mariadb:" + VERSION;
     public static final String POSTGRESQL = "org.testcontainers:postgresql:" + VERSION;
+
+    public static final String ELASTICSEARCH = "org.testcontainers:elasticsearch:" + VERSION;
+    public static final String MONGODB = "org.testcontainers:mongodb:" + VERSION;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Naver Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.mongodb;
+package com.navercorp.pinpoint.plugin.mongodb4;
 
-import com.navercorp.pinpoint.test.plugin.shared.AfterSharedClass;
 import org.testcontainers.containers.MongoDBContainer;
 
 /**
  * @author Roy Kim
  */
 public abstract class MongoDBITBase {
-    public static String secondCollectionDefaultOption = "ACKNOWLEDGED";
     protected static MongoDBContainer container;
 
     protected static String HOST;
@@ -31,7 +29,6 @@ public abstract class MongoDBITBase {
 
     abstract Class<?> getMongoDatabaseClazz() throws ClassNotFoundException;
 
-    @AfterSharedClass
     public static void sharedTeardown() throws Exception {
         if (container != null) {
             container.stop();

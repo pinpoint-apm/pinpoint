@@ -1,8 +1,8 @@
 /*
- * Copyright 2021 Naver Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance,the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.mongodb;
+package com.navercorp.pinpoint.plugin.mongo;
 
-public final class MongoDBITConstants {
+import java.util.List;
 
-    public static final String BIND_ADDRESS = "localhost";
+public interface HostListAccessor {
+    void _$PINPOINT$_setHostList(List<String> list);
 
-    public static final int PORT = 27018;
-
-    public static String MONGODB_ADDRESS = BIND_ADDRESS + ":" + PORT;
-
+    List<String> _$PINPOINT$_getHostList();
 }

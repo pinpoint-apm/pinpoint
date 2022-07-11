@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,18 +26,18 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
+import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
 
-/**
- * @author Roy Kim
- */
-public class MongoCUDSessionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+import java.util.List;
 
+public class MongoCollectionImplWriteOperationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     private final boolean collectJson;
     private final boolean traceBsonBindValue;
 
-    public MongoCUDSessionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, boolean collectJson, boolean traceBsonBindValue) {
+    public MongoCollectionImplWriteOperationInterceptor(TraceContext traceContext, MethodDescriptor descriptor, boolean collectJson, boolean traceBsonBindValue) {
         super(traceContext, descriptor);
         this.collectJson = collectJson;
         this.traceBsonBindValue = traceBsonBindValue;
@@ -45,15 +45,28 @@ public class MongoCUDSessionInterceptor extends SpanEventSimpleAroundInterceptor
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordApi(methodDescriptor);
+
+        if (Boolean.FALSE == (target instanceof HostListAccessor)) {
+            logger.info("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            return;
+        }
+
+        final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
+        if (hostList == null) {
+            logger.info("Invalid hostList. target={}", target);
+            return;
+        }
 
         final DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        final MongoDatabaseInfo mongoDatabaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
+                null, null, hostList, databaseInfo.getDatabaseId(), ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getReadPreference(), ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
 
-        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
-        recorder.recordEndPoint(databaseInfo.getMultipleHost());
-        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordServiceType(mongoDatabaseInfo.getExecuteQueryType());
+        recorder.recordEndPoint(mongoDatabaseInfo.getMultipleHost());
+        recorder.recordDestinationId(mongoDatabaseInfo.getDatabaseId());
 
-        recorder.recordApi(methodDescriptor);
-        MongoUtil.recordMongoCollection(recorder, ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
+        MongoUtil.recordMongoCollection(recorder, mongoDatabaseInfo.getCollectionName(), mongoDatabaseInfo.getWriteConcern());
     }
 
     @Override
