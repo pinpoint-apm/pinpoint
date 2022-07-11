@@ -4,7 +4,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { DateRangePicker } from './DateRangePicker';
 
 export default {
-  title: 'PINPOINT/Component/BASE/DateRangePicker1',
+  title: 'PINPOINT/Component/BASE/DateRangePicker',
   component: DateRangePicker,
   argTypes: {
     backgroundColor: { control: 'color' },

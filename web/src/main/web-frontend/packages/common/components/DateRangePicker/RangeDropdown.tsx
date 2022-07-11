@@ -7,7 +7,7 @@ import { format, isValid, parse } from 'date-fns';
 
 import Dropdown, { DropdownRef } from '../Dropdown/Dropdown';
 import DateRangeContext, { DateRange } from './DateRangeContext';
-import { CSSFlexVHCentered } from '../Styled/containers';
+import { StyleFlexVHCentered } from '../Styled/styles';
 import { DatePicker } from './DatePicker';
 
 interface RangeDropdownProps {
@@ -43,9 +43,9 @@ export const RangeDropdown = ({
     return `Past ${dateRange}`
   }
 
-  function handleChangeDropdown({ show }: { show: boolean }) {
-    setTriggered(show);
-    setShowCalendar(false);
+  function handleChangeDropdown({ open }: { open: boolean }) {
+    setTriggered(open);
+    !open && setShowCalendar(false);
   }
 
   function handleClickCalendarTrigger(e: React.MouseEvent) {
@@ -165,7 +165,7 @@ const StyledList = styled.div`
 `
 
 const StyledLabel = styled.label<{ wide?: boolean }>`
-  ${CSSFlexVHCentered}
+  ${StyleFlexVHCentered}
   height: 22px;
   border-radius: var(--border-radius);
   background-color: var(--icon-default-lightest);
