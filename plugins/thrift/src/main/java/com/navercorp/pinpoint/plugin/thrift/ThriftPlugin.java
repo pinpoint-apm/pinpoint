@@ -49,6 +49,7 @@ import com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtoc
 import com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor;
 import com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor;
 import com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TNonblockingSocketConstructInterceptor;
+import com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TSocketConstructInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -303,28 +304,37 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     // Common
-
     private void addInterceptorsForRetrievingSocketAddresses() {
         // injector TTranports
         // TSocket(Socket), TSocket(String, int, int)
-        addTTransportEditor("org.apache.thrift.transport.TSocket",
-                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TSocketConstructInterceptor", new String[]{"java.net.Socket"}, new String[]{
-                        "java.lang.String", "int", "int"});
+        transformTemplate.transform("org.apache.thrift.transport.TSocket", TSocketTransform.class);
 
         // wrapper TTransports
         // TFramedTransport(TTransport), TFramedTransport(TTransport, int)
         addTTransportEditor("org.apache.thrift.transport.TFramedTransport",
                 "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFramedTransportConstructInterceptor",
-                new String[]{"org.apache.thrift.transport.TTransport"}, new String[]{"org.apache.thrift.transport.TTransport", "int"});
+                new String[]{"org.apache.thrift.transport.TTransport"},
+                new String[]{"org.apache.thrift.transport.TTransport", "int"});
+        // 0.14
+        addTTransportEditor("org.apache.thrift.transport.layered.TFramedTransport",
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFramedTransportConstructInterceptor",
+                new String[]{"org.apache.thrift.transport.TTransport", "int"});
+
         // TFastFramedTransport(TTransport, int, int)
         addTTransportEditor("org.apache.thrift.transport.TFastFramedTransport",
-                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor", new String[]{
-                        "org.apache.thrift.transport.TTransport", "int", "int"});
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor",
+                new String[]{"org.apache.thrift.transport.TTransport", "int", "int"});
+        // 0.14
+        addTTransportEditor("org.apache.thrift.transport.layered.TFastFramedTransport",
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor",
+                new String[]{"org.apache.thrift.transport.TTransport", "int", "int"});
+
         // TSaslClientTransport(TTransport), TSaslClientTransport(SaslClient, TTransport)
         addTTransportEditor("org.apache.thrift.transport.TSaslClientTransport",
                 "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TSaslTransportConstructInterceptor",
-                new String[]{"org.apache.thrift.transport.TTransport"}, new String[]{"javax.security.sasl.SaslClient",
-                        "org.apache.thrift.transport.TTransport"});
+                new String[]{"org.apache.thrift.transport.TTransport"},
+                new String[]{"javax.security.sasl.SaslClient", "org.apache.thrift.transport.TTransport"},
+                new String[]{"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String", "java.util.Map", "javax.security.auth.callback.CallbackHandler", "org.apache.thrift.transport.TTransport"});
 
         // TMemoryInputTransport - simply add socket field
         addTTransportEditor("org.apache.thrift.transport.TMemoryInputTransport");
@@ -337,8 +347,34 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
         addFrameBufferEditor();
     }
 
-    // Common - transports
+    public static class TSocketTransform implements TransformCallback {
 
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET);
+
+            final InstrumentMethod constructorMethod1 = target.getConstructor("java.net.Socket");
+            if (constructorMethod1 != null) {
+                constructorMethod1.addInterceptor(TSocketConstructInterceptor.class);
+            }
+
+            // 0.14 or later
+            InstrumentMethod constructorMethod2 = target.getConstructor("org.apache.thrift.TConfiguration", "java.lang.String", "int", "int");
+            if (constructorMethod2 == null) {
+                // old
+                constructorMethod2 = target.getConstructor("java.lang.String", "int", "int");
+            }
+            if (constructorMethod2 != null) {
+                constructorMethod2.addInterceptor(TSocketConstructInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    // Common - transports
     private void addTTransportEditor(String tTransportFqcn) {
         final String targetClassName = tTransportFqcn;
         transformTemplate.transform(targetClassName, TTransportTransform.class);
@@ -412,15 +448,19 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET);
             target.addField(ThriftConstants.FIELD_ACCESSOR_SOCKET_ADDRESS);
 
-            // TNonblockingSocket(SocketChannel, int, SocketAddress)
-            final InstrumentMethod constructor = target.getConstructor("java.nio.channels.SocketChannel", "int", "java.net.SocketAddress");
+            // 0.14 or later
+            InstrumentMethod constructor = target.getConstructor("org.apache.thrift.TConfiguration", "java.nio.channels.SocketChannel", "int", "java.net.SocketAddress");
+            if (constructor == null) {
+                // old
+                // TNonblockingSocket(SocketChannel, int, SocketAddress)
+                constructor = target.getConstructor("java.nio.channels.SocketChannel", "int", "java.net.SocketAddress");
+            }
             if (constructor != null) {
                 constructor.addInterceptor(TNonblockingSocketConstructInterceptor.class);
             }
 
             return target.toBytecode();
         }
-
     }
 
     private void addFrameBufferEditor() {

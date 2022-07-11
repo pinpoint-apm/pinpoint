@@ -52,7 +52,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
     private final EchoService.AsyncClient asyncClient;
     private final TAsyncClientManager asyncClientManager = new TAsyncClientManager();
 
-    private AsyncEchoTestClient(TestEnvironment environment) throws IOException {
+    private AsyncEchoTestClient(TestEnvironment environment) throws Exception {
         this.environment = environment;
         this.transport = new TNonblockingSocket(this.environment.getServerIp(), this.environment.getPort());
         this.asyncClient = new EchoService.AsyncClient(this.environment.getProtocolFactory(), this.asyncClientManager, this.transport);
@@ -168,7 +168,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
     }
 
     public static class Client extends AsyncEchoTestClient {
-        public Client(TestEnvironment environment) throws IOException {
+        public Client(TestEnvironment environment) throws Exception {
             super(environment);
         }
     }
