@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.thrift.it.synchronous;
 
 import static org.junit.Assert.assertEquals;
 
+import com.navercorp.pinpoint.plugin.thrift.common.client.EchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.server.ThriftEchoTestServer;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
@@ -59,7 +60,7 @@ public class ThriftThreadPoolServerIT extends EchoTestRunner<ThriftEchoTestServe
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final SyncEchoTestClient client = getServer().getSynchronousClient();
+        final EchoTestClient client = getServer().getSynchronousClient();
         final String result = invokeAndVerify(client, expectedMessage);
         // Then
         assertEquals(expectedMessage, result);

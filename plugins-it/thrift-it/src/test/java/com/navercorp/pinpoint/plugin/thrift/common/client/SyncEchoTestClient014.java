@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.client;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
-
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
+import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.TServiceClient;
@@ -31,21 +31,20 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
  * @author HyunGil Jeong
  */
-public abstract class SyncEchoTestClient implements EchoTestClient {
+public abstract class SyncEchoTestClient014 implements EchoTestClient {
 
     private final TestEnvironment environment;
     private final TTransport transport;
 
-    private SyncEchoTestClient(TestEnvironment environment, TTransport transport) throws TTransportException {
+    private SyncEchoTestClient014(TestEnvironment environment, TTransport transport) throws TTransportException {
         this.environment = environment;
         this.transport = transport;
         this.transport.open();
@@ -98,15 +97,15 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
         }
     }
 
-    public static class Client extends SyncEchoTestClient {
+    public static class Client extends SyncEchoTestClient014 {
         public Client(TestEnvironment environment) throws TTransportException {
             super(environment, new TSocket(environment.getServerIp(), environment.getPort()));
         }
     }
 
-    public static class ClientForNonblockingServer extends SyncEchoTestClient {
+    public static class ClientForNonblockingServer extends SyncEchoTestClient014 {
         public ClientForNonblockingServer(TestEnvironment environment) throws Exception {
-            super(environment, TTransportInstanceCreator.create(SyncEchoTestClient014.class.getClassLoader(), "org.apache.thrift.transport.TFramedTransport", new TSocket(environment.getServerIp(), environment.getPort())));
+            super(environment, TTransportInstanceCreator.create(SyncEchoTestClient014.class.getClassLoader(), "org.apache.thrift.transport.layered.TFramedTransport", new TSocket(environment.getServerIp(), environment.getPort())));
         }
     }
 }

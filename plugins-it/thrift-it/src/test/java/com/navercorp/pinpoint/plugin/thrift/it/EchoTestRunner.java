@@ -89,5 +89,4 @@ public abstract class EchoTestRunner<T extends EchoTestServer> {
         this.echoServer.verifyTraces(this.verifier);
         this.verifier.verifyTraceCount(0);
     }
-
 }
