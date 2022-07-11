@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly("org.apache.hbase:hbase-shaded-client:1.2.12")
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi("org.apache.hbase:hbase-shaded-client:1.2.12")
     compileOnly(libs.commons.logging)
 }
 
