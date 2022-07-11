@@ -10,6 +10,7 @@ dependencies {
     testImplementation("com.ibm.informix:jdbc:4.10.14")
     testImplementation(project(":pinpoint-informix-jdbc-driver-plugin"))
     testImplementation(project(":pinpoint-profiler-test"))
+    testImplementation(libs.log4j.api)
 }
 
 description = "pinpoint-informix-jdbc-driver-plugin-it"
