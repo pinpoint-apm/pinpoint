@@ -85,6 +85,7 @@ export const GlobalStyle = (
         border: 0;
         font-family: inherit;
         color: inherit;
+        font-size: 14px;
       }
 
       html {
