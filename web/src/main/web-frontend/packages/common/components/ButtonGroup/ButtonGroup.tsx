@@ -7,7 +7,6 @@ export interface ButtonProps {
   className?: string;
   children: ReactNode;
   active?: boolean;
-  isToggle?: boolean;
   disableActive?: boolean;
   disabled?: boolean;
   onClick?: () => void;
@@ -22,18 +21,10 @@ export interface ButtonGroupContainerProps {
 const Button: FC<ButtonProps> = ({
   children,
   active,
-  isToggle,
   onClick,
   className,
   disabled,
 }: ButtonProps) => {
-  const [ toggle, setToggle ] = useState(false);
-
-  function handleClick() {
-    onClick?.({ toggle: !toggle })
-    isToggle && setToggle(!toggle);
-  }
-
   return (
     <StyledButton
       disabled={disabled}
@@ -68,7 +59,7 @@ const Container: FC<ButtonGroupContainerProps> = ({
           onClick: handleClick(i, button.props.disableActive, button.props.onClick),
         })
       }
-      return child;
+      return button;
     })}
     </StyledContainer>
   );

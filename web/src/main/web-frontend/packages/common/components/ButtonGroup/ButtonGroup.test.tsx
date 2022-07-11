@@ -1,8 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from "@testing-library/user-event";
+import { act } from 'react-dom/test-utils';
 import ButtonGroup, { ButtonGroupContainerProps } from './ButtonGroup';
 
 function renderButtonGroup(props?: Partial<ButtonGroupContainerProps>) {
+  const user = userEvent.setup();
   const rendered = render(
     <ButtonGroup.Container {...props}>
       <ButtonGroup.Button>A</ButtonGroup.Button>
@@ -46,23 +48,23 @@ describe('ButtonGroup', () => {
     expect(buttonD()).toHaveClass(activeClassName);
   })
 
-  it('add active classname when click button.', () => {
+  it('add active classname when click button.', async () => {
     const {
       buttonB,
       clickButtonB,
     } = renderButtonGroup();
 
     clickButtonB();
-    expect(buttonB()).toHaveClass(activeClassName);
+    await waitFor(() => expect(buttonB()).toHaveClass(activeClassName));
   })
 
-  it('has no active classname when click disable active button', () => {
+  it('has no active classname when click disable active button', async () => {
     const {
       buttonDisableActive,
       clickButtonDisableActive,
     } = renderButtonGroup();
 
     clickButtonDisableActive();
-    expect(buttonDisableActive()).not.toHaveClass(activeClassName);
+    await waitFor(() => expect(buttonDisableActive()).not.toHaveClass(activeClassName));
   })
 })

@@ -1,9 +1,9 @@
-import React, { FC, memo, useState, useRef, useImperativeHandle, useMemo, useEffect } from 'react';
-import { css } from '@emotion/react';
+import React, { useImperativeHandle, useState, useRef, useMemo, useEffect } from 'react';
+import styled from '@emotion/styled';
 
 import { useCaptureKeydown, useOutsideClick } from '../../hooks/interaction';
-import { DropdownContent, DropdownContentProps } from './DropdownContent';
-import { DropdownTrigger, DropdownTriggerProps } from './DropdownTrigger';
+import { DropdownContent } from './DropdownContent';
+import { DropdownTrigger } from './DropdownTrigger';
 import DropdownContext from './DropdownContext';
 
 export interface DropdownRef {
@@ -11,24 +11,25 @@ export interface DropdownRef {
 }
 
 export interface DropdownProps {
+  open?: boolean;
   className?: string;
   children?: React.ReactNode[];
   onChange?: ({ open }: { open: boolean }) => void;
   hoverable?: boolean;
 }
 
-
-const Dropdown: FC<DropdownProps> = ({
+const Dropdown = React.forwardRef(({
+  open: initOpen = false,
   className,
   children,
   onChange,
   hoverable,
 }: DropdownProps, ref) => {
-  const [ open, setOpen ] = useState(false);
+  const [ open, setOpen ] = useState(initOpen);
   const dropdownRef = useRef(null);
 
   useOutsideClick(dropdownRef, () => {
-    setOpen(false);
+    open && setOpen(false);
   })
 
   useCaptureKeydown(event => {
@@ -43,6 +44,16 @@ const Dropdown: FC<DropdownProps> = ({
     })
   }, [ open, onChange ])
 
+  useImperativeHandle(ref, () => ({
+    close() {
+      closeContent();
+    }
+  }))
+
+  function closeContent() {
+    setOpen(false);
+  }
+
   function handleMouseEnter() {
     hoverable && setOpen(true);
   }
@@ -53,18 +64,22 @@ const Dropdown: FC<DropdownProps> = ({
 
   return (
     <DropdownContext.Provider value={{ open, setOpen: useMemo(() => setOpen, [ setOpen ]) }}>
-      <div 
+      <StyledContainer 
         ref={dropdownRef} 
         className={className} 
-        css={css`position: relative;`}
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
       >
         {children}
-      </div>
+      </StyledContainer>
     </DropdownContext.Provider>
   );
-};
+});
+
+const StyledContainer = styled.div`
+  position: relative;
+  z-index: 1000;
+`
 
 export default Object.assign(Dropdown, {
   Trigger: DropdownTrigger,
