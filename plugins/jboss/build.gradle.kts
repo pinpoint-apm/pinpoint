@@ -21,6 +21,7 @@ dependencies {
     testImplementation(libs.commons.lang3)
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.jboss.as:jboss-as-security:7.2.0.Final")
+    testImplementation(libs.log4j.api)
 }
 
 description = "pinpoint-jboss-plugin"
