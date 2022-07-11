@@ -198,7 +198,7 @@
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
         <plugin.resources.version>3.2.0</plugin.resources.version>
-        <plugin.surefire.version>2.22.2</plugin.surefire.version>
+        <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
         <plugin.assembly.version>3.3.0</plugin.assembly.version>
@@ -231,12 +231,7 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -1012,13 +1007,7 @@
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.7.2</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
+                <artifactId>junit-jupiter-api</artifactId>
                 <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
