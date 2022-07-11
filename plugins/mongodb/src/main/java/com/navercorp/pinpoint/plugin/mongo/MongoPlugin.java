@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.ExtendedBsonListGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.OperatorGetter;
@@ -49,16 +49,27 @@ import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.SearchGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOptionsGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.PublisherInterceptor;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_0;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_7;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetCollectionInterceptor;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetDatabaseInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientGetDatabaseInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientImplConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientImplGetDatabaseInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientsInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplReadOperationInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplWithInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplWriteOperationInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDatabaseImplGetCollectionInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDatabaseImplWithInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoInternalOperatorNameInterceptor;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoReadPreferenceInterceptor;
-import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoClientImplConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoClientImplGetDatabaseInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoCollectionImplConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoCollectionImplReadOperationInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoCollectionImplWithInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoCollectionImplWriteOperationInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoDatabaseImplGetCollectionInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoDatabaseImplWithInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoOperationPublisherConstructorInterceptor;
 
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
@@ -70,9 +81,9 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author Roy Kim
  */
 public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
+    private static final String MONGO_SCOPE = MongoConstants.MONGO_SCOPE;
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private static final String MONGO_SCOPE = MongoConstants.MONGO_SCOPE;
 
     private TransformTemplate transformTemplate;
 
@@ -93,269 +104,39 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //        addSortsTransformer();
 //        addProjectionTransformer();
 
-        addConnectionTransformer3_0_X();
-        addConnectionTransformer3_7_X();
-        addConnectionTransformer3_8_X();
-        addConnectionTransformerReactive();
-        addSessionTransformer3_0_X();
-        addSessionTransformer3_7_X();
-        // Reactive stream
-        addSessionTransformerReactive();
+        addMongoDatabase();
+        addMongoReactiveDatabase();
     }
 
-    private void addConnectionTransformer3_0_X() {
+    private void addMongoDatabase() {
+        // 3.0.x ~ 3.6.4
+        transformTemplate.transform("com.mongodb.MongoClient", MongoClientTransform.class);
+        // Only 3.7.x
+        transformTemplate.transform("com.mongodb.client.MongoClientImpl", MongoClientImplTransform.class);
+        // 3.8.x+
+        transformTemplate.transform("com.mongodb.client.internal.MongoClientImpl", MongoClientImplTransform.class);
 
-        // 3.0.0 ~ 3.6.4
-        transformTemplate.transform("com.mongodb.Mongo", ClientConnectionTransform3_0_X.class);
-        transformTemplate.transform("com.mongodb.MongoClient", DatabaseConnectionTransform3_0_X.class);
-        transformTemplate.transform("com.mongodb.MongoDatabaseImpl", CollectionConnectionTransform3_0_X.class);
+        // 3.7.x+
+        transformTemplate.transform("com.mongodb.client.MongoClients", MongoClientsTransform.class);
 
+        // 3.0.x ~ 3.6.4
+        transformTemplate.transform("com.mongodb.MongoDatabaseImpl", MongoDatabaseImplTransform.class);
+        // 3.7.x+
+        transformTemplate.transform("com.mongodb.client.internal.MongoDatabaseImpl", MongoDatabaseImplTransform.class);
+
+        // 3.0.x ~ 3.6.x
+        transformTemplate.transform("com.mongodb.MongoCollectionImpl", MongoCollectionImplTransform.class);
+        // 3.7.x+
+        transformTemplate.transform("com.mongodb.client.internal.MongoCollectionImpl", MongoCollectionImplTransform.class);
     }
 
-    public static class ClientConnectionTransform3_0_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster", "com.mongodb.MongoClientOptions", "java.util.List");
-
-            connect.addScopedInterceptor(MongoDriverConnectInterceptor3_0.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-
-            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
-            close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
-
-            return target.toBytecode();
-        }
-    }
-
-    public static class DatabaseConnectionTransform3_0_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connectDeliver = InstrumentUtils.findMethod(target, "getDatabase", "java.lang.String");
-            connectDeliver.addScopedInterceptor(MongoDriverGetDatabaseInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            return target.toBytecode();
-        }
-    }
-
-    public static class CollectionConnectionTransform3_0_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connect = InstrumentUtils.findMethod(target, "getCollection", "java.lang.String", "java.lang.Class");
-            connect.addScopedInterceptor(MongoDriverGetCollectionInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");
-            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern", "com.mongodb.WriteConcern");
-            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            return target.toBytecode();
-        }
-    }
-
-    private void addConnectionTransformer3_7_X() {
-        //3.7.0+
-        transformTemplate.transform("com.mongodb.client.MongoClients", ClientConnectionTransform3_7_X.class);
-        transformTemplate.transform("com.mongodb.client.MongoClientImpl", DatabaseConnectionTransform3_7_X.class);
-        transformTemplate.transform("com.mongodb.client.internal.MongoDatabaseImpl", CollectionConnectionTransform3_7_X.class);
-    }
-
-    public static class ClientConnectionTransform3_7_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connect = InstrumentUtils.findMethod(target, "create", "com.mongodb.MongoClientSettings", "com.mongodb.MongoDriverInformation");
-
-            connect.addScopedInterceptor(MongoDriverConnectInterceptor3_7.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            return target.toBytecode();
-        }
-    }
-
-    public static class DatabaseConnectionTransform3_7_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connect = InstrumentUtils.findMethod(target, "getDatabase", "java.lang.String");
-            connect.addScopedInterceptor(MongoDriverGetDatabaseInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
-            close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
-
-            return target.toBytecode();
-        }
-    }
-
-    public static class CollectionConnectionTransform3_7_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connect = InstrumentUtils.findMethod(target, "getCollection", "java.lang.String", "java.lang.Class");
-            connect.addScopedInterceptor(MongoDriverGetCollectionInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-
-            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");
-            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern", "com.mongodb.WriteConcern");
-            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            return target.toBytecode();
-        }
-    }
-
-    private void addConnectionTransformer3_8_X() {
-        //3.8.0+
-        transformTemplate.transform("com.mongodb.client.internal.MongoClientImpl", DatabaseConnectionTransform3_8_X.class);
-    }
-
-    public static class DatabaseConnectionTransform3_8_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            InstrumentMethod connect = InstrumentUtils.findMethod(target, "getDatabase", "java.lang.String");
-            connect.addScopedInterceptor(MongoDriverGetDatabaseInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
-            close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
-
-            return target.toBytecode();
-        }
-    }
-
-    private void addConnectionTransformerReactive() {
-        //reactivestreams
-        transformTemplate.transform("com.mongodb.reactivestreams.client.MongoClients", ClientConnectionTransform3_7_X.class);
-        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoClientImpl", DatabaseConnectionTransform3_8_X.class);
-        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoDatabaseImpl", CollectionConnectionTransform3_7_X.class);
-    }
-
-
-    private void addSessionTransformer3_0_X() {
-        transformTemplate.transform("com.mongodb.MongoCollectionImpl", SessionTransform3_0_X.class);
-    }
-
-    public static class SessionTransform3_0_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            MongoConfig config = new MongoConfig(instrumentor.getProfilerConfig());
-
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR3_0_x())))) {
-                method.addScopedInterceptor(MongoRSessionInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-            }
-
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD3_0_x())))) {
-                method.addScopedInterceptor(MongoCUDSessionInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-            }
-
-            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");
-            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern", "com.mongodb.WriteConcern");
-            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            return target.toBytecode();
-        }
-    }
-
-    private void addSessionTransformer3_7_X() {
-        transformTemplate.transform("com.mongodb.client.internal.MongoCollectionImpl", SessionTransform3_7_X.class);
-    }
-
-    public static class SessionTransform3_7_X implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            if (!target.isInterceptable()) {
-                return null;
-            }
-
-            MongoConfig config = new MongoConfig(instrumentor.getProfilerConfig());
-
-            target.addField(DatabaseInfoAccessor.class);
-
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR3_7_x())))) {
-                method.addScopedInterceptor(MongoRSessionInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-            }
-
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD3_7_x())))) {
-                method.addScopedInterceptor(MongoCUDSessionInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-            }
-
-            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference", "com.mongodb.ReadPreference");
-            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern", "com.mongodb.WriteConcern");
-            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-
-            return target.toBytecode();
-        }
-    }
-
-    private void addSessionTransformerReactive() {
-        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoCollectionImpl", SessionTransform3_7_X.class);
+    private void addMongoReactiveDatabase() {
+        // 4.2+
+        transformTemplate.transform("com.mongodb.reactivestreams.client.MongoClients", MongoClientsTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoClientImpl", ReactiveMongoClientImplTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoDatabaseImpl", ReactiveMongoDatabaseImplTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoOperationPublisher", ReactiveMongoOperationPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoCollectionImpl", ReactiveMongoCollectionImplTransform.class);
 
         // Reactive
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.FindPublisherImpl", ObservableToPublisherTransform.class);
@@ -375,15 +156,300 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ObservableToPublisher", ObservableToPublisherTransform.class);
     }
 
+    public static class MongoClientTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+
+            // 3.0
+            // MongoClient(final ServerAddress addr, final MongoClientOptions options)
+            final InstrumentMethod constructorMethod1 = target.getConstructor("com.mongodb.ServerAddress", "com.mongodb.MongoClientOptions");
+            if (constructorMethod1 != null) {
+                constructorMethod1.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final ServerAddress addr, final List<MongoCredential> credentialsList, final MongoClientOptions options)
+            final InstrumentMethod constructorMethod2 = target.getConstructor("com.mongodb.ServerAddress", "java.util.List", "com.mongodb.MongoClientOptions");
+            if (constructorMethod2 != null) {
+                constructorMethod2.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final List<ServerAddress> seeds, final MongoClientOptions options)
+            final InstrumentMethod constructorMethod3 = target.getConstructor("java.util.List", "com.mongodb.MongoClientOptions");
+            if (constructorMethod3 != null) {
+                constructorMethod3.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final List<ServerAddress> seeds, final List<MongoCredential> credentialsList, final MongoClientOptions options)
+            final InstrumentMethod constructorMethod4 = target.getConstructor("java.util.List", "java.util.List", "com.mongodb.MongoClientOptions");
+            if (constructorMethod4 != null) {
+                constructorMethod4.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // Ignored - MongoClient(final MongoClientURI uri)
+
+            // 3.4
+            // Ignored - MongoClient(final MongoClientURI uri, final MongoDriverInformation mongoDriverInformation)
+            // MongoClient(final ServerAddress addr, final List<MongoCredential> credentialsList, final MongoClientOptions options, final MongoDriverInformation mongoDriverInformation)
+            final InstrumentMethod constructorMethod7 = target.getConstructor("com.mongodb.ServerAddress", "java.util.List", "com.mongodb.MongoClientOptions", "com.mongodb.MongoDriverInformation");
+            if (constructorMethod7 != null) {
+                constructorMethod7.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final List<ServerAddress> seeds, final List<MongoCredential> credentialsList, final MongoClientOptions options, final MongoDriverInformation mongoDriverInformation)
+            final InstrumentMethod constructorMethod8 = target.getConstructor("java.util.List", "java.util.List", "com.mongodb.MongoClientOptions", "com.mongodb.MongoDriverInformation");
+            if (constructorMethod8 != null) {
+                constructorMethod8.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // 3.6
+            // MongoClient(final ServerAddress addr, final MongoCredential credential, final MongoClientOptions options)
+            final InstrumentMethod constructorMethod9 = target.getConstructor("com.mongodb.ServerAddress", "com.mongodb.MongoCredential", "com.mongodb.MongoClientOptions");
+            if (constructorMethod9 != null) {
+                constructorMethod9.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final List<ServerAddress> seeds, final MongoCredential credential, final MongoClientOptions options)
+            final InstrumentMethod constructorMethod10 = target.getConstructor("java.util.List", "com.mongodb.MongoCredential", "com.mongodb.MongoClientOptions");
+            if (constructorMethod10 != null) {
+                constructorMethod10.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final ServerAddress addr, final MongoCredential credential, final MongoClientOptions options, final MongoDriverInformation mongoDriverInformation)
+            final InstrumentMethod constructorMethod11 = target.getConstructor("com.mongodb.ServerAddress", "com.mongodb.MongoCredential", "com.mongodb.MongoClientOptions", "com.mongodb.MongoDriverInformation");
+            if (constructorMethod11 != null) {
+                constructorMethod11.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+            // MongoClient(final List<ServerAddress> seeds, final MongoCredential credential, final MongoClientOptions options, final MongoDriverInformation mongoDriverInformation)
+            final InstrumentMethod constructorMethod12 = target.getConstructor("java.util.List", "com.mongodb.MongoCredential", "com.mongodb.MongoClientOptions", "com.mongodb.MongoDriverInformation");
+            if (constructorMethod12 != null) {
+                constructorMethod12.addInterceptor(MongoClientConstructorInterceptor.class);
+            }
+
+            final InstrumentMethod getDatabaseMethod = target.getDeclaredMethod("getDatabase", "java.lang.String");
+            if (getDatabaseMethod != null) {
+                getDatabaseMethod.addInterceptor(MongoClientGetDatabaseInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class MongoClientImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+
+            // 3.7
+            InstrumentMethod constructorMethod = target.getConstructor("com.mongodb.connection.Cluster", "com.mongodb.MongoClientSettings", "com.mongodb.client.internal.OperationExecutor");
+            if (constructorMethod == null) {
+                // 4.0
+                constructorMethod = target.getConstructor("com.mongodb.internal.connection.Cluster", "com.mongodb.MongoClientSettings", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 4.2 or later
+                constructorMethod = target.getConstructor("com.mongodb.internal.connection.Cluster", "com.mongodb.MongoDriverInformation", "com.mongodb.MongoClientSettings", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(MongoClientImplConstructorInterceptor.class);
+            }
+
+            final InstrumentMethod getDatabaseMethod = target.getDeclaredMethod("getDatabase", "java.lang.String");
+            if (getDatabaseMethod != null) {
+                getDatabaseMethod.addInterceptor(MongoClientImplGetDatabaseInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class MongoClientsTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+
+            final InstrumentMethod createMethod = target.getDeclaredMethod("create", "com.mongodb.MongoClientSettings", "com.mongodb.MongoDriverInformation");
+            if (createMethod != null) {
+                createMethod.addInterceptor(MongoClientsInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class MongoDatabaseImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("withCodecRegistry", "withReadPreference", "withWriteConcern", "withReadConcern"))) {
+                method.addInterceptor(MongoDatabaseImplWithInterceptor.class);
+            }
+
+            final InstrumentMethod getCollectionMethod = target.getDeclaredMethod("getCollection", "java.lang.String", "java.lang.Class");
+            if (getCollectionMethod != null) {
+                getCollectionMethod.addInterceptor(MongoDatabaseImplGetCollectionInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class MongoCollectionImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+            target.addField(DatabaseInfoAccessor.class);
+
+            // 3.0
+            InstrumentMethod constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "com.mongodb.operation.OperationExecutor");
+            if (constructorMethod == null) {
+                // 3.2
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "com.mongodb.ReadConcern", "com.mongodb.operation.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 3.6
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "com.mongodb.ReadConcern", "com.mongodb.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 3.7+
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "com.mongodb.ReadConcern", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 3.11
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "boolean", "com.mongodb.ReadConcern", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 3.12
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "boolean", "com.mongodb.ReadConcern", "org.bson.UuidRepresentation", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 4.7
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.WriteConcern", "boolean", "boolean", "com.mongodb.ReadConcern", "org.bson.UuidRepresentation", "com.mongodb.AutoEncryptionSettings", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(MongoCollectionImplConstructorInterceptor.class);
+            }
+
+            final MongoConfig config = new MongoConfig(instrumentor.getProfilerConfig());
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getReadOperationMethodList())))) {
+                method.addScopedInterceptor(MongoCollectionImplReadOperationInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getWriteOperationMethodList())))) {
+                method.addScopedInterceptor(MongoCollectionImplWriteOperationInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("withDocumentClass", "withCodecRegistry", "withReadPreference", "withWriteConcern", "withReadConcern"))) {
+                method.addInterceptor(MongoCollectionImplWithInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ReactiveMongoClientImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+
+            // 4.2
+            InstrumentMethod constructorMethod = target.getConstructor("com.mongodb.MongoClientSettings", "com.mongodb.internal.connection.Cluster", "com.mongodb.reactivestreams.client.internal.OperationExecutor", "java.io.Closeable");
+            if (constructorMethod == null) {
+                // 4.6 or later
+                constructorMethod = target.getConstructor("com.mongodb.MongoClientSettings", "com.mongodb.MongoDriverInformation", "com.mongodb.internal.connection.Cluster", "com.mongodb.reactivestreams.client.internal.OperationExecutor", "java.io.Closeable");
+            }
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(ReactiveMongoClientImplConstructorInterceptor.class);
+            }
+
+            final InstrumentMethod getDatabaseMethod = target.getDeclaredMethod("getDatabase", "java.lang.String");
+            if (getDatabaseMethod != null) {
+                getDatabaseMethod.addInterceptor(ReactiveMongoClientImplGetDatabaseInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ReactiveMongoDatabaseImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("withCodecRegistry", "withReadPreference", "withWriteConcern", "withReadConcern"))) {
+                method.addInterceptor(ReactiveMongoDatabaseImplWithInterceptor.class);
+            }
+
+            final InstrumentMethod getCollectionMethod = target.getDeclaredMethod("getCollection", "java.lang.String");
+            if (getCollectionMethod != null) {
+                getCollectionMethod.addInterceptor(ReactiveMongoDatabaseImplGetCollectionInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ReactiveMongoOperationPublisherTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+            target.addField(DatabaseInfoAccessor.class);
+
+            // 4.2
+            InstrumentMethod constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.ReadConcern", "com.mongodb.WriteConcern", "boolean", "boolean", "org.bson.UuidRepresentation", "com.mongodb.reactivestreams.client.internal.OperationExecutor");
+            if (constructorMethod == null) {
+                // 4.7 or later
+                constructorMethod = target.getConstructor("com.mongodb.MongoNamespace", "java.lang.Class", "org.bson.codecs.configuration.CodecRegistry", "com.mongodb.ReadPreference", "com.mongodb.ReadConcern", "com.mongodb.WriteConcern", "boolean", "boolean", "org.bson.UuidRepresentation", "com.mongodb.AutoEncryptionSettings", "com.mongodb.reactivestreams.client.internal.OperationExecutor");
+            }
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(ReactiveMongoOperationPublisherConstructorInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ReactiveMongoCollectionImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(HostListAccessor.class);
+            target.addField(DatabaseInfoAccessor.class);
+
+            // 4.2
+            final InstrumentMethod constructorMethod = target.getConstructor("com.mongodb.reactivestreams.client.internal.MongoOperationPublisher");
+            if (constructorMethod != null) {
+                constructorMethod.addInterceptor(ReactiveMongoCollectionImplConstructorInterceptor.class);
+            }
+
+            final MongoConfig config = new MongoConfig(instrumentor.getProfilerConfig());
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getReadOperationMethodList())))) {
+                method.addScopedInterceptor(ReactiveMongoCollectionImplReadOperationInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getWriteOperationMethodList())))) {
+                method.addScopedInterceptor(ReactiveMongoCollectionImplWriteOperationInterceptor.class, va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("withDocumentClass", "withCodecRegistry", "withReadPreference", "withWriteConcern", "withReadConcern"))) {
+                method.addInterceptor(ReactiveMongoCollectionImplWithInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
     public static class ObservableToPublisherTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorContextAccessor.class);
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(PublisherInterceptor.class);
+                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class);
             }
             return target.toBytecode();
         }
@@ -762,34 +828,13 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private static String[] getMethodlistR3_0_x() {
-
-        final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes"
-//                , "watch" ,"aggregate","mapReduce"
-        };
+    private static String[] getReadOperationMethodList() {
+        final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes", "countDocuments"};
         return methodList;
     }
 
-    private static String[] getMethodlistCUD3_0_x() {
-        final String[] methodList = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex"
-                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
-        return methodList;
-    }
-
-    private static String[] getMethodlistR3_7_x() {
-
-        final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes", "countDocuments"
-//                , "watch", "aggregate", "mapReduce"
-        };
-
-        return methodList;
-    }
-
-    private static String[] getMethodlistCUD3_7_x() {
-
-        final String[] methodlist = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex"
-                , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
-
+    private static String[] getWriteOperationMethodList() {
+        final String[] methodlist = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex", "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
         return methodlist;
     }
 

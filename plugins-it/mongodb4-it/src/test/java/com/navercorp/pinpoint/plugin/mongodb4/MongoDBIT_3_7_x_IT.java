@@ -1,8 +1,8 @@
 /*
- * Copyright 2018 Naver Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance,the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.mongodb;
+package com.navercorp.pinpoint.plugin.mongodb4;
 
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 
 import com.mongodb.client.MongoDatabase;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -29,32 +30,27 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
-import com.mongodb.client.MongoCollection;
 import com.navercorp.pinpoint.test.plugin.shared.BeforeSharedClass;
-import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/**
- * @author Roy Kim
- */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.2.0,3.3.max]",
+        "org.mongodb:mongodb-driver-sync:[3.7.0,4.0.0-beta)",
         TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MONGODB
 })
-public class MongoDBIT_3_2_x_IT extends MongoDBITBase {
-
-    private static com.mongodb.MongoClient mongoClient;
+public class MongoDBIT_3_7_x_IT extends MongoDBITBase {
+    private static MongoClient mongoClient;
     public static MongoDatabase database;
 
     @BeforeSharedClass
@@ -72,7 +68,7 @@ public class MongoDBIT_3_2_x_IT extends MongoDBITBase {
     public static void setUpBeforeClass() throws Exception {
         String host = getHost();
         int port = getPort();
-        mongoClient = new com.mongodb.MongoClient(host, port);
+        mongoClient = MongoClients.create("mongodb://" + host + ":" + port);
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
     }
 
@@ -85,13 +81,15 @@ public class MongoDBIT_3_2_x_IT extends MongoDBITBase {
 
     @Override
     Class<?> getMongoDatabaseClazz() throws ClassNotFoundException {
-        return Class.forName("com.mongodb.MongoCollectionImpl");
+        return Class.forName("com.mongodb.client.internal.MongoCollectionImpl");
     }
 
+    // No backwards compatibility of MongoCollection interfaces.
+    @Ignore
     @Test
     public void testStatements() throws Exception {
         final MongoDBITHelper helper = new MongoDBITHelper();
         final String address = getHost() + ":" + getPort();
-        helper.testConnection30(this, address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED");
+        helper.testConnection(address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED");
     }
 }

@@ -64,6 +64,7 @@
         <module>logback-it</module>
         <module>mariadb-jdbc-it</module>
         <module>mongodb-it</module>
+        <module>mongodb4-it</module>
         <module>mssql-jdbc-it</module>
         <module>mybatis-it</module>
         <module>netty-it</module>
