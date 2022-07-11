@@ -5,7 +5,6 @@ import Dropdown from '../Dropdown/Dropdown';
 import { StyleFlexVCentered, StyleFlexVHCentered } from '../Styled/styles';
 import SideNavigationContext from './SideNavigationContext';
 import { WrapLink } from '../WrapLink/WrapLink';
-import { css } from '@emotion/react';
 
 export interface NavItemProps {
   children?: React.ReactNode | React.ReactNode[];
