@@ -1,4 +1,4 @@
-import React, { FC, memo, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import DropdownContext from './DropdownContext';
 
@@ -8,11 +8,11 @@ export interface DropdownContentProps {
   closeAfterClick?: boolean;
 }
 
-export const DropdownContent: FC<DropdownContentProps> = memo(({
+export const DropdownContent = React.forwardRef<HTMLDivElement, DropdownContentProps>(({
   className,
   children,
   closeAfterClick = false,
-}: DropdownContentProps) => {
+}, ref) => {
   const { open, setOpen } = React.useContext(DropdownContext)
 
   function handleClick() {
@@ -21,6 +21,7 @@ export const DropdownContent: FC<DropdownContentProps> = memo(({
 
   return (
     <StyledContainer 
+      ref={ref}
       open={open}
       className={className} 
       onClick={handleClick}
@@ -32,7 +33,4 @@ export const DropdownContent: FC<DropdownContentProps> = memo(({
 
 const StyledContainer = styled.div<{ open: boolean }>`
   display: ${({ open }) => open ? 'block' : 'none'};
-  position: absolute;
-  width: 100%;
-  top: 100%;
 `
