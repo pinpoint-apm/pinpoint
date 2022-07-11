@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { StyledMainHeader } from '@pinpoint-fe/common/components/Styled/header';
 import { NextPageWithLayout } from '../../pages/_app';
 import { getLayoutWithSideNavigation } from '../../components/Layout/LayoutWithSideNavigation';
+import { StyledMainHeader } from '@pinpoint-fe/common/components/Styled/header';
+import { ApplicationSelector } from '../../components/ApplicationSelector/ApplicationSelector';
 
 
 export interface mainProps {
@@ -14,7 +15,7 @@ const Main: NextPageWithLayout = ({
   return (
     <div>
       <StyledMainHeader>
-        main page
+        <ApplicationSelector />
       </StyledMainHeader>
     </div>
   )
