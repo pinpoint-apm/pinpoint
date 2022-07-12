@@ -9,6 +9,10 @@ dependencies {
     testImplementation(libs.log4j)
     testImplementation("org.apache.kafka:kafka_2.12:2.6.0")
     testImplementation(libs.commons.io)
+    testImplementation(project(":pinpoint-test")) {
+        exclude(group = "org.tinylog", module = "slf4j-tinylog")
+    }
+    testImplementation(libs.log4j.api)
 }
 
 description = "pinpoint-kafka-plugin-it"
