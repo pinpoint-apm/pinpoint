@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnly(libs.log4j.core.jdk7)
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(libs.log4j.core.jdk7)
     compileOnly(libs.log4j.api.jdk7)
 }
 
