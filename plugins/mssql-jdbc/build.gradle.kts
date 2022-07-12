@@ -8,7 +8,7 @@ dependencies {
     testImplementation(libs.log4j.core.jdk7)
     testCompileOnly(project(":pinpoint-commons-profiler"))
     testCompileOnly(project(":pinpoint-plugins-loader"))
-    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-mssql-jdbc-driver-plugin"
