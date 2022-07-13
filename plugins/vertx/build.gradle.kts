@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
     compileOnly(project(":pinpoint-annotations"))
     compileOnly("io.vertx:vertx-core:4.2.2")
 }
