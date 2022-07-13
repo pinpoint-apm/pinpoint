@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
 import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
@@ -43,7 +42,6 @@ public class ServerInstance {
 
     private final ServerType serverType;
 
-    @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
     private final AgentLifeCycleState status;
 
     public ServerInstance(AgentInfo agentInfo) {

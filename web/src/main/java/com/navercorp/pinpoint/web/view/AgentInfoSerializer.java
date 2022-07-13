@@ -40,7 +40,7 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
     private List<MatcherGroup> matcherGroupList;
 
     @Autowired
-    private ServiceTypeRegistryService serviceTypeRegistryService;
+    ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Override
     public void serialize(AgentInfo agentInfo, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -75,11 +75,7 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
             for (MatcherGroup matcherGroup : matcherGroupList) {
                 if (matcherGroup.ismatchingType(agentInfo)) {
                     LinkInfo linkInfo = matcherGroup.makeLinkInfo(agentInfo);
-                    jgen.writeStartObject();
-                    jgen.writeStringField("linkName", linkInfo.getLinkName());
-                    jgen.writeStringField("linkURL", linkInfo.getLinkUrl());
-                    jgen.writeStringField("linkType", linkInfo.getLinktype());
-                    jgen.writeEndObject();
+                    jgen.writeObject(linkInfo);
                 }
             }
 

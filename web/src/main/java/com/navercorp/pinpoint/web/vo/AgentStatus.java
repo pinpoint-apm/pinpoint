@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
 
 import java.util.Objects;
 
@@ -33,7 +31,6 @@ public class AgentStatus {
 
     private long eventTimestamp;
 
-    @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
     private final AgentLifeCycleState state;
 
     public AgentStatus(String agentId, AgentLifeCycleState state, long eventTimestamp) {

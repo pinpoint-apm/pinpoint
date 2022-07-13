@@ -15,45 +15,48 @@
  */
 package com.navercorp.pinpoint.web.applicationmap.link;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  *
  */
 public class LinkInfo {
-    private String linkName;
-    private String linkUrl;
-    public LinkType linkType;
+    private final String linkName;
+    private final String linkUrl;
+    private final LinkType linkType;
     
-    LinkInfo(String linkName, String linkUrl, LinkType linkType) {
+    public LinkInfo(String linkName, String linkUrl, LinkType linkType) {
         this.linkName = linkName;
         this.linkUrl = linkUrl;
         this.linkType = linkType;
     }
 
+    @JsonProperty("linkName")
     public String getLinkName() {
         return linkName;
     }
 
-    public void setLinkName(String linkName) {
-        this.linkName = linkName;
-    }
-    
+    @JsonProperty("linkURL")
     public String getLinkUrl() {
         return linkUrl;
     }
-    
-    public void setLinkUrl(String linkUrl) {
-        this.linkUrl = linkUrl;
-    }
-    
-    public String getLinktype() {
+
+
+    @JsonProperty("linkType")
+    public String getLinkType() {
         return linkType.getName();
     }
-    
-    public void setLinkType(LinkType linkType) {
-        this.linkType = linkType;
+
+    @Override
+    public String toString() {
+        return "LinkInfo{" +
+                "linkName='" + linkName + '\'' +
+                ", linkUrl='" + linkUrl + '\'' +
+                ", linkType=" + linkType +
+                '}';
     }
-    
+
     public enum LinkType {
         ATAG("aTag"),
         BUTTON("button");

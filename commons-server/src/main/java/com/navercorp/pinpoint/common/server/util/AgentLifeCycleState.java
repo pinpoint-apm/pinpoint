@@ -16,21 +16,27 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-public enum AgentLifeCycleState {
-    RUNNING((short)100, "Running"),
-    SHUTDOWN((short)200, "Shutdown"),
-    UNEXPECTED_SHUTDOWN((short)201, "Unexpected Shutdown"),
-    DISCONNECTED((short)300, "Disconnected"),
-    UNKNOWN((short)-1, "Unknown");
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
-    private final short code; 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+public enum AgentLifeCycleState {
+    RUNNING((short) 100, "Running"),
+    SHUTDOWN((short) 200, "Shutdown"),
+    UNEXPECTED_SHUTDOWN((short) 201, "Unexpected Shutdown"),
+    DISCONNECTED((short) 300, "Disconnected"),
+    UNKNOWN((short) -1, "Unknown");
+
+    private static final IntHashMap<AgentLifeCycleState> MAPPING = initializeCodeMapping();
+
+    private final short code;
     private final String desc;
 
     AgentLifeCycleState(short code, String desc) {
         this.code = code;
         this.desc = desc;
     }
-    
+
     public short getCode() {
         return this.code;
     }
@@ -43,12 +49,19 @@ public enum AgentLifeCycleState {
     public String toString() {
         return this.desc;
     }
-    
-    public static AgentLifeCycleState getStateByCode(short code) {
+
+    private static IntHashMap<AgentLifeCycleState> initializeCodeMapping() {
+        IntHashMap<AgentLifeCycleState> codeMap = new IntHashMap<>();
         for (AgentLifeCycleState state : AgentLifeCycleState.values()) {
-            if (state.code == code) {
-                return state;
-            }
+            codeMap.put(state.getCode(), state);
+        }
+        return codeMap;
+    }
+
+    public static AgentLifeCycleState getStateByCode(short code) {
+        AgentLifeCycleState state = MAPPING.get(code);
+        if (state != null) {
+            return state;
         }
         return UNKNOWN;
     }
