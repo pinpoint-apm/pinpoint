@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
     compileOnly(libs.netty.all) {
         exclude(group = "io.netty", module = "netty-codec-haproxy")
         exclude(group = "io.netty", module = "netty-codec-smtp")
