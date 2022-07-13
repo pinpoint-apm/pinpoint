@@ -77,6 +77,7 @@ dependencies {
     testImplementation(libs.curator.test)
     testImplementation(project(":pinpoint-rpc"))
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation(testFixtures(project(":pinpoint-rpc")))
     compileOnly(libs.javax.servlet.api)
     compileOnly(libs.spring.boot.starter.tomcat)
 
