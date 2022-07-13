@@ -12,7 +12,6 @@ dependencies {
     testImplementation(project(":pinpoint-test")) {
         exclude(group = "org.tinylog", module = "slf4j-tinylog")
     }
-    testImplementation(libs.log4j.api)
 }
 
 description = "pinpoint-jtds-plugin-it"
