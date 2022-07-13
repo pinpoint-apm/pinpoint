@@ -12,7 +12,7 @@ dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(libs.javax.servlet.api.v3)
     compileOnly("org.apache.tomcat:servlet-api:6.0.35")
-    compileOnly("org.apache.tomcat:catalina:6.0.43")
+    compileOnlyApi("org.apache.tomcat:catalina:6.0.43")
 }
 
 description = "pinpoint-tomcat-plugin"
