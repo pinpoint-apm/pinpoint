@@ -61,11 +61,7 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
                 for (MatcherGroup matcherGroup : matcherGroupList) {
                     if (matcherGroup.ismatchingType(entry.getValue().get(0))) {
                         LinkInfo linkInfo = matcherGroup.makeLinkInfo(entry.getValue().get(0));
-                        jgen.writeStartObject();
-                        jgen.writeStringField("linkName", linkInfo.getLinkName());
-                        jgen.writeStringField("linkURL", linkInfo.getLinkUrl());
-                        jgen.writeStringField("linkType", linkInfo.getLinktype());
-                        jgen.writeEndObject();
+                        jgen.writeObject(linkInfo);
                     }
                 }
                 

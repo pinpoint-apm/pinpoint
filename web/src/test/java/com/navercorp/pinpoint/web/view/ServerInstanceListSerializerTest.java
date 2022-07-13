@@ -96,9 +96,8 @@ public class ServerInstanceListSerializerTest {
         public JsonSerializer<?> serializerInstance(SerializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
             if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance")) {
                 final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
-                final AgentLifeCycleStateSerializer agentLifeCycleStateSerializer = new AgentLifeCycleStateSerializer();
 
-                return new ServerInstanceSerializer(serviceTypeRegistryService, agentLifeCycleStateSerializer);
+                return new ServerInstanceSerializer(serviceTypeRegistryService);
             }
             return null;
         }

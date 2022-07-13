@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 
 import org.springframework.stereotype.Component;
@@ -39,11 +38,8 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    private final AgentLifeCycleStateSerializer agentLifeCycleStateSerializer;
-
-    public ServerInstanceSerializer(ServiceTypeRegistryService serviceTypeRegistryService, AgentLifeCycleStateSerializer agentLifeCycleStateSerializer) {
+    public ServerInstanceSerializer(ServiceTypeRegistryService serviceTypeRegistryService) {
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
-        this.agentLifeCycleStateSerializer = Objects.requireNonNull(agentLifeCycleStateSerializer, "agentLifeCycleStateSerializer");
     }
 
     @Override
@@ -58,15 +54,9 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
         jgen.writeStringField("agentName", serverInstance.getAgentName());
         jgen.writeStringField("serviceType", serviceType.getName());
 
-        jgen.writeFieldName("status");
-        write(serverInstance.getStatus(), jgen, provider);
-
+        jgen.writeObjectField("status", serverInstance.getStatus());
         jgen.writeEndObject();
 
-    }
-
-    public void write(AgentLifeCycleState value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        this.agentLifeCycleStateSerializer.serialize(value, jgen, provider);
     }
 
 
@@ -77,6 +67,5 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
             return false;
         }
     }
-
 
 }
