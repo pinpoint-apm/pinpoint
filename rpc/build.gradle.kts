@@ -11,9 +11,9 @@ dependencies {
     implementation(libs.log4j.slf4j.impl.jdk7)
     implementation(libs.log4j.core.jdk7)
     runtimeOnly(libs.slf4j.api)
-    testFixturesImplementation(project(":pinpoint-testcase"))
+    testFixturesApi(project(":pinpoint-testcase"))
     testFixturesImplementation(libs.netty)
-    testFixturesImplementation(libs.awaitility)
+    testFixturesApi(libs.awaitility)
     testFixturesImplementation(libs.log4j.api)
     testFixturesImplementation("junit:junit:4.13.2") {
         exclude(group = "org.hamcrest", module = "hamcrest-core")
