@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnlyApi(project(":pinpoint-bootstrap-core"))
     compileOnly(libs.spring4.web)
 }
 
