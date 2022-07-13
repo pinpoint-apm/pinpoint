@@ -17,6 +17,7 @@ dependencies {
 description = "pinpoint-rpc"
 
 val testsJar by tasks.registering(Jar::class) {
+    println("testJar jar tasks")
     archiveClassifier.set("tests")
     from(sourceSets["test"].output)
 }
