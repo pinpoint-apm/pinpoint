@@ -66,7 +66,7 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
                 agentInfo.setAgentId(agentId);
                 agentInfo.setHostName(agentId);
                 agentInfo.setIp("");
-                agentInfo.setServiceTypeCode(wasNode.getServiceType().getCode());
+                agentInfo.setServiceType(wasNode.getServiceType());
                 agentInfoSet.add(agentInfo);
             }
         }

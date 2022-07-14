@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -30,6 +31,8 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -65,6 +68,11 @@ public class ServerInstanceListTest {
         agentInfoBuilder.setServiceTypeCode(serviceType.getCode());
         agentInfoBuilder.setHostName(hostName);
 
-        return new AgentInfo(agentInfoBuilder.build());
+        ServiceTypeRegistryService registry = mock(ServiceTypeRegistryService.class);
+        when(registry.findServiceType(serviceType.getCode())).thenReturn(serviceType);
+        AgentInfo.Binder binder = new AgentInfo.Binder(registry);
+
+        return binder.bind(agentInfoBuilder.build());
+
     }
 }

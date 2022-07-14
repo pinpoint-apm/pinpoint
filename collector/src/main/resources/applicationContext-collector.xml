@@ -20,7 +20,8 @@
                                           com.navercorp.pinpoint.collector.service,
                                           com.navercorp.pinpoint.common.server.bo.codec,
                                           com.navercorp.pinpoint.common.server.util,
-                                          com.navercorp.pinpoint.common.server.bo" />
+                                          com.navercorp.pinpoint.common.server.bo,
+                                          com.navercorp.pinpoint.common.server.dao.hbase.mapper" />
 
     <import resource="classpath:applicationContext-collector-profile.xml"/>
     <import resource="classpath:applicationContext-collector-grpc.xml"/>

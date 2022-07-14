@@ -17,10 +17,11 @@ package com.navercorp.pinpoint.flink.process;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.AgentInfoBoMapper;
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
-import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +41,7 @@ public class ApplicationCache {
     private static final String SPEL_KEY = "#application.getAgentId() + '.' + #application.getAgentStartTime()";
     public static final String NOT_FOUND_APP_ID = "notFoundId";
 
-    private final transient AgentInfoMapper agentInfoMapper = new AgentInfoMapper();
+    private final transient AgentInfoBoMapper agentInfoMapper = new AgentInfoBoMapper();
 
     private final transient HbaseTemplate2 hbaseTemplate2;
 
@@ -62,7 +63,7 @@ public class ApplicationCache {
         Get get = new Get(rowKey);
 
         get.addColumn(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
-        AgentInfo agentInfo = null;
+        AgentInfoBo agentInfo = null;
         try {
             TableName tableName = tableNameProvider.getTableName(AGENTINFO_INFO.getTable());
             agentInfo = hbaseTemplate2.get(tableName, get, agentInfoMapper);
@@ -73,7 +74,7 @@ public class ApplicationCache {
         return getApplicationId(agentInfo, agentId);
     }
 
-    private String getApplicationId(AgentInfo agentInfo, String agentId) {
+    private String getApplicationId(AgentInfoBo agentInfo, String agentId) {
         if (agentInfo == null) {
             logger.warn("can't found application id : {}", agentId);
             return NOT_FOUND_APP_ID;

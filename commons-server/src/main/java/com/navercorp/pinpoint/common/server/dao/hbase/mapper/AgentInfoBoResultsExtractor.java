@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.dao.hbase.mapper;
+package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
@@ -29,11 +29,11 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Component
-public class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfoBo> {
+public class AgentInfoBoResultsExtractor implements ResultsExtractor<AgentInfoBo> {
 
     private final RowMapper<AgentInfoBo> agentInfoMapper;
 
-    public AgentInfoResultsExtractor(RowMapper<AgentInfoBo> agentInfoMapper) {
+    public AgentInfoBoResultsExtractor(RowMapper<AgentInfoBo> agentInfoMapper) {
         this.agentInfoMapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
     }
 

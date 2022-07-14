@@ -48,16 +48,6 @@ import java.util.Set;
 public class ServerInstanceListSerializerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private ServiceTypeRegistryService mockServiceTypeRegistryService() {
-        final short standAloneTypeCode = 1005;
-        final String standAloneTypeName = "TEST_STAND_ALONE";
-
-        ServiceTypeRegistryMockFactory mockFactory = new ServiceTypeRegistryMockFactory();
-        mockFactory.addServiceTypeMock(standAloneTypeCode, standAloneTypeName);
-
-        return mockFactory.createMockServiceTypeRegistryService();
-    }
-
     @Test
     public void testSerialize() throws Exception {
 
@@ -95,9 +85,7 @@ public class ServerInstanceListSerializerTest {
 
         public JsonSerializer<?> serializerInstance(SerializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
             if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance")) {
-                final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
-
-                return new ServerInstanceSerializer(serviceTypeRegistryService);
+                return new ServerInstanceSerializer();
             }
             return null;
         }
