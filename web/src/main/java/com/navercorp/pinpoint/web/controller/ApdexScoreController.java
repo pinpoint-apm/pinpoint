@@ -7,9 +7,9 @@ import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.web.view.InspectorView;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesData;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -113,8 +113,8 @@ public class ApdexScoreController {
         return apdexScoreService.selectAgentChart(application, range, timeWindow, agentId);
     }
 
-    @GetMapping(value = "/getApplicationStat/apdexScore/inspectorView")
-    public InspectorView getApplicationApdexScoreView(
+    @GetMapping(value = "/getApplicationStat/apdexScore/TimeSeriesView")
+    public TimeSeriesView getApplicationApdexScoreView(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") long from,
@@ -124,12 +124,12 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        InspectorData inspectorData = apdexScoreService.selectApplicationInspectorData(application, range, timeWindow);
-        return new InspectorView(inspectorData);
+        TimeSeriesData timeSeriesData = apdexScoreService.selectApplicationInspectorData(application, range, timeWindow);
+        return new TimeSeriesView(timeSeriesData);
     }
 
-    @GetMapping(value = "/getApplicationStat/apdexScore/inspectorView", params = "serviceTypeName")
-    public InspectorView getApplicationApdexScoreView(
+    @GetMapping(value = "/getApplicationStat/apdexScore/TimeSeriesView", params = "serviceTypeName")
+    public TimeSeriesView getApplicationApdexScoreView(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") String serviceTypeName,
             @RequestParam("from") long from,
@@ -139,12 +139,12 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        InspectorData inspectorData = apdexScoreService.selectApplicationInspectorData(application, range, timeWindow);
-        return new InspectorView(inspectorData);
+        TimeSeriesData timeSeriesData = apdexScoreService.selectApplicationInspectorData(application, range, timeWindow);
+        return new TimeSeriesView(timeSeriesData);
     }
 
-    @GetMapping(value = "/getAgentStat/apdexScore/inspectorView")
-    public InspectorView getAgentApdexScoreView(
+    @GetMapping(value = "/getAgentStat/apdexScore/TimeSeriesView")
+    public TimeSeriesView getAgentApdexScoreView(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("agentId") String agentId,
@@ -155,12 +155,12 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        InspectorData inspectorData = apdexScoreService.selectAgentInspectorData(application, range, timeWindow, agentId);
-        return new InspectorView(inspectorData);
+        TimeSeriesData timeSeriesData = apdexScoreService.selectAgentInspectorData(application, range, timeWindow, agentId);
+        return new TimeSeriesView(timeSeriesData);
     }
 
-    @GetMapping(value = "/getAgentStat/apdexScore/inspectorView", params = "serviceTypeName")
-    public InspectorView getAgentApdexScoreView(
+    @GetMapping(value = "/getAgentStat/apdexScore/TimeSeriesView", params = "serviceTypeName")
+    public TimeSeriesView getAgentApdexScoreView(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") String serviceTypeName,
             @RequestParam("agentId") String agentId,
@@ -171,7 +171,7 @@ public class ApdexScoreController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        InspectorData inspectorData = apdexScoreService.selectAgentInspectorData(application, range, timeWindow, agentId);
-        return new InspectorView(inspectorData);
+        TimeSeriesData timeSeriesData = apdexScoreService.selectAgentInspectorData(application, range, timeWindow, agentId);
+        return new TimeSeriesView(timeSeriesData);
     }
 }

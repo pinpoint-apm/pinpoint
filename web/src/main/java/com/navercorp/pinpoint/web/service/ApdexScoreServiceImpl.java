@@ -12,7 +12,7 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
-import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesData;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationApdexScoreChart;
@@ -68,7 +68,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public StatChart selectApplicationChart(Application application, Range range, TimeWindow timeWindow){
+    public StatChart selectApplicationChart(Application application, Range range, TimeWindow timeWindow) {
         List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
         AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
 
@@ -78,7 +78,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public StatChart selectAgentChart(Application application, Range range, TimeWindow timeWindow, String agentId){
+    public StatChart selectAgentChart(Application application, Range range, TimeWindow timeWindow, String agentId) {
         List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
         AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
 
@@ -87,17 +87,17 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public InspectorData selectApplicationInspectorData(Application application, Range range, TimeWindow timeWindow) {
-          List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
-          AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
-          List<DoubleApplicationStatPoint> applicationStatPoints = timeHistogram.getApplicationApdexScoreList(timeWindow);
+    public TimeSeriesData selectApplicationInspectorData(Application application, Range range, TimeWindow timeWindow) {
+        List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
+        AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
+        List<DoubleApplicationStatPoint> applicationStatPoints = timeHistogram.getApplicationApdexScoreList(timeWindow);
 
-          ApplicationApdexScoreChart chart = new ApplicationApdexScoreChart(timeWindow, applicationStatPoints);
-          return chart.getInspectorData(timeWindow, applicationStatPoints);
+        ApplicationApdexScoreChart chart = new ApplicationApdexScoreChart(timeWindow, applicationStatPoints);
+        return chart.getInspectorData(timeWindow, applicationStatPoints);
     }
 
     @Override
-    public InspectorData selectAgentInspectorData(Application application, Range range, TimeWindow timeWindow, String agentId) {
+    public TimeSeriesData selectAgentInspectorData(Application application, Range range, TimeWindow timeWindow, String agentId) {
         List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
         AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, range, timeWindow, responseTimeList);
         List<SampledApdexScore> sampledPoints = timeHistogram.getSampledAgentApdexScoreList(agentId);

@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
-import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesData;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorDataBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
@@ -47,7 +47,7 @@ public class ApplicationApdexScoreChart extends DefaultApplicationChart<DoubleAp
         return apdexScore;
     }
 
-    public InspectorData getInspectorData(TimeWindow timeWindow, List<DoubleApplicationStatPoint> statList) {
+    public TimeSeriesData getInspectorData(TimeWindow timeWindow, List<DoubleApplicationStatPoint> statList) {
         return INSPECTOR_VIEW_DATA_BUILDER.build(timeWindow, statList);
     }
 }

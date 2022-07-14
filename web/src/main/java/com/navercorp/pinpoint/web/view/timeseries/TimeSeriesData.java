@@ -1,23 +1,23 @@
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.view.timeseries;
 
 import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
 
-public class InspectorData {
+public class TimeSeriesData {
     private final String title;
     private final String unit;
     private final List<Long> timeStampList;
-    private final List<InspectorValueGroup> inspectorValueGroupList;
+    private final List<TimeSeriesValueGroup> timeSeriesValueGroupList;
 
-    public InspectorData(String title, String unit, List<Long> timeStampList, List<InspectorValueGroup> inspectorValueGroupList) {
+    public TimeSeriesData(String title, String unit, List<Long> timeStampList, List<TimeSeriesValueGroup> timeSeriesValueGroupList) {
         Assert.hasLength(title, "title must not be empty");
         Assert.hasLength(unit, "unit must not be empty");
         this.title = title;
         this.unit = unit;
         this.timeStampList = Objects.requireNonNull(timeStampList, "timeStampList");
-        this.inspectorValueGroupList = Objects.requireNonNull(inspectorValueGroupList, "inspectorValueGroupList");
+        this.timeSeriesValueGroupList = Objects.requireNonNull(timeSeriesValueGroupList, "inspectorValueGroupList");
     }
 
     public String getUnit() {
@@ -32,8 +32,8 @@ public class InspectorData {
         return timeStampList;
     }
 
-    public List<InspectorValueGroup> getMetricValueGroupList() {
-        return inspectorValueGroupList;
+    public List<TimeSeriesValueGroup> getMetricValueGroupList() {
+        return timeSeriesValueGroupList;
     }
 
 }

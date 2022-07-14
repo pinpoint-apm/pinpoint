@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesData;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesValueGroup;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.ArrayList;
@@ -23,10 +25,10 @@ public class InspectorDataBuilder<T, P extends Point> {
         this.unit = Objects.requireNonNull(unit, "unit");
     }
 
-    private InspectorData build(TimeWindow timeWindow, List<T> sampledPoints, List<Map.Entry<StatChartGroup.ChartType, Function<T, P>>> entries) {
+    private TimeSeriesData build(TimeWindow timeWindow, List<T> sampledPoints, List<Map.Entry<StatChartGroup.ChartType, Function<T, P>>> entries) {
         Objects.requireNonNull(entries, "entries");
 
-        List<InspectorValueGroup> inspectorValueGroupList = new ArrayList<>(entries.size());
+        List<TimeSeriesValueGroup> timeSeriesValueGroupList = new ArrayList<>(entries.size());
         for (Map.Entry<StatChartGroup.ChartType, Function<T, P>> entry : entries) {
             String groupName = entry.getKey().toString();
             Function<T, P> function = entry.getValue();
@@ -34,14 +36,14 @@ public class InspectorDataBuilder<T, P extends Point> {
                     .map(function)
                     .collect(Collectors.toList());
 
-            InspectorValueGroup inspectorValueGroup = inspectorValueGroupBuilder.build(timeWindow, groupName, points);
-            inspectorValueGroupList.add(inspectorValueGroup);
+            TimeSeriesValueGroup timeSeriesValueGroup = inspectorValueGroupBuilder.build(timeWindow, groupName, points);
+            timeSeriesValueGroupList.add(timeSeriesValueGroup);
         }
         List<Long> timestampList = getTimestampList(timeWindow);
-        return new InspectorData(title, unit, timestampList, inspectorValueGroupList);
+        return new TimeSeriesData(title, unit, timestampList, timeSeriesValueGroupList);
     }
 
-    public InspectorData build(TimeWindow timeWindow, List<T> sampledPoints) {
+    public TimeSeriesData build(TimeWindow timeWindow, List<T> sampledPoints) {
         Objects.requireNonNull(timeWindow, "timeWindow");
         Objects.requireNonNull(sampledPoints, "sampledPointList");
 

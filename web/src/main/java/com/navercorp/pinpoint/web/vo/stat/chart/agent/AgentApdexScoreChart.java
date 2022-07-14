@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
-import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesData;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorDataBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
@@ -40,7 +40,7 @@ public class AgentApdexScoreChart extends DefaultAgentChart<SampledApdexScore, D
         super(timeWindow, statList, BUILDER);
     }
 
-    public InspectorData getInspectorData(TimeWindow timeWindow, List<SampledApdexScore> statList) {
+    public TimeSeriesData getInspectorData(TimeWindow timeWindow, List<SampledApdexScore> statList) {
         return INSPECTOR_VIEW_DATA_BUILDER.build(timeWindow, statList);
     }
 }

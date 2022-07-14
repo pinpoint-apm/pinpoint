@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.web.vo.stat.chart;
 
 import com.navercorp.pinpoint.web.metric.common.model.Tag;
 import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesValue;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesValueGroup;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class InspectorValueGroupBuilder<P extends Point> {
         this.uncollectedPointCreator = Objects.requireNonNull(uncollectedPointCreator, "uncollectedPointCreator");
     }
 
-    public InspectorValueGroup build(TimeWindow timeWindow, String groupName, List<P> sampledPoints) {
+    public TimeSeriesValueGroup build(TimeWindow timeWindow, String groupName, List<P> sampledPoints) {
         List<P> points = createInitialPoints(timeWindow);
         for (P sampledPoint : sampledPoints) {
             int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getXVal());
@@ -32,28 +34,28 @@ public class InspectorValueGroupBuilder<P extends Point> {
             points.set(timeslotIndex, sampledPoint);
         }
 
-        List<InspectorValue<?>> inspectorValueList = getInspectorValueList(points);
-        return new InspectorValueGroup(inspectorValueList, groupName);
+        List<TimeSeriesValue> timeSeriesValueList = getInspectorValueList(points);
+        return new TimeSeriesValueGroup(timeSeriesValueList, groupName);
     }
 
-    private List<InspectorValue<?>> getInspectorValueList(List<P> points) {
-        List<InspectorValue<?>> inspectorValueList = new ArrayList<>();
+    private List<TimeSeriesValue> getInspectorValueList(List<P> points) {
+        List<TimeSeriesValue> timeSeriesValueList = new ArrayList<>();
         for (Map.Entry<String, Function<P, ?>> e : functions.entrySet()) {
             String fieldName = e.getKey();
             Function<P, ?> function = e.getValue();
-            InspectorValue<?> inspectorValue = getMetricValue(points, fieldName, function);
-            inspectorValueList.add(inspectorValue);
+            TimeSeriesValue timeSeriesValue = getMetricValue(points, fieldName, function);
+            timeSeriesValueList.add(timeSeriesValue);
         }
-        return inspectorValueList;
+        return timeSeriesValueList;
     }
 
-    private InspectorValue<?> getMetricValue(List<P> statPoints, String fieldName, Function<P, ?> function) {
+    private TimeSeriesValue getMetricValue(List<P> statPoints, String fieldName, Function<P, ?> function) {
         List<?> valueList = statPoints.stream()
                 .map(function)
                 .collect(Collectors.toList());
         List<Tag> emptyTagList = Collections.emptyList();
-        InspectorValue<?> inspectorValue = new InspectorValue<>(fieldName, emptyTagList, valueList);
-        return inspectorValue;
+        TimeSeriesValue timeSeriesValue = new TimeSeriesValue(fieldName, emptyTagList, valueList);
+        return timeSeriesValue;
     }
 
     public void addValueFunction(String fieldName, Function<P, ?> function) {

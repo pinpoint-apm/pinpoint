@@ -3,10 +3,11 @@ package com.navercorp.pinpoint.web.view;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesData;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorDataBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class InspectorViewTest {
+public class TimeSeriesViewTest {
 
     private enum TestChartType implements StatChartGroup.AgentChartType {
         TEST_CHART_TYPE
@@ -58,15 +59,15 @@ public class InspectorViewTest {
         }
         inspectorDataBuilder.addPointFunction(TestChartType.TEST_CHART_TYPE, TestAgentStatDataPoint::getAgentStatPoint);
 
-        InspectorData inspectorData = inspectorDataBuilder.build(timeWindow, testAgentStatDataPoints);
-        InspectorView inspectorView = new InspectorView(inspectorData);
+        TimeSeriesData timeSeriesData = inspectorDataBuilder.build(timeWindow, testAgentStatDataPoints);
+        TimeSeriesView timeSeriesView = new TimeSeriesView(timeSeriesData);
 
-        Assertions.assertEquals(inspectorView.getTitle(), title);
-        Assertions.assertEquals(inspectorView.getUnit(), unit);
-        Assertions.assertEquals(inspectorView.getTimestamp().size(), timeWindow.getWindowRangeCount());
-        Assertions.assertEquals(inspectorView.getMetricValueGroups().size(), TestChartType.values().length);
-        InspectorView.InspectorValueGroupView inspectorValueGroupView = inspectorView.getMetricValueGroups().get(0);
-        Assertions.assertEquals(inspectorValueGroupView.getMetricValues().size(), valueFunctionMap.size());
+        Assertions.assertEquals(timeSeriesView.getTitle(), title);
+        Assertions.assertEquals(timeSeriesView.getUnit(), unit);
+        Assertions.assertEquals(timeSeriesView.getTimestamp().size(), timeWindow.getWindowRangeCount());
+        Assertions.assertEquals(timeSeriesView.getMetricValueGroups().size(), TestChartType.values().length);
+        TimeSeriesView.TimeSeriesValueGroupView timeSeriesValueGroupView = timeSeriesView.getMetricValueGroups().get(0);
+        Assertions.assertEquals(timeSeriesValueGroupView.getMetricValues().size(), valueFunctionMap.size());
     }
 
     private List<TestAgentStatDataPoint> createTestAgentStatDataPoint() {

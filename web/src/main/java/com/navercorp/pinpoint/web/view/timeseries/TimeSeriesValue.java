@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.vo.stat.chart;
+package com.navercorp.pinpoint.web.view.timeseries;
 
 import com.navercorp.pinpoint.web.metric.common.model.Tag;
 import org.springframework.util.Assert;
@@ -6,12 +6,12 @@ import org.springframework.util.Assert;
 import java.util.List;
 import java.util.Objects;
 
-public class InspectorValue<Y> {
+public class TimeSeriesValue {
     private final String fieldName;
     private final List<Tag> tagList;
-    private final List<Y> valueList;
+    private final List<?> valueList;
 
-    public InspectorValue(String fieldName, List<Tag> tagList, List<Y> valueList) {
+    public TimeSeriesValue(String fieldName, List<Tag> tagList, List<?> valueList) {
         Assert.hasLength(fieldName, "fieldName must not be empty");
         this.fieldName = fieldName;
         this.tagList = Objects.requireNonNull(tagList, "tagList");
@@ -22,7 +22,7 @@ public class InspectorValue<Y> {
         return tagList;
     }
 
-    public List<Y> getValueList() {
+    public List<?> getValueList() {
         return valueList;
     }
 
