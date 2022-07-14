@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
@@ -38,7 +39,7 @@ public class ServerInstance {
 
     private final String name;
     private final String agentName;
-    private final short serviceTypeCode;
+    private final ServiceType serviceType;
 
     private final ServerType serverType;
 
@@ -51,7 +52,7 @@ public class ServerInstance {
         this.ip = agentInfo.getIp();
         this.name = agentInfo.getAgentId();
         this.agentName = agentInfo.getAgentName();
-        this.serviceTypeCode = agentInfo.getServiceTypeCode();
+        this.serviceType = agentInfo.getServiceType();
         AgentStatus agentStatus = agentInfo.getStatus();
         if (agentStatus != null) {
             this.status = agentStatus.getState();
@@ -61,12 +62,12 @@ public class ServerInstance {
         this.serverType = ServerType.Physical;
     }
 
-    public ServerInstance(String hostName, String physicalName, short serviceTypeCode) {
+    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.ip = null;
         this.agentName = null;
         this.name = Objects.requireNonNull(physicalName, "physicalName");
-        this.serviceTypeCode = serviceTypeCode;
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.status = AgentLifeCycleState.UNKNOWN;
         this.serverType = ServerType.Logical;
     }
@@ -84,9 +85,12 @@ public class ServerInstance {
     }
 
     public short getServiceTypeCode() {
-        return serviceTypeCode;
+        return serviceType.getCode();
     }
 
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
 
     public AgentLifeCycleState getStatus() {
         return status;
@@ -107,17 +111,14 @@ public class ServerInstance {
 
         ServerInstance that = (ServerInstance) o;
 
-        if (serviceTypeCode != that.serviceTypeCode) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return serverType == that.serverType;
-
+        return serviceType != null ? serviceType.equals(that.serviceType) : that.serviceType == null;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (int) serviceTypeCode;
-        result = 31 * result + (serverType != null ? serverType.hashCode() : 0);
+        result = 31 * result + (serviceType != null ? serviceType.hashCode() : 0);
         return result;
     }
 

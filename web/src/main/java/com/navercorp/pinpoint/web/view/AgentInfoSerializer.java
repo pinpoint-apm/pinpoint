@@ -17,11 +17,8 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -39,11 +36,9 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
     @Autowired(required = false)
     private List<MatcherGroup> matcherGroupList;
 
-    @Autowired
-    ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Override
-    public void serialize(AgentInfo agentInfo, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(AgentInfo agentInfo, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
 
         jgen.writeStringField("applicationName", agentInfo.getApplicationName());
@@ -53,8 +48,8 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
         jgen.writeStringField("hostName", agentInfo.getHostName());
         jgen.writeStringField("ip", agentInfo.getIp());
         jgen.writeStringField("ports", agentInfo.getPorts());
-        final ServiceType serviceType = serviceTypeRegistryService.findServiceType(agentInfo.getServiceTypeCode());
-        jgen.writeStringField("serviceType", serviceType.getDesc());
+
+        jgen.writeStringField("serviceType", agentInfo.getServiceType().getDesc());
         jgen.writeNumberField("pid", agentInfo.getPid());
         jgen.writeStringField("vmVersion", agentInfo.getVmVersion());
         jgen.writeStringField("agentVersion", agentInfo.getAgentVersion());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2021 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
@@ -38,11 +36,10 @@ import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENTINFO_IN
  * @author HyunGil Jeong
  */
 @Component
-public class AgentInfoMapper implements RowMapper<AgentInfo> {
+public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
 
     @Override
-    public AgentInfo mapRow(Result result, int rowNum) throws Exception {
-
+    public AgentInfoBo mapRow(Result result, int rowNum) throws Exception {
         byte[] rowKey = result.getRow();
         String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN));
         long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
@@ -62,7 +59,7 @@ public class AgentInfoMapper implements RowMapper<AgentInfo> {
         if (serializedJvmInfo != null) {
             agentInfoBoBuilder.setJvmInfo(new JvmInfoBo(serializedJvmInfo));
         }
-        return new AgentInfo(agentInfoBoBuilder.build());
+        return agentInfoBoBuilder.build();
     }
 
     private AgentInfoBo.Builder createBuilderFromValue(byte[] serializedAgentInfo) {

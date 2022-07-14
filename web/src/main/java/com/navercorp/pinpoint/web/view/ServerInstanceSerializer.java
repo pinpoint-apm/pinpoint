@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 
@@ -36,19 +34,16 @@ import java.util.Objects;
 @Component
 public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    public ServerInstanceSerializer(ServiceTypeRegistryService serviceTypeRegistryService) {
-        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+    public ServerInstanceSerializer() {
     }
 
     @Override
-    public void serialize(ServerInstance serverInstance, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ServerInstance serverInstance, JsonGenerator jgen, SerializerProvider provider) throws IOException {
 
         jgen.writeStartObject();
-        final short serviceTypeCode = serverInstance.getServiceTypeCode();
-        final ServiceType serviceType = serviceTypeRegistryService.findServiceType(serviceTypeCode);
 
+        final ServiceType serviceType = serverInstance.getServiceType();
         jgen.writeBooleanField("hasInspector", hasInspector(serviceType));
         jgen.writeStringField("name", serverInstance.getName());
         jgen.writeStringField("agentName", serverInstance.getAgentName());

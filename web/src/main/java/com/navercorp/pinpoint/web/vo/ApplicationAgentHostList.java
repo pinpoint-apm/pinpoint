@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -75,24 +74,21 @@ public class ApplicationAgentHostList {
                 '}';
     }
 
-    public static Builder newBuilder(ServiceTypeRegistryService serviceTypeRegistryService,
-                                     int startApplicationIndex, int endApplicationIndex, int totalApplications) {
-        return new Builder(startApplicationIndex, endApplicationIndex, totalApplications, serviceTypeRegistryService);
+    public static Builder newBuilder(int startApplicationIndex, int endApplicationIndex, int totalApplications) {
+        return new Builder(startApplicationIndex, endApplicationIndex, totalApplications);
     }
 
     public static class Builder {
         private final int startApplicationIndex;
         private final int endApplicationIndex;
         private final int totalApplications;
-        private final ServiceTypeRegistryService serviceTypeRegistryService;
 
         private final Map<String, List<AgentHost>> map = new HashMap<>();
 
-        public Builder(int startApplicationIndex, int endApplicationIndex, int totalApplications, ServiceTypeRegistryService serviceTypeRegistryService) {
+        public Builder(int startApplicationIndex, int endApplicationIndex, int totalApplications) {
             this.startApplicationIndex = startApplicationIndex;
             this.endApplicationIndex = endApplicationIndex;
             this.totalApplications = totalApplications;
-            this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         }
 
 
@@ -118,7 +114,7 @@ public class ApplicationAgentHostList {
             String agentId = StringUtils.defaultString(agentInfo.getAgentId(), "");
             String hostName = StringUtils.defaultString(agentInfo.getHostName(), "");
             String ip = StringUtils.defaultString(agentInfo.getIp(), "");
-            String serviceType = serviceTypeRegistryService.findServiceType(agentInfo.getServiceTypeCode()).getDesc();
+            String serviceType = agentInfo.getServiceType().getDesc();
             return new AgentHost(agentId, hostName, ip, serviceType);
         }
 

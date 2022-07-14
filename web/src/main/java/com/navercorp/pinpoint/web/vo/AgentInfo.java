@@ -17,11 +17,14 @@
 package com.navercorp.pinpoint.web.vo;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.view.AgentInfoSerializer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,7 +44,7 @@ public class AgentInfo {
     private String hostName;
     private String ip;
     private String ports;
-    private short serviceTypeCode;
+    private ServiceType serviceType;
     private int pid;
     private String vmVersion;
     private String agentVersion;
@@ -52,23 +55,6 @@ public class AgentInfo {
     private AgentStatus status;
 
     public AgentInfo() {
-    }
-
-    public AgentInfo(AgentInfoBo agentInfoBo) {
-        this.applicationName = agentInfoBo.getApplicationName();
-        this.agentId = agentInfoBo.getAgentId();
-        this.agentName = agentInfoBo.getAgentName();
-        this.startTimestamp = agentInfoBo.getStartTime();
-        this.hostName = agentInfoBo.getHostName();
-        this.ip = agentInfoBo.getIp();
-        this.ports = agentInfoBo.getPorts();
-        this.serviceTypeCode = agentInfoBo.getServiceTypeCode();
-        this.pid = agentInfoBo.getPid();
-        this.vmVersion = agentInfoBo.getVmVersion();
-        this.agentVersion = agentInfoBo.getAgentVersion();
-        this.serverMetaData = agentInfoBo.getServerMetaData();
-        this.jvmInfo = agentInfoBo.getJvmInfo();
-        this.container = agentInfoBo.isContainer();
     }
 
     public String getApplicationName() {
@@ -125,11 +111,15 @@ public class AgentInfo {
 
 
     public short getServiceTypeCode() {
-        return serviceTypeCode;
+        return serviceType.getCode();
     }
 
-    public void setServiceTypeCode(short serviceTypeCode) {
-        this.serviceTypeCode = serviceTypeCode;
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
     public int getPid() {
@@ -174,7 +164,34 @@ public class AgentInfo {
     }
 
     public void setStatus(AgentStatus status) {
-        this.status = status;
+        this.status = Objects.requireNonNull(status, "status");
+    }
+
+    public static class Binder {
+        private final ServiceTypeRegistryService registryService;
+
+        public Binder(ServiceTypeRegistryService registryService) {
+            this.registryService = Objects.requireNonNull(registryService, "registryService");
+        }
+
+        public AgentInfo bind(AgentInfoBo agentInfoBo) {
+            AgentInfo agentInfo = new AgentInfo();
+            agentInfo.applicationName = agentInfoBo.getApplicationName();
+            agentInfo.agentId = agentInfoBo.getAgentId();
+            agentInfo.agentName = agentInfoBo.getAgentName();
+            agentInfo.startTimestamp = agentInfoBo.getStartTime();
+            agentInfo.hostName = agentInfoBo.getHostName();
+            agentInfo.ip = agentInfoBo.getIp();
+            agentInfo.ports = agentInfoBo.getPorts();
+            agentInfo.serviceType = registryService.findServiceType(agentInfoBo.getServiceTypeCode());
+            agentInfo.pid = agentInfoBo.getPid();
+            agentInfo.vmVersion = agentInfoBo.getVmVersion();
+            agentInfo.agentVersion = agentInfoBo.getAgentVersion();
+            agentInfo.serverMetaData = agentInfoBo.getServerMetaData();
+            agentInfo.jvmInfo = agentInfoBo.getJvmInfo();
+            agentInfo.container = agentInfoBo.isContainer();
+            return agentInfo;
+        }
     }
 
     @Override
@@ -206,7 +223,7 @@ public class AgentInfo {
         sb.append(", hostName='").append(hostName).append('\'');
         sb.append(", ip='").append(ip).append('\'');
         sb.append(", ports='").append(ports).append('\'');
-        sb.append(", serviceTypeCode=").append(serviceTypeCode);
+        sb.append(", serviceType=").append(serviceType);
         sb.append(", pid=").append(pid);
         sb.append(", vmVersion='").append(vmVersion).append('\'');
         sb.append(", agentVersion='").append(agentVersion).append('\'');
@@ -218,4 +235,7 @@ public class AgentInfo {
         sb.append('}');
         return sb.toString();
     }
+
+
+
 }

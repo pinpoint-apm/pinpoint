@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -80,20 +79,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentStatDao<JvmGcBo> jvmGcDao;
 
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
-                                AgentStatDao<JvmGcBo> jvmGcDao,
-                                ServiceTypeRegistryService serviceTypeRegistryService) {
+                                AgentStatDao<JvmGcBo> jvmGcDao) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
-        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @Override
@@ -164,8 +160,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {
-        return ApplicationAgentHostList.newBuilder(serviceTypeRegistryService,
-                offset, endIndex, totalApplications);
+        return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
     }
 
     private List<String> getAgentIdList(String applicationName, int durationDays) {

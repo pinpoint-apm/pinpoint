@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.view;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
@@ -42,7 +41,7 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
     private List<MatcherGroup> matcherGroupList;
 
     @Override
-    public void serialize(ServerInstanceList serverInstanceList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ServerInstanceList serverInstanceList, JsonGenerator jgen, SerializerProvider provider) throws IOException {
 
         jgen.writeStartObject();
 

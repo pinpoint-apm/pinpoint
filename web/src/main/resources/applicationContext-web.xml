@@ -15,7 +15,8 @@
                                          com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.web.query,
                                          com.navercorp.pinpoint.common.server.bo,
-                                         com.navercorp.pinpoint.common.server.util" />
+                                         com.navercorp.pinpoint.common.server.util,
+                                         com.navercorp.pinpoint.common.server.dao.hbase.mapper" />
 
     <import resource="classpath:applicationContext-web-profile.xml" />
     <import resource="classpath:applicationContext-web-hbase.xml" />
