@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -129,31 +129,29 @@ public class ClusterManager {
         return config.isClusterEnable();
     }
 
-    public boolean isConnected(AgentInfo agentInfo) {
+    public boolean isConnected(ClusterKey clusterKey) {
         if (!isEnabled()) {
             return false;
         }
-
-        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(agentInfo);
+        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(clusterKey);
         return clusterIdList.size() == 1;
     }
 
-    public List<PinpointSocket> getSocket(AgentInfo agentInfo) {
-        return getSocket(agentInfo.getApplicationName(), agentInfo.getAgentId(), agentInfo.getStartTimestamp());
-    }
 
-    public List<PinpointSocket> getSocket(String applicationName, String agentId, long startTimeStamp) {
+    public List<PinpointSocket> getSocket(ClusterKey clusterKey) {
+        Objects.requireNonNull(clusterKey, "clusterKey");
+
         if (!isEnabled()) {
             return Collections.emptyList();
         }
 
-        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
+        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(clusterKey);
 
         if (clusterIdList.isEmpty()) {
-            logger.warn("{}/{}/{} couldn't find agent.", applicationName, agentId, startTimeStamp);
+            logger.warn("{} couldn't find agent.", clusterKey);
             return Collections.emptyList();
         } else if (clusterIdList.size() > 1) {
-            logger.warn("{}/{}/{} found duplicate agent {}.", applicationName, agentId, startTimeStamp, clusterIdList);
+            logger.warn("{} found duplicate agent {}.", clusterKey, clusterIdList);
         }
 
         List<PinpointSocket> pinpointSocketList = new ArrayList<>(clusterIdList.size());

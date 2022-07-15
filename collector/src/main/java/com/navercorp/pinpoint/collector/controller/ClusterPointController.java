@@ -18,12 +18,11 @@ package com.navercorp.pinpoint.collector.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
@@ -136,17 +135,17 @@ public class ClusterPointController {
             if (!(clusterPoint instanceof GrpcAgentConnection)) {
                 continue;
             }
-            AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
+            ClusterKey destClusterInfo = clusterPoint.getDestClusterKey();
 
-            if (!destAgentInfo.getApplicationName().equals(applicationName)) {
+            if (!destClusterInfo.getApplicationName().equals(applicationName)) {
                 continue;
             }
 
-            if (StringUtils.hasText(agentId) && !destAgentInfo.getAgentId().equals(agentId)) {
+            if (StringUtils.hasText(agentId) && !destClusterInfo.getAgentId().equals(agentId)) {
                 continue;
             }
 
-            if (startTimestamp > 0 && destAgentInfo.getStartTimestamp() != startTimestamp) {
+            if (startTimestamp > 0 && destClusterInfo.getStartTimestamp() != startTimestamp) {
                 continue;
             }
 
@@ -157,7 +156,7 @@ public class ClusterPointController {
     }
 
     private CheckConnectionStatusResult request(GrpcAgentConnection grpcAgentConnection, int checkCount) {
-        logger.info("Ping  message will be sent. collector => {}.", grpcAgentConnection.getDestAgentInfo().getAgentKey());
+        logger.info("Ping  message will be sent. collector => {}.", grpcAgentConnection.getDestClusterKey());
 
         Future<ResponseMessage> response = null;
         try {
@@ -231,7 +230,7 @@ public class ClusterPointController {
 
         private final InetSocketAddress remoteAddress;
 
-        private final AgentInfoKey agentKey;
+        private final ClusterKey clusterKey;
 
         private final String socketStateCode;
 
@@ -242,7 +241,7 @@ public class ClusterPointController {
         public GrpcAgentConnectionStats(GrpcAgentConnection grpcAgentConnection, CheckConnectionStatusResult checkConnectionStatusResult) {
             PinpointGrpcServer pinpointGrpcServer = grpcAgentConnection.getPinpointGrpcServer();
             this.socketStateCode = pinpointGrpcServer.getState().name();
-            this.agentKey = pinpointGrpcServer.getAgentInfo().getAgentKey();
+            this.clusterKey = pinpointGrpcServer.getClusterKey();
             this.remoteAddress = pinpointGrpcServer.getRemoteAddress();
 
             this.availableCheckConnectionState = grpcAgentConnection.isSupportCommand(CONNECTION_CHECK_COMMAND);
@@ -253,8 +252,8 @@ public class ClusterPointController {
             return remoteAddress;
         }
 
-        public AgentInfoKey getAgentKey() {
-            return agentKey;
+        public ClusterKey getClusterKey() {
+            return clusterKey;
         }
 
         public String getSocketStateCode() {

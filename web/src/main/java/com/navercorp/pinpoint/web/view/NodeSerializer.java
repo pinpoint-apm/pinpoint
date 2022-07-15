@@ -42,7 +42,7 @@ import java.util.Map;
 public class NodeSerializer extends JsonSerializer<Node> {
 
     @Override
-    public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
 //        jgen.writeStringField("id", node.getNodeName());serverInstanceList
         jgen.writeStringField("key", node.getNodeName()); // necessary for go.js

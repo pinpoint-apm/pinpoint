@@ -16,7 +16,12 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
@@ -41,35 +46,25 @@ public class ServerInstanceList {
     }
 
     public List<String> getAgentIdList() {
-        final Collection<List<ServerInstance>> serverInstanceValueList = this.serverInstanceList.values();
-
-        final List<String> agentList = new ArrayList<>();
-        for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
-            for (ServerInstance serverInstance : serverInstanceList) {
-                agentList.add(serverInstance.getName());
-            }
-        }
-        return agentList;
+        Collection<List<ServerInstance>> serverList = this.serverInstanceList.values();
+        return serverList.stream()
+                .flatMap(List::stream)
+                .map(ServerInstance::getName)
+                .collect(Collectors.toList());
     }
 
     public Map<String, String> getAgentIdNameMap() {
-        final Collection<List<ServerInstance>> serverInstanceValueList = this.serverInstanceList.values();
-
-        final Map<String, String> map = new HashMap<>();
-        for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
-            for (ServerInstance serverInstance : serverInstanceList) {
-                map.put(serverInstance.getName(), serverInstance.getAgentName());
-            }
-        }
-        return map;
+        Collection<List<ServerInstance>> serverList = this.serverInstanceList.values();
+        return serverList.stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toMap(ServerInstance::getName, ServerInstance::getAgentName));
     }
 
     public int getInstanceCount() {
-        int count = 0;
-        for (List<ServerInstance> entry : serverInstanceList.values()) {
-            count += entry.size();
-        }
-        return count;
+        Collection<List<ServerInstance>> serverList = this.serverInstanceList.values();
+        return serverList.stream()
+                .mapToInt(List::size)
+                .sum();
     }
 
     private void addServerInstance(List<ServerInstance> nodeList, ServerInstance serverInstance) {

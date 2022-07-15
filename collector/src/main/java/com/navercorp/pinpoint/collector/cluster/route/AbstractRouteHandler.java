@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
@@ -46,12 +46,13 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
         String applicationName = deliveryCommand.getApplicationName();
         String agentId = deliveryCommand.getAgentId();
         long startTimeStamp = deliveryCommand.getStartTime();
+        final ClusterKey sourceKey = new ClusterKey(applicationName, agentId, startTimeStamp);
 
         List<ClusterPoint<?>> result = new ArrayList<>();
 
         for (ClusterPoint<?> targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
-            AgentInfo destAgentInfo = targetClusterPoint.getDestAgentInfo();
-            if (destAgentInfo.equals(applicationName, agentId, startTimeStamp)) {
+            ClusterKey destAgentInfo = targetClusterPoint.getDestClusterKey();
+            if (destAgentInfo.equals(sourceKey)) {
                 result.add(targetClusterPoint);
             }
         }

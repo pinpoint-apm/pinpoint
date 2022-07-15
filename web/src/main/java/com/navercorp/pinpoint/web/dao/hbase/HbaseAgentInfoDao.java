@@ -62,45 +62,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
     }
 
-    /**
-     * Returns the very first information of the agent
-     *
-     * @param agentId
-     */
-    @Override
-    public AgentInfo getInitialAgentInfo(final String agentId) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        Scan scan = createScanForInitialAgentInfo(agentId);
-
-        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
-    }
-
-    @Override
-    public List<AgentInfo> getInitialAgentInfos(List<String> agentIds) {
-        if (CollectionUtils.isEmpty(agentIds)) {
-            return Collections.emptyList();
-        }
-        List<Scan> scans = new ArrayList<>(agentIds.size());
-        for (String agentId : agentIds) {
-            scans.add(createScanForInitialAgentInfo(agentId));
-        }
-
-        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return this.hbaseOperations2.find(agentInfoTableName, scans, agentInfoResultsExtractor);
-    }
-
-    private Scan createScanForInitialAgentInfo(String agentId) {
-        Scan scan = new Scan();
-
-        byte[] reverseStartKey = RowKeyUtils.agentIdAndTimestamp(agentId, Long.MAX_VALUE);
-        scan.withStartRow(reverseStartKey);
-        scan.setReversed(true);
-        scan.setMaxVersions(1);
-        scan.setCaching(SCANNER_CACHING);
-        return scan;
-    }
 
     /**
      * Returns the information of the agent with its start time closest to the given timestamp

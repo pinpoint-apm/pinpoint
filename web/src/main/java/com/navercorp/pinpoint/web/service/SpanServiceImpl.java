@@ -506,7 +506,7 @@ public class SpanServiceImpl implements SpanService {
 
     private Optional<String> getAgentName(String agentId, long agentStartTime) {
         final int deltaTimeInMilli = 1000;
-        final AgentInfo agentInfo = this.agentInfoService.getAgentInfoNoStatus(agentId, agentStartTime, deltaTimeInMilli);
+        final AgentInfo agentInfo = this.agentInfoService.getAgentInfoWithoutStatus(agentId, agentStartTime, deltaTimeInMilli);
         return agentInfo == null ? Optional.empty() : Optional.ofNullable(agentInfo.getAgentName());
     }
 }

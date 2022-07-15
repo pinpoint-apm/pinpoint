@@ -4,22 +4,22 @@ import org.springframework.util.Assert;
 
 import java.util.Objects;
 
-public class AgentInfoKey {
+public class ClusterKey {
     public static final String DELIMITER = ":";
 
     private final String applicationName;
     private final String agentId;
     private final long startTimestamp;
 
-    public static AgentInfoKey parse(String agentKeyStr) {
-        Objects.requireNonNull(agentKeyStr, "agentKeyStr");
+    public static ClusterKey parse(String clusterKeyFormat) {
+        Objects.requireNonNull(clusterKeyFormat, "clusterKeyFormat");
 
-        String[] tokens = agentKeyStr.split(DELIMITER);
+        String[] tokens = clusterKeyFormat.split(DELIMITER);
         Assert.isTrue(tokens.length == 3, "invalid token.length == 3");
-        return new AgentInfoKey(tokens[0], tokens[1], Long.parseLong(tokens[2]));
+        return new ClusterKey(tokens[0], tokens[1], Long.parseLong(tokens[2]));
     }
 
-    public AgentInfoKey(String applicationName, String agentId, long startTimestamp) {
+    public ClusterKey(String applicationName, String agentId, long startTimestamp) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.startTimestamp = startTimestamp;
@@ -42,7 +42,7 @@ public class AgentInfoKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AgentInfoKey that = (AgentInfoKey) o;
+        ClusterKey that = (ClusterKey) o;
 
         if (startTimestamp != that.startTimestamp) return false;
         if (!applicationName.equals(that.applicationName)) return false;
@@ -57,8 +57,7 @@ public class AgentInfoKey {
         return result;
     }
 
-    @Override
-    public String toString() {
+    public String format() {
         StringBuilder builder = new StringBuilder(64);
         builder.append(applicationName);
         builder.append(DELIMITER);
@@ -66,5 +65,10 @@ public class AgentInfoKey {
         builder.append(DELIMITER);
         builder.append(startTimestamp);
         return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return format();
     }
 }

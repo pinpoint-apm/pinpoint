@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.rpc.Future;
 
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -28,7 +29,7 @@ public interface ClusterPoint<M> {
 
     Future<ResponseMessage> request(M request);
 
-    AgentInfo getDestAgentInfo();
+    ClusterKey getDestClusterKey();
 
     boolean isSupportCommand(TBase<?, ?> command);
 

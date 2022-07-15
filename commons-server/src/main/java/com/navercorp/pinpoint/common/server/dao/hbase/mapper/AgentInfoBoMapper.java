@@ -45,17 +45,17 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
         long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
-        byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
-        byte[] serializedServerMetaData = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_SERVER_META_DATA);
-        byte[] serializedJvmInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_JVM);
-
+        final byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
         final AgentInfoBo.Builder agentInfoBoBuilder = createBuilderFromValue(serializedAgentInfo);
         agentInfoBoBuilder.setAgentId(agentId);
         agentInfoBoBuilder.setStartTime(startTime);
 
+        final byte[] serializedServerMetaData = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_SERVER_META_DATA);
         if (serializedServerMetaData != null) {
             agentInfoBoBuilder.setServerMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
         }
+
+        final byte[] serializedJvmInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_JVM);
         if (serializedJvmInfo != null) {
             agentInfoBoBuilder.setJvmInfo(new JvmInfoBo(serializedJvmInfo));
         }

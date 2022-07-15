@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
@@ -37,7 +37,6 @@ import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.cluster.ClusterId;
 import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
 import com.navercorp.pinpoint.web.config.WebClusterConfig;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.WatchedEvent;
@@ -255,13 +254,8 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     }
 
     @Override
-    public List<ClusterId> getRegisteredAgentList(AgentInfo agentInfo) {
-        return getRegisteredAgentList(agentInfo.getApplicationName(), agentInfo.getAgentId(), agentInfo.getStartTimestamp());
-    }
-
-    @Override
-    public List<ClusterId> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp) {
-        final AgentInfoKey key = new AgentInfoKey(applicationName, agentId, startTimeStamp);
+    public List<ClusterId> getRegisteredAgentList(ClusterKey key) {
+        Objects.requireNonNull(key, "key");
         return collectorClusterInfo.get(key);
     }
 
@@ -285,7 +279,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
             logger.info("Get collector({}) info.", map.keySet());
             for (Map.Entry<ClusterId, byte[]> entry : map.entrySet()) {
-                Set<AgentInfoKey> profilerInfo = newProfilerInfo(entry.getValue());
+                Set<ClusterKey> profilerInfo = newProfilerInfo(entry.getValue());
                 collectorClusterInfo.put(entry.getKey(), profilerInfo);
             }
 
@@ -300,7 +294,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         synchronized (this) {
             try {
                 byte[] data = client.getData(path, true);
-                Set<AgentInfoKey> profilerInfo = newProfilerInfo(data);
+                Set<ClusterKey> profilerInfo = newProfilerInfo(data);
                 collectorClusterInfo.put(id, profilerInfo);
                 logger.info("pushCollectorClusterData() completed. {}", path);
                 return true;
@@ -314,17 +308,17 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
             return false;
         }
     }
-    private Set<AgentInfoKey> newProfilerInfo(byte[] bytes) {
+    private Set<ClusterKey> newProfilerInfo(byte[] bytes) {
         if (bytes == null) {
             return Collections.emptySet();
         }
 
         final String strData = new String(bytes, StandardCharsets.UTF_8);
         final String[] profilerInfoList = StringUtils.tokenizeToStringArray(strData, PROFILER_SEPARATOR);
-        Set<AgentInfoKey> agentInfoKeys = Arrays.stream(profilerInfoList)
-                .map(AgentInfoKey::parse)
+        Set<ClusterKey> clusterKeys = Arrays.stream(profilerInfoList)
+                .map(ClusterKey::parse)
                 .collect(Collectors.toSet());
-        return agentInfoKeys;
+        return clusterKeys;
     }
 
     class PushWebClusterJob implements PushZnodeJob {

@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -88,9 +89,9 @@ public class WorkerActiveManager {
         }
     }
 
-    public void addReactiveWorker(AgentInfo agentInfo) {
-        if (this.applicationName.equals(agentInfo.getApplicationName())) {
-            addReactiveWorker(agentInfo.getAgentId());
+    public void addReactiveWorker(ClusterKey clusterKey) {
+        if (this.applicationName.equals(clusterKey.getApplicationName())) {
+            addReactiveWorker(clusterKey.getAgentId());
         }
     }
 
@@ -144,9 +145,9 @@ public class WorkerActiveManager {
 
             for (String agentId : reactiveWorkerCandidates) {
                 try {
-                    AgentInfo newAgentInfo = agentService.getAgentInfo(applicationName, agentId);
-                    if (newAgentInfo != null) {
-                        responseAggregator.addActiveWorker(newAgentInfo);
+                    final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId);
+                    if (clusterKey != null) {
+                           responseAggregator.addActiveWorker(clusterKey);
                     }
                 } catch (Exception e) {
                     logger.warn("failed while to get AgentInfo(applicationName:{}, agentId:{}). error:{}.", applicationName, agentId, e.getMessage(), e);
@@ -164,7 +165,7 @@ public class WorkerActiveManager {
                 logger.debug("AgentCheckTimerTask started.");
             }
 
-            List<AgentInfo> agentInfoList = Collections.emptyList();
+            List<ClusterKeyAndStatus> agentInfoList = Collections.emptyList();
             try {
                 agentInfoList = agentService.getRecentAgentInfoList(applicationName, DEFAULT_AGENT_LOOKUP_TIME);
             } catch (Exception e) {
@@ -172,17 +173,18 @@ public class WorkerActiveManager {
             }
 
             try {
-                for (AgentInfo agentInfo : agentInfoList) {
-                    String agentId = agentInfo.getAgentId();
+                for (ClusterKeyAndStatus clusterKeyStatus : agentInfoList) {
+                    final ClusterKey clusterKey = clusterKeyStatus.getClusterKey();
+                    final String agentId = clusterKey.getAgentId();
                     if (defaultAgentIdList.contains(agentId)) {
                         continue;
                     }
 
-                    AgentStatus agentStatus = agentInfo.getStatus();
+                    final AgentStatus agentStatus = clusterKeyStatus.getStatus();
                     if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
-                        addActiveWorker(agentInfo);
-                    } else if (agentService.isConnected(agentInfo)) {
-                        addActiveWorker(agentInfo);
+                        addActiveWorker(clusterKey);
+                    } else if (agentService.isConnected(clusterKey)) {
+                        addActiveWorker(clusterKey);
                     }
                 }
             } finally {
@@ -194,10 +196,10 @@ public class WorkerActiveManager {
             }
         }
 
-        private void addActiveWorker(AgentInfo agentInfo) {
+        private void addActiveWorker(ClusterKey clusterKey) {
             try {
-                responseAggregator.addActiveWorker(agentInfo);
-                defaultAgentIdList.add(agentInfo.getAgentId());
+                responseAggregator.addActiveWorker(clusterKey);
+                defaultAgentIdList.add(clusterKey.getAgentId());
             } catch (Exception e) {
                 logger.warn("failed while adding active worker. error:{}", e.getMessage(), e);
             }
