@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -78,18 +79,22 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final AgentLifeCycleDao agentLifeCycleDao;
 
     private final AgentStatDao<JvmGcBo> jvmGcDao;
-
+    private final HyperLinkFactory hyperLinkFactory;
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
-                                AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
-                                AgentStatDao<JvmGcBo> jvmGcDao) {
+                                AgentInfoDao agentInfoDao,
+                                AgentLifeCycleDao agentLifeCycleDao,
+                                AgentStatDao<JvmGcBo> jvmGcDao,
+                                HyperLinkFactory hyperLinkFactory) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+
     }
 
     @Override
@@ -97,7 +102,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
 
         ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
-        ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy, filter);
+        ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy, filter, hyperLinkFactory);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
             applicationAgentList.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
@@ -111,7 +116,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter);
+        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter, hyperLinkFactory);
         Set<AgentInfo> agentInfos = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfos.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);

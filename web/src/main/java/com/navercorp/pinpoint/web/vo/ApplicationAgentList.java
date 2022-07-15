@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author HyunGil Jeong
@@ -25,11 +26,11 @@ import java.util.Objects;
 public class ApplicationAgentList {
 
     private final String groupName;
-    private final List<AgentInfo> agentInfos;
+    private final List<AgentInfoAndLink> agentInfoAndLinkList;
 
-    public ApplicationAgentList(String groupName, List<AgentInfo> agentInfos) {
+    public ApplicationAgentList(String groupName, List<AgentInfoAndLink> agentInfoAndLinkList) {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
-        this.agentInfos = Objects.requireNonNull(agentInfos, "agentInfos");
+        this.agentInfoAndLinkList = Objects.requireNonNull(agentInfoAndLinkList, "agentInfoAndLinkList");
     }
 
     public String getGroupName() {
@@ -37,14 +38,20 @@ public class ApplicationAgentList {
     }
 
     public List<AgentInfo> getAgentInfos() {
-        return agentInfos;
+        return agentInfoAndLinkList.stream()
+                .map(AgentInfoAndLink::getAgentInfo)
+                .collect(Collectors.toList());
+    }
+
+    public List<AgentInfoAndLink> getAgentInfoAndLinks() {
+        return agentInfoAndLinkList;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
         sb.append('\'').append(groupName).append('\'');
-        sb.append(":").append(agentInfos);
+        sb.append(":").append(agentInfoAndLinkList);
         sb.append('}');
         return sb.toString();
     }

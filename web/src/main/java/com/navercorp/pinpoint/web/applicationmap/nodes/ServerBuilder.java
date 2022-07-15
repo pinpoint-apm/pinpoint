@@ -19,12 +19,16 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.hyperlink.HyperLink;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,12 +41,16 @@ public class ServerBuilder {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AgentHistogramList agentHistogramList;
-    private final Set<AgentInfo> agentSet;
+    private final AgentHistogramList agentHistogramList = new AgentHistogramList();
+    private final Set<AgentInfo> agentSet = new HashSet<>();
+    private final HyperLinkFactory hyperLinkFactory;
 
     public ServerBuilder() {
-        this.agentHistogramList = new AgentHistogramList();
-        this.agentSet = new HashSet<>();
+        this.hyperLinkFactory = null;
+    }
+
+    public ServerBuilder(HyperLinkFactory hyperLinkFactory) {
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {
@@ -87,7 +95,8 @@ public class ServerBuilder {
             final String hostName = getHostName(agentHistogram.getId());
             final ServiceType serviceType = agentHistogram.getServiceType();
 
-            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType);
+            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType, buildHyperLink(hostName));
+
             serverInstanceList.addServerInstance(serverInstance);
         }
         return serverInstanceList;
@@ -96,11 +105,27 @@ public class ServerBuilder {
     public ServerInstanceList buildPhysicalServer(final Set<AgentInfo> agentSet) {
         final ServerInstanceList serverInstanceList = new ServerInstanceList();
         for (AgentInfo agent : agentSet) {
-            final ServerInstance serverInstance = new ServerInstance(agent);
+            final ServerInstance serverInstance = new ServerInstance(agent, buildHyperLink(agent));
             serverInstanceList.addServerInstance(serverInstance);
 
         }
         return serverInstanceList;
+    }
+
+    private List<HyperLink> buildHyperLink(AgentInfo agentInfo) {
+        if (hyperLinkFactory != null) {
+            return hyperLinkFactory.build(LinkSources.from(agentInfo));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<HyperLink> buildHyperLink(String hostName) {
+        if (hyperLinkFactory != null) {
+            return hyperLinkFactory.build(LinkSources.from(hostName));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public ServerInstanceList build() {

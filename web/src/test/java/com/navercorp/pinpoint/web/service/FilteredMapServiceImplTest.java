@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.DefaultMetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
@@ -37,6 +38,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
@@ -73,6 +75,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -86,8 +89,6 @@ public class FilteredMapServiceImplTest {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(8);
 
-    @Mock
-    private AgentInfoService agentInfoService;
 
     @Mock
     private TraceDao traceDao;
@@ -97,6 +98,9 @@ public class FilteredMapServiceImplTest {
 
     @Mock
     private ApplicationFactory applicationFactory;
+
+    @Mock
+    private ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
@@ -112,22 +116,35 @@ public class FilteredMapServiceImplTest {
 
     @BeforeEach
     public void init() {
-        when(applicationFactory.createApplication(anyString(), anyShort())).thenAnswer(invocation -> {
-            String applicationName = invocation.getArgument(0);
-            ServiceType serviceType = registry.findServiceType(invocation.getArgument(1));
-            return new Application(applicationName, serviceType);
-        });
-        when(applicationFactory.createApplication(anyString(), any(ServiceType.class))).thenAnswer(invocation -> {
-            String applicationName = invocation.getArgument(0);
-            ServiceType serviceType = invocation.getArgument(1);
-            return new Application(applicationName, serviceType);
-        });
-        when(applicationFactory.createApplicationByTypeName(anyString(), anyString())).thenAnswer(invocation -> {
-            String applicationName = invocation.getArgument(0);
-            ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));
-            return new Application(applicationName, serviceType);
-        });
-        filteredMapService = new FilteredMapServiceImpl(agentInfoService, traceDao, applicationTraceIndexDao, registry, applicationFactory, Optional.empty(), applicationMapBuilderFactory);
+        when(applicationFactory.createApplication(anyString(), anyShort()))
+                .thenAnswer(invocation -> {
+                    String applicationName = invocation.getArgument(0);
+                    ServiceType serviceType = registry.findServiceType(invocation.getArgument(1));
+                    return new Application(applicationName, serviceType);
+                });
+        when(applicationFactory.createApplication(anyString(), any(ServiceType.class)))
+                .thenAnswer(invocation -> {
+                    String applicationName = invocation.getArgument(0);
+                    ServiceType serviceType = invocation.getArgument(1);
+                    return new Application(applicationName, serviceType);
+                });
+        when(applicationFactory.createApplicationByTypeName(anyString(), anyString()))
+                .thenAnswer(invocation -> {
+                    String applicationName = invocation.getArgument(0);
+                    ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));
+                    return new Application(applicationName, serviceType);
+                });
+
+        when(serverInstanceDatasourceService.getServerInstanceListDataSource())
+                .thenAnswer(invocation -> {
+                    AgentInfoService agentInfoService = mock(AgentInfoService.class);
+                    HyperLinkFactory hyperLinkFactory = new HyperLinkFactory(Collections.emptyList());
+                    return new AgentInfoServerInstanceListDataSource(agentInfoService, hyperLinkFactory);
+                });
+
+        filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,
+                registry, applicationFactory, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
+
     }
 
     @AfterEach

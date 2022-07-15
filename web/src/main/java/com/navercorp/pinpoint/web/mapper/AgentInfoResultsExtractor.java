@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentInfoFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.springframework.stereotype.Component;
@@ -32,13 +33,14 @@ import java.util.Objects;
  */
 @Component
 public class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
-    private final AgentInfo.Binder binder;
+    private final AgentInfoFactory factory;
     private final RowMapper<AgentInfoBo> agentInfoMapper;
 
-    public AgentInfoResultsExtractor(ServiceTypeRegistryService registryService, RowMapper<AgentInfoBo> agentInfoMapper) {
+    public AgentInfoResultsExtractor(ServiceTypeRegistryService registryService,
+                                     RowMapper<AgentInfoBo> agentInfoMapper) {
         Objects.requireNonNull(registryService, "registryService");
-        binder = new AgentInfo.Binder(registryService);
 
+        this.factory = new AgentInfoFactory(registryService);
         this.agentInfoMapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
     }
 
@@ -47,7 +49,7 @@ public class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
         int found = 0;
         for (Result result : results) {
             AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(result, found++);
-            return binder.bind(agentInfoBo);
+            return factory.build(agentInfoBo);
         }
         return null;
     }

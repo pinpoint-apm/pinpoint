@@ -19,23 +19,18 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
 
-    @Autowired(required = false)
-    private List<MatcherGroup> matcherGroupList;
-
+    public AgentInfoSerializer() {
+    }
 
     @Override
     public void serialize(AgentInfo agentInfo, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -62,20 +57,6 @@ public class AgentInfoSerializer extends JsonSerializer<AgentInfo> {
         }
 
         jgen.writeNumberField("initialStartTimestamp", agentInfo.getInitialStartTimestamp());
-
-        if (matcherGroupList != null) {
-            jgen.writeFieldName("linkList");
-            jgen.writeStartArray();
-
-            for (MatcherGroup matcherGroup : matcherGroupList) {
-                if (matcherGroup.ismatchingType(agentInfo)) {
-                    LinkInfo linkInfo = matcherGroup.makeLinkInfo(agentInfo);
-                    jgen.writeObject(linkInfo);
-                }
-            }
-
-            jgen.writeEndArray();
-        }
 
         jgen.writeEndObject();
     }

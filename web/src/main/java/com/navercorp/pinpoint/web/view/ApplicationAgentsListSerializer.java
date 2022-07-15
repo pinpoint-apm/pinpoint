@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 
@@ -39,16 +38,9 @@ public class ApplicationAgentsListSerializer extends JsonSerializer<ApplicationA
         List<ApplicationAgentList> applicationAgentLists = applicationAgentsList.getApplicationAgentLists();
         for (ApplicationAgentList applicationAgentList : applicationAgentLists) {
             jgen.writeFieldName(applicationAgentList.getGroupName());
-            writeAgentList(jgen, applicationAgentList.getAgentInfos());
+            jgen.writeObject(applicationAgentList.getAgentInfoAndLinks());
         }
         jgen.writeEndObject();
     }
 
-    private void writeAgentList(JsonGenerator jgen, List<AgentInfo> agentList) throws IOException {
-        jgen.writeStartArray();
-        for (AgentInfo agentInfo : agentList) {
-            jgen.writeObject(agentInfo);
-        }
-        jgen.writeEndArray();
-    }
 }

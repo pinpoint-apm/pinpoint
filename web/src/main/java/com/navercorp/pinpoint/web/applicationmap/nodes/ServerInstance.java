@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,7 +48,9 @@ public class ServerInstance {
 
     private final AgentLifeCycleState status;
 
-    public ServerInstance(AgentInfo agentInfo) {
+    private final List<HyperLink> linkList;
+
+    public ServerInstance(AgentInfo agentInfo, List<HyperLink> linkList) {
         Objects.requireNonNull(agentInfo, "agentInfo");
 
         this.hostName = agentInfo.getHostName();
@@ -60,9 +65,10 @@ public class ServerInstance {
             this.status = AgentLifeCycleState.UNKNOWN;
         }
         this.serverType = ServerType.Physical;
+        this.linkList = Objects.requireNonNull(linkList, "linkList");
     }
 
-    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
+    public ServerInstance(String hostName, String physicalName, ServiceType serviceType, List<HyperLink> linkList) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.ip = null;
         this.agentName = null;
@@ -70,6 +76,7 @@ public class ServerInstance {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.status = AgentLifeCycleState.UNKNOWN;
         this.serverType = ServerType.Logical;
+        this.linkList = Objects.requireNonNull(linkList, "linkList");
     }
 
     public String getHostName() {
@@ -88,6 +95,7 @@ public class ServerInstance {
         return serviceType.getCode();
     }
 
+    @JsonIgnore
     public ServiceType getServiceType() {
         return serviceType;
     }
@@ -102,6 +110,10 @@ public class ServerInstance {
     
     public String getIp() {
         return ip;
+    }
+
+    public List<HyperLink> getLinkList() {
+        return linkList;
     }
 
     @Override
