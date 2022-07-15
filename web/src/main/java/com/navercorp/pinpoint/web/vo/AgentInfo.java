@@ -20,18 +20,15 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.view.AgentInfoSerializer;
+import com.navercorp.pinpoint.web.view.ServiceTypeDescView;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = AgentInfoSerializer.class)
 public class AgentInfo {
 
     public static final Comparator<AgentInfo> AGENT_NAME_ASC_COMPARATOR
@@ -109,11 +106,15 @@ public class AgentInfo {
         return ports;
     }
 
+    public void setPorts(String ports) {
+        this.ports = ports;
+    }
 
     public short getServiceTypeCode() {
         return serviceType.getCode();
     }
 
+    @JsonSerialize(using = ServiceTypeDescView.class)
     public ServiceType getServiceType() {
         return serviceType;
     }
@@ -126,25 +127,41 @@ public class AgentInfo {
         return pid;
     }
 
+    public void setPid(int pid) {
+        this.pid = pid;
+    }
 
     public String getVmVersion() {
         return vmVersion;
+    }
+
+    public void setVmVersion(String vmVersion) {
+        this.vmVersion = vmVersion;
     }
 
     public String getAgentVersion() {
         return agentVersion;
     }
 
+    public void setAgentVersion(String agentVersion) {
+        this.agentVersion = agentVersion;
+    }
 
     public ServerMetaDataBo getServerMetaData() {
         return serverMetaData;
     }
 
+    public void setServerMetaData(ServerMetaDataBo serverMetaData) {
+        this.serverMetaData = serverMetaData;
+    }
 
     public JvmInfoBo getJvmInfo() {
         return jvmInfo;
     }
 
+    public void setJvmInfo(JvmInfoBo jvmInfo) {
+        this.jvmInfo = jvmInfo;
+    }
 
     public long getInitialStartTimestamp() {
         return initialStartTimestamp;
@@ -167,32 +184,7 @@ public class AgentInfo {
         this.status = Objects.requireNonNull(status, "status");
     }
 
-    public static class Binder {
-        private final ServiceTypeRegistryService registryService;
 
-        public Binder(ServiceTypeRegistryService registryService) {
-            this.registryService = Objects.requireNonNull(registryService, "registryService");
-        }
-
-        public AgentInfo bind(AgentInfoBo agentInfoBo) {
-            AgentInfo agentInfo = new AgentInfo();
-            agentInfo.applicationName = agentInfoBo.getApplicationName();
-            agentInfo.agentId = agentInfoBo.getAgentId();
-            agentInfo.agentName = agentInfoBo.getAgentName();
-            agentInfo.startTimestamp = agentInfoBo.getStartTime();
-            agentInfo.hostName = agentInfoBo.getHostName();
-            agentInfo.ip = agentInfoBo.getIp();
-            agentInfo.ports = agentInfoBo.getPorts();
-            agentInfo.serviceType = registryService.findServiceType(agentInfoBo.getServiceTypeCode());
-            agentInfo.pid = agentInfoBo.getPid();
-            agentInfo.vmVersion = agentInfoBo.getVmVersion();
-            agentInfo.agentVersion = agentInfoBo.getAgentVersion();
-            agentInfo.serverMetaData = agentInfoBo.getServerMetaData();
-            agentInfo.jvmInfo = agentInfoBo.getJvmInfo();
-            agentInfo.container = agentInfoBo.isContainer();
-            return agentInfo;
-        }
-    }
 
     @Override
     public boolean equals(Object o) {

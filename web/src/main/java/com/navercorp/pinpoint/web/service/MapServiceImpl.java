@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.M
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
@@ -58,8 +57,6 @@ public class MapServiceImpl implements MapService {
 
     private final LinkSelectorFactory linkSelectorFactory;
 
-    private final AgentInfoService agentInfoService;
-
     private final MapResponseDao mapResponseDao;
 
     private final ServerMapDataFilter serverMapDataFilter;
@@ -68,18 +65,23 @@ public class MapServiceImpl implements MapService {
 
     private final LinkDataLimiter linkDataLimiter;
 
+    private final ServerInstanceDatasourceService serverInstanceDatasourceService;
+
     @Value("${web.servermap.build.timeout:600000}")
     private long buildTimeoutMillis;
 
-    public MapServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService,
+    public MapServiceImpl(LinkSelectorFactory linkSelectorFactory,
                           MapResponseDao mapResponseDao,
-                          Optional<ServerMapDataFilter> serverMapDataFilter, ApplicationMapBuilderFactory applicationMapBuilderFactory, LinkDataLimiter linkDataLimiter) {
+                          Optional<ServerMapDataFilter> serverMapDataFilter,
+                          ApplicationMapBuilderFactory applicationMapBuilderFactory,
+                          LinkDataLimiter linkDataLimiter,
+                          ServerInstanceDatasourceService serverInstanceDatasourceService) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
         this.linkDataLimiter = linkDataLimiter;
+        this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
     }
 
     /**
@@ -136,7 +138,7 @@ public class MapServiceImpl implements MapService {
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
         builder.includeNodeHistogram(nodeHistogramFactory);
 
-        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+        ServerInstanceListDataSource serverInstanceListDataSource = serverInstanceDatasourceService.getServerInstanceListDataSource();
         if (option.isUseStatisticsAgentState()) {
             builder.includeServerInfo(new StatisticsServerInstanceListFactory(serverInstanceListDataSource));
         } else {

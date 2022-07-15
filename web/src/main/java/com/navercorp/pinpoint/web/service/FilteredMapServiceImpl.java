@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.R
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -67,8 +66,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AgentInfoService agentInfoService;
-
     private final TraceDao traceDao;
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
@@ -76,6 +73,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final ServiceTypeRegistryService registry;
 
     private final ApplicationFactory applicationFactory;
+
+    private final ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     private final ServerMapDataFilter serverMapDataFilter;
 
@@ -86,16 +85,18 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Value("${web.servermap.build.timeout:600000}")
     private long buildTimeoutMillis;
 
-    public FilteredMapServiceImpl(AgentInfoService agentInfoService,
-                                  TraceDao traceDao,
+    public FilteredMapServiceImpl(TraceDao traceDao,
                                   ApplicationTraceIndexDao applicationTraceIndexDao,
-                                  ServiceTypeRegistryService registry, ApplicationFactory applicationFactory,
-                                  Optional<ServerMapDataFilter> serverMapDataFilter, ApplicationMapBuilderFactory applicationMapBuilderFactory) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+                                  ServiceTypeRegistryService registry,
+                                  ApplicationFactory applicationFactory,
+                                  ServerInstanceDatasourceService serverInstanceDatasourceService,
+                                  Optional<ServerMapDataFilter> serverMapDataFilter,
+                                  ApplicationMapBuilderFactory applicationMapBuilderFactory) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
     }
@@ -175,8 +176,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.linkType(LinkType.DETAILED);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
-        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
-        if(option.isUseStatisticsAgentState()) {
+        ServerInstanceListDataSource serverInstanceListDataSource = serverInstanceDatasourceService.getServerInstanceListDataSource();;
+        if (option.isUseStatisticsAgentState()) {
             applicationMapBuilder.includeServerInfo(new StatisticsServerInstanceListFactory(serverInstanceListDataSource));
         } else {
             applicationMapBuilder.includeServerInfo(new DefaultServerInstanceListFactory(serverInstanceListDataSource));

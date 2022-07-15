@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.web.view;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -36,9 +35,6 @@ import java.util.Map;
  */
 @Component
 public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceList> {
-
-    @Autowired(required=false)
-    private List<MatcherGroup> matcherGroupList;
 
     @Override
     public void serialize(ServerInstanceList serverInstanceList, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -53,22 +49,16 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
             jgen.writeStringField("name", entry.getKey());
             jgen.writeStringField("status", null);
 
-            if (matcherGroupList != null) {
-                jgen.writeFieldName("linkList");
-                jgen.writeStartArray();
-                
-                for (MatcherGroup matcherGroup : matcherGroupList) {
-                    if (matcherGroup.ismatchingType(entry.getValue().get(0))) {
-                        LinkInfo linkInfo = matcherGroup.makeLinkInfo(entry.getValue().get(0));
-                        jgen.writeObject(linkInfo);
-                    }
-                }
-                
-                jgen.writeEndArray();
+            List<ServerInstance> serverInstances = entry.getValue();
+
+            ServerInstance serverInstance = org.springframework.util.CollectionUtils.firstElement(serverInstances);
+            List<HyperLink> linkList = serverInstance.getLinkList();
+            if (CollectionUtils.hasLength(linkList)) {
+                jgen.writeObjectField("linkList", linkList);
             }
             
             jgen.writeFieldName("instanceList");
-            writeInstanceList(jgen, entry.getValue());
+            writeInstanceList(jgen, serverInstances);
 
             jgen.writeEndObject();
         }

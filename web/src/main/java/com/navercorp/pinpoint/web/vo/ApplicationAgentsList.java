@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.web.hyperlink.HyperLink;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.view.ApplicationAgentsListSerializer;
 
 import java.util.ArrayList;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -90,11 +94,14 @@ public class ApplicationAgentsList {
 
     private final GroupBy groupBy;
     private final AgentInfoFilter filter;
+    private final HyperLinkFactory hyperLinkFactory;
+
     private final Map<GroupingKey, List<AgentInfo>> agentsMap = new TreeMap<>();
 
-    public ApplicationAgentsList(GroupBy groupBy, AgentInfoFilter filter) {
+    public ApplicationAgentsList(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
         this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
         this.filter = Objects.requireNonNull(filter, "filter");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public void add(AgentInfo agentInfo) {
@@ -123,13 +130,25 @@ public class ApplicationAgentsList {
             return Collections.emptyList();
         }
         List<ApplicationAgentList> applicationAgentLists = new ArrayList<>(agentsMap.size());
-        for (Map.Entry<GroupingKey, List<AgentInfo>> e : agentsMap.entrySet()) {
-            GroupingKey groupingKey = e.getKey();
-            List<AgentInfo> applicationAgents = new ArrayList<>(e.getValue());
+        for (Map.Entry<GroupingKey, List<AgentInfo>> entry : agentsMap.entrySet()) {
+            final GroupingKey groupingKey = entry.getKey();
+            final List<AgentInfo> agentInfoList = entry.getValue();
+
+            List<AgentInfo> applicationAgents = new ArrayList<>(agentInfoList);
             applicationAgents.sort(groupBy.getComparator());
-            applicationAgentLists.add(new ApplicationAgentList(groupingKey.value(), applicationAgents));
+
+            List<AgentInfoAndLink> agentInfoAndLinks = applicationAgents.stream()
+                    .map(this::newAgentInfoAndLink)
+                    .collect(Collectors.toList());
+
+            applicationAgentLists.add(new ApplicationAgentList(groupingKey.value(), agentInfoAndLinks));
         }
         return applicationAgentLists;
+    }
+
+    private AgentInfoAndLink newAgentInfoAndLink(AgentInfo agentInfo) {
+        List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
+        return new AgentInfoAndLink(agentInfo, hyperLinks);
     }
 
     @Override

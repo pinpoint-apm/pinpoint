@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentInfoFactory;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
@@ -70,9 +71,9 @@ public class ServerInstanceListTest {
 
         ServiceTypeRegistryService registry = mock(ServiceTypeRegistryService.class);
         when(registry.findServiceType(serviceType.getCode())).thenReturn(serviceType);
-        AgentInfo.Binder binder = new AgentInfo.Binder(registry);
+        AgentInfoFactory factory = new AgentInfoFactory(registry);
 
-        return binder.bind(agentInfoBuilder.build());
+        return factory.build(agentInfoBuilder.build());
 
     }
 }

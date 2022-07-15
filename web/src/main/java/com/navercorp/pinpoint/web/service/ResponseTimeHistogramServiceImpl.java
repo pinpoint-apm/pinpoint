@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.W
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
@@ -43,21 +44,19 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.service.map.processor.ApplicationFilter;
-import com.navercorp.pinpoint.web.service.map.processor.DestinationApplicationFilter;
-import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.service.map.LinkSelector;
 import com.navercorp.pinpoint.web.service.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.service.map.LinkSelectorType;
+import com.navercorp.pinpoint.web.service.map.processor.ApplicationFilter;
+import com.navercorp.pinpoint.web.service.map.processor.DestinationApplicationFilter;
+import com.navercorp.pinpoint.web.service.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.service.map.processor.SourceApplicationFilter;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -75,19 +74,21 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     private final LinkSelectorFactory linkSelectorFactory;
 
-    private final AgentInfoService agentInfoService;
+    private final ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     private final MapResponseDao mapResponseDao;
 
 
-    public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService, MapResponseDao mapResponseDao) {
+    public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory,
+                                            ServerInstanceDatasourceService serverInstanceDatasourceService,
+                                            MapResponseDao mapResponseDao) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
     }
 
     private ServerInstanceListFactory createServerInstanceListFactory(ResponseTimeHistogramServiceOption option) {
-        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+        ServerInstanceListDataSource serverInstanceListDataSource = serverInstanceDatasourceService.getServerInstanceListDataSource();
         if (option.isUseStatisticsAgentState()) {
             return new StatisticsServerInstanceListFactory(serverInstanceListDataSource);
         }

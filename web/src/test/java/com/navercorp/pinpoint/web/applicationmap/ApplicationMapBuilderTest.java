@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceL
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
@@ -86,9 +87,10 @@ public class ApplicationMapBuilderTest {
         responseHistogramBuilderNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
 
         AgentInfoService agentInfoService = mock(AgentInfoService.class);
-        agentInfoServerInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+        HyperLinkFactory hyperLinkFactory = mock(HyperLinkFactory.class);
+        agentInfoServerInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService, hyperLinkFactory);
 
-        Answer<List<ResponseTime>> responseTimeAnswer = new Answer<List<ResponseTime>>() {
+        Answer<List<ResponseTime>> responseTimeAnswer = new Answer<>() {
             final long timestamp = System.currentTimeMillis();
             @Override
             public List<ResponseTime> answer(InvocationOnMock invocation) {
