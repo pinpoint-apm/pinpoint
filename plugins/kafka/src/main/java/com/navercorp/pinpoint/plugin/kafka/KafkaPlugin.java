@@ -113,11 +113,19 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            // Version 2.3.0+ is supported.
-            InstrumentMethod constructor = target.getConstructor("java.util.Map",
+            // Version 2.8.0+ is supported.
+            InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
                     "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
                     "org.apache.kafka.clients.producer.internals.ProducerMetadata", "org.apache.kafka.clients.KafkaClient",
                     "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.common.utils.Time");
+
+            if (constructor == null) {
+                // Version 2.3.0+ is supported.
+                constructor = target.getConstructor("java.util.Map",
+                        "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
+                        "org.apache.kafka.clients.producer.internals.ProducerMetadata", "org.apache.kafka.clients.KafkaClient",
+                        "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.common.utils.Time");
+            }
 
             if (constructor == null) {
                 // Version 2.2.0+ is supported.
@@ -414,11 +422,12 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            final int kafkaVersion = KafkaVersion.getVersion(classLoader);
 
             InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long", "long");
 
             if (pollMethod != null) {
-                pollMethod.addInterceptor(NetworkClientPollInterceptor.class);
+                pollMethod.addInterceptor(NetworkClientPollInterceptor.class, va(kafkaVersion, KafkaVersion.getResponseDataMethod()));
                 target.addGetter(SelectorGetter.class, "selector");
             }
 
