@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
@@ -34,32 +35,29 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
 
     private final PinpointServer pinpointServer;
 
-    private final AgentInfo agentInfo;
-
+    private final ClusterKey clusterKey;
+    private final TCommandTypeVersion commandTypeVersion;
     private final List<TCommandType> supportCommandList;
 
     public static ClusterPoint<byte[]> newClusterPoint(PinpointServer pinpointServer, ChannelProperties channelProperties) {
-        AgentInfo agentInfo = newAgentInfo(channelProperties);
+        ClusterKey agentInfo = newClusterKey(channelProperties);
+        TCommandTypeVersion commandTypeVersion = TCommandTypeVersion.getVersion(channelProperties.getAgentVersion());
         List<TCommandType> supportCommandList = SupportedCommandUtils.newSupportCommandList(channelProperties.getSupportCommand());
-        return new ThriftAgentConnection(pinpointServer, agentInfo, supportCommandList);
+        return new ThriftAgentConnection(pinpointServer, agentInfo, commandTypeVersion, supportCommandList);
     }
 
-    public ThriftAgentConnection(PinpointServer pinpointServer, AgentInfo agentInfo, List<TCommandType> supportCommandList) {
+    public ThriftAgentConnection(PinpointServer pinpointServer, ClusterKey clusterKey, TCommandTypeVersion commandTypeVersion, List<TCommandType> supportCommandList) {
         this.pinpointServer = Objects.requireNonNull(pinpointServer, "pinpointServer");
-        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
+        this.clusterKey = Objects.requireNonNull(clusterKey, "clusterKey");
+        this.commandTypeVersion = Objects.requireNonNull(commandTypeVersion, "commandTypeVersion");
         this.supportCommandList = Objects.requireNonNull(supportCommandList, "supportCommandList");
     }
 
-    private static AgentInfo newAgentInfo(ChannelProperties channelProperties) {
+    private static ClusterKey newClusterKey(ChannelProperties channelProperties) {
         String applicationName = channelProperties.getApplicationName();
-
         String agentId = channelProperties.getAgentId();
-
         long startTimeStamp = channelProperties.getStartTime();
-
-        String version = channelProperties.getAgentVersion();
-
-        return new AgentInfo(applicationName, agentId, startTimeStamp, version);
+        return new ClusterKey(applicationName, agentId, startTimeStamp);
     }
 
     @Override
@@ -68,8 +66,8 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
     }
 
     @Override
-    public AgentInfo getDestAgentInfo() {
-        return agentInfo;
+    public ClusterKey getDestClusterKey() {
+        return clusterKey;
     }
 
     @Override
@@ -80,8 +78,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
             }
         }
 
-        TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(agentInfo.getVersion());
-        if (commandVersion.isSupportCommand(command)) {
+        if (commandTypeVersion.isSupportCommand(command)) {
             return true;
         }
 
@@ -97,7 +94,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
         StringBuilder log = new StringBuilder(32);
         log.append(this.getClass().getSimpleName());
         log.append("(");
-        log.append(agentInfo);
+        log.append(clusterKey);
         log.append(", supportCommandList:");
         log.append(supportCommandList);
         log.append(", pinpointServer:");
@@ -109,7 +106,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
 
     @Override
     public int hashCode() {
-        return agentInfo.hashCode();
+        return clusterKey.hashCode();
     }
 
     @Override

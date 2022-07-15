@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
@@ -35,13 +35,12 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Map<AgentInfoKey, Set<T>> clusterPointRepository = new HashMap<>();
+    private final Map<ClusterKey, Set<T>> clusterPointRepository = new HashMap<>();
 
     public boolean addAndIsKeyCreated(T clusterPoint) {
-        AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-        AgentInfoKey key = destAgentInfo.getAgentKey();
+        ClusterKey destClusterKey = clusterPoint.getDestClusterKey();
         synchronized (this) {
-            final Set<T> clusterPointSet = clusterPointRepository.get(key);
+            final Set<T> clusterPointSet = clusterPointRepository.get(destClusterKey);
             if (clusterPointSet != null) {
                 clusterPointSet.add(clusterPoint);
 
@@ -50,22 +49,21 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
                 Set<T> newSet = new HashSet<>();
                 newSet.add(clusterPoint);
 
-                clusterPointRepository.put(key, newSet);
+                clusterPointRepository.put(destClusterKey, newSet);
                 return true;
             }
         }
     }
 
     public boolean removeAndGetIsKeyRemoved(T clusterPoint) {
-        AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-        AgentInfoKey key = destAgentInfo.getAgentKey();
+        ClusterKey destClusterKey = clusterPoint.getDestClusterKey();
         synchronized (this) {
-            final Set<T> clusterPointSet = clusterPointRepository.get(key);
+            final Set<T> clusterPointSet = clusterPointRepository.get(destClusterKey);
             if (clusterPointSet != null) {
                 clusterPointSet.remove(clusterPoint);
 
                 if (clusterPointSet.isEmpty()) {
-                    clusterPointRepository.remove(key);
+                    clusterPointRepository.remove(destClusterKey);
                     return true;
                 }
             }
@@ -85,12 +83,12 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
         }
     }
 
-    public Set<AgentInfoKey> getAvailableAgentKeyList() {
+    public Set<ClusterKey> getAvailableAgentKeyList() {
         synchronized (this) {
-            Set<AgentInfoKey> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
+            Set<ClusterKey> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
 
-            for (Map.Entry<AgentInfoKey, Set<T>> entry : clusterPointRepository.entrySet()) {
-                final AgentInfoKey key = entry.getKey();
+            for (Map.Entry<ClusterKey, Set<T>> entry : clusterPointRepository.entrySet()) {
+                final ClusterKey key = entry.getKey();
                 final Set<T> clusterPointSet = entry.getValue();
                 for (T clusterPoint : clusterPointSet) {
                     if (clusterPoint instanceof ThriftAgentConnection) {

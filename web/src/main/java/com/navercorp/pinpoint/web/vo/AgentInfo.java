@@ -47,7 +47,6 @@ public class AgentInfo {
     private String agentVersion;
     private ServerMetaDataBo serverMetaData;
     private JvmInfoBo jvmInfo;
-    private long initialStartTimestamp;
     private boolean container;
     private AgentStatus status;
 
@@ -163,10 +162,6 @@ public class AgentInfo {
         this.jvmInfo = jvmInfo;
     }
 
-    public long getInitialStartTimestamp() {
-        return initialStartTimestamp;
-    }
-
 
     public boolean isContainer() {
         return container;
@@ -221,7 +216,6 @@ public class AgentInfo {
         sb.append(", agentVersion='").append(agentVersion).append('\'');
         sb.append(", serverMetaData='").append(serverMetaData).append('\'');
         sb.append(", jvmInfo=").append(jvmInfo);
-        sb.append(", initialStartTimestamp=").append(initialStartTimestamp);
         sb.append(", container=").append(container);
         sb.append(", status=").append(status);
         sb.append('}');

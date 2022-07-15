@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -38,19 +38,19 @@ public class CollectorClusterInfoRepositoryTest {
 
         CollectorClusterInfoRepository info = new CollectorClusterInfoRepository();
 
-        final AgentInfoKey agent1 = new AgentInfoKey("app", "agent1", 0);
-        final AgentInfoKey agent2 = new AgentInfoKey("app", "agent2", 1);
-        final Set<AgentInfoKey> profilerInfos = Set.of(agent1, agent2);
+        final ClusterKey clusterKey1 = new ClusterKey("app", "agent1", 0);
+        final ClusterKey clusterKey2 = new ClusterKey("app", "agent2", 1);
+        final Set<ClusterKey> profilerInfos = Set.of(clusterKey1, clusterKey2);
 
         ClusterId clusterId = new ClusterId("/path", "/collectorA", "appName");
         info.put(clusterId, profilerInfos);
 
-        List<ClusterId> collectorList = info.get(agent1);
+        List<ClusterId> collectorList = info.get(clusterKey1);
         logger.debug("{}", collectorList);
         Assertions.assertEquals(clusterId, collectorList.get(0));
 
         info.remove(clusterId);
-        Assertions.assertTrue(info.get(agent1).isEmpty(), "Not found");
+        Assertions.assertTrue(info.get(clusterKey1).isEmpty(), "Not found");
     }
 
 

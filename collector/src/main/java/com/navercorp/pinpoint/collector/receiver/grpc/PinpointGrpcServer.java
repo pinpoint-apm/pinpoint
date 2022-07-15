@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
@@ -80,16 +80,16 @@ public class PinpointGrpcServer {
     private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
     private final InetSocketAddress remoteAddress;
-    private final AgentInfo agentInfo;
+    private final ClusterKey clusterKey;
     private final RequestManager requestManager;
     private final ProfilerClusterManager profilerClusterManager;
     private final StreamObserver<PCmdRequest> requestObserver;
 
     private Runnable onCloseHandler;
 
-    public PinpointGrpcServer(InetSocketAddress remoteAddress, AgentInfo agentInfo, RequestManager requestManager, ProfilerClusterManager profilerClusterManager, StreamObserver<PCmdRequest> requestObserver) {
+    public PinpointGrpcServer(InetSocketAddress remoteAddress, ClusterKey clusterKey, RequestManager requestManager, ProfilerClusterManager profilerClusterManager, StreamObserver<PCmdRequest> requestObserver) {
         this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
-        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
+        this.clusterKey = Objects.requireNonNull(clusterKey, "clusterKey");
         this.requestManager = Objects.requireNonNull(requestManager, "requestManager");
         this.profilerClusterManager = Objects.requireNonNull(profilerClusterManager, "profilerClusterManager");
         this.requestObserver = Objects.requireNonNull(requestObserver, "requestObserver");
@@ -105,7 +105,7 @@ public class PinpointGrpcServer {
 
     public boolean handleHandshake(List<Integer> supportCommandServiceList) {
         if (isInfo) {
-            logger.info("{} handleHandshake() started. data:{}", agentInfo, supportCommandServiceList);
+            logger.info("{} handleHandshake() started. data:{}", clusterKey, supportCommandServiceList);
         }
 
         boolean isFirst = this.supportCommandServiceList.compareAndSet(null, supportCommandServiceList);
@@ -128,7 +128,7 @@ public class PinpointGrpcServer {
                 profilerClusterManager.unregister(grpcAgentConnection);
             }
         } else {
-            logger.warn("Failed to change state. agent:{}, result:{}", agentInfo, result);
+            logger.warn("Failed to change state. agent:{}, result:{}", clusterKey, result);
         }
 
         if (logger.isDebugEnabled()) {
@@ -209,14 +209,14 @@ public class PinpointGrpcServer {
         }
 
         if (isInfo) {
-            logger.info("{} handleMessage:{}", agentInfo, MessageFormatUtils.debugLog(message));
+            logger.info("{} handleMessage:{}", clusterKey, MessageFormatUtils.debugLog(message));
         }
         TBase<?, ?> tMessage = messageConverter.toMessage(message);
 
         try {
             byte[] serialize = SerializationUtils.serialize(tMessage, commandHeaderTBaseSerializerFactory);
             ResponsePacket responsePacket = new ResponsePacket(responseId, serialize);
-            requestManager.messageReceived(responsePacket, agentInfo.toString());
+            requestManager.messageReceived(responsePacket, clusterKey.format());
         } catch (TException e) {
             setFailMessageToFuture(responseId, e.getMessage());
         }
@@ -303,7 +303,7 @@ public class PinpointGrpcServer {
     }
 
     public void close(SocketStateCode toState) {
-        logger.info("close() will be started. ( remoteAddress:{}, agentInfo:{}, closeState:{}", remoteAddress, agentInfo.getAgentKey(), toState);
+        logger.info("close() will be started. ( remoteAddress:{}, clusterKey:{}, closeState:{}", remoteAddress, clusterKey, toState);
 
         if (onCloseHandler != null) {
             onCloseHandler.run();
@@ -340,7 +340,7 @@ public class PinpointGrpcServer {
                     logger.warn("stop(). Socket has unexpected state({})", currentStateCode);
                 }
             } finally {
-                logger.info("{} <=> local all streamChannels will be close.", agentInfo.getAgentKey());
+                logger.info("{} <=> local all streamChannels will be close.", clusterKey);
                 streamChannelRepository.close(StreamCode.STATE_CLOSED);
             }
         }
@@ -362,8 +362,8 @@ public class PinpointGrpcServer {
         return state.getCurrentState();
     }
 
-    public AgentInfo getAgentInfo() {
-        return agentInfo;
+    public ClusterKey getClusterKey() {
+        return clusterKey;
     }
 
     public Future<ResponseMessage> createFailedFuture(Exception failException) {

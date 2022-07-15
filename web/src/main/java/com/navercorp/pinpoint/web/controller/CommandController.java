@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -55,8 +55,8 @@ public class CommandController {
     public CodeResult echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
                                           @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
-        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
-        if (agentInfo == null) {
+        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp);
+        if (clusterKey == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
@@ -64,7 +64,7 @@ public class CommandController {
         echo.setMessage(message);
 
         try {
-            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, echo);
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(clusterKey, echo);
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {

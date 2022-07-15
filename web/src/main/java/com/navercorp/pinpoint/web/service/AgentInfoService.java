@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
@@ -52,7 +51,9 @@ public interface AgentInfoService {
 
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
-    AgentInfo getAgentInfoNoStatus(String agentId, long agentStartTime, int deltaTimeInMilliseconds);
+    AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp);
+
+    AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliseconds);
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
 

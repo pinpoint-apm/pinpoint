@@ -278,12 +278,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentInfo getAgentInfo(String agentId, long timestamp) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        if (timestamp < 0) {
-            throw new IllegalArgumentException("timestamp must not be less than 0");
-        }
-        AgentInfo agentInfo = this.agentInfoDao.getAgentInfo(agentId, timestamp);
+        AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, timestamp);
         if (agentInfo != null) {
             Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(agentInfo.getAgentId(), agentInfo.getStartTimestamp(), timestamp);
             agentInfo.setStatus(agentStatus.orElse(null));
@@ -292,7 +287,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentInfo getAgentInfoNoStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
+    public AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp) {
+        Objects.requireNonNull(agentId, "agentId");
+
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+        return this.agentInfoDao.getAgentInfo(agentId, timestamp);
+    }
+
+    @Override
+    public AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
         return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
     }
 
@@ -348,7 +353,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public boolean isExistAgentId(String agentId) {
-        AgentInfo agentInfo = getAgentInfo(agentId, System.currentTimeMillis());
+        AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, System.currentTimeMillis());
         return agentInfo != null;
     }
 

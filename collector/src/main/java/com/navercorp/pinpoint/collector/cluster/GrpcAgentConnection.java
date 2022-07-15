@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.profiler.context.grpc.CommandThriftToGrpcMessageConverter;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
@@ -72,8 +73,8 @@ public class GrpcAgentConnection implements ClusterPoint<TBase<?, ?>> {
     }
 
     @Override
-    public AgentInfo getDestAgentInfo() {
-        return pinpointGrpcServer.getAgentInfo();
+    public ClusterKey getDestClusterKey() {
+        return pinpointGrpcServer.getClusterKey();
     }
 
     @Override
@@ -92,7 +93,7 @@ public class GrpcAgentConnection implements ClusterPoint<TBase<?, ?>> {
 
     @Override
     public int hashCode() {
-        return pinpointGrpcServer.getAgentInfo().hashCode();
+        return pinpointGrpcServer.getClusterKey().hashCode();
     }
 
     @Override

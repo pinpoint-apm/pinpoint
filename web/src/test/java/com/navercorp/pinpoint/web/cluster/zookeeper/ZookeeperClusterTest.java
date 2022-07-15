@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.NetUtils;
@@ -133,15 +134,15 @@ public class ZookeeperClusterTest {
             manager.start();
             awaitClusterManagerConnected(manager);
 
-            awaitCheckAgentRegistered(manager, "a", "b", 1L);
-            List<ClusterId> agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            awaitCheckAgentRegistered(manager, new ClusterKey("a", "b", 1L));
+            List<ClusterId> agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
             Assertions.assertEquals(1, agentList.size());
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
-            agentList = manager.getRegisteredAgentList("b", "c", 1L);
+            agentList = manager.getRegisteredAgentList(new ClusterKey("b", "c", 1L));
             Assertions.assertEquals(0, agentList.size());
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
-            awaitCheckAgentUnRegistered(manager, "a", "b", 1L);
+            awaitCheckAgentUnRegistered(manager, new ClusterKey("a", "b", 1L));
 
         } finally {
             closeZk(zookeeper);
@@ -179,31 +180,31 @@ public class ZookeeperClusterTest {
             manager.start();
             awaitClusterManagerConnected(manager);
 
-            awaitCheckAgentRegistered(manager, "a", "b", 1L);
-            List<ClusterId> agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            awaitCheckAgentRegistered(manager, new ClusterKey("a", "b", 1L));
+            List<ClusterId> agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
             Assertions.assertEquals(1, agentList.size());
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
-            awaitCheckAgentRegistered(manager, "c", "d", 2L);
+            awaitCheckAgentRegistered(manager, new ClusterKey("c", "d", 2L));
 
-            agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
             Assertions.assertEquals(1, agentList.size());
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
-            agentList = manager.getRegisteredAgentList("c", "d", 2L);
+            agentList = manager.getRegisteredAgentList(new ClusterKey("c", "d", 2L));
             Assertions.assertEquals(1, agentList.size());
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
             Thread.sleep(10000);
 
-            awaitCheckAgentUnRegistered(manager, "a", "b", 1L);
+            awaitCheckAgentUnRegistered(manager, new ClusterKey("a", "b", 1L));
 
-            agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
             Assertions.assertEquals(0, agentList.size());
 
-            agentList = manager.getRegisteredAgentList("c", "d", 2L);
+            agentList = manager.getRegisteredAgentList(new ClusterKey("c", "d", 2L));
             Assertions.assertEquals(0, agentList.size());
         } finally {
             closeZk(zookeeper);
@@ -216,18 +217,18 @@ public class ZookeeperClusterTest {
                 .until(manager::isConnected);
     }
 
-    private void awaitCheckAgentRegistered(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
+    private void awaitCheckAgentRegistered(final ZookeeperClusterDataManager manager, ClusterKey clusterKey) {
         awaitility()
-                .until(getRegisteredAgentList(manager, applicationName, agentId, startTimeStamp), not(IsEmptyCollection.empty()));
+                .until(getRegisteredAgentList(manager, clusterKey), not(IsEmptyCollection.empty()));
     }
 
-    private void awaitCheckAgentUnRegistered(final ZookeeperClusterDataManager manager, final String applicationName, final String agentId, final long startTimeStamp) {
+    private void awaitCheckAgentUnRegistered(final ZookeeperClusterDataManager manager, ClusterKey clusterKey) {
         awaitility()
-                .until(getRegisteredAgentList(manager, applicationName, agentId, startTimeStamp), IsEmptyCollection.empty());
+                .until(getRegisteredAgentList(manager, clusterKey), IsEmptyCollection.empty());
     }
 
-    private Callable<List<ClusterId>> getRegisteredAgentList(ZookeeperClusterDataManager manager, String applicationName, String agentId, long startTimeStamp) {
-        return () -> manager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
+    private Callable<List<ClusterId>> getRegisteredAgentList(ZookeeperClusterDataManager manager, ClusterKey clusterKey) {
+        return () -> manager.getRegisteredAgentList(clusterKey);
     }
 
     private static TestingServer createZookeeperServer(int port) throws Exception {

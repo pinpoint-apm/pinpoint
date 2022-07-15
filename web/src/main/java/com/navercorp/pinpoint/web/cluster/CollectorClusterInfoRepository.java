@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +31,11 @@ import java.util.Set;
  */
 public class CollectorClusterInfoRepository {
 
-    private final Map<ClusterId, Set<AgentInfoKey>> repository = new HashMap<>();
+    private final Map<ClusterId, Set<ClusterKey>> repository = new HashMap<>();
 
     private final Object lock = new Object();
 
-    public void put(ClusterId clusterId, Set<AgentInfoKey> profilerInfoSet) {
+    public void put(ClusterId clusterId, Set<ClusterKey> profilerInfoSet) {
         Objects.requireNonNull(clusterId, "clusterId");
         Objects.requireNonNull(profilerInfoSet, "profilerInfoSet");
 
@@ -52,13 +52,13 @@ public class CollectorClusterInfoRepository {
         }
     }
 
-    public List<ClusterId> get(AgentInfoKey agentKey) {
+    public List<ClusterId> get(ClusterKey agentKey) {
         Objects.requireNonNull(agentKey, "agentKey");
 
         final List<ClusterId> result = new ArrayList<>();
         synchronized (lock) {
-            for (Map.Entry<ClusterId, Set<AgentInfoKey>> entry : repository.entrySet()) {
-                final Set<AgentInfoKey> valueSet = entry.getValue();
+            for (Map.Entry<ClusterId, Set<ClusterKey>> entry : repository.entrySet()) {
+                final Set<ClusterKey> valueSet = entry.getValue();
                 final boolean exist = valueSet.contains(agentKey);
                 if (exist) {
                     final ClusterId clusterId = entry.getKey();

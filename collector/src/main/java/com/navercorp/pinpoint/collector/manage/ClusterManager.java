@@ -17,10 +17,10 @@
 
 package com.navercorp.pinpoint.collector.manage;
 
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +51,8 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
 
         List<? extends ClusterPoint<?>> clusterPointList = clusterPointLocator.getClusterPointList();
         for (ClusterPoint<?> clusterPoint : clusterPointList) {
-            AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-            result.add(destAgentInfo.getAgentKey().toString());
+            ClusterKey destClusterKey = clusterPoint.getDestClusterKey();
+            result.add(destClusterKey.format());
         }
 
         return result;

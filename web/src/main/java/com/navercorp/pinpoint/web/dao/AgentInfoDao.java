@@ -26,10 +26,6 @@ import java.util.List;
  */
 public interface AgentInfoDao {
 
-    AgentInfo getInitialAgentInfo(String agentId);
-
-    List<AgentInfo> getInitialAgentInfos(List<String> agentIds);
-
     AgentInfo getAgentInfo(String agentId, long timestamp);
 
     AgentInfo getAgentInfo(String agentId, long agentStartTime, int deltaTimeInMilliSeconds);

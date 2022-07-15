@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 /**
  * @author Taejin Koo
  */
-public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfoKey> {
+public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<ClusterKey> {
     private static final String PROFILER_SEPARATOR = "\r\n";
     public static final String APPLICATION_NAME_SEPARATOR = "$$";
 
@@ -54,7 +54,7 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
     private final CommonStateContext workerState;
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
-    private final LinkedBlockingDeque<ZookeeperJob<AgentInfoKey>> jobDeque = new LinkedBlockingDeque<>();
+    private final LinkedBlockingDeque<ZookeeperJob<ClusterKey>> jobDeque = new LinkedBlockingDeque<>();
     private Thread workerThread;
 
     public ZookeeperJobWorker2(ZookeeperClient zookeeperClient, String connectedAgentZNodePath) {
@@ -120,12 +120,12 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
     }
 
     @Override
-    public void addPinpointServer(AgentInfoKey key) {
+    public void addPinpointServer(ClusterKey key) {
         if (logger.isDebugEnabled()) {
             logger.debug("addPinpointServer key:{}", key);
         }
 
-        ZookeeperJob<AgentInfoKey> job = new ZookeeperJob<>(ZookeeperJob.Type.ADD, key);
+        ZookeeperJob<ClusterKey> job = new ZookeeperJob<>(ZookeeperJob.Type.ADD, key);
         synchronized (lock) {
             putZookeeperJob(job);
         }
@@ -158,12 +158,12 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
     }
 
     @Override
-    public void removePinpointServer(AgentInfoKey key) {
+    public void removePinpointServer(ClusterKey key) {
         if (logger.isDebugEnabled()) {
             logger.debug("removePinpointServer key:{}", key);
         }
 
-        ZookeeperJob<AgentInfoKey> job = new ZookeeperJob<>(ZookeeperJob.Type.REMOVE, key);
+        ZookeeperJob<ClusterKey> job = new ZookeeperJob<>(ZookeeperJob.Type.REMOVE, key);
         synchronized (lock) {
             putZookeeperJob(job);
         }
@@ -171,14 +171,14 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
 
     @Override
     public void clear() {
-        ZookeeperJob<AgentInfoKey> job = new ZookeeperJob<>(ZookeeperJob.Type.CLEAR);
+        ZookeeperJob<ClusterKey> job = new ZookeeperJob<>(ZookeeperJob.Type.CLEAR);
         synchronized (lock) {
             jobDeque.clear();
             putZookeeperJob(job);
         }
     }
 
-    private boolean putZookeeperJob(ZookeeperJob<AgentInfoKey> zookeeperJob) {
+    private boolean putZookeeperJob(ZookeeperJob<ClusterKey> zookeeperJob) {
         synchronized (lock) {
             return jobDeque.add(zookeeperJob);
         }
@@ -193,7 +193,7 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         // may lead to PinpointServer leak when events are left unresolved
         while (workerState.isStarted()) {
             try {
-                ZookeeperJob<AgentInfoKey> job = poll();
+                ZookeeperJob<ClusterKey> job = poll();
 
                 boolean completed = handle(job);
                 if (!completed) {
@@ -207,9 +207,9 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         logger.info("run() completed.");
     }
 
-    private ZookeeperJob<AgentInfoKey> poll() throws InterruptedException {
+    private ZookeeperJob<ClusterKey> poll() throws InterruptedException {
         while (true) {
-            ZookeeperJob<AgentInfoKey> job = jobDeque.poll(3000, TimeUnit.MILLISECONDS);
+            ZookeeperJob<ClusterKey> job = jobDeque.poll(3000, TimeUnit.MILLISECONDS);
             if (job == null) {
                 continue;
             }
@@ -217,7 +217,7 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         }
     }
 
-    private boolean handle(ZookeeperJob<AgentInfoKey> job) {
+    private boolean handle(ZookeeperJob<ClusterKey> job) {
 
         ZookeeperJob.Type type = job.getType();
         switch (type) {
@@ -232,12 +232,12 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         return false;
     }
 
-    private boolean handleUpdate(ZookeeperJob<AgentInfoKey> job) {
+    private boolean handleUpdate(ZookeeperJob<ClusterKey> job) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleUpdate zookeeperJobList:{}", job);
         }
 
-        final AgentInfoKey key = job.getKey();
+        final ClusterKey key = job.getKey();
 
         try {
             String path = getPath(key);
@@ -255,19 +255,19 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         return false;
     }
 
-    private String getPath(AgentInfoKey key) {
+    private String getPath(ClusterKey key) {
         StringJoiner buffer = new StringJoiner(APPLICATION_NAME_SEPARATOR);
         buffer.add(collectorUniqPath);
         buffer.add(key.getApplicationName());
         return buffer.toString();
     }
 
-    private boolean handleDelete(ZookeeperJob<AgentInfoKey> job) {
+    private boolean handleDelete(ZookeeperJob<ClusterKey> job) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleDelete zookeeperJobList:{}", job);
         }
 
-        final AgentInfoKey key = job.getKey();
+        final ClusterKey key = job.getKey();
 
         try {
             String path = getPath(key);
@@ -286,7 +286,7 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
     }
 
 
-    private boolean handleClear(ZookeeperJob<AgentInfoKey> job) {
+    private boolean handleClear(ZookeeperJob<ClusterKey> job) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleClear zookeeperJobList:{}", job);
         }
@@ -301,7 +301,7 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         return false;
     }
 
-    private String addIfAbsentContents(String clusterDataString, AgentInfoKey addContentCandidate) {
+    private String addIfAbsentContents(String clusterDataString, ClusterKey addContentCandidate) {
         final List<String> clusterDataList = tokenize(clusterDataString);
 
         List<String> addContentCandidateList = Collections.singletonList(addContentCandidate.toString());
@@ -333,7 +333,7 @@ public class ZookeeperJobWorker2 implements Runnable, ClusterJobWorker<AgentInfo
         return false;
     }
 
-    private String removeIfExistContents(String clusterDataString, AgentInfoKey removeClusterData) {
+    private String removeIfExistContents(String clusterDataString, ClusterKey removeClusterData) {
 
         final List<String> clusterDataList = tokenize(clusterDataString);
 

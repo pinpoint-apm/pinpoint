@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.stream.StreamChannel;
+import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.cluster.ClusterKeyUtils;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -122,33 +125,34 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
         logger.info("addWebSocketSession. applicationName:{}, webSocketSession:{}", applicationName, webSocketSession);
 
-        List<AgentInfo> agentInfoList = agentService.getRecentAgentInfoList(applicationName, DEFAULT_AGENT_LOOKUP_TIME);
+        List<ClusterKeyAndStatus> clusterKeys = agentService.getRecentAgentInfoList(applicationName, DEFAULT_AGENT_LOOKUP_TIME);
         synchronized (workerManagingLock) {
             if (isStopped) {
                 return;
             }
 
-            Map<AgentInfo, StreamChannel> streamChannelMap = new HashMap<>(agentInfoList.size());
-            for (AgentInfo agentInfo : agentInfoList) {
-                AgentStatus agentStatus = agentInfo.getStatus();
+            Map<ClusterKey, StreamChannel> streamChannelMap = new HashMap<>(clusterKeys.size());
+            for (ClusterKeyAndStatus key : clusterKeys) {
+                ClusterKey clusterKey = key.getClusterKey();
+                AgentStatus agentStatus = key.getStatus();
                 if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
-                    StreamChannel streamChannel = registerWorkerAndConnectStream(agentInfo);
-                    streamChannelMap.put(agentInfo, streamChannel);
-                } else if (agentService.isConnected(agentInfo)) {
-                    StreamChannel streamChannel = registerWorkerAndConnectStream(agentInfo);
-                    streamChannelMap.put(agentInfo, streamChannel);
+                    StreamChannel streamChannel = registerWorkerAndConnectStream(key.getClusterKey());
+                    streamChannelMap.put(clusterKey, streamChannel);
+                } else if (agentService.isConnected(clusterKey)) {
+                    StreamChannel streamChannel = registerWorkerAndConnectStream(clusterKey);
+                    streamChannelMap.put(clusterKey, streamChannel);
                 }
             }
 
             long maxAwaitTimeout = 3000;
             long currentTimeMillis = System.currentTimeMillis();
-            for (Map.Entry<AgentInfo, StreamChannel> agentInfoStreamChannelEntry : streamChannelMap.entrySet()) {
-                AgentInfo agentInfo = agentInfoStreamChannelEntry.getKey();
+            for (Map.Entry<ClusterKey, StreamChannel> agentInfoStreamChannelEntry : streamChannelMap.entrySet()) {
+                ClusterKey clusterKey = agentInfoStreamChannelEntry.getKey();
                 StreamChannel streamChannel = agentInfoStreamChannelEntry.getValue();
 
                 long diff = System.currentTimeMillis() - currentTimeMillis;
                 long awaitTimeout = Math.max(maxAwaitTimeout - diff, 500);
-                activeWorker(agentInfo, streamChannel, awaitTimeout);
+                activeWorker(clusterKey, streamChannel, awaitTimeout);
             }
 
             final boolean added = webSocketSessions.add(webSocketSession);
@@ -188,10 +192,10 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     @Override
-    public void addActiveWorker(AgentInfo agentInfo) {
-        logger.info("activeWorker applicationName:{}, agentId:{}", applicationName, agentInfo.getAgentId());
+    public void addActiveWorker(ClusterKey clusterKey) {
+        logger.info("activeWorker applicationName:{}, agentId:{}", applicationName, clusterKey.getAgentId());
 
-        if (!applicationName.equals(agentInfo.getApplicationName())) {
+        if (!applicationName.equals(clusterKey.getApplicationName())) {
             return;
         }
 
@@ -199,18 +203,18 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             if (isStopped) {
                 return;
             }
-            activeWorker(agentInfo);
+            activeWorker(clusterKey);
         }
     }
 
-    private StreamChannel registerWorkerAndConnectStream(AgentInfo agentInfo) {
-        String agentId = agentInfo.getAgentId();
+    private StreamChannel registerWorkerAndConnectStream(ClusterKey clusterKey) {
+        String agentId = clusterKey.getAgentId();
 
         synchronized (workerManagingLock) {
             ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
             if (worker == null) {
-                worker = new ActiveThreadCountWorker(agentService, agentInfo, this, workerActiveManager);
-                StreamChannel streamChannel = worker.connect(agentInfo);
+                worker = new ActiveThreadCountWorker(agentService, clusterKey.getApplicationName(), clusterKey.getAgentId(), this, workerActiveManager);
+                StreamChannel streamChannel = worker.connect(clusterKey);
                 activeThreadCountWorkerRepository.put(agentId, worker);
                 return streamChannel;
             } else {
@@ -219,8 +223,8 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         }
     }
 
-    private void activeWorker(AgentInfo agentInfo, StreamChannel streamChannel, long waitTimeout) {
-        String agentId = agentInfo.getAgentId();
+    private void activeWorker(ClusterKey clusterKey, StreamChannel streamChannel, long waitTimeout) {
+        String agentId = clusterKey.getAgentId();
 
         synchronized (workerManagingLock) {
             ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
@@ -231,19 +235,21 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         }
     }
 
-    private void activeWorker(AgentInfo agentInfo) {
-        String agentId = agentInfo.getAgentId();
+    private void activeWorker(ClusterKey clusterKey) {
+        String agentId = clusterKey.getAgentId();
 
         synchronized (workerManagingLock) {
             ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
             if (worker == null) {
-                worker = new ActiveThreadCountWorker(agentService, agentInfo, this, workerActiveManager);
-                StreamChannel streamChannel = worker.connect(agentInfo);
+                worker = new ActiveThreadCountWorker(agentService,
+                        clusterKey.getApplicationName(), clusterKey.getAgentId(),
+                        this, workerActiveManager);
+                StreamChannel streamChannel = worker.connect(clusterKey);
                 worker.active(streamChannel, 3000);
 
                 activeThreadCountWorkerRepository.put(agentId, worker);
             } else {
-                worker.reactive(agentInfo);
+                worker.reactive(clusterKey);
             }
         }
     }

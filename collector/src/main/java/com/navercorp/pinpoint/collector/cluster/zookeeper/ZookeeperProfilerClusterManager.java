@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
-import com.navercorp.pinpoint.common.server.cluster.AgentInfoKey;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
@@ -37,7 +37,7 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ClusterJobWorker<AgentInfoKey> worker;
+    private final ClusterJobWorker<ClusterKey> worker;
 
     private final CommonStateContext workerState = new CommonStateContext();
 
@@ -106,7 +106,7 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
     public void register(ClusterPoint<?> targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
-                AgentInfoKey key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+                ClusterKey key = targetClusterPoint.getDestClusterKey();
 
                 boolean added = profileCluster.addAndIsKeyCreated(targetClusterPoint);
                 if (key != null && added) {
@@ -122,7 +122,7 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
     public void unregister(ClusterPoint<?> targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
-                AgentInfoKey key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+                ClusterKey key = targetClusterPoint.getDestClusterKey();
 
                 boolean removed = profileCluster.removeAndGetIsKeyRemoved(targetClusterPoint);
                 if (key != null && removed) {
@@ -139,8 +139,8 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
         worker.clear();
 
         synchronized (lock) {
-            Set<AgentInfoKey> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
-            for (AgentInfoKey availableAgentKey : availableAgentKeyList) {
+            Set<ClusterKey> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
+            for (ClusterKey availableAgentKey : availableAgentKeyList) {
                 worker.addPinpointServer(availableAgentKey);
             }
         }
