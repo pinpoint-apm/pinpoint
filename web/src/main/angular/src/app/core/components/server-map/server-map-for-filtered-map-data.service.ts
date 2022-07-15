@@ -7,7 +7,6 @@ import { Actions } from 'app/shared/store/reducers';
 import { UrlQuery, UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, DynamicPopupService, UrlRouteManagerService } from 'app/shared/services';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
-import { isThatType } from 'app/core/utils/util';
 
 @Injectable()
 export class ServerMapForFilteredMapDataService {

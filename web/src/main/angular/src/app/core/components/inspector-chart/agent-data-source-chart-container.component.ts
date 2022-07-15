@@ -15,7 +15,6 @@ import {
 } from 'app/shared/services';
 import { AgentDataSourceChartDataService, IAgentDataSourceChart } from './agent-data-source-chart-data.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { isThatType } from 'app/core/utils/util';
 import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
 import { IInspectorChartData } from './inspector-chart-data.service';
 import { Layer } from './inspector-chart-container.component';

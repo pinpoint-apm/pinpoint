@@ -4,7 +4,6 @@ import { Observable, throwError, EMPTY, of } from 'rxjs';
 import { catchError, retry, switchMap } from 'rxjs/operators';
 
 import { AuthService } from 'app/shared/services';
-import { isThatType } from 'app/core/utils/util';
 
 
 @Injectable()

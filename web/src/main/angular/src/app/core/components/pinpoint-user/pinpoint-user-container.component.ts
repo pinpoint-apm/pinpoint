@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { TranslateReplaceService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { PinpointUserDataService, IPinpointUserResponse } from './pinpoint-user-data.service';
-import { isThatType, isEmpty } from 'app/core/utils/util';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-pinpoint-user-container',
