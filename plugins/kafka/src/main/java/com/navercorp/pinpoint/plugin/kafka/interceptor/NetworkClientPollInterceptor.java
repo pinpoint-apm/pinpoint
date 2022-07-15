@@ -25,9 +25,12 @@ import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
 
+import com.navercorp.pinpoint.plugin.kafka.interceptor.util.KafkaResponseDataProvider;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.util.KafkaResponseDataProviderFactory;
 import org.apache.kafka.clients.ClientResponse;
 import org.apache.kafka.common.requests.FetchResponse;
 
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -43,6 +46,11 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final KafkaResponseDataProvider responseDataProvider;
+
+    public NetworkClientPollInterceptor(int kafkaVersion, Method responseDataMethod) {
+        this.responseDataProvider = KafkaResponseDataProviderFactory.getResponseDataProvider(kafkaVersion, responseDataMethod);
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -82,8 +90,8 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
                 continue;
             }
 
-            FetchResponse fetchResponse = (FetchResponse) responseBody;
-            Map responseData = fetchResponse.responseData();
+            final Map responseData = responseDataProvider.getResponseData(responseBody);
+
             if (responseData == null) {
                 continue;
             }
