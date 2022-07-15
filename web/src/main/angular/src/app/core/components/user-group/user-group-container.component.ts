@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { WebAppSettingDataService, TranslateReplaceService, MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted } from './user-group-data.service';
-import { isThatType, isEmpty } from 'app/core/utils/util';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-user-group-container',

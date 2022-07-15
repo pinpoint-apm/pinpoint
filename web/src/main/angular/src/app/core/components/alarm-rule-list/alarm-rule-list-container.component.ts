@@ -1,14 +1,13 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { filter, takeUntil } from 'rxjs/operators';
 
 import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, WebAppSettingDataService, WebhookDataService, IWebhook } from 'app/shared/services';
 import { UserGroupDataService, IUserGroup } from 'app/core/components/user-group/user-group-data.service';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
 import { NotificationType, IAlarmForm } from './alarm-rule-create-and-update.component';
 import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleDelete, IAlarmRuleResponse, IAlarmWithWebhook } from './alarm-rule-data.service';
-import { isThatType } from 'app/core/utils/util';
-import { filter, takeUntil } from 'rxjs/operators';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from '../help-viewer-popup/help-viewer-popup-container.component';
 
 @Component({

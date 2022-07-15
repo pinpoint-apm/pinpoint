@@ -8,7 +8,6 @@ import { takeUntil, tap, switchMap, catchError, filter } from 'rxjs/operators';
 import { AnalyticsService, StoreHelperService, DynamicPopupService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ApplicationDataSourceChartDataService, IApplicationDataSourceChart } from './application-data-source-chart-data.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { isThatType } from 'app/core/utils/util';
 import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
 import { IInspectorChartData } from './inspector-chart-data.service';
 import { makeXData, makeYData, getMaxTickValue } from 'app/core/utils/chart-util';

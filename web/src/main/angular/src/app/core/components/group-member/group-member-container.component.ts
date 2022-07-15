@@ -3,7 +3,7 @@ import { Subject, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './group-member-data.service';
-import { isThatType, isEmpty } from 'app/core/utils/util';
+import { isEmpty } from 'app/core/utils/util';
 import { MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 @Component({

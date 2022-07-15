@@ -6,7 +6,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { IWebhook, IWebhookCreate, IWebhookRule, WebhookDataService } from 'app/shared/services/webhook-data.service';
 import { AnalyticsService, TRACKED_EVENT_LIST, WebAppSettingDataService, TranslateReplaceService } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
-import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-webhook-list-container',
