@@ -11,7 +11,7 @@ dependencies {
     api(project(":pinpoint-rpc"))
     api(project(":pinpoint-thrift"))
     api(project(":pinpoint-grpc"))
-    api(platform(project(":pinpoint-plugins")))
+    implementation(platform(project(":pinpoint-plugins")))
     api(platform(project(":pinpoint-agent-plugins")))
 
     implementation(libs.guava.jdk8)
