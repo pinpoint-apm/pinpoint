@@ -8,7 +8,8 @@
                                             com.navercorp.pinpoint.web.service,
                                             com.navercorp.pinpoint.web.mapper,
                                             com.navercorp.pinpoint.web.applicationmap,
-                                            com.navercorp.pinpoint.common.server.bo">
+                                            com.navercorp.pinpoint.common.server.bo,
+                                            com.navercorp.pinpoint.common.server.dao.hbase.mapper">
         <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.CacheServiceImpl"/>
         <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentServiceImpl"/>
     </context:component-scan>
