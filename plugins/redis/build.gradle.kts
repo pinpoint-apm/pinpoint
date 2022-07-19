@@ -6,7 +6,8 @@ dependencies {
     testImplementation(project(":pinpoint-profiler"))
     testImplementation(project(":pinpoint-profiler-test"))
     compileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnlyApi("redis.clients:jedis:2.4.2")
+    compileOnly("redis.clients:jedis:2.4.2")
+    testCompileOnly("redis.clients:jedis:2.4.2")
 }
 
 description = "pinpoint-redis-plugin"

@@ -7,7 +7,8 @@ dependencies {
     compileOnly(libs.httpcore)
     compileOnly("org.apache.httpcomponents:httpasyncclient:4.1.4")
     compileOnly("org.apache.httpcomponents:httpcore-nio:4.4.14")
-    compileOnlyApi(libs.httpclient)
+    compileOnly(libs.httpclient)
+    testCompileOnly(libs.httpclient)
     compileOnly("commons-httpclient:commons-httpclient:3.1")
 }
 

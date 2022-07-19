@@ -6,7 +6,8 @@ dependencies {
     testImplementation(libs.log4j.api.jdk7)
     testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
-    compileOnlyApi(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    testCompileOnly(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-mysql-jdbc-driver-plugin"

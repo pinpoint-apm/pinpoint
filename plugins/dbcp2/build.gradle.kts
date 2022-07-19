@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnlyApi(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    testCompileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.commons:commons-dbcp2:2.1.1")
 }
 

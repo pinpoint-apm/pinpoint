@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnlyApi(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    testCompileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.apache.cxf:cxf-rt-frontend-jaxrs:3.0.16") {
         exclude(group = "javax.annotation", module = "javax.annotation-api")
     }

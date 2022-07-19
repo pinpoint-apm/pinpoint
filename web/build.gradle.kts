@@ -4,15 +4,15 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-commons-server"))
-    api(project(":pinpoint-commons-server-cluster"))
-    api(project(":pinpoint-commons-hbase"))
-    api(project(":pinpoint-rpc"))
-    api(project(":pinpoint-thrift"))
-    api(project(":pinpoint-grpc"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-server"))
+    implementation(project(":pinpoint-commons-server-cluster"))
+    implementation(project(":pinpoint-commons-hbase"))
+    implementation(project(":pinpoint-rpc"))
+    implementation(project(":pinpoint-thrift"))
+    implementation(project(":pinpoint-grpc"))
     implementation(platform(project(":pinpoint-plugins")))
-    api(platform(project(":pinpoint-agent-plugins")))
+    implementation(platform(project(":pinpoint-agent-plugins")))
 
     implementation(libs.guava.jdk8)
     implementation(libs.netty)
@@ -39,7 +39,9 @@ dependencies {
     implementation(libs.spring.security.web)
     implementation(libs.spring.security.config)
     implementation(libs.spring.security.messaging)
-    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.web) {
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+    }
     implementation(libs.spring.boot.starter.log4j2)
     implementation(libs.hikariCP)
     implementation(libs.mybatis)
@@ -66,7 +68,9 @@ dependencies {
     }
     runtimeOnly(libs.commons.lang)
     runtimeOnly(libs.slf4j.api)
-    runtimeOnly(libs.log4j.jcl)
+    runtimeOnly(libs.log4j.jcl) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
@@ -79,7 +83,7 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     testImplementation(testFixtures(project(":pinpoint-rpc")))
     compileOnly(libs.javax.servlet.api)
-    compileOnly(libs.spring.boot.starter.tomcat)
+    runtimeOnly(libs.spring.boot.starter.tomcat)
 
     implementation(libs.hbase.shaded.client) {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")

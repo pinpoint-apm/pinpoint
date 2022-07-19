@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-common-servlet"))
-    api(project(":pinpoint-jboss-plugin"))
+    implementation(project(":pinpoint-common-servlet"))
+    implementation(project(":pinpoint-jboss-plugin"))
     testImplementation(project(":pinpoint-profiler"))
     testImplementation(project(":pinpoint-profiler-test"))
     testImplementation(project(":pinpoint-test"))
@@ -12,7 +12,8 @@ dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(libs.javax.servlet.api.v3)
     compileOnly("org.apache.tomcat:servlet-api:6.0.35")
-    compileOnlyApi("org.apache.tomcat:catalina:6.0.43")
+    compileOnly("org.apache.tomcat:catalina:6.0.43")
+    testCompileOnly("org.apache.tomcat:catalina:6.0.43")
 }
 
 description = "pinpoint-tomcat-plugin"

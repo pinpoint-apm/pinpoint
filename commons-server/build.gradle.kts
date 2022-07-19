@@ -3,10 +3,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-commons-profiler"))
-    api(project(":pinpoint-commons-hbase"))
-    api(project(":pinpoint-plugins-loader"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-commons-hbase"))
+    implementation(project(":pinpoint-plugins-loader"))
+    implementation(project(":pinpoint-annotations"))
     implementation(libs.commons.collections4)
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
@@ -19,11 +20,15 @@ dependencies {
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
-    runtimeOnly(libs.log4j.jcl)
+    runtimeOnly(libs.log4j.jcl) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     testImplementation(libs.awaitility)
     testImplementation(libs.spring.test)
-    compileOnlyApi(project(":pinpoint-thrift"))
-    compileOnlyApi(project(":pinpoint-grpc"))
+    compileOnly(project(":pinpoint-thrift"))
+    testCompileOnly(project(":pinpoint-thrift"))
+    compileOnly(project(":pinpoint-grpc"))
+    testCompileOnly(project(":pinpoint-grpc"))
 
     implementation(libs.hbase.shaded.client) {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")

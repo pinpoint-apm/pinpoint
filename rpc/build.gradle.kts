@@ -4,15 +4,16 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-annotations"))
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-annotations"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-profiler"))
     implementation(libs.netty)
     implementation(libs.log4j.slf4j.impl.jdk7)
     implementation(libs.log4j.core.jdk7)
     runtimeOnly(libs.slf4j.api)
     testFixturesApi(project(":pinpoint-testcase"))
     testFixturesImplementation(libs.netty)
+    testFixturesImplementation(project(":pinpoint-commons"))
     testFixturesApi(libs.awaitility)
     testFixturesImplementation(libs.log4j.api)
     testFixturesImplementation("junit:junit:4.13.2") {

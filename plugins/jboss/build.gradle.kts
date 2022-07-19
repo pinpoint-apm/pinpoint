@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    api(project(":pinpoint-common-servlet"))
+    implementation(project(":pinpoint-common-servlet"))
     testCompileOnly(project(":pinpoint-profiler"))
     testCompileOnly(project(":pinpoint-profiler-logging"))
     testCompileOnly(project(":pinpoint-profiler-test"))
@@ -22,6 +22,7 @@ dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly("org.jboss.as:jboss-as-security:7.2.0.Final")
     testImplementation(libs.log4j.api)
+    testCompileOnly(libs.javax.servlet.api.v3)
 }
 
 description = "pinpoint-jboss-plugin"

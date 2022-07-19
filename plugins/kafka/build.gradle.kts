@@ -3,8 +3,10 @@ plugins {
 }
 
 dependencies {
-    compileOnlyApi(project(":pinpoint-bootstrap-core"))
-    compileOnlyApi("org.apache.kafka:kafka-clients:0.11.0.1")
+    compileOnly(project(":pinpoint-bootstrap-core"))
+    testCompileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly("org.apache.kafka:kafka-clients:0.11.0.1")
+    testCompileOnly("org.apache.kafka:kafka-clients:0.11.0.1")
 }
 
 description = "pinpoint-kafka-plugin"

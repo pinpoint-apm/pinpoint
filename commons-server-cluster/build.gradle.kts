@@ -19,7 +19,9 @@ dependencies {
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
-    runtimeOnly(libs.log4j.jcl)
+    runtimeOnly(libs.log4j.jcl) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     testImplementation(libs.spring.test)
     testImplementation(libs.curator.test)
     testImplementation(project(":pinpoint-testcase"))

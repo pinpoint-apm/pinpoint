@@ -5,6 +5,7 @@ plugins {
 dependencies {
     api(project(":pinpoint-common-servlet"))
     compileOnly(project(":pinpoint-bootstrap-core"))
+    testCompileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(libs.javax.servlet.api.v3)
 }
 

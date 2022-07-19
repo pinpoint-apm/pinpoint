@@ -6,9 +6,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-bootstrap-core"))
-    api(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-bootstrap-core"))
+    implementation(project(":pinpoint-commons-profiler"))
     implementation(libs.log4j.slf4j.impl.jdk7)
     implementation(libs.log4j.core.jdk7)
     implementation(libs.commons.lang3)

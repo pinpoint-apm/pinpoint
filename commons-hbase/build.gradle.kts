@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-annotations"))
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-annotations"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-profiler"))
     implementation(libs.commons.collections4)
     implementation(libs.jackson.core.asl)
     implementation(libs.spring.core) {
@@ -16,7 +16,9 @@ dependencies {
     runtimeOnly(libs.log4j)
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
-    runtimeOnly(libs.log4j.jcl)
+    runtimeOnly(libs.log4j.jcl) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
 
     implementation(libs.hbase.shaded.client) {
         exclude(group = "org.slf4j", module = "slf4j-log4j12")

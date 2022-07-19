@@ -46,7 +46,9 @@ dependencies {
         exclude(group = "com.papertrail", module = "profiler")
     }
     runtimeOnly(libs.commons.lang)
-    runtimeOnly(libs.log4j.jcl)
+    runtimeOnly(libs.log4j.jcl) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
     testImplementation(libs.spring.boot.test)
