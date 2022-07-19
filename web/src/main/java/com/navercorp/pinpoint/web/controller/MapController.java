@@ -296,23 +296,26 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        List<Application> fromApplications = new ArrayList<>(fromApplicationNames.size());
-        for (int i = 0; i < fromApplicationNames.size(); i++) {
-            Application fromApplication = applicationFactory.createApplication(fromApplicationNames.get(i), fromServiceTypeCodes.get(i));
-            fromApplications.add(fromApplication);
-        }
-        List<Application> toApplications = new ArrayList<>(toApplicationNames.size());
-        for (int i = 0; i < toApplicationNames.size(); i++) {
-            Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
-            toApplications.add(toApplication);
-        }
-        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
+        List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
         if (useLoadHistogramFormat) {
             nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
         }
         return nodeHistogramSummary;
+    }
+
+    private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
+        List<Application> result = new ArrayList<>(applicationNames.size());
+        for (int i = 0; i < applicationNames.size(); i++) {
+            Application application = applicationFactory.createApplication(applicationNames.get(i), serviceTypeCodes.get(i));
+            result.add(application);
+        }
+        return result;
     }
 
     private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {

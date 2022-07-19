@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -58,7 +59,7 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
         }
 
         final ServerBuilder builder = new ServerBuilder();
-        final Set<AgentInfo> agentInfoSet = new HashSet<>();
+        final Set<AgentAndStatus> agentInfoSet = new HashSet<>();
         final NodeHistogram nodeHistogram = wasNode.getNodeHistogram();
         if (nodeHistogram != null && nodeHistogram.getAgentHistogramMap() != null) {
             for (String agentId : nodeHistogram.getAgentHistogramMap().keySet()) {
@@ -66,8 +67,9 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
                 agentInfo.setAgentId(agentId);
                 agentInfo.setHostName(agentId);
                 agentInfo.setIp("");
+                agentInfo.setAgentName("");
                 agentInfo.setServiceType(wasNode.getServiceType());
-                agentInfoSet.add(agentInfo);
+                agentInfoSet.add(new AgentAndStatus(agentInfo));
             }
         }
         builder.addAgentInfo(agentInfoSet);

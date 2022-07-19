@@ -10,9 +10,9 @@ public class AgentInfoFilterChain implements AgentInfoFilter {
     }
 
     @Override
-    public boolean filter(AgentInfo agentInfo) {
+    public boolean filter(AgentAndStatus agentAndStatus) {
         for (AgentInfoFilter agentFilter : this.agentInfoFilters) {
-            if (agentFilter.filter(agentInfo) == ACCEPT) {
+            if (agentFilter.filter(agentAndStatus) == ACCEPT) {
                 return ACCEPT;
             }
         }

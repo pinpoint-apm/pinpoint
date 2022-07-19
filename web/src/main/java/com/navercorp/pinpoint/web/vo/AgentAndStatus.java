@@ -2,15 +2,20 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class AgentInfoAndStatus {
+public class AgentAndStatus {
     private final AgentInfo agentInfo;
     private final AgentStatus status;
 
-    public AgentInfoAndStatus(AgentInfo agentInfo, AgentStatus status) {
+    public AgentAndStatus(AgentInfo agentInfo, @Nullable AgentStatus status) {
         this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
-        this.status = Objects.requireNonNull(status, "status");
+        this.status = status;
+    }
+
+    public AgentAndStatus(AgentInfo agentInfo) {
+        this(agentInfo, null);
     }
 
     @JsonUnwrapped

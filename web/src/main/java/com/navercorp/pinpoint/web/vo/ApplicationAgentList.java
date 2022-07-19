@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 public class ApplicationAgentList {
 
     private final String groupName;
-    private final List<AgentInfoAndLink> agentInfoAndLinkList;
+    private final List<AgentAndLink> agentInfoAndLinkList;
 
-    public ApplicationAgentList(String groupName, List<AgentInfoAndLink> agentInfoAndLinkList) {
+    public ApplicationAgentList(String groupName, List<AgentAndLink> agentInfoAndLinkList) {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
         this.agentInfoAndLinkList = Objects.requireNonNull(agentInfoAndLinkList, "agentInfoAndLinkList");
     }
@@ -39,11 +39,11 @@ public class ApplicationAgentList {
 
     public List<AgentInfo> getAgentInfos() {
         return agentInfoAndLinkList.stream()
-                .map(AgentInfoAndLink::getAgentInfo)
+                .map(AgentAndLink::getAgentInfo)
                 .collect(Collectors.toList());
     }
 
-    public List<AgentInfoAndLink> getAgentInfoAndLinks() {
+    public List<AgentAndLink> getAgentInfoAndLinks() {
         return agentInfoAndLinkList;
     }
 

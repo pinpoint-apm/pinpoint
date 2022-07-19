@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFactory;
 import org.hamcrest.MatcherAssert;
@@ -44,10 +45,10 @@ public class ServerInstanceListTest {
     @Test
     public void testGetAgentIdList() {
 
-        AgentInfo agentInfo1 = createAgentInfo("agentId1", "testHost");
-        AgentInfo agentInfo2 = createAgentInfo("agentId2", "testHost");
+        AgentAndStatus agentInfo1 = createAgentInfo("agentId1", "testHost");
+        AgentAndStatus agentInfo2 = createAgentInfo("agentId2", "testHost");
 
-        Set<AgentInfo> agentInfoSet = new HashSet<>();
+        Set<AgentAndStatus> agentInfoSet = new HashSet<>();
         agentInfoSet.add(agentInfo1);
         agentInfoSet.add(agentInfo2);
 
@@ -61,7 +62,7 @@ public class ServerInstanceListTest {
         MatcherAssert.assertThat(agentIdList, hasItem("agentId2"));
     }
 
-    public static AgentInfo createAgentInfo(String agentId, String hostName) {
+    public static AgentAndStatus createAgentInfo(String agentId, String hostName) {
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
         agentInfoBuilder.setAgentId(agentId);
 
@@ -73,7 +74,7 @@ public class ServerInstanceListTest {
         when(registry.findServiceType(serviceType.getCode())).thenReturn(serviceType);
         AgentInfoFactory factory = new AgentInfoFactory(registry);
 
-        return factory.build(agentInfoBuilder.build());
+        return new AgentAndStatus(factory.build(agentInfoBuilder.build()));
 
     }
 }

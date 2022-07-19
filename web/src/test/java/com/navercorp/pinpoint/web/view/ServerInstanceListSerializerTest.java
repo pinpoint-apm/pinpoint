@@ -28,12 +28,10 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
-import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
@@ -53,10 +51,8 @@ public class ServerInstanceListSerializerTest {
 
         ObjectMapper mapper = createMapper();
 
-        AgentInfo agentInfo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
-
-        Set<AgentInfo> agentInfoSet = new HashSet<>();
-        agentInfoSet.add(agentInfo);
+        AgentAndStatus agentInfo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
+        Set<AgentAndStatus> agentInfoSet = Set.of(agentInfo);
 
         ServerBuilder builder = new ServerBuilder();
         builder.addAgentInfo(agentInfoSet);

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
@@ -43,13 +44,13 @@ public interface AgentInfoService {
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 
-    Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp);
+    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
 
     Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp);
 
-    Set<AgentInfo> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff);
+    Set<AgentAndStatus> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff);
 
-    AgentInfo getAgentInfo(String agentId, long timestamp);
+    AgentAndStatus getAgentInfo(String agentId, long timestamp);
 
     AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp);
 

@@ -6,18 +6,18 @@ public interface AgentInfoFilter {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
-    boolean filter(AgentInfo agentInfo);
+    boolean filter(AgentAndStatus agentInfo);
 
-    static boolean accept(AgentInfo agentInfo) {
+    static boolean accept(AgentAndStatus agentAndStatus) {
         return ACCEPT;
     }
 
-    static boolean reject(AgentInfo agentInfo) {
+    static boolean reject(AgentAndStatus agentAndStatus) {
         return REJECT;
     }
 
-    static boolean filterRunning(AgentInfo agentInfo) {
-        final AgentStatus agentStatus = agentInfo.getStatus();
+    static boolean filterRunning(AgentAndStatus agentAndStatus) {
+        final AgentStatus agentStatus = agentAndStatus.getStatus();
         if (agentStatus == null) {
             return REJECT;
         }

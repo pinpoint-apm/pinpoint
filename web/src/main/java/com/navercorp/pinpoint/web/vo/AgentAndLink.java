@@ -7,11 +7,11 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import java.util.List;
 import java.util.Objects;
 
-public class AgentInfoAndLink {
+public class AgentAndLink {
     private final AgentInfo agentInfo;
     private final List<HyperLink> hyperLinkList;
 
-    public AgentInfoAndLink(AgentInfo agentInfo, List<HyperLink> hyperLinkList) {
+    public AgentAndLink(AgentInfo agentInfo, List<HyperLink> hyperLinkList) {
         this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
         this.hyperLinkList = Objects.requireNonNull(hyperLinkList, "hyperLinkList");
     }
