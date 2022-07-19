@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
@@ -117,12 +118,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(applicationName, "applicationName");
 
         ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter, hyperLinkFactory);
-        Set<AgentInfo> agentInfos = getAgentsByApplicationName(applicationName, timestamp);
-        if (agentInfos.isEmpty()) {
+        Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfoAnsStatuss.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
             return applicationAgentsList;
         }
-        applicationAgentsList.addAll(agentInfos);
+        applicationAgentsList.addAll(agentInfoAnsStatuss);
         if (logger.isDebugEnabled()) {
             logger.debug("getApplicationAgentsList={}", applicationAgentsList);
         }
@@ -218,20 +219,20 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
+    public Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp) {
         List<AgentInfo> agentInfos = this.getAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
 
+        List<AgentAndStatus> result = new ArrayList<>(agentInfos.size());
 
         AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, Instant.ofEpochMilli(timestamp));
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
         for (int i = 0; i < agentStatus.size(); i++) {
             Optional<AgentStatus> status = agentStatus.get(i);
-            if (status.isPresent()) {
-                AgentInfo agentInfo = agentInfos.get(i);
-                agentInfo.setStatus(status.get());
-            }
+            AgentInfo agentInfo = agentInfos.get(i);
+            result.add(new AgentAndStatus(agentInfo, status.orElse(null)));
         }
-        return new HashSet<>(agentInfos);
+
+        return new HashSet<>(result);
     }
 
 
@@ -257,33 +258,35 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public Set<AgentInfo> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
+    public Set<AgentAndStatus> getRecentAgentsByApplicationName(String applicationName, long timestamp, long timeDiff) {
         if (timeDiff > timestamp) {
             throw new IllegalArgumentException("timeDiff must not be greater than timestamp");
         }
 
-        Set<AgentInfo> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
+        Set<AgentAndStatus> unfilteredAgentInfos = this.getAgentsByApplicationName(applicationName, timestamp);
 
         final long eventTimestampFloor = timestamp - timeDiff;
 
-        Set<AgentInfo> filteredAgentInfos = new HashSet<>();
-        for (AgentInfo agentInfo : unfilteredAgentInfos) {
-            AgentStatus agentStatus = agentInfo.getStatus();
+        Set<AgentAndStatus> filteredAgentInfos = new HashSet<>();
+        for (AgentAndStatus agentInfoAndStatus : unfilteredAgentInfos) {
+            AgentStatus agentStatus = agentInfoAndStatus.getStatus();
             if (AgentLifeCycleState.UNKNOWN == agentStatus.getState() || eventTimestampFloor <= agentStatus.getEventTimestamp()) {
-                filteredAgentInfos.add(agentInfo);
+                filteredAgentInfos.add(agentInfoAndStatus);
             }
         }
         return filteredAgentInfos;
     }
 
     @Override
-    public AgentInfo getAgentInfo(String agentId, long timestamp) {
+    public AgentAndStatus getAgentInfo(String agentId, long timestamp) {
+
         AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, timestamp);
-        if (agentInfo != null) {
-            Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(agentInfo.getAgentId(), agentInfo.getStartTimestamp(), timestamp);
-            agentInfo.setStatus(agentStatus.orElse(null));
+        if (agentInfo == null) {
+            return null;
         }
-        return agentInfo;
+
+        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(agentInfo.getAgentId(), agentInfo.getStartTimestamp(), timestamp);
+        return new AgentAndStatus(agentInfo, agentStatus.orElse(null));
     }
 
     @Override

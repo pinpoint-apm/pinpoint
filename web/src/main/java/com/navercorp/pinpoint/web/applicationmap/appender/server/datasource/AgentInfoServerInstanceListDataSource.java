@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author HyunGil Jeong
@@ -75,8 +77,12 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
         agentInfos = filterAgentInfos(agentInfos, timestamp, node);
         logger.debug("add agentInfos {} : {}", application, agentInfos);
 
+        Set<AgentAndStatus> agentAndStatusSet = agentInfos.stream()
+                .map(AgentAndStatus::new)
+                .collect(Collectors.toSet());
+
         ServerBuilder builder = new ServerBuilder(hyperLinkFactory);
-        builder.addAgentInfo(agentInfos);
+        builder.addAgentInfo(agentAndStatusSet);
         return builder.build();
     }
 

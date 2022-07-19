@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -54,10 +55,15 @@ public class ServerInstanceList {
     }
 
     public Map<String, String> getAgentIdNameMap() {
-        Collection<List<ServerInstance>> serverList = this.serverInstanceList.values();
-        return serverList.stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toMap(ServerInstance::getName, ServerInstance::getAgentName));
+        // Stream is not recommended
+        final Map<String, String> map = new HashMap<>();
+        for (List<ServerInstance> serverInstanceList : this.serverInstanceList.values()) {
+            for (ServerInstance serverInstance : serverInstanceList) {
+                // NPE
+                map.put(serverInstance.getName(), serverInstance.getAgentName());
+            }
+        }
+        return map;
     }
 
     public int getInstanceCount() {

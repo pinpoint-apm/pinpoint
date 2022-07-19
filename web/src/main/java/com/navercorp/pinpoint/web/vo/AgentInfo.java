@@ -171,15 +171,6 @@ public class AgentInfo {
         this.container = container;
     }
 
-    public AgentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AgentStatus status) {
-        this.status = Objects.requireNonNull(status, "status");
-    }
-
-
 
     @Override
     public boolean equals(Object o) {

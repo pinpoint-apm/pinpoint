@@ -16,10 +16,9 @@ public class AgentInfoFilterChainTest {
         );
 
         AgentStatus status = new AgentStatus("testAgent", AgentLifeCycleState.RUNNING, current);
-        AgentInfo info = new AgentInfo();
-        info.setStatus(status);
+        AgentAndStatus agentAndStatus = new AgentAndStatus(new AgentInfo(), status);
 
-        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
+        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(agentAndStatus));
     }
 
     @Test
@@ -31,10 +30,8 @@ public class AgentInfoFilterChainTest {
         );
 
         AgentStatus status = new AgentStatus("testAgent", AgentLifeCycleState.RUNNING, current);
-        AgentInfo info = new AgentInfo();
-        info.setStatus(status);
-
-        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
+        AgentAndStatus agentAndStatus = new AgentAndStatus(new AgentInfo(), status);
+        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(agentAndStatus));
     }
 
     @Test
@@ -46,9 +43,7 @@ public class AgentInfoFilterChainTest {
         );
 
         AgentStatus status = new AgentStatus("testAgent", AgentLifeCycleState.RUNNING, current);
-        AgentInfo info = new AgentInfo();
-        info.setStatus(status);
-
-        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(info));
+        AgentAndStatus agentAndStatus = new AgentAndStatus(new AgentInfo(), status);
+        Assertions.assertEquals(AgentInfoFilter.ACCEPT, chain.filter(agentAndStatus));
     }
 }

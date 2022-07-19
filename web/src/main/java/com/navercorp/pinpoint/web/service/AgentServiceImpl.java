@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import com.navercorp.pinpoint.web.cluster.ClusterKeyUtils;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -158,8 +159,8 @@ public class AgentServiceImpl implements AgentService {
 
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getRecentAgentsByApplicationName(applicationName, currentTime, timeDiff);
-        return agentInfos.stream()
+        Set<AgentAndStatus> agentInfoAndStatusSet = agentInfoService.getRecentAgentsByApplicationName(applicationName, currentTime, timeDiff);
+        return agentInfoAndStatusSet.stream()
                 .filter(Objects::nonNull)
                 .map(ClusterKeyUtils::withStatusFrom)
                 .collect(Collectors.toList());

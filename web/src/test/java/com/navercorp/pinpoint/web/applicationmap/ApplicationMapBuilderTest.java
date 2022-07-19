@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -46,7 +47,6 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -106,16 +106,14 @@ public class ApplicationMapBuilderTest {
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
-        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
+        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
             @Override
-            public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
+            public Set<AgentAndStatus> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
                 AgentInfo agentInfo = ApplicationMapBuilderTestHelper.createAgentInfoFromApplicationName(applicationName);
                 AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.RUNNING, 0);
-                agentInfo.setStatus(agentStatus);
-                Set<AgentInfo> agentInfos = new HashSet<>();
-                agentInfos.add(agentInfo);
-                return agentInfos;
+
+                return Set.of(new AgentAndStatus(agentInfo, agentStatus));
             }
         });
         when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
@@ -123,9 +121,7 @@ public class ApplicationMapBuilderTest {
             public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
                 AgentInfo agentInfo = ApplicationMapBuilderTestHelper.createAgentInfoFromApplicationName(applicationName);
-                Set<AgentInfo> agentInfos = new HashSet<>();
-                agentInfos.add(agentInfo);
-                return agentInfos;
+                return Set.of(agentInfo);
             }
         });
         when(agentInfoService.getAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<AgentStatus>()  {

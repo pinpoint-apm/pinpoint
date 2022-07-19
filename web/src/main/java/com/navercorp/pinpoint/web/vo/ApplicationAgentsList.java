@@ -38,28 +38,35 @@ import java.util.stream.Collectors;
  */
 @JsonSerialize(using = ApplicationAgentsListSerializer.class)
 public class ApplicationAgentsList {
-
     public enum GroupBy {
         APPLICATION_NAME {
             @Override
-            protected GroupingKey extractKey(AgentInfo agentInfo) {
-                return new StringGroupingKey(agentInfo.getApplicationName());
+            protected GroupingKey extractKey(AgentAndStatus agentInfoAndStatus) {
+                return new StringGroupingKey(agentInfoAndStatus.getAgentInfo().getApplicationName());
             }
 
             @Override
-            protected Comparator<AgentInfo> getComparator() {
-                return AgentInfo.AGENT_NAME_ASC_COMPARATOR;
+            protected Comparator<AgentAndStatus> getComparator() {
+                return new Comparator<AgentAndStatus>() {
+                    @Override
+                    public int compare(AgentAndStatus o1, AgentAndStatus o2) {
+                        return AgentInfo.AGENT_NAME_ASC_COMPARATOR.compare(o1.getAgentInfo(), o2.getAgentInfo());
+                    }
+                };
             }
         },
         HOST_NAME {
             @Override
-            protected GroupingKey extractKey(AgentInfo agentInfo) {
+            protected GroupingKey extractKey(AgentAndStatus agentInfoAndStatus) {
+                AgentInfo agentInfo = agentInfoAndStatus.getAgentInfo();
                 return new HostNameContainerGroupingKey(agentInfo.getHostName(), agentInfo.isContainer());
             }
 
             @Override
-            protected Comparator<AgentInfo> getComparator() {
-                return (agentInfo1, agentInfo2) -> {
+            protected Comparator<AgentAndStatus> getComparator() {
+                return (agentInfoAndStatus1, agentInfoAndStatus2) -> {
+                    final AgentInfo agentInfo1 = agentInfoAndStatus1.getAgentInfo();
+                    final AgentInfo agentInfo2 = agentInfoAndStatus2.getAgentInfo();
                     if (agentInfo1.isContainer() && agentInfo2.isContainer()) {
                         // reverse start time order if both are containers
                         return Long.compare(agentInfo2.getStartTimestamp(), agentInfo1.getStartTimestamp());
@@ -76,12 +83,12 @@ public class ApplicationAgentsList {
             }
         };
 
-        protected abstract GroupingKey extractKey(AgentInfo agentInfo);
+        protected abstract GroupingKey extractKey(AgentAndStatus agentInfoAndStatus);
 
         /**
          * Do not use this for sorted set and maps.
          */
-        protected abstract Comparator<AgentInfo> getComparator();
+        protected abstract Comparator<AgentAndStatus> getComparator();
     }
 
     /**
@@ -96,7 +103,7 @@ public class ApplicationAgentsList {
     private final AgentInfoFilter filter;
     private final HyperLinkFactory hyperLinkFactory;
 
-    private final Map<GroupingKey, List<AgentInfo>> agentsMap = new TreeMap<>();
+    private final Map<GroupingKey, List<AgentAndStatus>> agentsMap = new TreeMap<>();
 
     public ApplicationAgentsList(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
         this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
@@ -104,23 +111,23 @@ public class ApplicationAgentsList {
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
-    public void add(AgentInfo agentInfo) {
-        if (filter.filter(agentInfo) == AgentInfoFilter.REJECT) {
+    public void add(AgentAndStatus agentInfoAndStatus) {
+        if (filter.filter(agentInfoAndStatus) == AgentInfoFilter.REJECT) {
             return;
         }
-        GroupingKey key = groupBy.extractKey(agentInfo);
-        List<AgentInfo> agentInfos = agentsMap.computeIfAbsent(key, k -> new ArrayList<>());
-        agentInfos.add(agentInfo);
+        GroupingKey key = groupBy.extractKey(agentInfoAndStatus);
+        List<AgentAndStatus> agentInfos = agentsMap.computeIfAbsent(key, k -> new ArrayList<>());
+        agentInfos.add(agentInfoAndStatus);
     }
 
-    public void addAll(Iterable<AgentInfo> agentInfos) {
-        for (AgentInfo agentInfo : agentInfos) {
-            add(agentInfo);
+    public void addAll(Iterable<AgentAndStatus> agentInfoAndStatusList) {
+        for (AgentAndStatus agent : agentInfoAndStatusList) {
+            add(agent);
         }
     }
 
     public void merge(ApplicationAgentsList applicationAgentList) {
-        for (List<AgentInfo> agentInfos : applicationAgentList.agentsMap.values()) {
+        for (List<AgentAndStatus> agentInfos : applicationAgentList.agentsMap.values()) {
             addAll(agentInfos);
         }
     }
@@ -130,14 +137,15 @@ public class ApplicationAgentsList {
             return Collections.emptyList();
         }
         List<ApplicationAgentList> applicationAgentLists = new ArrayList<>(agentsMap.size());
-        for (Map.Entry<GroupingKey, List<AgentInfo>> entry : agentsMap.entrySet()) {
+        for (Map.Entry<GroupingKey, List<AgentAndStatus>> entry : agentsMap.entrySet()) {
             final GroupingKey groupingKey = entry.getKey();
-            final List<AgentInfo> agentInfoList = entry.getValue();
+            final List<AgentAndStatus> agentInfoList = entry.getValue();
 
-            List<AgentInfo> applicationAgents = new ArrayList<>(agentInfoList);
+            List<AgentAndStatus> applicationAgents = new ArrayList<>(agentInfoList);
             applicationAgents.sort(groupBy.getComparator());
 
-            List<AgentInfoAndLink> agentInfoAndLinks = applicationAgents.stream()
+            List<AgentAndLink> agentInfoAndLinks = applicationAgents.stream()
+                    .map(AgentAndStatus::getAgentInfo)
                     .map(this::newAgentInfoAndLink)
                     .collect(Collectors.toList());
 
@@ -146,9 +154,9 @@ public class ApplicationAgentsList {
         return applicationAgentLists;
     }
 
-    private AgentInfoAndLink newAgentInfoAndLink(AgentInfo agentInfo) {
+    private AgentAndLink newAgentInfoAndLink(AgentInfo agentInfo) {
         List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
-        return new AgentInfoAndLink(agentInfo, hyperLinks);
+        return new AgentAndLink(agentInfo, hyperLinks);
     }
 
     @Override

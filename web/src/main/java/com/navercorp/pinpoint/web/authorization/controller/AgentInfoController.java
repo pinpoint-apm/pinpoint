@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
@@ -107,7 +108,7 @@ public class AgentInfoController {
     }
 
     @GetMapping(value = "/getAgentInfo")
-    public AgentInfo getAgentInfo(
+    public AgentAndStatus getAgentInfo(
             @RequestParam("agentId") String agentId,
             @RequestParam("timestamp") long timestamp) {
         return this.agentInfoService.getAgentInfo(agentId, timestamp);

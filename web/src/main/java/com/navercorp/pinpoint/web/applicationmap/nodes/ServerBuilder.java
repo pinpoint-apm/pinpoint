@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +43,7 @@ public class ServerBuilder {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentHistogramList agentHistogramList = new AgentHistogramList();
-    private final Set<AgentInfo> agentSet = new HashSet<>();
+    private final Set<AgentAndStatus> agentSet = new HashSet<>();
     private final HyperLinkFactory hyperLinkFactory;
 
     public ServerBuilder() {
@@ -60,7 +61,7 @@ public class ServerBuilder {
         this.agentHistogramList.addAgentHistogram(agentHistogramList);
     }
 
-    public void addAgentInfo(Set<AgentInfo> agentInfo) {
+    public void addAgentInfo(Set<AgentAndStatus> agentInfo) {
         if (agentInfo == null) {
             return;
         }
@@ -102,10 +103,10 @@ public class ServerBuilder {
         return serverInstanceList;
     }
 
-    public ServerInstanceList buildPhysicalServer(final Set<AgentInfo> agentSet) {
+    public ServerInstanceList buildPhysicalServer(final Set<AgentAndStatus> agentSet) {
         final ServerInstanceList serverInstanceList = new ServerInstanceList();
-        for (AgentInfo agent : agentSet) {
-            final ServerInstance serverInstance = new ServerInstance(agent, buildHyperLink(agent));
+        for (AgentAndStatus agentAndStatus : agentSet) {
+            final ServerInstance serverInstance = new ServerInstance(agentAndStatus.getAgentInfo(), agentAndStatus.getStatus(), buildHyperLink(agentAndStatus.getAgentInfo()));
             serverInstanceList.addServerInstance(serverInstance);
 
         }

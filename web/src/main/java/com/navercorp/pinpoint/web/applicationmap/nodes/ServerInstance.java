@@ -50,22 +50,24 @@ public class ServerInstance {
 
     private final List<HyperLink> linkList;
 
-    public ServerInstance(AgentInfo agentInfo, List<HyperLink> linkList) {
+    public ServerInstance(AgentInfo agentInfo, AgentStatus agentStatus, List<HyperLink> linkList) {
         Objects.requireNonNull(agentInfo, "agentInfo");
-
         this.hostName = agentInfo.getHostName();
         this.ip = agentInfo.getIp();
         this.name = agentInfo.getAgentId();
         this.agentName = agentInfo.getAgentName();
         this.serviceType = agentInfo.getServiceType();
-        AgentStatus agentStatus = agentInfo.getStatus();
-        if (agentStatus != null) {
-            this.status = agentStatus.getState();
-        } else {
-            this.status = AgentLifeCycleState.UNKNOWN;
-        }
+        this.status = getAgentLifeCycleState(agentStatus);
         this.serverType = ServerType.Physical;
         this.linkList = Objects.requireNonNull(linkList, "linkList");
+    }
+
+    private AgentLifeCycleState getAgentLifeCycleState(AgentStatus agentStatus) {
+        if (agentStatus != null) {
+            return agentStatus.getState();
+        } else {
+            return AgentLifeCycleState.UNKNOWN;
+        }
     }
 
     public ServerInstance(String hostName, String physicalName, ServiceType serviceType, List<HyperLink> linkList) {

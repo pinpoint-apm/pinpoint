@@ -10,8 +10,8 @@ public class DefaultAgentInfoFilter implements AgentInfoFilter {
     }
 
     @Override
-    public boolean filter(AgentInfo agentInfo) {
-        final AgentStatus agentStatus = agentInfo.getStatus();
+    public boolean filter(AgentAndStatus agentAndStatus) {
+        final AgentStatus agentStatus = agentAndStatus.getStatus();
         if (agentStatus == null) {
             return REJECT;
         }
