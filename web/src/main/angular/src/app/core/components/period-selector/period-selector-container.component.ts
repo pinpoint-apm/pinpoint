@@ -105,37 +105,40 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
         } else {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_PERIOD, selectedPeriod);
 
-            // TODO: Handle it considering metric page
-            // const tree = this.router.parseUrl(this.router.url);
-            // const g = tree.root.children[PRIMARY_OUTLET];
-            // const s = g.segments;
+            const secondPath = this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)
+                ? this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr()
+                : this.newUrlStateNotificationService.getPathValue(UrlPathId.HOST_GROUP);
+            const lastPath = this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID) || this.newUrlStateNotificationService.getPathValue(UrlPathId.HOST);
 
             this.urlRouteManagerService.move({
                 url: [
                     this.newUrlStateNotificationService.getStartPath(),
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                    // this.router.url[1],
-                    // s[1].path,
+                    secondPath,
                     selectedPeriod
                 ],
                 needServerTimeRequest: true,
-                nextUrl: this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : []
-                // nextUrl: s[4] ? [s[4].path] : []
+                nextUrl: lastPath ? [lastPath] : []
             });
         }
     }
 
     onChangeCalendarTime(oChangeTime: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_PERIOD, oChangeTime.period.getValueWithTime());
+
+        const secondPath = this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)
+            ? this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr()
+            : this.newUrlStateNotificationService.getPathValue(UrlPathId.HOST_GROUP);
+        const lastPath = this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID) || this.newUrlStateNotificationService.getPathValue(UrlPathId.HOST);
+
         this.urlRouteManagerService.move({
             url: [
                 this.newUrlStateNotificationService.getStartPath(),
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                secondPath,
                 oChangeTime.period.getValueWithTime(),
                 oChangeTime.endTime.getEndTime()
             ],
             needServerTimeRequest: false,
-            nextUrl: this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : []
+            nextUrl: lastPath ? [lastPath] : []
         });
     }
 }
