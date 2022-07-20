@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-bootstrap-core"))
+    implementation(project(":pinpoint-bootstrap-core"))
 }
 
 description = "pinpoint-process-plugin"

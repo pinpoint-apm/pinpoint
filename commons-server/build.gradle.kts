@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":pinpoint-commons-hbase"))
     implementation(project(":pinpoint-plugins-loader"))
     implementation(project(":pinpoint-annotations"))
+    implementation(project(":pinpoint-commons-buffer"))
     implementation(libs.commons.collections4)
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")

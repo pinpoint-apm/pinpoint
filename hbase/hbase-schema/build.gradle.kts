@@ -3,9 +3,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-hbase-schema-definition"))
-    api(project(":pinpoint-commons-hbase"))
-    api(project(":pinpoint-commons-buffer"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-hbase-schema-definition"))
+    implementation(project(":pinpoint-commons-hbase"))
+    implementation(project(":pinpoint-commons-buffer"))
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }

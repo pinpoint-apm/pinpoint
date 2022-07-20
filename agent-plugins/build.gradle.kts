@@ -13,3 +13,5 @@ dependencies {
     api(project(":pinpoint-agent-proxy-nginx-plugin"))
     api(project(":pinpoint-agent-proxy-user-plugin"))
 }
+
+description = "pinpoint-agent-plugins"

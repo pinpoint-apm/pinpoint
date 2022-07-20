@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-hbase-schema"))
+    implementation(project(":pinpoint-commons-hbase"))
+    implementation(project(":pinpoint-hbase-schema"))
     implementation(libs.spring.boot.configuration.processor)
     implementation(libs.commons.lang3)
     implementation(libs.spring.boot.starter)

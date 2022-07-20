@@ -9,7 +9,8 @@ dependencies {
     testImplementation(libs.jackson.databind)
     compileOnly(project(":pinpoint-bootstrap-core"))
     testCompileOnly(project(":pinpoint-bootstrap-core"))
-    compileOnlyApi("org.mongodb:mongodb-driver:3.9.0")
+    compileOnly("org.mongodb:mongodb-driver:3.9.0")
+    testCompileOnly("org.mongodb:mongodb-driver:3.9.0")
 }
 
 description = "pinpoint-mongodb-driver-plugin"

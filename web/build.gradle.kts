@@ -11,6 +11,10 @@ dependencies {
     implementation(project(":pinpoint-rpc"))
     implementation(project(":pinpoint-thrift"))
     implementation(project(":pinpoint-grpc"))
+    implementation(project(":pinpoint-annotations"))
+    implementation(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-plugins-loader"))
+    implementation(project(":pinpoint-commons-buffer"))
     implementation(platform(project(":pinpoint-plugins")))
     implementation(platform(project(":pinpoint-agent-plugins")))
 

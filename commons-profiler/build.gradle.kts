@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-commons-buffer"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-buffer"))
     implementation(libs.log4j.api.jdk7)
     testImplementation(libs.log4j.slf4j.impl.jdk7)
     testImplementation(libs.log4j.core.jdk7)
