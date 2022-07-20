@@ -39,6 +39,7 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     unAuthImgPath: string;
 
     showSideMenu$: Observable<boolean>;
+    showSideMenu: boolean;
     isAccessDenyed$: Observable<boolean>;
 
     constructor(
@@ -56,11 +57,16 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
         this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.unAuthImgPath = this.webAppSettingDataService.getServerMapIconPathMakeFunc()('UNAUTHORIZED');
 
-        this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        // this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        //     map((urlService: NewUrlStateNotificationService) => {
+        //         return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
+        //     })
+        // );
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
-        );
+        ).subscribe((showSideMenu: boolean) => this.showSideMenu = showSideMenu);
         this.isAccessDenyed$ = this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.IS_ACCESS_DENYED);
         this.inspectorPageService.activate(this.unsubscribe);
     }

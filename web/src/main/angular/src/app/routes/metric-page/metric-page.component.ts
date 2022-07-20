@@ -13,6 +13,7 @@ import { UrlPathId } from 'app/shared/models';
 
 export class MetricPageComponent implements OnInit {
     showSideMenu$: Observable<boolean>;
+    showSideMenu: boolean;
     sideNavigationUI: boolean;
 
     showMetric$: Observable<boolean>;
@@ -34,11 +35,16 @@ export class MetricPageComponent implements OnInit {
         );
 
         this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
-        this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        // this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        //     map((urlService: NewUrlStateNotificationService) => {
+        //         return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
+        //     })
+        // );
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
-        );
+        ).subscribe((showSideMenu: boolean) => this.showSideMenu = showSideMenu);
     }
 
     onShowHelp($event: MouseEvent): void {}

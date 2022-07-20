@@ -27,6 +27,7 @@
     width: 100%;
     border-bottom: 1px solid var(--border-primary);
     flex: unset;
+    background: var(--background-default);
 }
 
 .l-main-container {
@@ -59,11 +60,11 @@
 }
 
 .l-main-section {
-    flex: 1;
+    /* flex: 1; */
     background: var(--background-primary);
     position: relative;
     height: 100%;
-    width: calc(100% - 250px);
+    /* width: calc(100% - 250px); */
 
     /* padding: 20px 15px; */
     /* padding: 15px; */

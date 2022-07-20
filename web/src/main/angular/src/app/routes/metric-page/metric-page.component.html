@@ -16,12 +16,13 @@
                 <pp-host-group-list-container></pp-host-group-list-container>
                 <pp-period-selector-container></pp-period-selector-container>
             </div>
-            <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI">
+            <!-- <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI"> -->
+            <section *ngIf="showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI">
                 <div class="l-sidemenu-left">
                     <pp-host-group-and-host-list-container></pp-host-group-and-host-list-container>            
                 </div>
             </section>
-            <section class="l-main-section" [class.sideNavigationUI]="sideNavigationUI">
+            <section class="l-main-section" [style.width]="showSideMenu ? 'calc(100% - 250px)': '100%'" [class.sideNavigationUI]="sideNavigationUI">
                 <router-outlet></router-outlet>
             </section>
         </div>

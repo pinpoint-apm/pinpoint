@@ -16,7 +16,8 @@
             [showServermapOption]="false"
             [showTransactionIdSearch]="false">
         </pp-app-widget>
-        <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI">
+        <!-- <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI"> -->
+        <section *ngIf="showSideMenu" class="l-sidemenu-wrap font-opensans" [class.sideNavigationUI]="sideNavigationUI">
             <div class="l-sidemenu-left">
                 <section class="l-application-inspector-title-wrapper">
                     <pp-application-inspector-title-container></pp-application-inspector-title-container>
@@ -25,7 +26,7 @@
                 <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
             </div>
         </section>
-        <section class="l-main-section">
+        <section class="l-main-section" [style.width]="showSideMenu ? 'calc(100% - 250px)': '100%'" [class.sideNavigationUI]="sideNavigationUI">
             <ng-container *ngIf="isAccessDenyed$ | async">
                 <div class="l-cover">
                     <img [src]="unAuthImgPath" class="l-auth-img">

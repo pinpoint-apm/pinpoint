@@ -40,11 +40,14 @@
     height: 100%;
 }
 .l-main-section {
-    flex: 1;
+    /* flex: 1; */
     background: var(--background-primary);
     position: relative;
     height: 100%;
-    width: calc(100% - 250px);
+    /* width: calc(100% - 250px); */
+}
+.l-main-section.sideNavigationUI {
+    height: calc(100% - 50px);
 }
 .fa-question-circle {
     color: white;
