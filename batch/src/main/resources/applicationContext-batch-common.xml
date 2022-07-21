@@ -30,6 +30,8 @@
 
     <bean id="alarmMessageSender" class="com.navercorp.pinpoint.batch.alarm.DefaultAlarmMessageSender"/>
 
+    <bean id="hyperLinkFactory" class="com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory"/>
+
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters">
             <list>
