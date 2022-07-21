@@ -16,17 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.metric.DefaultMetricInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.metric.MetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.concurrent.Executor;
 
@@ -48,8 +46,7 @@ public class ApplicationMapBuilderTestHelper {
     public static ApplicationMapBuilder createApplicationMapBuilder(Range range, Executor executor) {
         NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory(executor);
         ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory(executor);
-        MetricInfoAppenderFactory metricInfoAppenderFactory = new DefaultMetricInfoAppenderFactory();
-        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory, metricInfoAppenderFactory);
+        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
     }
 
     public static int getExpectedNumNodes(int calleeDepth, int callerDepth) {

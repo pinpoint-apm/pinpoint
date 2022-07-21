@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.metric.DefaultMetricInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -108,8 +107,7 @@ public class FilteredMapServiceImplTest {
     @Spy
     private ApplicationMapBuilderFactory applicationMapBuilderFactory = new ApplicationMapBuilderFactory(
             new NodeHistogramAppenderFactory(executor),
-            new ServerInfoAppenderFactory(executor),
-            Optional.of(new DefaultMetricInfoAppenderFactory())
+            new ServerInfoAppenderFactory(executor)
     );
 
     private FilteredMapService filteredMapService;
