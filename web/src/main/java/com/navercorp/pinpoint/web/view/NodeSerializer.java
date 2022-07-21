@@ -18,14 +18,12 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.appender.metric.DBMetric;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
@@ -69,28 +67,10 @@ public class NodeSerializer extends JsonSerializer<Node> {
 
         writeHistogram(node, jgen, provider);
         writeServerInstanceList(jgen, node);
-        writeMetricDB(jgen, node);
 
         jgen.writeEndObject();
     }
 
-    private void writeMetricDB(JsonGenerator jgen, Node node) throws IOException {
-        if (node.getDBMetricList().isEmpty()) {
-            writeEmptyArray(jgen, "DBMetric");
-        } else {
-            jgen.writeArrayFieldStart("DBMetric");
-
-            for (DBMetric dbMetric : node.getDBMetricList()) {
-                jgen.writeStartObject();
-                jgen.writeStringField("databaseName", dbMetric.getDatabaseName());
-                jgen.writeStringField("databaseType", dbMetric.getDatabaseType().toString());
-                jgen.writeStringField("matchingKey", dbMetric.getMatchingKey());
-                jgen.writeEndObject();
-            }
-            jgen.writeEndArray();
-        }
-
-    }
 
     private void writeServerInstanceList(JsonGenerator jgen, Node node) throws IOException {
         ServerInstanceList serverInstanceList = node.getServerInstanceList();
