@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author HyunGil Jeong
@@ -26,9 +25,9 @@ import java.util.stream.Collectors;
 public class ApplicationAgentList {
 
     private final String groupName;
-    private final List<AgentAndLink> agentInfoAndLinkList;
+    private final List<AgentStatusAndLink> agentInfoAndLinkList;
 
-    public ApplicationAgentList(String groupName, List<AgentAndLink> agentInfoAndLinkList) {
+    public ApplicationAgentList(String groupName, List<AgentStatusAndLink> agentInfoAndLinkList) {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
         this.agentInfoAndLinkList = Objects.requireNonNull(agentInfoAndLinkList, "agentInfoAndLinkList");
     }
@@ -37,13 +36,7 @@ public class ApplicationAgentList {
         return groupName;
     }
 
-    public List<AgentInfo> getAgentInfos() {
-        return agentInfoAndLinkList.stream()
-                .map(AgentAndLink::getAgentInfo)
-                .collect(Collectors.toList());
-    }
-
-    public List<AgentAndLink> getAgentInfoAndLinks() {
+    public List<AgentStatusAndLink> getAgentStatusAndLinks() {
         return agentInfoAndLinkList;
     }
 
