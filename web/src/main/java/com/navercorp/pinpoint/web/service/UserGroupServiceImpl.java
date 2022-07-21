@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,8 @@ import java.util.Optional;
 @Service
 @Transactional(rollbackFor = {Exception.class})
 public class UserGroupServiceImpl implements UserGroupService {
+
+    private final static Logger logger = LogManager.getLogger(UserGroupServiceImpl.class);
 
     private final UserGroupDao userGroupDao;
 
@@ -68,7 +72,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 
         String userGroupNumber = userGroupDao.createUserGroup(userGroup);
 
-        if (webProperties.isOpenSource() == false) {
+        if (!webProperties.isOpenSource()) {
             String userId = userService.getUserIdFromSecurity();
             if (StringUtils.isEmpty(userId)) {
                 throw new PinpointUserGroupException("There is not userId or fail to create userGroup.");
@@ -115,11 +119,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         if (StringUtils.isEmpty(userId)) {
             return false;
         }
-        if (containMemberForUserGroup(userId, userGroupId) == false) {
-            return false;
-        }
-
-        return true;
+        return containMemberForUserGroup(userId, userGroupId);
     }
 
     @Override
@@ -173,6 +173,10 @@ public class UserGroupServiceImpl implements UserGroupService {
         List<UserPhoneInfo> convertedUserPhoneInfoList = new ArrayList<>(userPhoneInfoList.size());
 
         for (UserPhoneInfo userPhoneInfo : userPhoneInfoList) {
+            if (StringUtils.isEmpty(userPhoneInfo.getPhoneNumber())) {
+                logger.info("someone in {} user does not have phone number", userGroupId);
+                continue;
+            }
             String decodedPhoneNumber = userInfoDecoder.decodePhoneNumber(userPhoneInfo.getPhoneNumber());
             String phoneNumber = User.removeHyphenForPhoneNumber(decodedPhoneNumber);
             convertedUserPhoneInfoList.add(new UserPhoneInfo(userPhoneInfo.getPhoneCountryCode(), phoneNumber));
@@ -184,9 +188,8 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Override
     @Transactional(readOnly = true)
     public List<String> selectEmailOfMember(String userGroupId) {
-        List<String> emailList = userGroupDao.selectEmailOfMember(userGroupId);
 
-        List<String> decodedEmailList = emailList;
+        List<String> decodedEmailList = userGroupDao.selectEmailOfMember(userGroupId);
 
         if (!DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
             decodedEmailList =  userInfoDecoder.decodeEmailList(decodedEmailList);

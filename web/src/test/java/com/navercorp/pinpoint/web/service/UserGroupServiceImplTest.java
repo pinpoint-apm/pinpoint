@@ -125,6 +125,7 @@ public class UserGroupServiceImplTest {
         List<UserPhoneInfo> userPhoneInfoList = new ArrayList<>(2);
         userPhoneInfoList.add(new UserPhoneInfo(82, "ASDFG@#$%T"));
         userPhoneInfoList.add(new UserPhoneInfo(82, "ASDF@#%$HG"));
+        userPhoneInfoList.add(new UserPhoneInfo(82, null));
 
         when(userGroupDao.selectPhoneInfoOfMember(groupId)).thenReturn(userPhoneInfoList);
 
@@ -178,7 +179,7 @@ public class UserGroupServiceImplTest {
     private final static String REMOVED_HYPHEN_CHANGED_PHONE_NUMBER = "12345678900";
     private final static String DECODED_EMAIL = "user@navercorp.com";
 
-    private class CustomUserInfoDecoder implements UserInfoDecoder {
+    private static class CustomUserInfoDecoder implements UserInfoDecoder {
 
         @Override
         public List<String> decodePhoneNumberList(List<String> phoneNumberList) {
@@ -212,13 +213,12 @@ public class UserGroupServiceImplTest {
         @Override
         public User decodeUserInfo(User user) {
             if (user == null) {
-                return user;
+                return null;
             }
 
             String phoneNumber = decodePhoneNumber(user.getPhoneNumber());
             String email = decodeEmail(user.getEmail());
-            User decodedUser = new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
-            return decodedUser;
+            return new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
         }
 
         @Override
