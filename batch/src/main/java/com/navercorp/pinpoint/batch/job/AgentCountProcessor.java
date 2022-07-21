@@ -42,7 +42,7 @@ public class AgentCountProcessor implements ItemProcessor<ApplicationAgentsList,
 
     private int getAgentCount(List<ApplicationAgentList> applicationAgentLists) {
         return applicationAgentLists.stream()
-                .mapToInt(applicationAgentList -> applicationAgentList.getAgentInfos().size())
+                .mapToInt(applicationAgentList -> applicationAgentList.getAgentStatusAndLinks().size())
                 .sum();
     }
 

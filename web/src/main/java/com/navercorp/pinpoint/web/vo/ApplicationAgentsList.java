@@ -144,8 +144,7 @@ public class ApplicationAgentsList {
             List<AgentAndStatus> applicationAgents = new ArrayList<>(agentInfoList);
             applicationAgents.sort(groupBy.getComparator());
 
-            List<AgentAndLink> agentInfoAndLinks = applicationAgents.stream()
-                    .map(AgentAndStatus::getAgentInfo)
+            List<AgentStatusAndLink> agentInfoAndLinks = applicationAgents.stream()
                     .map(this::newAgentInfoAndLink)
                     .collect(Collectors.toList());
 
@@ -154,9 +153,11 @@ public class ApplicationAgentsList {
         return applicationAgentLists;
     }
 
-    private AgentAndLink newAgentInfoAndLink(AgentInfo agentInfo) {
+    private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
+        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
+        AgentStatus status = agentAndStatus.getStatus();
         List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
-        return new AgentAndLink(agentInfo, hyperLinks);
+        return new AgentStatusAndLink(agentInfo, status, hyperLinks);
     }
 
     @Override

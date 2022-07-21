@@ -38,7 +38,7 @@ public class ApplicationAgentsListSerializer extends JsonSerializer<ApplicationA
         List<ApplicationAgentList> applicationAgentLists = applicationAgentsList.getApplicationAgentLists();
         for (ApplicationAgentList applicationAgentList : applicationAgentLists) {
             jgen.writeFieldName(applicationAgentList.getGroupName());
-            jgen.writeObject(applicationAgentList.getAgentInfoAndLinks());
+            jgen.writeObject(applicationAgentList.getAgentStatusAndLinks());
         }
         jgen.writeEndObject();
     }
