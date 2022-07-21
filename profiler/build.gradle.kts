@@ -3,18 +3,18 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-annotations"))
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-commons-buffer"))
-    api(project(":pinpoint-commons-profiler"))
-    api(project(":pinpoint-thrift"))
-    api(project(":pinpoint-grpc"))
-    api(project(":pinpoint-bootstrap-core"))
-    api(project(":pinpoint-bootstrap"))
-    api(project(":pinpoint-rpc"))
-    api(project(":pinpoint-plugins-loader"))
-    api(project(":pinpoint-grpc"))
-    api(project(":pinpoint-profiler-logging"))
+    implementation(project(":pinpoint-annotations"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-buffer"))
+    implementation(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-thrift"))
+    implementation(project(":pinpoint-grpc"))
+    implementation(project(":pinpoint-bootstrap-core"))
+    implementation(project(":pinpoint-bootstrap"))
+    implementation(project(":pinpoint-rpc"))
+    implementation(project(":pinpoint-plugins-loader"))
+    implementation(project(":pinpoint-grpc"))
+    implementation(project(":pinpoint-profiler-logging"))
     implementation(libs.guava.jdk7) {
         exclude(group = "com.google.guava", module = "listenablefuture")
     }

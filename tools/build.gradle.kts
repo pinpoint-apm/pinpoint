@@ -3,8 +3,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-bootstrap-core"))
-    api(project(":pinpoint-thrift"))
+    implementation(project(":pinpoint-bootstrap-core"))
+    implementation(project(":pinpoint-thrift"))
+    implementation(project(":pinpoint-commons"))
     implementation(libs.libthrift.v012)
     implementation(libs.log4j.api.jdk7)
     runtimeOnly(libs.slf4j.api)

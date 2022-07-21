@@ -14,6 +14,7 @@ dependencies {
     testImplementation(project(":pinpoint-test")) {
         exclude(group = "org.tinylog", module = "slf4j-tinylog")
     }
+    testCompileOnly(project(":pinpoint-profiler"))
     testImplementation(libs.log4j.api)
 }
 

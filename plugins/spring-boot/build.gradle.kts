@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
 }
 
 description = "pinpoint-spring-boot-plugin"

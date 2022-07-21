@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly("com.netflix.hystrix:hystrix-core:1.5.12")
 }
 

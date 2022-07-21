@@ -3,12 +3,14 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-commons"))
-    api(project(":pinpoint-profiler"))
-    api(project(":pinpoint-thrift"))
-    api(project(":pinpoint-bootstrap-core"))
-    api(project(":pinpoint-bootstrap"))
-    api(project(":pinpoint-rpc"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-profiler"))
+    implementation(project(":pinpoint-thrift"))
+    implementation(project(":pinpoint-bootstrap-core"))
+    implementation(project(":pinpoint-bootstrap"))
+    implementation(project(":pinpoint-rpc"))
+    implementation(project(":pinpoint-plugins-loader"))
+    implementation(project(":pinpoint-profiler-logging"))
     implementation(libs.asm.core)
     implementation(libs.asm.commons)
     implementation(libs.asm.util)

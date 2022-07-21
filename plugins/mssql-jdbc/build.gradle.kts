@@ -10,6 +10,8 @@ dependencies {
     testCompileOnly(project(":pinpoint-plugins-loader"))
     compileOnly(project(":pinpoint-bootstrap-core"))
     testCompileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
+    testCompileOnly(project(":pinpoint-commons"))
 }
 
 description = "pinpoint-mssql-jdbc-driver-plugin"

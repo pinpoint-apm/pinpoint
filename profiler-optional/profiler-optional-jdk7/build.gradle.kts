@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    compileOnlyApi(project(":pinpoint-profiler"))
+    compileOnly(project(":pinpoint-profiler"))
+    testCompileOnly(project(":pinpoint-profiler"))
     implementation(libs.log4j.api.jdk7)
     testImplementation(libs.asm.core)
     testImplementation(libs.asm.commons)

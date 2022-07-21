@@ -8,6 +8,7 @@ dependencies {
     testImplementation(libs.log4j.core.jdk7)
     testCompileOnly(project(":pinpoint-test"))
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly("com.datastax.cassandra:cassandra-driver-core:2.1.7.1")
 }
 

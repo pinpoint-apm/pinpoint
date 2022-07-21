@@ -20,6 +20,7 @@ dependencies {
     testCompileOnly(project(":pinpoint-test"))
     testImplementation(libs.commons.lang3)
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly("org.jboss.as:jboss-as-security:7.2.0.Final")
     testImplementation(libs.log4j.api)
     testCompileOnly(libs.javax.servlet.api.v3)

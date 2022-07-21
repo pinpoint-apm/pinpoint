@@ -5,6 +5,7 @@ plugins {
 dependencies {
     testImplementation(project(":pinpoint-test"))
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly(libs.spring4.context)
     compileOnly(libs.spring4.web)
     testCompileOnly(libs.spring4.beans)

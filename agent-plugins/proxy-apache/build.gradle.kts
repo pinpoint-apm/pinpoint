@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation(project(":pinpoint-agent-proxy-common"))
     compileOnly(project(":pinpoint-profiler"))
+    compileOnly(project(":pinpoint-commons"))
     testCompileOnly(project(":pinpoint-profiler"))
     compileOnly(project(":pinpoint-bootstrap-core"))
 }

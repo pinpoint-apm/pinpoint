@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":pinpoint-common-servlet"))
     compileOnly(project(":pinpoint-bootstrap-core"))
     testCompileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly(libs.javax.servlet.api.v3)
 }
 

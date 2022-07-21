@@ -3,20 +3,22 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-commons-hbase"))
-    api(project(":pinpoint-commons-server"))
-    api(project(":pinpoint-commons-server-cluster"))
-    api(project(":pinpoint-thrift"))
-    api(project(":pinpoint-rpc"))
-    api(project(":pinpoint-grpc"))
+    implementation(project(":pinpoint-commons"))
+    implementation(project(":pinpoint-commons-hbase"))
+    implementation(project(":pinpoint-commons-server"))
+    implementation(project(":pinpoint-commons-server-cluster"))
+    implementation(project(":pinpoint-thrift"))
+    implementation(project(":pinpoint-rpc"))
+    implementation(project(":pinpoint-grpc"))
     implementation(libs.libthrift) {
         exclude(group = "org.apache.httpcomponents", module = "httpclient")
         exclude(group = "org.apache.httpcomponents", module = "httpcore")
         exclude(group = "org.slf4j", module = "slf4j-api")
         exclude(group = "javax.annotation", module = "javax.annotation-api")
     }
-    api(project(":pinpoint-web"))
-    api(project(":pinpoint-collector"))
+    implementation(project(":pinpoint-web"))
+    implementation(project(":pinpoint-collector"))
+    implementation(project(":pinpoint-commons-profiler"))
     implementation(libs.spring.core) {
         exclude(group = "commons-logging", module = "commons-logging")
     }
@@ -47,7 +49,8 @@ dependencies {
     testImplementation(libs.log4j.slf4j.impl)
     testImplementation(libs.log4j.core)
     testImplementation(libs.spring.test)
-    compileOnlyApi("org.apache.flink:flink-java:1.14.2")
+    compileOnly("org.apache.flink:flink-java:1.14.2")
+    testCompileOnly("org.apache.flink:flink-java:1.14.2")
     compileOnly("org.apache.flink:flink-streaming-java_2.11:1.14.2")
     compileOnly("org.apache.flink:flink-clients_2.11:1.14.2")
 

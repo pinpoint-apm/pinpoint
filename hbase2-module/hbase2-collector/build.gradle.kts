@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-collector"))
+    implementation(project(":pinpoint-commons-server"))
+    implementation(project(":pinpoint-collector"))
     implementation(libs.hbase.client) {
         exclude(group = "com.google.protobuf", module = "protobuf-java")
         exclude(group = "org.slf4j", module = "slf4j-log4j12")

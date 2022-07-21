@@ -4,22 +4,24 @@ plugins {
 }
 
 dependencies {
-    api(project(":pinpoint-annotations"))
-    api(project(":pinpoint-commons-buffer"))
-    api(project(":pinpoint-commons-profiler"))
-    api(project(":pinpoint-profiler"))
-    api(project(":pinpoint-profiler-test"))
-    api(project(":pinpoint-grpc"))
-    api(project(":pinpoint-bootstrap-core"))
-    api(platform(project(":pinpoint-profiler-optional")))
-    api(platform(project(":pinpoint-plugins")))
-    api(platform(project(":pinpoint-agent-plugins")))
+    implementation(project(":pinpoint-annotations"))
+    implementation(project(":pinpoint-commons-buffer"))
+    implementation(project(":pinpoint-commons-profiler"))
+    implementation(project(":pinpoint-profiler"))
+    implementation(project(":pinpoint-profiler-test"))
+    implementation(project(":pinpoint-grpc"))
     implementation(libs.log4j.api.jdk7)
+    runtimeOnly(platform(project(":pinpoint-profiler-optional")))
+    runtimeOnly(platform(project(":pinpoint-plugins")))
+    runtimeOnly(platform(project(":pinpoint-agent-plugins")))
+    runtimeOnly(project(":pinpoint-bootstrap-core"))
     runtimeOnly(project(":pinpoint-bootstrap-java8"))
     runtimeOnly(project(":pinpoint-tools"))
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.core.jdk7)
     runtimeOnly(libs.log4j.slf4j.impl.jdk7)
+    testImplementation(project(":pinpoint-commons"))
+    testImplementation(project(":pinpoint-plugins-loader"))
 }
 
 description = "pinpoint-agent-distribution"

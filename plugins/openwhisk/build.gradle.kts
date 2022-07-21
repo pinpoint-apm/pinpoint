@@ -9,6 +9,7 @@ dependencies {
     compileOnly("org.scala-lang:scala-library:2.11.11")
     compileOnly("io.spray:spray-json_2.12:1.3.4")
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
 }
 
 description = "pinpoint-openwhisk-plugin"

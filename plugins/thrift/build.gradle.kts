@@ -8,6 +8,7 @@ dependencies {
     testImplementation(libs.log4j.core.jdk7)
     testImplementation(libs.log4j.jcl.jdk7)
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly(libs.libthrift.v012)
 }
 

@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     compileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
     compileOnly("org.springframework.amqp:spring-rabbit:1.7.6.RELEASE")
 }
 

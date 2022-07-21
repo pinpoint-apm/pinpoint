@@ -86,6 +86,7 @@ dependencies {
     testImplementation(project(":pinpoint-rpc"))
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     testImplementation(testFixtures(project(":pinpoint-rpc")))
+    testImplementation(project(":pinpoint-bootstrap-core"))
     compileOnly(libs.javax.servlet.api)
     runtimeOnly(libs.spring.boot.starter.tomcat)
 

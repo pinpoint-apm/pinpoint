@@ -8,6 +8,8 @@ dependencies {
     testImplementation(libs.log4j.core.jdk7)
     compileOnly(project(":pinpoint-bootstrap-core"))
     testCompileOnly(project(":pinpoint-bootstrap-core"))
+    compileOnly(project(":pinpoint-commons"))
+    testCompileOnly(project(":pinpoint-commons"))
 }
 
 description = "pinpoint-oracle-jdbc-driver-plugin"
