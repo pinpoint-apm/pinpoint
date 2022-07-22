@@ -34,7 +34,7 @@ public class ServerInfoAppenderFactory {
         this.executor = Objects.requireNonNull(executor, "executor");
     }
 
-    public ServerInfoAppender create(ServerInstanceListFactory serverInstanceListFactory) {
-        return new DefaultServerInfoAppender(serverInstanceListFactory, executor);
+    public ServerInfoAppender create(ServerGroupListFactory serverGroupListFactory) {
+        return new DefaultServerInfoAppender(serverGroupListFactory, executor);
     }
 }

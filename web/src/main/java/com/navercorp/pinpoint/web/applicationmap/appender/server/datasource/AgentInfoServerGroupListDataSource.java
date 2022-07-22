@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -47,30 +47,30 @@ import java.util.stream.Collectors;
 /**
  * @author HyunGil Jeong
  */
-public class AgentInfoServerInstanceListDataSource implements ServerInstanceListDataSource {
+public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSource {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
     private final HyperLinkFactory hyperLinkFactory;
 
-    public AgentInfoServerInstanceListDataSource(AgentInfoService agentInfoService, HyperLinkFactory hyperLinkFactory) {
+    public AgentInfoServerGroupListDataSource(AgentInfoService agentInfoService, HyperLinkFactory hyperLinkFactory) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
-    public ServerInstanceList createServerInstanceList(Node node, Instant timestamp) {
+    public ServerGroupList createServerGroupList(Node node, Instant timestamp) {
         Objects.requireNonNull(node, "node");
         Objects.requireNonNull(timestamp, "timestamp");
         if (timestamp.toEpochMilli() < 0) {
-            return new ServerInstanceList();
+            return ServerGroupList.empty();
         }
 
         Application application = node.getApplication();
         Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp.toEpochMilli());
         if (CollectionUtils.isEmpty(agentInfos)) {
             logger.warn("agentInfo not found. application:{}", application);
-            return new ServerInstanceList();
+            return ServerGroupList.empty();
         }
 
         logger.debug("unfiltered agentInfos {}", agentInfos);

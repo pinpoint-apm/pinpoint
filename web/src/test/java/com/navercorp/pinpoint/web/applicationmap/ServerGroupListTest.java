@@ -20,9 +20,8 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.vo.AgentAndStatus;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentInfoFactory;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author emeroad
  */
-public class ServerInstanceListTest {
+public class ServerGroupListTest {
 
     @Test
     public void testGetAgentIdList() {
@@ -54,8 +53,8 @@ public class ServerInstanceListTest {
 
         ServerBuilder builder = new ServerBuilder();
         builder.addAgentInfo(agentInfoSet);
-        ServerInstanceList serverInstanceList = builder.build();
-        List<String> agentIdList = serverInstanceList.getAgentIdList();
+        ServerGroupList serverGroupList = builder.build();
+        List<String> agentIdList = serverGroupList.getAgentIdList();
 
         MatcherAssert.assertThat(agentIdList, hasSize(2));
         MatcherAssert.assertThat(agentIdList, hasItem("agentId1"));

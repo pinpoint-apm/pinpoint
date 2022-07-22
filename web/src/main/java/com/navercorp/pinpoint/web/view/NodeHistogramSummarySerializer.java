@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
@@ -40,8 +40,8 @@ public class NodeHistogramSummarySerializer extends JsonSerializer<NodeHistogram
         jgen.writeStartObject();
         jgen.writeNumberField("currentServerTime", new ServerTime().getCurrentServerTime());
 
-        ServerInstanceList serverInstanceList = nodeHistogramSummary.getServerInstanceList();
-        jgen.writeObjectField("serverList", serverInstanceList);
+        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
+        jgen.writeObjectField("serverList", serverGroupList);
 
 
         writeHistogram(jgen, nodeHistogramSummary);

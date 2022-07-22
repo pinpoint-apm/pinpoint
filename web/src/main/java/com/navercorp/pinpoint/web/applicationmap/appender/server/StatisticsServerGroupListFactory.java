@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.AgentAndStatus;
@@ -35,27 +35,27 @@ import java.util.Set;
 /**
  * @author jaehong.kim
  */
-public class StatisticsServerInstanceListFactory implements ServerInstanceListFactory {
-    private final ServerInstanceListDataSource serverInstanceListDataSource;
+public class StatisticsServerGroupListFactory implements ServerGroupListFactory {
+    private final ServerGroupListDataSource serverGroupListDataSource;
 
-    public StatisticsServerInstanceListFactory(ServerInstanceListDataSource serverInstanceListDataSource) {
-        this.serverInstanceListDataSource = serverInstanceListDataSource;
+    public StatisticsServerGroupListFactory(ServerGroupListDataSource serverGroupListDataSource) {
+        this.serverGroupListDataSource = serverGroupListDataSource;
     }
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
-        ServerInstanceList serverInstanceList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
-        if (serverInstanceList.getServerInstanceList().isEmpty()) {
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+        ServerGroupList serverGroupList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
+        if (serverGroupList.getServerGroupList().isEmpty()) {
             // When there is no transaction information, agentInfo information is used.
-            serverInstanceList = createWasNodeInstanceListFromAgentInfo(wasNode, timestamp);
+            serverGroupList = createWasNodeInstanceListFromAgentInfo(wasNode, timestamp);
         }
-        return serverInstanceList;
+        return serverGroupList;
     }
 
-    ServerInstanceList createWasNodeInstanceListFromHistogram(Node wasNode, Instant timestamp) {
+    ServerGroupList createWasNodeInstanceListFromHistogram(Node wasNode, Instant timestamp) {
         Objects.requireNonNull(wasNode, "wasNode");
         if (timestamp.toEpochMilli() < 0) {
-            return new ServerInstanceList();
+            return ServerGroupList.empty();
         }
 
         final ServerBuilder builder = new ServerBuilder();
@@ -76,12 +76,12 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
         return builder.build();
     }
 
-    ServerInstanceList createWasNodeInstanceListFromAgentInfo(Node wasNode, Instant timestamp) {
-        return serverInstanceListDataSource.createServerInstanceList(wasNode, timestamp);
+    ServerGroupList createWasNodeInstanceListFromAgentInfo(Node wasNode, Instant timestamp) {
+        return serverGroupListDataSource.createServerGroupList(wasNode, timestamp);
     }
 
     @Override
-    public ServerInstanceList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
         // extract information about the terminal node
         ServerBuilder builder = new ServerBuilder();
         for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
@@ -94,17 +94,17 @@ public class StatisticsServerInstanceListFactory implements ServerInstanceListFa
     }
 
     @Override
-    public ServerInstanceList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
         return createEmptyNodeInstanceList();
     }
 
     @Override
-    public ServerInstanceList createUserNodeInstanceList() {
+    public ServerGroupList createUserNodeInstanceList() {
         return createEmptyNodeInstanceList();
     }
 
     @Override
-    public ServerInstanceList createEmptyNodeInstanceList() {
-        return new ServerInstanceList();
+    public ServerGroupList createEmptyNodeInstanceList() {
+        return ServerGroupList.empty();
     }
 }

@@ -1,17 +1,18 @@
 package com.navercorp.pinpoint.web.hyperlink;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class HyperLinkFactory {
+    private static HyperLinkFactory EMPTY = new HyperLinkFactory(List.of());
+
     private final MatcherGroup[] matcherGroups;
 
-    public HyperLinkFactory(@Nullable List<MatcherGroup> matcherGroups) {
-        if (matcherGroups == null) {
+    public HyperLinkFactory(List<MatcherGroup> matcherGroups) {
+        if (CollectionUtils.isEmpty(matcherGroups)) {
             this.matcherGroups = new MatcherGroup[0];
         } else {
             this.matcherGroups = matcherGroups.toArray(new MatcherGroup[0]);
@@ -20,7 +21,7 @@ public class HyperLinkFactory {
 
     public List<HyperLink> build(LinkSource source) {
         if (ArrayUtils.isEmpty(matcherGroups)) {
-            return Collections.emptyList();
+            return List.of();
         }
         List<HyperLink> list = new ArrayList<>();
         for (MatcherGroup matcherGroup : matcherGroups) {
@@ -30,5 +31,9 @@ public class HyperLinkFactory {
             }
         }
         return list;
+    }
+
+    public static HyperLinkFactory empty() {
+        return EMPTY;
     }
 }

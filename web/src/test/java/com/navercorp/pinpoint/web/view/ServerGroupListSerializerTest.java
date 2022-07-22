@@ -28,22 +28,21 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
+import com.navercorp.pinpoint.web.applicationmap.ServerGroupListTest;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author emeroad
  */
-public class ServerInstanceListSerializerTest {
+public class ServerGroupListSerializerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
@@ -51,15 +50,15 @@ public class ServerInstanceListSerializerTest {
 
         ObjectMapper mapper = createMapper();
 
-        AgentAndStatus agentInfo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
+        AgentAndStatus agentInfo = ServerGroupListTest.createAgentInfo("agentId1", "testHost");
         Set<AgentAndStatus> agentInfoSet = Set.of(agentInfo);
 
         ServerBuilder builder = new ServerBuilder();
         builder.addAgentInfo(agentInfoSet);
 
-        ServerInstanceList serverInstanceList = builder.build();
+        ServerGroupList serverGroupList = builder.build();
         ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
-        String json = objectWriter.writeValueAsString(serverInstanceList);
+        String json = objectWriter.writeValueAsString(serverGroupList);
         logger.debug(json);
     }
 

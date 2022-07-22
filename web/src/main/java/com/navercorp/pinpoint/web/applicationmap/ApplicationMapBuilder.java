@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHis
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -57,7 +57,7 @@ public class ApplicationMapBuilder {
     private NodeType nodeType;
     private LinkType linkType;
     private NodeHistogramFactory nodeHistogramFactory;
-    private ServerInstanceListFactory serverInstanceListFactory;
+    private ServerGroupListFactory serverGroupListFactory;
 
     public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory,
                                  ServerInfoAppenderFactory serverInfoAppenderFactory) {
@@ -81,8 +81,8 @@ public class ApplicationMapBuilder {
         return this;
     }
 
-    public ApplicationMapBuilder includeServerInfo(ServerInstanceListFactory serverInstanceListFactory) {
-        this.serverInstanceListFactory = serverInstanceListFactory;
+    public ApplicationMapBuilder includeServerInfo(ServerGroupListFactory serverGroupListFactory) {
+        this.serverGroupListFactory = serverGroupListFactory;
         return this;
     }
 
@@ -98,10 +98,10 @@ public class ApplicationMapBuilder {
         }
 
         Node node = new Node(nodeType, application);
-        if (serverInstanceListFactory != null) {
-            ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getToInstant());
+        if (serverGroupListFactory != null) {
+            ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getToInstant());
             if (runningInstances.getInstanceCount() > 0) {
-                node.setServerInstanceList(runningInstances);
+                node.setServerGroupList(runningInstances);
                 nodeList.addNode(node);
             }
         }
@@ -143,11 +143,11 @@ public class ApplicationMapBuilder {
         final TimeoutWatcher timeoutWatcher = new TimeoutWatcher(timeoutMillis);
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, timeoutWatcher.remainingTimeMillis());
 
-        ServerInstanceListFactory serverInstanceListFactory = this.serverInstanceListFactory;
-        if (serverInstanceListFactory == null) {
-            serverInstanceListFactory = new EmptyServerInstanceListFactory();
+        ServerGroupListFactory serverGroupListFactory = this.serverGroupListFactory;
+        if (serverGroupListFactory == null) {
+            serverGroupListFactory = new EmptyServerGroupListFactory();
         }
-        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
+        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverGroupListFactory);
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutWatcher.remainingTimeMillis());
 
         return new DefaultApplicationMap(range, nodeList, linkList);

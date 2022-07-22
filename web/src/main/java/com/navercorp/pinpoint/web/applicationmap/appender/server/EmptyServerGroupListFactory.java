@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 
 import java.time.Instant;
@@ -25,30 +25,30 @@ import java.time.Instant;
 /**
  * @author HyunGil Jeong
  */
-public class EmptyServerInstanceListFactory implements ServerInstanceListFactory {
+public class EmptyServerGroupListFactory implements ServerGroupListFactory {
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
-        return new ServerInstanceList();
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+        return ServerGroupList.empty();
     }
 
     @Override
-    public ServerInstanceList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
-        return new ServerInstanceList();
+    public ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
+        return ServerGroupList.empty();
     }
 
     @Override
-    public ServerInstanceList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
-        return new ServerInstanceList();
+    public ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
+        return ServerGroupList.empty();
     }
 
     @Override
-    public ServerInstanceList createUserNodeInstanceList() {
-        return new ServerInstanceList();
+    public ServerGroupList createUserNodeInstanceList() {
+        return ServerGroupList.empty();
     }
 
     @Override
-    public ServerInstanceList createEmptyNodeInstanceList() {
-        return new ServerInstanceList();
+    public ServerGroupList createEmptyNodeInstanceList() {
+        return ServerGroupList.empty();
     }
 }

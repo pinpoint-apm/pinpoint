@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
@@ -133,11 +133,10 @@ public class FilteredMapServiceImplTest {
                     return new Application(applicationName, serviceType);
                 });
 
-        when(serverInstanceDatasourceService.getServerInstanceListDataSource())
+        when(serverInstanceDatasourceService.getServerGroupListDataSource())
                 .thenAnswer(invocation -> {
                     AgentInfoService agentInfoService = mock(AgentInfoService.class);
-                    HyperLinkFactory hyperLinkFactory = new HyperLinkFactory(Collections.emptyList());
-                    return new AgentInfoServerInstanceListDataSource(agentInfoService, hyperLinkFactory);
+                    return new AgentInfoServerGroupListDataSource(agentInfoService, HyperLinkFactory.empty());
                 });
 
         filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,

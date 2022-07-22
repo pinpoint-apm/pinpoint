@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -66,20 +66,20 @@ public class NodeSerializer extends JsonSerializer<Node> {
         jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
         writeHistogram(node, jgen, provider);
-        writeServerInstanceList(jgen, node);
+        writeServerGroupList(jgen, node);
 
         jgen.writeEndObject();
     }
 
 
-    private void writeServerInstanceList(JsonGenerator jgen, Node node) throws IOException {
-        ServerInstanceList serverInstanceList = node.getServerInstanceList();
+    private void writeServerGroupList(JsonGenerator jgen, Node node) throws IOException {
+        ServerGroupList serverGroupList = node.getServerGroupList();
         if (node.getServiceType().isUnknown()) {
-            serverInstanceList = null;
+            serverGroupList = null;
         }
 
         final String agentIdNameMapKey = "agentIdNameMap";
-        if (serverInstanceList == null) {
+        if (serverGroupList == null) {
             jgen.writeNumberField("instanceCount", 0);
             jgen.writeNumberField("instanceErrorCount", 0);
             writeEmptyArray(jgen, "agentIds");
@@ -88,7 +88,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
                 writeEmptyObject(jgen, "serverList");
             }
         } else {
-            jgen.writeNumberField("instanceCount", serverInstanceList.getInstanceCount());
+            jgen.writeNumberField("instanceCount", serverGroupList.getInstanceCount());
             long instanceErrorCount = 0;
             NodeHistogram nodeHistogram = node.getNodeHistogram();
             if (nodeHistogram != null) {
@@ -101,19 +101,19 @@ public class NodeSerializer extends JsonSerializer<Node> {
             }
             jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
             jgen.writeArrayFieldStart("agentIds");
-            for (String agentId : serverInstanceList.getAgentIdList()) {
+            for (String agentId : serverGroupList.getAgentIdList()) {
                 jgen.writeString(agentId);
             }
             jgen.writeEndArray();
 
             jgen.writeObjectFieldStart(agentIdNameMapKey);
-            for (Map.Entry<String, String> entry : serverInstanceList.getAgentIdNameMap().entrySet()) {
+            for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
                 jgen.writeStringField(entry.getKey(), entry.getValue());
             }
             jgen.writeEndObject();
 
             if (NodeType.DETAILED == node.getNodeType()) {
-                jgen.writeObjectField("serverList", serverInstanceList);
+                jgen.writeObjectField("serverList", serverGroupList);
             }
         }
     }

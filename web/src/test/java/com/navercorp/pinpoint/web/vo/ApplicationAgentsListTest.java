@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ApplicationAgentsListTest {
 
-    private HyperLinkFactory hyperLinkFactory = new HyperLinkFactory(null);
+    private final HyperLinkFactory hyperLinkFactory = HyperLinkFactory.empty();
 
     @Test
     public void groupByApplicationName() {

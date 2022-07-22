@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeH
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -74,7 +74,7 @@ public class ApplicationMapBuilderTest {
 
     private ResponseHistogramsNodeHistogramDataSource responseHistogramBuilderNodeHistogramDataSource;
 
-    private AgentInfoServerInstanceListDataSource agentInfoServerInstanceListDataSource;
+    private AgentInfoServerGroupListDataSource agentInfoServerGroupListDataSource;
 
     private long buildTimeoutMillis = 1000;
 
@@ -88,7 +88,7 @@ public class ApplicationMapBuilderTest {
 
         AgentInfoService agentInfoService = mock(AgentInfoService.class);
         HyperLinkFactory hyperLinkFactory = mock(HyperLinkFactory.class);
-        agentInfoServerInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService, hyperLinkFactory);
+        agentInfoServerGroupListDataSource = new AgentInfoServerGroupListDataSource(agentInfoService, hyperLinkFactory);
 
         Answer<List<ResponseTime>> responseTimeAnswer = new Answer<>() {
             final long timestamp = System.currentTimeMillis();
@@ -173,15 +173,15 @@ public class ApplicationMapBuilderTest {
         Range range = Range.between(0, 1000);
         Application application = ApplicationMapBuilderTestHelper.createApplicationFromDepth(0);
 
-        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
+        ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
         ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
         ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(application, buildTimeoutMillis);
         ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(application, buildTimeoutMillis);
 
         Assertions.assertEquals(1, applicationMap.getNodes().size());
@@ -202,17 +202,17 @@ public class ApplicationMapBuilderTest {
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(mapResponseNodeHistogramDataSource);
-        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
+        ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
         ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
         ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory)
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
         ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory)
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
         Assertions.assertTrue(applicationMap.getNodes().isEmpty());
@@ -301,7 +301,7 @@ public class ApplicationMapBuilderTest {
 
         NodeHistogramFactory nodeHistogramFactory_MapResponseDao = new DefaultNodeHistogramFactory(mapResponseNodeHistogramDataSource);
         NodeHistogramFactory nodeHistogramFactory_ResponseHistogramBuilder = new DefaultNodeHistogramFactory(responseHistogramBuilderNodeHistogramDataSource);
-        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
+        ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
         LinkDataDuplexMap linkDataDuplexMap = ApplicationMapBuilderTestHelper.createLinkDataDuplexMap(calleeDepth, callerDepth);
         ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
@@ -310,11 +310,11 @@ public class ApplicationMapBuilderTest {
         // test builder using MapResponseDao
         ApplicationMap applicationMap_MapResponseDao = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
         ApplicationMap applicationMap_MapResponseDao_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
         Assertions.assertEquals(expectedNumNodes, applicationMap_MapResponseDao.getNodes().size());
         Assertions.assertEquals(expectedNumNodes, applicationMap_MapResponseDao_parallelAppenders.getNodes().size());
@@ -327,11 +327,11 @@ public class ApplicationMapBuilderTest {
         // test builder using ResponseHistogramBuilder
         ApplicationMap applicationMap_ResponseHistogramBuilder = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
         ApplicationMap applicationMap_ResponseHistogramBuilder_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
-                .includeServerInfo(serverInstanceListFactory)
+                .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
         Assertions.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder.getNodes().size());
         Assertions.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().size());

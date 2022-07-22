@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
+package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 
 import java.time.Instant;
 
 /**
- * @author emeroad
- * @author minwoo.jung
  * @author HyunGil Jeong
  */
-public interface ServerInstanceListDataSource {
+public interface ServerGroupListFactory {
 
-    ServerInstanceList createServerInstanceList(Node node, Instant timestamp);
+    ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp);
+
+    ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap);
+
+    ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap);
+
+    ServerGroupList createUserNodeInstanceList();
+
+    ServerGroupList createEmptyNodeInstanceList();
 }

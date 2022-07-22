@@ -13,6 +13,11 @@ public final class LinkSources {
         return new DefaultLinkSource(hostName, null);
     }
 
+    public static LinkSource from(String hostName, String ip) {
+        Objects.requireNonNull(hostName, "hostName");
+        return new DefaultLinkSource(hostName, ip);
+    }
+
     public static LinkSource from(AgentInfo agentInfo) {
         Objects.requireNonNull(agentInfo, "agentInfo");
         return new DefaultLinkSource(agentInfo.getHostName(), agentInfo.getIp());

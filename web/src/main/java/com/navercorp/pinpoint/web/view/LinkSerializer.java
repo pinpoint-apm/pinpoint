@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -102,9 +102,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         if (node.getServiceType().isWas()) {
             jgen.writeFieldName(fieldName);
             jgen.writeStartArray();
-            ServerInstanceList serverInstanceList = node.getServerInstanceList();
-            if (serverInstanceList != null) {
-                for (String agentId : serverInstanceList.getAgentIdList()) {
+            ServerGroupList serverGroupList = node.getServerGroupList();
+            if (serverGroupList != null) {
+                for (String agentId : serverGroupList.getAgentIdList()) {
                     jgen.writeObject(agentId);
                 }
             }
@@ -116,9 +116,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         if (node.getServiceType().isWas()) {
             jgen.writeFieldName(fieldName);
             jgen.writeStartObject();
-            ServerInstanceList serverInstanceList = node.getServerInstanceList();
-            if (serverInstanceList != null) {
-                for (Map.Entry<String, String> entry : serverInstanceList.getAgentIdNameMap().entrySet()) {
+            ServerGroupList serverGroupList = node.getServerGroupList();
+            if (serverGroupList != null) {
+                for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
                     jgen.writeStringField(entry.getKey(), entry.getValue());
                 }
             }
