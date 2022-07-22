@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeH
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
@@ -138,11 +138,11 @@ public class MapServiceImpl implements MapService {
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
         builder.includeNodeHistogram(nodeHistogramFactory);
 
-        ServerInstanceListDataSource serverInstanceListDataSource = serverInstanceDatasourceService.getServerInstanceListDataSource();
+        ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
         if (option.isUseStatisticsAgentState()) {
-            builder.includeServerInfo(new StatisticsServerInstanceListFactory(serverInstanceListDataSource));
+            builder.includeServerInfo(new StatisticsServerGroupListFactory(serverGroupListDataSource));
         } else {
-            builder.includeServerInfo(new DefaultServerInstanceListFactory(serverInstanceListDataSource));
+            builder.includeServerInfo(new DefaultServerGroupListFactory(serverGroupListDataSource));
         }
 
         return builder;

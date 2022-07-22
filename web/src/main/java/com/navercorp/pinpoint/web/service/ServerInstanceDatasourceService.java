@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ public class ServerInstanceDatasourceService {
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
-    public ServerInstanceListDataSource getServerInstanceListDataSource() {
-        return new AgentInfoServerInstanceListDataSource(agentInfoService, hyperLinkFactory);
+    public ServerGroupListDataSource getServerGroupListDataSource() {
+        return new AgentInfoServerGroupListDataSource(agentInfoService, hyperLinkFactory);
     }
 }

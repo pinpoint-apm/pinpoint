@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerInstanceListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -176,11 +176,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.linkType(LinkType.DETAILED);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
-        ServerInstanceListDataSource serverInstanceListDataSource = serverInstanceDatasourceService.getServerInstanceListDataSource();;
+        ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();;
         if (option.isUseStatisticsAgentState()) {
-            applicationMapBuilder.includeServerInfo(new StatisticsServerInstanceListFactory(serverInstanceListDataSource));
+            applicationMapBuilder.includeServerInfo(new StatisticsServerGroupListFactory(serverGroupListDataSource));
         } else {
-            applicationMapBuilder.includeServerInfo(new DefaultServerInstanceListFactory(serverInstanceListDataSource));
+            applicationMapBuilder.includeServerInfo(new DefaultServerGroupListFactory(serverGroupListDataSource));
         }
         ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap(), buildTimeoutMillis);
         if(serverMapDataFilter != null) {

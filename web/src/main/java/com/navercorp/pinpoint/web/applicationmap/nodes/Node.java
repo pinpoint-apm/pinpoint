@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,7 +43,7 @@ public class Node {
     private final Application application;
 
     // avoid NPE
-    private ServerInstanceList serverInstanceList = new ServerInstanceList();
+    private ServerGroupList serverGroupList = ServerGroupList.empty();
 
     private NodeHistogram nodeHistogram;
 
@@ -80,12 +78,12 @@ public class Node {
     }
 
     // TODO remove setter
-    public void setServerInstanceList(ServerInstanceList serverInstanceList) {
-        this.serverInstanceList = Objects.requireNonNull(serverInstanceList, "serverInstanceList");
+    public void setServerGroupList(ServerGroupList serverGroupList) {
+        this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
     }
 
-    public ServerInstanceList getServerInstanceList() {
-        return serverInstanceList;
+    public ServerGroupList getServerGroupList() {
+        return serverGroupList;
     }
 
 

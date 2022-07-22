@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -30,21 +30,21 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-public class DefaultServerInstanceListFactory implements ServerInstanceListFactory {
+public class DefaultServerGroupListFactory implements ServerGroupListFactory {
 
-    private final ServerInstanceListDataSource serverInstanceListDataSource;
+    private final ServerGroupListDataSource serverGroupListDataSource;
 
-    public DefaultServerInstanceListFactory(ServerInstanceListDataSource serverInstanceListDataSource) {
-        this.serverInstanceListDataSource = Objects.requireNonNull(serverInstanceListDataSource, "serverInstanceListDataSource");
+    public DefaultServerGroupListFactory(ServerGroupListDataSource serverGroupListDataSource) {
+        this.serverGroupListDataSource = Objects.requireNonNull(serverGroupListDataSource, "serverGroupListDataSource");
     }
 
     @Override
-    public ServerInstanceList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
-        return serverInstanceListDataSource.createServerInstanceList(wasNode, timestamp);
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+        return serverGroupListDataSource.createServerGroupList(wasNode, timestamp);
     }
 
     @Override
-    public ServerInstanceList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createTerminalNodeInstanceList(Node terminalNode, LinkDataDuplexMap linkDataDuplexMap) {
         // extract information about the terminal node
         ServerBuilder builder = new ServerBuilder();
         for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
@@ -57,17 +57,17 @@ public class DefaultServerInstanceListFactory implements ServerInstanceListFacto
     }
 
     @Override
-    public ServerInstanceList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
+    public ServerGroupList createQueueNodeInstanceList(Node queueNode, LinkDataDuplexMap linkDataDuplexMap) {
         return createEmptyNodeInstanceList();
     }
 
     @Override
-    public ServerInstanceList createUserNodeInstanceList() {
+    public ServerGroupList createUserNodeInstanceList() {
         return createEmptyNodeInstanceList();
     }
 
     @Override
-    public ServerInstanceList createEmptyNodeInstanceList() {
-        return new ServerInstanceList();
+    public ServerGroupList createEmptyNodeInstanceList() {
+        return ServerGroupList.empty();
     }
 }

@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroup;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import org.junit.jupiter.api.Assertions;
 
@@ -74,28 +75,30 @@ public class ApplicationMapVerifier {
         Assertions.assertEquals(node1.getApplicationTextName(), node2.getApplicationTextName());
         Assertions.assertEquals(node1.getServiceType(), node2.getServiceType());
 
-        verifyServerInstanceList(node1.getServerInstanceList(), node2.getServerInstanceList());
+        verifyServerGroupList(node1.getServerGroupList(), node2.getServerGroupList());
         verifyNodeHistogram(node1.getNodeHistogram(), node2.getNodeHistogram());
     }
 
-    private void verifyServerInstanceList(ServerInstanceList serverInstanceList1, ServerInstanceList serverInstanceList2) {
-        verifyNullable(serverInstanceList1, serverInstanceList2);
-        if (serverInstanceList1 == null && serverInstanceList2 == null) {
+    private void verifyServerGroupList(ServerGroupList serverGroupList1, ServerGroupList serverGroupList2) {
+        verifyNullable(serverGroupList1, serverGroupList2);
+        if (serverGroupList1 == null && serverGroupList2 == null) {
             return;
         }
 
-        Assertions.assertEquals(serverInstanceList1.getInstanceCount(), serverInstanceList2.getInstanceCount());
+        Assertions.assertEquals(serverGroupList1.getInstanceCount(), serverGroupList2.getInstanceCount());
 
-        Assertions.assertTrue(serverInstanceList1.getAgentIdList().containsAll(serverInstanceList2.getAgentIdList()));
-        Assertions.assertEquals(serverInstanceList1.getAgentIdList().size(), serverInstanceList2.getAgentIdList().size());
+        Assertions.assertTrue(serverGroupList1.getAgentIdList().containsAll(serverGroupList2.getAgentIdList()));
+        Assertions.assertEquals(serverGroupList1.getAgentIdList().size(), serverGroupList2.getAgentIdList().size());
 
-        Map<String, List<ServerInstance>> serverInstancesMap1 = serverInstanceList1.getServerInstanceList();
-        Map<String, List<ServerInstance>> serverInstancesMap2 = serverInstanceList2.getServerInstanceList();
-        Assertions.assertEquals(serverInstancesMap1.size(), serverInstancesMap2.size());
-        for (Map.Entry<String, List<ServerInstance>> e : serverInstancesMap1.entrySet()) {
-            String hostName = e.getKey();
-            List<ServerInstance> serverInstances1 = e.getValue();
-            List<ServerInstance> serverInstances2 = serverInstancesMap2.get(hostName);
+        List<ServerGroup> serverGroup1 = serverGroupList1.getServerGroupList();
+        List<ServerGroup> serverGroup2 = serverGroupList2.getServerGroupList();
+        Assertions.assertEquals(serverGroup1.size(), serverGroup2.size());
+        for (ServerGroup serverGroup : serverGroup1) {
+            String hostName = serverGroup.getHostName();
+            List<ServerInstance> serverInstances1 = serverGroup.getInstanceList();
+            List<ServerInstance> serverInstances2 = serverGroup2.stream()
+                    .filter(group -> group.getHostName().equals(hostName))
+                    .findFirst().orElseThrow().getInstanceList();
             Assertions.assertNotNull(serverInstances2);
             Assertions.assertTrue(serverInstances1.containsAll(serverInstances2));
             Assertions.assertEquals(serverInstances1.size(), serverInstances2.size());

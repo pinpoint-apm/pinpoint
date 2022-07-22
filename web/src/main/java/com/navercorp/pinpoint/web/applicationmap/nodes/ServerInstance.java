@@ -20,12 +20,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -48,9 +46,8 @@ public class ServerInstance {
 
     private final AgentLifeCycleState status;
 
-    private final List<HyperLink> linkList;
 
-    public ServerInstance(AgentInfo agentInfo, AgentStatus agentStatus, List<HyperLink> linkList) {
+    public ServerInstance(AgentInfo agentInfo, AgentStatus agentStatus) {
         Objects.requireNonNull(agentInfo, "agentInfo");
         this.hostName = agentInfo.getHostName();
         this.ip = agentInfo.getIp();
@@ -59,7 +56,6 @@ public class ServerInstance {
         this.serviceType = agentInfo.getServiceType();
         this.status = getAgentLifeCycleState(agentStatus);
         this.serverType = ServerType.Physical;
-        this.linkList = Objects.requireNonNull(linkList, "linkList");
     }
 
     private AgentLifeCycleState getAgentLifeCycleState(AgentStatus agentStatus) {
@@ -70,7 +66,7 @@ public class ServerInstance {
         }
     }
 
-    public ServerInstance(String hostName, String physicalName, ServiceType serviceType, List<HyperLink> linkList) {
+    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.ip = null;
         this.agentName = null;
@@ -78,7 +74,6 @@ public class ServerInstance {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.status = AgentLifeCycleState.UNKNOWN;
         this.serverType = ServerType.Logical;
-        this.linkList = Objects.requireNonNull(linkList, "linkList");
     }
 
     public String getHostName() {
@@ -114,9 +109,6 @@ public class ServerInstance {
         return ip;
     }
 
-    public List<HyperLink> getLinkList() {
-        return linkList;
-    }
 
     @Override
     public boolean equals(Object o) {
