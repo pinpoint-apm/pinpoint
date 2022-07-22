@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
@@ -13,6 +14,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class})
@@ -30,11 +34,20 @@ public class MultiApplication {
         builder.sources(MultiApplication.class);
         builder.listeners(new ProfileResolveListener());
 
-        SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 1111);
         SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 8081);
-
-        collectorAppBuilder.build().run(args);
         metricAppBuilder.build().run(args);
+
+        if (ArrayUtils.isEmpty(args) == false) {
+            List<String> argList = Arrays.asList(args);
+            logger.info("args data : " + argList);
+            if (argList.contains("onlyMetric")) {
+                logger.info("args has onlyMetric(string)." );
+                return;
+            }
+        }
+
+        SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 1111);
+        collectorAppBuilder.build().run(args);
     }
 
     private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, Class appClass, int port) {
