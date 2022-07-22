@@ -1,0 +1,1 @@
+rootProject.name="pinpoint-version-catalog"
