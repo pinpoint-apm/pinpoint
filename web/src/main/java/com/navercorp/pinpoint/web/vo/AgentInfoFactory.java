@@ -29,8 +29,6 @@ public class AgentInfoFactory {
         agentInfo.setPid(agentInfoBo.getPid());
         agentInfo.setVmVersion(agentInfoBo.getVmVersion());
         agentInfo.setAgentVersion(agentInfoBo.getAgentVersion());
-        agentInfo.setServerMetaData(agentInfoBo.getServerMetaData());
-        agentInfo.setJvmInfo(agentInfoBo.getJvmInfo());
         agentInfo.setContainer(agentInfoBo.isContainer());
         return agentInfo;
     }

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEnc
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.DetailedAgentInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
@@ -51,17 +52,25 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private final ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
 
+    private final ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor;
+
     private final AgentIdRowKeyEncoder encoder = new AgentIdRowKeyEncoder();
 
 
     public HbaseAgentInfoDao(HbaseOperations2 hbaseOperations2,
                              TableNameProvider tableNameProvider,
-                             ResultsExtractor<AgentInfo> agentInfoResultsExtractor) {
+                             ResultsExtractor<AgentInfo> agentInfoResultsExtractor,
+                             ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
+        this.detailedAgentInfoResultsExtractor = Objects.requireNonNull(detailedAgentInfoResultsExtractor, "detailedAgentInfoResultsExtractor");
     }
 
+    @Override
+    public DetailedAgentInfo getDetailedAgentInfo(final String agentId, final long timestamp) {
+        return getAgentInfo0(agentId, timestamp, detailedAgentInfoResultsExtractor, AgentInfoColumn.all());
+    }
 
     /**
      * Returns the information of the agent with its start time closest to the given timestamp
@@ -72,12 +81,16 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      */
     @Override
     public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
+        return getAgentInfo0(agentId, timestamp, agentInfoResultsExtractor, AgentInfoColumn.identifier());
+    }
+
+    private <T> T getAgentInfo0(String agentId, long timestamp, ResultsExtractor<T> action, AgentInfoColumn column) {
         Objects.requireNonNull(agentId, "agentId");
 
-        Scan scan = createScan(agentId, timestamp, AgentInfoColumn.all());
+        Scan scan = createScan(agentId, timestamp, column);
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
+        return this.hbaseOperations2.find(agentInfoTableName, scan, action);
     }
 
 
@@ -102,7 +115,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         final long startTime = agentStartTime - deltaTimeInMilliSeconds;
         final long endTime = agentStartTime + deltaTimeInMilliSeconds;
 
-        Scan scan = createScan(agentId, startTime, endTime, AgentInfoColumn.all());
+        Scan scan = createScan(agentId, startTime, endTime, AgentInfoColumn.identifier());
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
@@ -110,7 +123,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Override
     public List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp) {
-        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.all());
+        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.identifier());
     }
 
 

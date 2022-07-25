@@ -20,8 +20,6 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServiceTypeDescView;
 import org.apache.commons.lang3.StringUtils;
@@ -45,10 +43,7 @@ public class AgentInfo {
     private int pid;
     private String vmVersion;
     private String agentVersion;
-    private ServerMetaDataBo serverMetaData;
-    private JvmInfoBo jvmInfo;
     private boolean container;
-    private AgentStatus status;
 
     public AgentInfo() {
     }
@@ -146,21 +141,6 @@ public class AgentInfo {
         this.agentVersion = agentVersion;
     }
 
-    public ServerMetaDataBo getServerMetaData() {
-        return serverMetaData;
-    }
-
-    public void setServerMetaData(ServerMetaDataBo serverMetaData) {
-        this.serverMetaData = serverMetaData;
-    }
-
-    public JvmInfoBo getJvmInfo() {
-        return jvmInfo;
-    }
-
-    public void setJvmInfo(JvmInfoBo jvmInfo) {
-        this.jvmInfo = jvmInfo;
-    }
 
 
     public boolean isContainer() {
@@ -205,10 +185,7 @@ public class AgentInfo {
         sb.append(", pid=").append(pid);
         sb.append(", vmVersion='").append(vmVersion).append('\'');
         sb.append(", agentVersion='").append(agentVersion).append('\'');
-        sb.append(", serverMetaData='").append(serverMetaData).append('\'');
-        sb.append(", jvmInfo=").append(jvmInfo);
         sb.append(", container=").append(container);
-        sb.append(", status=").append(status);
         sb.append('}');
         return sb.toString();
     }

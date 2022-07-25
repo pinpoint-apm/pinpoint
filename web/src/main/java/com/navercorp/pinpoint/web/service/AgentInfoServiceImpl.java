@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.DetailedAgentAndStatus;
+import com.navercorp.pinpoint.web.vo.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
@@ -279,6 +281,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentAndStatus getAgentInfo(String agentId, long timestamp) {
+        Objects.requireNonNull(agentId, "agentId");
 
         AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, timestamp);
         if (agentInfo == null) {
@@ -290,9 +293,26 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
+    public DetailedAgentAndStatus getDetailedAgentInfo(String agentId, long timestamp) {
+        Objects.requireNonNull(agentId, "agentId");
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+
+        DetailedAgentInfo detailedAgentInfo = this.agentInfoDao.getDetailedAgentInfo(agentId, timestamp);
+        if (detailedAgentInfo == null) {
+            return null;
+        }
+        AgentInfo agentInfo = detailedAgentInfo.getAgentInfo();
+
+        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(agentInfo.getAgentId(), agentInfo.getStartTimestamp(), timestamp);
+        return new DetailedAgentAndStatus(detailedAgentInfo, agentStatus.orElse(null));
+
+    }
+
+    @Override
     public AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
-
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
@@ -301,12 +321,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliSeconds) {
+        Objects.requireNonNull(agentId, "agentId");
+        
         return this.agentInfoDao.getAgentInfo(agentId, agentStartTime, deltaTimeInMilliSeconds);
     }
 
     @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
         Objects.requireNonNull(agentId, "agentId");
+
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
@@ -324,6 +347,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public boolean isActiveAgent(String agentId, Range range) {
+        Objects.requireNonNull(agentId, "agentId");
+        
         boolean dataExists = this.jvmGcDao.agentStatExists(agentId, range);
         if (dataExists) {
             return true;
@@ -356,6 +381,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     @Override
     public boolean isExistAgentId(String agentId) {
+        Objects.requireNonNull(agentId, "agentId");
+
         AgentInfo agentInfo = getAgentInfoWithoutStatus(agentId, System.currentTimeMillis());
         return agentInfo != null;
     }
