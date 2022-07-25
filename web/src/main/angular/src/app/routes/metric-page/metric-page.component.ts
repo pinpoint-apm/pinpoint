@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { map, tap, takeUntil } from 'rxjs/operators';
 
 import { NewUrlStateNotificationService, UrlRouteManagerService, WebAppSettingDataService } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
@@ -11,12 +11,14 @@ import { UrlPathId } from 'app/shared/models';
     styleUrls: ['./metric-page.component.css']
 })
 
-export class MetricPageComponent implements OnInit {
-    showSideMenu$: Observable<boolean>;
+export class MetricPageComponent implements OnInit, OnDestroy {
+    private unsubscribe = new Subject<void>();
+
     showSideMenu: boolean;
     sideNavigationUI: boolean;
 
     showMetric$: Observable<boolean>;
+    mainSectionStyle = {};
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -35,16 +37,23 @@ export class MetricPageComponent implements OnInit {
         );
 
         this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
-        // this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-        //     map((urlService: NewUrlStateNotificationService) => {
-        //         return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
-        //     })
-        // );
+
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe),
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
-        ).subscribe((showSideMenu: boolean) => this.showSideMenu = showSideMenu);
+        ).subscribe((showSideMenu: boolean) => {
+            this.showSideMenu = showSideMenu;
+            this.mainSectionStyle = {
+                width: showSideMenu ? 'calc(100% - 250px)' : '100%'
+            };
+        });
+    }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 
     onShowHelp($event: MouseEvent): void {}

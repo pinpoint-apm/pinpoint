@@ -1,7 +1,7 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, OnDestroy } from '@angular/core';
 import { state, style, animate, transition, trigger } from '@angular/animations';
 import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
@@ -38,9 +38,10 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     sideNavigationUI: boolean;
     unAuthImgPath: string;
 
-    showSideMenu$: Observable<boolean>;
     showSideMenu: boolean;
     isAccessDenyed$: Observable<boolean>;
+
+    mainSectionStyle = {};
 
     constructor(
         private inspectorPageService: InspectorPageService,
@@ -57,16 +58,17 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
         this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.unAuthImgPath = this.webAppSettingDataService.getServerMapIconPathMakeFunc()('UNAUTHORIZED');
 
-        // this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-        //     map((urlService: NewUrlStateNotificationService) => {
-        //         return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
-        //     })
-        // );
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe),
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
-        ).subscribe((showSideMenu: boolean) => this.showSideMenu = showSideMenu);
+        ).subscribe((showSideMenu: boolean) => {
+            this.showSideMenu = showSideMenu;
+            this.mainSectionStyle = {
+                width: showSideMenu ? 'calc(100% - 250px)' : '100%'
+            };
+        });
         this.isAccessDenyed$ = this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.IS_ACCESS_DENYED);
         this.inspectorPageService.activate(this.unsubscribe);
     }
