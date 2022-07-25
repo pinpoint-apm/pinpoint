@@ -45,6 +45,7 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
         // });
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => urlService.isValueChanged(UrlPathId.HOST_GROUP) || urlService.isValueChanged(UrlPathId.HOST)),
             tap(() => this.metricList = []),
             switchMap((urlService: NewUrlStateNotificationService) => {
