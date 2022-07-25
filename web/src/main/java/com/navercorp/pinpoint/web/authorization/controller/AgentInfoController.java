@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.vo.DefaultAgentInfoFilter;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.vo.DetailedAgentAndStatus;
+import com.navercorp.pinpoint.web.vo.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -112,6 +114,13 @@ public class AgentInfoController {
             @RequestParam("agentId") String agentId,
             @RequestParam("timestamp") long timestamp) {
         return this.agentInfoService.getAgentInfo(agentId, timestamp);
+    }
+
+    @GetMapping(value = "/getDetailedAgentInfo")
+    public DetailedAgentAndStatus getDetailedAgentInfo(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("timestamp") long timestamp) {
+        return this.agentInfoService.getDetailedAgentInfo(agentId, timestamp);
     }
 
     @GetMapping(value = "/getAgentStatus")

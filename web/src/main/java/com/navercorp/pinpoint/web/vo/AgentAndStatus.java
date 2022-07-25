@@ -26,4 +26,19 @@ public class AgentAndStatus {
     public AgentStatus getStatus() {
         return status;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentAndStatus that = (AgentAndStatus) o;
+
+        return agentInfo != null ? agentInfo.equals(that.agentInfo) : that.agentInfo == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return agentInfo != null ? agentInfo.hashCode() : 0;
+    }
 }
