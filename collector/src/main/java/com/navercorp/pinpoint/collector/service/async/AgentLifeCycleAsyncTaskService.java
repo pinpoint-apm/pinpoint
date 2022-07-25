@@ -62,16 +62,15 @@ public class AgentLifeCycleAsyncTaskService {
             logger.warn("Failed to handle event of agent life cycle, agentId is null. agentProperty={}", agentProperty);
             return;
         }
-
-        final long startTimestamp = agentProperty.getStartTime();
-        final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
-        agentLifeCycleService.insert(agentLifeCycleBo);
-
         final String applicationName = agentProperty.getApplicationName();
         if (applicationName == null) {
             logger.warn("Failed to handle event of agent life cycle, applicationName is null. agentProperty={}", agentProperty);
             return;
         }
+
+        final long startTimestamp = agentProperty.getStartTime();
+        final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
+        agentLifeCycleService.insert(agentLifeCycleBo);
 
         final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
         if (isUpdateAgentState(serviceType)) {
