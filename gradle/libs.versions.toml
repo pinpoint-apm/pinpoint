@@ -1,4 +1,5 @@
 [versions]
+pinpoint = "2.5.0-SNAPSHOT"
 spring = "5.3.20"
 spring4 = "4.3.30.RELEASE"
 metrics = "3.2.6"
