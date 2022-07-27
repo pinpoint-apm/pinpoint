@@ -52,6 +52,7 @@ dependencies {
 }
 
 group = "com.navercorp.pinpoint"
+version = System.getProperty("version")
 
 publishing {
     publications.create<MavenPublication>("pinpoint") {

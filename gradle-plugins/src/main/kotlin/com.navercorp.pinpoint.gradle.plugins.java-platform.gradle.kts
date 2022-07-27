@@ -4,6 +4,7 @@ plugins {
 }
 
 group = "com.navercorp.pinpoint"
+version = System.getProperty("version")
 
 publishing {
     publications {
