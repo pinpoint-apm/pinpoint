@@ -1,5 +1,3 @@
-package com.navercorp.pinpoint.gradle.plugins
-
 plugins {
     `java-library`
     `maven-publish`

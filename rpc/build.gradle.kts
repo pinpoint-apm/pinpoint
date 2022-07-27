@@ -1,6 +1,6 @@
 plugins {
     `java-test-fixtures`
-    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java8")
+    id("com.navercorp.pinpoint.java8-library")
 }
 
 dependencies {

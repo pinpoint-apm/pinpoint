@@ -1,5 +1,5 @@
 plugins {
-    id("com.navercorp.pinpoint.gradle.plugins.toolchain.java11")
+    id("com.navercorp.pinpoint.java11-library")
     alias(libs.plugins.jaxb)
 }
 
