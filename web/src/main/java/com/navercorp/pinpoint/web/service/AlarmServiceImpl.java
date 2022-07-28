@@ -78,6 +78,12 @@ public class AlarmServiceImpl implements AlarmService {
     public List<Rule> selectRuleByApplicationId(String applicationId) {
         return alarmDao.selectRuleByApplicationId(applicationId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> selectApplicationId() {
+        return alarmDao.selectApplicationId();
+    }
     
     @Override
     public void updateRule(Rule rule) {

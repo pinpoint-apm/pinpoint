@@ -16,145 +16,65 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
-import com.navercorp.pinpoint.web.service.AlarmServiceImpl;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.item.ExecutionContext;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class AlarmReaderTest {
 
-    private static ApplicationIndexDao applicationIndexDao;
-    private static AlarmService alarmService;
-    private static DataCollectorFactory dataCollectorFactory;
-    private static final String APP_NAME = "app";
-    private static final String SERVICE_TYPE = "tomcat";
+    @Mock
+    private ApplicationIndexDao applicationIndexDao;
+
+    @Mock
+    private AlarmService alarmService;
+
+    @Mock
+    private StepExecution stepExecution;
+
+    private static final List<Application> mockApplications = List.of(
+            new Application("testApplication0", ServiceType.TEST),
+            new Application("testApplication1", ServiceType.TEST),
+            new Application("testApplication2", ServiceType.TEST),
+            new Application("testApplication3", ServiceType.TEST)
+    );
+
+    private static final List<String> applicationIds = mockApplications.stream()
+            .map(Application::getName)
+            .collect(Collectors.toUnmodifiableList());
 
     @Test
-    public void readTest() {
-        StepExecution stepExecution = new StepExecution("alarmStep", null);
-        ExecutionContext executionContext = new ExecutionContext();
-        stepExecution.setExecutionContext(executionContext);
+    public void pollingTest() {
+        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(mockApplications);
+        when(alarmService.selectApplicationId()).thenReturn(applicationIds);
 
-        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);
-
+        AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
         reader.beforeStep(stepExecution);
-
-        for (int i = 0; i < 7; i++) {
-            assertNotNull(reader.read());
+        for (int i = 0; i < 4; i++) {
+            assertEquals(mockApplications.get(i), reader.read(), "polled application should be same");
         }
-
         assertNull(reader.read());
     }
 
     @Test
-    public void readTest3() {
-        StepExecution stepExecution = new StepExecution("alarmStep", null);
-        ExecutionContext executionContext = new ExecutionContext();
-        stepExecution.setExecutionContext(executionContext);
+    public void pollingFromEmptyTest() {
+        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of());
 
-        AlarmServiceImpl alarmService = new AlarmServiceImpl(mock(AlarmDao.class), mock(WebhookSendInfoDao.class)) {
-            @Override
-            public List<Rule> selectRuleByApplicationId(String applicationId) {
-                return new LinkedList<>();
-            }
-        };
-
-        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);
+        AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
         reader.beforeStep(stepExecution);
         assertNull(reader.read());
-    }
-
-    @BeforeAll
-    public static void beforeClass() {
-        applicationIndexDao = new ApplicationIndexDao() {
-
-            @Override
-            public List<Application> selectAllApplicationNames() {
-                List<Application> apps = new LinkedList<>();
-
-                for (int i = 0; i < 7; i++) {
-                    apps.add(new Application(APP_NAME + i, ServiceType.STAND_ALONE));
-                }
-                return apps;
-            }
-
-            @Override
-            public List<Application> selectApplicationName(String applicationName) {
-                List<Application> apps = new LinkedList<>();
-                apps.add(new Application(APP_NAME, ServiceType.STAND_ALONE));
-                return apps;
-            }
-
-            @Override
-            public List<String> selectAgentIds(String applicationName) {
-                return null;
-            }
-
-            @Override
-            public void deleteApplicationName(String applicationName) {
-            }
-
-            @Override
-            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
-            }
-
-            @Override
-            public void deleteAgentId(String applicationName, String agentId) {
-            }
-
-        };
-
-        alarmService = new AlarmServiceImpl(mock(AlarmDao.class), mock(WebhookSendInfoDao.class)) {
-            private final Map<String, Rule> ruleMap;
-
-            {
-                ruleMap = new HashMap<>();
-
-                for (int i = 0; i <= 6; i++) {
-                    ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, false, ""));
-                }
-            }
-
-            @Override
-            public List<Rule> selectRuleByApplicationId(String applicationId) {
-                List<Rule> rules = new LinkedList<>();
-                rules.add(ruleMap.get(applicationId));
-                return rules;
-            }
-        };
-
-        dataCollectorFactory = mock(DataCollectorFactory.class);
-        when(dataCollectorFactory.createDataCollector(any(), any(), anyLong())).thenAnswer(new Answer<DataCollector>() {
-            @Override
-            public DataCollector answer(InvocationOnMock invocation) throws Throwable {
-                return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, null, null, 0, 0);
-            }
-        });
     }
 }

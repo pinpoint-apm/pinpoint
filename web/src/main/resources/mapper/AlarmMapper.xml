@@ -38,6 +38,11 @@
         FROM alarm_rule
         WHERE application_id = #{applicationId}
     </select>
+
+    <select id="selectApplicationId" resultType="string">
+        SELECT DISTINCT(application_id)
+        FROM alarm_rule
+    </select>
     
     <update id="updateRule">
         UPDATE alarm_rule

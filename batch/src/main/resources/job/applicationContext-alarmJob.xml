@@ -2,7 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:batch="http://www.springframework.org/schema/batch"
-       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
@@ -25,10 +24,17 @@
     </batch:job>
 
     <batch:step id="alarmStep">
-        <batch:tasklet>
+        <batch:tasklet task-executor="alarmExecutor" throttle-limit="${alarm.worker.maxSize:2}">
             <batch:chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
         </batch:tasklet>
     </batch:step>
+
+    <bean id="alarmExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="queueCapacity" value="1024" />
+        <property name="waitForTasksToCompleteOnShutdown" value="false" />
+        <property name="maxPoolSize" value="${alarm.worker.maxSize:2}" />
+        <property name="corePoolSize" value="${alarm.worker.coreSize:2}" />
+    </bean>
 
     <bean id="alarmPartitioner" class="com.navercorp.pinpoint.batch.alarm.AlarmPartitioner"/>
     <bean id="reader" class="com.navercorp.pinpoint.batch.alarm.AlarmReader" scope="step"/>

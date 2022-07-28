@@ -16,8 +16,8 @@
 
         <property name="maxLifetime" value="1200000"/>
 
-        <property name="maximumPoolSize" value="30"/>
-        <property name="minimumIdle" value="30"/>
+        <property name="maximumPoolSize" value="64"/>
+        <property name="minimumIdle" value="64"/>
     </bean>
 
     <bean id="dataSourceHikariConfig" class="com.zaxxer.hikari.HikariConfig" parent="abstractHikariConfig">

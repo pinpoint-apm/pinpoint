@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
+import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.jupiter.api.Disabled;
@@ -40,7 +41,7 @@ public class AlarmWriterTest {
 
     @Disabled
     @Test
-    public void smsSendTest() throws Exception {
+    public void smsSendTest() {
         Rule rule = new Rule("testService", "tomcat", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", true, false, false, "");
         SlowCountChecker checker = new SlowCountChecker(null, rule) {
             @Override
@@ -56,12 +57,12 @@ public class AlarmWriterTest {
 
         List<AlarmChecker<?>> checkers = new LinkedList<>();
         checkers.add(checker);
-        writer.write(checkers);
+        writer.write(List.of(new AppAlarmChecker(checkers)));
     }
 
     @Disabled
     @Test
-    public void emailSendTest() throws Exception {
+    public void emailSendTest() {
         Rule rule = new Rule("testService", "tomcat", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", false, true, false, "");
         SlowCountChecker checker = new SlowCountChecker(null, rule) {
             @Override
@@ -77,7 +78,7 @@ public class AlarmWriterTest {
 
         List<AlarmChecker<?>> checkers = new LinkedList<>();
         checkers.add(checker);
-        writer.write(checkers);
+        writer.write(List.of(new AppAlarmChecker(checkers)));
     }
 
 }

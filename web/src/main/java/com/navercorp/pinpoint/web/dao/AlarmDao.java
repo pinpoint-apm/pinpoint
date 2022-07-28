@@ -38,6 +38,8 @@ public interface AlarmDao {
     
     List<Rule> selectRuleByApplicationId(String applicationId);
 
+    List<String> selectApplicationId();
+
     void updateRule(Rule rule);
     
     void updateRuleExceptWebhookSend(Rule rule);

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.SlowCountChecker;
+import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
@@ -34,12 +35,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AlarmWriterIsolationTest {
@@ -59,14 +56,14 @@ public class AlarmWriterIsolationTest {
     Map<String, CheckerResult> beforeCheckerResults;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        writer = new AlarmWriter(alarmMessageSender, alarmService, Optional.empty());
+    public void setUp() {
+        writer = new AlarmWriter(alarmMessageSender, alarmService, null);
 
         beforeCheckerResults = new HashMap<>();
     }
 
     @Test
-    public void whenSequenceCountIsLessThanTimingCountDoSendAlarm() throws Exception {
+    public void whenSequenceCountIsLessThanTimingCountDoSendAlarm() {
         // given
         Rule rule = getRuleStub(APPLICATION_ID, RULE_ID);
 
@@ -79,7 +76,7 @@ public class AlarmWriterIsolationTest {
         mockingAlarmMessageSender(checker);
 
         // when
-        writer.write(checkers);
+        writer.write(List.of(new AppAlarmChecker(checkers)));
 
         // then
         verify(alarmMessageSender, times(1)).sendSms(checker, 1, null);
@@ -88,7 +85,7 @@ public class AlarmWriterIsolationTest {
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
-    public void whenSequenceCountIsEqualToTimingCountDoNotSendAlarm() throws Exception {
+    public void whenSequenceCountIsEqualToTimingCountDoNotSendAlarm() {
         //given
         Rule rule = getRuleStub(APPLICATION_ID, RULE_ID);
 
@@ -101,7 +98,7 @@ public class AlarmWriterIsolationTest {
         mockingAlarmMessageSender(checker);
 
         // when
-        writer.write(checkers);
+        writer.write(List.of(new AppAlarmChecker(checkers)));
 
         // then
         verify(alarmMessageSender, times(0)).sendSms(checker, 1, null);

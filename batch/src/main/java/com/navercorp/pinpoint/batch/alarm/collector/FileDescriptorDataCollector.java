@@ -15,12 +15,10 @@
  */
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,21 +29,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author minwoo.jung
  */
 public class FileDescriptorDataCollector extends DataCollector {
-
-    private final Application application;
     private final AgentStatDao<FileDescriptorBo> fileDescriptorDao;
-    private final ApplicationIndexDao applicationIndexDao;
+    private final List<String> agentIds;
     private final long timeSlotEndTime;
     private final long slotInterval;
     private final AtomicBoolean init = new AtomicBoolean(false);
 
     private final Map<String, Long> fileDescriptorCount = new HashMap<>();
 
-    public FileDescriptorDataCollector(DataCollectorCategory dataCollectorCategory, Application application, AgentStatDao<FileDescriptorBo> fileDescriptorDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
+    public FileDescriptorDataCollector(
+            DataCollectorCategory dataCollectorCategory,
+            AgentStatDao<FileDescriptorBo> fileDescriptorDao,
+            List<String> agentIds,
+            long timeSlotEndTime,
+            long slotInterval
+    ) {
         super(dataCollectorCategory);
-        this.application = application;
+
         this.fileDescriptorDao = fileDescriptorDao;
-        this.applicationIndexDao = applicationIndexDao;
+        this.agentIds = agentIds;
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
     }
@@ -57,7 +59,6 @@ public class FileDescriptorDataCollector extends DataCollector {
         }
 
         Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
-        List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName());
 
         for(String agentId : agentIds) {
             List<FileDescriptorBo> fileDescriptorBoList = fileDescriptorDao.getAgentStatList(agentId, range);

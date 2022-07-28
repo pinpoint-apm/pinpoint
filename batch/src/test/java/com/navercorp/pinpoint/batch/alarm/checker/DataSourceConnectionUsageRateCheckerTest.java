@@ -26,9 +26,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +36,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -58,19 +55,16 @@ public class DataSourceConnectionUsageRateCheckerTest {
     private static final long INTERVAL_MILLIS = 300000;
     private static final long START_TIME_MILLIS = CURRENT_TIME_MILLIS - INTERVAL_MILLIS;
 
+    private static final List<String> mockAgentIds = List.of(AGENT_ID);
+
 
     private static final long TIMESTAMP_INTERVAL = 5000L;
 
     @Mock
     private AgentStatDao<DataSourceListBo> mockDataSourceDao;
 
-    @Mock
-    private ApplicationIndexDao mockApplicationIndexDao;
-
     @BeforeEach
     public void before() {
-        when(mockApplicationIndexDao.selectAgentIds(APPLICATION_NAME)).thenReturn(Arrays.asList(AGENT_ID));
-
         Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
 
         List<DataSourceListBo> dataSourceListBoList = new ArrayList<>();
@@ -84,9 +78,8 @@ public class DataSourceConnectionUsageRateCheckerTest {
     @Test
     public void checkTest1() {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, false, "");
-        Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
-        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
+        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, mockDataSourceDao, mockAgentIds, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DataSourceConnectionUsageRateChecker checker = new DataSourceConnectionUsageRateChecker(collector, rule);
         checker.check();
         Assertions.assertTrue(checker.isDetected());
@@ -101,9 +94,8 @@ public class DataSourceConnectionUsageRateCheckerTest {
     @Test
     public void checkTest2() {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 80, "testGroup", false, false, false, "");
-        Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
-        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, mockDataSourceDao, mockApplicationIndexDao, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
+        DataSourceDataCollector collector = new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, mockDataSourceDao, mockAgentIds, CURRENT_TIME_MILLIS, INTERVAL_MILLIS);
         DataSourceConnectionUsageRateChecker checker = new DataSourceConnectionUsageRateChecker(collector, rule);
         checker.check();
         Assertions.assertFalse(checker.isDetected());
