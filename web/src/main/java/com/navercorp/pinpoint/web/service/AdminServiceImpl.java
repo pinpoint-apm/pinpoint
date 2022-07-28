@@ -16,25 +16,17 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author netspider
@@ -43,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    private static final int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
-
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
 
     private final ApplicationIndexDao applicationIndexDao;
 
@@ -71,26 +63,71 @@ public class AdminServiceImpl implements AdminService {
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
-        Map<String, List<String>> inactiveAgentMap = new TreeMap<>(String::compareTo);
 
-        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
-        Set<String> applicationNames = new TreeSet<>(String::compareTo);
-        // remove duplicates (same application name but different service type)
-        for (Application application : applications) {
-            applicationNames.add(application.getName());
+        List<String> applicationNames = this.applicationIndexDao.selectAllApplicationNames()
+                .stream()
+                .map(Application::getName)
+                .distinct()
+                .collect(Collectors.toList());
+        Collections.shuffle(applicationNames);
+
+        int index = 1;
+        for (String applicationName: applicationNames) {
+            logger.info("Cleaning {} ({}/{})", applicationName, index++, applicationNames.size());
+            removeInactiveAgentInApplication(applicationName, durationDays);
         }
-        for (String applicationName : applicationNames) {
-            List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-            Collections.sort(agentIds);
-            List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
-            if (CollectionUtils.hasLength(inactiveAgentIds)) {
-                inactiveAgentMap.put(applicationName, inactiveAgentIds);
+    }
+
+    @Override
+    public int removeInactiveAgentInApplication(String applicationName, int durationDays) {
+        int retry = 3;
+
+        while (retry-- > 0) {
+            try {
+                return removeInactiveAgentInApplication0(applicationName, durationDays);
+            } catch (Exception e) {
+                logger.error("Backoff to remove inactive agents in application {}", applicationName, e);
+                waitOneMinute();
             }
         }
-        // map may become big, but realistically won't cause OOM
-        // if it becomes an issue, consider deleting inside the loop above
-        logger.info("deleting {}", inactiveAgentMap);
-        this.applicationIndexDao.deleteAgentIds(inactiveAgentMap);
+        logger.error("Failed to remove inactive agents in application {}", applicationName);
+
+        return 0;
+    }
+
+    private void waitOneMinute() {
+        try {
+            Thread.sleep(60000);
+        } catch (Exception ignored) {}
+    }
+
+    private int removeInactiveAgentInApplication0(String applicationName, int durationDays) {
+        final List<String> agentsToDelete = new ArrayList<>(100);
+        int deleteCount = 0;
+
+        final List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        for (String agentId: agentIds) {
+            if (!isInactiveAgent(agentId, durationDays)) {
+                continue;
+            }
+
+            agentsToDelete.add(agentId);
+            deleteCount++;
+
+            if (agentsToDelete.size() >= 100) {
+                logger.info("Delete {} of {}", agentsToDelete, applicationName);
+                applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentsToDelete));
+                agentsToDelete.clear();
+            }
+        }
+
+        if (!agentsToDelete.isEmpty()) {
+            logger.info("Delete {} of {}", agentsToDelete, applicationName);
+            applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentsToDelete));
+        }
+
+        logger.info("({}/{}) agents of {} had been cleaned up", deleteCount, agentIds.size(), applicationName);
+        return deleteCount;
     }
 
     @Override
@@ -147,30 +184,16 @@ public class AdminServiceImpl implements AdminService {
             return Collections.emptyList();
         }
 
-        Range fastRange = Range.newRange(TimeUnit.HOURS, 1, System.currentTimeMillis());
+        return agentIds.stream()
+                .filter(agentId -> isInactiveAgent(agentId, durationDays))
+                .collect(Collectors.toList());
+    }
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, durationDays * -1);
-        final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = Range.between(fromTimestamp, fastRange.getFrom() + 1);
+    private boolean isInactiveAgent(String agentId, int durationDays) {
+        long now = System.currentTimeMillis();
+        Range range = Range.between(now - TimeUnit.DAYS.toMillis(durationDays), now);
 
-        List<String> inactiveAgentIds = new ArrayList<>();
-        for (String agentId : agentIds) {
-            // FIXME This needs to be done with a more accurate information.
-            // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
-            // this will fail
-
-            boolean dataExists = agentInfoService.isActiveAgent(agentId, fastRange);
-            if (dataExists) {
-                continue;
-            }
-
-            dataExists = agentInfoService.isActiveAgent(agentId, queryRange);
-            if (!dataExists) {
-                inactiveAgentIds.add(agentId);
-            }
-        }
-        return inactiveAgentIds;
+        return !this.agentInfoService.isActiveAgent(agentId, range);
     }
 
 }

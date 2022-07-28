@@ -7,12 +7,10 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,12 +19,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AdminServiceImplTest {
@@ -125,45 +119,41 @@ public class AdminServiceImplTest {
         int durationDays = 31;
 
         //// mocking
-        when(applicationIndexDao.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1));
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
+        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1))).thenReturn(List.of(AGENT_ID1));
+        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of(new Application(APPLICATION_NAME1, ServiceType.TEST)));
         when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(true);
 
         // when
         adminService.removeInactiveAgents(durationDays);
 
-        ArgumentCaptor<Map<String, List<String>>> inactiveAgentMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(applicationIndexDao).deleteAgentIds(inactiveAgentMapArgumentCaptor.capture());
-
-        List<String> actualInactiveAgentMapValues = inactiveAgentMapArgumentCaptor.getValue().get(APPLICATION_NAME1);
-
-        // then
-        assertThat(actualInactiveAgentMapValues == null, is(true));
+        verify(applicationIndexDao, times(0)).deleteAgentIds(any());
     }
 
     @Test
     public void whenAgentStatExistsOutOfDurationDaysDoRemoveInactiveAgents() {
         // given
         int durationDays = 31;
+
         //// mocking
-        when(applicationIndexDao.selectAgentIds(APPLICATION_NAME1)).thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(Arrays.asList(new Application(APPLICATION_NAME1, ServiceType.TEST)));
+        when(applicationIndexDao.selectAgentIds(anyString())).thenReturn(List.of(AGENT_ID1, AGENT_ID2, AGENT_ID3));
+        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of(new Application(APPLICATION_NAME1, ServiceType.TEST)));
+        doAnswer(invocation -> {
+            Map<String, List<String>> inactiveAgentMap = invocation.getArgument(0);
+            List<String> inactiveAgents = inactiveAgentMap.get(APPLICATION_NAME1);
+
+            assertThat(inactiveAgents.size(), is(2));
+            assertThat(inactiveAgents.get(0), is(AGENT_ID1));
+            assertThat(inactiveAgents.get(1), is(AGENT_ID2));
+
+            return inactiveAgents;
+        }).when(applicationIndexDao).deleteAgentIds(any());
 
         when(agentInfoService.isActiveAgent(eq(AGENT_ID1), any(Range.class))).thenReturn(false);
+        when(agentInfoService.isActiveAgent(eq(AGENT_ID2), any(Range.class))).thenReturn(false);
+        when(agentInfoService.isActiveAgent(eq(AGENT_ID3), any(Range.class))).thenReturn(true);
 
         // when
         adminService.removeInactiveAgents(durationDays);
-
-        ArgumentCaptor<Map<String, List<String>>> inactiveAgentMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(applicationIndexDao).deleteAgentIds(inactiveAgentMapArgumentCaptor.capture());
-
-        // then
-        List<String> actualInactiveAgentMapValues = inactiveAgentMapArgumentCaptor.getValue().get(APPLICATION_NAME1);
-
-        assertThat(actualInactiveAgentMapValues.size(), is(3));
-        assertThat(actualInactiveAgentMapValues.get(0), is(AGENT_ID1));
-        assertThat(actualInactiveAgentMapValues.get(1), is(AGENT_ID2));
-        assertThat(actualInactiveAgentMapValues.get(2), is(AGENT_ID3));
     }
 
     @Test
@@ -184,17 +174,17 @@ public class AdminServiceImplTest {
     public void testDuplicateAgentIdMap() {
         // given
         when(applicationIndexDao.selectAllApplicationNames())
-                .thenReturn(Arrays.asList(
+                .thenReturn(List.of(
                         new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME3, ServiceType.UNDEFINED)));
 
         when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1)))
-                .thenReturn(Arrays.asList(AGENT_ID1, AGENT_ID2, AGENT_ID3));
+                .thenReturn(List.of(AGENT_ID1, AGENT_ID2, AGENT_ID3));
         when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME2)))
-                .thenReturn(Arrays.asList(AGENT_ID2, AGENT_ID3));
+                .thenReturn(List.of(AGENT_ID2, AGENT_ID3));
         when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME3)))
-                .thenReturn(Arrays.asList(AGENT_ID1));
+                .thenReturn(List.of(AGENT_ID1));
 
         // then
         Map<String, List<Application>> duplicateAgentIdMap = adminService.getDuplicateAgentIdMap();
@@ -206,13 +196,13 @@ public class AdminServiceImplTest {
 
         // check the application names
         List<String> applicationNamesOfAgentId1 = duplicateAgentIdMap.get(AGENT_ID1).stream().map(Application::getName).collect(Collectors.toList());
-        assertTrue(applicationNamesOfAgentId1.containsAll(Arrays.asList(APPLICATION_NAME1, APPLICATION_NAME3)));
+        assertTrue(applicationNamesOfAgentId1.containsAll(List.of(APPLICATION_NAME1, APPLICATION_NAME3)));
 
         List<String> applicationNamesOfAgentId2 = duplicateAgentIdMap.get(AGENT_ID2).stream().map(Application::getName).collect(Collectors.toList());
-        assertTrue(applicationNamesOfAgentId2.containsAll(Arrays.asList(APPLICATION_NAME1, APPLICATION_NAME2)));
+        assertTrue(applicationNamesOfAgentId2.containsAll(List.of(APPLICATION_NAME1, APPLICATION_NAME2)));
 
         List<String> applicationNamesOfAgentId3 = duplicateAgentIdMap.get(AGENT_ID3).stream().map(Application::getName).collect(Collectors.toList());
-        assertTrue(applicationNamesOfAgentId3.containsAll(Arrays.asList(APPLICATION_NAME1, APPLICATION_NAME2)));
+        assertTrue(applicationNamesOfAgentId3.containsAll(List.of(APPLICATION_NAME1, APPLICATION_NAME2)));
     }
 
 }

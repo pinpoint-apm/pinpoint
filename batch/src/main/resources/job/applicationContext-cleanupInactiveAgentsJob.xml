@@ -22,7 +22,9 @@
 
     <batch:job id="cleanupInactiveAgentsJob">
         <batch:step id="cleanupInactiveAgentsStep">
-            <batch:tasklet ref="cleanupInactiveAgentsTasklet" transaction-manager="metaDataTransactionManager"/>
+            <batch:tasklet ref="cleanupInactiveAgentsTasklet" transaction-manager="metaDataTransactionManager">
+                <batch:transaction-attributes timeout="172800" /> <!-- 2days -->
+            </batch:tasklet>
         </batch:step>
         <batch:listeners>
             <batch:listener ref="jobFailListener"/>
