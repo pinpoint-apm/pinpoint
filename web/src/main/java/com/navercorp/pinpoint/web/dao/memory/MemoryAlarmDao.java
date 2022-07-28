@@ -15,11 +15,8 @@
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -101,6 +98,17 @@ public class MemoryAlarmDao implements AlarmDao {
         }
         
         return ruleList;
+    }
+
+    @Override
+    public List<String> selectApplicationId() {
+        Set<String> ids = new HashSet<>();
+
+        for (Entry<String, Rule> entry : alarmRule.entrySet()) {
+            ids.add(entry.getValue().getApplicationId());
+        }
+
+        return new ArrayList<>(ids);
     }
 
     @Override

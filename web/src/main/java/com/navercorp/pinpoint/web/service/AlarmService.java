@@ -35,6 +35,8 @@ public interface AlarmService {
 
     List<Rule> selectRuleByApplicationId(String applicationId);
 
+    List<String> selectApplicationId();
+
     void updateRule(Rule rule);
 
     void updateRuleWithWebhooks(Rule rule, List<String> webhookIds);

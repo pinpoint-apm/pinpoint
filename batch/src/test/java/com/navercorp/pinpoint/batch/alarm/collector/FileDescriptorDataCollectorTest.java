@@ -19,11 +19,8 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -41,17 +38,14 @@ public class FileDescriptorDataCollectorTest {
 
     @Test
     public void collect() {
-        String applicationId = "test";
         String agentId1 = "testAgent1";
         String agentId2 = "testAgent2";
-        Application application = new Application(applicationId, ServiceType.STAND_ALONE);
+
         List<String> agentList = new ArrayList<>();
         agentList.add(agentId1);
         agentList.add(agentId2);
-        ApplicationIndexDao applicationIndexDao = mock(ApplicationIndexDao.class);
-        when(applicationIndexDao.selectAgentIds(applicationId)).thenReturn(agentList);
 
-        AgentStatDao<FileDescriptorBo> fileDescriptorDao = mock(AgentStatDao.class);
+        AgentStatDao<FileDescriptorBo> fileDescriptorDao = (AgentStatDao<FileDescriptorBo>) mock(AgentStatDao.class);
         long timeStamp = 1558936971494L;
         Range range = Range.newUncheckedRange(timeStamp - DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN, timeStamp);
 
@@ -79,11 +73,18 @@ public class FileDescriptorDataCollectorTest {
         fileDescriptorBoList2.add(fileDescriptorBo2_3);
         when(fileDescriptorDao.getAgentStatList(agentId2, range)).thenReturn(fileDescriptorBoList2);
 
-        FileDescriptorDataCollector fileDescriptorDataCollector = new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, application, fileDescriptorDao, applicationIndexDao, timeStamp, DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        FileDescriptorDataCollector fileDescriptorDataCollector = new FileDescriptorDataCollector(
+                DataCollectorCategory.FILE_DESCRIPTOR,
+                fileDescriptorDao,
+                agentList,
+                timeStamp,
+                DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN
+        );
+
         fileDescriptorDataCollector.collect();
         Map<String, Long> fileDescriptorCount = fileDescriptorDataCollector.getFileDescriptorCount();
         assertEquals(fileDescriptorCount.size(), 2);
-        assertEquals(fileDescriptorCount.get(agentId1), new Long(300L));
-        assertEquals(fileDescriptorCount.get(agentId2), new Long(350L));
+        assertEquals(fileDescriptorCount.get(agentId1), Long.valueOf(300L));
+        assertEquals(fileDescriptorCount.get(agentId2), Long.valueOf(350L));
     }
 }

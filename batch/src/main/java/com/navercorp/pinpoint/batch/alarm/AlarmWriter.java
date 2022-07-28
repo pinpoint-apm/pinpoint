@@ -17,22 +17,30 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.batch.service.AlarmService;
+import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.vo.CheckerResult;
-
+import com.navercorp.pinpoint.batch.service.AlarmService;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemWriter;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author minwoo.jung
  */
-public class AlarmWriter implements ItemWriter<AlarmChecker<?>> {
+public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionListener {
+
+    private final Logger logger = LogManager.getLogger(AlarmWriter.class);
 
     private final AlarmMessageSender alarmMessageSender;
     private final AlarmService alarmService;
@@ -40,39 +48,69 @@ public class AlarmWriter implements ItemWriter<AlarmChecker<?>> {
 
     private StepExecution stepExecution;
 
-    public AlarmWriter(AlarmMessageSender alarmMessageSender, AlarmService alarmService, Optional<AlarmWriterInterceptor> alarmWriterInterceptor) {
+    public AlarmWriter(
+            AlarmMessageSender alarmMessageSender,
+            AlarmService alarmService,
+            AlarmWriterInterceptor alarmWriterInterceptor
+    ) {
         this.alarmMessageSender = Objects.requireNonNull(alarmMessageSender, "alarmMessageSender");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
-        this.interceptor = alarmWriterInterceptor.orElseGet(DefaultAlarmWriterInterceptor::new);
+        this.interceptor = Objects.requireNonNullElseGet(alarmWriterInterceptor, DefaultAlarmWriterInterceptor::new);
     }
 
-    @BeforeStep
-    public void beforeStep(StepExecution stepExecution) {
+    @Override
+    public void beforeStep(@Nonnull StepExecution stepExecution) {
         this.stepExecution = stepExecution;
     }
 
     @Override
-    public void write(List<? extends AlarmChecker<?>> checkers) throws Exception {
-        interceptor.before(checkers);
+    public ExitStatus afterStep(@Nonnull StepExecution stepExecution) {
+        return null;
+    }
 
+    @Override
+    public void write(@Nonnull List<? extends AppAlarmChecker> appAlarmCheckers) {
+        List<AlarmChecker<?>> checkers = flatten(appAlarmCheckers);
+        interceptor.before(checkers);
         try {
-            execute(checkers);
-        } catch (Exception e) {
-            throw e;
+            for (AppAlarmChecker appAlarmChecker: appAlarmCheckers) {
+                execute(appAlarmChecker.getChildren());
+            }
         } finally {
             interceptor.after(checkers);
         }
     }
 
+    public List<AlarmChecker<?>> flatten(List<? extends AppAlarmChecker> appAlarmCheckers) {
+        List<AlarmChecker<?>> checkers = new ArrayList<>();
+        for (AppAlarmChecker appAlarmChecker : appAlarmCheckers) {
+            checkers.addAll(appAlarmChecker.getChildren());
+        }
+        return checkers;
+    }
+
     private void execute(List<? extends AlarmChecker<?>> checkers) {
-        Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
+        if (CollectionUtils.isEmpty(checkers)) {
+            return;
+        }
+
+        if (!haveSameApplicationId(checkers)) {
+            logger.error("All checkers must have same applicationId");
+            throw new IllegalArgumentException("All checkers must have same applicationId");
+        }
+
+        final String applicationId = checkers.get(0).getRule().getApplicationId();
+        Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(applicationId);
 
         for (AlarmChecker<?> checker : checkers) {
-            CheckerResult beforeCheckerResult = beforeCheckerResults.get(checker.getRule().getRuleId());
+            final Rule rule = checker.getRule();
+            final String ruleId = rule.getRuleId();
+            final String checkerName = rule.getCheckerName();
 
-            if (beforeCheckerResult == null) {
-                beforeCheckerResult = new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1);
-            }
+            CheckerResult beforeCheckerResult = Objects.requireNonNullElseGet(
+                    beforeCheckerResults.get(ruleId),
+                    () -> new CheckerResult(ruleId, applicationId, checkerName, false, 0, 1)
+            );
 
             if (checker.isDetected()) {
                 sendAlarmMessage(beforeCheckerResult, checker);
@@ -80,6 +118,18 @@ public class AlarmWriter implements ItemWriter<AlarmChecker<?>> {
 
             alarmService.updateBeforeCheckerResult(beforeCheckerResult, checker);
         }
+    }
+
+    private boolean haveSameApplicationId(List<? extends AlarmChecker<?>> checkers) {
+        if (CollectionUtils.isEmpty(checkers)) {
+            return true;
+        }
+
+        final String applicationId = checkers.get(0).getRule().getApplicationId();
+        return checkers.stream()
+                .map(AlarmChecker::getRule)
+                .map(Rule::getApplicationId)
+                .allMatch(applicationId::equals);
     }
 
     private void sendAlarmMessage(CheckerResult beforeCheckerResult, AlarmChecker<?> checker) {
@@ -94,7 +144,6 @@ public class AlarmWriter implements ItemWriter<AlarmChecker<?>> {
                 alarmMessageSender.sendWebhook(checker, beforeCheckerResult.getSequenceCount() + 1, stepExecution);
             }
         }
-
     }
 
     private boolean isTurnToSendAlarm(CheckerResult beforeCheckerResult) {
@@ -104,10 +153,6 @@ public class AlarmWriter implements ItemWriter<AlarmChecker<?>> {
 
         int sequenceCount = beforeCheckerResult.getSequenceCount() + 1;
 
-        if (sequenceCount == beforeCheckerResult.getTimingCount()) {
-            return true;
-        }
-
-        return false;
+        return sequenceCount == beforeCheckerResult.getTimingCount();
     }
 }

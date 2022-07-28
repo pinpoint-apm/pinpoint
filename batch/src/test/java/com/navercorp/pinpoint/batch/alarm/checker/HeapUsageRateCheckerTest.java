@@ -22,20 +22,16 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,8 +40,7 @@ public class HeapUsageRateCheckerTest {
 
     private static final String SERVICE_NAME = "local_service";
     private static final String SERVICE_TYPE = "tomcat";
-
-    private static ApplicationIndexDao applicationIndexDao;
+    private static final List<String> mockAgentIds = List.of("local_tomcat");
 
     private static AgentStatDao<JvmGcBo> jvmGcDao;
 
@@ -82,7 +77,6 @@ public class HeapUsageRateCheckerTest {
         };
 
         cpuLoadDao = new AgentStatDao<>() {
-
             @Override
             public String getChartType() {
                 return AgentStatType.CPU_LOAD.getChartType();
@@ -98,55 +92,14 @@ public class HeapUsageRateCheckerTest {
                 return false;
             }
         };
-
-        applicationIndexDao = new ApplicationIndexDao() {
-
-            @Override
-            public List<Application> selectAllApplicationNames() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public List<Application> selectApplicationName(String applicationName) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public List<String> selectAgentIds(String applicationName) {
-                if (SERVICE_NAME.equals(applicationName)) {
-                    List<String> agentIds = new LinkedList<>();
-                    agentIds.add("local_tomcat");
-                    return agentIds;
-                }
-
-                throw new IllegalArgumentException();
-            }
-
-            @Override
-            public void deleteApplicationName(String applicationName) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public void deleteAgentId(String applicationName, String agentId) {
-                throw new UnsupportedOperationException();
-            }
-
-        };
     }
 
 
     @Test
     public void checkTest1() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 70, "testGroup", false, false, false, "");
-        Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        AgentChecker checker = new HeapUsageRateChecker(collector, rule);
+        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, mockAgentIds, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        AgentChecker<Long> checker = new HeapUsageRateChecker(collector, rule);
 
         checker.check();
         assertTrue(checker.isDetected());
@@ -155,30 +108,11 @@ public class HeapUsageRateCheckerTest {
     @Test
     public void checkTest2() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 71, "testGroup", false, false, false, "");
-        Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        AgentChecker checker = new HeapUsageRateChecker(collector, rule);
+        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, mockAgentIds, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
+        AgentChecker<Long> checker = new HeapUsageRateChecker(collector, rule);
 
         checker.check();
         assertFalse(checker.isDetected());
     }
-
-
-//    @Autowired
-//    private HbaseAgentStatDao hbaseAgentStatDao ;
-
-//    @Autowired
-//    private HbaseApplicationIndexDao applicationIndexDao;
-
-//    @Test
-//    public void checkTest1() {
-//        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.HEAP_USAGE_RATE.getName(), 60, "testGroup", false, false);
-//        Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
-//        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, applicationIndexDao, System.currentTimeMillis(), (long)300000);
-//        AgentChecker checker = new HeapUsageRateChecker(collector, rule);
-//        
-//        checker.check();
-//        assertTrue(checker.isDetected());
-//    }
 
 }

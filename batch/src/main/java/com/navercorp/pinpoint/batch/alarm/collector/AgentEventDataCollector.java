@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.dao.AgentEventDao;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,10 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AgentEventDataCollector extends DataCollector {
 
-    private final Application application;
-
-    private final ApplicationIndexDao applicationIndexDao;
     private final AgentEventDao agentEventDao;
+
+    private final List<String> agentIds;
 
     private final long timeSlotEndTime;
     private final long slotInterval;
@@ -46,15 +43,18 @@ public class AgentEventDataCollector extends DataCollector {
 
     private final Map<String, Boolean> agentDeadlockEventDetected = new HashMap<>();
 
-    public AgentEventDataCollector(DataCollectorCategory dataCollectorCategory, Application application, AgentEventDao agentEventDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
+    public AgentEventDataCollector(
+            DataCollectorCategory dataCollectorCategory,
+            AgentEventDao agentEventDao,
+            List<String> agentIds,
+            long timeSlotEndTime,
+            long slotInterval
+    ) {
         super(dataCollectorCategory);
-        this.application = application;
 
         this.agentEventDao = agentEventDao;
-        this.applicationIndexDao = applicationIndexDao;
-
+        this.agentIds = agentIds;
         this.timeSlotEndTime = timeSlotEndTime;
-
         this.slotInterval = slotInterval;
     }
 
@@ -65,7 +65,6 @@ public class AgentEventDataCollector extends DataCollector {
         }
 
         Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
-        List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName());
 
         for (String agentId : agentIds) {
             List<AgentEventBo> agentEventBoList = agentEventDao.getAgentEvents(agentId, range, Collections.emptySet());

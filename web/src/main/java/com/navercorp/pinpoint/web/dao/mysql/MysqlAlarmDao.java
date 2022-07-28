@@ -75,6 +75,11 @@ public class MysqlAlarmDao implements AlarmDao {
     }
 
     @Override
+    public List<String> selectApplicationId() {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectApplicationId");
+    }
+
+    @Override
     public void updateRule(Rule rule) {
         sqlSessionTemplate.update(NAMESPACE + "updateRule", rule);
     }
