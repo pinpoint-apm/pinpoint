@@ -35,6 +35,9 @@ import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
@@ -101,7 +104,8 @@ public class DataReceiverGroupTest {
     public UdpDataSender<TBase<?, ?>> newUdpDataSender(DataReceiverGroupConfiguration mockConfig) {
         String threadName = this.getClass().getName();
         MessageConverter<TBase<?, ?>, TBase<?, ?>> messageConverter = new BypassMessageConverter<>();
-        final MessageSerializer<TBase<?, ?>, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+        SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+        final MessageSerializer<TBase<?, ?>, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, serializerFactory.createSerializer());
         return new UdpDataSender<>("127.0.0.1", mockConfig.getUdpBindPort(), threadName, 10, 1000, 1024 * 64 * 100,
                 thriftMessageSerializer);
     }

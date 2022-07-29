@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +30,7 @@ import org.apache.logging.log4j.LogManager;
  * not thread safe
  * @author Woonduk Kang(emeroad)
  */
-public class ThriftUdpMessageSerializer<T> implements MessageSerializer<T, ByteMessage>{
+public class ThriftUdpMessageSerializer<T> implements MessageSerializer<T, ByteMessage> {
 
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
@@ -44,20 +42,18 @@ public class ThriftUdpMessageSerializer<T> implements MessageSerializer<T, ByteM
     private final MessageConverter<T, TBase<?, ?>> messageConverter;
 
 
-    public ThriftUdpMessageSerializer(MessageConverter<T, TBase<?, ?>> messageConverter, int maxPacketLength) {
+    public ThriftUdpMessageSerializer(MessageConverter<T, TBase<?, ?>> messageConverter, HeaderTBaseSerializer serializer) {
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
-        this.maxPacketLength = maxPacketLength;
         // Caution. not thread safe
-        SerializerFactory<HeaderTBaseSerializer> headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(false, maxPacketLength, false);
-        serializer = headerTBaseSerializerFactory.createSerializer();
+        this.serializer = Objects.requireNonNull(serializer, "serializer");
+        this.maxPacketLength = ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH;
     }
 
     // single thread only
     @Override
     public ByteMessage serializer(T message) {
         if (message instanceof TBase<?, ?>) {
-            final TBase<?, ?> tBase = (TBase<?, ?>) message;
-            return serialize(tBase);
+            return serialize((TBase<?, ?>) message);
         }
 
         final TBase<?, ?> tBase = messageConverter.toMessage(message);
@@ -70,29 +66,24 @@ public class ThriftUdpMessageSerializer<T> implements MessageSerializer<T, ByteM
     public ByteMessage serialize(TBase<?, ?> message) {
         final TBase<?, ?> dto = message;
         // do not copy bytes because it's single threaded
-        final byte[] internalBufferData = serialize(this.serializer, dto);
-        if (internalBufferData == null) {
-            logger.warn("interBufferData is null");
+        final byte[] byteMessage = serialize(this.serializer, dto);
+        if (byteMessage == null) {
             return null;
         }
-
-        final int messageSize = this.serializer.getInterBufferSize();
-        if (isLimit(messageSize)) {
+        if (isLimit(byteMessage.length)) {
             // When packet size is greater than UDP packet size limit, it's better to discard packet than let the socket API fails.
-            logger.warn("discard packet. Caused:too large message. size:{}, {}", messageSize, dto);
+            logger.warn("discard packet. Caused:too large message. size:{}, {}", byteMessage.length, dto);
             return null;
         }
 
-        return new ByteMessage(internalBufferData, messageSize);
+        return ByteMessage.wrap(byteMessage);
     }
 
     private byte[] serialize(HeaderTBaseSerializer serializer, TBase<?, ?> tBase) {
         try {
             return serializer.serialize(tBase);
         } catch (TException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Serialize " + tBase + " failed. Error:" + e.getMessage(), e);
-            }
+            logger.warn("Serialize {} failed. Error:{}", tBase, e.getMessage(), e);
         }
         return null;
     }

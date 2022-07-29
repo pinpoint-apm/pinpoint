@@ -28,15 +28,12 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TMemoryInputTransport;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.thrift.transport.TTransportException;
 
 /**
  * copy->TBaseDeserializer
  */
 public class HeaderTBaseDeserializer {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TProtocol protocol;
     private final TMemoryInputTransport trans;
@@ -49,7 +46,11 @@ public class HeaderTBaseDeserializer {
      * @param protocolFactory Factory to create a protocol
      */
     HeaderTBaseDeserializer(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        this.trans = new TMemoryInputTransport();
+        try {
+            this.trans = new TMemoryInputTransport(ConfigurationFactory.getConfiguration());
+        } catch (TTransportException e) {
+            throw new RuntimeException(e);
+        }
         this.protocol = protocolFactory.getProtocol(trans);
         this.locator = locator;
     }
@@ -84,7 +85,7 @@ public class HeaderTBaseDeserializer {
 
         base.read(protocol);
 
-        return new DefaultMessage<TBase<?, ?>>(header, headerEntity, base);
+        return new DefaultMessage<>(header, headerEntity, base);
     }
 
     private void skipHeaderOffset(HeaderReader reader) {

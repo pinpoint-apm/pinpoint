@@ -18,12 +18,19 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 
 /**
  * @author Taejin Koo
  */
 public final class UdpDataSenderFactory<T> {
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     //    String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize
     private final String host;
@@ -51,13 +58,14 @@ public final class UdpDataSenderFactory<T> {
 
     public DataSender<T> create(UdpDataSenderType type) {
         if (type == UdpDataSenderType.NIO) {
-            return new NioUDPDataSender<>(host, port, threadName, queueSize, timeout, sendBufferSize, messageConverter);
-        } else if (type == UdpDataSenderType.OIO) {
-            final MessageSerializer<T, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
-            return new UdpDataSender<>(host, port, threadName, queueSize, timeout, sendBufferSize, thriftMessageSerializer);
-        } else {
-            throw new IllegalArgumentException("Unknown type.");
+            logger.warn("NIO UdpDataSenderType is deprecated");
         }
+
+        SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(
+                ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH,
+                HeaderTBaseSerializerFactory.DEFAULT_TBASE_LOCATOR);
+        final MessageSerializer<T, ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, serializerFactory.createSerializer());
+        return new UdpDataSender<>(host, port, threadName, queueSize, timeout, sendBufferSize, thriftMessageSerializer);
     }
 
 }
