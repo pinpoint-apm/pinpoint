@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
@@ -48,6 +50,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     private HbaseSecurityInterceptor hbaseSecurityInterceptor = new EmptyHbaseSecurityInterceptor();
 
     private final boolean warmUp;
+    private final HbaseTable[] warmUpExclusive = {HbaseTable.AGENT_URI_STAT};
     private final Configuration configuration;
     private Connection connection;
     private ExecutorService executorService;
@@ -63,7 +66,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
         Objects.requireNonNull(executorService, "executorService");
         this.configuration = configuration;
         this.executorService = executorService;
-        warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
+        this.warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
     }
 
     @Override
@@ -82,12 +85,13 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
         if (warmUp) {
             if (tableNameProvider != null && tableNameProvider.hasDefaultNameSpace()) {
                 logger.info("warmup for hbase connection started");
-                for (HbaseTable hBaseTable : HbaseTable.values()) {
-                    if (!hBaseTable.isMustIncluded()) {
-                        continue;
-                    }
+                List<HbaseTable> warmUpInclusive = new ArrayList<>(List.of(HbaseTable.values()));
+                warmUpInclusive.removeAll(List.of(warmUpExclusive));
+
+                for (HbaseTable hBaseTable : warmUpInclusive) {
                     try {
                         TableName tableName = tableNameProvider.getTableName(hBaseTable);
+                        logger.info("warmup for hbase table start: {}", tableName.toString());
                         RegionLocator regionLocator = connection.getRegionLocator(tableName);
                         regionLocator.getAllRegionLocations();
                     } catch (IOException e) {
