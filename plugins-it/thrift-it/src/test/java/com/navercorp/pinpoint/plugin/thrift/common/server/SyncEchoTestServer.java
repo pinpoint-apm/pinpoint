@@ -16,20 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.server;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
-
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import org.apache.thrift.TBaseProcessor;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
+import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
@@ -40,11 +36,13 @@ import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
 
 /**
  * @author HyunGil Jeong

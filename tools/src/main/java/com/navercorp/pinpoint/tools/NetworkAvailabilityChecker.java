@@ -204,11 +204,8 @@ public class NetworkAvailabilityChecker {
     }
 
     private static byte[] getNetworkCheckPayload() throws TException {
-        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, 65535, false).createSerializer();
-        byte[] payload = serializer.serialize(new NetworkAvailabilityCheckPacket());
-        int size = serializer.getInterBufferSize();
-
-        return Arrays.copyOf(payload, size);
+        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(65535).createSerializer();
+        return serializer.serialize(new NetworkAvailabilityCheckPacket());
     }
 
     private static byte[] getNetworkCheckResponsePayload() {

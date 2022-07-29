@@ -39,11 +39,10 @@ import org.junit.jupiter.api.Test;
  */
 public class PinpointRouteResponseTest {
 
-    TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
     TypeLocator<TBase<?, ?>> commandTbaseRegistry = TCommandRegistry.build(TCommandTypeVersion.getVersion("1.5.0-SNAPSHOT"));
 
-    SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, 10000, protocolFactory, commandTbaseRegistry);
-    DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(protocolFactory, commandTbaseRegistry);
+    SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(10000, commandTbaseRegistry);
+    DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(commandTbaseRegistry);
 
     @Test
     public void routeResponseTest1() throws Exception {

@@ -28,9 +28,12 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
+import org.apache.thrift.transport.TTransportException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Generic utility for easily serializing objects into a byte array or Java
@@ -40,19 +43,21 @@ import java.nio.charset.StandardCharsets;
 public class HeaderTBaseSerializer implements TBaseSerializer {
 
     private static final String UTF8 = StandardCharsets.UTF_8.name();
+    private final ByteArrayOutputStream baos;
 
-    private final ResettableByteArrayOutputStream baos;
+    private final TIOStreamTransport transport;
     private final TProtocol protocol;
     private final TypeLocator<TBase<?, ?>> locator;
 
     /**
      * Create a new HeaderTBaseSerializer. 
      */
-    HeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        this.baos = bos;
-        TIOStreamTransport transport = new TIOStreamTransport(bos);
+    HeaderTBaseSerializer(ByteArrayOutputStream baos, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) throws TTransportException {
+        this.baos = Objects.requireNonNull(baos, "baos");
+        // TConfiguration is no effect when message write
+        this.transport = new TIOStreamTransport(ConfigurationFactory.getConfiguration(), baos);
         this.protocol = protocolFactory.getProtocol(transport);
-        this.locator = locator;
+        this.locator = Objects.requireNonNull(locator, "locator");
     }
 
     /**
@@ -70,18 +75,15 @@ public class HeaderTBaseSerializer implements TBaseSerializer {
 
     @Override
     public byte[] serialize(TBase<?, ?> base, HeaderEntity headerEntity) throws TException {
-        baos.reset();
 
         writeHeader(base, headerEntity);
         base.write(protocol);
-        return baos.toByteArray();
+        byte[] bytes = baos.toByteArray();
+        baos.reset();
+        return bytes;
     }
 
-    private void writeHeader(TBase<?, ?> base) {
-        writeHeader(base, HeaderEntity.EMPTY_HEADER_ENTITY);
-    }
-
-    private void writeHeader(TBase<?, ?>base, HeaderEntity headerEntity) {
+    private void writeHeader(TBase<?, ?> base, HeaderEntity headerEntity) {
         try {
             final Header header = locator.headerLookup(base);
             if (header == null) {
@@ -95,24 +97,11 @@ public class HeaderTBaseSerializer implements TBaseSerializer {
         }
     }
 
-    public byte[] continueSerialize(TBase<?, ?> base) throws TException {
-        writeHeader(base);
-        base.write(protocol);
-        return baos.toByteArray();
-    }
     
     public void reset() {
         baos.reset();
     }
     
-    public void reset(int resetIndex) {
-        baos.reset(resetIndex);
-    }
-
-    public int getInterBufferSize() {
-        return baos.size();
-    }
-
 
     /**
      * Serialize the Thrift object into a Java string, using the UTF8

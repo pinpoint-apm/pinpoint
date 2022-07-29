@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -23,7 +25,13 @@ public class ByteMessage {
     private final byte[] message;
     private final int length;
 
-    public ByteMessage(byte[] message, int length) {
+    public static ByteMessage wrap(byte[] message) {
+        Objects.requireNonNull(message, "message");
+        return new ByteMessage(message, message.length);
+    }
+
+
+    private ByteMessage(byte[] message, int length) {
         this.message = message;
         this.length = length;
     }

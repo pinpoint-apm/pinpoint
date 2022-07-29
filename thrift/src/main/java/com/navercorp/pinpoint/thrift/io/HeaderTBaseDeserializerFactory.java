@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
 import java.util.Objects;
@@ -30,31 +29,16 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
 
     private static final TypeLocator<TBase<?, ?>> DEFAULT_TBASE_LOCATOR = DefaultTBaseLocator.getTypeLocator();
 
-    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
-
     public static final HeaderTBaseDeserializerFactory DEFAULT_FACTORY = new HeaderTBaseDeserializerFactory();
 
-    private final TProtocolFactory protocolFactory;
+    private final TProtocolFactory protocolFactory = ProtocolFactory.getFactory();
     private final TypeLocator<TBase<?, ?>> locator;
 
     public HeaderTBaseDeserializerFactory() {
-        this(DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+        this(DEFAULT_TBASE_LOCATOR);
     }
 
     public HeaderTBaseDeserializerFactory(TypeLocator<TBase<?, ?>> locator) {
-        this(DEFAULT_PROTOCOL_FACTORY, locator);
-    }
-
-    public TypeLocator<TBase<?, ?>> getLocator() {
-        return locator;
-    }
-
-    public TProtocolFactory getProtocolFactory() {
-        return protocolFactory;
-    }
-
-    public HeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        this.protocolFactory = Objects.requireNonNull(protocolFactory, "protocolFactory");
         this.locator = Objects.requireNonNull(locator, "locator");
     }
 

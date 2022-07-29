@@ -19,7 +19,7 @@
             <util:constant static-field="com.navercorp.pinpoint.io.header.v2.HeaderV2.VERSION"/>
         </constructor-arg>
     </bean>
-    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
+    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory">
         <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkRequestFactory" class="com.navercorp.pinpoint.collector.sender.FlinkRequestFactory"/>

@@ -36,12 +36,12 @@ public class HeaderTBaseSerializerTest {
 
     @Test
     public void testSerialize1() throws Exception {
-        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false).createSerializer();
+        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory().createSerializer();
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
 
         test(serializer, deserializer);
     }
-    
+
     @Test
     public void testSerialize2() throws Exception {
         HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory().createSerializer();
@@ -49,7 +49,7 @@ public class HeaderTBaseSerializerTest {
 
         test(serializer, deserializer);
     }
-    
+
     private void test(HeaderTBaseSerializer serializer, HeaderTBaseDeserializer deserializer) throws TException {
 
         TAgentInfo tAgentInfo = new TAgentInfo();

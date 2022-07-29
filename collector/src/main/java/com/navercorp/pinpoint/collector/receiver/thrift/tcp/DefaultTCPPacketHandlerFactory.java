@@ -34,8 +34,6 @@ import java.util.Objects;
  */
 public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> {
 
-    private static final int DEFAULT_UDP_STREAM_MAX_SIZE = HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE;
-
     private SerializerFactory<HeaderTBaseSerializer> serializerFactory;
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
@@ -43,11 +41,11 @@ public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory<T
     }
 
     public void setSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
-        this.serializerFactory = serializerFactory;
+        this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory");
     }
 
     public void setDeserializerFactory(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
-        this.deserializerFactory = deserializerFactory;
+        this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory");
     }
 
     private DeserializerFactory<HeaderTBaseDeserializer> defaultDeserializerFactory() {
@@ -56,7 +54,7 @@ public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory<T
     }
 
     private SerializerFactory<HeaderTBaseSerializer> defaultSerializerFactory() {
-        final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, DEFAULT_UDP_STREAM_MAX_SIZE);
+        final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory();
         return new ThreadLocalHeaderTBaseSerializerFactory<>(serializerFactory);
     }
 

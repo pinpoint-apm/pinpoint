@@ -28,7 +28,7 @@ public class NetworkAvailabilityCheckPacket implements org.apache.thrift.TBase<N
 
     private static final long serialVersionUID = -1170704876834222604L;
 
-    public transient static final byte[] DATA_OK = BytesUtils.toBytes("OK");
+    public static final byte[] DATA_OK = BytesUtils.toBytes("OK");
 
     @Override
     public void read(TProtocol tProtocol) throws TException {

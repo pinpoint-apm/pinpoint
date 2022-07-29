@@ -45,9 +45,8 @@ public final class CommandHeaderTBaseSerializerFactory implements SerializerFact
     public CommandHeaderTBaseSerializerFactory(int outputStreamSize) {
         TypeLocator<TBase<?, ?>> commandTbaseLocator = TCommandRegistry.build(Arrays.asList(TCommandType.values()));
 
-        TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-        HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, outputStreamSize, protocolFactory, commandTbaseLocator);
-        this.factory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
+        HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(outputStreamSize, commandTbaseLocator);
+        this.factory = new ThreadLocalHeaderTBaseSerializerFactory<>(serializerFactory);
     }
 
     @Override

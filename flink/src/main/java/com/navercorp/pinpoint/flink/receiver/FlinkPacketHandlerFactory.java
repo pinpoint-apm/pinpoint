@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.collector.receiver.thrift.tcp.DefaultTCPPacketHand
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandlerFactory;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
@@ -40,7 +40,7 @@ public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory<TBase<
     private final SerializerFactory<HeaderTBaseSerializer> cachedSerializer;
     private final DeserializerFactory<HeaderTBaseDeserializer> cachedDeserializer;
 
-    public FlinkPacketHandlerFactory(HeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, FlinkHeaderTBaseDeserializerFactory flinkHeaderTBaseDeserializerFactory) {
+    public FlinkPacketHandlerFactory(HeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, HeaderTBaseDeserializerFactory flinkHeaderTBaseDeserializerFactory) {
         Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory");
         Objects.requireNonNull(flinkHeaderTBaseDeserializerFactory, "flinkHeaderTBaseDeserializerFactory");
 
