@@ -41,7 +41,7 @@ dependencies {
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
     testImplementation(libs.spring.test)
-    testImplementation("org.springframework.batch:spring-batch-test:4.3.3")
+    testImplementation(libs.spring.batch.test)
     testImplementation(libs.commons.lang3)
     compileOnly(libs.spring.boot.starter.tomcat)
 }
