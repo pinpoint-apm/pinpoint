@@ -51,4 +51,8 @@ public class MysqlAgentStatisticsDao implements AgentStatisticsDao {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectAgentCount", range);
     }
 
+    @Override
+    public List<AgentCountStatistics> selectLatestAgentCount(Integer size) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectLatestAgentCount", size);
+    }
 }

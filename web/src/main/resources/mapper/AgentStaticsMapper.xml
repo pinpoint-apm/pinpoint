@@ -21,4 +21,11 @@
         BETWEEN #{fromDateTime} AND #{toDateTime}
     </select>
 
+    <select id="selectLatestAgentCount" parameterType="java.lang.Integer" resultType="AgentCountStatistics">
+        SELECT *
+        FROM agent_statistics
+        ORDER BY date_val DESC
+        LIMIT #{value}
+    </select>
+
 </mapper>

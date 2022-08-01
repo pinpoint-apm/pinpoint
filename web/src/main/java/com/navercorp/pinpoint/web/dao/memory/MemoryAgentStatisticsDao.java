@@ -36,7 +36,7 @@ public class MemoryAgentStatisticsDao implements AgentStatisticsDao {
 
     private static final Comparator<Long> REVERSE = Collections.reverseOrder(Long::compare);
 
-    private final Map<Long, Integer> agentCountPerTime = new TreeMap<>(REVERSE);
+    private final TreeMap<Long, Integer> agentCountPerTime = new TreeMap<>(REVERSE);
 
     @Override
     public boolean insertAgentCount(AgentCountStatistics agentCountStatistics) {
@@ -66,6 +66,24 @@ public class MemoryAgentStatisticsDao implements AgentStatisticsDao {
         return result;
     }
 
+    @Override
+    public List<AgentCountStatistics> selectLatestAgentCount(Integer size) {
+        if (agentCountPerTime.isEmpty()) {
+            return null;
+        }
 
+        List<AgentCountStatistics> result = new ArrayList<>();
+
+        for (Long timestamp: agentCountPerTime.descendingKeySet()) {
+            Integer agentCount = agentCountPerTime.get(timestamp);
+            result.add(new AgentCountStatistics(agentCount, timestamp));
+
+            if (result.size() >= size) {
+                break;
+            }
+        }
+
+        return result;
+    }
 
 }
