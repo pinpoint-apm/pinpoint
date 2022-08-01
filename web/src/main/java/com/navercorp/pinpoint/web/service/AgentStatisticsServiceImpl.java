@@ -46,4 +46,9 @@ public class AgentStatisticsServiceImpl implements AgentStatisticsService {
         return agentStatisticsDao.selectAgentCount(range);
     }
 
+    @Override
+    public List<AgentCountStatistics> selectLatestAgentCount(int size) {
+        return agentStatisticsDao.selectLatestAgentCount(size);
+    }
+
 }

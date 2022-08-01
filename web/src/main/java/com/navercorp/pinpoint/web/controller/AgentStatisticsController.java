@@ -85,4 +85,10 @@ public class AgentStatisticsController {
 
         return agentCountStatisticsList;
     }
+
+    @GetMapping(value = "/selectLatestAgentCount")
+    public List<AgentCountStatistics> selectLatestAgentCount(@RequestParam(value = "size", defaultValue = "1") int size) {
+        return agentStatisticsService.selectLatestAgentCount(size);
+    }
+
 }

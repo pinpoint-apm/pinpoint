@@ -30,4 +30,6 @@ public interface AgentStatisticsDao {
 
     List<AgentCountStatistics> selectAgentCount(Range range);
 
+    List<AgentCountStatistics> selectLatestAgentCount(Integer size);
+
 }

@@ -30,4 +30,6 @@ public interface AgentStatisticsService {
 
     List<AgentCountStatistics> selectAgentCount(Range range);
 
+    List<AgentCountStatistics> selectLatestAgentCount(int size);
+
 }

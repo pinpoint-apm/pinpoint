@@ -73,6 +73,9 @@ public class MemoryAgentStatisticsDaoTest {
         range = Range.between(currentTime, currentTime + 100);
         agentCountStatisticses = dao.selectAgentCount(range);
         Assertions.assertEquals(0, agentCountStatisticses.size());
+
+        agentCountStatisticses = dao.selectLatestAgentCount(10);
+        Assertions.assertEquals(10, agentCountStatisticses.size());
     }
 
 }
