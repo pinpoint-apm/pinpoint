@@ -207,5 +207,5 @@ nanohttpd = { module = "org.nanohttpd:nanohttpd", version = "2.3.1" }
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
 
 [plugins]
-protobuf = { id = "com.google.protobuf", version = "0.8.18" }
+protobuf = { id = "com.google.protobuf", version = "0.8.19" }
 jaxb = { id = "com.intershop.gradle.jaxb", version = "4.4.2" }
