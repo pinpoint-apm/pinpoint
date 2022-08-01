@@ -2,6 +2,9 @@
 pinpoint = "2.5.0-SNAPSHOT"
 spring = "5.3.20"
 spring4 = "4.3.30.RELEASE"
+springBatch = "4.3.3"
+springBoot = "2.5.12"
+springSecurity = "5.5.3"
 metrics = "3.2.6"
 fastxml-jackson = "2.12.6"
 fastxml-jackson-databind = "2.12.6.1"
@@ -11,10 +14,8 @@ netty4 = "4.1.72.Final"
 asm = "9.2"
 grpc = "1.42.1"
 protoc = "3.17.2"
-springBoot = "2.5.12"
 jaxbImpl = "2.3.3"
 tinylog = "2.2.1"
-springSecurity = "5.5.3"
 jacksonASL = "1.9.13"
 
 [libraries]
@@ -53,7 +54,8 @@ spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springBoot" }
 spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2", version.ref = "springBoot" }
 
-spring-batch-test = { module = "org.springframework.batch:spring-batch-test", version = "4.3.3" }
+spring-batch-core = { module = "org.springframework.batch:spring-batch-core", version.ref = "springBatch" }
+spring-batch-test = { module = "org.springframework.batch:spring-batch-test", version.ref = "springBatch" }
 
 spring-security-core = { module = "org.springframework.security:spring-security-core", version.ref = "springSecurity" }
 spring-security-web = { module = "org.springframework.security:spring-security-web", version.ref = "springSecurity" }

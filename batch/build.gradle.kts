@@ -25,7 +25,7 @@ dependencies {
     implementation(libs.spring.context.support)
     implementation(libs.spring.jdbc)
     implementation(libs.jakarta.mail)
-    implementation("org.springframework.batch:spring-batch-core:4.3.3") {
+    implementation(libs.spring.batch.core) {
         exclude(group = "javax.annotation", module = "javax.annotation-api")
     }
     implementation(libs.jakarta.annotation.api)
