@@ -161,6 +161,7 @@ const StyledTrigger = styled(Dropdown.Trigger)`
 `
 
 const StyledMenuContainer = styled(Dropdown.Content)`
+  position: absolute;
   top: 0;
   left: 100%;
   width: 200px;
