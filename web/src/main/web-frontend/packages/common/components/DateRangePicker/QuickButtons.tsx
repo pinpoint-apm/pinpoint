@@ -69,8 +69,8 @@ export const QuickButtons: FC<QuickButtonsProps> = ({
         onClick={handleClickPlay}
       >
       {isRealTime
-        ? <IoPause css={css`font-size: 1rem;`} /> 
-        : <>REAL <IoPlayCircleOutline css={css`font-size: 1.1rem;`} /> TIME</>
+        ? <IoPause css={css`font-size: 1.4em;`} /> 
+        : <>REAL <IoPlayCircleOutline css={css`font-size: 1.2em;`} /> TIME</>
       }
       </ButtonGroup.Button>
       <ButtonGroup.Button
@@ -113,7 +113,7 @@ const buttonGroupContainerStyle = css`
 
   button:nth-of-type(2) {
     flex: 2.5;
-    font-size: 0.7rem !important;
+    font-size: 0.8em !important;
     font-weight: bold;
   }
 `
