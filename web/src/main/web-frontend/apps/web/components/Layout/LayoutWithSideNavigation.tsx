@@ -19,56 +19,58 @@ export const LayoutWithSideNavigation = ({
 
   return (
     <StyledContainer>
-      <SideNavigation
-        isSmall={false}
-        onClickScaleButton={handleClickScaleButton}
-      >
-        <Nav.Item
-          path={'/main'}
-          icon={<FaNetworkWired />}
+      <div>
+        <SideNavigation
+          isSmall={false}
+          onClickScaleButton={handleClickScaleButton}
         >
-          Servermap
-        </Nav.Item>
-        <Nav.Item
-          path={'/inspector'}
-          icon={<FaChartLine />}
-        >
-          Inspector
-        </Nav.Item>
-        <BottomAlignedMenus>
-          <Nav.Menu
-            title='Configuration'
-            icon={<FaCog />}
+          <Nav.Item
+            path={'/main'}
+            icon={<FaNetworkWired />}
           >
-            <Nav.MenuItem path={'/config/userGroup'}>User Group</Nav.MenuItem>
-            <Nav.MenuItem path={'/config/alarm'}>Alarm</Nav.MenuItem>
-            <Nav.MenuItem path={'/config/webhook'}>Webhook</Nav.MenuItem>
-            <Nav.MenuItem path={'/config/installation'}>Installation</Nav.MenuItem>
-            <Nav.Divider />
-            <Nav.MenuItem path={'/config/help'}>Help</Nav.MenuItem>
-            <Nav.MenuItem path={'http://github.com/naver/pinpoint'}>Github</Nav.MenuItem>
-            <Nav.Divider />
-            <Nav.MenuItem path={'/config/experimental'}>Experimental</Nav.MenuItem>
-          </Nav.Menu>
-          <Nav.Menu
-            title='Administration'
-            icon={<FaUserCog />}
+            Servermap
+          </Nav.Item>
+          <Nav.Item
+            path={'/inspector'}
+            icon={<FaChartLine />}
           >
-            <Nav.MenuItem path={'/config/agentStatistic'}>Agent Statistic</Nav.MenuItem>
-            <Nav.MenuItem path={'/config/agentManagement'}>Agent management</Nav.MenuItem>
-          </Nav.Menu>
-          <Nav.Menu
-            title='User'
-            icon={<FaUserCircle />}
-          >
-            <Nav.MenuItem path={'/config/general'}>General</Nav.MenuItem>
-            <Nav.MenuItem path={'/config/favorite'}>Favorite List</Nav.MenuItem>
-            <Nav.Divider />
-            <Nav.MenuItem>Theme</Nav.MenuItem>
-          </Nav.Menu>
-        </BottomAlignedMenus>
-      </SideNavigation>
-      <div css={css`flex: 1;`}>
+            Inspector
+          </Nav.Item>
+          <BottomAlignedMenus>
+            <Nav.Menu
+              title='Configuration'
+              icon={<FaCog />}
+            >
+              <Nav.MenuItem path={'/config/userGroup'}>User Group</Nav.MenuItem>
+              <Nav.MenuItem path={'/config/alarm'}>Alarm</Nav.MenuItem>
+              <Nav.MenuItem path={'/config/webhook'}>Webhook</Nav.MenuItem>
+              <Nav.MenuItem path={'/config/installation'}>Installation</Nav.MenuItem>
+              <Nav.Divider />
+              <Nav.MenuItem path={'/config/help'}>Help</Nav.MenuItem>
+              <Nav.MenuItem path={'http://github.com/naver/pinpoint'}>Github</Nav.MenuItem>
+              <Nav.Divider />
+              <Nav.MenuItem path={'/config/experimental'}>Experimental</Nav.MenuItem>
+            </Nav.Menu>
+            <Nav.Menu
+              title='Administration'
+              icon={<FaUserCog />}
+            >
+              <Nav.MenuItem path={'/config/agentStatistic'}>Agent Statistic</Nav.MenuItem>
+              <Nav.MenuItem path={'/config/agentManagement'}>Agent management</Nav.MenuItem>
+            </Nav.Menu>
+            <Nav.Menu
+              title='User'
+              icon={<FaUserCircle />}
+            >
+              <Nav.MenuItem path={'/config/general'}>General</Nav.MenuItem>
+              <Nav.MenuItem path={'/config/favorite'}>Favorite List</Nav.MenuItem>
+              <Nav.Divider />
+              <Nav.MenuItem>Theme</Nav.MenuItem>
+            </Nav.Menu>
+          </BottomAlignedMenus>
+        </SideNavigation>
+      </div>
+      <div css={css`flex:1;`}>
         {children}
       </div>    
     </StyledContainer>
