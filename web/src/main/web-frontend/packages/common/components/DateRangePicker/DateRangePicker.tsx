@@ -10,6 +10,7 @@ import DateRangeContext, { DateRange, DateRangeContextType, DateRangeTime, DateS
 type DateRangeStateType = Pick<DateRangeContextType, 'range' | 'dateState'>;
 
 export interface DateRangePickerProps {
+  className?: string;
   initRange?: DateRange,
   initStartDate?: Date,
   initEndDate?: Date, 
@@ -19,6 +20,7 @@ export interface DateRangePickerProps {
 const m = 1000 * 60;
 
 export const DateRangePicker: FC<DateRangePickerProps> = memo(({
+  className,
   initRange = DateRange.FIVE_MINUTES,
   initStartDate = new Date(Date.now() - m * 5),
   initEndDate = new Date(),
@@ -64,7 +66,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = memo(({
       dateState,
       updateDateState,
     }}>
-      <StyledContainer>
+      <StyledContainer className={className}>
         <RangeDropdown />
         <QuickButtons />
       </StyledContainer>
