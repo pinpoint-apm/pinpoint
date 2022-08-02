@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(project(":pinpoint-bootstrap"))
-    implementation("org.apache.maven.resolver:maven-resolver-api:1.6.1")
+    implementation(libs.maven.resolver.api)
     implementation("org.apache.maven.resolver:maven-resolver-spi:1.6.1")
     implementation("org.apache.maven.resolver:maven-resolver-util:1.6.1")
     implementation("org.apache.maven.resolver:maven-resolver-impl:1.6.1")

@@ -204,6 +204,8 @@ tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" 
 
 nanohttpd = { module = "org.nanohttpd:nanohttpd", version = "2.3.1" }
 
+maven-resolver-api = { module = "org.apache.maven.resolver:maven-resolver-api", version = "1.6.1" }
+
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
 
