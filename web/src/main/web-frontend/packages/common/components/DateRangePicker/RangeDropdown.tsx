@@ -86,7 +86,8 @@ export const RangeDropdown = ({
       ) : (
         <>
           <StyledLabel wide={isRealTime}>{range}</StyledLabel>
-          <input 
+          <input
+            // css={css`font-size: 0.92rem;`} 
             value={input} 
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleEnterInput}
@@ -125,7 +126,7 @@ export const RangeDropdown = ({
 
 const StyledDropdownContainer = styled(Dropdown)`
   width: 350px;
-  font-size: 0.8em;
+  font-size: 0.93rem;
 
   input {
     height: 100%;
@@ -147,6 +148,9 @@ const StyledTrigger = styled(Dropdown.Trigger)<{ isTriggered: boolean; }>`
 `
 
 const StyledContent = styled(Dropdown.Content)`
+  position: absolute;
+  top: 100%;
+  width: 100%;
   padding: 3px 0;
   border: 1px solid var(--border-primary);
   border-top: 0px;

@@ -131,9 +131,7 @@ const StyledContainer = styled.nav<{ small?: boolean }>`
   
   border-right: 1px solid var(--snb-border);
   display: flex;
-  flex-wrap: wrap;
   flex-direction: column;
-  font-size: 14px;
   background: var(--snb-background);
   width: ${({ small }) => small ? '50px' : '200px' };
   height: 100vh;

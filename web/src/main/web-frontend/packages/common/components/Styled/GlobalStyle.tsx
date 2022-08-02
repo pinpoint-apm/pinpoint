@@ -85,13 +85,13 @@ export const GlobalStyle = (
         border: 0;
         font-family: inherit;
         color: inherit;
-        font-size: 14px;
       }
 
       html {
         height: 100%;
+        font-size: 14px;
       }
-
+      
       body {
         color: var(--text-primary);
         font-family: Nanum Gothic, Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
