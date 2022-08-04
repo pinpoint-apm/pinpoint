@@ -97,7 +97,7 @@ public final class Range {
     }
 
     public String getToDateTime() {
-        return DateTimeFormatUtils.formatSimple(from);
+        return DateTimeFormatUtils.formatSimple(to);
     }
 
     public long durationMillis() {
