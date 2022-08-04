@@ -12,6 +12,10 @@
     <name>pinpoint-mongodb-driver-plugin</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <test.jdk.home>${env.JAVA_11_HOME}</test.jdk.home>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
