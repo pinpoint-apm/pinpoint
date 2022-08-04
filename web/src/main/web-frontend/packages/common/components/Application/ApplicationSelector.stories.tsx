@@ -3,6 +3,9 @@ import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import ApplicationSelector from './ApplicationSelector';
+import ApplicationList from './ApplicationList';
+import ApplicationIcon from './ApplicationIcon';
+import { ApplicationType } from './types';
 
 export default {
   title: 'PINPOINT/Component/BASE/ApplicationSelector',
@@ -12,29 +15,46 @@ export default {
   },
 } as ComponentMeta<typeof ApplicationSelector>;
 
-const Template: ComponentStory<typeof ApplicationSelector> = (args) => (
-  <ApplicationSelector {...args}>
-    <ApplicationSelector.List title={'Favorite List'}>
-      
-    </ApplicationSelector.List>
-    <ApplicationSelector.List title={'Application List'}>
-    {mockData.map((app, i) => {
-      return (
-        <ApplicationSelector.Item 
-          key={i}
-          icon={<img 
-            src={`/assets/img/icons/${app.serviceType}.png`} 
-            width={23}
-            height={18}
-            alt={'application image'}
-          />}
-          application={app} 
-        />
-      )
-    })}
-    </ApplicationSelector.List>
-  </ApplicationSelector>
-);
+const Template: ComponentStory<typeof ApplicationSelector> = (args) => {
+  const [ keyword, setKeyword ] = React.useState('');
+  const [ application, setApplication ] = React.useState<ApplicationType>();
+
+  return (
+    <ApplicationSelector 
+      selectedApplication={application && (
+        <>
+          <ApplicationIcon 
+            src={`/assets/img/icons/${application.serviceType}.png`} 
+          />
+          {application.applicationName}
+        </>
+      )}
+      onChangeInput={({ input }) => setKeyword(input)}
+      {...args}
+    >
+      <ApplicationList.Container title={'Favorite List'}>
+        
+      </ApplicationList.Container>
+      <ApplicationList.Container title={'Application List'}>
+        <ApplicationList.List 
+          {...{data: mockData, filterKeyword: keyword}}
+        >
+          {(props) => (
+            <ApplicationList.Item
+              {...props}
+              onClick={(param) => setApplication(param.application)}
+              icon={(
+                <ApplicationIcon
+                  src={`/assets/img/icons/${props.data[props.index].serviceType}.png`}  
+                />
+              )}  
+            />
+          )}
+        </ApplicationList.List>
+      </ApplicationList.Container>
+    </ApplicationSelector>
+  )
+};
 
 export const Default = Template.bind({});
 Default.args = {
