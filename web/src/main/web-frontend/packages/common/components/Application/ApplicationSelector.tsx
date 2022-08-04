@@ -4,60 +4,81 @@ import { FaChevronDown, FaRedo } from 'react-icons/fa';
 
 import Dropdown from '../Dropdown/Dropdown';
 import { StyleFlexVCentered, StyleSpin } from '../Styled/styles';
-import { Item, List } from './ApplicationList';
-
-export interface Application {
-  
-}
 
 export interface ApplicationSelectorProps {
   children?: React.ReactNode;
-  onReload?: () => void;
-  onChangeInput?: () => void;
+  onClickReload?: () => void;
+  onChangeInput?: ({ input }: { input: string}) => void;
   onSelectApplication?: () => void;
+  selectedApplication?: React.ReactNode;
 }
 
 const ApplicationSelector = ({
   children,
-  onReload,
+  onClickReload,
   onChangeInput,
   onSelectApplication,
+  selectedApplication,
 }: ApplicationSelectorProps) => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const [ isOpen, setOpen ] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      inputRef.current?.focus();
+    }
+  }, [ isOpen ])
 
   function handleChangeDropdown({ open }: { open: boolean }) {
     setOpen(open);
   }
 
+  function handleChangeInput(event: React.ChangeEvent<HTMLInputElement>) {
+    onChangeInput?.({ input: event.target.value });
+  }
+
   return (
-    <StyledDropdown onChange={handleChangeDropdown} open {...{isOpen}}>
-      <StyledTrigger {...{isOpen}}>
-        Select your application
-        <StyledArrowIcon />
-      </StyledTrigger>
-      <StyledContent {...{isOpen}}>
-        <StyledListWrapper>
-          {children}
-        </StyledListWrapper>
-        <StyledReloadButtonWrapper>
-          Reload <StyledReloadButton />
-        </StyledReloadButtonWrapper>
-      </StyledContent>
-    </StyledDropdown>
+    <div>
+      <StyledDropdown onChange={handleChangeDropdown} open {...{isOpen}}>
+        <StyledTrigger {...{isOpen}}>
+          {selectedApplication || 'Select your application'}
+          <StyledArrowIcon />
+        </StyledTrigger>
+        <StyledContent {...{isOpen}}>
+          <StyledInputWrapper>
+            <input
+              type={'text'}
+              ref={inputRef}
+              onChange={handleChangeInput}
+              placeholder={'Input application name'}
+            />
+          </StyledInputWrapper>
+          <StyledListWrapper>
+            {children}
+          </StyledListWrapper>
+          <StyledReloadButton onClick={onClickReload}>
+            Reload <StyledReloadIcon />
+          </StyledReloadButton>
+        </StyledContent>
+      </StyledDropdown>
+    </div>
   );
 };
 
+export default ApplicationSelector;
+
 const StyledDropdown = styled(Dropdown)<{ isOpen: boolean; }>`
   width: 310px;
-  ${({isOpen}) => {
+  /* ${({isOpen}) => {
     return {
       boxShadow: isOpen ? '0 0 1px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.32)' : '',
     }
-  }}
+  }} */
 `
 
 const StyledTrigger = styled(Dropdown.Trigger)<{ isOpen: boolean; }>`
   ${StyleFlexVCentered}
+  gap: 10px;
   height: 32px;
   padding: 0 13px;
   color: var(--text-primary-lightest);
@@ -82,17 +103,34 @@ const StyledArrowIcon = styled(FaChevronDown)`
 `
 
 const StyledContent = styled(Dropdown.Content)<{ isOpen: boolean; }>`
+  position: absolute;
+  top: 100%;
+  width: 100%;
   border: 1px solid var(--blue-700);
   border-top: 0px;
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 `
 
+const StyledInputWrapper = styled.div`
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  margin: 10px 0 5px;
+
+  input {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-primary);
+    padding: 0 7px;
+  }
+`
+
 const StyledListWrapper = styled.div`
-  max-height: 418px;
   overflow-y: auto;
 `
 
-const StyledReloadButtonWrapper = styled.button`
+const StyledReloadButton = styled.button`
   height: 30px;
   width: 100%;
   text-align: center;
@@ -100,11 +138,7 @@ const StyledReloadButtonWrapper = styled.button`
   background-color: var(--primary);
 `
 
-const StyledReloadButton = styled(FaRedo)<{ spin?: boolean; }>`
+const StyledReloadIcon = styled(FaRedo)<{ spin?: boolean; }>`
   ${({spin}) => spin && StyleSpin}
 `
 
-export default Object.assign(ApplicationSelector, {
-  Item,
-  List,
-})
