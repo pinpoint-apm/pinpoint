@@ -47,7 +47,7 @@ public class TestStatementHelper {
         final Method sqlMethod = defaultDatabaseClientClass.getMethod("sql", Supplier.class);
         final String endPoint = null;
         final String destinationId = null;
-        verifier.verifyTrace(event("SPRING_DATA_R2DBC_INTERNAL", sqlMethod, null, endPoint, destinationId));
+        verifier.verifyTrace(event("SPRING_DATA_R2DBC", sqlMethod, null, endPoint, destinationId));
     }
 
 }

@@ -18,6 +18,7 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
+        <test.jdk.home>${env.JAVA_11_HOME}</test.jdk.home>
     </properties>
 
     <dependencies>
@@ -109,7 +110,7 @@
 
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
+            <artifactId>ojdbc8</artifactId>
             <version>21.5.0.0</version>
         </dependency>
 

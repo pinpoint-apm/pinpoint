@@ -47,12 +47,16 @@ public class ActiveMQClientMultipleBrokersIT extends ActiveMQClientITBase {
     private static final String PRODUCER_BROKER = "Producer_Broker";
     private static final String CONSUMER_BROKER = "Consumer_Broker";
 
-    private static final int PORT = SocketUtils.findAvailableTcpPort(PortUtils.DEFAULT_PORT);
-    private static final String PRODUCER_BROKER_URL = PortUtils.findAvailableUrl(PORT);
-    private static final String CONSUMER_BROKER_URL = PortUtils.findAvailableUrl(PORT + 1);
+    private static String PRODUCER_BROKER_URL;
+    private static String CONSUMER_BROKER_URL;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        final int producerBrokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
+        PRODUCER_BROKER_URL = PortUtils.toUrl(producerBrokerPort);
+        final int consumerBrokerPort = SocketUtils.findAvailableTcpPort(20000, 29999);
+        CONSUMER_BROKER_URL = PortUtils.toUrl(consumerBrokerPort);
+
         ActiveMQClientITHelper.startBrokers(Arrays.asList(
                 // Consumer broker
                 new TestBroker.TestBrokerBuilder(CONSUMER_BROKER)

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -46,10 +47,13 @@ public class ActiveMQClientSingleBrokerIT extends ActiveMQClientITBase {
 
     private static final String BROKER_NAME = "Test_Broker";
 
-    private static final String BROKER_URL = PortUtils.findAvailableUrl(PortUtils.DEFAULT_PORT);
+    private static String BROKER_URL;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        final int brokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
+        BROKER_URL = PortUtils.toUrl(brokerPort);
+
         ActiveMQClientITHelper.startBrokers(Collections.singletonList(
                 new TestBroker.TestBrokerBuilder(BROKER_NAME)
                         .addConnector(BROKER_URL)

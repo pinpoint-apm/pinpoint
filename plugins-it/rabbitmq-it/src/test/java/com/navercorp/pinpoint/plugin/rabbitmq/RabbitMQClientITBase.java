@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.Before;
 
@@ -34,8 +35,9 @@ public abstract class RabbitMQClientITBase {
 
     @Before
     public void setUp() {
+        final int brokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
-        connectionFactory.setPort(RabbitMQTestConstants.BROKER_PORT);
+        connectionFactory.setPort(brokerPort);
         connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
     }
 
