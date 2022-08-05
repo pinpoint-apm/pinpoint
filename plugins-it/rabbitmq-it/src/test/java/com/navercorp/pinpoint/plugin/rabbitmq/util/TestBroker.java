@@ -42,6 +42,8 @@ public class TestBroker {
 
     public void start() throws Exception {
         BrokerOptions brokerOptions = new BrokerOptions();
+
+
         brokerOptions.setConfigProperty("qpid.amqp_port", String.valueOf(RabbitMQTestConstants.BROKER_PORT));
         brokerOptions.setConfigurationStoreType("Memory");
         brokerOptions.setStartupLoggedToSystemOut(false);

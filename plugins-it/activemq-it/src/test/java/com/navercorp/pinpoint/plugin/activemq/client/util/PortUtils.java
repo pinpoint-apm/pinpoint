@@ -11,4 +11,8 @@ public final class PortUtils {
         return DEFAULT_HOST + ":" + port;
     }
 
+    public static String toUrl(int port) {
+        return DEFAULT_HOST + ":" + port;
+    }
+
 }
