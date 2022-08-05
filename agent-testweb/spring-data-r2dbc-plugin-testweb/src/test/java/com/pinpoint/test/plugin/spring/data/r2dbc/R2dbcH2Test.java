@@ -60,6 +60,5 @@ public class R2dbcH2Test {
     @Test
     public void test() throws Exception {
         System.out.println("TEST");
-        TimeUnit.HOURS.sleep(6);
     }
 }
