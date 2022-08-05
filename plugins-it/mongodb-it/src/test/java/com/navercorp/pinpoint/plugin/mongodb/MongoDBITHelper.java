@@ -48,7 +48,6 @@ import org.bson.BsonString;
 import org.bson.BsonSymbol;
 import org.bson.BsonTimestamp;
 import org.bson.BsonUndefined;
-import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Decimal128;
@@ -134,15 +133,11 @@ public class MongoDBITHelper {
 
     private Document createComplexDocument() {
         //insert Data
-        BsonValue a = new BsonString("stest");
-        BsonValue b = new BsonDouble(111);
-        BsonValue c = new BsonBoolean(true);
-
         Document document = new Document()
                 .append("int32", new BsonInt32(12))
                 .append("int64", new BsonInt64(77L))
-                .append("bo\"olean", new BsonBoolean(true))
-                .append("date", new BsonDateTime(new Date().getTime()))
+                .append("boolean", BsonBoolean.TRUE)
+                .append("date", new BsonDateTime(System.currentTimeMillis()))
                 .append("double", new BsonDouble(12.3))
                 .append("string", new BsonString("pinpoint"))
                 .append("objectId", new BsonObjectId(new ObjectId()))
@@ -154,7 +149,9 @@ public class MongoDBITHelper {
                 .append("undefined", new BsonUndefined())
                 .append("binary1", new BsonBinary(new byte[]{(byte) 0xe0, 0x4f, (byte) 0xd0, 0x20}))
                 .append("oldBinary", new BsonBinary(BsonBinarySubType.OLD_BINARY, new byte[]{1, 1, 1, 1, 1}))
-                .append("arrayInt", new BsonArray(Arrays.asList(a, b, c, new BsonInt32(7))))
+                .append("arrayInt", new BsonArray(Arrays.asList(
+                        new BsonString("stest"), new BsonDouble(111), BsonBoolean.TRUE, new BsonInt32(7)))
+                )
                 .append("document", new BsonDocument("a", new BsonInt32(77)))
                 .append("dbPointer", new BsonDbPointer("db.coll", new ObjectId()))
                 .append("null", new BsonNull());
@@ -225,7 +222,7 @@ public class MongoDBITHelper {
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")));
 
-        assertResultSize("Unexpected read data",2, cursor);
+        assertResultSize("Unexpected read data", 2, cursor);
     }
 
     private void assertResultSize(String message, int expected, MongoCursor<Document> cursor) {
@@ -255,7 +252,7 @@ public class MongoDBITHelper {
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        Assert.assertEquals("unexcepted delete count",1, deleteResult.getDeletedCount());
+        Assert.assertEquals("unexcepted delete count", 1, deleteResult.getDeletedCount());
     }
 
     public void filterData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
@@ -270,7 +267,7 @@ public class MongoDBITHelper {
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        assertResultSize("Unexpected filter data",1, cursor);
+        assertResultSize("Unexpected filter data", 1, cursor);
     }
 
     public void filterData2(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
@@ -285,6 +282,6 @@ public class MongoDBITHelper {
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        assertResultSize("Unexpected filter data2",1, cursor);
+        assertResultSize("Unexpected filter data2", 1, cursor);
     }
 }

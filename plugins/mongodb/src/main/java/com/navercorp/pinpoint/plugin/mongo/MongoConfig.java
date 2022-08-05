@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 /**
  * @author Roy Kimd
  */
-public class MongoConfig{
+public class MongoConfig {
 
     private final boolean enable;
     private final boolean collectJson;

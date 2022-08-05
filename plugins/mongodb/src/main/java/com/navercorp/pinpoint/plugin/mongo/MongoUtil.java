@@ -82,7 +82,7 @@ public final class MongoUtil {
 
             String documentString = writeContext.parse(arg);
 
-            if(!documentString.equals(WriteContext.UNTRACED)) {
+            if (!documentString.equals(WriteContext.UNTRACED)) {
                 parsedJson.add(documentString);
             }
         }
