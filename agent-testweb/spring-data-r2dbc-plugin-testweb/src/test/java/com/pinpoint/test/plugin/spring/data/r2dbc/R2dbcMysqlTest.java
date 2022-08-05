@@ -63,6 +63,5 @@ public class R2dbcMysqlTest {
     @Test
     public void test() throws Exception {
         System.out.println("TEST");
-        TimeUnit.HOURS.sleep(6);
     }
 }
