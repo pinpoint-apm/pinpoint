@@ -17,17 +17,13 @@
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.mongodb.MongoClientSettings;
-import com.mongodb.ServerAddress;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MongoClientImplConstructorInterceptor implements AroundInterceptor {
