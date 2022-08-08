@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 
 import java.util.List;
 import java.util.Optional;

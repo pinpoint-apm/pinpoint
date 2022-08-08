@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+
 import java.util.List;
 import java.util.Objects;
 

@@ -1,9 +1,7 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.agent;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 
 import java.util.Objects;
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.stream.StreamChannel;
@@ -24,14 +25,10 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.web.cluster.ClusterKeyUtils;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;

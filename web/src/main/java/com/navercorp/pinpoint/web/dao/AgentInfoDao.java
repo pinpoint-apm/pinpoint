@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.DetailedAgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 
 import java.util.List;
 

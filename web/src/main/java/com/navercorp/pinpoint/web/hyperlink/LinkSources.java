@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.hyperlink;
 
-import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 
 import java.util.Objects;
 

@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 
 import java.util.ArrayList;
 import java.util.Comparator;
