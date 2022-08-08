@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricS
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpFactory;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadDumpList;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpFactory;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

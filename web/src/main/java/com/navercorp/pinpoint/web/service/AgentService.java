@@ -23,8 +23,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
-
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountList;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 

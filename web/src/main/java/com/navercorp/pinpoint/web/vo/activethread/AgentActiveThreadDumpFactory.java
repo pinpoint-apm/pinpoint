@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.web.util.ThreadDumpUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,9 +34,6 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 public class AgentActiveThreadDumpFactory {
-
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    public static final String TAB_SEPARATOR = "    "; // tab to 4 spaces
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 

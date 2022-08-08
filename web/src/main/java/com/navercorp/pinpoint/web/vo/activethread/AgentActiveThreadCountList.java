@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
-
-import com.navercorp.pinpoint.web.view.AgentActiveThreadCountListSerializer;
+package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.view.AgentActiveThreadCountListSerializer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
