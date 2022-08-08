@@ -29,13 +29,12 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountFactory;
-
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 

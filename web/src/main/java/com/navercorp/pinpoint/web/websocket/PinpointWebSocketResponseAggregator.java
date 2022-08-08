@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.concurrent.Executor;
