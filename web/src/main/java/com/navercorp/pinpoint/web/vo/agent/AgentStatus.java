@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.agent;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 

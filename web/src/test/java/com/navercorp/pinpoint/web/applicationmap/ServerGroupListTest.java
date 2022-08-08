@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.vo.AgentAndStatus;
-import com.navercorp.pinpoint.web.vo.AgentInfoFactory;
+import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFactory;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 

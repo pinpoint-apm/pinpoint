@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.agent;
 
 import java.util.Objects;
 

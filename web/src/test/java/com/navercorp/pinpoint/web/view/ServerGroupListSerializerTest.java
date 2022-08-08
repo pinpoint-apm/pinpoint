@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerGroupListTest;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.vo.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;

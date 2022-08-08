@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashSet;
