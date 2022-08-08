@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentDownLoadService;
-import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
-import com.navercorp.pinpoint.web.vo.AgentInstallationInfo;
+import com.navercorp.pinpoint.web.vo.install.AgentDownloadInfo;
+import com.navercorp.pinpoint.web.vo.install.AgentInstallationInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

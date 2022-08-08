@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
+import com.navercorp.pinpoint.web.vo.install.AgentDownloadInfo;
 
 import java.util.List;
 

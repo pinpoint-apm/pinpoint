@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
-import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
+import com.navercorp.pinpoint.web.vo.install.AgentDownloadInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
