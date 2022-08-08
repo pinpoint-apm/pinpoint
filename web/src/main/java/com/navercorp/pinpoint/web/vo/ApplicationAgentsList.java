@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.view.ApplicationAgentsListSerializer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public class ApplicationAgentsList {
     public enum GroupBy {
         APPLICATION_NAME {
             @Override
-            protected GroupingKey extractKey(AgentAndStatus agentInfoAndStatus) {
+            protected GroupingKey<?> extractKey(AgentAndStatus agentInfoAndStatus) {
                 return new StringGroupingKey(agentInfoAndStatus.getAgentInfo().getApplicationName());
             }
 
@@ -57,7 +56,7 @@ public class ApplicationAgentsList {
         },
         HOST_NAME {
             @Override
-            protected GroupingKey extractKey(AgentAndStatus agentInfoAndStatus) {
+            protected GroupingKey<?> extractKey(AgentAndStatus agentInfoAndStatus) {
                 AgentInfo agentInfo = agentInfoAndStatus.getAgentInfo();
                 return new HostNameContainerGroupingKey(agentInfo.getHostName(), agentInfo.isContainer());
             }
@@ -83,7 +82,7 @@ public class ApplicationAgentsList {
             }
         };
 
-        protected abstract GroupingKey extractKey(AgentAndStatus agentInfoAndStatus);
+        protected abstract GroupingKey<?> extractKey(AgentAndStatus agentInfoAndStatus);
 
         /**
          * Do not use this for sorted set and maps.
@@ -99,74 +98,102 @@ public class ApplicationAgentsList {
     }
 
 
-    private final GroupBy groupBy;
-    private final AgentInfoFilter filter;
-    private final HyperLinkFactory hyperLinkFactory;
 
-    private final Map<GroupingKey, List<AgentAndStatus>> agentsMap = new TreeMap<>();
+    private final List<ApplicationAgentList> list;
 
-    public ApplicationAgentsList(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
-        this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
-        this.filter = Objects.requireNonNull(filter, "filter");
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-    }
-
-    public void add(AgentAndStatus agentInfoAndStatus) {
-        if (filter.filter(agentInfoAndStatus) == AgentInfoFilter.REJECT) {
-            return;
-        }
-        GroupingKey key = groupBy.extractKey(agentInfoAndStatus);
-        List<AgentAndStatus> agentInfos = agentsMap.computeIfAbsent(key, k -> new ArrayList<>());
-        agentInfos.add(agentInfoAndStatus);
-    }
-
-    public void addAll(Iterable<AgentAndStatus> agentInfoAndStatusList) {
-        for (AgentAndStatus agent : agentInfoAndStatusList) {
-            add(agent);
-        }
-    }
-
-    public void merge(ApplicationAgentsList applicationAgentList) {
-        for (List<AgentAndStatus> agentInfos : applicationAgentList.agentsMap.values()) {
-            addAll(agentInfos);
-        }
+    public ApplicationAgentsList(List<ApplicationAgentList> list) {
+        this.list = Objects.requireNonNull(list, "list");
     }
 
     public List<ApplicationAgentList> getApplicationAgentLists() {
-        if (agentsMap.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<ApplicationAgentList> applicationAgentLists = new ArrayList<>(agentsMap.size());
-        for (Map.Entry<GroupingKey, List<AgentAndStatus>> entry : agentsMap.entrySet()) {
-            final GroupingKey groupingKey = entry.getKey();
-            final List<AgentAndStatus> agentInfoList = entry.getValue();
-
-            List<AgentAndStatus> applicationAgents = new ArrayList<>(agentInfoList);
-            applicationAgents.sort(groupBy.getComparator());
-
-            List<AgentStatusAndLink> agentInfoAndLinks = applicationAgents.stream()
-                    .map(this::newAgentInfoAndLink)
-                    .collect(Collectors.toList());
-
-            applicationAgentLists.add(new ApplicationAgentList(groupingKey.value(), agentInfoAndLinks));
-        }
-        return applicationAgentLists;
+       return list;
     }
 
-    private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
-        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
-        AgentStatus status = agentAndStatus.getStatus();
-        List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
-        return new AgentStatusAndLink(agentInfo, status, hyperLinks);
+    public static Builder newBuilder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
+        return new Builder(groupBy, filter, hyperLinkFactory);
     }
+
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ApplicationAgentsList{");
-        sb.append("groupBy=").append(groupBy);
-        sb.append(", agentsMap=").append(agentsMap);
-        sb.append('}');
-        return sb.toString();
+        return "ApplicationAgentsList{" +
+                "list=" + list +
+                '}';
+    }
+
+
+    public static class Builder {
+
+        private final GroupBy groupBy;
+        private final AgentInfoFilter filter;
+        private final HyperLinkFactory hyperLinkFactory;
+
+        private final Map<GroupingKey<?>, List<AgentAndStatus>> agentsMap = new TreeMap<>();
+
+        Builder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
+            this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
+            this.filter = Objects.requireNonNull(filter, "filter");
+            this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        }
+
+        public void add(AgentAndStatus agentInfoAndStatus) {
+            if (filter.filter(agentInfoAndStatus) == AgentInfoFilter.REJECT) {
+                return;
+            }
+            GroupingKey<?> key = groupBy.extractKey(agentInfoAndStatus);
+            List<AgentAndStatus> agentInfos = agentsMap.computeIfAbsent(key, k -> new ArrayList<>());
+            agentInfos.add(agentInfoAndStatus);
+        }
+
+        public void addAll(Iterable<AgentAndStatus> agentInfoAndStatusList) {
+            for (AgentAndStatus agent : agentInfoAndStatusList) {
+                add(agent);
+            }
+        }
+
+        public void merge(ApplicationAgentsList applicationAgentList) {
+            for (ApplicationAgentList agentList : applicationAgentList.getApplicationAgentLists()) {
+                for (AgentStatusAndLink agent : agentList.getAgentStatusAndLinks()) {
+                    add(new AgentAndStatus(agent.getAgentInfo(), agent.getStatus()));
+                }
+            }
+        }
+
+        public ApplicationAgentsList build() {
+            if (agentsMap.isEmpty()) {
+                return new ApplicationAgentsList(List.of());
+            }
+            List<ApplicationAgentList> applicationAgentLists = new ArrayList<>(agentsMap.size());
+            for (Map.Entry<GroupingKey<?>, List<AgentAndStatus>> entry : agentsMap.entrySet()) {
+                final GroupingKey<?> groupingKey = entry.getKey();
+                final List<AgentAndStatus> agentInfoList = entry.getValue();
+
+                List<AgentStatusAndLink> agentInfoAndLinks = agentInfoList.stream()
+                        .sorted(groupBy.getComparator())
+                        .map(this::newAgentInfoAndLink)
+                        .collect(Collectors.toList());
+
+                applicationAgentLists.add(new ApplicationAgentList(groupingKey.value(), agentInfoAndLinks));
+            }
+            return new ApplicationAgentsList(applicationAgentLists);
+        }
+
+        private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
+            AgentInfo agentInfo = agentAndStatus.getAgentInfo();
+            AgentStatus status = agentAndStatus.getStatus();
+            List<HyperLink> hyperLinks = hyperLinkFactory.build(LinkSources.from(agentInfo));
+            return new AgentStatusAndLink(agentInfo, status, hyperLinks);
+        }
+
+        @Override
+        public String toString() {
+            return "Builder{" +
+                    "groupBy=" + groupBy +
+                    ", filter=" + filter +
+                    ", hyperLinkFactory=" + hyperLinkFactory +
+                    ", agentsMap=" + agentsMap +
+                    '}';
+        }
     }
 
     @VisibleForTesting
