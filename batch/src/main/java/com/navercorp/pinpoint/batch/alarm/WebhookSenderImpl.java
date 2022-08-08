@@ -15,17 +15,17 @@
  */
 package com.navercorp.pinpoint.batch.alarm;
 
+import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserGroup;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserMember;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
-import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.service.WebhookService;
 import com.navercorp.pinpoint.web.vo.User;
-import com.navercorp.pinpoint.web.vo.Webhook;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

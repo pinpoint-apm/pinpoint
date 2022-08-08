@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.webhook;
 
 public class WebhookSendInfo {
     private String webhookSendInfoId;

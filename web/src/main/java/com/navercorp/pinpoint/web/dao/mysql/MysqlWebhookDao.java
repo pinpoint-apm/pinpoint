@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.dao.mysql;
 
 import com.navercorp.pinpoint.web.dao.WebhookDao;
-import com.navercorp.pinpoint.web.vo.Webhook;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;

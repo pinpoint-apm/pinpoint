@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.dao.WebhookDao;
 import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
-import com.navercorp.pinpoint.web.vo.Webhook;
-import com.navercorp.pinpoint.web.vo.WebhookSendInfo;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
+import com.navercorp.pinpoint.web.vo.webhook.WebhookSendInfo;
 
 import java.util.LinkedList;
 import java.util.List;

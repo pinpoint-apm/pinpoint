@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.dao.memory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.WebhookDao;
-import com.navercorp.pinpoint.web.vo.Webhook;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import org.springframework.stereotype.Repository;
 
 import java.util.LinkedList;

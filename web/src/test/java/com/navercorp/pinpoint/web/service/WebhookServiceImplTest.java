@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.web.dao.WebhookDao;
 import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.dao.memory.MemoryWebhookDao;
 import com.navercorp.pinpoint.web.dao.memory.MemoryWebhookSendInfoDao;
-import com.navercorp.pinpoint.web.vo.Webhook;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
