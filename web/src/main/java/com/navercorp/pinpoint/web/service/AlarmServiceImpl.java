@@ -15,17 +15,16 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-import java.util.Objects;
-
-import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
-import com.navercorp.pinpoint.web.vo.WebhookSendInfo;
-import org.springframework.stereotype.Service;
-
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.web.vo.webhook.WebhookSendInfo;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung

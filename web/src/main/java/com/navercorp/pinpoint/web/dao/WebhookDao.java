@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.web.vo.Webhook;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 
 import java.util.List;
 

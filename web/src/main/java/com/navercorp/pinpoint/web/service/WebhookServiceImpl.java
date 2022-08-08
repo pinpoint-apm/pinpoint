@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.dao.WebhookDao;
 import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
-import com.navercorp.pinpoint.web.vo.Webhook;
+import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
