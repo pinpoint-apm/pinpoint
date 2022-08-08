@@ -28,9 +28,9 @@ import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
+import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.AgentStatusQuery;
@@ -105,12 +105,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
 
         ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
-        ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy, filter, hyperLinkFactory);
+        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
-            applicationAgentList.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
+            builder.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
         }
-        return applicationAgentList;
+        return builder.build();
     }
 
     @Override
@@ -119,17 +119,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter, hyperLinkFactory);
+        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(groupBy, filter, hyperLinkFactory);
         Set<AgentAndStatus> agentInfoAnsStatuss = getAgentsByApplicationName(applicationName, timestamp);
         if (agentInfoAnsStatuss.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
-            return applicationAgentsList;
+            return builder.build();
         }
-        applicationAgentsList.addAll(agentInfoAnsStatuss);
+        builder.addAll(agentInfoAnsStatuss);
         if (logger.isDebugEnabled()) {
-            logger.debug("getApplicationAgentsList={}", applicationAgentsList);
+            logger.debug("getApplicationAgentsList={}", builder);
         }
-        return applicationAgentsList;
+        return builder.build();
     }
 
     @Override

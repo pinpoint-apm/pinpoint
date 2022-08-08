@@ -33,14 +33,14 @@ public class ApplicationAgentsListTest {
 
     @Test
     public void groupByApplicationName() {
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.APPLICATION_NAME, AgentInfoFilter::accept, hyperLinkFactory);
+        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(ApplicationAgentsList.GroupBy.APPLICATION_NAME, AgentInfoFilter::accept, hyperLinkFactory);
         AgentAndStatus app1Agent1 = createAgentInfo("APP_1", "app1-agent1", "Host11", true);
         AgentAndStatus app1Agent2 = createAgentInfo("APP_1", "app1-agent2", "Host12", false);
         AgentAndStatus app2Agent1 = createAgentInfo("APP_2", "app2-agent1", "Host21", false);
         AgentAndStatus app2Agent2 = createAgentInfo("APP_2", "app2-agent2", "Host22", true);
-        applicationAgentsList.addAll(shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2));
+        builder.addAll(shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2));
 
-        List<ApplicationAgentList> applicationAgentLists = applicationAgentsList.getApplicationAgentLists();
+        List<ApplicationAgentList> applicationAgentLists = builder.build().getApplicationAgentLists();
 
         Assertions.assertEquals(2, applicationAgentLists.size());
 
@@ -61,14 +61,14 @@ public class ApplicationAgentsListTest {
 
     @Test
     public void groupByHostNameShouldHaveContainersFirstAndGroupedSeparatelyByAgentStartTimestampDescendingOrder() {
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
+        ApplicationAgentsList.Builder builder = ApplicationAgentsList.newBuilder(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
         AgentAndStatus host1Agent1 = createAgentInfo("APP_1", "host1-agent1", "Host1", false);
         AgentAndStatus host2Agent1 = createAgentInfo("APP_1", "host2-agent1", "Host2", false);
         AgentAndStatus containerAgent1 = createAgentInfo("APP_1", "container-agent1", "Host3", true, 1);
         AgentAndStatus containerAgent2 = createAgentInfo("APP_1", "container-agent2", "Host4", true, 2);
-        applicationAgentsList.addAll(shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2));
+        builder.addAll(shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2));
 
-        List<ApplicationAgentList> applicationAgentLists = applicationAgentsList.getApplicationAgentLists();
+        List<ApplicationAgentList> applicationAgentLists = builder.build().getApplicationAgentLists();
 
         Assertions.assertEquals(3, applicationAgentLists.size());
 
@@ -100,13 +100,13 @@ public class ApplicationAgentsListTest {
         AgentAndStatus containerAgent2 = createAgentInfo("APP_1", "container-agent2", "Host4", true, 2);
         List<AgentAndStatus> agentInfos = shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2);
 
-        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
-        applicationAgentsList.addAll(agentInfos.subList(0, agentInfos.size() / 2));
-        ApplicationAgentsList applicationAgentsListToMerge = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
-        applicationAgentsListToMerge.addAll(agentInfos.subList(agentInfos.size() / 2, agentInfos.size()));
+        ApplicationAgentsList.Builder builder1 = ApplicationAgentsList.newBuilder(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
+        builder1.addAll(agentInfos.subList(0, agentInfos.size() / 2));
+        ApplicationAgentsList.Builder builder2 = ApplicationAgentsList.newBuilder(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
+        builder2.addAll(agentInfos.subList(agentInfos.size() / 2, agentInfos.size()));
 
-        applicationAgentsList.merge(applicationAgentsListToMerge);
-        List<ApplicationAgentList> applicationAgentLists = applicationAgentsList.getApplicationAgentLists();
+        builder1.merge(builder2.build());
+        List<ApplicationAgentList> applicationAgentLists = builder1.build().getApplicationAgentLists();
 
         Assertions.assertEquals(3, applicationAgentLists.size());
 
@@ -135,14 +135,14 @@ public class ApplicationAgentsListTest {
         AgentAndStatus agent1 = createAgentInfo("APP_1", "app1-agent1", "Host1", false);
         AgentAndStatus agent2 = createAgentInfo("APP_2", "app2-agent1", "Host2", false);
         AgentAndStatus agent3 = createAgentInfo("APP_2", "app2-agent2", "Host2", true);
-        ApplicationAgentsList groupedByHostnameList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
-        groupedByHostnameList.add(agent1);
-        ApplicationAgentsList groupedByApplicationNameList = new ApplicationAgentsList(ApplicationAgentsList.GroupBy.APPLICATION_NAME, AgentInfoFilter::accept, hyperLinkFactory);
-        groupedByApplicationNameList.add(agent2);
-        groupedByApplicationNameList.add(agent3);
+        ApplicationAgentsList.Builder hostBuilder = ApplicationAgentsList.newBuilder(ApplicationAgentsList.GroupBy.HOST_NAME, AgentInfoFilter::accept, hyperLinkFactory);
+        hostBuilder.add(agent1);
+        ApplicationAgentsList.Builder appBuilder = ApplicationAgentsList.newBuilder(ApplicationAgentsList.GroupBy.APPLICATION_NAME, AgentInfoFilter::accept, hyperLinkFactory);
+        appBuilder.add(agent2);
+        appBuilder.add(agent3);
 
-        groupedByHostnameList.merge(groupedByApplicationNameList);
-        List<ApplicationAgentList> applicationAgentLists = groupedByHostnameList.getApplicationAgentLists();
+        hostBuilder.merge(appBuilder.build());
+        List<ApplicationAgentList> applicationAgentLists = hostBuilder.build().getApplicationAgentLists();
 
         Assertions.assertEquals(3, applicationAgentLists.size());
 
