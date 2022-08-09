@@ -25,8 +25,12 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import test.pinpoint.plugin.kafka.Kafka2UnitServer;
+import test.pinpoint.plugin.kafka.TestProducer;
 
 import java.util.Random;
 
@@ -46,25 +50,30 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
         "org.apache.kafka:kafka-clients:[2.7.0,2.7.max]", "com.navercorp.pinpoint:pinpoint-kafka-it-commons:"+ Version.VERSION
 })
 @JvmVersion(8)
+@SharedTestLifeCycleClass(Kafka2UnitServer.class)
 public class KafkaClient_2_7_x_IT extends KafkaClient2ITBase {
 
     @Test
     public void producerSendTest() throws NoSuchMethodException {
         int messageCount = new Random().nextInt(5) + 1;
-        producer.sendMessage(messageCount);
-        verifyProducerSend(messageCount);
+        final TestProducer producer = new TestProducer();
+        producer.sendMessage(brokerUrl, messageCount);
+        KafkaClientITBase.verifyProducerSend(brokerUrl, messageCount);
     }
 
+    @Ignore
     @Test
     public void recordEntryPointTest() throws NoSuchMethodException {
-        producer.sendMessage(1, TRACE_TYPE_RECORD);
-        verifySingleConsumerEntryPoint();
+        final TestProducer producer = new TestProducer();
+        producer.sendMessage(brokerUrl, 1, TRACE_TYPE_RECORD);
+        KafkaClientITBase.verifySingleConsumerEntryPoint(brokerUrl, offset);
     }
 
     @Test
     public void recordMultiEntryPointTest() throws NoSuchMethodException {
-        producer.sendMessage(1, TRACE_TYPE_MULTI_RECORDS);
-        verifyMultiConsumerEntryPoint();
+        final TestProducer producer = new TestProducer();
+        producer.sendMessage(brokerUrl, 1, TRACE_TYPE_MULTI_RECORDS);
+        KafkaClientITBase.verifyMultiConsumerEntryPoint(brokerUrl);
     }
 
 }

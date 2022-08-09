@@ -18,9 +18,12 @@ package com.navercorp.pinpoint.plugin.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.Before;
+
+import java.util.Properties;
 
 /**
  * @author Jiaqi Feng
@@ -28,16 +31,20 @@ import org.junit.Before;
  */
 public abstract class RabbitMQClientITBase {
 
-
     private final ConnectionFactory connectionFactory = new ConnectionFactory();
     protected final RabbitMQTestRunner testRunner = new RabbitMQTestRunner(connectionFactory);
 
+    private static int port;
+
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        port = Integer.parseInt(beforeAllResult.getProperty("PORT"));
+    }
 
     @Before
     public void setUp() {
-        final int brokerPort = SocketUtils.findAvailableTcpPort(10000, 19999);
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
-        connectionFactory.setPort(brokerPort);
+        connectionFactory.setPort(port);
         connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
     }
 
