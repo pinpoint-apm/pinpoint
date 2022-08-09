@@ -30,6 +30,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemWriter;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
     public AlarmWriter(
             AlarmMessageSender alarmMessageSender,
             AlarmService alarmService,
-            AlarmWriterInterceptor alarmWriterInterceptor
+            @Nullable AlarmWriterInterceptor alarmWriterInterceptor
     ) {
         this.alarmMessageSender = Objects.requireNonNull(alarmMessageSender, "alarmMessageSender");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
