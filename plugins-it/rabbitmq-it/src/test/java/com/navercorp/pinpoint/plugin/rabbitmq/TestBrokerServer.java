@@ -15,7 +15,11 @@ public class TestBrokerServer implements SharedTestLifeCycle {
         } catch (Exception e) {
             throw new RuntimeException("broker start error", e);
         }
-        return new Properties();
+
+        int port = broker.getPort();
+        Properties properties = new Properties();
+        properties.setProperty("PORT", String.valueOf(port));
+        return properties;
     }
 
     @Override

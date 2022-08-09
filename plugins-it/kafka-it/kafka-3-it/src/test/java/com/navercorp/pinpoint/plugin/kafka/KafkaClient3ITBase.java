@@ -16,23 +16,28 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import test.pinpoint.plugin.kafka.*;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 
-public abstract class KafkaClient3ITBase extends KafkaClientITBase {
+import java.util.Properties;
 
-    private static final KafkaUnitServer KAFKA_UNIT_SERVER = new Kafka3UnitServer(2189, 9092);
+public abstract class KafkaClient3ITBase {
 
-    @BeforeClass
-    public static void beforeClass() {
-        KAFKA_UNIT_SERVER.startup();
-        TEST_CONSUMER.start();
+    static String brokerUrl;
+    static int PORT;
+    static long offset;
+
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        PORT = Integer.parseInt(beforeAllResult.getProperty("PORT"));
+        brokerUrl = "localhost:" + PORT;
+        offset = Long.parseLong(beforeAllResult.getProperty("OFFSET"));
     }
 
-    @AfterClass
-    public static void afterClass() throws InterruptedException {
-        TEST_CONSUMER.shutdown();
-        KAFKA_UNIT_SERVER.shutdown();
+    public static int getPort() {
+        return PORT;
+    }
+
+    public static long getOffset() {
+        return offset;
     }
 }

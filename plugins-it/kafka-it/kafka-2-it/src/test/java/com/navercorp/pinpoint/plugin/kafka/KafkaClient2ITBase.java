@@ -16,29 +16,33 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.testcase.util.SocketUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import test.pinpoint.plugin.kafka.Kafka2UnitServer;
-import test.pinpoint.plugin.kafka.KafkaUnitServer;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public abstract class KafkaClient2ITBase extends KafkaClientITBase {
+import java.util.Properties;
 
-    private static KafkaUnitServer kafkaUnitServer;
+public abstract class KafkaClient2ITBase {
+    protected static final Logger logger = LogManager.getLogger(KafkaClient2ITBase.class);
 
-    @BeforeClass
-    public static void beforeClass() {
-        final int zkPort = SocketUtils.findAvailableTcpPort(10000, 19999);
-        final int brokerPort = SocketUtils.findAvailableTcpPort(20000, 29999);
-        kafkaUnitServer = new Kafka2UnitServer(zkPort, brokerPort);
+    static String brokerUrl;
+    static int PORT;
+    static long offset;
 
-        kafkaUnitServer.startup();
-        TEST_CONSUMER.start();
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        logger.info("Properties=" + beforeAllResult);
+        PORT = Integer.parseInt(beforeAllResult.getProperty("PORT"));
+        brokerUrl = "localhost:" + PORT;
+        offset = Long.parseLong(beforeAllResult.getProperty("OFFSET"));
     }
 
-    @AfterClass
-    public static void afterClass() throws InterruptedException {
-        TEST_CONSUMER.shutdown();
-        kafkaUnitServer.shutdown();
+
+    public static int getPort() {
+        return PORT;
+    }
+
+    public static long getOffset() {
+        return offset;
     }
 }

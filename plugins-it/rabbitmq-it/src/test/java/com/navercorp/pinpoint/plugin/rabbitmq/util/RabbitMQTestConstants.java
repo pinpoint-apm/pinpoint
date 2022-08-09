@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.rabbitmq.util;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.rabbitmq.client.LongString;
 import com.rabbitmq.client.SaslConfig;
 import com.rabbitmq.client.SaslMechanism;
@@ -24,21 +25,19 @@ import com.rabbitmq.client.impl.LongStringHelper;
 /**
  * @author HyunGil Jeong
  */
-public interface RabbitMQTestConstants {
+public class RabbitMQTestConstants {
 
-    String BROKER_HOST = "127.0.0.1";
-    int BROKER_PORT = 20179;
+    public static final String BROKER_HOST = "127.0.0.1";
+    public static final String RABBITMQ_CLIENT = "RABBITMQ_CLIENT";
+    public static final String RABBITMQ_CLIENT_INTERNAL = "RABBITMQ_CLIENT_INTERNAL";
 
-    String RABBITMQ_CLIENT = "RABBITMQ_CLIENT";
-    String RABBITMQ_CLIENT_INTERNAL = "RABBITMQ_CLIENT_INTERNAL";
+    public static final String EXCHANGE = "TestExchange";
+    public static final String QUEUE_PUSH = "TestPushQueue";
+    public static final String QUEUE_PULL = "TestPullQueue";
+    public static final String ROUTING_KEY_PUSH = "push";
+    public static final String ROUTING_KEY_PULL = "pull";
 
-    String EXCHANGE = "TestExchange";
-    String QUEUE_PUSH = "TestPushQueue";
-    String QUEUE_PULL = "TestPullQueue";
-    String ROUTING_KEY_PUSH = "push";
-    String ROUTING_KEY_PULL = "pull";
-
-    SaslConfig SASL_CONFIG = new SaslConfig() {
+    public static final SaslConfig SASL_CONFIG = new SaslConfig() {
         public SaslMechanism getSaslMechanism(String[] mechanisms) {
             return new SaslMechanism() {
                 public String getName() {

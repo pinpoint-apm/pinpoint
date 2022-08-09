@@ -16,6 +16,7 @@
 
 package com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config;
 
+import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 import org.springframework.amqp.core.*;
@@ -36,11 +37,21 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan("com.navercorp.test.pinpoint.plugin.rabbitmq.spring.service")
 public class CommonConfig {
 
+    private static volatile int port;
+
+    public static int getPort() {
+        return port;
+    }
+
+    public static void setPort(int port) {
+        CommonConfig.port = port;
+    }
+
     @Bean(name = "connectionFactory")
     public ConnectionFactory connectionFactory() {
         com.rabbitmq.client.ConnectionFactory connectionFactory = new com.rabbitmq.client.ConnectionFactory();
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
-        connectionFactory.setPort(RabbitMQTestConstants.BROKER_PORT);
+        connectionFactory.setPort(port);
         connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
         connectionFactory.setAutomaticRecoveryEnabled(false);
         return new CachingConnectionFactory(connectionFactory);

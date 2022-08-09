@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,18 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Properties;
 
-import static test.pinpoint.plugin.kafka.KafkaITConstants.*;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.GROUP_ID;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.PARTITION;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.TOPIC;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_MULTI_RECORDS;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 
 /**
  * @author Younsung Hwang

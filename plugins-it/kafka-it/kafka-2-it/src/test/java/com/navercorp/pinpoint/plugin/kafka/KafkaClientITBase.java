@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,16 +25,17 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import test.pinpoint.plugin.kafka.OffsetStore;
-import test.pinpoint.plugin.kafka.TestConsumer;
 import test.pinpoint.plugin.kafka.TestConsumerRecordEntryPoint;
-import test.pinpoint.plugin.kafka.TestProducer;
 
 import java.lang.reflect.Method;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.*;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.KAFKA_CLIENT_INTERNAL_SERVICE_TYPE;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.KAFKA_CLIENT_SERVICE_TYPE;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.MAX_TRACE_WAIT_TIME;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.PARTITION;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.TOPIC;
 
 /**
  * @author Younsung Hwang
