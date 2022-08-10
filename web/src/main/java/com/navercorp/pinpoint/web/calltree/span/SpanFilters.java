@@ -131,6 +131,7 @@ public class SpanFilters {
         return new SpanAgentIdPredicate(agentId);
     }
 
+    // Also used in SpanQueryBuilder
     private static class SpanAgentIdPredicate implements Predicate<SpanBo> {
         private final String agentId;
 

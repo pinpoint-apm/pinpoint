@@ -39,6 +39,9 @@ public class SpanQueryBuilder {
         if (spanHint.getApplicationName() != null) {
             builder.addFilter(SpanFilters.applicationIdFilter(spanHint.getApplicationName()));
         }
+        if (spanHint.getAgentId() != null) {
+            builder.addFilter(SpanFilters.agentIdFilter(spanHint.getAgentId()));
+        }
 
         return builder.build();
     }

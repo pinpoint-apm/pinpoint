@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -11,12 +12,11 @@ import com.navercorp.pinpoint.web.scatter.heatmap.HeatMapBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.SpanHint;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -98,7 +98,8 @@ public class HeatMapServiceImpl implements HeatMapService {
 
         List<GetTraceInfo> query = buildQuery(applicationName, dots);
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
-        List<SpanBo> spanList = ListListUtils.toList(selectedSpans, selectedSpans.size());
+        //List<SpanBo> spanList = ListListUtils.toList(selectedSpans, selectedSpans.size());
+        List<SpanBo> spanList = pickFirst(selectedSpans);
         spanService.populateAgentName(spanList);
 
         if (dots.size() != spanList.size()) {
@@ -172,9 +173,22 @@ public class HeatMapServiceImpl implements HeatMapService {
         TransactionId transactionId = dot.getTransactionId();
 
         SpanHint spanHint = new SpanHint(dot.getAcceptedTime(),
-                dot.getElapsedTime(), applicationName);
+                dot.getElapsedTime(), applicationName, dot.getAgentId());
 
         return new GetTraceInfo(transactionId, spanHint);
     }
 
+    private List<SpanBo> pickFirst(List<List<SpanBo>> spanLists) {
+        List<SpanBo> result = new ArrayList<>(spanLists.size());
+        for (List<SpanBo> candidates : spanLists) {
+            if (candidates.size() > 0) {
+                result.add(candidates.get(0));
+
+                if (candidates.size() > 1 && logger.isDebugEnabled()) {
+                    logger.debug("heuristically avoid Legacy compatibility error, spanCandidate:{}", candidates);
+                }
+            }
+        }
+        return result;
+    }
 }
