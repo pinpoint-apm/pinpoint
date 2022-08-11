@@ -1,9 +1,0 @@
-{
-  "extends": "@pinpoint-fe/tsconfig/react-library.json",
-  "include": [".", "**/*.ts", "**/*.tsx", "../../apps/web/components/Layout/LayoutWithSideNavigation.tsx"],
-  "exclude": ["dist", "build", "node_modules"],
-  "compilerOptions": {
-    "jsxImportSource": "@emotion/react"
-  }
-}
-
