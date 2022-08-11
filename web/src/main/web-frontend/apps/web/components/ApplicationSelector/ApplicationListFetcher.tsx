@@ -2,8 +2,11 @@ import React from 'react';
 import useSWR from 'swr'
 import { useAtom } from 'jotai';
 
-import ApplicationList, { ItemProps } from '@pinpoint-fe/common/components/Application/ApplicationList';
-import { ApplicationType } from '@pinpoint-fe/common/components/Application/types';
+import { 
+  ApplicationType,
+  ApplicationList,
+  ItemProps,
+} from '@pinpoint-fe/ui';
 import { applicationAtom } from '../../atoms/application';
 import { ApplicationIcon } from './ApplicationIcon';
 

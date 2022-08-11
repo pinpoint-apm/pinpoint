@@ -1,7 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
-import AppIcon, { ApplicationIconProps as AppIconProps } from '@pinpoint-fe/common/components/Application/ApplicationIcon';
-import { ApplicationType } from '@pinpoint-fe/common/components/Application/types';
+import { 
+  ApplicationType, 
+  ApplicationIcon as AppIcon, 
+  ApplicationIconProps as AppIconProps
+} from '@pinpoint-fe/ui';
 
 export interface ApplicationIconProps extends AppIconProps {
   serviceType: ApplicationType['serviceType'];

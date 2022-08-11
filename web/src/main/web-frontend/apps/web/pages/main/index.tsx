@@ -3,13 +3,11 @@ import React from 'react';
 import { NextPageWithLayout } from '../../pages/_app';
 import { getLayoutWithSideNavigation } from '../../components/Layout/LayoutWithSideNavigation';
 import { ApplicationSelector } from '../../components/ApplicationSelector/ApplicationSelector';
-import { StyledMainHeader } from '@pinpoint-fe/common/components/Styled/header';
-import { DateRangePicker } from '@pinpoint-fe/common/components/DateRangePicker/DateRangePicker';
+import { DateRangePicker, StyledMainHeader } from '@pinpoint-fe/ui';
 import styled from '@emotion/styled';
-import { css } from '@emotion/react';
-
 
 export interface mainProps {
+
 }
 
 const Main: NextPageWithLayout = ({
@@ -22,6 +20,7 @@ const Main: NextPageWithLayout = ({
         <DateRangePicker />
       </StyledHeader>
       <StyledMainContainer>
+        <div>contents</div>
       </StyledMainContainer>
     </StyledContainer>
   )
