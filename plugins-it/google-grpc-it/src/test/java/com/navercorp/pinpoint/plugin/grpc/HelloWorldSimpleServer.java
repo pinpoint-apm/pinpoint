@@ -60,7 +60,7 @@ public class HelloWorldSimpleServer implements HelloWorldServer {
 
     @PostConstruct
     public void start() throws IOException {
-        bindPort = SocketUtils.findAvailableTcpPort(27675);
+        bindPort = SocketUtils.findAvailableTcpPort(10000, 19999);
 
         /* The port on which the server should run */
         NettyServerBuilder builder = NettyServerBuilder.forPort(bindPort);
