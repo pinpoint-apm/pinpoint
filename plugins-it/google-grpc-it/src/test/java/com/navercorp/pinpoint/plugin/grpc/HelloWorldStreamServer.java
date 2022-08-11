@@ -157,7 +157,7 @@ public class HelloWorldStreamServer implements HelloWorldServer {
             }
         };
 
-        bindPort = SocketUtils.findAvailableTcpPort(27675);
+        bindPort = SocketUtils.findAvailableTcpPort(20000, 29999);
 
         NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(bindPort);
         serverBuilder.bossEventLoopGroup(eventExecutors);
