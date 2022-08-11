@@ -1,0 +1,36 @@
+{
+  "name": "@pinpoint-fe/utils",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --external react",
+    "clean": "rm -rf dist",
+    "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
+    "devBuild": "tsup src/index.ts --format esm,cjs --dts --external react",
+    "lint": "eslint",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@pinpoint-fe/constants": "*"
+  },
+  "devDependencies": {
+    "@pinpoint-fe/config": "*",
+    "@pinpoint-fe/tsconfig": "*",
+    "@types/jest": "^28.1.4",
+    "@types/react": "^18.0.14",
+    "eslint": "^8.15.0",
+    "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.2",
+    "react": "^18.2.0",
+    "ts-jest": "^28.0.5",
+    "tsup": "^6.2.1",
+    "typescript": "^4.5.5"
+  }
+}

@@ -3,16 +3,18 @@ import dynamic from 'next/dynamic';
 import { useSWRConfig } from 'swr';
 import { useAtom } from 'jotai';
 
-import AppSelector from '@pinpoint-fe/common/components/Application/ApplicationSelector';
-import ApplicationList, { ItemClickHandlerType } from '@pinpoint-fe/common/components/Application/ApplicationList';
-import ListItemSkeleton from '@pinpoint-fe/common/components/Application/ListItemSkeleton';
-import { APPLICATION_LIST } from '@pinpoint-fe/common/config/api/endPoints';
+import { APPLICATION_LIST, APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import ErrorBoundary from '../Error/ErrorBoundary';
 import { applicationAtom } from '../../atoms/application';
 import { ApplicationIcon } from './ApplicationIcon';
-import { useLocalStorage } from '@pinpoint-fe/common/hooks/localStorage';
-import { ApplicationType } from '@pinpoint-fe/common/components/Application/types';
-import APP_SETTING_KEYS from '@pinpoint-fe/common/config/localStorage/appSettingKeys';
+import { useLocalStorage } from '@pinpoint-fe/utils';
+import {
+  ApplicationSelector as AppSelector,
+  ApplicationList,
+  ItemClickHandlerType,
+  ListItemSkeleton,
+  ApplicationType,
+} from '@pinpoint-fe/ui';
 import { ApplicationFavoriteList } from './ApplicationFavoriteList';
 
 const ApplicationListFetcher = dynamic(() => 
