@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -14,10 +15,10 @@ public class DetailedAgentInfo {
     private final ServerMetaDataBo serverMetaData;
     private final JvmInfoBo jvmInfo;
 
-    public DetailedAgentInfo(AgentInfo agentInfo, ServerMetaDataBo serverMetaData, JvmInfoBo jvmInfo) {
+    public DetailedAgentInfo(AgentInfo agentInfo, @Nullable ServerMetaDataBo serverMetaData, @Nullable JvmInfoBo jvmInfo) {
         this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
-        this.serverMetaData = Objects.requireNonNull(serverMetaData, "serverMetaData");
-        this.jvmInfo = Objects.requireNonNull(jvmInfo, "jvmInfo");
+        this.serverMetaData = serverMetaData;
+        this.jvmInfo = jvmInfo;
     }
 
     @JsonUnwrapped
