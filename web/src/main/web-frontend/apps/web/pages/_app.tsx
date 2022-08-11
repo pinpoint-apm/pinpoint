@@ -1,3 +1,5 @@
+import '@pinpoint-fe/ui/dist/index.css';
+
 import { ReactElement, ReactNode, useEffect } from 'react'
 import { NextPage } from 'next';
 import Script from 'next/script'
@@ -7,11 +9,10 @@ import { IconContext } from 'react-icons';
 
 // import { SessionProvider } from "next-auth/react"
 
-import { GlobalStyle } from '@pinpoint-fe/common/components/Styled/GlobalStyle';
-import { RootThemeProvider } from '@pinpoint-fe/common/styles/theme';
-import themeLight from '@pinpoint-fe/common/styles/theme-light';
-import themeDark from '@pinpoint-fe/common/styles/theme-dark';
+// import { RootThemeProvider } from '@pinpoint-fe/ui/styles/theme';
+// import themeLight from '@pinpoint-fe/ui/styles/theme-light';
 import { SWRConfig } from 'swr';
+import { GlobalStyle } from '@pinpoint-fe/ui';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P,IP> & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -23,14 +24,14 @@ type AppPropsWithLayout<P = {}> = AppProps<P> & {
 
 const AppRoot =  ({ Component, pageProps: { session, pageProps} }: AppPropsWithLayout) => {
   const getLayout = Component.getLayout ?? ((page) => page);
-  const themeColor = themeLight;
+  // const themeColor = themeLight;
 
   return (
     <>
       {GlobalStyle}
       <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
         {/* <SessionProvider session={session}> */}
-        <RootThemeProvider theme={themeLight}>
+        {/* <RootThemeProvider theme={themeLight}> */}
           <SWRConfig value={{
             suspense: true,
             fetcher: (...args: any) => fetch(args as any).then(res => res.json())
@@ -39,7 +40,7 @@ const AppRoot =  ({ Component, pageProps: { session, pageProps} }: AppPropsWithL
               {getLayout(<Component {...pageProps} />)}
             </div>
           </SWRConfig>
-        </RootThemeProvider>
+        {/* </RootThemeProvider> */}
         {/* </SessionProvider> */}
       </IconContext.Provider>
     </>
