@@ -1,7 +1,11 @@
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["lint", "test", "^build"],
+      "dependsOn": [
+        "lint", 
+        "test",
+        "^build"
+      ],
       "outputs": ["dist/**", ".next/**"]
     },
     "lint": {
@@ -10,11 +14,19 @@
     "test": {
 
     },
+    "devBuild": {
+      "dependsOn": ["^devBuild"]
+    },
     "dev": {
-      "cache": false
+      "cache": false,
+      "dependsOn": [
+        "@pinpoint-fe/constants#devBuild",
+        "@pinpoint-fe/utils#devBuild",
+        "@pinpoint-fe/ui#devBuild"
+      ]
     },
     "storybook": {
-
+      "cache": false
     },
     "build-storybook": {
       "dependsOn": ["lint"]

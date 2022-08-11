@@ -3,8 +3,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { FaNetworkWired, FaChartLine, FaCog, FaUserCog, FaUserCircle } from 'react-icons/fa';
 
-import { SideNavigation } from '@pinpoint-fe/common/components/SideNavigation/SideNavigation';
-import Nav from '@pinpoint-fe/common/components/SideNavigation/Nav';
+import { Nav, SideNavigation } from '@pinpoint-fe/ui';
 
 interface LayoutWithSideNavigationProps {
   children: React.ReactNode;
