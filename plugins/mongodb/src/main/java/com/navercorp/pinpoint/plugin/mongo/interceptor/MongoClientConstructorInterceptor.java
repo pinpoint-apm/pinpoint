@@ -65,7 +65,9 @@ public class MongoClientConstructorInterceptor implements AroundInterceptor {
             if (list != null) {
                 for (Object o : list) {
                     if (o instanceof ServerAddress) {
-                        final String hostAddress = HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort());
+                        // Set multi address.
+                        final ServerAddress address = (ServerAddress) o;
+                        final String hostAddress = HostAndPort.toHostAndPortString(address.getHost(), address.getPort());
                         hostList.add(hostAddress);
                     }
                 }
