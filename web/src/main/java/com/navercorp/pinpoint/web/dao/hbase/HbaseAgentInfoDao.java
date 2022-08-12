@@ -81,7 +81,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      */
     @Override
     public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
-        return getAgentInfo0(agentId, timestamp, agentInfoResultsExtractor, AgentInfoColumn.identifier());
+        return getAgentInfo0(agentId, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
     }
 
     private <T> T getAgentInfo0(String agentId, long timestamp, ResultsExtractor<T> action, AgentInfoColumn column) {
@@ -115,7 +115,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         final long startTime = agentStartTime - deltaTimeInMilliSeconds;
         final long endTime = agentStartTime + deltaTimeInMilliSeconds;
 
-        Scan scan = createScan(agentId, startTime, endTime, AgentInfoColumn.identifier());
+        Scan scan = createScan(agentId, startTime, endTime, AgentInfoColumn.simple());
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
@@ -123,12 +123,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Override
     public List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp) {
-        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.identifier());
+        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.simple());
     }
 
 
     public List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp) {
-        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.identifier());
+        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.simple());
     }
 
     public List<AgentInfo> getAgentInfos0(List<String> agentIds, long timestamp, AgentInfoColumn column) {
@@ -197,8 +197,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             return new AgentInfoColumn(true, true, true);
         }
 
-        public static AgentInfoColumn identifier() {
+        public static AgentInfoColumn simple() {
             return new AgentInfoColumn(true, false, false);
+        }
+
+        public static AgentInfoColumn jvm() {
+            return new AgentInfoColumn(true, false, true);
         }
     }
 }

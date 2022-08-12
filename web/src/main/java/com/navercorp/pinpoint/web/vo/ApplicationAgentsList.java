@@ -29,12 +29,14 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author minwoo.jung
@@ -45,7 +47,7 @@ public class ApplicationAgentsList {
     public enum GroupBy {
         APPLICATION_NAME {
             @Override
-            protected GroupingKey<?> extractKey(AgentAndStatus agentInfoAndStatus) {
+            protected GroupingKey<StringGroupingKey> extractKey(AgentAndStatus agentInfoAndStatus) {
                 return new StringGroupingKey(agentInfoAndStatus.getAgentInfo().getApplicationName());
             }
 
@@ -61,7 +63,7 @@ public class ApplicationAgentsList {
         },
         HOST_NAME {
             @Override
-            protected GroupingKey<?> extractKey(AgentAndStatus agentInfoAndStatus) {
+            protected GroupingKey<HostNameContainerGroupingKey> extractKey(AgentAndStatus agentInfoAndStatus) {
                 AgentInfo agentInfo = agentInfoAndStatus.getAgentInfo();
                 return new HostNameContainerGroupingKey(agentInfo.getHostName(), agentInfo.isContainer());
             }
@@ -71,23 +73,24 @@ public class ApplicationAgentsList {
                 return (agentInfoAndStatus1, agentInfoAndStatus2) -> {
                     final AgentInfo agentInfo1 = agentInfoAndStatus1.getAgentInfo();
                     final AgentInfo agentInfo2 = agentInfoAndStatus2.getAgentInfo();
-                    if (agentInfo1.isContainer() && agentInfo2.isContainer()) {
-                        // reverse start time order if both are containers
-                        return Long.compare(agentInfo2.getStartTimestamp(), agentInfo1.getStartTimestamp());
+
+                    int containerEquals = CONTAINER_FIRST_COMPARE.compare(agentInfo1.isContainer(), agentInfo2.isContainer());
+                    if (containerEquals != 0) {
+                        return containerEquals;
                     }
-                    if (agentInfo1.isContainer()) {
-                        return -1;
+                    // reverse start time order if both are containers
+                    int startTime = Long.compare(agentInfo2.getStartTimestamp(), agentInfo1.getStartTimestamp());
+                    if (startTime != 0) {
+                        return startTime;
                     }
-                    if (agentInfo2.isContainer()) {
-                        return 1;
-                    }
+
                     // agent id order if both are not containers
                     return AgentInfo.AGENT_NAME_ASC_COMPARATOR.compare(agentInfo1, agentInfo2);
                 };
             }
         };
 
-        protected abstract GroupingKey<?> extractKey(AgentAndStatus agentInfoAndStatus);
+        protected abstract GroupingKey extractKey(AgentAndStatus agentInfoAndStatus);
 
         /**
          * Do not use this for sorted set and maps.
@@ -95,10 +98,11 @@ public class ApplicationAgentsList {
         protected abstract Comparator<AgentAndStatus> getComparator();
     }
 
+
     /**
      * Implementations not consistent with <code>equals</code>, for internal use only.
      */
-    private interface GroupingKey<T extends GroupingKey<T>> extends Comparable<T> {
+    private interface GroupingKey<T> extends Comparable<T> {
         String value();
     }
 
@@ -133,7 +137,8 @@ public class ApplicationAgentsList {
         private final AgentInfoFilter filter;
         private final HyperLinkFactory hyperLinkFactory;
 
-        private final Map<GroupingKey<?>, List<AgentAndStatus>> agentsMap = new TreeMap<>();
+        private final List<AgentAndStatus> list = new ArrayList<>();
+
 
         Builder(GroupBy groupBy, AgentInfoFilter filter, HyperLinkFactory hyperLinkFactory) {
             this.groupBy = Objects.requireNonNull(groupBy, "groupBy");
@@ -142,16 +147,19 @@ public class ApplicationAgentsList {
         }
 
         public void add(AgentAndStatus agentInfoAndStatus) {
-            if (filter.filter(agentInfoAndStatus) == AgentInfoFilter.REJECT) {
-                return;
-            }
-            GroupingKey<?> key = groupBy.extractKey(agentInfoAndStatus);
-            List<AgentAndStatus> agentInfos = agentsMap.computeIfAbsent(key, k -> new ArrayList<>());
-            agentInfos.add(agentInfoAndStatus);
+//            if (filter.filter(agentInfoAndStatus) == AgentInfoFilter.REJECT) {
+//                return;
+//            }
+//            GroupingKey<?> key = groupBy.extractKey(agentInfoAndStatus);
+//            List<AgentAndStatus> agentInfos = list.computeIfAbsent(key, k -> new ArrayList<>());
+//            agentInfos.add(agentInfoAndStatus);
+            this.list.add(agentInfoAndStatus);
         }
 
-        public void addAll(Iterable<AgentAndStatus> agentInfoAndStatusList) {
+        public void addAll(Collection<AgentAndStatus> agentInfoAndStatusList) {
+            Objects.requireNonNull(agentInfoAndStatusList, "agentInfoAndStatusList");
             for (AgentAndStatus agent : agentInfoAndStatusList) {
+                Objects.requireNonNull(agent, "agent");
                 add(agent);
             }
         }
@@ -165,22 +173,67 @@ public class ApplicationAgentsList {
         }
 
         public ApplicationAgentsList build() {
-            if (agentsMap.isEmpty()) {
+            if (list.isEmpty()) {
                 return new ApplicationAgentsList(List.of());
             }
-            List<ApplicationAgentList> applicationAgentLists = new ArrayList<>(agentsMap.size());
-            for (Map.Entry<GroupingKey<?>, List<AgentAndStatus>> entry : agentsMap.entrySet()) {
-                final GroupingKey<?> groupingKey = entry.getKey();
-                final List<AgentAndStatus> agentInfoList = entry.getValue();
-
-                List<AgentStatusAndLink> agentInfoAndLinks = agentInfoList.stream()
-                        .sorted(groupBy.getComparator())
-                        .map(this::newAgentInfoAndLink)
-                        .collect(Collectors.toList());
-
-                applicationAgentLists.add(new ApplicationAgentList(groupingKey.value(), agentInfoAndLinks));
+            if (groupBy == GroupBy.APPLICATION_NAME) {
+                return new ApplicationAgentsList(groupByApplicationName(list));
             }
-            return new ApplicationAgentsList(applicationAgentLists);
+
+            if (groupBy == GroupBy.HOST_NAME) {
+                return new ApplicationAgentsList(groupByHostName(list));
+            }
+            throw new UnsupportedOperationException("dd");
+        }
+
+        private Stream<AgentAndStatus> filteredStream(List<AgentAndStatus> list) {
+            Stream<AgentAndStatus> stream = list.stream();
+            if (filter != null) {
+                stream = stream.filter(filter::filter);
+            }
+            return stream;
+        }
+
+        private List<ApplicationAgentList> groupByHostName(List<AgentAndStatus> agentList) {
+            List<AgentAndStatus> containerList = filteredStream(agentList)
+                    .filter(agentAndStatus -> agentAndStatus.getAgentInfo().isContainer())
+                    .sorted(Comparator.comparing(agentAndStatus -> agentAndStatus.getAgentInfo().getHostName()))
+                    .collect(Collectors.toList());
+
+            Map<String, List<AgentStatusAndLink>> hostNameMap = filteredStream(agentList)
+                    .map(this::newAgentInfoAndLink)
+                    .collect(Collectors.groupingBy(agent -> agent.getAgentInfo().getHostName()));
+
+            return hostNameMap.entrySet()
+                    .stream()
+                    .map(entry -> new ApplicationAgentList(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+        }
+
+        private List<ApplicationAgentList> groupByApplicationName(List<AgentAndStatus> agentList) {
+
+            Map<String, List<AgentAndStatus>> agentIdMap = filteredStream(agentList)
+                    .collect(Collectors.groupingBy(agentAndStatus -> agentAndStatus.getAgentInfo().getApplicationName()));
+
+            agentIdMap.values()
+                    .forEach(list -> list.sort((o1, o2) -> AgentInfo.AGENT_NAME_ASC_COMPARATOR.compare(o1.getAgentInfo(), o2.getAgentInfo())));
+
+            List<ApplicationAgentList> collect = agentIdMap.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(this::newApplicationAgentList)
+                    .collect(Collectors.toList());
+            return collect;
+        }
+
+
+        private ApplicationAgentList newApplicationAgentList(Map.Entry<String, List<AgentAndStatus>> entry) {
+            String key = entry.getKey();
+            List<AgentStatusAndLink> list = entry.getValue()
+                    .stream()
+                    .map(this::newAgentInfoAndLink)
+                    .collect(Collectors.toList());
+            return new ApplicationAgentList(key, list);
         }
 
         private AgentStatusAndLink newAgentInfoAndLink(AgentAndStatus agentAndStatus) {
@@ -196,7 +249,7 @@ public class ApplicationAgentsList {
                     "groupBy=" + groupBy +
                     ", filter=" + filter +
                     ", hyperLinkFactory=" + hyperLinkFactory +
-                    ", agentsMap=" + agentsMap +
+                    ", agentsMap=" + list +
                     '}';
         }
     }
@@ -226,6 +279,53 @@ public class ApplicationAgentsList {
         }
     }
 
+    interface GroupByAction<T> {
+         GroupingKey<T> extractKey(AgentInfo agentInfo);
+
+        /**
+         * Do not use this for sorted set and maps.
+         */
+        Comparator<AgentInfo> getComparator();
+    }
+
+    static class ApplicationNameGroupBy implements GroupByAction<StringGroupingKey> {
+        @Override
+        public GroupingKey<StringGroupingKey> extractKey(AgentInfo agentInfo) {
+            return new StringGroupingKey(agentInfo.getApplicationName());
+        }
+
+        @Override
+        public Comparator<AgentInfo> getComparator() {
+            return AgentInfo.AGENT_NAME_ASC_COMPARATOR;
+        }
+    }
+
+    static class ContainerGroupBy implements GroupByAction<HostNameContainerGroupingKey> {
+        @Override
+        public GroupingKey extractKey(AgentInfo agentInfo) {
+            return new HostNameContainerGroupingKey(agentInfo.getHostName(), agentInfo.isContainer());
+        }
+
+        @Override
+        public Comparator<AgentInfo> getComparator() {
+            return (agentInfo1, agentInfo2) -> {
+                int containerEquals = CONTAINER_FIRST_COMPARE.compare(agentInfo1.isContainer(), agentInfo2.isContainer());
+                if (containerEquals != 0) {
+                    return containerEquals;
+                }
+                // reverse start time order if both are containers
+                int startTime = Long.compare(agentInfo2.getStartTimestamp(), agentInfo1.getStartTimestamp());
+                if (startTime != 0) {
+                    return startTime;
+                }
+
+                // agent id order if both are not containers
+                return AgentInfo.AGENT_NAME_ASC_COMPARATOR.compare(agentInfo1, agentInfo2);
+            };
+        }
+    }
+
+
     @VisibleForTesting
     static class HostNameContainerGroupingKey implements GroupingKey<HostNameContainerGroupingKey> {
 
@@ -235,11 +335,11 @@ public class ApplicationAgentsList {
         private final boolean isContainer;
 
         private HostNameContainerGroupingKey(String hostName, boolean isContainer) {
-            String keyValue = Objects.requireNonNull(hostName, "hostName");
+            Objects.requireNonNull(hostName, "hostName");
             if (isContainer) {
-                keyValue = CONTAINER;
+                hostName = CONTAINER;
             }
-            this.hostNameGroupingKey = new StringGroupingKey(keyValue);
+            this.hostNameGroupingKey = new StringGroupingKey(hostName);
             this.isContainer = isContainer;
         }
 
@@ -253,15 +353,11 @@ public class ApplicationAgentsList {
 
         @Override
         public int compareTo(HostNameContainerGroupingKey o) {
-            if (isContainer && o.isContainer) {
-                return 0;
+            final int containerEquals = CONTAINER_FIRST_COMPARE.compare(isContainer, o.isContainer);
+            if (containerEquals != 0) {
+                return containerEquals;
             }
-            if (isContainer) {
-                return -1;
-            }
-            if (o.isContainer) {
-                return 1;
-            }
+
             return hostNameGroupingKey.compareTo(o.hostNameGroupingKey);
         }
 
@@ -274,4 +370,19 @@ public class ApplicationAgentsList {
             return sb.toString();
         }
     }
+
+    private static Comparator<Boolean> CONTAINER_FIRST_COMPARE = new Comparator<Boolean>() {
+        public int compare(Boolean container1, Boolean container2) {
+            if (container1 && container2) {
+                return 0;
+            }
+            if (container1) {
+                return -1;
+            }
+            if (container2) {
+                return 1;
+            }
+            return 0;
+        }
+    };
 }
