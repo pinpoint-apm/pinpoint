@@ -39,7 +39,7 @@
   "dateTimeFieldSpecs": [
     {
       "name": "eventTime",
-      "dataType": "LONG",
+      "dataType": "TIMESTAMP",
       "format" : "1:MILLISECONDS:EPOCH",
       "granularity": "1:MILLISECONDS"
     }

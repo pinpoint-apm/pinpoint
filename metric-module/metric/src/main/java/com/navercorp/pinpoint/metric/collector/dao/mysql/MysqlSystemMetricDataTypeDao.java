@@ -29,7 +29,8 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Repository
+@Deprecated
+//@Repository
 public class MysqlSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
 
     private static final String NAMESPACE = SystemMetricDataTypeDao.class.getName() + ".";

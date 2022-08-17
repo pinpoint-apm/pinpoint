@@ -1,5 +1,5 @@
 {
-  "schemaName": "systemMetricLong",
+  "schemaName": "systemMetricTag",
   "dimensionFieldSpecs": [
     {
       "name": "serviceName",
@@ -25,23 +25,18 @@
     {
       "name": "tags",
       "dataType": "STRING",
-      "singleValueField": false,
-      "defaultNullValue": "null"
-    }
-  ],
-  "metricFieldSpecs": [
-    {
-      "name": "fieldValue",
-      "dataType": "LONG",
-      "defaultNullValue": -1
+      "defaultNullValue": "{}"
     }
   ],
   "dateTimeFieldSpecs": [
     {
-      "name": "eventTime",
+      "name": "saveTime",
       "dataType": "TIMESTAMP",
       "format" : "1:MILLISECONDS:EPOCH",
       "granularity": "1:MILLISECONDS"
     }
+  ],
+  "primaryKeyColumns": [
+    "serviceName", "hostGroupName", "hostName", "metricName", "fieldName", "tags"
   ]
 }

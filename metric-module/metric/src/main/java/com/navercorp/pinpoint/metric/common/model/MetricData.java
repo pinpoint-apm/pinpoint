@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.metric.common.model.pinot.FromMetricDataTypeToIntSerializer;
+
 import java.util.Objects;
 
 /**
@@ -26,14 +30,16 @@ public class MetricData {
     private String metricName;
     private String fieldName;
     private MetricDataType metricDataType;
+    private long saveTime;
 
     public MetricData() {
     }
 
-    public MetricData(String metricName, String fieldName, MetricDataType metricDataType) {
+    public MetricData(String metricName, String fieldName, MetricDataType metricDataType, long saveTime) {
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.metricDataType = Objects.requireNonNull(metricDataType, "metricDataType");
+        this.saveTime = saveTime;
     }
 
     public String getFieldName() {
@@ -52,6 +58,16 @@ public class MetricData {
         this.metricName = metricName;
     }
 
+    public long getSaveTime() {
+        return saveTime;
+    }
+
+    public void setSaveTime(long saveTime) {
+        this.saveTime = saveTime;
+    }
+
+    @JsonProperty("dataType")
+    @JsonSerialize(using = FromMetricDataTypeToIntSerializer.class)
     public MetricDataType getMetricDataType() {
         return metricDataType;
     }
@@ -66,6 +82,7 @@ public class MetricData {
                 "metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
                 ", metricDataType=" + metricDataType +
+                ", saveTime=" + saveTime +
                 '}';
     }
 
@@ -74,8 +91,6 @@ public class MetricData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricData that = (MetricData) o;
-        return Objects.equals(metricName, that.metricName) &&
-                Objects.equals(fieldName, that.fieldName) &&
-                metricDataType == that.metricDataType;
+        return saveTime == that.saveTime && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricDataType == that.metricDataType;
     }
 }

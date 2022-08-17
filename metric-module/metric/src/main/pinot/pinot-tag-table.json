@@ -1,10 +1,10 @@
 {
-  "tableName": "systemMetricLong",
+  "tableName": "systemMetricTag",
   "tableType": "REALTIME",
   "segmentsConfig": {
-    "timeColumnName": "eventTime",
+    "timeColumnName": "saveTime",
     "timeType": "MILLISECONDS",
-    "schemaName": "systemMetricLong",
+    "schemaName": "systemMetricTag",
     "replicasPerPartition": "1",
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "21"
@@ -16,8 +16,8 @@
     "nullHandlingEnabled": true,
     "streamConfigs": {
       "streamType": "kafka",
-      "stream.kafka.topic.name": "system-metric-long",
       "stream.kafka.consumer.type": "lowlevel",
+      "stream.kafka.topic.name": "system-metric-tag",
       "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
       "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
       "stream.kafka.broker.list": "localhost:19092",
@@ -29,5 +29,11 @@
   },
   "metadata": {
     "customConfigs": {}
+  },
+  "routing": {
+    "instanceSelectorType": "strictReplicaGroup"
+  },
+  "upsertConfig": {
+    "mode": "FULL"
   }
 }

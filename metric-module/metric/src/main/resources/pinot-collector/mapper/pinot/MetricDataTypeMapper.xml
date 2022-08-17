@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricDataTypeDao">
+
+    <select id="selectMetricDataTypeList" resultType="MetricData">
+        SELECT metricName, fieldName, dataType as metricDataType, cast(saveTime AS long) as saveTime
+        FROM systemMetricDataType
+    </select>
+
+    <select id="selectMetricDataType" resultType="MetricData" parameterType="MetricDataName">
+        SELECT metricName, fieldName, dataType as metricDataType, cast(saveTime AS long) as saveTime
+        FROM systemMetricDataType
+        WHERE metricName = #{metricName} AND fieldName = #{fieldName}
+    </select>
+</mapper>

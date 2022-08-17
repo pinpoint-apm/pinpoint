@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.metric.collector.dao.pinot.PinotMetricTagDao">
+
+    <resultMap id="MetricTagResultMap" type="MetricTag">
+        <constructor>
+            <arg column="hostGroupName" javaType="string"/>
+            <arg column="hostName" javaType="string"/>
+            <arg column="metricName" javaType="string"/>
+            <arg column="fieldName" javaType="string"/>
+            <arg column="tags" javaType="list" typeHandler="TagListTypeHandler" />
+            <arg column="saveTime" javaType="_long"/>
+        </constructor>
+    </resultMap>
+
+<!--    <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">-->
+<!--        SELECT *-->
+<!--        FROM systemMetricTag-->
+<!--        WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName} AND saveTime = #{saveTime}-->
+<!--    </select>-->
+
+    <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
+        SELECT hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
+        FROM systemMetricTag
+        WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName} AND saveTime = #{saveTime}
+    </select>
+</mapper>

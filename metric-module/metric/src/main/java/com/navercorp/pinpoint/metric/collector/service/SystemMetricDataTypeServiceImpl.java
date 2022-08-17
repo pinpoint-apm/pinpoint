@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -51,12 +52,24 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
             return;
         }
 
+        long saveTime = getSaveTime();
         if (systemMetric instanceof LongMetric) {
-            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG));
+            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG, saveTime));
         } else if (systemMetric instanceof DoubleMetric) {
-            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE));
+            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, saveTime));
         } else {
             logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
         }
+    }
+
+    private long getSaveTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+
+        return calendar.getTimeInMillis();
     }
 }

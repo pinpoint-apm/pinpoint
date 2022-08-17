@@ -27,12 +27,14 @@ public class MetricTagKey {
     private final String hostName;
     private final String metricName;
     private final String fieldName;
+    private final long saveTime;
 
-    public MetricTagKey(String hostGroupName, String hostName, String metricName, String fieldName) {
+    public MetricTagKey(String hostGroupName, String hostName, String metricName, String fieldName, long saveTime) {
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
+        this.saveTime = saveTime;
     }
 
     public String getHostGroupName() {
@@ -51,12 +53,17 @@ public class MetricTagKey {
         return fieldName;
     }
 
+    public long getSaveTime() {
+        return saveTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTagKey that = (MetricTagKey) o;
-        return Objects.equals(hostGroupName, that.hostGroupName) &&
+        return saveTime == that.saveTime &&
+                Objects.equals(hostGroupName, that.hostGroupName) &&
                 Objects.equals(hostName, that.hostName) &&
                 Objects.equals(metricName, that.metricName) &&
                 Objects.equals(fieldName, that.fieldName);
@@ -64,7 +71,7 @@ public class MetricTagKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(hostGroupName, hostName, metricName, fieldName);
+        return Objects.hash(hostGroupName, hostName, metricName, fieldName, saveTime);
     }
 
     @Override
@@ -74,6 +81,7 @@ public class MetricTagKey {
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
+                ", saveTime=" + saveTime +
                 '}';
     }
 }

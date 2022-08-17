@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -37,17 +39,18 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
+        long saveTime = getSaveTime();
         List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
 
-        MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
+        MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(null);
 
         SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
 
-        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList);
+        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList, saveTime);
         List<MetricTag> metricTagList = new ArrayList<>(1);
         metricTagList.add(metricTag);
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
@@ -65,11 +68,12 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
+        long saveTime = getSaveTime();
         List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
 
-        MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
-        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList);
+        MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime);
+        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList, saveTime);
         List<MetricTag> metricTagList = new ArrayList<>(1);
         metricTagList.add(metricTag);
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
@@ -92,11 +96,12 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
+        long saveTime = getSaveTime();
         List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
 
-        MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
-        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList);
+        MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime);
+        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList, saveTime);
         List<MetricTag> metricTagList = new ArrayList<>(1);
         metricTagList.add(metricTag);
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
@@ -118,11 +123,12 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
+        long saveTime = new Date().getTime();
         List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag("key", "value"));
         tagList.add(new Tag("key2", "value2"));
 
-        MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(applicationName, hostName, metricName, fieldName, tagList);
+        MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(applicationName, hostName, metricName, fieldName, tagList, saveTime);
         Assertions.assertEquals(metricTagCollection.getHostGroupName(), applicationName);
         Assertions.assertEquals(metricTagCollection.getHostName(), hostName);
         Assertions.assertEquals(metricTagCollection.getMetricName(), metricName);
@@ -150,18 +156,19 @@ public class SystemMetricTagServiceImplTest {
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
+        long saveTime = new Date().getTime();
 
-        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, new ArrayList<>());
+        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, new ArrayList<>(), saveTime);
         List<Tag> tagList2 = new ArrayList<>();
         tagList2.add(new Tag("key", "value"));
         tagList2.add(new Tag("key2", "value2"));
-        MetricTag metricTag2 = new MetricTag(applicationName, hostName, metricName, fieldName, tagList2);
+        MetricTag metricTag2 = new MetricTag(applicationName, hostName, metricName, fieldName, tagList2, saveTime);
 
         List<Tag> tagList3 = new ArrayList<>();
         tagList3.add(new Tag("key", "value"));
         tagList3.add(new Tag("key2", "value2"));
         tagList3.add(new Tag("key3", "value3"));
-        MetricTag metricTag3 = new MetricTag(applicationName, hostName, metricName, fieldName, tagList3);
+        MetricTag metricTag3 = new MetricTag(applicationName, hostName, metricName, fieldName, tagList3, saveTime);
 
         List<MetricTag> metricTagList = new ArrayList<>();
         metricTagList.add(metricTag);
@@ -174,7 +181,7 @@ public class SystemMetricTagServiceImplTest {
         tagList4.add(new Tag("key3", "value3"));
         tagList4.add(new Tag("key4", "value4"));
         MetricTagCollection mtc = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
-        MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4);
+        MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4, saveTime);
 
         Assertions.assertEquals(metricTagCollection.getHostGroupName(), applicationName);
         Assertions.assertEquals(metricTagCollection.getHostName(), hostName);
@@ -200,5 +207,15 @@ public class SystemMetricTagServiceImplTest {
         Assertions.assertEquals(tags, tagList);
     }
 
+    private long getSaveTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+
+        return calendar.getTimeInMillis();
+    }
 
 }
