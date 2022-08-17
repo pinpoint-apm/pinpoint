@@ -52,7 +52,7 @@ public class MetricCacheConfiguration extends CachingConfigurerSupport {
     public CacheManager metricTagCollection() {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager(METRIC_TAG_COLLECTION_CACHE_NAME);
         caffeineCacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(604800, TimeUnit.SECONDS)
+                .expireAfterWrite(86400, TimeUnit.SECONDS)
                 .initialCapacity(1000)
                 .maximumSize(10000));
         return caffeineCacheManager;

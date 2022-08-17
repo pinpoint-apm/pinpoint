@@ -30,7 +30,8 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Repository
+@Deprecated
+//@Repository
 public class MysqlMetricTagDao implements MetricTagDao {
 
     private static final String NAMESPACE = MetricTagDao.class.getName() + ".";

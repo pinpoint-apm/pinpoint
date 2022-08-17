@@ -30,16 +30,18 @@ public class MetricTag {
     private String metricName;
     private String fieldName;
     private List<Tag> tags;
+    private long saveTime;
 
     public MetricTag() {
     }
 
-    public MetricTag(String hostGroupName, String hostName, String metricName, String fieldName, List<Tag> tags) {
+    public MetricTag(String hostGroupName, String hostName, String metricName, String fieldName, List<Tag> tags, long saveTime) {
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
         this.tags = Objects.requireNonNull(tags, "tags");
+        this.saveTime = saveTime;
     }
 
     public String getHostGroupName() {
@@ -82,10 +84,19 @@ public class MetricTag {
         this.hostName = hostName;
     }
 
+    public long getSaveTime() {
+        return saveTime;
+    }
+
+    public void setSaveTime(long saveTime) {
+        this.saveTime = saveTime;
+    }
+
+
     public MetricTag copy() {
         List<Tag> tagList = new ArrayList<>(this.tags);
 
-        return new MetricTag(hostGroupName, hostName, metricName, fieldName, tagList);
+        return new MetricTag(hostGroupName, hostName, metricName, fieldName, tagList, saveTime);
     }
 
     @Override
@@ -103,24 +114,12 @@ public class MetricTag {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         MetricTag metricTag = (MetricTag) o;
-
-        if (hostGroupName != null ? !hostGroupName.equals(metricTag.hostGroupName) : metricTag.hostGroupName != null)
-            return false;
-        if (hostName != null ? !hostName.equals(metricTag.hostName) : metricTag.hostName != null) return false;
-        if (metricName != null ? !metricName.equals(metricTag.metricName) : metricTag.metricName != null) return false;
-        if (fieldName != null ? !fieldName.equals(metricTag.fieldName) : metricTag.fieldName != null) return false;
-        return tags != null ? tags.equals(metricTag.tags) : metricTag.tags == null;
+        return saveTime == metricTag.saveTime && Objects.equals(hostGroupName, metricTag.hostGroupName) && Objects.equals(hostName, metricTag.hostName) && Objects.equals(metricName, metricTag.metricName) && Objects.equals(fieldName, metricTag.fieldName) && Objects.equals(tags, metricTag.tags);
     }
 
     @Override
     public int hashCode() {
-        int result = hostGroupName != null ? hostGroupName.hashCode() : 0;
-        result = 31 * result + (hostName != null ? hostName.hashCode() : 0);
-        result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
-        result = 31 * result + (fieldName != null ? fieldName.hashCode() : 0);
-        result = 31 * result + (tags != null ? tags.hashCode() : 0);
-        return result;
+        return Objects.hash(hostGroupName, hostName, metricName, fieldName, tags, saveTime);
     }
 }

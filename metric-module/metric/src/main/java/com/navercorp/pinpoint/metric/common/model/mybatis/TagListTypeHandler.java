@@ -76,7 +76,7 @@ public class TagListTypeHandler implements TypeHandler<List<Tag>> {
         return deserialize(tagListJson);
     }
 
-    private String serialize(List<Tag> tagList) {
+    public String serialize(List<Tag> tagList) {
         try {
             return OBJECT_MAPPER.writeValueAsString(tagList);
         } catch (IOException e) {
@@ -85,7 +85,7 @@ public class TagListTypeHandler implements TypeHandler<List<Tag>> {
         }
     }
 
-    private List<Tag> deserialize(String tagListJson) {
+    public List<Tag> deserialize(String tagListJson) {
         try {
             Tags tags = OBJECT_MAPPER.readValue(tagListJson, Tags.class);
             return tags.getTags();

@@ -26,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,45 +50,46 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
         final String hostName = systemMetric.getHostName();
         final String fieldName = systemMetric.getFieldName();
         final List<Tag> tagList = systemMetric.getTags();
+        final long saveTime = getSaveTime();
 
-        MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(new MetricTagKey(applicationName, hostName, metricName, fieldName));
+        MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime));
 
         if (Objects.isNull(metricTagCollection)) {
-            MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
+            MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
-            metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(applicationName, hostName, metricName, fieldName, copiedTagList));
-            metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
+            metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(applicationName, hostName, metricName, fieldName, copiedTagList, saveTime));
+            metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList, saveTime));
         } else {
             for (MetricTag metricTag : metricTagCollection.getMetricTagList()) {
                 if (isEquals(tagList, metricTag.getTags())) {
                     return;
                 }
             }
-            MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName);
+            MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
-            metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(metricTagCollection, copiedTagList));
-            metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList));
+            metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(metricTagCollection, copiedTagList, saveTime));
+            metricTagCache.saveMetricTag(new MetricTag(applicationName, hostName, metricName, fieldName, copiedTagList, saveTime));
         }
     }
 
-    MetricTagCollection createMetricTagCollection(String applicationName, String hostName, String metricName, String fieldName, List<Tag> tagList) {
-        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList);
+    MetricTagCollection createMetricTagCollection(String applicationName, String hostName, String metricName, String fieldName, List<Tag> tagList, long saveTime) {
+        MetricTag metricTag = new MetricTag(applicationName, hostName, metricName, fieldName, tagList, saveTime);
         List<MetricTag> metricTagList = new ArrayList<>(1);
         metricTagList.add(metricTag);
 
         return new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
     }
 
-    MetricTagCollection createMetricTagCollection(MetricTagCollection metricTagCollection, List<Tag> tagList) {
+    MetricTagCollection createMetricTagCollection(MetricTagCollection metricTagCollection, List<Tag> tagList, long saveTime) {
         List<MetricTag> metricTagList = new ArrayList<>(metricTagCollection.getMetricTagList().size());
 
         for (MetricTag metricTag : metricTagCollection.getMetricTagList()) {
             metricTagList.add(metricTag.copy());
         }
 
-        metricTagList.add(new MetricTag(metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(),metricTagCollection.getFieldName(), tagList));
+        metricTagList.add(new MetricTag(metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(),metricTagCollection.getFieldName(), tagList, saveTime));
 
         return new MetricTagCollection(metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(), metricTagCollection.getFieldName(), metricTagList);
     }
@@ -103,10 +105,25 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
     }
 
     boolean isEquals(List<Tag> tagList1, List<Tag> tagList2) {
+        if (tagList1.size() != tagList2.size()) {
+            return false;
+        }
+
         if (tagList1.containsAll(tagList2) == false) {
             return false;
         }
 
         return true;
+    }
+
+    private long getSaveTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+
+        return calendar.getTimeInMillis();
     }
 }

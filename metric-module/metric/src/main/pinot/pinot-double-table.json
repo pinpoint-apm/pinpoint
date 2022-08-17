@@ -11,7 +11,7 @@
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["hostName"],
+    "sortedColumn": ["serviceName", "hostGroupName", "hostName"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {

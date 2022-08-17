@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Date;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,7 +24,7 @@ public class MetricDataTypeCacheTest {
     public void getMetricDataTypeTest() {
         SystemMetricDataTypeDao systemMetricDataTypeDao = mock(SystemMetricDataTypeDao.class);
         MetricDataTypeCache metricDataTypeCache = new MetricDataTypeCache(systemMetricDataTypeDao);
-        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE);
+        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, new Date().getTime());
 
         MetricDataName metricDataName = new MetricDataName(metricData.getMetricName(), metricData.getFieldName());
         when(systemMetricDataTypeDao.selectMetricDataType(metricDataName)).thenReturn(null);
@@ -35,7 +37,7 @@ public class MetricDataTypeCacheTest {
     public void getMetricDataType2Test() {
         SystemMetricDataTypeDao systemMetricDataTypeDao = mock(SystemMetricDataTypeDao.class);
         MetricDataTypeCache metricDataTypeCache = new MetricDataTypeCache(systemMetricDataTypeDao);
-        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE);
+        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, new Date().getTime());
 
         MetricDataName metricDataName = new MetricDataName(metricData.getMetricName(), metricData.getFieldName());
         when(systemMetricDataTypeDao.selectMetricDataType(metricDataName)).thenReturn(metricData);
@@ -48,7 +50,7 @@ public class MetricDataTypeCacheTest {
     public void saveMetricDataTypeTest() {
         SystemMetricDataTypeDao systemMetricDataTypeDao = mock(SystemMetricDataTypeDao.class);
         MetricDataTypeCache metricDataTypeCache = new MetricDataTypeCache(systemMetricDataTypeDao);
-        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE);
+        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, new Date().getTime());
 
         MetricDataName metricDataName = new MetricDataName(metricData.getMetricName(), metricData.getFieldName());
         MetricData metricDataResult = metricDataTypeCache.saveMetricDataType(metricDataName, metricData);

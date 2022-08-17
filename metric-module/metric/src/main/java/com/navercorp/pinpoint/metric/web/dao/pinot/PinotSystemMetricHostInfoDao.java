@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.web.dao.mysql;
+package com.navercorp.pinpoint.metric.web.dao.pinot;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,38 +32,35 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Deprecated
-//@Repository
-public class MysqlSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
+@Repository
+public class PinotSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
 
-    private static final String NAMESPACE = SystemMetricHostInfoDao.class.getName() + ".";
+    private static final String NAMESPACE = PinotSystemMetricHostInfoDao.class.getName() + ".";
 
-    private final SqlSessionTemplate sqlSessionTemplate;
+    private final SqlSessionTemplate sqlPinotSessionTemplate;
 
-    public MysqlSystemMetricHostInfoDao(@Qualifier("metricMysqlSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
-        this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "metricMysqlSqlSessionTemplate");
+    public PinotSystemMetricHostInfoDao(SqlSessionTemplate sqlPinotSessionTemplate) {
+        this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
     }
 
     @Override
     public List<String> selectHostGroupNameList() {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList");
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList");
     }
 
     @Override
     public List<String> selectHostList(String hostGroupName) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectHostList", hostGroupName);
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostList", hostGroupName);
     }
 
     @Override
     public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupName, hostName));
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupName, hostName));
     }
 
     @Override
     public MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey) {
-        List<MetricTag> metricTagList = sqlSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
+        List<MetricTag> metricTagList = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
         return new MetricTagCollection(metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
-
-
 }

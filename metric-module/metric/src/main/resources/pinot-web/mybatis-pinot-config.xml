@@ -41,6 +41,17 @@
         <typeAlias type="com.navercorp.pinpoint.metric.web.model.SampledSystemMetric" alias="SampledSystemMetric" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint" alias="SystemMetricPoint" />
         <typeAlias type="com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey" alias="systemMetricDataSearchKey"/>
+
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricTag" alias="MetricTag"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricTagKey" alias="MetricTagKey"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey" alias="metricInfoSearchKey"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler" alias="TagListTypeHandler"/>
+
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricData" alias="MetricData"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataName" alias="MetricDataName"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataType" alias="MetricDataType"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.MetricDataTypeHandler" alias="MetricDataTypeHandler"/>
+
     </typeAliases>
 
     <typeHandlers>
@@ -49,6 +60,8 @@
         <typeHandler handler="DoubleToLongHandler" javaType="Number" />
         <typeHandler handler="TagHandler" javaType="Tag" />
         <typeHandler handler="TagListHandler" javaType="list" />
+        <typeHandler handler="TagListTypeHandler" javaType="list" />
+        <typeHandler handler="MetricDataTypeHandler" javaType="MetricDataType"/>
     </typeHandlers>
 
 </configuration>

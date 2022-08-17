@@ -15,9 +15,9 @@
                                          com.navercorp.pinpoint.common.server.util"/>
 
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-kafka.xml"/>
-    <import resource="classpath:pinot-collector/applicationContext-collector-metric-datasource.xml"/>
-    <import resource="classpath:pinot-collector/applicationContext-collector-metric-dao-config.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-cache.xml"/>
+    <import resource="classpath:pinot-collector/applicationContext-collector-pinot-dao-config.xml"/>
+    <import resource="classpath:pinot-collector/applicationContext-collector-pinot-datasource.xml"/>
 
     <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 </beans>

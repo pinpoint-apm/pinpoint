@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.web.dao.mysql;
+package com.navercorp.pinpoint.metric.web.dao.pinot;
 
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDataTypeDao;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -28,20 +27,20 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Deprecated
-//@Repository
-public class MysqlSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
+@Repository
+public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
 
-    private static final String NAMESPACE = SystemMetricDataTypeDao.class.getName() + ".";
 
-    private final SqlSessionTemplate sqlSessionTemplate;
+    private static final String NAMESPACE = PinotSystemMetricDataTypeDao.class.getName() + ".";
 
-    public MysqlSystemMetricDataTypeDao(@Qualifier("metricMysqlSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
-        this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "metricMysqlSqlSessionTemplate");
+    private final SqlSessionTemplate sqlPinotSessionTemplate;
+
+    public PinotSystemMetricDataTypeDao(SqlSessionTemplate sqlPinotSessionTemplate) {
+        this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
     }
 
     @Override
     public MetricData selectMetricDataType(MetricDataName metricDataName) {
-        return sqlSessionTemplate.selectOne(NAMESPACE + "selectMetricDataType", metricDataName);
+        return sqlPinotSessionTemplate.selectOne(NAMESPACE + "selectMetricDataType", metricDataName);
     }
 }
