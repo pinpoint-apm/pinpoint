@@ -194,6 +194,10 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         } else {
             paramMap.put(Header.HTTP_SAMPLED.toString(), SAMPLING_RATE_FALSE);
         }
+        // compatible
+        if (properties.length() > 0 && PROPERTY_SEPARATOR != properties.charAt(properties.length() - 1)) {
+            properties.append(PROPERTY_SEPARATOR);
+        }
         for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
             properties.append(entry.getKey());
             properties.append(NAME_VALUE_SEPARATOR);
