@@ -10,14 +10,18 @@
     position:relative;
 }
 .l-search-group-wrap .fas {
-    color:var(--icon-default);
-    font-size:18px;
+    position: absolute;
+    color: var(--icon-default);
+    font-size: 18px;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    
 }
 .l-search-group-wrap .l-search-group2 {
     height:32px;
 }
 .l-search-group-wrap .l-search-group2 input {
-    float: left;
     display: inline-block;
     height: 100%;
     border: 1px solid var(--primary);
@@ -43,7 +47,6 @@ select {
     outline: 0;
     border-radius: 0px;
     color: var(--text-knockout);
-    float: left;
     height: 100%;
     display: inline-block;
     padding: 7px 10px;
@@ -55,11 +58,21 @@ select {
 .l-search-group-wrap .l-search-group2 .fa-angle-down {
     position: absolute;
     color: var(--text-knockout);
-    top: 8px;
-    left: 94px;
     font-size: 15px;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
 }
 .l-error-message {
     margin-left: 10px;
     margin-top: 8px;
+}
+
+.l-search-type-select-wrapper {
+    position: relative;
+}
+
+.l-search-group2 {
+    display: flex;
+    position: relative;
 }
