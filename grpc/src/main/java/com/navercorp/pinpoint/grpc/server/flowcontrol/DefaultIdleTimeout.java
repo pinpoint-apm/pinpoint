@@ -1,12 +1,13 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.Clock;
-import com.navercorp.pinpoint.common.util.SystemClock;
 
+import java.time.Clock;
 import java.util.Objects;
 
 public class DefaultIdleTimeout implements IdleTimeout {
+
+    private static final Clock DEFAULT_CLOCK = Clock.systemUTC();
 
     private final long idleTimeout;
 
@@ -16,7 +17,7 @@ public class DefaultIdleTimeout implements IdleTimeout {
     private final Clock clock;
 
     public DefaultIdleTimeout(long idleTimeout) {
-        this(idleTimeout, SystemClock.INSTANCE);
+        this(idleTimeout, DEFAULT_CLOCK);
     }
 
     public DefaultIdleTimeout(long idleTimeout, Clock clock) {
@@ -29,7 +30,7 @@ public class DefaultIdleTimeout implements IdleTimeout {
 
     @Override
     public void update() {
-        this.lastExecutionTime = clock.getTime();
+        this.lastExecutionTime = clock.millis();
     }
 
     @Override
@@ -38,7 +39,7 @@ public class DefaultIdleTimeout implements IdleTimeout {
             return true;
         }
 
-        final long elapsedTime = this.clock.getTime() - lastExecutionTime;
+        final long elapsedTime = this.clock.millis() - lastExecutionTime;
         final boolean result = elapsedTime >= idleTimeout;
         if (result) {
             this.expired = true;
