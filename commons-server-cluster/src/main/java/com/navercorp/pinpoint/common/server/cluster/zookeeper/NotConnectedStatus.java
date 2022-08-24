@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.common.server.cluster.zookeeper;
  */
 public class NotConnectedStatus {
 
-    private static long DEFAULT_START_TIME = Long.MAX_VALUE;
+    private static final long DEFAULT_START_TIME = Long.MAX_VALUE;
 
     private long statusStartTime = DEFAULT_START_TIME;
     private int statusCount = 0;

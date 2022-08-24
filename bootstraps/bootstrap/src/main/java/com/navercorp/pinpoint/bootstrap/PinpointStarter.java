@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
+import com.navercorp.pinpoint.bootstrap.banner.PinpointBannerImpl;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -26,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
 import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.banner.PinpointBanner;
-import com.navercorp.pinpoint.bootstrap.banner.PinpointBannerImpl;
 import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
@@ -299,7 +299,7 @@ class PinpointStarter {
         return PathUtils.toURLs(libUrlList);
     }
 
-    private static String PINPOINT_PREFIX = "pinpoint-";
+    private static final String PINPOINT_PREFIX = "pinpoint-";
 
     private List<Path> resolveLib(List<Path> urlList) {
         if (DEFAULT_AGENT.equalsIgnoreCase(getAgentType())) {

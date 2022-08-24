@@ -21,15 +21,15 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
  */
 public class OracleNetConnectionDescriptorParser {
 
-    private static String THIN = "jdbc:oracle:thin";
-    private static String OCI = "jdbc:oracle:oci";
+    private static final String THIN = "jdbc:oracle:thin";
+    private static final String OCI = "jdbc:oracle:oci";
 
-    private String url;
-    private String normalizedUrl;
+    private final String url;
+    private final String normalizedUrl;
 
     private DriverType driverType;
 
-    private OracleNetConnectionDescriptorTokenizer tokenizer;
+    private final OracleNetConnectionDescriptorTokenizer tokenizer;
 
     public OracleNetConnectionDescriptorParser(String url) {
         this.url = url;
