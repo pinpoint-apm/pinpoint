@@ -44,29 +44,29 @@ public class NonWhiteLabelErrorController extends AbstractErrorController {
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
         HttpStatus status = this.getStatus(request);
         if (status == HttpStatus.NO_CONTENT) {
-            return new ResponseEntity(status);
+            return new ResponseEntity<>(status);
         } else {
             Map<String, Object> body = this.getErrorAttributes(request, this.getErrorAttributeOptions(request));
-            return new ResponseEntity(body, status);
+            return new ResponseEntity<>(body, status);
         }
     }
 
     private ErrorAttributeOptions getErrorAttributeOptions(HttpServletRequest request) {
         ErrorAttributeOptions options = ErrorAttributeOptions.defaults();
         if (this.errorProperties.isIncludeException()) {
-            options = options.including(new ErrorAttributeOptions.Include[]{ErrorAttributeOptions.Include.EXCEPTION});
+            options = options.including(ErrorAttributeOptions.Include.EXCEPTION);
         }
 
         if (this.isIncludeStackTrace(request)) {
-            options = options.including(new ErrorAttributeOptions.Include[]{ErrorAttributeOptions.Include.STACK_TRACE});
+            options = options.including(ErrorAttributeOptions.Include.STACK_TRACE);
         }
 
         if (this.isIncludeMessage(request)) {
-            options = options.including(new ErrorAttributeOptions.Include[]{ErrorAttributeOptions.Include.MESSAGE});
+            options = options.including(ErrorAttributeOptions.Include.MESSAGE);
         }
 
         if (this.isIncludeBindingErrors(request)) {
-            options = options.including(new ErrorAttributeOptions.Include[]{ErrorAttributeOptions.Include.BINDING_ERRORS});
+            options = options.including(ErrorAttributeOptions.Include.BINDING_ERRORS);
         }
 
         return options;

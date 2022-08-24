@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class SpanFilters {
-    private static long DEFAULT_FOCUS_TIMESTAMP = Long.parseLong(BusinessTransactionController.DEFAULT_FOCUS_TIMESTAMP);
-    private static long DEFAULT_SPANID = Long.parseLong(BusinessTransactionController.DEFAULT_SPANID);
+    private static final long DEFAULT_FOCUS_TIMESTAMP = Long.parseLong(BusinessTransactionController.DEFAULT_FOCUS_TIMESTAMP);
+    private static final long DEFAULT_SPANID = Long.parseLong(BusinessTransactionController.DEFAULT_SPANID);
 
 
     public static Predicate<SpanBo> spanFilter(long spanId, String agentId, long focusTimestamp) {
@@ -58,6 +58,7 @@ public class SpanFilters {
     public static class PredicateChain implements Predicate<SpanBo> {
         private final Predicate<SpanBo>[] predicates;
 
+        @SuppressWarnings("unchecked")
         public PredicateChain(List<Predicate<SpanBo>> predicates) {
             Objects.requireNonNull(predicates, "predicates");
             this.predicates = predicates.toArray(new Predicate[0]);
