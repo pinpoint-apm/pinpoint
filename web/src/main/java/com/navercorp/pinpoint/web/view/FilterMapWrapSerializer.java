@@ -53,13 +53,21 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
         if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterData) {
             final Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterData) wrap.getApplicationMap()).getApplicationScatterDataMap();
             writeApplicationScatterDataMap(jgen, applicationScatterDataMap);
+        }
 
-            if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterDataV3) {
-                jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithScatterDataV3) wrap.getApplicationMap()).getApplicationApdexScoreList());
-            } else if (wrap.getApplicationMap() instanceof ApplicationMapWithExtraDataV3) {
-                jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationApdexScoreList());
-                jgen.writeObjectField("applicationMapTimeData", ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationMapTimeData());
-            }
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterDataV3) {
+            final Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterDataV3) wrap.getApplicationMap()).getApplicationScatterDataMap();
+            writeApplicationScatterDataMap(jgen, applicationScatterDataMap);
+
+            jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithScatterDataV3) wrap.getApplicationMap()).getApplicationApdexScoreDataView());
+        }
+
+        if (wrap.getApplicationMap() instanceof ApplicationMapWithExtraDataV3) {
+            final Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationScatterDataMap();
+            writeApplicationScatterDataMap(jgen, applicationScatterDataMap);
+
+            jgen.writeObjectField("applicationMapTimeData", ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationMapTimeData());
+            jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationApdexScoreDataView());
         }
 
         jgen.writeEndObject();
