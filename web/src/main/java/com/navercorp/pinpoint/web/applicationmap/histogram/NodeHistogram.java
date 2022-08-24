@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
@@ -35,6 +36,7 @@ import java.util.Objects;
  * agentHistogram
  * applicationTimeHistogram
  * agentTimeHistogram
+ *
  * @author emeroad
  */
 public class NodeHistogram {
@@ -115,8 +117,16 @@ public class NodeHistogram {
         return applicationTimeHistogram.createViewModel(timeHistogramFormat);
     }
 
+    public TimeSeriesView getApplicationTimeSeriesView() {
+        return applicationTimeHistogram.createTimeSeriesView();
+    }
+
     public AgentResponseTimeViewModelList getAgentTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
         return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel(timeHistogramFormat));
+    }
+
+    public Map<String, TimeSeriesView> getAgentTimeSeriesView() {
+        return agentTimeHistogram.createTimeSeriesView();
     }
 
     public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {
@@ -165,7 +175,7 @@ public class NodeHistogram {
         }
         return applicationHistogram;
     }
-    
+
     public Range getRange() {
         return range;
     }

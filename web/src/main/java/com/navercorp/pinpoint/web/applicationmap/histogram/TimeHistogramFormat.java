@@ -18,5 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 public enum TimeHistogramFormat {
     V1, // key is slot("1s", "3s", "5s", "Slow", "Error"), value is {timestamp : count}
-    V2 // key is timestamp, value is [1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot] - LoadHistogram
+    V2, // key is timestamp, value is [1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot] - LoadHistogram
+    V3  // system metric format, fieldName is slot("1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot")
 }

@@ -26,7 +26,12 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -37,7 +42,6 @@ public class ApplicationTimeHistogramBuilder {
     private final Application application;
     private final Range range;
     private final TimeWindow window;
-
 
 
     public ApplicationTimeHistogramBuilder(Application application, Range range) {

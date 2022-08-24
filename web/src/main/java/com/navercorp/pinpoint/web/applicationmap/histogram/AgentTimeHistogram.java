@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
@@ -32,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -76,6 +79,17 @@ public class AgentTimeHistogram {
             result.add(model);
         }
         result.sort(AGENT_NAME_COMPARATOR);
+        return result;
+    }
+
+    public Map<String, TimeSeriesView> createTimeSeriesView() {
+        Map<String, TimeSeriesView> result = new HashMap<>();
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            Application agentId = agentHistogram.getAgentId();
+            List<TimeHistogram> histogramList = new ArrayList<>(agentHistogram.getTimeHistogram());
+            TimeHistogramViewBuilder builder = new TimeHistogramViewBuilder(agentId, histogramList).setUnit("count");
+            result.put(agentId.getName(), builder.build());
+        }
         return result;
     }
 

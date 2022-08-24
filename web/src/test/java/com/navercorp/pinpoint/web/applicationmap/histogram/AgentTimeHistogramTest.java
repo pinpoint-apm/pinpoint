@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
@@ -36,7 +37,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -106,6 +109,29 @@ public class AgentTimeHistogramTest {
         Assertions.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
         Assertions.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
         Assertions.assertEquals(applicationStatPointList.get(1).getYValForAvg(), 0.5, 0.001);
+    }
+
+    @Test
+    public void createTimeSeriesViewTest() {
+        Application app = new Application("test", ServiceType.STAND_ALONE);
+        Range range = Range.between(0, 1000 * 60);
+        TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, range, timeWindow);
+        List<ResponseTime> responseHistogramList = createResponseTime(app, "test7", "test8");
+        AgentTimeHistogram histogram = builder.build(responseHistogramList);
+        AgentTimeHistogram emptyHistogram = builder.build(Collections.emptyList());
+
+        Map<String, TimeSeriesView> timeSeriesViewMap = histogram.createTimeSeriesView();
+        Map<String, TimeSeriesView> emptyTimeSeriesViewMap = emptyHistogram.createTimeSeriesView();
+
+        Assertions.assertEquals(emptyTimeSeriesViewMap.size(), 0);
+
+        Assertions.assertTrue(timeSeriesViewMap.containsKey("test7"));
+        Assertions.assertTrue(timeSeriesViewMap.containsKey("test8"));
+        TimeSeriesView timeSeriesView = timeSeriesViewMap.get("test7");
+
+        Assertions.assertEquals(timeSeriesView.getTitle(), "test7");
+        Assertions.assertEquals(timeSeriesView.getUnit(), "count");
     }
 
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {

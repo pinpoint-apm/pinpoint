@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterDataV3;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -46,38 +47,49 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
         if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterScanResult) {
             final List<ApplicationScatterScanResult> applicationScatterScanResult = ((ApplicationMapWithScatterScanResult) wrap.getApplicationMap()).getApplicationScatterScanResultList();
 
-            jgen.writeFieldName("applicationScatterScanResult");
-            jgen.writeStartObject();
-            for (ApplicationScatterScanResult scatterScanResult : applicationScatterScanResult) {
-                Application application = scatterScanResult.getApplication();
-                String name = Node.createNodeName(application);
-                jgen.writeObjectField(name, scatterScanResult.getScatterScanResult());
-            }
-            jgen.writeEndObject();
+            writeApplicationScatterScanResult(jgen, applicationScatterScanResult);
         }
 
         if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterData) {
             Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterData) wrap.getApplicationMap()).getApplicationScatterDataMap();
+            writeApplicationScatterDataMap(jgen, applicationScatterDataMap);
 
-            jgen.writeFieldName("applicationScatterData");
-            jgen.writeStartObject();
-
-            for (Map.Entry<Application, ScatterData> entry : applicationScatterDataMap.entrySet()) {
-                Application application = entry.getKey();
-                String name = Node.createNodeName(application);
-                jgen.writeFieldName(name);
-
-                ScatterData scatterData = entry.getValue();
-
-                jgen.writeStartObject();
-                jgen.writeObjectField("from", scatterData.getFrom());
-                jgen.writeObjectField("to", scatterData.getTo());
-                jgen.writeObjectField("resultFrom", scatterData.getOldestAcceptedTime());
-                jgen.writeObjectField("resultTo", scatterData.getLatestAcceptedTime());
-                jgen.writeObjectField("scatter", scatterData);
-                jgen.writeEndObject();
+            if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterDataV3) {
+                jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithScatterDataV3) wrap.getApplicationMap()).getApplicationApdexScoreList());
             }
+        }
 
+        jgen.writeEndObject();
+    }
+
+    private void writeApplicationScatterScanResult(JsonGenerator jgen, List<ApplicationScatterScanResult> applicationScatterScanResult) throws IOException {
+        jgen.writeFieldName("applicationScatterScanResult");
+        jgen.writeStartObject();
+        for (ApplicationScatterScanResult scatterScanResult : applicationScatterScanResult) {
+            Application application = scatterScanResult.getApplication();
+            String name = Node.createNodeName(application);
+            jgen.writeObjectField(name, scatterScanResult.getScatterScanResult());
+        }
+        jgen.writeEndObject();
+    }
+
+    private void writeApplicationScatterDataMap(JsonGenerator jgen, Map<Application, ScatterData> applicationScatterDataMap) throws IOException {
+        jgen.writeFieldName("applicationScatterData");
+        jgen.writeStartObject();
+
+        for (Map.Entry<Application, ScatterData> entry : applicationScatterDataMap.entrySet()) {
+            Application application = entry.getKey();
+            String name = Node.createNodeName(application);
+            jgen.writeFieldName(name);
+
+            ScatterData scatterData = entry.getValue();
+
+            jgen.writeStartObject();
+            jgen.writeObjectField("from", scatterData.getFrom());
+            jgen.writeObjectField("to", scatterData.getTo());
+            jgen.writeObjectField("resultFrom", scatterData.getOldestAcceptedTime());
+            jgen.writeObjectField("resultTo", scatterData.getLatestAcceptedTime());
+            jgen.writeObjectField("scatter", scatterData);
             jgen.writeEndObject();
         }
 

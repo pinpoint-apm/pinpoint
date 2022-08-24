@@ -31,11 +31,11 @@ public class MapWrap {
 
     public MapWrap(ApplicationMap applicationMap, final TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = applicationMap;
-        if(timeHistogramFormat == TimeHistogramFormat.V2) {
-            for(Node node : applicationMap.getNodes()) {
+        if (timeHistogramFormat != TimeHistogramFormat.V1) {
+            for (Node node : applicationMap.getNodes()) {
                 node.setTimeHistogramFormat(timeHistogramFormat);
             }
-            for(Link link : applicationMap.getLinks()) {
+            for (Link link : applicationMap.getLinks()) {
                 link.setTimeHistogramFormat(timeHistogramFormat);
             }
         }

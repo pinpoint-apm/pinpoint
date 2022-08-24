@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -217,6 +218,24 @@ public class Link {
         // we need Target (to)'s time since time in link is RPC-based
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
         return builder.build(targetLinkCallDataMap.getLinkDataList());
+    }
+
+    public TimeSeriesView getLinkApplicationTimeSeriesView() {
+        if (createType == CreateType.Source) {
+            return getSourceApplicationTimeSeriesView();
+        } else {
+            return getTargetApplicationTimeSeriesView();
+        }
+    }
+
+    public TimeSeriesView getSourceApplicationTimeSeriesView() {
+        ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
+        return histogramData.createTimeSeriesView();
+    }
+
+    public TimeSeriesView getTargetApplicationTimeSeriesView() {
+        ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
+        return targetApplicationTimeHistogramData.createTimeSeriesView();
     }
 
     public void addSource(LinkCallDataMap sourceLinkCallDataMap) {

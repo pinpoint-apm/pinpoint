@@ -33,7 +33,7 @@ public class FilterMapWrap {
     public FilterMapWrap(ApplicationMap applicationMap, TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = applicationMap;
 
-        if(timeHistogramFormat == TimeHistogramFormat.V2) {
+        if(timeHistogramFormat != TimeHistogramFormat.V1) {
             for(Node node : applicationMap.getNodes()) {
                 node.setTimeHistogramFormat(timeHistogramFormat);
             }

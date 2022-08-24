@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.navercorp.pinpoint.web.view.TimeViewModel;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
+import com.navercorp.pinpoint.web.vo.Application;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -42,5 +45,10 @@ public class ApplicationTimeHistogram {
 
     public List<TimeViewModel> createViewModel(TimeHistogramFormat timeHistogramFormat) {
         return new TimeViewModel.TimeViewModelBuilder(application, histogramList).setTimeHistogramFormat(timeHistogramFormat).build();
+    }
+
+    public TimeSeriesView createTimeSeriesView() {
+        TimeHistogramViewBuilder builder = new TimeHistogramViewBuilder(application, histogramList);
+        return builder.build();
     }
 }

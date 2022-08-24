@@ -124,6 +124,37 @@ public class BusinessTransactionController {
         return result;
     }
 
+    @GetMapping(value = "/transactionInfoV3")
+    public TransactionInfoViewModel transactionInfoV3(@RequestParam("traceId") String traceId,
+                                                    @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP) long focusTimestamp,
+                                                    @RequestParam(value = "agentId", required = false) String agentId,
+                                                    @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPANID) long spanId,
+                                                    @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
+                                                    @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false") boolean useStatisticsAgentState,
+                                                    @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false") boolean useLoadHistogramFormat) {
+        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceId, focusTimestamp, agentId, spanId, viewVersion);
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+
+        Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
+        // select spans
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
+
+        // application map
+        FilteredMapServiceOption.Builder optionBuilder = new FilteredMapServiceOption.Builder(transactionId, viewVersion, columnGetCount);
+        final FilteredMapServiceOption option = optionBuilder.setUseStatisticsAgentState(useStatisticsAgentState).build();
+        ApplicationMap map = filteredMapService.selectApplicationMap(option);
+
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+
+        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+
+        result.setTimeHistogramFormat(TimeHistogramFormat.V3);
+
+        return result;
+    }
+
     /**
      * info lookup for a selected transaction
      *

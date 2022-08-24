@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationLoadedClassChart;
 
 import java.util.List;
 
@@ -37,4 +38,6 @@ public interface FilteredMapService {
     ApplicationMap selectApplicationMap(FilteredMapServiceOption option);
 
     ApplicationMap selectApplicationMapWithScatterData(FilteredMapServiceOption option);
+
+    ApplicationMap selectApplicationMapWithScatterDataV3(FilteredMapServiceOption option);
 }

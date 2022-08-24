@@ -21,10 +21,12 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -86,5 +88,18 @@ public class ApplicationTimeHistogramTest {
 
         List<TimeViewModel> viewModelList = histogram.createViewModel(TimeHistogramFormat.V2);
         logger.debug("{}", viewModelList);
+    }
+
+    @Test
+    public void createTimeSeriesViewTest() {
+        Application app = new Application("testApplicationName", ServiceType.STAND_ALONE);
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, Range.between(0, 10 * 6000));
+        List<ResponseTime> responseHistogramList = createResponseTime(app);
+        ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
+
+        TimeSeriesView timeSeriesView = histogram.createTimeSeriesView();
+
+        Assertions.assertEquals("testApplicationName", timeSeriesView.getTitle());
+        Assertions.assertEquals("count, ms", timeSeriesView.getUnit());
     }
 }

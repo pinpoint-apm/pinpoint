@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
@@ -68,15 +69,19 @@ public class NodeHistogramSummarySerializer extends JsonSerializer<NodeHistogram
             jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
         }
 
-        List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
-        if (applicationTimeSeriesHistogram == null) {
-            writeEmptyArray(jgen, "timeSeriesHistogram");
+        if (nodeHistogramSummary.getTimeHistogramFormat() == TimeHistogramFormat.V3) {
+            jgen.writeObjectField("timeSeriesHistogram", nodeHistogram.getApplicationTimeSeriesView());
+            jgen.writeObjectField("agentTimeSeriesHistogram", nodeHistogram.getAgentTimeSeriesView());
         } else {
-            jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
+            List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
+            if (applicationTimeSeriesHistogram == null) {
+                writeEmptyArray(jgen, "timeSeriesHistogram");
+            } else {
+                jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
+            }
+            AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
+            jgen.writeObject(agentTimeSeriesHistogram);
         }
-
-        AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
-        jgen.writeObject(agentTimeSeriesHistogram);
     }
 
     private void writeEmptyArray(JsonGenerator jgen, String fieldName) throws IOException {

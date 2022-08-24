@@ -16,16 +16,18 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.databind.util.NameTransformer;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.util.NameTransformer;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.view.timeseries.TimeSeriesView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
@@ -170,16 +172,20 @@ public class NodeSerializer extends JsonSerializer<Node> {
         }
         // FIXME isn't this all ServiceTypes that can be a node?
         if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
-            List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
-            if (applicationTimeSeriesHistogram == null) {
-                writeEmptyArray(jgen, "timeSeriesHistogram");
+            if (node.getTimeHistogramFormat() == TimeHistogramFormat.V3) {
+                TimeSeriesView applicationTimeSeriesView = nodeHistogram.getApplicationTimeSeriesView();
+                jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesView);
             } else {
-                jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
-            }
-
-            if (NodeType.DETAILED == node.getNodeType()) {
-                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
-                jgen.writeObject(agentTimeSeriesHistogram);
+                List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
+                if (applicationTimeSeriesHistogram == null) {
+                    writeEmptyArray(jgen, "timeSeriesHistogram");
+                } else {
+                    jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
+                }
+                if (NodeType.DETAILED == node.getNodeType()) {
+                    AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
+                    jgen.writeObject(agentTimeSeriesHistogram);
+                }
             }
         }
     }

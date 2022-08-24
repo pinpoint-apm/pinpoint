@@ -184,7 +184,7 @@ public class TransactionInfoViewModel {
     @JsonProperty("applicationMapData")
     public Map<String, List<Object>> getApplicationMapData() {
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
-        if (timeHistogramFormat == TimeHistogramFormat.V2) {
+        if (timeHistogramFormat != TimeHistogramFormat.V1) {
             for (Node node : nodes) {
                 node.setTimeHistogramFormat(timeHistogramFormat);
             }

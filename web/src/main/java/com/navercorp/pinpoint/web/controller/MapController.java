@@ -200,6 +200,60 @@ public class MapController {
         return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, useLoadHistogramFormat);
     }
 
+    @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeCode")
+    public MapWrap getServerMapDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+        final Range range = Range.between(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, NodeType.BASIC, LinkType.BASIC).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        logger.info("Select applicationMap. option={}", mapServiceOption);
+        final ApplicationMap map = mapService.selectApplicationMap(mapServiceOption);
+
+        return new MapWrap(map, TimeHistogramFormat.V3);
+    }
+
+    @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
+    public MapWrap getServerMapDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") String serviceTypeName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+        final Range range = Range.between(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, NodeType.BASIC, LinkType.BASIC).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        logger.info("Select applicationMap. option={}", mapServiceOption);
+        final ApplicationMap map = mapService.selectApplicationMap(mapServiceOption);
+
+        return new MapWrap(map, TimeHistogramFormat.V3);
+    }
+
     private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsAgentState, boolean useLoadHistogramFormat) {
         Objects.requireNonNull(application, "application");
         Objects.requireNonNull(range, "range");
@@ -306,6 +360,62 @@ public class MapController {
         if (useLoadHistogramFormat) {
             nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
         }
+        return nodeHistogramSummary;
+    }
+    @PostMapping(value = "/getResponseTimeHistogramDataV3")
+    public NodeHistogramSummary postResponseTimeHistogramDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestBody ApplicationPairs applicationPairs,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
+        List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V3);
+        return nodeHistogramSummary;
+    }
+
+    @GetMapping(value = "/getResponseTimeHistogramDataV3")
+    public NodeHistogramSummary getResponseTimeHistogramDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false) List<String> fromApplicationNames,
+            @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false) List<Short> fromServiceTypeCodes,
+            @RequestParam(value = "toApplicationNames", defaultValue = "", required = false) List<String> toApplicationNames,
+            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+        final Range range = Range.between(from, to);
+        dateLimit.limit(range);
+
+        if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
+            throw new IllegalArgumentException("fromApplicationNames and fromServiceTypeCodes must have the same number of elements");
+        }
+        if (toApplicationNames.size() != toServiceTypeCodes.size()) {
+            throw new IllegalArgumentException("toApplicationNames and toServiceTypeCodes must have the same number of elements");
+        }
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
+        List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V3);
         return nodeHistogramSummary;
     }
 
