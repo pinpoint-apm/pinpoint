@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapTimeData;
+import com.navercorp.pinpoint.web.applicationmap.MapTimeDataBuilder;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeTimeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
@@ -144,6 +147,62 @@ public class MapServiceImpl implements MapService {
         } else {
             builder.includeServerInfo(new DefaultServerGroupListFactory(serverGroupListDataSource));
         }
+
+        return builder;
+    }
+
+    @Override
+    public ApplicationMapTimeData selectApplicationMapTimeData(MapServiceOption option) {
+        logger.debug("SelectApplicationMapTimeData");
+
+        StopWatch watch = new StopWatch("ApplicationMapTimeData");
+        watch.start("ApplicationMapTimeMap Hbase Io Fetch(Caller,Callee) Time");
+
+        final SearchOption searchOption = option.getSearchOption();
+        LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
+        int callerSearchDepth = searchOption.getCallerSearchDepth();
+        int calleeSearchDepth = searchOption.getCalleeSearchDepth();
+
+        LinkDataMapProcessor callerLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
+        if (searchOption.isWasOnly()) {
+            callerLinkDataMapProcessor = new WasOnlyProcessor();
+        }
+        LinkDataMapProcessor calleeLinkDataMapProcessor = LinkDataMapProcessor.NO_OP;
+        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, callerLinkDataMapProcessor, calleeLinkDataMapProcessor);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), option.getRange(), callerSearchDepth, calleeSearchDepth);
+        watch.stop();
+
+        if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {
+            throw new RuntimeException("Too many link data. Reduce the values of the Inbound/outbound or do not select the bidirectional option. limiter=" + linkDataLimiter.toString(linkDataDuplexMap.getTotalCount()));
+        }
+
+        watch.start("ApplicationMapTimeData Building(Response) Time");
+        MapTimeDataBuilder builder = createApplicationMapTimeDataBuilder(option);
+        ApplicationMapTimeData data = builder.build(linkDataDuplexMap, buildTimeoutMillis);
+        if (data.getNodes().isEmpty()) {
+            data = builder.build(buildTimeoutMillis);
+        }
+        watch.stop();
+
+        if (logger.isInfoEnabled()) {
+            logger.info("ApplicationMapTimeData BuildTime: {}", watch.prettyPrint());
+        }
+        if (serverMapDataFilter != null) {
+            data = serverMapDataFilter.timeDataFiltering(data);
+        }
+
+        return data;
+    }
+
+    private MapTimeDataBuilder createApplicationMapTimeDataBuilder(MapServiceOption option) {
+        MapTimeDataBuilder builder = applicationMapBuilderFactory.createApplicationMapTimeDataBuilder(option.getRange());
+        builder.nodeType(option.getNodeType());
+        builder.linkType(option.getLinkType());
+
+        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
+        //change node Histogram Factory
+        NodeHistogramFactory nodeHistogramFactory = new NodeTimeHistogramFactory(wasNodeHistogramDataSource);
+        builder.includeNodeHistogram(nodeHistogramFactory);
 
         return builder;
     }

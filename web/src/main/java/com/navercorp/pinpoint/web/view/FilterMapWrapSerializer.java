@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithExtraDataV3;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterDataV3;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
@@ -46,16 +47,18 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
 
         if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterScanResult) {
             final List<ApplicationScatterScanResult> applicationScatterScanResult = ((ApplicationMapWithScatterScanResult) wrap.getApplicationMap()).getApplicationScatterScanResultList();
-
             writeApplicationScatterScanResult(jgen, applicationScatterScanResult);
         }
 
         if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterData) {
-            Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterData) wrap.getApplicationMap()).getApplicationScatterDataMap();
+            final Map<Application, ScatterData> applicationScatterDataMap = ((ApplicationMapWithScatterData) wrap.getApplicationMap()).getApplicationScatterDataMap();
             writeApplicationScatterDataMap(jgen, applicationScatterDataMap);
 
             if (wrap.getApplicationMap() instanceof ApplicationMapWithScatterDataV3) {
                 jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithScatterDataV3) wrap.getApplicationMap()).getApplicationApdexScoreList());
+            } else if (wrap.getApplicationMap() instanceof ApplicationMapWithExtraDataV3) {
+                jgen.writeObjectField("applicationApdexScore", ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationApdexScoreList());
+                jgen.writeObjectField("applicationMapTimeData", ((ApplicationMapWithExtraDataV3) wrap.getApplicationMap()).getApplicationMapTimeData());
             }
         }
 

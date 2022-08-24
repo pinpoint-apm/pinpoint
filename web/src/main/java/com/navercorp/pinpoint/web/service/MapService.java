@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapTimeData;
 
 /**
  * @author netspider
@@ -27,4 +28,6 @@ public interface MapService {
      * Queries for the Server Map
      */
     ApplicationMap selectApplicationMap(MapServiceOption option);
+
+    ApplicationMapTimeData selectApplicationMapTimeData(MapServiceOption option);
 }

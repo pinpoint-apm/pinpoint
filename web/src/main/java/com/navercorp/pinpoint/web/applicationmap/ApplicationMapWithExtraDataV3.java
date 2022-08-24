@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -12,16 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ApplicationMapWithScatterDataV3 extends ApplicationMapWithScatterData {
+public class ApplicationMapWithExtraDataV3 extends ApplicationMapWithScatterData {
 
     private final Map<Application, ApdexScore> applicationApdexScoreMap;
+    private final ApplicationMapTimeData applicationMapTimeData;
 
-    public ApplicationMapWithScatterDataV3(ApplicationMap applicationMap, Map<Application, ScatterData> applicationScatterDataMap, Map<Application, ApdexScore> applicationApdexScoreMap) {
+    public ApplicationMapWithExtraDataV3(ApplicationMap applicationMap, Map<Application, ScatterData> applicationScatterDataMap, Map<Application, ApdexScore> applicationApdexScoreMap, ApplicationMapTimeData applicationMapTimeData) {
         super(applicationMap, applicationScatterDataMap);
         this.applicationApdexScoreMap = Objects.requireNonNull(applicationApdexScoreMap, "applicationApdexScoreMap");
+        this.applicationMapTimeData = applicationMapTimeData;
     }
 
-    @JsonIgnore
+    @JsonProperty("applicationApdexScoreData")
     public List<valueSet> getApplicationApdexScoreList() {
         List<valueSet> result = new ArrayList<>();
         for (Map.Entry<Application, ApdexScore> e : applicationApdexScoreMap.entrySet()) {
@@ -29,6 +30,11 @@ public class ApplicationMapWithScatterDataV3 extends ApplicationMapWithScatterDa
             result.add(new valueSet(nodeName, e.getValue()));
         }
         return result;
+    }
+
+    @JsonProperty("applicationMapTimeData")
+    public ApplicationMapTimeData getApplicationMapTimeData() {
+        return applicationMapTimeData;
     }
 
     private static class valueSet {

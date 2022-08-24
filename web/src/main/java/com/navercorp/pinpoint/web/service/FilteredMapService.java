@@ -40,4 +40,6 @@ public interface FilteredMapService {
     ApplicationMap selectApplicationMapWithScatterData(FilteredMapServiceOption option);
 
     ApplicationMap selectApplicationMapWithScatterDataV3(FilteredMapServiceOption option);
+
+    ApplicationMap selectApplicationMapWithExtraData(FilteredMapServiceOption option);
 }

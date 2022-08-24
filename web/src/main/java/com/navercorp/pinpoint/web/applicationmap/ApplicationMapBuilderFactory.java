@@ -42,4 +42,8 @@ public class ApplicationMapBuilderFactory {
     public ApplicationMapBuilder createApplicationMapBuilder(Range range) {
         return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
     }
+
+    public MapTimeDataBuilder createApplicationMapTimeDataBuilder(Range range){
+        return new MapTimeDataBuilder(range, nodeHistogramAppenderFactory);
+    }
 }

@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapTimeData;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.MapService;
@@ -29,14 +32,12 @@ import com.navercorp.pinpoint.web.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -254,6 +255,61 @@ public class MapController {
         return new MapWrap(map, TimeHistogramFormat.V3);
     }
 
+
+    @GetMapping(value = "/getServerMapTimeDataV3", params = "serviceTypeCode")
+    public ApplicationMapTimeData getServerMapTimeDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+        final Range range = Range.between(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, NodeType.BASIC, LinkType.BASIC).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        logger.info("Select applicationMap. option={}", mapServiceOption);
+        ApplicationMapTimeData applicationMapTimeData = mapService.selectApplicationMapTimeData(mapServiceOption);
+
+        return applicationMapTimeData;
+    }
+
+    @GetMapping(value = "/getServerMapTimeDataV3", params = "serviceTypeName")
+    public ApplicationMapTimeData getServerMapTimeSeriesDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") String serviceTypeName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+        final Range range = Range.between(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, NodeType.BASIC, LinkType.BASIC).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        logger.info("Select applicationMap. option={}", mapServiceOption);
+        ApplicationMapTimeData applicationMapTimeData = mapService.selectApplicationMapTimeData(mapServiceOption);
+
+        return applicationMapTimeData;
+    }
+
     private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsAgentState, boolean useLoadHistogramFormat) {
         Objects.requireNonNull(application, "application");
         Objects.requireNonNull(range, "range");
@@ -362,6 +418,7 @@ public class MapController {
         }
         return nodeHistogramSummary;
     }
+
     @PostMapping(value = "/getResponseTimeHistogramDataV3")
     public NodeHistogramSummary postResponseTimeHistogramDataV3(
             @RequestParam("applicationName") String applicationName,

@@ -24,8 +24,11 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapTimeData;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithExtraDataV3;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterDataV3;
+import com.navercorp.pinpoint.web.applicationmap.MapTimeDataBuilder;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
@@ -35,7 +38,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Serv
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
@@ -43,6 +45,8 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.map.FilteredMap;
 import com.navercorp.pinpoint.web.service.map.FilteredMapBuilder;
+import com.navercorp.pinpoint.web.service.map.FilteredMapTimeData;
+import com.navercorp.pinpoint.web.service.map.FilteredMapTimeDataBuilder;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import org.apache.logging.log4j.LogManager;
@@ -194,6 +198,20 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return map;
     }
 
+    private ApplicationMapTimeData createData(FilteredMapServiceOption option, FilteredMapTimeData filteredMapTimeData) {
+        MapTimeDataBuilder mapTimeDataBuilder = applicationMapBuilderFactory.createApplicationMapTimeDataBuilder(option.getOriginalRange());
+        mapTimeDataBuilder.linkType(LinkType.DETAILED);
+        final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMapTimeData.getResponseHistograms());
+        mapTimeDataBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
+
+        ApplicationMapTimeData data = mapTimeDataBuilder.build(filteredMapTimeData.getLinkDataDuplexMap(), buildTimeoutMillis);
+        if (serverMapDataFilter != null) {
+            data = serverMapDataFilter.timeDataFiltering(data);
+        }
+
+        return data;
+    }
+
     private List<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
 
@@ -230,7 +248,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         //add filtered apdex score using filteredList & serverMapDataFilter
 //        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
-        Map<String, ApdexScore> apdexScoreMap = createApplicationMapApdexScore(filterList);
+        Map<Application, ApdexScore> apdexScoreMap = createApplicationMapApdexScore(filterList);
 
         ApplicationMapWithScatterDataV3 applicationMapWithScatterDataV3 = new ApplicationMapWithScatterDataV3(map, applicationScatterData, apdexScoreMap);
 
@@ -240,7 +258,40 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return applicationMapWithScatterDataV3;
     }
 
-    private Map<String, ApdexScore> createApplicationMapApdexScore(List<List<SpanBo>> filterList) {
+    @Override
+    public ApplicationMap selectApplicationMapWithExtraData(FilteredMapServiceOption option) {
+        StopWatch watch = new StopWatch();
+        watch.start();
+
+        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
+        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange(), option.getVersion());
+        filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
+        filteredMapBuilder.addTransactions(filterList);
+        FilteredMap filteredMap = filteredMapBuilder.build();
+
+        ApplicationMap map = createMap(option, filteredMap);
+
+        Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
+
+        //add filtered apdex score using filteredList & serverMapDataFilter
+//        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
+        FilteredMapTimeDataBuilder filteredMapTimeDataBuilder = new FilteredMapTimeDataBuilder(applicationFactory, registry, option.getOriginalRange(), option.getVersion());
+        filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
+        filteredMapTimeDataBuilder.addTransactions(filterList);
+        FilteredMapTimeData filteredMapTimeData = filteredMapTimeDataBuilder.build();
+
+        ApplicationMapTimeData applicationMapTimeData = createData(option, filteredMapTimeData);
+        Map<Application, ApdexScore> apdexScoreMap = createApplicationMapApdexScore(filterList);
+
+        ApplicationMapWithExtraDataV3 applicationMapWithExtraDataV3 = new ApplicationMapWithExtraDataV3(map, applicationScatterData, apdexScoreMap, applicationMapTimeData);
+
+        watch.stop();
+        logger.debug("Select filtered application map with extra data elapsed. {}ms", watch.getTotalTimeMillis());
+
+        return applicationMapWithExtraDataV3;
+    }
+
+    private Map<Application, ApdexScore> createApplicationMapApdexScore(List<List<SpanBo>> filterList) {
         Map<Application, Histogram> histogramMap = new HashMap<>();
         for (List<SpanBo> transaction : filterList) {
             for (SpanBo span : transaction) {
@@ -252,16 +303,15 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 if (spanApplication.getServiceType().isWas()) {
                     Histogram sumHistogram = histogramMap.computeIfAbsent(spanApplication, k -> new Histogram(k.getServiceType()));
 
-                    Boolean isError = span.getErrCode() != 0;
+                    boolean isError = span.getErrCode() != 0;
                     sumHistogram.addCallCountByElapsedTime(span.getElapsed(), isError);
                 }
             }
         }
 
-        Map<String, ApdexScore> result = new HashMap<>();
+        Map<Application, ApdexScore> result = new HashMap<>();
         for (Map.Entry<Application, Histogram> e : histogramMap.entrySet()) {
-            String nodeName = Node.createNodeName(e.getKey());
-            result.put(nodeName, ApdexScore.newApdexScore(e.getValue()));
+            result.put(e.getKey(), ApdexScore.newApdexScore(e.getValue()));
         }
         return result;
     }
