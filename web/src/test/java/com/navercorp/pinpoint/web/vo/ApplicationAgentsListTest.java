@@ -77,7 +77,7 @@ public class ApplicationAgentsListTest {
         Assertions.assertEquals(3, applicationAgentLists.size());
 
         ApplicationAgentList containerAgentList = applicationAgentLists.get(0);
-        Assertions.assertEquals(ApplicationAgentsList.HostNameContainerGroupingKey.CONTAINER, containerAgentList.getGroupName());
+        Assertions.assertEquals(ApplicationAgentsList.Builder.CONTAINER, containerAgentList.getGroupName());
         List<AgentStatusAndLink> containerAgents = containerAgentList.getAgentStatusAndLinks();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(0).getAgentInfo());
@@ -115,7 +115,7 @@ public class ApplicationAgentsListTest {
         Assertions.assertEquals(3, applicationAgentLists.size());
 
         ApplicationAgentList containerAgentList = applicationAgentLists.get(0);
-        Assertions.assertEquals(ApplicationAgentsList.HostNameContainerGroupingKey.CONTAINER, containerAgentList.getGroupName());
+        Assertions.assertEquals(ApplicationAgentsList.Builder.CONTAINER, containerAgentList.getGroupName());
         List<AgentStatusAndLink> containerAgents = containerAgentList.getAgentStatusAndLinks();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(0).getAgentInfo());
@@ -151,7 +151,7 @@ public class ApplicationAgentsListTest {
         Assertions.assertEquals(3, applicationAgentLists.size());
 
         ApplicationAgentList containerAgentList = applicationAgentLists.get(0);
-        Assertions.assertEquals(ApplicationAgentsList.HostNameContainerGroupingKey.CONTAINER, containerAgentList.getGroupName());
+        Assertions.assertEquals(ApplicationAgentsList.Builder.CONTAINER, containerAgentList.getGroupName());
         List<AgentStatusAndLink> containerAgents = containerAgentList.getAgentStatusAndLinks();
         Assertions.assertEquals(1, containerAgents.size());
         Assertions.assertEquals(agent3.getAgentInfo(), containerAgents.get(0).getAgentInfo());
