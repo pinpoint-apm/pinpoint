@@ -140,10 +140,9 @@ public class FilteredMapController {
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroupV3(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState, useLoadHistogramFormat);
+        return getFilteredServerMapDataMadeOfDotGroupV3(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState);
     }
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3", params = "serviceTypeName")
@@ -159,8 +158,7 @@ public class FilteredMapController {
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         if (xGroupUnit <= 0) {
             throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
         }
@@ -204,10 +202,9 @@ public class FilteredMapController {
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapWithExtraDataV3(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState, useLoadHistogramFormat);
+        return getFilteredServerMapWithExtraDataV3(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState);
     }
 
     @GetMapping(value = "/getFilteredServerMapWithExtraDataV3", params = "serviceTypeName")
@@ -223,8 +220,7 @@ public class FilteredMapController {
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
         if (xGroupUnit <= 0) {
             throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
         }
