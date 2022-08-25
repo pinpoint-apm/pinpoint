@@ -39,6 +39,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -268,6 +269,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         super.handlePongMessage(webSocketSession, message);
     }
 
+    @GuardedBy("lock")
     private void bindingResponseAggregator(WebSocketSession webSocketSession, WebSocketSessionContext webSocketSessionContext, String applicationName) {
         logger.info("bindingResponseAggregator. session:{}, applicationName:{}.", webSocketSession, applicationName);
 
@@ -287,6 +289,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         responseAggregator.addWebSocketSession(webSocketSession);
     }
 
+    @GuardedBy("lock")
     private void unbindingResponseAggregator(WebSocketSession webSocketSession, WebSocketSessionContext sessionContext) {
 
         final String applicationName = sessionContext.getApplicationName();
