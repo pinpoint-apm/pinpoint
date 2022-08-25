@@ -39,11 +39,6 @@ public class Task implements Runnable {
     @Override
     public void run() {
         PacketHandler<DatagramPacket> packetHandler = packetHandlerFactory.createPacketHandler();
-        final DatagramPacket packet = pooledObject.getObject();
-        try {
-            packetHandler.receive(localSocket, packet);
-        } finally {
-            pooledObject.returnObject();
-        }
+        packetHandler.receive(localSocket, pooledObject);
     }
 }

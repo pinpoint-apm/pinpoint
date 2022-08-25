@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
+import com.navercorp.pinpoint.collector.util.PooledObject;
+
 import java.net.DatagramSocket;
 
 /**
@@ -23,6 +25,6 @@ import java.net.DatagramSocket;
  */
 public interface PacketHandler<T> {
 
-    void receive(DatagramSocket localSocket, T packet);
+    void receive(DatagramSocket localSocket, PooledObject<T> packet);
 
 }
