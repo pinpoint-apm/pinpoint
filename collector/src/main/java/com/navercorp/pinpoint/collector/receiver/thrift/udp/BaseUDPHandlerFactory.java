@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -27,7 +28,6 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -75,41 +75,51 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
         }
 
         @Override
-        public void receive(DatagramSocket localSocket, T packet) {
+        public void receive(DatagramSocket localSocket, PooledObject<T> pooledPacket) {
+            final T packet = pooledPacket.getObject();
             final InetSocketAddress remoteSocketAddress = (InetSocketAddress) packet.getSocketAddress();
             final InetAddress remoteAddress = remoteSocketAddress.getAddress();
             if (isIgnoreAddress(remoteAddress)) {
+                pooledPacket.returnObject();
                 return;
             }
-            
-            final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
 
-            Message<TBase<?, ?>> message = null;
+            final Message<TBase<?, ?>> message = deserialize(pooledPacket);
+            if (message == null) {
+                return;
+            }
+
             try {
-                message = deserializer.deserialize(packet.getData());
                 TBase<?, ?> data = message.getData();
-
                 if (filter.filter(localSocket, data, remoteSocketAddress) == TBaseFilter.BREAK) {
                     return;
                 }
                 ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteSocketAddress);
                 // dispatch signifies business logic execution
                 dispatchHandler.dispatchSendMessage(request);
-            } catch (TException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteSocketAddress, e.getMessage(), e);
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
-                }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} message:{}", remoteAddress, e.getMessage(), message, e);
                 }
+            }
+        }
+
+        private Message<TBase<?, ?>> deserialize(PooledObject<T> pooledPacket) {
+            T packet = pooledPacket.getObject();
+            try {
+                final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
+                return deserializer.deserialize(packet.getData());
+            } catch (Throwable e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Packet deserialize error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
+                }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
+                return null;
+            } finally {
+                pooledPacket.returnObject();
             }
         }
         

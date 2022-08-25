@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
+import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,12 +55,12 @@ public class UDPReceiverTest {
     private static final String ADDRESS = "127.0.0.1";
     private int port;
 
-    private final PacketHandler<DatagramPacket> loggingPacketHandler = new PacketHandler<DatagramPacket>() {
+    private final PacketHandler<DatagramPacket> loggingPacketHandler = new PacketHandler<>() {
         private final Logger logger = LogManager.getLogger(this.getClass());
 
         @Override
-        public void receive(DatagramSocket localSocket, DatagramPacket packet) {
-            logger.info("receive localSocket:{} packet:{}", localSocket, packet);
+        public void receive(DatagramSocket localSocket, PooledObject<DatagramPacket> packet) {
+            logger.info("receive localSocket:{} packet:{}", localSocket, packet.getObject());
         }
     };
 
