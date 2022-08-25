@@ -66,7 +66,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private final Object workerManagingLock = new Object();
     private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
-    private final ConcurrentMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ClusterKey, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<>();
 
     private final Object aggregatorLock = new Object();
     private final PinpointWebSocketMessageConverter messageConverter;
@@ -152,7 +152,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 activeWorker(clusterKey, streamChannel, awaitTimeout);
             }
 
-            final boolean added = webSocketSessions.add(webSocketSession);
+            boolean added = webSocketSessions.add(webSocketSession);
             if (added && webSocketSessions.size() == 1) {
                 workerActiveManager.startAgentCheckJob();
             }
@@ -205,38 +205,32 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private StreamChannel registerWorkerAndConnectStream(ClusterKey clusterKey) {
-        String agentId = clusterKey.getAgentId();
-
         synchronized (workerManagingLock) {
-            ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
+            ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(clusterKey);
             if (worker == null) {
                 worker = new ActiveThreadCountWorker(agentService, clusterKey.getApplicationName(), clusterKey.getAgentId(), this, workerActiveManager);
                 StreamChannel streamChannel = worker.connect(clusterKey);
-                activeThreadCountWorkerRepository.put(agentId, worker);
+                activeThreadCountWorkerRepository.put(clusterKey, worker);
                 return streamChannel;
             } else {
-                throw new IllegalArgumentException("Already registered agentId(" + agentId + ")");
+                throw new IllegalArgumentException("Already registered clusterKey(" + clusterKey + ")");
             }
         }
     }
 
     private void activeWorker(ClusterKey clusterKey, StreamChannel streamChannel, long waitTimeout) {
-        String agentId = clusterKey.getAgentId();
-
         synchronized (workerManagingLock) {
-            ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
+            ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(clusterKey);
             if (worker == null) {
-                throw new IllegalArgumentException("Could not find AgentInfo(" + agentId + ")");
+                throw new IllegalArgumentException("Could not find worker(" + clusterKey + ")");
             }
             worker.active(streamChannel, waitTimeout);
         }
     }
 
     private void activeWorker(ClusterKey clusterKey) {
-        String agentId = clusterKey.getAgentId();
-
         synchronized (workerManagingLock) {
-            ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
+            ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(clusterKey);
             if (worker == null) {
                 worker = new ActiveThreadCountWorker(agentService,
                         clusterKey.getApplicationName(), clusterKey.getAgentId(),
@@ -244,7 +238,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 StreamChannel streamChannel = worker.connect(clusterKey);
                 worker.active(streamChannel, 3000);
 
-                activeThreadCountWorkerRepository.put(agentId, worker);
+                activeThreadCountWorkerRepository.put(clusterKey, worker);
             } else {
                 worker.reactive(clusterKey);
             }
@@ -306,8 +300,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         Map<String, Object> resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
         try {
             String response = messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap);
-            TextMessage responseTextMessage = new TextMessage(response);
-            return responseTextMessage;
+            return new TextMessage(response);
         } catch (JsonProcessingException e) {
             logger.warn("failed while to convert message. applicationName:{}, original:{}, message:{}.", applicationName, resultMap, e.getMessage(), e);
         }
