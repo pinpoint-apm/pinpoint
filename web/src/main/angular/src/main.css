@@ -194,6 +194,7 @@ body {
   --background-primary-darkest: var(--grey-200);
   --background-danger: var(--red-50);
   --background-row-danger: var(--red-50);
+  --background-row-danger-secondary: var(--red-100);
   --background-hover-primary: var(--blue-50);
   --background-hover-primary-darker: var(--blue-100);
   --background-focus-primary: var(--blue-50);
@@ -285,6 +286,7 @@ body.dark-mode {
   --background-primary-darkest: var(--grey-300);
   --background-danger: var(--red-50);
   --background-row-danger: var(--red-50);
+  --background-row-danger-secondary: var(--red-100);
   --background-hover-primary: var(--blue-50);
   --background-hover-primary-darker: var(--blue-100);
   --background-focus-primary: var(--blue-50);

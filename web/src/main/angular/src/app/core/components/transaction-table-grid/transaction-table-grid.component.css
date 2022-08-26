@@ -77,10 +77,12 @@
 #transaction-table .ag-row-exception {
     background-color: var(--background-row-danger);
 }
+#transaction-table .ag-row-exception.ag-row-selected {
+    background-color: var(--background-row-danger-secondary);
+}
 #transaction-table .ag-row-selected {
     background-color: var(--background-hover-secondary);
 }
-
 #transaction-table .id-header .ag-header-cell-label {
     justify-content: center !important;
 }

@@ -25,11 +25,12 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
     }
 
     onSearch(type: string): void {
+        // this.resultMessage = '';
         const query = this.inputValue.trim();
 
-        if (query === '') {
-            return;
-        }
+        // if (type !== 'exception' && query === '') {
+        //     return;
+        // }
 
         this.outSearch.emit({
             type: type,

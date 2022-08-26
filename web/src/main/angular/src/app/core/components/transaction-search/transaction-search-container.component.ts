@@ -7,7 +7,7 @@ import {
     TranslateReplaceService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    StoreHelperService
+    StoreHelperService,
 } from 'app/shared/services';
 import { TransactionSearchInteractionService, ISearchParam } from './transaction-search-interaction.service';
 
@@ -53,6 +53,11 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
             this.useArgument = !(viewType === 'timeline');
             this.cd.detectChanges();
         });
+
+        this.storeHelperService.getTransactionData(this.unsubscribe).subscribe(() => {
+            this.resultMessage = '';
+            this.cd.detectChanges();
+        })
     }
 
     ngOnDestroy() {
@@ -71,10 +76,16 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
     }
 
     onSearch({type, query}: ISearchParam): void {
+        this.resultMessage = '';
+
+        if (type !== 'exception' && query === '') {
+            return;
+        }
+
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_TRANSACTION, `Search Type: ${type}`);
         this.transactionSearchInteractionService.setSearchParmas({
             type,
-            query: query === 'self' ? +query : query
+            query
         });
     }
 }
