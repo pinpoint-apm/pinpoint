@@ -18,6 +18,16 @@
     margin-right: 3px;
 }
 
+::ng-deep #call-tree-table .ag-body {
+    background-color: var(--background-default);
+}
+
+::ng-deep #call-tree-table .ag-header-cell {
+    color: var(--text-primary) !important;
+    background-color: var(--background-default);
+    font-weight: bold;
+}
+
 ::ng-deep #call-tree-table .ag-row {
     color: var(--text-primary-lighter);
     background-color: var(--background-primary);
@@ -28,18 +38,16 @@
     background-color: var(--background-default);
 }
 
+::ng-deep #call-tree-table .ag-row-selected {
+    background-color: var(--background-hover-secondary);
+}
+
 ::ng-deep #call-tree-table .ag-row-exception {
     background-color: var(--background-row-danger);
 }
 
-::ng-deep #call-tree-table .ag-body {
-    background-color: var(--background-default);
-}
-
-::ng-deep #call-tree-table .ag-header-cell {
-    color: var(--text-primary) !important;
-    background-color: var(--background-default);
-    font-weight: bold;
+::ng-deep #call-tree-table .ag-row-exception.ag-row-selected {
+    background-color: var(--background-row-danger-secondary);
 }
 
 ::ng-deep .ag-cell-wrapper.ag-row-group[class*="ag-row-group-indent"],

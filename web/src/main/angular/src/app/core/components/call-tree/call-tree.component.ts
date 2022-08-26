@@ -403,7 +403,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    getQueryedRowCount({type, query}: {type: string, query: string | number}): number {
+    getQueryedRowCount({type, query}: {type: string, query: string}): number {
         let resultCount = 0;
         let targetIndex = -1;
 
@@ -488,24 +488,30 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    private hasValueOnType(type: string, data: any, value: string | number): boolean {
+    private hasValueOnType(type: string, data: any, query: string): boolean {
+        const value = query.toLowerCase();
+
         switch (type) {
             case 'all':
-                return (data.method && data.method.indexOf(value) !== -1) ||
-                    (data.argument && data.argument.indexOf(value) !== -1) ||
-                    (data.clazz && data.clazz.indexOf(value) !== -1) ||
-                    (data.api && data.api.indexOf(value) !== -1) ||
-                    (data.agent && data.agent.indexOf(value) !== -1) ||
-                    (data.application && data.application.indexOf(value) !== -1);
+                return (data.method && data.method.toLowerCase().includes(value)) ||
+                    (data.argument && data.argument.toLowerCase().includes(value)) ||
+                    (data.clazz && data.clazz.toLowerCase().includes(value)) ||
+                    (data.api && data.api.toLowerCase().includes(value)) ||
+                    (data.agent && data.agent.toLowerCase().includes(value)) ||
+                    (data.application && data.application.toLowerCase().includes(value));
             case 'self':
                 return +data.selp >= +value;
             case 'argument':
-                return data.argument.indexOf(value) !== -1;
+                return data.argument.toLowerCase().includes(value);
             case 'exception':
-                return data.hasException && (
-                    (data.method && data.method.indexOf(value) !== -1) ||
-                    (data.argument && data.argument.indexOf(value) !== -1)
-                )
+                return data.hasException && (value === '' ||
+                    ((data.method && data.method.toLowerCase().includes(value)) ||
+                    (data.argument && data.argument.toLowerCase().includes(value)))
+                );
+                // return data.hasException && (
+                //     (data.method && data.method.indexOf(value) !== -1) ||
+                //     (data.argument && data.argument.indexOf(value) !== -1)
+                // )
         }
     }
 
