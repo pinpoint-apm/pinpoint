@@ -152,7 +152,7 @@
         <spring.version>${spring5.version}</spring.version>
         <spring.batch.version>4.3.3</spring.batch.version>
 
-        <spring.security.version>5.5.3</spring.security.version>
+        <spring.security.version>5.5.8</spring.security.version>
         <spring.boot.version>2.5.12</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
