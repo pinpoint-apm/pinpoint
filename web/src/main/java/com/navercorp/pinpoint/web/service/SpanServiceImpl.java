@@ -276,16 +276,8 @@ public class SpanServiceImpl implements SpanService {
                 AnnotationBo collectionOption = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
 
                 if (collectionInfo != null) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(align.getDestinationId())
-                            .append(".")
-                            .append((String) collectionInfo.getValue());
-
-                    if (collectionOption != null) {
-                        stringBuilder.append(" with ")
-                                .append(((String) collectionOption.getValue()).toUpperCase());
-                    }
-                    collectionInfo.setValue(stringBuilder);
+                    String collectionValue = getCollectionInfo(align.getDestinationId(), collectionInfo, collectionOption);
+                    collectionInfo.setValue(collectionValue);
                 }
 
                 AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON_DATA.getCode());
@@ -309,6 +301,18 @@ public class SpanServiceImpl implements SpanService {
                     AnnotationBo bindValueAnnotation = new AnnotationBo(MongoConstants.MONGO_JSON_BINDVALUE.getCode(), jsonbindValue);
                     annotationBoList.add(bindValueAnnotation);
                 }
+            }
+
+            private String getCollectionInfo(String destinationId, AnnotationBo collection, AnnotationBo option) {
+                StringBuilder builder = new StringBuilder(32);
+                builder.append(destinationId);
+                builder.append(".");
+                builder.append(collection.getValue());
+                if (option != null) {
+                    builder.append(" with ");
+                    builder.append(Objects.toString(option.getValue(), "").toUpperCase());
+                }
+                return builder.toString();
             }
         });
     }
