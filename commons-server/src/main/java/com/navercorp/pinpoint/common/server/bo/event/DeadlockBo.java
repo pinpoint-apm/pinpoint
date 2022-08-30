@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.event;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -24,23 +25,25 @@ import java.util.List;
 public class DeadlockBo {
     public static final int UNCOLLECTED_INT_VALUE = -1;
 
-    private int deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
-    private List<ThreadDumpBo> threadDumpBoList;
+    private final int deadlockedThreadCount;
+    private final List<ThreadDumpBo> threadDumpBoList;
+
+    public DeadlockBo() {
+        this.deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
+        this.threadDumpBoList = List.of();
+    }
+
+    public DeadlockBo(int deadlockedThreadCount, List<ThreadDumpBo> threadDumpBoList) {
+        this.deadlockedThreadCount = deadlockedThreadCount;
+        this.threadDumpBoList = Objects.requireNonNull(threadDumpBoList, "threadDumpBoList");
+    }
 
     public int getDeadlockedThreadCount() {
         return deadlockedThreadCount;
     }
 
-    public void setDeadlockedThreadCount(int deadlockedThreadCount) {
-        this.deadlockedThreadCount = deadlockedThreadCount;
-    }
-
     public List<ThreadDumpBo> getThreadDumpBoList() {
         return threadDumpBoList;
-    }
-
-    public void setThreadDumpBoList(List<ThreadDumpBo> threadDumpBoList) {
-        this.threadDumpBoList = threadDumpBoList;
     }
 
     @Override

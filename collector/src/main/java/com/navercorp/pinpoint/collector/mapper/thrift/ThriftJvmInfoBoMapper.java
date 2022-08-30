@@ -40,9 +40,6 @@ public class ThriftJvmInfoBoMapper implements ThriftBoMapper<JvmInfoBo, TJvmInfo
         short version = thriftObject.getVersion();
         String jvmVersion = thriftObject.getVmVersion();
         String gcTypeName = this.jvmGcTypeMapper.map(thriftObject.getGcType()).name();
-        JvmInfoBo jvmInfoBo = new JvmInfoBo(version);
-        jvmInfoBo.setJvmVersion(jvmVersion);
-        jvmInfoBo.setGcTypeName(gcTypeName);
-        return jvmInfoBo;
+        return new JvmInfoBo(version, jvmVersion, gcTypeName);
     }
 }

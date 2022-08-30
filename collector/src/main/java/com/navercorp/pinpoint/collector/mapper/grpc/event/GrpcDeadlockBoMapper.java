@@ -39,19 +39,20 @@ public class GrpcDeadlockBoMapper {
     }
 
     public DeadlockBo map(final PDeadlock deadlock) {
-        final DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(deadlock.getCount());
+        List<ThreadDumpBo> threadDumpBoList = getThreadDumpList(deadlock);
+        return new DeadlockBo(deadlock.getCount(), threadDumpBoList);
+    }
 
+    private List<ThreadDumpBo> getThreadDumpList(PDeadlock deadlock) {
         final List<PThreadDump> threadDumpList = deadlock.getThreadDumpList();
         if (CollectionUtils.hasLength(threadDumpList)) {
-            final List<ThreadDumpBo> threadDumpBoList = new ArrayList<>();
+            final List<ThreadDumpBo> threadDumpBoList = new ArrayList<>(threadDumpList.size());
             for (PThreadDump threadDump : threadDumpList) {
                 final ThreadDumpBo threadDumpBo = this.threadDumpBoMapper.map(threadDump);
                 threadDumpBoList.add(threadDumpBo);
             }
-            deadlockBo.setThreadDumpBoList(threadDumpBoList);
+            return threadDumpBoList;
         }
-
-        return deadlockBo;
+        return List.of();
     }
 }
