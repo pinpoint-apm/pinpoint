@@ -46,15 +46,6 @@ public class DefaultSqlParserTest {
         String s2 = parsingResult2.getNormalizedSql();
         logger.debug(s2);
 
-        logger.debug("{}", (char) -1);
-        String str = "s";
-        logger.debug("{}", str.codePointAt(0));
-        logger.debug("{}", (int) str.charAt(0));
-        logger.debug("high:{}", Character.MAX_HIGH_SURROGATE);
-        logger.debug("low:{}", Character.MIN_LOW_SURROGATE);
-        logger.debug("{}", (int) Character.MIN_LOW_SURROGATE);
-        logger.debug("{}", (int) Character.MAX_HIGH_SURROGATE);
-
         NormalizedSql parsingResult3 = sqlParser.normalizedSql("''");
         String s3 = parsingResult3.getNormalizedSql();
         logger.debug("s3:{}", s3);
