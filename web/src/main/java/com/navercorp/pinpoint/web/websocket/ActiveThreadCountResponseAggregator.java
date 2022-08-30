@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,10 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         this.messageConverter = new PinpointWebSocketMessageConverter();
     }
 
+    public int countWebSocketSession() {
+        return webSocketSessions.size();
+    }
+
     @Override
     public void start() {
         synchronized (workerManagingLock) {
@@ -128,28 +133,15 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 return;
             }
 
-            Map<ClusterKey, StreamChannel> streamChannelMap = new HashMap<>(clusterKeys.size());
-            for (ClusterKeyAndStatus key : clusterKeys) {
-                ClusterKey clusterKey = key.getClusterKey();
-                AgentStatus agentStatus = key.getStatus();
-                if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
-                    StreamChannel streamChannel = registerWorkerAndConnectStream(key.getClusterKey());
-                    streamChannelMap.put(clusterKey, streamChannel);
-                } else if (agentService.isConnected(clusterKey)) {
-                    StreamChannel streamChannel = registerWorkerAndConnectStream(clusterKey);
-                    streamChannelMap.put(clusterKey, streamChannel);
+            if (webSocketSessions.isEmpty()) {
+                try {
+                    initializeWorkers(clusterKeys);
+                    logger.info("Activated ActiveThreadCountResponseAggregator for {}", applicationName);
+                } catch (Exception e) {
+                    logger.info("Failed to activate ActiveThreadCountResponseAggregator for {}", applicationName);
+                    cleanWorkers();
+                    throw e;
                 }
-            }
-
-            long maxAwaitTimeout = 3000;
-            long currentTimeMillis = System.currentTimeMillis();
-            for (Map.Entry<ClusterKey, StreamChannel> agentInfoStreamChannelEntry : streamChannelMap.entrySet()) {
-                ClusterKey clusterKey = agentInfoStreamChannelEntry.getKey();
-                StreamChannel streamChannel = agentInfoStreamChannelEntry.getValue();
-
-                long diff = System.currentTimeMillis() - currentTimeMillis;
-                long awaitTimeout = Math.max(maxAwaitTimeout - diff, 500);
-                activeWorker(clusterKey, streamChannel, awaitTimeout);
             }
 
             boolean added = webSocketSessions.add(webSocketSession);
@@ -159,6 +151,41 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         }
 
         logger.info("addWebSocketSession() completed.");
+    }
+
+    @GuardedBy("workerManagingLock")
+    private void initializeWorkers(List<ClusterKeyAndStatus> clusterKeys) {
+        Map<ClusterKey, StreamChannel> streamChannelMap = new HashMap<>(clusterKeys.size());
+        for (ClusterKeyAndStatus key : clusterKeys) {
+            ClusterKey clusterKey = key.getClusterKey();
+            AgentStatus agentStatus = key.getStatus();
+            if (agentStatus != null && agentStatus.getState() != AgentLifeCycleState.UNKNOWN) {
+                StreamChannel streamChannel = registerWorkerAndConnectStream(clusterKey);
+                streamChannelMap.put(clusterKey, streamChannel);
+            } else if (agentService.isConnected(clusterKey)) {
+                StreamChannel streamChannel = registerWorkerAndConnectStream(clusterKey);
+                streamChannelMap.put(clusterKey, streamChannel);
+            }
+        }
+
+        long maxAwaitTimeout = 3000;
+        long currentTimeMillis = System.currentTimeMillis();
+        for (Map.Entry<ClusterKey, StreamChannel> agentInfoStreamChannelEntry : streamChannelMap.entrySet()) {
+            ClusterKey clusterKey = agentInfoStreamChannelEntry.getKey();
+            StreamChannel streamChannel = agentInfoStreamChannelEntry.getValue();
+
+            long diff = System.currentTimeMillis() - currentTimeMillis;
+            long awaitTimeout = Math.max(maxAwaitTimeout - diff, 500);
+            activeWorker(clusterKey, streamChannel, awaitTimeout);
+        }
+    }
+
+    @GuardedBy("workerManagingLock")
+    private void cleanWorkers() {
+        for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
+            activeThreadCountWorker.stop();
+        }
+        activeThreadCountWorkerRepository.clear();
     }
 
     // return when aggregator cleared.
@@ -177,10 +204,8 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
             boolean removed = webSocketSessions.remove(webSocketSession);
             if (removed && webSocketSessions.isEmpty()) {
-                for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
-                    activeThreadCountWorker.stop();
-                }
-                activeThreadCountWorkerRepository.clear();
+                cleanWorkers();
+                logger.info("Deactivated ActiveThreadCountResponseAggregator for {}", applicationName);
                 return true;
             }
         }
