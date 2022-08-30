@@ -38,8 +38,6 @@ public class AgentEventMessageSerializerV1Test {
     public void serialize() throws Exception {
         AgentEventMessageSerializerV1 serializer = new AgentEventMessageSerializerV1();
         // Mock
-        final DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(1);
         List<ThreadDumpBo> threadDumpBoList = new ArrayList<>();
         ThreadDumpBo threadDumpBo = new ThreadDumpBo();
         threadDumpBo.setThreadName("threadName");
@@ -57,15 +55,13 @@ public class AgentEventMessageSerializerV1Test {
         threadDumpBo.setStackTraceList(Arrays.asList("foo", "bar"));
 
         List<MonitorInfoBo> monitorInfoBoList = new ArrayList<>();
-        MonitorInfoBo monitorInfoBo = new MonitorInfoBo();
-        monitorInfoBo.setStackDepth(9);
-        monitorInfoBo.setStackFrame("Frame");
+        MonitorInfoBo monitorInfoBo = new MonitorInfoBo(9, "Frame");
         monitorInfoBoList.add(monitorInfoBo);
         threadDumpBo.setLockedMonitorInfoList(monitorInfoBoList);
         threadDumpBo.setLockedSynchronizerList(Arrays.asList("foo", "bar"));
 
         threadDumpBoList.add(threadDumpBo);
-        deadlockBo.setThreadDumpBoList(threadDumpBoList);
+        final DeadlockBo deadlockBo = new DeadlockBo(1, threadDumpBoList);
 
         byte[] bytes = serializer.serialize(AgentEventType.AGENT_DEADLOCK_DETECTED, deadlockBo);
 

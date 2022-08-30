@@ -20,20 +20,24 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
 public class JvmInfoBo {
 
     private final byte version;
-    private String jvmVersion;
-    private String gcTypeName;
+    private final String jvmVersion;
+    private final String gcTypeName;
 
-    public JvmInfoBo(int version) {
+    public JvmInfoBo(int version, String jvmVersion, String gcTypeName) {
         if (version < 0 || version > 255) {
             throw new IllegalArgumentException("version out of range (0~255)");
         }
         this.version = (byte) (version & 0xFF);
+        this.jvmVersion = Objects.requireNonNull(jvmVersion, "jvmVersion");
+        this.gcTypeName = Objects.requireNonNull(gcTypeName, "gcTypeName");
     }
 
     public JvmInfoBo(byte[] serializedJvmInfoBo) {
@@ -60,17 +64,11 @@ public class JvmInfoBo {
         return jvmVersion;
     }
 
-    public void setJvmVersion(String jvmVersion) {
-        this.jvmVersion = jvmVersion;
-    }
 
     public String getGcTypeName() {
         return gcTypeName;
     }
 
-    public void setGcTypeName(String gcTypeName) {
-        this.gcTypeName = gcTypeName;
-    }
 
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();

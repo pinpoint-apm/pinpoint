@@ -32,6 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -58,8 +60,7 @@ public class ThriftAgentEventMapperTest {
         final long eventTimestamp = startTimestamp;
         final TAgentStat agentStat = createAgentStat(agentId, startTimestamp, eventTimestamp, 2);
 
-        DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(agentStat.getDeadlock().getDeadlockedThreadCount());
+        DeadlockBo deadlockBo = new DeadlockBo(agentStat.getDeadlock().getDeadlockedThreadCount(), List.of());
         DeadlockEventBo expectedEventBo = new DeadlockEventBo(agentId, startTimestamp, eventTimestamp, AgentEventType.AGENT_DEADLOCK_DETECTED, deadlockBo);
 
         when(this.deadlockEventBoMapper.map(agentId, startTimestamp, startTimestamp, agentStat.getDeadlock())).thenReturn(expectedEventBo);
