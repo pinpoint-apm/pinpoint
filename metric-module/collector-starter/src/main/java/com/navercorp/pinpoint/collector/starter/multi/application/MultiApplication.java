@@ -34,7 +34,7 @@ public class MultiApplication {
         builder.sources(MultiApplication.class);
         builder.listeners(new ProfileResolveListener());
 
-        SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 8081);
+        SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 15200);
         metricAppBuilder.build().run(args);
 
         if (ArrayUtils.isEmpty(args) == false) {
