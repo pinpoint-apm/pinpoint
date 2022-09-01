@@ -28,6 +28,10 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
     useArgument: boolean;
     resultMessage: string;
 
+    emptyMessage: string;
+    resultIndex: number = 0;
+    resultCount: number = null;
+
     constructor(
         private storeHelperService: StoreHelperService,
         private transactionSearchInteractionService: TransactionSearchInteractionService,
@@ -41,13 +45,19 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
         this.getI18NText();
         this.transactionSearchInteractionService.onSearchResultCount$.pipe(
             takeUntil(this.unsubscribe),
-            map((count: number) => count === 0 ? this.i18nText.EMPTY_RESULT : this.translateReplaceService.replace(this.i18nText.HAS_RESULTS, count))
-        ).subscribe((message: string) => {
-            this.resultMessage = message;
+            // map((count: number) => count === 0 ? this.i18nText.EMPTY_RESULT : this.translateReplaceService.replace(this.i18nText.HAS_RESULTS, count))
+        // ).subscribe((message: string) => {
+        ).subscribe((resultCount: number) => {
+            // this.resultMessage = message;
+
+            // TODO: resultIndex가 maxLength를 넘었을 때 다시 1로 처리해주는거.
+            this.resultIndex = resultCount === 0 ? 0 : this.resultIndex + 1;
+            this.resultCount = resultCount;
             this.cd.detectChanges();
         });
 
         this.storeHelperService.getTransactionViewType(this.unsubscribe).subscribe((viewType: string) => {
+            // TODO: resultCount = null 로 초기화해주면서 해당영역 지워주기?
             this.resultMessage = '';
             this.currentViewType = viewType;
             this.useArgument = !(viewType === 'timeline');
@@ -55,6 +65,7 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
         });
 
         this.storeHelperService.getTransactionData(this.unsubscribe).subscribe(() => {
+            // TODO: resultCount = null 로 초기화해주면서 해당영역 지워주기?
             this.resultMessage = '';
             this.cd.detectChanges();
         })
@@ -66,26 +77,31 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
     }
 
     private getI18NText(): void {
-        forkJoin(
-            this.translateService.get('TRANSACTION.HAS_RESULTS'),
-            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
-        ).subscribe((i18n: string[]) => {
-            this.i18nText.HAS_RESULTS = i18n[0];
-            this.i18nText.EMPTY_RESULT = i18n[1];
-        });
+        // forkJoin(
+        //     this.translateService.get('TRANSACTION.HAS_RESULTS'),
+        //     this.translateService.get('COMMON.EMPTY_ON_SEARCH')
+        // ).subscribe((i18n: string[]) => {
+        //     this.i18nText.HAS_RESULTS = i18n[0];
+        //     this.i18nText.EMPTY_RESULT = i18n[1];
+        // });
+        this.translateService.get('COMMON.EMPTY_ON_SEARCH').subscribe((emptyMessage: string) => {
+            this.emptyMessage = emptyMessage;
+        })
     }
 
-    onSearch({type, query}: ISearchParam): void {
-        this.resultMessage = '';
+    onSearch({type, query, resultIndex}: ISearchParam): void {
+        // this.resultMessage = '';
 
         if (type !== 'exception' && query === '') {
             return;
         }
 
+        this.resultIndex = resultIndex === this.resultCount ? 0 : resultIndex;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_TRANSACTION, `Search Type: ${type}`);
         this.transactionSearchInteractionService.setSearchParmas({
             type,
-            query
+            query,
+            resultIndex: this.resultIndex
         });
     }
 }

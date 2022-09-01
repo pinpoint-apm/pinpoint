@@ -1,7 +1,7 @@
 <div class="l-search-group-wrap">
     <div class="l-search-group2">
         <div class="l-search-type-select-wrapper">
-            <select class="font-opensans" #searchType>
+            <select class="font-opensans" (change)="onChangeType()" #searchType>
                 <option value="self">Self &gt;=</option>
                 <option value="argument" [attr.disabled]="useArgument ? null : ''">Argument</option>
                 <option value="exception" [attr.disabled]="useArgument ? null : ''">Exception</option>
@@ -12,5 +12,7 @@
         <input type="text" [(ngModel)]="inputValue" (keydown.enter)="onSearch(searchType.value)" (keydown.esc)="onClear()">
         <button class="fas fa-search" (click)="onSearch(searchType.value)"></button>
     </div>
-    <span class="l-error-message">{{resultMessage}}</span>
+    <!-- TODO: resultCount가 0일때만 errorMessage 스타일로? -->
+    <span class="l-error-message">{{getResultMessage()}}</span>
+    <!-- <span class="l-result-message">{{resultMessage}}</span> -->
 </div>
