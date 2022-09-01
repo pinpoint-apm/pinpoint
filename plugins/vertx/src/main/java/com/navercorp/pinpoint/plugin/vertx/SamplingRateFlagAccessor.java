@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.vertx;
 
-public interface SamplingRateFlag {
+public interface SamplingRateFlagAccessor {
     void _$PINPOINT$_setSamplingRateFlag(Boolean samplingRateFlag);
     Boolean _$PINPOINT$_getSamplingRateFlag();
 }

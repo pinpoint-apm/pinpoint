@@ -25,16 +25,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.plugin.vertx.HttpClientRequestClientHeaderAdaptor;
-import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlag;
+import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlagAccessor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
-import io.vertx.core.http.HttpClientRequest;
 
 public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -42,14 +37,10 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
-    private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
     public HttpClientImplDoRequestInterceptorV4(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-
-        ClientHeaderAdaptor<HttpClientRequest> clientHeaderAdaptor = new HttpClientRequestClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -64,9 +55,9 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
         }
 
         if (!trace.canSampled()) {
-            if (target instanceof SamplingRateFlag) {
+            if (target instanceof SamplingRateFlagAccessor) {
                 // 4.x
-                ((SamplingRateFlag) target)._$PINPOINT$_setSamplingRateFlag(Boolean.FALSE);
+                ((SamplingRateFlagAccessor) target)._$PINPOINT$_setSamplingRateFlag(Boolean.FALSE);
             }
             return;
         }
@@ -116,6 +107,12 @@ public class HttpClientImplDoRequestInterceptorV4 implements AroundInterceptor {
     private String toHostAndPort(final Object[] args) {
         final int length = ArrayUtils.getLength(args);
         if (length == 12) {
+            if (args[3] instanceof String && args[4] instanceof Integer) {
+                final String host = (String) args[3];
+                final int port = (Integer) args[4];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        } else if(length == 13) {
             if (args[3] instanceof String && args[4] instanceof Integer) {
                 final String host = (String) args[3];
                 final int port = (Integer) args[4];

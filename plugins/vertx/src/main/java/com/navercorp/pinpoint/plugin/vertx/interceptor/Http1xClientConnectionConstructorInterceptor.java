@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,15 @@
 
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlagAccessor;
 
-public class HttpClientRequestImplConstructorInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+public class Http1xClientConnectionConstructorInterceptor implements AroundInterceptor {
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-    public HttpClientRequestImplConstructorInterceptor() {
-    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -40,13 +35,13 @@ public class HttpClientRequestImplConstructorInterceptor implements AroundInterc
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (ArrayUtils.getLength(args) < 1) {
-            return;
-        }
-        final Object arg = args[0];
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(arg);
-        if (asyncContext != null) {
-            ((AsyncContextAccessor)target)._$PINPOINT$_setAsyncContext(asyncContext);
+
+        final SamplingRateFlagAccessor samplingRateFlagAccessor = ArrayArgumentUtils.getArgument(args, 1, SamplingRateFlagAccessor.class);
+        if (samplingRateFlagAccessor != null) {
+            Boolean samplingRateFlag = samplingRateFlagAccessor._$PINPOINT$_getSamplingRateFlag();
+            if (target instanceof SamplingRateFlagAccessor) {
+                ((SamplingRateFlagAccessor) target)._$PINPOINT$_setSamplingRateFlag(samplingRateFlag);
+            }
         }
     }
 }
