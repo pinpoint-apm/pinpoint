@@ -34,9 +34,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
-import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.HttpRequestClientHeaderAdaptor;
+import com.navercorp.pinpoint.plugin.vertx.SamplingRateFlagAccessor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxCookieExtractor;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
@@ -44,7 +43,7 @@ import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientRequestWrapper;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 
-public class Http1xClientConnectionCreateRequestInterceptor implements AroundInterceptor {
+public abstract class Http1xClientConnectionCreateRequestInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,6 +52,8 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
+
+    abstract String getHost(Object[] args);
 
     public Http1xClientConnectionCreateRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
@@ -73,6 +74,10 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
+        }
+
+        if (Boolean.FALSE == isSamplingRate(target)) {
+            return;
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -99,16 +104,19 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
             logger.afterInterceptor(target, args, result, throwable);
         }
 
+        if (Boolean.FALSE == isSamplingRate(target)) {
+            writeSamplingRateFalse(result);
+            return;
+        }
+
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         if (!trace.canSampled()) {
-            if (result instanceof HttpRequest) {
-                final HttpRequest request = (HttpRequest) result;
-                requestTraceWriter.write(request);
-            }
+            // Defense
+            writeSamplingRateFalse(result);
             return;
         }
 
@@ -128,8 +136,7 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
                 return;
             }
 
-            String host = ArrayArgumentUtils.getArgument(args, 4, String.class, "UNKNOWN");
-
+            final String host = getHost(args);
             // generate next trace id.
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
@@ -146,17 +153,27 @@ public class Http1xClientConnectionCreateRequestInterceptor implements AroundInt
         }
     }
 
+    private boolean isSamplingRate(Object target) {
+        if (target instanceof SamplingRateFlagAccessor) {
+            final SamplingRateFlagAccessor samplingRateFlagAccessor = (SamplingRateFlagAccessor) target;
+            if (samplingRateFlagAccessor != null) {
+                final Boolean samplingRateFlag = samplingRateFlagAccessor._$PINPOINT$_getSamplingRateFlag();
+                if (samplingRateFlag != null) {
+                    return samplingRateFlag;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void writeSamplingRateFalse(Object result) {
+        if (result instanceof HttpRequest) {
+            final HttpRequest request = (HttpRequest) result;
+            requestTraceWriter.write(request);
+        }
+    }
+
     private boolean validate(final Object[] args, final Object result) {
-        if (ArrayUtils.getLength(args) < 5) {
-            logger.debug("Invalid args object. args={}.", args);
-            return false;
-        }
-
-        if (!(args[4] instanceof String)) {
-            logger.debug("Invalid args[4] object. args[4]={}.", args[4]);
-            return false;
-        }
-
         if (!(result instanceof HttpRequest)) {
             logger.debug("Invalid result object. {}.", result);
             return false;

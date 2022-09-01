@@ -113,6 +113,10 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
                     logger.debug("Set asyncContext {}", asyncContext);
                 }
             }
+        } catch(Throwable t) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER. Caused:{}", t.getMessage(), t);
+            }
         } finally {
             trace.traceBlockEnd();
         }
@@ -149,6 +153,12 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             if (args[2] instanceof String && args[3] instanceof Integer) {
                 final String host = (String) args[2];
                 final int port = (Integer) args[3];
+                return HostAndPort.toHostAndPortString(host, port);
+            }
+        } else if(length == 8) {
+            if (args[3] instanceof String && args[4] instanceof Integer) {
+                final String host = (String) args[3];
+                final int port = (Integer) args[4];
                 return HostAndPort.toHostAndPortString(host, port);
             }
         }
