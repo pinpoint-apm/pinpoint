@@ -27,9 +27,9 @@ import java.util.Map;
 public class ResponseMessage implements PinpointWebSocketMessage {
 
     private final String command;
-    private final Map result;
+    private final Map<String, Object> result;
 
-    public ResponseMessage(String command, Map result) {
+    public ResponseMessage(String command, Map<String, Object> result) {
         this.command = command;
         this.result = result;
     }
@@ -38,7 +38,7 @@ public class ResponseMessage implements PinpointWebSocketMessage {
         return command;
     }
 
-    public Map getResult() {
+    public Map<String, Object> getResult() {
         return result;
     }
 

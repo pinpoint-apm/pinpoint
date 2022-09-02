@@ -77,7 +77,8 @@ public class ObjectReaderIT {
     public void testReadValue() throws Exception {
         String json_str = "{\"name\" : \"Jackson\"}";
         byte[] json_b = json_str.getBytes(UTF_8);
-        
+
+        @SuppressWarnings("deprecation")
         ObjectReader reader = mapper.reader(__POJO.class);
         
         __POJO pojo = reader.readValue(json_str);

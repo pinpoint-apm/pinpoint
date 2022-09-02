@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.activethread;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
@@ -31,6 +32,7 @@ import java.util.Map;
  */
 public class AgentActiveThreadCountListTest {
 
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void testName() throws Exception {
@@ -50,29 +52,28 @@ public class AgentActiveThreadCountListTest {
         list.add(status1);
         list.add(status2);
 
-        ObjectMapper om = new ObjectMapper();
-        String listAsString = om.writeValueAsString(list);
+        String listAsString = mapper.writeValueAsString(list);
 
-        Map map = om.readValue(listAsString, Map.class);
+        Map<String, Map<String, Object>> map = mapper.readValue(listAsString, new TypeReference<>() {});
 
         Assertions.assertTrue(map.containsKey(hostName1));
         Assertions.assertTrue(map.containsKey(hostName2));
 
-        assertDataWithSerializedJsonString((Map) map.get(hostName1), TRouteResult.NOT_ACCEPTABLE, null);
-        assertDataWithSerializedJsonString((Map) map.get(hostName2), TRouteResult.OK, Arrays.asList(1, 2, 3, 4));
+        assertDataWithSerializedJsonString(map.get(hostName1), TRouteResult.NOT_ACCEPTABLE, null);
+        assertDataWithSerializedJsonString(map.get(hostName2), TRouteResult.OK, Arrays.asList(1, 2, 3, 4));
     }
 
-    void assertDataWithSerializedJsonString(Map data, TRouteResult routeResult, List<Integer> status) {
+    void assertDataWithSerializedJsonString(Map<String, Object> data, TRouteResult routeResult, List<Integer> status) {
         if (routeResult == TRouteResult.OK) {
-            Assertions.assertEquals(data.get("code"), 0);
+            Assertions.assertEquals(0, data.get("code"));
         } else {
-            Assertions.assertEquals(data.get("code"), -1);
+            Assertions.assertEquals(-1, data.get("code"));
         }
 
-        Assertions.assertEquals(data.get("message"), routeResult.name());
+        Assertions.assertEquals(routeResult.name(), data.get("message"));
 
         if (status != null) {
-            Assertions.assertEquals(data.get("status"), status);
+            Assertions.assertEquals(status, data.get("status"));
         }
 
     }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -48,12 +49,12 @@ public class HistogramSerializerTest {
         original.addCallCount(schema.getNormalErrorSlot().getSlotTime(), 5);
 
         String jacksonJson = objectMapper.writeValueAsString(original);
-        Map<String, Object> objectMapperHashMap = objectMapper.readValue(jacksonJson, Map.class);
+        Map<String, Object> objectMapperHashMap = objectMapper.readValue(jacksonJson, TypeRef.map());
 
         logger.debug(jacksonJson);
 
         String internalJson = internalJson(original);
-        Map<String, Object> hashMap = objectMapper.readValue(internalJson, Map.class);
+        Map<String, Object> hashMap = objectMapper.readValue(internalJson, TypeRef.map());
 
         Assertions.assertEquals(objectMapperHashMap, hashMap);
     }

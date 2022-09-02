@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -75,9 +76,10 @@ public class AgentHistogramTest {
         String callJson = mapper.writeValueAsString(agentHistogram);
         String before = originalJson(agentHistogram);
         logger.debug("callJson:{}", callJson);
-        HashMap callJsonHashMap = mapper.readValue(callJson, HashMap.class);
+
+        Map<String, Object> callJsonHashMap = mapper.readValue(callJson, TypeRef.map());
         logger.debug("BEFORE:{}", before);
-        HashMap beforeJsonHashMap = mapper.readValue(before, HashMap.class);
+        Map<String, Object> beforeJsonHashMap = mapper.readValue(before, TypeRef.map());
         logger.debug("{} {}", callJsonHashMap, beforeJsonHashMap);
         Assertions.assertEquals(callJsonHashMap, beforeJsonHashMap);
     }

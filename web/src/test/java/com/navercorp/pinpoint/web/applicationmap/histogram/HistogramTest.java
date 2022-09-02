@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -26,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -80,7 +81,7 @@ public class HistogramTest {
     }
 
     @Test
-    public void testDeepCopy() throws Exception {
+    public void testDeepCopy() {
         Histogram original = new Histogram(ServiceType.STAND_ALONE);
         original.addCallCount((short) 1000, 100);
 
@@ -103,9 +104,9 @@ public class HistogramTest {
         original.addCallCount(schema.getFastSlot().getSlotTime(), 100);
 
         String json = objectMapper.writeValueAsString(original);
-        HashMap<?, ?> hashMap = objectMapper.readValue(json, HashMap.class);
+        Map<String, Object> map = objectMapper.readValue(json, TypeRef.map());
 
-        Assertions.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
-        Assertions.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);
+        Assertions.assertEquals(map.get(schema.getFastSlot().getSlotName()), 100);
+        Assertions.assertEquals(map.get(schema.getErrorSlot().getSlotName()), 0);
     }
 }

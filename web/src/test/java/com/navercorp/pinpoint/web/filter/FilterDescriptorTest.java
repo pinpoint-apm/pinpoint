@@ -102,8 +102,7 @@ public class FilterDescriptorTest {
 
         logger.debug("json:{}", arrayJson);
 
-        List<FilterDescriptor> descriptor = mapper.readValue(arrayJson, new TypeReference<List<FilterDescriptor>>() {
-        });
+        List<FilterDescriptor> descriptor = mapper.readValue(arrayJson, new TypeReference<>() {});
 
         Assertions.assertEquals(1, descriptor.size());
         Assertions.assertNotNull(descriptor.get(0));
