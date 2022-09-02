@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.websocket.message;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +54,7 @@ public class PinpointWebSocketMessageConverter {
         pongMessage = createPongMessage(objectMapper);
     }
 
-    public PinpointWebSocketMessage getWebSocketMessage(String message) throws IOException {
+    public PinpointWebSocketMessage getWebSocketMessage(String message) {
         if (StringUtils.isEmpty(message)) {
             return new UnknownMessage();
         }
@@ -94,31 +95,31 @@ public class PinpointWebSocketMessageConverter {
         return new UnknownMessage();
     }
 
-    private PinpointWebSocketMessage readSend(JsonNode root) throws JsonProcessingException {
+    private PinpointWebSocketMessage readSend(JsonNode root) {
         String command = root.path(COMMAND).asText();
         JsonNode resultNode = root.path(PARAMETERS);
-        Map parameterMap = readMap(resultNode);
+        Map<String, Object> parameterMap = readMap(resultNode);
         return new SendMessage(command, parameterMap);
     }
 
-    private PinpointWebSocketMessage readResponse(JsonNode root) throws JsonProcessingException {
+    private PinpointWebSocketMessage readResponse(JsonNode root) {
         String command = root.path(COMMAND).asText();
 
         JsonNode resultNode = root.path(RESULT);
-        Map resultMap = readMap(resultNode);
+        Map<String, Object> resultMap = readMap(resultNode);
         return new ResponseMessage(command, resultMap);
     }
 
-    private PinpointWebSocketMessage readRequest(JsonNode root) throws JsonProcessingException {
+    private PinpointWebSocketMessage readRequest(JsonNode root) {
         String command = root.path(COMMAND).asText();
         JsonNode parameterNode = root.path(PARAMETERS);
-        Map parameterMap = readMap(parameterNode);
+        Map<String, Object> parameterMap = readMap(parameterNode);
 
         return new RequestMessage(command, parameterMap);
     }
 
-    private Map readMap(JsonNode parameterNode) throws JsonProcessingException {
-        return JSON_SERIALIZER.treeToValue(parameterNode, Map.class);
+    private Map<String, Object> readMap(JsonNode parameterNode) {
+        return JSON_SERIALIZER.convertValue(parameterNode, TypeRef.map());
     }
 
     public String getRequestTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {

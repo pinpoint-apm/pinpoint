@@ -27,7 +27,7 @@ public class ApplicationGroupTest {
         ApplicationGroup group = new ApplicationGroup(Arrays.asList(app1, app2));
         String json = mapper.writeValueAsString(group);
 
-        TypeReference<List<Map<String, String>>> ref = new TypeReference<List<Map<String, String>>>() {};
+        TypeReference<List<Map<String, String>>> ref = new TypeReference<>() {};
         List<Map<String, String>> list = mapper.convertValue(group, ref);
 
         logger.debug("json:{}", json);

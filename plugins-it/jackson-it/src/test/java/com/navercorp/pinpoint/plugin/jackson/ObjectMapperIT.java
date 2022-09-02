@@ -120,7 +120,8 @@ public class ObjectMapperIT {
     
         mapper.readValue(json_str, __POJO.class);
         mapper.readValue(json_b, __POJO.class);
-        
+
+        @SuppressWarnings("deprecation")
         ObjectReader reader = mapper.reader(__POJO.class);
         
         reader.readValue(json_str);

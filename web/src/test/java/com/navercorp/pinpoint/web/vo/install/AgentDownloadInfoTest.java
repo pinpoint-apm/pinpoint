@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class AgentDownloadInfoTest {
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Test
     public void factoryTest() {
@@ -61,7 +61,8 @@ public class AgentDownloadInfoTest {
         String mockResponseString = getMockJsonString();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<List<GithubAgentDownloadInfo>>() {};
+        TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<>() {
+        };
         List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, typeReference);
 
         Assertions.assertEquals(15, agentDownloadInfoList.size());

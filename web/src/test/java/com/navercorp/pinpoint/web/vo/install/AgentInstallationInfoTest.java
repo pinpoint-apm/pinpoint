@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.web.vo.install;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +29,7 @@ import java.util.Map;
  * @author Taejin Koo
  */
 public class AgentInstallationInfoTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testName() throws Exception {
@@ -33,10 +37,9 @@ public class AgentInstallationInfoTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(agentInstallInfo);
+        Map<String, Object> map = objectMapper.readValue(jsonString, TypeRef.map());
 
-        Map map = objectMapper.readValue(jsonString, Map.class);
-
-        System.out.println(map);
+        logger.debug(map);
 
         Assertions.assertTrue(map.containsKey("version"));
         Assertions.assertTrue(map.containsKey("downloadUrl"));

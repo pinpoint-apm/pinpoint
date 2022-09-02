@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventMarker;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +37,7 @@ public class AgentEventMarkerSerializerTest {
     public void serializeTest() throws Exception {
         AgentEventMarker marker = makeData();
         String jsonValue = mapper.writeValueAsString(marker);
-        Map map = mapper.readValue(jsonValue, Map.class);
+        Map<String, Object> map = mapper.readValue(jsonValue, TypeRef.map());
         Assertions.assertEquals(27, map.get("totalCount"));
         logger.debug(map.get("typeCounts").toString());
     }

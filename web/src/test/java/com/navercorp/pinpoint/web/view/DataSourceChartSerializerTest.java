@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -71,7 +72,7 @@ public class DataSourceChartSerializerTest {
         DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
         String jsonValue = mapper.writeValueAsString(dataSourceChartGroup);
-        Map<?, ?> map = mapper.readValue(jsonValue, Map.class);
+        Map<String, Object> map = mapper.readValue(jsonValue, TypeRef.map());
 
         Assertions.assertTrue(map.containsKey("id"));
         Assertions.assertTrue(map.containsKey("jdbcUrl"));

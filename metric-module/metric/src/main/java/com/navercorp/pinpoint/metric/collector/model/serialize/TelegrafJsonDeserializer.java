@@ -55,7 +55,7 @@ public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> 
             if (jp.nextToken() != JsonToken.START_ARRAY) {
                 ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
             }
-            TypeReference<List<TelegrafMetric>> batch = new TypeReference<List<TelegrafMetric>>() {
+            TypeReference<List<TelegrafMetric>> batch = new TypeReference<>() {
             };
             List<TelegrafMetric> metrics = jp.readValueAs(batch);
             return new TelegrafMetrics(metrics);

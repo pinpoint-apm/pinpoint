@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +34,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,12 +76,14 @@ public class AlarmControllerTest {
 
     private final static String NOTES = "for unit test";
     private final static String NOTES_UPDATED = "";
-    
+
     @Autowired
     private WebApplicationContext wac;
     
     @Autowired
     private AlarmDao alarmDao;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private MockMvc mockMvc;
     
@@ -111,8 +114,7 @@ public class AlarmControllerTest {
                                             .andReturn();
         String content = result.getResponse().getContentAsString();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = objectMapper.readValue(content, HashMap.class);
+        Map<String, Object> resultMap = mapper.readValue(content, TypeRef.map());
         Assertions.assertEquals(resultMap.get("result"), "SUCCESS");
         Assertions.assertNotNull(resultMap.get("ruleId"));
         
@@ -157,8 +159,7 @@ public class AlarmControllerTest {
                                             .andReturn();
         String content = result.getResponse().getContentAsString();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = objectMapper.readValue(content, HashMap.class);
+        Map<String, Object> resultMap = mapper.readValue(content, TypeRef.map());
         Assertions.assertEquals(resultMap.get("result"), "SUCCESS");
         Assertions.assertNotNull(resultMap.get("ruleId"));
         
@@ -198,8 +199,8 @@ public class AlarmControllerTest {
                                 .andReturn();
         
         String content = result.getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<String> checkerList = objectMapper.readValue(content, List.class);
+
+        List<String> checkerList = mapper.readValue(content, new TypeReference<>() {});
         Assertions.assertNotEquals(checkerList.size(), 0);
     }
 }
