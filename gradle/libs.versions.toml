@@ -1,0 +1,214 @@
+[versions]
+pinpoint = "2.5.0-SNAPSHOT"
+spring = "5.3.20"
+spring4 = "4.3.30.RELEASE"
+springBatch = "4.3.3"
+springBoot = "2.5.12"
+springSecurity = "5.5.3"
+metrics = "3.2.6"
+fastxml-jackson = "2.12.6"
+fastxml-jackson-databind = "2.12.6.1"
+log4j2-jdk7 = "2.12.4"
+log4j2 = "2.17.1"
+netty4 = "4.1.72.Final"
+asm = "9.2"
+grpc = "1.43.2"
+protoc = "3.19.2"
+jaxbImpl = "2.3.3"
+tinylog = "2.2.1"
+jacksonASL = "1.9.13"
+
+[libraries]
+spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
+spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
+spring-orm = { module = "org.springframework:spring-orm", version.ref = "spring" }
+spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
+spring-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "spring" }
+spring-websocket = { module = "org.springframework:spring-websocket", version.ref = "spring" }
+spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring" }
+spring-tx = { module = "org.springframework:spring-tx", version.ref = "spring" }
+spring-oxm = { module = "org.springframework:spring-oxm", version.ref = "spring" }
+spring-instrument = { module = "org.springframework:spring-instrument", version.ref = "spring" }
+spring-context-support = { module = "org.springframework:spring-context-support", version.ref = "spring" }
+spring-aop = { module = "org.springframework:spring-aop", version.ref = "spring" }
+spring-aspects = { module = "org.springframework:spring-aspects", version.ref = "spring" }
+spring-webflux = { module = "org.springframework:spring-webflux", version.ref = "spring" }
+spring-messaging = { module = "org.springframework:spring-messaging", version.ref = "spring" }
+spring-expression = { module = "org.springframework:spring-expression", version.ref = "spring" }
+
+spring4-beans = { module = "org.springframework:spring-beans", version.ref = "spring4" }
+spring4-context = { module = "org.springframework:spring-context", version.ref = "spring4" }
+spring4-test = { module = "org.springframework:spring-test", version.ref = "spring4" }
+spring4-web = { module = "org.springframework:spring-web", version.ref = "spring4" }
+spring4-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "spring4" }
+
+spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "springBoot" }
+spring-boot-test = { module = "org.springframework.boot:spring-boot-test", version.ref = "springBoot" }
+spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "springBoot" }
+spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "springBoot" }
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springBoot" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
+spring-boot-starter-logging = { module = "org.springframework.boot:spring-boot-starter-logging", version.ref = "springBoot" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "springBoot" }
+spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springBoot" }
+spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2", version.ref = "springBoot" }
+spring-boot-starter-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "springBoot" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "springBoot" }
+spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc", version.ref = "springBoot" }
+
+spring-batch-core = { module = "org.springframework.batch:spring-batch-core", version.ref = "springBatch" }
+spring-batch-test = { module = "org.springframework.batch:spring-batch-test", version.ref = "springBatch" }
+
+spring-security-core = { module = "org.springframework.security:spring-security-core", version.ref = "springSecurity" }
+spring-security-web = { module = "org.springframework.security:spring-security-web", version.ref = "springSecurity" }
+spring-security-config = { module = "org.springframework.security:spring-security-config", version.ref = "springSecurity" }
+spring-security-messaging = { module = "org.springframework.security:spring-security-messaging", version.ref = "springSecurity" }
+
+json-path = { module = "com.jayway.jsonpath:json-path", version = "1.2.0" }
+
+# serving performance metrics
+metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
+metrics-jvm = { module = "io.dropwizard.metrics:metrics-jvm", version.ref = "metrics" }
+metrics-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "metrics" }
+
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "fastxml-jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "fastxml-jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "fastxml-jackson" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "fastxml-jackson" }
+snakeyaml = { module = "org.yaml:snakeyaml", version = "1.27" }
+
+hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.1" }
+hbase-client = { module = "org.apache.hbase:hbase-client", version = "2.4.11" }
+
+springdoc-openapi-ui = { module = "org.springdoc:springdoc-openapi-ui", version = "1.4.4" }
+
+jackson-core-asl = { module = "org.codehaus.jackson:jackson-core-asl", version.ref = "jacksonASL" }
+jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jacksonASL" }
+hbasewd = { module = "com.sematext.hbasewd:hbasewd", version = "0.1.0" }
+
+# Logging dependencies
+log4j-api-jdk7 = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2-jdk7" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2" }
+log4j-core-jdk7 = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2-jdk7" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = "1.7.30" }
+log4j-slf4j-impl-jdk7 = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2-jdk7" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2" }
+
+# thrift logging lib
+commons-logging = { module = "commons-logging:commons-logging", version = "1.2" }
+log4j-jcl-jdk7 = { module = "org.apache.logging.log4j:log4j-jcl", version.ref = "log4j2-jdk7" }
+log4j-jcl = { module = "org.apache.logging.log4j:log4j-jcl", version.ref = "log4j2" }
+log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4j2" }
+log4j = { module = "log4j:log4j", version = "1.2.17" }
+
+hikariCP = { module = "com.zaxxer:HikariCP", version = "4.0.3" }
+mybatis = { module = "org.mybatis:mybatis", version = "3.5.7" }
+# 2.0.x java8 & spring5 https://mybatis.org/spring/index.html
+mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "2.0.6" }
+mybatis-spring-boot-starter = { module = "org.mybatis.spring.boot:mybatis-spring-boot-starter", version = "2.1.4" }
+mysql-connector-java = { module = "mysql:mysql-connector-java", version = "8.0.27" }
+
+netty = { module = "io.netty:netty", version = "3.10.6.Final" }
+netty-bom = { module = "io.netty:netty-bom", version.ref = "netty4" }
+netty-all = { module = "io.netty:netty-all", version.ref = "netty4" }
+netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty4" }
+netty-codec = { module = "io.netty:netty-codec", version.ref = "netty4" }
+netty-codec-dns = { module = "io.netty:netty-codec-dns", version.ref = "netty4" }
+netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty4" }
+netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty4" }
+netty-codec-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty4" }
+netty-common = { module = "io.netty:netty-common", version.ref = "netty4" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "netty4" }
+netty-handler-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty4" }
+netty-resolver = { module = "io.netty:netty-resolver", version.ref = "netty4" }
+netty-resolver-dns = { module = "io.netty:netty-resolver-dns", version.ref = "netty4" }
+netty-transport = { module = "io.netty:netty-transport", version.ref = "netty4" }
+netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty4" }
+
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version = "2.9.2" }
+
+httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.5.13" }
+httpcore = { module = "org.apache.httpcomponents:httpcore", version = "4.4.14" }
+
+# 2.7 (requires Java 8
+# 2.6 (requires Java 7
+commons-io = { module = "commons-io:commons-io", version = "2.11.0" }
+# https://commons.apache.org/proper/commons-lang/changes-report.html
+# Lang 3.9 and onwards now targets Java 8, making use of features that arrived with Java 8.
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.8.1" }
+# for jdk6
+commons-lang = { module = "commons-lang:commons-lang", version = "2.6" }
+commons-collections = { module = "commons-collections:commons-collections", version = "3.2.2" }
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version = "4.4" }
+commons-compress = { module = "org.apache.commons:commons-compress", version = "1.21" }
+# Codec 1.14 (mirrors) requires Java 7
+commons-codec = { module = "commons-codec:commons-codec", version = "1.14" }
+commons-beanutils = { module = "commons-beanutils:commons-beanutils", version = "1.9.4" }
+commons-math3 = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
+commons-digester = { module = "commons-digester:commons-digester", version = "2.1" }
+
+jakarta-mail = { module = "com.sun.mail:jakarta.mail", version = "1.6.7" }
+
+javassist = { module = "org.javassist:javassist", version = "3.27.0-GA" }
+cglib-nodep = { module = "cglib:cglib-nodep", version = "3.2.12" }
+
+asm-core = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+asm-util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+asm-analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
+
+aspectjweaver = { module = "org.aspectj:aspectjweaver", version = "1.9.5" }
+
+javax-servlet-api-v3 = { module = "javax.servlet:javax.servlet-api", version = "3.0.1" }
+javax-servlet-api = { module = "javax.servlet:javax.servlet-api", version = "4.0.1" }
+javax-annotation-api = { module = "javax.annotation:javax.annotation-api", version = "1.3.2" }
+
+# https://github.com/gradle/gradle/issues/15383 no support version catalog in prebuild script
+junit = { module = "junit:junit", version = "4.13.2" }
+awaitility = { module = "org.awaitility:awaitility", version = "3.1.5" }
+
+zookeeper = { module = "org.apache.zookeeper:zookeeper", version = "3.4.14" }
+
+curator-client = { module = "org.apache.curator:curator-client", version = "4.2.0" }
+curator-framework = { module = "org.apache.curator:curator-framework", version = "4.2.1" }
+curator-test = { module = "org.apache.curator:curator-test", version = "2.13.0" }
+
+libthrift = { module = "org.apache.thrift:libthrift", version = "0.15.0" }
+libthrift-v012 = { module = "org.apache.thrift:libthrift", version = "0.12.0" }
+
+guava-jdk7 = { module = "com.google.guava:guava", version = "30.1-android" }
+guava-jdk8 = { module = "com.google.guava:guava", version = "31.1-jre" }
+guava-cassandra = { module = "com.google.guava:guava", version = "14.0.1" }
+guice = { module = "com.google.inject:guice", version = "4.2.2" }
+
+grpc-core = { module = "io.grpc:grpc-core", version.ref = "grpc" }
+grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
+grpc-testing = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
+
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoc" }
+
+jakarta-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version = "2.3.3" }
+jakarta-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version = "2.3.6" }
+jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api", version = "1.3.5" }
+jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version = "2.0.2" }
+
+tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
+tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
+tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
+
+nanohttpd = { module = "org.nanohttpd:nanohttpd", version = "2.3.1" }
+
+maven-resolver-api = { module = "org.apache.maven.resolver:maven-resolver-api", version = "1.6.1" }
+
+[bundles]
+asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
+
+[plugins]
+protobuf = { id = "com.google.protobuf", version = "0.8.19" }
+jaxb = { id = "com.intershop.gradle.jaxb", version = "4.4.2" }
