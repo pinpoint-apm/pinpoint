@@ -122,9 +122,7 @@ public class ZookeeperJobWorker<K> implements Runnable, ClusterJobWorker<K> {
 
     @Override
     public void addPinpointServer(K key) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("addPinpointServer key:{}", key);
-        }
+        logger.info("addPinpointServer key:{}", key);
 
         ZookeeperJob<K> job = new ZookeeperJob<>(ZookeeperJob.Type.ADD, key);
         synchronized (lock) {
@@ -159,9 +157,7 @@ public class ZookeeperJobWorker<K> implements Runnable, ClusterJobWorker<K> {
 
     @Override
     public void removePinpointServer(K key) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("removePinpointServer key:{}", key);
-        }
+        logger.info("removePinpointServer key:{}", key);
 
         ZookeeperJob<K> job = new ZookeeperJob<>(ZookeeperJob.Type.REMOVE, key);
         synchronized (lock) {
@@ -171,6 +167,8 @@ public class ZookeeperJobWorker<K> implements Runnable, ClusterJobWorker<K> {
 
     @Override
     public void clear() {
+        logger.info("clearPinpointServer");
+
         ZookeeperJob<K> job = new ZookeeperJob<>(ZookeeperJob.Type.CLEAR);
         synchronized (lock) {
             jobDeque.clear();
