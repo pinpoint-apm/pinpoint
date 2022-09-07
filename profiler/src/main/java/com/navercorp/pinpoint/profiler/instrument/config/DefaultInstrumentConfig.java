@@ -47,6 +47,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
 
     private int callStackMaxDepth = 64;
     private int callStackMaxSequence = 5000;
+    private int callStackOverflowLogRation = 100;
 
     private Filter<String> profilableClassFilter = new SkipFilter<>();
 
@@ -122,6 +123,10 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
         return callStackMaxSequence;
     }
 
+    public int getCallStackOverflowLogRation() {
+        return callStackOverflowLogRation;
+    }
+
     @Value("${profiler.callstack.max.depth}")
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         // CallStack
@@ -140,6 +145,16 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
             callStackMaxSequence = Short.MAX_VALUE;
         }
         this.callStackMaxSequence = callStackMaxSequence;
+    }
+
+    @Value("${profiler.callstack.overflow.log.ration}")
+    public void setCallStackOverflowLogRation(int callStackOverflowLogRation) {
+        final int minLimit = 1;
+        if (callStackOverflowLogRation < minLimit) {
+            this.callStackOverflowLogRation = minLimit;
+        } else {
+            this.callStackOverflowLogRation = callStackOverflowLogRation;
+        }
     }
 
     @Override

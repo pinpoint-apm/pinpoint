@@ -39,7 +39,6 @@ public class AsyncChildTrace implements Trace {
 
     private static final Logger logger = LogManager.getLogger(AsyncChildTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
-
     private final CallStack<SpanEvent> callStack;
 
     private final Storage storage;
