@@ -43,7 +43,4 @@ public class DepthCompressCallStack<T> extends DefaultCallStack<T> {
             this.factory.markDepth(element, latestStackIndex);
         }
     }
-
-
-
 }

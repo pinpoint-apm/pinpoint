@@ -232,8 +232,8 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     private Trace getAsyncTrace(AsyncContext asyncContext) {
         final Trace trace = asyncContext.continueAsyncTraceObject();
         if (trace == null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Failed to continue async trace. 'result is null'");
+            if (isDebug) {
+                logger.debug("Failed to continue async trace. 'result is null'");
             }
             return null;
         }
