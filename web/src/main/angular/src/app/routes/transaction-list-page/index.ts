@@ -6,7 +6,6 @@ import { SharedModule } from 'app/shared';
 import { NoticeModule } from 'app/core/components/notice';
 import { DataLoadIndicatorModule } from 'app/core/components/data-load-indicator';
 import { StateButtonModule } from 'app/core/components/state-button';
-import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { TransactionTableGridModule } from 'app/core/components/transaction-table-grid';
 import { TransactionListBottomContentsModule } from 'app/core/components/transaction-list-bottom-contents';
 
@@ -25,7 +24,6 @@ import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar
         NoticeModule,
         DataLoadIndicatorModule,
         StateButtonModule,
-        ConfigurationIconModule,
         TransactionTableGridModule,
         TransactionListBottomContentsModule,
         RouterModule.forChild(routing)

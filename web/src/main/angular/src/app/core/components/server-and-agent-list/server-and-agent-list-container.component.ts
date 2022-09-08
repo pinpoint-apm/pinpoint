@@ -91,6 +91,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                 pluck('range'),
             )
         ).pipe(
+            filter(() => this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)), // prevent getting event after the component has been destroyed
             concatMap((range: number[]) => {
                 const appName = (this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
                 const requestStartAt = Date.now();

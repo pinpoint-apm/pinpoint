@@ -1,6 +1,6 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Observable, fromEvent, Subject } from 'rxjs';
-import { map, startWith, pluck, takeUntil, delay, filter } from 'rxjs/operators';
+import { takeUntil, delay, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -12,13 +12,7 @@ import {
     UrlRouteManagerService
 } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { UrlPathId } from 'app/shared/models';
-import { TransactionIdSearchContainerComponent } from 'app/core/components/transaction-id-search/transaction-id-search-container.component';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
-
-const enum ScreenWidth {
-    MIN = 1380
-}
 
 @Component({
     selector: 'pp-main-page',
@@ -30,10 +24,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private guideText: string;
 
-    sideNavigationUI: boolean;
-
     isAppSelected$: Observable<boolean>;
-    isScreenWideEnough$: Observable<boolean>;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -47,13 +38,9 @@ export class MainPageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.translateService.get('MAIN.VISIBILITY_HIDDEN').subscribe((text: string) => {
             this.guideText = text;
         });
-        this.isAppSelected$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
-        );
         this.webAppSettingDataService.getVersion().subscribe((version: string) => {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.VERSION, version);
         });
@@ -62,13 +49,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
     }
 
     private addEventListener(): void {
-        this.isScreenWideEnough$ = fromEvent(window, 'resize').pipe(
-            takeUntil(this.unsubscribe),
-            pluck('target', 'innerWidth'),
-            startWith(window.innerWidth),
-            map((width: number) => width >= ScreenWidth.MIN)
-        );
-
         fromEvent(document, 'visibilitychange').pipe(
             takeUntil(this.unsubscribe),
             filter(() => document.hidden),
@@ -98,6 +78,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
 
+    // TODO: Put this in app-widget in new layout
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.NAVBAR);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
@@ -109,22 +90,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
-        }, {
-            resolver: this.componentFactoryResolver,
-            injector: this.injector
-        });
-    }
-
-    onClickSearchIcon(btn: HTMLElement): void {
-        const {left, top, width, height} = btn.getBoundingClientRect();
-        const coord = {
-            coordX: left + width / 2,
-            coordY: top + height / 2
-        };
-
-        this.dynamicPopupService.openPopup({
-            coord,
-            component: TransactionIdSearchContainerComponent
         }, {
             resolver: this.componentFactoryResolver,
             injector: this.injector

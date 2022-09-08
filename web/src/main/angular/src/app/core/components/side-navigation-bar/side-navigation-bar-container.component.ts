@@ -1,10 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
-import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, 
+import { WebAppSettingDataService, 
     TRACKED_EVENT_LIST, UrlRouteManagerService, WindowRefService, AnalyticsService } from 'app/shared/services';
-import { Actions } from 'app/shared/store/reducers';
 import { UrlPath } from 'app/shared/models';
 
 export interface ISNBItem {
@@ -35,9 +33,8 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
 
     private showMetric: boolean;
     private showUrlStat: boolean;
-    private webhookEnable: boolean;
+    private showWebhook: boolean;
 
-    enableRealTime: boolean;
     logoPath: string;
     minimize = false;
     currentItemId: string;
@@ -48,10 +45,8 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private windowRefService: WindowRefService,
         private analyticsService: AnalyticsService,
-        private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) { }
 
     ngOnInit() {
@@ -65,24 +60,18 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         });
 
         this.webAppSettingDataService.isWebhookEnable().subscribe((webhookEnable: boolean) => {
-            this.webhookEnable = webhookEnable;
+            this.showWebhook = webhookEnable;
         });
 
-        this.webAppSettingDataService.getUserId().subscribe(userId => {
+
+        this.webAppSettingDataService.getUserId().subscribe((userId: string) => {
             this.userId = userId || 'dev';
             this.meta = this.generatNavItemMeta();
-            this.cd.detectChanges();
         });
-
+        
         this.logoPath = this.webAppSettingDataService.getLogoPath(this.minimize);
 
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((urlService: NewUrlStateNotificationService) => {
-            this.enableRealTime = urlService.isRealTimeMode();
-            this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));
-            this.cd.detectChanges();
-        });
+        this.cd.detectChanges();
     }
 
     ngOnDestroy() {
@@ -166,7 +155,7 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     childItems: [
                         { title: 'User Group', id: 'userGroup', path: '/config/userGroup', },
                         { title: 'Alarm', id: 'alarm', path: '/config/alarm', },
-                        { title: 'Webhook', id: 'webhook', path: '/config/webhook', showItem: this.webhookEnable },
+                        { title: 'Webhook', id: 'webhook', path: '/config/webhook', showItem: this.showWebhook, },
                         { title: 'Installation', id: 'installation', path: '/config/installation', },
                         // divider
                         { id: 'divider' },

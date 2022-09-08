@@ -56,10 +56,6 @@ export class ConfigurationExperimentalContainerComponent implements OnInit {
         this.configurations =  { ...this.configurations, [optionKey]: !this.configurations[optionKey] };
         this.webAppSettingDataService.setExperimentalOption(localStorageKey, this.configurations[optionKey]);
         this.applyGA({optionKey, optionValue: this.configurations[optionKey]});
-
-        if (optionKey === 'enableSideNavigationUI') {
-            this.urlRouteManagerService.reload();
-        }
     }
 
     private applyGA({optionKey, optionValue}: {optionKey: string, optionValue: boolean}): void {

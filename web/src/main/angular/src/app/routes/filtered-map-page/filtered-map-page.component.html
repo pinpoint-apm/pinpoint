@@ -1,13 +1,11 @@
 <pp-notice-container></pp-notice-container>
-<pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
+<pp-side-navigation-bar></pp-side-navigation-bar>
 <div class="container">
-    <header class="l-header flex-container flex-row" [class.light]="sideNavigationUI">
-        <pp-header-logo *ngIf="!sideNavigationUI"></pp-header-logo>
+    <header class="l-header flex-container flex-row light">
         <div class="l-widget-group">
             <pp-data-load-indicator-for-filtered-map-container></pp-data-load-indicator-for-filtered-map-container>
         </div>
         <pp-state-button-for-filtered-map-container></pp-state-button-for-filtered-map-container>
-        <pp-configuration-icon-container *ngIf="!sideNavigationUI"></pp-configuration-icon-container>
     </header>
     <div class="l-main-container">
         <section class="l-main-section">

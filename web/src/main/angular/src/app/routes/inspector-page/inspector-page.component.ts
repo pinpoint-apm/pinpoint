@@ -1,5 +1,4 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, OnDestroy } from '@angular/core';
-import { state, style, animate, transition, trigger } from '@angular/animations';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 
@@ -10,24 +9,6 @@ import { InspectorPageService } from './inspector-page.service';
 
 @Component({
     selector: 'pp-inspector-page',
-    animations: [
-        trigger('fadeInOut', [
-            state('in', style({transform: 'translateX(0)', opacity: 1})),
-            transition(':leave', [ // is alias to '* => void'
-                animate('1.5s 0.1s ease-in', style({
-                    transform: 'translateX(-100%)',
-                    opacity: 0
-                }))
-            ]),
-            transition(':enter', [ // is alias to 'void => *'
-                style({
-                    transform: 'translateX(-100%)',
-                    opacity: 0
-                }),
-                animate('2s ease-out')
-            ])
-        ])
-    ],
     templateUrl: './inspector-page.component.html',
     styleUrls: ['./inspector-page.component.css'],
     providers: [InspectorPageService]
@@ -36,7 +17,6 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private funcImagePath: Function;
 
-    sideNavigationUI: boolean;
     unAuthImgPath: string;
 
     showSideMenu: boolean;
@@ -61,7 +41,6 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
-        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.unAuthImgPath = this.webAppSettingDataService.getServerMapIconPathMakeFunc()('UNAUTHORIZED');
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -94,14 +73,28 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     }
 
     onSelectApp(): void {
-        this.urlRouteManagerService.moveOnPage({
-            url: [
+        const url = this.newUrlStateNotificationService.isRealTimeMode() ?
+            [
+                UrlPath.INSPECTOR,
+                UrlPath.REAL_TIME,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+            ] :
+            [
                 UrlPath.INSPECTOR,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-            ]
-        })
+            ];
+
+        this.urlRouteManagerService.moveOnPage({url});
+        // this.urlRouteManagerService.moveOnPage({
+        //     url: [
+        //         UrlPath.INSPECTOR,
+        //         this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+        //         this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+        //         this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+        //     ]
+        // })
     }
 
     onShowHelp($event: MouseEvent): void {

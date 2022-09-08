@@ -6,48 +6,28 @@
 
 .container {
     display: flex;
-    flex-flow: row wrap;
-}
-
-.container.sideNavigationUI {
-    flex-flow: unset;
 }
 
 .l-widget-group {
     display: flex;
-    flex-flow: row wrap;
-    flex: 1;
     padding: 0 15px;
-    height: 100%;
-    align-items: center;
-}
-
-.l-widget-group.sideNavigationUI {
     height: 50px;
     width: 100%;
     border-bottom: 1px solid var(--border-primary);
-    flex: unset;
+    align-items: center;
     background: var(--background-default);
 }
 
 .l-main-container {
     display: flex;
     flex-flow: row wrap;
-    height: calc(100vh - 50px);
+    height: 100vh;
     width: 100%;
     overflow-y: hidden;
 }
 
-.l-main-container.sideNavigationUI {
-    height: 100vh;
-}
-
 .l-sidemenu-wrap {
     position: relative;
-    height: 100%;
-}
-
-.l-sidemenu-wrap.sideNavigationUI {
     height: calc(100% - 50px);
 }
 
@@ -60,28 +40,11 @@
 }
 
 .l-main-section {
-    /* flex: 1; */
     background: var(--background-primary);
     position: relative;
-    height: 100%;
-    /* width: calc(100% - 250px); */
-
-    /* padding: 20px 15px; */
-    /* padding: 15px; */
-    /* max-height: 100%;
-    overflow-y: auto; */
+    height: calc(100% - 50px);
 }
 
 .l-main-section.sideNavigationUI {
     height: calc(100% - 50px);
-}
-
-.fa-question-circle {
-    color: white;
-    font-size: 18px;
-    margin-right: 15px;
-}
-
-button {
-    outline: none;
 }
