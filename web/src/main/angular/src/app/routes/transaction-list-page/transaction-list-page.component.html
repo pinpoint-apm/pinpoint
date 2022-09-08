@@ -1,14 +1,12 @@
 <pp-notice-container></pp-notice-container>
-<div class="container" [class.sideNavigationUI]="sideNavigationUI">
-    <pp-side-navigation-bar *ngIf="sideNavigationUI"></pp-side-navigation-bar>
-    <div style="width: 100%;">
-        <header class="l-header flex-container flex-row" [class.light]="sideNavigationUI">
-            <pp-header-logo *ngIf="!sideNavigationUI"></pp-header-logo>
+<div class="container">
+    <pp-side-navigation-bar></pp-side-navigation-bar>
+    <div class="l-main-section">
+        <header class="l-header flex-container flex-row light">
             <div class="l-widget-group">
                 <pp-data-load-indicator-for-transaction-list-container></pp-data-load-indicator-for-transaction-list-container>
             </div>
             <pp-state-button-for-transaction-list-container></pp-state-button-for-transaction-list-container>
-            <pp-configuration-icon-container></pp-configuration-icon-container>
         </header>
         <div class="l-main-container">
             <as-split direction="vertical" (dragEnd)="onGutterResized($event)">

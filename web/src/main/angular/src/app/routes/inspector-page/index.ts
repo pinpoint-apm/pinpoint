@@ -4,9 +4,6 @@ import { RouterModule } from '@angular/router';
 import { routing } from './inspector-page.routing';
 import { SharedModule } from 'app/shared';
 import { NoticeModule } from 'app/core/components/notice';
-import { ApplicationListModule } from 'app/core/components/application-list';
-import { PeriodSelectorModule } from 'app/core/components/period-selector';
-import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { ServerAndAgentListModule } from 'app/core/components/server-and-agent-list';
 import { ApplicationInspectorContentsModule } from 'app/core/components/application-inspector-contents';
 import { AgentInspectorContentsModule } from 'app/core/components/agent-inspector-contents';
@@ -23,9 +20,6 @@ import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar
         SharedModule,
         SideNavigationBarModule,
         NoticeModule,
-        ApplicationListModule,
-        PeriodSelectorModule,
-        ConfigurationIconModule,
         ServerAndAgentListModule,
         ApplicationInspectorContentsModule,
         AgentInspectorContentsModule,

@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from 'app/shared';
 import { MetricPageRoutingModule } from './metric-page.routing';
 import { MetricPageComponent } from './metric-page.component';
-import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { NoticeModule } from 'app/core/components/notice';
 import { PeriodSelectorModule } from 'app/core/components/period-selector';
@@ -22,7 +21,6 @@ import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar
         NoticeModule,
         HostGroupListModule,
         PeriodSelectorModule,
-        ConfigurationIconModule,
         HelpViewerPopupModule,
         HostGroupAndHostListModule,
         MetricContentsModule,

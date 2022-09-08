@@ -1,4 +1,4 @@
-.container.sideNavigationUI {
+.container {
     display: flex;
 }
 
@@ -6,19 +6,12 @@
     height:100%;
 }
 .l-main-container {
-    display: flex;
-    flex-flow: row wrap;
     overflow-y: hidden;
     width: 100%;
-    height: calc(100vh - 50px);
-}
-.l-main-container.sideNavigationUI {
     height: 100vh;
 }
+
 .l-main-section {
-    display: flex;
-    flex-flow: column nowrap;
-    flex:1;
     position: relative;
     height: 100%;
 }

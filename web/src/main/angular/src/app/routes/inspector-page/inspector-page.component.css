@@ -1,10 +1,5 @@
 .container {
     display: flex;
-    flex-flow: row wrap;
-}
-
-.container.sideNavigationUI {
-    flex-flow: unset
 }
 
 .l-widget-group {
@@ -18,18 +13,12 @@
 .l-main-container {
     display: flex;
     flex-flow: row wrap;
-    height: calc(100vh - 50px);
+    height: 100vh;
     width: 100%;
     overflow-y: hidden;
 }
-.l-main-container.sideNavigationUI {
-    height: 100vh;
-}
 .l-sidemenu-wrap {
     position: relative;
-    height: 100%;
-}
-.l-sidemenu-wrap.sideNavigationUI {
     height: calc(100% - 50px);
 }
 .l-sidemenu-left {
@@ -43,19 +32,8 @@
     /* flex: 1; */
     background: var(--background-primary);
     position: relative;
-    height: 100%;
-    /* width: calc(100% - 250px); */
-}
-.l-main-section.sideNavigationUI {
     height: calc(100% - 50px);
-}
-.fa-question-circle {
-    color: white;
-    font-size: 18px;
-    margin-right: 15px;
-}
-button {
-    outline: none;
+    /* width: calc(100% - 250px); */
 }
 .l-application-inspector-title-wrapper {
     border-bottom: 1px solid var(--border-primary);
