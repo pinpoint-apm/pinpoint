@@ -236,12 +236,6 @@ export class WebAppSettingDataService {
             return this.IMAGE_PATH + name + this.IMAGE_EXT;
         };
     }
-    setChartLayoutOption(chartNumPerRow: number): void {
-        this.localStorageService.set(WebAppSettingDataService.KEYS.CHART_NUM_PER_ROW, chartNumPerRow);
-    }
-    getChartLayoutOption(): number {
-        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.CHART_NUM_PER_ROW) || this.getSystemDefaultChartLayoutOption();
-    }
     getChartRefreshInterval(key: string): number {
         return this.getSystemDefaultChartRefreshInterval(key);
     }

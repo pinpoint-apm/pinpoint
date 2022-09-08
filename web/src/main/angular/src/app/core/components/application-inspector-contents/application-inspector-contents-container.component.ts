@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, HostBinding, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { Observable, of, Subject, merge } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { Observable, of, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
+import { NewUrlStateNotificationService, WebAppSettingDataService } from 'app/shared/services';
 import { ChartType } from 'app/core/components/inspector-chart/inspector-chart-container-factory';
 
 @Component({
@@ -15,18 +14,15 @@ export class ApplicationInspectorContentsContainerComponent implements OnInit, O
     @HostBinding('class') hostClass = 'l-application-inspector-contents';
     @ViewChild('chartGroupWrapper', { static: true }) chartGroupWrapper: ElementRef;
     private unsubscribe = new Subject<void>();
+    private chartNumPerRow = 3; // Set this 3 temporarily. Should be responsive later
 
     isApplicationInspectorActivated$: Observable<boolean>;
-    isApplicationInspectorActivated: boolean;
-    guideMessage$: Observable<string>;
     coverRangeElements$: Observable<boolean>;
     chartType = ChartType;
 
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
-        private messageQueueService: MessageQueueService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private translateService: TranslateService,
         private renderer: Renderer2
     ) {}
 
@@ -35,16 +31,8 @@ export class ApplicationInspectorContentsContainerComponent implements OnInit, O
         this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );
-        this.guideMessage$ = this.translateService.get('COMMON.CHART_INTERACTION_GUIDE_MESSAGE');
+        this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(this.chartNumPerRow));
 
-        merge(
-            of(this.webAppSettingDataService.getChartLayoutOption()),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT)
-        ).pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((chartCountPerRow: number) => {
-            this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(chartCountPerRow));
-        });
     }
 
     ngOnDestroy() {

@@ -8,10 +8,6 @@
 <pp-agent-event-view-container></pp-agent-event-view-container>
 <div class="l-main-contents">
     <pp-agent-info-container></pp-agent-info-container>
-    <div class="l-chart-option-area">
-        <p class="l-guide-text">{{guideMessage$ | async}}</p>
-        <pp-chart-layout-option-container></pp-chart-layout-option-container>
-    </div>
     <div class="l-chart-group-wrap" #chartGroupWrapper>
         <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_JVM_HEAP"></pp-inspector-chart-container></div>
         <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_JVM_NON_HEAP"></pp-inspector-chart-container></div>
