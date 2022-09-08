@@ -7,7 +7,6 @@ import { AgentEventViewModule } from 'app/core/components/agent-event-view';
 import { AgentInfoModule } from 'app/core/components/agent-info';
 import { TimelineModule } from 'app/core/components/timeline';
 import { InspectorChartModule } from 'app/core/components/inspector-chart';
-import { ChartLayoutOptionModule } from 'app/core/components/chart-layout-option';
 
 @NgModule({
     declarations: [
@@ -20,7 +19,6 @@ import { ChartLayoutOptionModule } from 'app/core/components/chart-layout-option
         AgentInfoModule,
         TimelineModule,
         InspectorChartModule,
-        ChartLayoutOptionModule
     ],
     exports: [
         AgentInspectorContentsContainerComponent

@@ -15,7 +15,7 @@ import { ChartLayoutDataService } from './chart-layout-data.service';
 export class ChartLayoutContainerComponent implements OnInit {
     @Input() type: string;
     private unsubscribe: Subject<void> = new Subject();
-    column: number;
+    column: number = 3;
     i18nText = {
         empty: ''
     };
@@ -40,7 +40,7 @@ export class ChartLayoutContainerComponent implements OnInit {
         this.chartLayoutDataService.getChartOrderList(this.type).pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((list: string[]) => {
-            this.column = this.webAppSettingDataService.getChartLayoutOption();
+            // this.column = this.webAppSettingDataService.getChartLayoutOption();
             this.chartList = list;
             this.hideProcessing();
             this.changeDetectorRef.detectChanges();

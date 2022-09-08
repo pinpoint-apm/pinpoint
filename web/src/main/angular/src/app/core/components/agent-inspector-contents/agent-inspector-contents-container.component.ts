@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, HostBinding, Renderer2, ViewChild, ElementRef } from '@angular/core';
-import { Subject, Observable, merge, of } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { Subject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { MessageQueueService, MESSAGE_TO, WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
+import { NewUrlStateNotificationService } from 'app/shared/services';
 import { ChartType } from 'app/core/components/inspector-chart/inspector-chart-container-factory';
 
 @Component({
@@ -15,16 +14,13 @@ export class AgentInspectorContentsContainerComponent implements OnInit, OnDestr
     @HostBinding('class') hostClass = 'l-agent-inspector-contents';
     @ViewChild('chartGroupWrapper', { static: true }) chartGroupWrapper: ElementRef;
     private unsubscribe = new Subject<void>();
+    private chartNumPerRow = 3; // Set this 3 temporarily. Should be responsive later
 
-    guideMessage$: Observable<string>;
     coverRangeElements$: Observable<boolean>;
     chartType = ChartType;
 
     constructor(
-        private webAppSettingDataService: WebAppSettingDataService,
-        private messageQueueService: MessageQueueService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private translateService: TranslateService,
         private renderer: Renderer2
     ) {}
 
@@ -32,15 +28,7 @@ export class AgentInspectorContentsContainerComponent implements OnInit, OnDestr
         this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );
-        this.guideMessage$ = this.translateService.get('COMMON.CHART_INTERACTION_GUIDE_MESSAGE');
-        merge(
-            of(this.webAppSettingDataService.getChartLayoutOption()),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SET_CHART_LAYOUT)
-        ).pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((chartCountPerRow: number) => {
-            this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(chartCountPerRow));
-        });
+        this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(this.chartNumPerRow));
     }
 
     ngOnDestroy() {

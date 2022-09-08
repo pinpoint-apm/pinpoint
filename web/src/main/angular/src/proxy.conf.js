@@ -10,6 +10,7 @@ const PROXY_CONFIG = [
             "/getResponseTimeHistogramDataV2.pinpoint",
             "/getLinkTimeHistogramData.pinpoint",
             "/getFilteredServerMapDataMadeOfDotGroup.pinpoint",
+            "/getDetailedAgentInfo",
             "/getAgentList.pinpoint",
             "/getAgentStat/jvmGc/chart.pinpoint",
             "/getAgentStat/cpuLoad/chart.pinpoint",

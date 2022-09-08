@@ -22,13 +22,6 @@
     margin-bottom: 20px;
 }
 
-.l-guide-text {
-    font-family: 'Open Sans';
-    color: var(--text-primary);
-    font-size: 14px;
-    font-style: italic;
-}
-
 .l-chart-group-wrap {
     display: grid;
     width: 100%;

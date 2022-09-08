@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from 'app/shared';
-import { ChartLayoutOptionModule } from 'app/core/components/chart-layout-option';
 import { MetricContentsContainerComponent } from './metric-contents-container.component';
 import { MetricModule } from 'app/core/components/metric';
 
@@ -11,7 +10,6 @@ import { MetricModule } from 'app/core/components/metric';
     ],
     imports: [
         SharedModule,
-        ChartLayoutOptionModule,
         MetricModule
     ],
     exports: [
