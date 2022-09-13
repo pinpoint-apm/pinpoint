@@ -4,13 +4,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="pinotDataSource"
-          class="com.navercorp.pinpoint.metric.web.mybatis.DataSourceDelegator">
-        <constructor-arg index="0" ref="originalPinotDataSource"/>
-    </bean>
-
-    <bean id="originalPinotDataSource"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="${pinpoint.pinot.jdbc.driverClassName}" />
+          class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="driverClass" value="${pinpoint.pinot.jdbc.driverClassName}" />
         <property name="url" value="${pinpoint.pinot.jdbc.url}" />
         <property name="username" value="${pinpoint.pinot.jdbc.username}" />
         <property name="password" value="${pinpoint.pinot.jdbc.password}" />

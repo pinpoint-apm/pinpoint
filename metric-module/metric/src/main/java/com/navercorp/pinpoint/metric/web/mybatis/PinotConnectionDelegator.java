@@ -92,7 +92,7 @@ public class PinotConnectionDelegator implements Connection {
 
     @Override
     public void close() throws SQLException {
-        delegate.close();
+//        delegate.close();
     }
 
     @Override
