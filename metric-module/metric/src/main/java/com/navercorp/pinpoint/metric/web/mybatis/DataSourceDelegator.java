@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 /**
  * @author Hyunjoon Cho
  */
+@Deprecated
 public class DataSourceDelegator implements DataSource {
 
     private final DataSource delegate;
