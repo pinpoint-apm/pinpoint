@@ -42,7 +42,7 @@ public class HbaseClientConstructorInterceptor implements AroundInterceptor {
     @IgnoreMethod
     @Override
     public void before(Object target, Object[] args) {
-
+        // do nothing
     }
 
     @Override

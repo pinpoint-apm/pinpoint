@@ -99,9 +99,7 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
 
         Object param;
         final int argsLength = ArrayUtils.getLength(args);
-        if (argsLength == 1) { // only one
-            param = args[0];
-        } else if (argsLength > 1) { // last param
+        if (argsLength >= 1) {
             param = args[argsLength - 1];
         } else {
             return null;
