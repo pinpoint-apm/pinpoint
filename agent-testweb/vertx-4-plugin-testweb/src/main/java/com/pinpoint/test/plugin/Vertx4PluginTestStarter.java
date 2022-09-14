@@ -27,6 +27,7 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SelfSignedCertificate;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.client.WebClient;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +45,7 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         Router router = Router.router(vertx);
 
         router.get("/").handler(routingContext -> {
+            System.out.println("## WELCOME");
             routingContext.response().end("Welcome pinpoint vert.x HTTP server test.");
         });
         router.get("/request").handler(routingContext -> {
@@ -52,11 +54,11 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         });
         router.get("/request/local").handler(routingContext -> {
             request(18080, "localhost", "/");
-            routingContext.response().end("Request http://localhost:18080/");
+            routingContext.response().end("Request http://localhost:18080");
         });
         router.get("/request/https").handler(routingContext -> {
             request(443, "naver.com", "/");
-            routingContext.response().end("Request http://naver.com:80/");
+            routingContext.response().end("Request https://naver.com:80/");
         });
         router.get("/noresponse").handler(routingContext -> {
         });
@@ -109,7 +111,7 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         vertx.executeBlocking(new Handler<Promise<Object>>() {
             @Override
             public void handle(Promise<Object> objectFuture) {
-                request(80, "naver.com", "/");
+                request(28080, "localhost", "/client/get");
                 request.response().end("Execute blocking request.");
             }
         }, false, null);
@@ -138,14 +140,9 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
     }
 
     public void request(int port, String host, String uri) {
-        final HttpClient client = vertx.createHttpClient();
-
-        client.request(HttpMethod.GET, port, host, uri, new Handler<AsyncResult<HttpClientRequest>>() {
-            @Override
-            public void handle(AsyncResult<HttpClientRequest> asyncResult) {
-                System.out.println("## Result=" + asyncResult.result());
-
-            }
-        });
+        WebClient client = WebClient.create(vertx);
+        client.get(port, host, uri).timeout(Long.MAX_VALUE).send()
+                .onSuccess(event -> System.out.println("##Received response with status code=" + event.statusCode()))
+                .onFailure(event -> System.out.println("##Something went wrong=" + event.getMessage()));
     }
 }

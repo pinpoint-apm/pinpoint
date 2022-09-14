@@ -34,7 +34,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         if (!validate(args)) {
             return;
         }
@@ -87,9 +87,13 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
             if (args[0] instanceof AsyncContextAccessor) {
                 handlers.blockingCodeHandler = (AsyncContextAccessor) args[0];
             }
-
             if (args[2] instanceof AsyncContextAccessor) {
                 handlers.resultHandler = (AsyncContextAccessor) args[2];
+            }
+        } else if (length == 4) {
+            // ContextInternal context, Handler<Promise<T>> blockingCodeHandler, WorkerPool workerPool, TaskQueue queue
+            if (args[1] instanceof AsyncContextAccessor) {
+                handlers.blockingCodeHandler = (AsyncContextAccessor) args[1];
             }
         }
 
@@ -97,7 +101,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
         recorder.recordException(throwable);
