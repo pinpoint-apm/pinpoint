@@ -159,7 +159,7 @@ public class ASMMethod implements InstrumentMethod {
         }
 
         if (this.methodNode.isAbstract() || this.methodNode.isNative()) {
-            logger.warn("Skip adding interceptor. 'abstract or native method' class={}, interceptor={}", this.declaringClass.getName(), interceptorClass.getName());
+            logger.info("Skip adding interceptor. 'abstract or native method' class={}, interceptor={}", this.declaringClass.getName(), interceptorClass.getName());
             return;
         }
 
