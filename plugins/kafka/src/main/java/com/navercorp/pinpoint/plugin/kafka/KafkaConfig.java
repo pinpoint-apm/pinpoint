@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 public class KafkaConfig {
 
@@ -33,12 +37,17 @@ public class KafkaConfig {
 
     static final String SPRING_CONSUMER_ENABLE = "profiler.springkafka.consumer.enable";
 
+    @VisibleForTesting
+    public static final String EXCLUDE_CONSUMER_TOPIC = "profiler.kafka.consumer.exclude.topic";
+
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
     private final boolean headerRecorded;
     private final String kafkaEntryPoint;
+
+    private final Filter<String> excludeConsumerTopicFilter;
 
     public KafkaConfig(ProfilerConfig config) {
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
@@ -47,6 +56,16 @@ public class KafkaConfig {
         this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
         this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+        final String excludeConsumerTopicValue = config.readString(EXCLUDE_CONSUMER_TOPIC, "");
+        this.excludeConsumerTopicFilter = createExcludeFilter(excludeConsumerTopicValue);
+    }
+
+    private Filter<String> createExcludeFilter(String excludeTopics) {
+        if (StringUtils.hasText(excludeTopics)) {
+            return new ExcludeTopicFilter(excludeTopics);
+        } else {
+            return new SkipFilter<>();
+        }
     }
 
     public boolean isProducerEnable() {
@@ -71,6 +90,10 @@ public class KafkaConfig {
 
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
+    }
+
+    public Filter<String> getExcludeConsumerTopicFilter() {
+        return excludeConsumerTopicFilter;
     }
 
     @Override

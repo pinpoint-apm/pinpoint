@@ -44,6 +44,10 @@ public class ConsumerRecordsDesc {
         this.size = size;
     }
 
+    Set<String> getTopicSet() {
+        return topicSet;
+    }
+
     String getTopicString() {
         if (CollectionUtils.isEmpty(topicSet)) {
             return KafkaConstants.UNKNOWN;

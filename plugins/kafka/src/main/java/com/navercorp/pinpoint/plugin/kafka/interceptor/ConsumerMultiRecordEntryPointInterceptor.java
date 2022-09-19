@@ -22,9 +22,11 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -49,8 +51,15 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-        ConsumerRecordsDesc consumerRecordsDesc = getConsumerRecordsDesc(args);
+        final ConsumerRecordsDesc consumerRecordsDesc = getConsumerRecordsDesc(args);
         if (consumerRecordsDesc == null) {
+            return null;
+        }
+        final Set<String> topicSet = consumerRecordsDesc.getTopicSet();
+        if (checkExcludeTopicSet(topicSet)) {
+            if (isTrace) {
+                logger.trace("Failed to create trace. Cause by: topic({}) has been filtered.", consumerRecordsDesc.getTopicString());
+            }
             return null;
         }
 
@@ -69,6 +78,19 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
             tracyFactoryReference.compareAndSet(null, createTrace);
         }
         return createTrace.createTrace(traceContext, consumerRecordsDesc);
+    }
+
+    private boolean checkExcludeTopicSet(Set<String> topicSet) {
+        if (CollectionUtils.isEmpty(topicSet)) {
+            return true;
+        }
+
+        for (String topic : topicSet) {
+            if (!excludeTopicFilter.filter(topic)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static class TraceFactoryProvider {

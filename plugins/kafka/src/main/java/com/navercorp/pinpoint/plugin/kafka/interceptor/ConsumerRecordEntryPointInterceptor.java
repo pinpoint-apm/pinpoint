@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -44,6 +45,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInterceptor {
 
+    protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    protected final boolean isTrace = logger.isTraceEnabled();
+
     protected static final String SCOPE_NAME = "##KAFKA_ENTRY_POINT_START_TRACE";
 
     protected static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR = new EntryPointMethodDescriptor();
@@ -54,12 +58,15 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     private final TraceFactoryProvider traceFactoryProvider;
 
+    protected final Filter<String> excludeTopicFilter;
+
     public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
         super(traceContext, methodDescriptor, SCOPE_NAME);
         traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
         this.parameterIndex = parameterIndex;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
         this.traceFactoryProvider = new TraceFactoryProvider(config.isHeaderRecorded());
+        this.excludeTopicFilter = config.getExcludeConsumerTopicFilter();
     }
 
     @Override
@@ -77,13 +84,18 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-        ConsumerRecord consumerRecord = getConsumerRecord(args);
-
+        final ConsumerRecord consumerRecord = getConsumerRecord(args);
         if (consumerRecord == null) {
             return null;
         }
-        Trace newTrace = createTrace(consumerRecord);
+        if (excludeTopicFilter.filter(consumerRecord.topic())) {
+            if (isTrace) {
+                logger.trace("Failed to create trace. Cause by: topic({}) has been filtered.", consumerRecord.topic());
+            }
+            return null;
+        }
 
+        Trace newTrace = createTrace(consumerRecord);
         return newTrace;
     }
 

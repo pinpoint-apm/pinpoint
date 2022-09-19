@@ -7,14 +7,20 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
+import com.navercorp.pinpoint.plugin.kafka.KafkaPluginTestUtils;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import static com.navercorp.pinpoint.plugin.kafka.KafkaConfig.EXCLUDE_CONSUMER_TOPIC;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
@@ -66,6 +72,24 @@ public class ConsumerRecordEntryPointInterceptorTest {
 
         verify(eventRecorder).recordApi(descriptor);
         verify(eventRecorder).recordException(null);
+    }
+
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    @Test
+    public void filterTest() {
+        final String topic = KafkaPluginTestUtils.makeTopicString(10);
+        doReturn(topic).when(profilerConfig).readString(EXCLUDE_CONSUMER_TOPIC, "");
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+
+        ConsumerRecordEntryPointInterceptor interceptor = new ConsumerRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        // filtered
+        Assertions.assertNull(interceptor.createTrace(null, new Object[]{KafkaPluginTestUtils.createConsumerRecord(topic)}));
+        try {
+            // not filtered
+            Assertions.assertNull(interceptor.createTrace(null, new Object[]{KafkaPluginTestUtils.createConsumerRecord("invalid_" + topic)}));
+            Assertions.fail();
+        } catch (Exception e) {
+        }
     }
 
     @Test
