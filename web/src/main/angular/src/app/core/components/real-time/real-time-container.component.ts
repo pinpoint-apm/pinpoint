@@ -41,6 +41,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     activeOnly = false;
     isPinUp = true;
     lastHeight: number;
+    defaultHeight = 225;
     minHeight = 35;
     maxHeightPadding = 50; // Header Height
     timezone$: Observable<string>;
@@ -70,7 +71,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     ) {}
 
     ngOnInit() {
-        this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.minHeight;
+        this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.defaultHeight;
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
         ).subscribe(() => {
