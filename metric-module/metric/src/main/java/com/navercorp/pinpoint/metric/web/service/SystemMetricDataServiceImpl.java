@@ -139,6 +139,8 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
             List<MetricTag> metricTagList = systemMetricHostInfoService.getTag(metricDataSearchKey, field);
 
+            // TODO : (minwoo) this line delete.
+            metricDataType = MetricDataType.DOUBLE;
             for (MetricTag metricTag : metricTagList) {
                 switch (metricDataType) {
                     case LONG:
