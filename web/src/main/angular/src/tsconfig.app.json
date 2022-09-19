@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-    "downlevelIteration": true,
+        "downlevelIteration": true,
         "sourceMap": true,
         "declaration": false,
         "moduleResolution": "node",
@@ -8,7 +8,7 @@
         "experimentalDecorators": true,
         "target": "es2015",
         "lib": [
-            "es2017",
+            "es2019",
             "dom",
             "esnext.array"
         ],

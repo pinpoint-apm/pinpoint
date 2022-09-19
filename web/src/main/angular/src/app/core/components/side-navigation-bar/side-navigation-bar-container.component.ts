@@ -87,15 +87,15 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
     }
 
     onClickInspector(): void {
-        this.urlRouteManagerService.moveByApplicationCondition(UrlPath.INSPECTOR);
+        this.urlRouteManagerService.movePageOnSidebar(UrlPath.INSPECTOR);
     }
 
     onClickServermap(): void {
-        this.urlRouteManagerService.moveByApplicationCondition(UrlPath.MAIN);
+        this.urlRouteManagerService.movePageOnSidebar(UrlPath.MAIN);
     }
 
     onClickMetric(): void {
-        this.urlRouteManagerService.moveToMetricPage();
+        this.urlRouteManagerService.movePageOnSidebar(UrlPath.METRIC);
     }
 
     onClickGithubLink() {

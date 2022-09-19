@@ -60,6 +60,10 @@ const routes: Routes = [
             {
                 path: '',
                 pathMatch: 'full',
+                data: {
+                    showRealTimeButton: false,
+                    enableRealTimeMode: false
+                },
                 component: EmptyContentsComponent
             }
         ]
