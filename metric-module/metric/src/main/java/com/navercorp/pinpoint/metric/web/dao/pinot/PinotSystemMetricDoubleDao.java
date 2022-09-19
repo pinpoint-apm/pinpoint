@@ -27,8 +27,11 @@ import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,8 +46,16 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
+    @Value("${pinpoint.pinot.jdbc.url}")
+    private String jdbcUrl;
+
     public PinotSystemMetricDoubleDao(SqlSessionTemplate sqlPinotSessionTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+    }
+
+    @PostConstruct
+    public void log()  {
+        logger.info("#### jdbcUrl : {}", jdbcUrl);
     }
 
     @Override
@@ -59,7 +70,14 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
 
     @Override
     public List<SystemMetricPoint<Double>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
+        logger.info("=========== thread start " + Thread.currentThread().getName() + " metrictagInfo : ");
+        long startTime = System.currentTimeMillis();
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
+
+
+        List<SystemMetricPoint<Double>> result = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
+        long endTime = System.currentTimeMillis();
+        logger.info("============ thread end " + Thread.currentThread().getName() + " end thread." + " executeTime : " + (endTime - startTime) + " metrictagInfo : " + metricTag);
+        return result;
     }
 }
