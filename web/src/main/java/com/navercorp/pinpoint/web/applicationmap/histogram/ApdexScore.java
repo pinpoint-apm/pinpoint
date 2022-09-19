@@ -15,6 +15,25 @@ public class ApdexScore {
 
     private final double apdexScore;
 
+    @JsonProperty
+    private final ApdexFormula apdexFormula;
+
+    private static class ApdexFormula {
+
+        @JsonProperty
+        private final long satisfiedCount;
+        @JsonProperty
+        private final long toleratingCount;
+        @JsonProperty
+        private final long totalSamples;
+
+        public ApdexFormula(long satisfiedCount, long toleratingCount, long totalSamples) {
+            this.satisfiedCount = satisfiedCount;
+            this.toleratingCount = toleratingCount;
+            this.totalSamples = totalSamples;
+        }
+    }
+
     public static double toDoubleFromHistogram(Histogram histogram) {
         Objects.requireNonNull(histogram, "histogram");
         final long satisfiedCount = histogram.getFastCount();
@@ -35,6 +54,7 @@ public class ApdexScore {
 
     public ApdexScore(long satisfiedCount, long toleratingCount, long totalSamples) {
         this.apdexScore = calculateApdexScore(satisfiedCount, toleratingCount, totalSamples);
+        this.apdexFormula = new ApdexFormula(satisfiedCount, toleratingCount, totalSamples);
     }
 
     private static double calculateApdexScore(long satisfiedCount, long toleratingCount, long totalSamples) {

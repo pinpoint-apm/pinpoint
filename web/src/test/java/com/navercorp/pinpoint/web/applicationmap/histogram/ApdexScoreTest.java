@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,6 +48,14 @@ public class ApdexScoreTest {
         final String actualStr = MAPPER.writeValueAsString(new ApdexScore(100, 0, 100));
 
         JSONAssert.assertEquals("{\"apdexScore\":1.0}", actualStr, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    public void getApdexScore_formula() throws JsonProcessingException, JSONException {
+        ApdexScore apdexScore = new ApdexScore(100, 50, 200);
+        final String actualStr = MAPPER.writeValueAsString(apdexScore);
+
+        JSONAssert.assertEquals("{\"apdexScore\":0.625,\"apdexFormula\":{\"satisfiedCount\":100,\"toleratingCount\":50,\"totalSamples\":200}}", actualStr, JSONCompareMode.LENIENT);
     }
 
 }
