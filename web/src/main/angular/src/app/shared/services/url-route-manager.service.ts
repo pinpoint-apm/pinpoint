@@ -66,41 +66,24 @@ export class UrlRouteManagerService {
         ]);
     }
 
-    moveToMetricPage(): void {
-        this.router.navigate([
-            UrlPath.METRIC
-        ]);
-    }
+    movePageOnSidebar(rootRoute: string): void {
+        // TODO: Keep realtime state when switching pages after refactoring the url structure
+        const pageUrlInfo = this.newUrlStateNotificationService.getPageUrlInfo(rootRoute);
 
-    moveByApplicationCondition(rootRoute: UrlPath): void {
-        if (this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)) {
-            const isRealTimeMode = this.newUrlStateNotificationService.isRealTimeMode();
-            const applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).applicationName;
-            const serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).serviceType;
-            const selectedApp = `${applicationName}@${serviceType}`;
-
-            if (isRealTimeMode) {
-                this.router.navigate([
-                    rootRoute,
-                    UrlPath.REAL_TIME,
-                    selectedApp,
-                ]);
-            } else if (
-                this.newUrlStateNotificationService.hasValue(UrlPathId.PERIOD)
-                && this.newUrlStateNotificationService.hasValue(UrlPathId.END_TIME)
-            ) {
-                this.router.navigate([
-                    rootRoute,
-                    selectedApp,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-                ]);
-            }
-        } else {
+        if (!pageUrlInfo) {
             this.router.navigate([
-                rootRoute,
+                rootRoute
             ]);
+
+            return;
         }
+
+        this.router.navigate([
+            rootRoute,
+            ...pageUrlInfo.pathParams.values()
+        ], {
+            queryParams: Object.fromEntries(pageUrlInfo.queryParams),
+        });
     }
 
     move({url, needServerTimeRequest, nextUrl = [], queryParams = {}}: {url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParams?: any}): void {

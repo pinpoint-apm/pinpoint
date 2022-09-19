@@ -31,7 +31,9 @@ export class NewUrlStateNotificationService {
     private innerRouteData: IGeneral = {};
     private onUrlStateChange: BehaviorSubject<NewUrlStateNotificationService> = new BehaviorSubject(null);
     private pageComponentRoute: ActivatedRoute;
-    private pageUrlHistory: IUrlInfo[] = [];
+    private pageUrlHistory: IUrlInfo[] = []; // TODO: Remove it when removing legacy layout
+
+    private pageUrlInfo: Record<string, Pick<IUrlInfo, 'pathParams' | 'queryParams'>> = {};
 
     onUrlStateChange$: Observable<NewUrlStateNotificationService>;
 
@@ -63,8 +65,9 @@ export class NewUrlStateNotificationService {
         this.updateRouteData(routeData);
 
         if (bStartPathChanged || (startPath !== UrlPath.CONFIG && (bPathChanged || bQueryChanged))) {
-            const newUrlInfo = { startPath, pathParams, queryParams };
+            const newUrlInfo = {startPath, pathParams, queryParams};
 
+            this.pageUrlInfo[startPath] = {pathParams, queryParams};
             this.pageUrlHistory = this.pageUrlHistory.length < 2 ? [ ...this.pageUrlHistory, newUrlInfo ] : [ this.pageUrlHistory[1], newUrlInfo ];
         }
 
@@ -73,6 +76,7 @@ export class NewUrlStateNotificationService {
             this.onUrlStateChange.next(this);
         }
     }
+
     private updateStartPath(path: string): boolean {
         if (this.startPath === path) {
             return false;
@@ -179,5 +183,9 @@ export class NewUrlStateNotificationService {
     }
     getPrevPageUrlInfo(): IUrlInfo {
         return this.pageUrlHistory[0];
+    }
+    
+    getPageUrlInfo(page: string): Pick<IUrlInfo, 'pathParams' | 'queryParams'> {
+        return this.pageUrlInfo[page];
     }
 }
