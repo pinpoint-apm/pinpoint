@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
+@Component
 public class TFActiveTraceMapper implements FlinkStatMapper<ActiveTraceBo, TFAgentStat> {
 
     public TFActiveTrace map(ActiveTraceBo activeTraceBo) {
