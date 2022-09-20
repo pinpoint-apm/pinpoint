@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
@@ -58,6 +59,9 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanMessageConverter implements MessageConverter<SpanType, GeneratedMessageV3> {
+    public static final String DEFAULT_END_POINT = "UNKNOWN";
+    public static final String DEFAULT_RPC_NAME = "UNKNOWN";
+    public static final String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
 
     private final String agentId;
     private final short applicationServiceType;
@@ -170,10 +174,13 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
     private PAcceptEvent newAcceptEvent(Span span) {
         PAcceptEvent.Builder builder = PAcceptEvent.newBuilder();
 
-        builder.setRemoteAddr(span.getRemoteAddr());
+        final String remoteAddr = StringUtils.defaultIfEmpty(span.getRemoteAddr(), DEFAULT_REMOTE_ADDRESS);
+        builder.setRemoteAddr(remoteAddr);
         final Shared shared = span.getTraceRoot().getShared();
-        builder.setRpc(shared.getRpcName());
-        builder.setEndPoint(shared.getEndPoint());
+        final String rpc = StringUtils.defaultIfEmpty(shared.getRpcName(), DEFAULT_RPC_NAME);
+        builder.setRpc(rpc);
+        final String endPoint = StringUtils.defaultIfEmpty(shared.getEndPoint(), DEFAULT_END_POINT);
+        builder.setEndPoint(endPoint);
 
         PParentInfo pParentInfo = newParentInfo(span);
         if (pParentInfo != null) {
