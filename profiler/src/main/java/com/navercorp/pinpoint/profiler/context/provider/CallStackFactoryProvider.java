@@ -35,7 +35,7 @@ public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanE
     private final TraceDataFormatVersion version;
     private final int callStackMaxDepth;
     private final int callStackMaxSequence;
-
+    private final int callStackOverflowLogRation;
 
     @Inject
     public CallStackFactoryProvider(InstrumentConfig instrumentConfig,
@@ -43,17 +43,17 @@ public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanE
         this.version = Objects.requireNonNull(version, "version");
         this.callStackMaxDepth = instrumentConfig.getCallStackMaxDepth();
         this.callStackMaxSequence = instrumentConfig.getCallStackMaxSequence();
+        this.callStackOverflowLogRation = instrumentConfig.getCallStackOverflowLogRation();
     }
 
     @Override
     public CallStackFactory<SpanEvent> get() {
         if (version == TraceDataFormatVersion.V2) {
-            return new CallStackFactoryV2(callStackMaxDepth, callStackMaxSequence);
+            return new CallStackFactoryV2(callStackMaxDepth, callStackMaxSequence, callStackOverflowLogRation);
         }
         if (version == TraceDataFormatVersion.V1) {
-            return new CallStackFactoryV1(callStackMaxDepth, callStackMaxSequence);
+            return new CallStackFactoryV1(callStackMaxDepth, callStackMaxSequence, callStackOverflowLogRation);
         }
         throw new UnsupportedOperationException("unknown version :" + version);
     }
-
 }
