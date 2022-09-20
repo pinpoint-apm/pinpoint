@@ -76,9 +76,8 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void onCompleted() {
-        logger.warn("{} onCompleted", listener);
+        logger.info("{} onCompleted", listener);
         listener.onCompleted();
-
     }
 
     @Override
