@@ -9,7 +9,7 @@
                 <h3 class="l-option-label">Group</h3>
                 <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
                     <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
-                        <option *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
+                        <option class="l-metric-select-option" *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
                     </select>
                     <span class="fas fa-angle-down"></span>
                 </div>

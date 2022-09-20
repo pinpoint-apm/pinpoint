@@ -64,7 +64,8 @@
 }
 
 .l-metric-select {
-    width: 400px;
+    /* width: 400px; */
+    width: 100%;
     cursor: pointer;
     padding: 6px 0px;
     background-color: var(--background-default);
@@ -74,16 +75,22 @@
     font-size: 11px;
     color: var(--text-primary-lightest);
     /* appearance: none; */
-    /* -webkit-appearance: none; */
+    -webkit-appearance: none;
     outline: 0;
 
     color: transparent;
     appearance: none;
 }
 
+.l-metric-select-option {
+    /* * Set text-color for options to handle os issue */
+    color: var(--text-primary-lightest);
+}
+
 .l-select-container {
     position: relative;
     display: inline-block;
+    flex: 1;
 }
 
 .l-select-container::before {
