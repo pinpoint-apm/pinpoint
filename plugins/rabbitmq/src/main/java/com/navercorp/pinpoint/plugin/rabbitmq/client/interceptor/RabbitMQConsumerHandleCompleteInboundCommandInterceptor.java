@@ -122,6 +122,7 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
         }
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
+            return;
         }
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
