@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.collector.mapper.flink;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
@@ -60,6 +61,14 @@ public class TFAgentStatBatchMapper {
 
             if (cpuLoadBo != null) {
                 return cpuLoadBo.getStartTimestamp();
+            }
+        }
+
+        List<JvmGcBo> jvmGcBos = agentStatBo.getJvmGcBos();
+        if (CollectionUtils.hasLength(jvmGcBos)) {
+            JvmGcBo jvmGcBo = jvmGcBos.get(0);
+            if (Objects.nonNull(jvmGcBo)) {
+                return jvmGcBo.getStartTimestamp();
             }
         }
 
