@@ -24,14 +24,22 @@ public class CallStackFactoryV2 implements CallStackFactory<SpanEvent> {
     private final CallStack.Factory<SpanEvent> factory = new SpanEventFactory();
     private final int maxDepth;
     private final int maxSequence;
+    private final CallStackOverflowListener overflowListener;
 
-    public CallStackFactoryV2(int maxDepth, int maxSequence) {
+    public CallStackFactoryV2(int maxDepth, int maxSequence, int overflowLogRation) {
         this.maxDepth = maxDepth;
         this.maxSequence = maxSequence;
+        if (overflowLogRation > 1) {
+            this.overflowListener = new ThrottledLogCallStackOverflowListener(maxDepth, maxSequence, overflowLogRation);
+        } else {
+            this.overflowListener = new DefaultCallStackOverflowListener(maxDepth, maxSequence);
+        }
     }
 
     @Override
     public CallStack<SpanEvent> newCallStack() {
-        return new DefaultCallStack<>(factory, maxDepth, maxSequence);
+        final CallStack<SpanEvent> callStack = new DefaultCallStack<>(factory, maxDepth, maxSequence);
+        callStack.setOverflowListener(overflowListener);
+        return callStack;
     }
 }

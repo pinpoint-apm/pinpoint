@@ -40,6 +40,8 @@ public interface CallStack<T> {
 
     Factory<T> getFactory();
 
+    void setOverflowListener(CallStackOverflowListener overflowListener);
+
     interface Factory<T> {
         Class<T> getType();
 
