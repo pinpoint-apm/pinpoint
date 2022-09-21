@@ -24,10 +24,10 @@ import com.navercorp.pinpoint.web.WebAppPropertySources;
 import com.navercorp.pinpoint.web.WebMvcConfig;
 import com.navercorp.pinpoint.web.WebServerConfig;
 import com.navercorp.pinpoint.web.WebStarter;
+import com.navercorp.pinpoint.web.AuthorizationConfig;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
@@ -46,7 +46,7 @@ public class MetricAndWebApp {
 
     public static void main(String[] args) {
         try {
-            WebStarter starter = new WebStarter(MetricAndWebApp.class, PinpointBasicLoginConfig.class, MetricWebApp.class);
+            WebStarter starter = new WebStarter(MetricAndWebApp.class, PinpointBasicLoginConfig.class, AuthorizationConfig.class, MetricWebApp.class);
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);
