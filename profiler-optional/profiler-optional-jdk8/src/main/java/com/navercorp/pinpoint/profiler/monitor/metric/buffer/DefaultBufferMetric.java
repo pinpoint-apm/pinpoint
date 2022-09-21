@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.metric.buffer;
+package com.navercorp.pinpoint.profiler.monitor.metric.buffer;
 
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;

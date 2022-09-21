@@ -126,7 +126,7 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
             final String applicationId = applicationCache.findApplicationId(applicationKey);
 
             if (ApplicationCache.NOT_FOUND_APP_ID.equals(applicationId)) {
-                logger.warn("can't found application id. agent id : {}, start time : {}.",joinAgentStatBo.getId(), joinAgentStatBo.getTimestamp());
+                logger.warn("can't found application id. agent id : {}, start time : {}.", joinAgentStatBo.getId(), joinAgentStatBo.getAgentStartTimestamp());
                 return EMPTY_LIST;
             }
 
