@@ -89,6 +89,7 @@ public class QueryParameter {
         private List<Tag> tagList;
         private Range range;
         private TimePrecision timePrecision;
+        private int timeSize = 10000;
         private long limit;
 
         public void setHostGroupName(String hostGroupName) {
@@ -119,13 +120,17 @@ public class QueryParameter {
             this.timePrecision = timePrecision;
         }
 
+        public void setTimeSize(int timeSize) {
+            this.timeSize = timeSize;
+        }
+
         public long estimateLimit() {
             return (range.getRange() / timePrecision.getInterval() + 1) * TAG_SET_COUNT;
         }
 
         public QueryParameter build() {
             if (timePrecision == null) {
-                this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 10000);
+                this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeSize);
             }
             this.limit = estimateLimit();
 
