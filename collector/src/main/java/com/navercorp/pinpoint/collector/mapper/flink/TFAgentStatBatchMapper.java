@@ -42,36 +42,13 @@ public class TFAgentStatBatchMapper {
 
     public TFAgentStatBatch map(AgentStatBo agentStatBo) {
         try {
-            List<TFAgentStat> tFAgentstatList = tFAgentStatMapper.map(agentStatBo);
-            long startTimestamp = getStartTimestamp(agentStatBo);
-            TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch(agentStatBo.getAgentId(), startTimestamp, tFAgentstatList);
-            return tFAgentStatBatch;
+            List<TFAgentStat> tFAgentStatList = tFAgentStatMapper.map(agentStatBo);
+            long startTimestamp = agentStatBo.getStartTimestamp();
+            return new TFAgentStatBatch(agentStatBo.getAgentId(), startTimestamp, tFAgentStatList);
         } catch (Exception e) {
             logger.error("not create thrift object to send flink server. : " + agentStatBo, e);
         }
 
         return null;
-    }
-
-    private long getStartTimestamp(AgentStatBo agentStatBo) {
-        List<CpuLoadBo> cpuLoadBos = agentStatBo.getCpuLoadBos();
-
-        if (CollectionUtils.hasLength(cpuLoadBos)) {
-            CpuLoadBo cpuLoadBo = cpuLoadBos.get(0);
-
-            if (cpuLoadBo != null) {
-                return cpuLoadBo.getStartTimestamp();
-            }
-        }
-
-        List<JvmGcBo> jvmGcBos = agentStatBo.getJvmGcBos();
-        if (CollectionUtils.hasLength(jvmGcBos)) {
-            JvmGcBo jvmGcBo = jvmGcBos.get(0);
-            if (Objects.nonNull(jvmGcBo)) {
-                return jvmGcBo.getStartTimestamp();
-            }
-        }
-
-        return Long.MIN_VALUE;
     }
 }
