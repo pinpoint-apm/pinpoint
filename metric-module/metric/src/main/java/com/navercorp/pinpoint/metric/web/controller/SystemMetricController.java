@@ -19,16 +19,17 @@ package com.navercorp.pinpoint.metric.web.controller;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
+import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TagParser;
+import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
+import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +50,7 @@ public class SystemMetricController {
     private final SystemMetricHostInfoService systemMetricHostInfoService;
     private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new DefaultTimeWindowSampler(10000L);
+    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 200);
 
     private final TagParser tagParser = new TagParser();
 
@@ -92,6 +93,8 @@ public class SystemMetricController {
             @RequestParam(value = "tags", required = false) List<String> tags,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+
         QueryParameter.Builder builder = new QueryParameter.Builder();
         builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
@@ -99,11 +102,8 @@ public class SystemMetricController {
         builder.setFieldName(fieldName);
         builder.setTagList(tagParser.parseTags(tags));
         builder.setRange(Range.newRange(from, to));
+        builder.setTimeSize((int) timeWindow.getWindowSlotSize());
         QueryParameter queryParameter = builder.build();
-
-        TimeWindowSampler sampler = DEFAULT_TIME_WINDOW_SAMPLER;
-
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
@@ -122,6 +122,12 @@ public class SystemMetricController {
             @RequestParam("timeSize") Integer timeSize) {
         TimePrecision timePrecision = TimePrecision.newTimePrecision(TimeUnit.valueOf(timeUnit.toUpperCase()), timeSize);
 
+        final long minSamplingInterval = 10000L;
+        final long inputInterval = timePrecision.getInterval();
+        final long interval = Math.max(inputInterval, minSamplingInterval);
+        TimeWindowSampler sampler = new TimeWindowSlotCentricSampler(interval, 200);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
+
         QueryParameter.Builder builder = new QueryParameter.Builder();
         builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
@@ -131,12 +137,6 @@ public class SystemMetricController {
         builder.setRange(Range.newRange(from, to));
         builder.setTimePrecision(timePrecision);
         QueryParameter queryParameter = builder.build();
-
-        final long minSamplingInterval = 10000L;
-        final long inputInterval = timePrecision.getInterval();
-        final long interval = Math.max(inputInterval, minSamplingInterval);
-        TimeWindowSampler sampler = new DefaultTimeWindowSampler(interval);
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
@@ -162,26 +162,10 @@ public class SystemMetricController {
                                                    @RequestParam("metricDefinitionId") String metricDefinitionId,
                                                    @RequestParam("from") long from,
                                                    @RequestParam("to") long to) {
-        //TODO : (minwoo) sampler 를 range 값에 따라서 다르게 설정해주는 로직이 들어가는게 필요함
-        Range range = Range.newRange(from, to);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, range);
+        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
         SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
 
         return new SystemMetricView(systemMetricData);
     }
-
-    private static class DefaultTimeWindowSampler implements TimeWindowSampler {
-        private final long windowSize;
-
-        public DefaultTimeWindowSampler(long windowSize) {
-            this.windowSize = windowSize;
-        }
-
-        @Override
-        public long getWindowSize(Range range) {
-            return windowSize;
-        }
-    };
-
 }

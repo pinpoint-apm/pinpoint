@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.metric.web.model;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -36,15 +37,15 @@ public class MetricDataSearchKey {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public MetricDataSearchKey(String hostGroupName, String hostName, String metricName, String metricDefinitionId, Range range) {
+    public MetricDataSearchKey(String hostGroupName, String hostName, String metricName, String metricDefinitionId, TimeWindow timeWindow) {
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.metricDefinitionId = StringPrecondition.requireHasLength(metricDefinitionId, "metricDefinitionId");
-        this.range = Objects.requireNonNull(range, "range");
-        // TODO : (minwoo) 동적으로 설정할수 있도록 해야한다.
-        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 10000);
-        this.limit = (range.getRange() / timePrecision.getInterval()) + 1;
+        Objects.requireNonNull(timeWindow, "timeWindow");
+        this.range = timeWindow.getWindowRange();
+        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
+        this.limit = timeWindow.getWindowRangeCount();
     }
 
     public String getHostGroupName() {
