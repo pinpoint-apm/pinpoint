@@ -55,19 +55,8 @@ public class PinotMetricTagDao implements MetricTagDao {
 
     @Override
     public void insertMetricTag(MetricTag metricTag) {
-        String key = generateKafkaKey(metricTag);
         MetricJsonTag metricJsonTag = MetricJsonTag.covertMetricJsonTag(tagListTypeHandler, metricTag);
-        kafkaTagTemplate.send(topic, key, metricJsonTag);
-    }
-
-    private String generateKafkaKey(MetricTag metricTag) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(metricTag.getHostName());
-        sb.append("_");
-        sb.append(metricTag.getMetricName());
-        sb.append("_");
-        sb.append(metricTag.getFieldName());
-        return sb.toString();
+        kafkaTagTemplate.send(topic, metricTag.getHostGroupName(), metricJsonTag);
     }
 
     private static class MetricJsonTag {
