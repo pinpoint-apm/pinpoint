@@ -48,8 +48,19 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
         for (DoubleMetric doubleMetric : systemMetrics) {
+            String kafkaKey = generateKafkaKey(doubleMetric);
             SystemMetricView systemMetricView = new SystemMetricView(hostGroupName, doubleMetric);
-            this.kafkaDoubleTemplate.send(topic, hostName, systemMetricView);
+            this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
         }
+    }
+
+    private String generateKafkaKey(DoubleMetric doubleMetric) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(doubleMetric.getHostName());
+        sb.append("_");
+        sb.append(doubleMetric.getMetricName());
+        sb.append("_");
+        sb.append(doubleMetric.getFieldName());
+        return sb.toString();
     }
 }
