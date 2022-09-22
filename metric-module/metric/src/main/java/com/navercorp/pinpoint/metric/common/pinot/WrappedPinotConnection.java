@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.web.mybatis;
+package com.navercorp.pinpoint.metric.common.pinot;
 
 import org.apache.pinot.client.PinotConnection;
 
@@ -41,282 +41,285 @@ import java.util.concurrent.Executor;
 /**
  * @author Hyunjoon Cho
  */
-public class PinotConnectionDelegator implements Connection {
+public class WrappedPinotConnection implements Connection {
 
-    private final Connection delegate;
+    private final PinotConnection connection;
+    private boolean close;
 
-    public PinotConnectionDelegator(Connection pinotConnection) {
-        this.delegate = Objects.requireNonNull(pinotConnection, "pinotConnection");
+    public WrappedPinotConnection(PinotConnection connection) {
+        this.connection = Objects.requireNonNull(connection, "connection");
     }
 
     @Override
     public Statement createStatement() throws SQLException {
-        return delegate.createStatement();
+        return connection.createStatement();
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        PinotConnection pinotConnection = (PinotConnection) delegate;
-        return new WrappedPinotPreparedStatement(pinotConnection, sql);
+        return new WrappedPinotPreparedStatement(connection, sql);
     }
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
-        return delegate.prepareCall(sql);
+        return connection.prepareCall(sql);
     }
 
     @Override
     public String nativeSQL(String sql) throws SQLException {
-        return delegate.nativeSQL(sql);
+        return connection.nativeSQL(sql);
     }
 
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        delegate.setAutoCommit(autoCommit);
+        connection.setAutoCommit(autoCommit);
     }
 
     @Override
     public boolean getAutoCommit() throws SQLException {
-        return delegate.getAutoCommit();
+        return connection.getAutoCommit();
     }
 
     @Override
     public void commit() throws SQLException {
-        delegate.commit();
+        connection.commit();
     }
 
     @Override
     public void rollback() throws SQLException {
-        delegate.rollback();
+        connection.rollback();
     }
 
     @Override
     public void close() throws SQLException {
-//        delegate.close();
+        this.close = true;
     }
 
     @Override
     public boolean isClosed() throws SQLException {
-        return delegate.isClosed();
+        return close;
     }
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        return delegate.getMetaData();
+        return connection.getMetaData();
     }
 
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
-        delegate.setReadOnly(readOnly);
+        connection.setReadOnly(readOnly);
     }
 
     @Override
     public boolean isReadOnly() throws SQLException {
-        return delegate.isReadOnly();
+        return connection.isReadOnly();
     }
 
     @Override
     public void setCatalog(String catalog) throws SQLException {
-        delegate.setCatalog(catalog);
+        connection.setCatalog(catalog);
     }
 
     @Override
     public String getCatalog() throws SQLException {
-        return delegate.getCatalog();
+        return connection.getCatalog();
     }
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
-        delegate.setTransactionIsolation(level);
+        connection.setTransactionIsolation(level);
     }
 
     @Override
     public int getTransactionIsolation() throws SQLException {
-        return delegate.getTransactionIsolation();
+        return connection.getTransactionIsolation();
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-        return delegate.getWarnings();
+        return connection.getWarnings();
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-        delegate.clearWarnings();
+        connection.clearWarnings();
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-        return delegate.createStatement(resultSetType, resultSetConcurrency);
+        return connection.createStatement(resultSetType, resultSetConcurrency);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return delegate.prepareStatement(sql, resultSetType, resultSetConcurrency);
+        return connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return delegate.prepareCall(sql, resultSetType, resultSetConcurrency);
+        return connection.prepareCall(sql, resultSetType, resultSetConcurrency);
     }
 
     @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
-        return delegate.getTypeMap();
+        return connection.getTypeMap();
     }
 
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-        delegate.setTypeMap(map);
+        connection.setTypeMap(map);
     }
 
     @Override
     public void setHoldability(int holdability) throws SQLException {
-        delegate.setHoldability(holdability);
+        connection.setHoldability(holdability);
     }
 
     @Override
     public int getHoldability() throws SQLException {
-        return delegate.getHoldability();
+        return connection.getHoldability();
     }
 
     @Override
     public Savepoint setSavepoint() throws SQLException {
-        return delegate.setSavepoint();
+        return connection.setSavepoint();
     }
 
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
-        return delegate.setSavepoint(name);
+        return connection.setSavepoint(name);
     }
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-        delegate.rollback(savepoint);
+        connection.rollback(savepoint);
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        delegate.releaseSavepoint(savepoint);
+        connection.releaseSavepoint(savepoint);
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+        return connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        return connection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return delegate.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        return connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
-        return delegate.prepareStatement(sql, autoGeneratedKeys);
+        return connection.prepareStatement(sql, autoGeneratedKeys);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
-        return delegate.prepareStatement(sql, columnIndexes);
+        return connection.prepareStatement(sql, columnIndexes);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
-        return delegate.prepareStatement(sql, columnNames);
+        return connection.prepareStatement(sql, columnNames);
     }
 
     @Override
     public Clob createClob() throws SQLException {
-        return delegate.createClob();
+        return connection.createClob();
     }
 
     @Override
     public Blob createBlob() throws SQLException {
-        return delegate.createBlob();
+        return connection.createBlob();
     }
 
     @Override
     public NClob createNClob() throws SQLException {
-        return delegate.createNClob();
+        return connection.createNClob();
     }
 
     @Override
     public SQLXML createSQLXML() throws SQLException {
-        return delegate.createSQLXML();
+        return connection.createSQLXML();
     }
 
     @Override
     public boolean isValid(int timeout) throws SQLException {
-        return delegate.isValid(timeout);
+        return connection.isValid(timeout);
     }
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        delegate.setClientInfo(name, value);
+        connection.setClientInfo(name, value);
     }
 
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        delegate.setClientInfo(properties);
+        connection.setClientInfo(properties);
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
-        return delegate.getClientInfo(name);
+        return connection.getClientInfo(name);
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
-        return delegate.getClientInfo();
+        return connection.getClientInfo();
     }
 
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        return delegate.createArrayOf(typeName, elements);
+        return connection.createArrayOf(typeName, elements);
     }
 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        return delegate.createStruct(typeName, attributes);
+        return connection.createStruct(typeName, attributes);
     }
 
     @Override
     public void setSchema(String schema) throws SQLException {
-        delegate.setSchema(schema);
+        connection.setSchema(schema);
     }
 
     @Override
     public String getSchema() throws SQLException {
-        return delegate.getSchema();
+        return connection.getSchema();
     }
 
     @Override
     public void abort(Executor executor) throws SQLException {
-        delegate.abort(executor);
+        connection.abort(executor);
     }
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        delegate.setNetworkTimeout(executor, milliseconds);
+        connection.setNetworkTimeout(executor, milliseconds);
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
-        return delegate.getNetworkTimeout();
+        return connection.getNetworkTimeout();
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
-        return delegate.unwrap(iface);
+        if (iface.isAssignableFrom(PinotConnection.class)) {
+            return iface.cast(connection);
+        }
+        throw new SQLException("Unknown class:" + iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return delegate.isWrapperFor(iface);
+        return iface.isAssignableFrom(PinotConnection.class);
     }
 }

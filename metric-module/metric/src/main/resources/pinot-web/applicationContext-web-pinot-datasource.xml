@@ -4,8 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="pinotDataSource"
-          class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="driverClass" value="${pinpoint.pinot.jdbc.driverClassName}" />
+          class="com.navercorp.pinpoint.metric.common.pinot.PinotDataSource" destroy-method="close">
         <property name="url" value="${pinpoint.pinot.jdbc.url}" />
         <property name="username" value="${pinpoint.pinot.jdbc.username}" />
         <property name="password" value="${pinpoint.pinot.jdbc.password}" />

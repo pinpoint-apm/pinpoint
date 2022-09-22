@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.web.mybatis;
+package com.navercorp.pinpoint.metric.common.pinot;
 
 import org.apache.pinot.client.PinotConnection;
 import org.apache.pinot.client.PinotPreparedStatement;

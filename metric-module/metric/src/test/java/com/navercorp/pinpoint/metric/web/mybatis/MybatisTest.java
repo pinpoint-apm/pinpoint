@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.mybatis;
 
+import com.navercorp.pinpoint.metric.common.pinot.WrappedPinotConnection;
+import com.navercorp.pinpoint.metric.common.pinot.WrappedPinotPreparedStatement;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +56,7 @@ public class MybatisTest {
     @Test
     public void testDataSource() throws Exception {
         Connection connection = dataSource.getConnection();
-        Assertions.assertTrue(connection instanceof PinotConnectionDelegator);
+        Assertions.assertTrue(connection instanceof WrappedPinotConnection);
         PreparedStatement preparedStatement = connection.prepareStatement("testSQL");
         Assertions.assertTrue(preparedStatement instanceof WrappedPinotPreparedStatement);
         connection.close();
