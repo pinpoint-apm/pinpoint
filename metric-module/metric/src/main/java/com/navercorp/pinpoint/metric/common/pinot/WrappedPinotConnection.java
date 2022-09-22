@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.metric.common.pinot;
 
 import org.apache.pinot.client.PinotConnection;
+import org.apache.pinot.client.Request;
+import org.apache.pinot.client.ResultSetGroup;
+import org.apache.pinot.client.utils.DriverUtils;
 
 import java.sql.Array;
 import java.sql.Blob;
@@ -26,6 +29,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -37,17 +41,44 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 /**
  * @author Hyunjoon Cho
  */
 public class WrappedPinotConnection implements Connection {
 
+    private static final String QUERY_FORMAT = "sql";
+    private static final String LIMIT_STATEMENT = "LIMIT";
+
     private final PinotConnection connection;
     private boolean close;
 
+    // Associated with setFetchSize
+    private int maxRows = 1024 * 100;
+
     public WrappedPinotConnection(PinotConnection connection) {
         this.connection = Objects.requireNonNull(connection, "connection");
+    }
+
+    /**
+     * Non-standard API
+     */
+    public Future<ResultSet> executeAsync(String sql) {
+        sql = checkLimitStatement(sql, maxRows);
+
+        org.apache.pinot.client.Connection session = connection.getSession();
+
+        Request request = new Request(QUERY_FORMAT, sql);
+        Future<ResultSetGroup> future = session.executeAsync(request);
+        return new ResultSetFuture(future);
+    }
+
+    private String checkLimitStatement(String query, int maxRows) {
+        if (!DriverUtils.queryContainsLimitStatement(query)) {
+            return query.concat(" " + LIMIT_STATEMENT + " " + maxRows);
+        }
+        return query;
     }
 
     @Override
@@ -322,4 +353,6 @@ public class WrappedPinotConnection implements Connection {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return iface.isAssignableFrom(PinotConnection.class);
     }
+
+
 }
