@@ -3,13 +3,15 @@
 }
 .l-search-group-wrap {
     display: flex;
-    flex-flow: row wrap;
+    /* flex-flow: row wrap; */
     padding: 0 10px;
     font-size: 13px;
-    justify-content: flex-end;
-    position:relative;
+    /* justify-content: flex-end; */
+    position: relative;
+    gap: 10px;
+    align-items: center;
 }
-.l-search-group-wrap .fas {
+.l-search-button {
     position: absolute;
     color: var(--icon-default);
     font-size: 18px;
@@ -33,14 +35,14 @@
     box-shadow: 0 0 1px 1px var(--primary);
     outline: none;
 }
-.l-search-group-wrap button {
+.l-search-button {
     margin-left: 10px;
 }
-.l-search-group-wrap .l-error-message {
+/* .l-search-group-wrap .l-error-message {
     width: 300px;
     color: var(--status-fail);
     margin-left: 10px;
-}
+} */
 select {
     appearance: none;
     -webkit-appearance: none;
@@ -63,10 +65,6 @@ select {
     right: 8px;
     transform: translateY(-50%);
 }
-.l-error-message {
-    margin-left: 10px;
-    margin-top: 8px;
-}
 
 .l-search-type-select-wrapper {
     position: relative;
@@ -75,4 +73,35 @@ select {
 .l-search-group2 {
     display: flex;
     position: relative;
+}
+.l-search-result {
+    color: var(--text-primary-lightest);
+    display: flex;
+    align-items: center;
+}
+
+.l-message {
+    font-size: 14px;
+}
+
+.l-message.l-empty {
+    color: var(--status-fail);
+}
+
+.l-button-group {
+    margin-left: 5px;
+    color: var(--icon-default);
+}
+
+.l-move-button {
+    padding: 5px;
+    font-size: 18px;
+}
+
+.l-move-button:not(:first-child) {
+    /* margin-left: 5px; */
+}
+
+.l-move-button:hover {
+    background-color: var(--background-hover-default);
 }

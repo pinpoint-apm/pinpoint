@@ -1,5 +1,13 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Output, Input, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 
+const enum SearchAction {
+    NEW = 'new',
+    // SAME,
+    PREV = 'prev',
+    NEXT = 'next',
+}
+
+
 @Component({
     selector: 'pp-transaction-search',
     templateUrl: './transaction-search.component.html',
@@ -9,8 +17,7 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
     @ViewChild('searchType', { static: true }) searchType: ElementRef;
     @Input() viewType: string;
     @Input() useArgument: boolean;
-    // @Input() resultMessage: string;
-    @Input() resultIndex: number;
+    // @Input() resultIndex: number;
     @Input() resultCount: number;
     @Input() emptyMessage: string;
     @Output() outSearch = new EventEmitter<{type: string, query: string, resultIndex: number}>();
@@ -18,13 +25,15 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
     inputValue: string;
     resultMessage: string;
     isEmpty: boolean = false;
+    resultIndex = 0;
+
+    private prevQuery: string;
 
     constructor() {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
         if (changes['viewType'] && changes['viewType'].currentValue) {
             this.onClear();
-            // this.renderer.setAttribute(this.searchType.nativeElement.options[0], 'selected', 'selected');
             this.searchType.nativeElement.options[0].selected = true;
         }
 
@@ -32,35 +41,67 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
             const resultCount = changes['resultCount'].currentValue;
 
             this.isEmpty = resultCount === 0;
-            // this.resultMessage = this.isEmpty ? this.emptyMessage
-            //     : resultCount === null ? ''
-            //     : `${resultIndex}/${resultCount}`;
+            this.resultIndex = 0;
         }
     }
 
     onChangeType(): void {
-        this.resultIndex = 0;
+        this.onClear();
     }
 
-    onSearch(type: string): void {
-        // TODO: 여기에서 index를 관리해야될듯? type onchange나 transaction select 바뀔때마다 search index 초기화하고.
+    onSearch(searchAction?: SearchAction): void {
+        const type = this.searchType.nativeElement.value;
         const query = this.inputValue.trim();
 
+        if (type !== 'exception' && query === '') {
+            return;
+        }
+
+        const action = searchAction ? searchAction
+            : this.prevQuery === query ? SearchAction.NEXT
+            : SearchAction.NEW;
+
+        const resultIndex = this.resultIndex = this.getResultIndex(action);
+
         this.outSearch.emit({
-            type: type,
-            query: query,
-            resultIndex: this.resultIndex
+            type,
+            query,
+            resultIndex
         });
+
+        this.prevQuery = query;
+    }
+
+    private getResultIndex(searchAction: SearchAction): number {
+        switch (searchAction) {
+            case SearchAction.NEW:
+                return 0;
+            case SearchAction.PREV:
+                return this.resultIndex === 0 ? this.resultCount - 1 : this.resultIndex - 1;
+            case SearchAction.NEXT:
+                return this.resultIndex === this.resultCount - 1 ? 0 : this.resultIndex + 1;
+            default:
+                return 0;
+        }
     }
 
     onClear() {
         this.inputValue = '';
-        this.resultMessage = '';
+        this.resultCount = null;
+        this.resultIndex = 0;
     }
 
     getResultMessage(): string {
         return this.isEmpty ? this.emptyMessage
             :  this.resultCount === null ? ''
-            : `${this.resultIndex}/${this.resultCount}`;
+            : `${this.resultIndex + 1}/${this.resultCount}`;
+    }
+
+    onClickPrev(): void {
+        this.onSearch(SearchAction.PREV);
+    }
+
+    onClickNext(): void {
+        this.onSearch(SearchAction.NEXT);
     }
 }

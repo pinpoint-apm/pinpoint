@@ -9,10 +9,14 @@
             </select>
             <span class="fas fa-angle-down"></span>
         </div>
-        <input type="text" [(ngModel)]="inputValue" (keydown.enter)="onSearch(searchType.value)" (keydown.esc)="onClear()">
-        <button class="fas fa-search" (click)="onSearch(searchType.value)"></button>
+        <input type="text" [(ngModel)]="inputValue" (keydown.enter)="onSearch()" (keydown.esc)="onClear()">
+        <button class="fas fa-search l-search-button" (click)="onSearch()"></button>
     </div>
-    <!-- TODO: resultCount가 0일때만 errorMessage 스타일로? -->
-    <span class="l-error-message">{{getResultMessage()}}</span>
-    <!-- <span class="l-result-message">{{resultMessage}}</span> -->
+    <div class="l-search-result">
+        <span class="l-message" [class.l-empty]="isEmpty">{{getResultMessage()}}</span>
+        <span class="l-button-group" *ngIf="resultCount">
+            <button class="fas fa-long-arrow-alt-up l-move-button" (click)="onClickPrev()"></button>
+            <button class="fas fa-long-arrow-alt-down l-move-button" (click)="onClickNext()"></button>
+        </span>
+    </div>
 </div>
