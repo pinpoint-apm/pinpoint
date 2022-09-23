@@ -195,6 +195,7 @@ body {
   --background-danger: var(--red-50);
   --background-row-danger: var(--red-50);
   --background-row-danger-secondary: var(--red-100);
+  /* --background-row- */
   --background-hover-primary: var(--blue-50);
   --background-hover-primary-darker: var(--blue-100);
   --background-focus-primary: var(--blue-50);

@@ -38,16 +38,29 @@
     background-color: var(--background-default);
 }
 
-::ng-deep #call-tree-table .ag-row-selected {
+/* ::ng-deep #call-tree-table .ag-row-selected {
     background-color: var(--background-hover-secondary);
-}
+} */
 
 ::ng-deep #call-tree-table .ag-row-exception {
     background-color: var(--background-row-danger);
 }
 
+::ng-deep #call-tree-table .ag-row-focused {
+    background-color: var(--background-hover-secondary) !important;
+}
+
+/* ::ng-deep #call-tree-table .ag-row-exception {
+    background-color: var(--background-row-danger);
+} */
+
 ::ng-deep #call-tree-table .ag-row-exception.ag-row-selected {
     background-color: var(--background-row-danger-secondary);
+}
+
+::ng-deep #call-tree-trable .ag-row-search-target {
+    /* TODO: 색상에 대한 고민. 의미적으로, 시각적으로 맞을지 */
+    background-color: var(--background-focus-primary);
 }
 
 ::ng-deep .ag-cell-wrapper.ag-row-group[class*="ag-row-group-indent"],
