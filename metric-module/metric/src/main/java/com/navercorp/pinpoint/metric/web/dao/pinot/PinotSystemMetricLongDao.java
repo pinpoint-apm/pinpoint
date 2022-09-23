@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.web.dao.pinot;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import com.navercorp.pinpoint.metric.common.pinot.PinotAsyncTemplate;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Future;
 
 /**
  * @author Hyunjoon Cho
@@ -42,9 +44,12 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<Long> {
     private static final String NAMESPACE = PinotSystemMetricLongDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
+    private final PinotAsyncTemplate asyncTemplate;
 
-    public PinotSystemMetricLongDao(SqlSessionTemplate sqlPinotSessionTemplate) {
+    public PinotSystemMetricLongDao(SqlSessionTemplate sqlPinotSessionTemplate,
+                                    PinotAsyncTemplate asyncTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+        this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
     }
 
     @Override
@@ -61,5 +66,11 @@ public class PinotSystemMetricLongDao implements SystemMetricDao<Long> {
     public List<SystemMetricPoint<Long>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
+    }
+
+    @Override
+    public Future<List<SystemMetricPoint<Long>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
+        SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
+        return asyncTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
     }
 }

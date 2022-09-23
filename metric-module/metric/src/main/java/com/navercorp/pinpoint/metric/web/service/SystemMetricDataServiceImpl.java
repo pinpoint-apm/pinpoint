@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -132,8 +133,34 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
     private List<MetricValue<? extends Number>> getMetricValues(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow) {
         Metric elementOfBasicGroupList = systemMetricBasicGroupManager.findElementOfBasicGroup(metricDataSearchKey.getMetricDefinitionId());
-        List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
 
+        List<QueryResult<Number>> queryResults = selectAll(metricDataSearchKey, elementOfBasicGroupList);
+
+        List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
+        try {
+            for (QueryResult<Number> result : queryResults) {
+                Future<List<SystemMetricPoint<Number>>> future = result.getFuture();
+                MetricDataType type = result.getType();
+                List<SystemMetricPoint<Number>> systemMetricPoints = future.get();
+                if (type == MetricDataType.LONG) {
+                    List<SystemMetricPoint<Long>> longList = (List<SystemMetricPoint<Long>>) (List<?>) systemMetricPoints;
+                    MetricValue<Long> doubleMetricValue = createSystemMetricValue(timeWindow, result.getTag(), longList, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                    metricValueList.add(doubleMetricValue);
+                } else if (type == MetricDataType.DOUBLE) {
+                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) (List<?>) systemMetricPoints;
+                    MetricValue<Double> doubleMetricValue = createSystemMetricValue(timeWindow, result.getTag(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                    metricValueList.add(doubleMetricValue);
+                }
+            }
+            return metricValueList;
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<QueryResult<Number>> selectAll(MetricDataSearchKey metricDataSearchKey, Metric elementOfBasicGroupList) {
+
+        List<QueryResult<? extends Number>> invokeList = new ArrayList<>();
         for (Field field : elementOfBasicGroupList.getFields()) {
             MetricDataName metricDataName = new MetricDataName(metricDataSearchKey.getMetricName(), field.getName());
             MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
@@ -144,22 +171,45 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             for (MetricTag metricTag : metricTagList) {
                 switch (metricDataType) {
                     case LONG:
-                        List<SystemMetricPoint<Long>> longSampledSystemMetricData = systemMetricLongDao.getSampledSystemMetricData(metricDataSearchKey, metricTag);
-                        MetricValue<Long> longMetricValue = createSystemMetricValue(timeWindow, metricTag, longSampledSystemMetricData, LongUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
-                        metricValueList.add(longMetricValue);
+                        Future<List<SystemMetricPoint<Long>>> longFuture = systemMetricLongDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
+                        invokeList.add(new QueryResult<>(metricDataType, longFuture, metricTag));
                         break;
                     case DOUBLE:
-                        List<SystemMetricPoint<Double>> doubleSampledSystemMetricData = systemMetricDoubleDao.getSampledSystemMetricData(metricDataSearchKey, metricTag);
-                        MetricValue<Double> doubleMetricValue = createSystemMetricValue(timeWindow, metricTag, doubleSampledSystemMetricData, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
-                        metricValueList.add(doubleMetricValue);
+                        Future<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
+                        invokeList.add(new QueryResult<>(metricDataType, doubleFuture, metricTag));
                         break;
                     default:
                         throw new RuntimeException("No Such Metric");
                 }
             }
         }
-        return metricValueList;
+        return (List<QueryResult<Number>>)(List<?>) invokeList;
     }
+
+    private static class QueryResult<T extends Number> {
+        private final MetricDataType type;
+        private final Future<List<SystemMetricPoint<T>>> future;
+        private final MetricTag tag;
+
+        public QueryResult(MetricDataType type, Future<List<SystemMetricPoint<T>>> future, MetricTag tag) {
+            this.type = Objects.requireNonNull(type, "type");
+            this.future = Objects.requireNonNull(future, "future");
+            this.tag = Objects.requireNonNull(tag, "tag");
+        }
+
+        public MetricDataType getType() {
+            return type;
+        }
+
+        public Future<List<SystemMetricPoint<T>>> getFuture() {
+            return future;
+        }
+
+        public MetricTag getTag() {
+            return tag;
+        }
+    }
+
 
     private List<MetricValueGroup<? extends Number>> groupingMetricValue(List<MetricValue<?>> metricValueList, GroupingRule groupingRule) {
         switch (groupingRule) {

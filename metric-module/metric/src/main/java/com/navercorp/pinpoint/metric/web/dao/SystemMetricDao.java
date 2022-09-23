@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * @author Hyunjoon Cho
@@ -32,4 +33,6 @@ public interface SystemMetricDao<T extends Number> {
     List<SystemMetric> getSystemMetric(QueryParameter queryParameter);
     List<SampledSystemMetric<T>> getSampledSystemMetric(QueryParameter queryParameter);
     List<SystemMetricPoint<T>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
+
+    Future<List<SystemMetricPoint<T>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
 }
