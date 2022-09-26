@@ -32,14 +32,12 @@ import java.util.logging.Logger;
  * @author Woonduk Kang(emeroad)
  */
 public class PinotDataSource implements DataSource, AutoCloseable {
-    public static final String SCHEME = "scheme";
     public static final String TENANT = "tenant";
 
     private final PinotDriver driver;
     private String url;
     private String username;
     private String password;
-    private String scheme;
     private String tenant;
     private Properties connectionProperties;
     private PrintWriter logWriter;
@@ -54,7 +52,6 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         this.driver = Objects.requireNonNull(driver, "driver");
     }
 
-
     public void setUrl(String url) {
         this.url = Objects.requireNonNull(url, "url");
     }
@@ -65,10 +62,6 @@ public class PinotDataSource implements DataSource, AutoCloseable {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public void setScheme(String scheme) {
-        this.scheme = scheme;
     }
 
     public void setTenant(String tenant) {
@@ -109,9 +102,6 @@ public class PinotDataSource implements DataSource, AutoCloseable {
         }
         if (password != null) {
             properties.setProperty("password", password);
-        }
-        if (scheme != null) {
-            properties.setProperty(SCHEME, scheme);
         }
         if (tenant != null) {
             properties.setProperty(TENANT, tenant);
