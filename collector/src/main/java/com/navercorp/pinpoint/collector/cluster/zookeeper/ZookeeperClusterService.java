@@ -214,8 +214,11 @@ public class ZookeeperClusterService implements ClusterService {
 
         @Override
         public boolean handleConnected() {
+            logger.info("Connected to zookeeper");
             if (serviceState.isStarted()) {
                 profilerClusterManager.refresh();
+                logger.info("Refreshed profiler cluster manager");
+
                 webClusterManager.handleAndRegisterWatcher(webZNodePath);
                 return true;
             } else {
@@ -225,6 +228,7 @@ public class ZookeeperClusterService implements ClusterService {
 
         @Override
         public boolean handleDisconnected() {
+            logger.info("Disconnected from zookeeper");
             return true;
         }
 

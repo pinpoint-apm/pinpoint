@@ -113,4 +113,9 @@ public class GrpcAgentConnection implements ClusterPoint<TBase<?, ?>> {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return String.format("GrpcAgentConnection {clusterKey: %s}", pinpointGrpcServer.getClusterKey());
+    }
+
 }

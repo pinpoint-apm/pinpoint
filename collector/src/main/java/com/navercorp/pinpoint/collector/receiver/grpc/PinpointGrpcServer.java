@@ -131,9 +131,7 @@ public class PinpointGrpcServer {
             logger.warn("Failed to change state. agent:{}, result:{}", clusterKey, result);
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(result.toString());
-        }
+        logger.info("transition grpc server of {}: {}", clusterKey, result);
         return result;
     }
 

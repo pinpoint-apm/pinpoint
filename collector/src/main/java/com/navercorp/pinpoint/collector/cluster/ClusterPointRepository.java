@@ -66,6 +66,9 @@ public class ClusterPointRepository<T extends ClusterPoint<?>> implements Cluste
                     clusterPointRepository.remove(destClusterKey);
                     return true;
                 }
+                logger.info("clusterPointSet was not empty: {}", clusterPoint);
+            } else {
+                logger.info("clusterPointSet not found: {}", clusterPoint);
             }
             return false;
         }

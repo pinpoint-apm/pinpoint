@@ -111,10 +111,13 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
                 boolean added = profileCluster.addAndIsKeyCreated(targetClusterPoint);
                 if (key != null && added) {
                     worker.addPinpointServer(key);
+                    logger.info("registered {}", targetClusterPoint);
+                } else {
+                    logger.warn("register failed: {}", targetClusterPoint);
                 }
             }
         } else {
-            logger.info("register() failed. caused:unexpected state.");
+            logger.warn("register() failed. caused:unexpected state.");
         }
     }
 
@@ -127,10 +130,13 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
                 boolean removed = profileCluster.removeAndGetIsKeyRemoved(targetClusterPoint);
                 if (key != null && removed) {
                     worker.removePinpointServer(key);
+                    logger.info("unregistered {}", targetClusterPoint);
+                } else {
+                    logger.warn("unregister failed, element not found: {}", targetClusterPoint);
                 }
             }
         } else {
-            logger.info("unregister() failed. caused:unexpected state.");
+            logger.warn("unregister() failed. caused:unexpected state.");
         }
     }
 
