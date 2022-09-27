@@ -43,6 +43,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-httpclient5-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-ning-asynchttpclient-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

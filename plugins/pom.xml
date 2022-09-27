@@ -37,6 +37,7 @@
 
         <module>httpclient3</module>
         <module>httpclient4</module>
+        <module>httpclient5</module>
         <module>ning-asynchttpclient</module>
         <module>resttemplate</module>
         <module>gson</module>

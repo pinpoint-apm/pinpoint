@@ -1,0 +1,16 @@
+serviceTypes:
+  - code: 9062
+    name: 'HTTP_CLIENT_5'
+    desc: 'HTTP_CLIENT'
+    property:
+      recordStatistics: true
+    matcher:
+      type: 'exact'
+      code: 40 # http.url
+  - code: 9063
+    name: 'HTTP_CLIENT_5_INTERNAL'
+    desc: 'HTTP_CLIENT'
+    matcher:
+      type: 'exact'
+      code: 48 # http.internal.display
+
