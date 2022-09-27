@@ -73,6 +73,7 @@
         <module>redis-lettuce-plugin-testweb</module>
         <module>jetty-plugin-testweb</module>
         <module>spring-data-r2dbc-plugin-testweb</module>
+        <module>httpclient5-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>
