@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.common.trace;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 
 /**
  * 
@@ -72,6 +74,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  *
  * <tr><td>1300</td><td>C_CPP</td></tr>
  * <tr><td>1301</td><td>C_CPP_METHOD</td></tr>
+ *
+ * <tr><td>1310</td><td>AKKA_HTTP_SERVER</td></tr>
+ * <tr><td>1311</td><td>AKKA_HTTP_SERVER_INTERNAL</td></tr>
  *
  * <tr><td>1400</td><td>NODE</td></tr>
  * <tr><td>1401</td><td>NODE_METHOD</td></tr>
@@ -262,7 +267,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
- *
+ * <tr><td>9998</td><td>AKKA_HTTP_SERVER_INTERNAL_LEGACY</td></tr>
  * 
  * <tr><td></td><td></td></tr>
  * 

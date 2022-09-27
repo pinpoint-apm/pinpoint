@@ -30,6 +30,8 @@ public class AkkaHttpMetadataProvider implements TraceMetadataProvider {
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER);
         context.addServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_STATUS_CODE));
+        // for backward compatibility
+        context.addServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL_LEGACY, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_STATUS_CODE));
     }
 
 }
