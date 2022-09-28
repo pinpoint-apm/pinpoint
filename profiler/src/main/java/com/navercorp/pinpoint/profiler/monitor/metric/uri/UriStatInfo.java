@@ -25,12 +25,14 @@ public class UriStatInfo {
 
     private final String uri;
     private final boolean status;
-    private final long elapsed;
+    private final long startTime;
+    private final long endTime;
 
-    public UriStatInfo(String uri, boolean status, long elapsed) {
+    public UriStatInfo(String uri, boolean status, long startTime, long endTime) {
         this.uri = Objects.requireNonNull(uri, "uri");
         this.status = status;
-        this.elapsed = elapsed;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public String getUri() {
@@ -41,8 +43,16 @@ public class UriStatInfo {
         return status;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
     public long getElapsed() {
-        return elapsed;
+        return endTime - startTime;
     }
 
     @Override
@@ -50,7 +60,8 @@ public class UriStatInfo {
         final StringBuilder sb = new StringBuilder("UriStatInfo{");
         sb.append("uri='").append(uri).append('\'');
         sb.append(", status=").append(status);
-        sb.append(", elapsed=").append(elapsed);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", endTime=").append(endTime);
         sb.append('}');
         return sb.toString();
     }

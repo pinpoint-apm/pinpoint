@@ -53,6 +53,8 @@ public class AsyncChildTrace implements Trace {
     private final TraceRoot traceRoot;
     private final LocalAsyncId localAsyncId;
 
+    private long endTime = 0L;
+
     public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                              SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
@@ -147,6 +149,7 @@ public class AsyncChildTrace implements Trace {
 
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
+            endTime = spanEvent.getAfterTime();
         }
         logSpan(spanEvent);
         // state restore
@@ -201,6 +204,11 @@ public class AsyncChildTrace implements Trace {
     @Override
     public long getStartTime() {
         return getTraceRoot().getTraceStartTime();
+    }
+
+    @Override
+    public long getEndTime() {
+        return endTime;
     }
 
     @Override

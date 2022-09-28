@@ -23,44 +23,35 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class AgentUriStatBo implements AgentStatDataPoint {
-
+public class AgentUriStatBo {
+    private String serviceName;
+    private String applicationName;
     private String agentId;
-    private long startTimestamp;
-
-    private long timestamp;
     private byte bucketVersion;
-
     private List<EachUriStatBo> eachUriStatBoList = new ArrayList<>();
 
-    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
     public String getAgentId() {
         return agentId;
     }
 
-    @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
     }
 
     public byte getBucketVersion() {
@@ -69,11 +60,6 @@ public class AgentUriStatBo implements AgentStatDataPoint {
 
     public void setBucketVersion(byte bucketVersion) {
         this.bucketVersion = bucketVersion;
-    }
-
-    @Override
-    public AgentStatType getAgentStatType() {
-        return AgentStatType.URI;
     }
 
     public boolean addEachUriStatBo(EachUriStatBo eachUriStatBo) {
@@ -103,8 +89,8 @@ public class AgentUriStatBo implements AgentStatDataPoint {
 
         AgentUriStatBo that = (AgentUriStatBo) o;
 
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
+        if (serviceName != null? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
+        if (applicationName != null? !applicationName.equals(that.applicationName) : that.applicationName != null) return false;
         if (bucketVersion != that.bucketVersion) return false;
         if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
         return eachUriStatBoList != null ? eachUriStatBoList.equals(that.eachUriStatBoList) : that.eachUriStatBoList == null;
@@ -112,9 +98,9 @@ public class AgentUriStatBo implements AgentStatDataPoint {
 
     @Override
     public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        int result = serviceName != null ? serviceName.hashCode() : 0;
+        result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
+        result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
         result = 31 * result + (int) bucketVersion;
         result = 31 * result + (eachUriStatBoList != null ? eachUriStatBoList.hashCode() : 0);
         return result;
@@ -123,9 +109,9 @@ public class AgentUriStatBo implements AgentStatDataPoint {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentUriStatBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
+        sb.append("serviceName='").append(serviceName).append('\'');
+        sb.append(", applicationName=").append(applicationName);
+        sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", bucketVersion=").append(bucketVersion);
         sb.append(", eachUriStatBoList=").append(eachUriStatBoList);
         sb.append('}');

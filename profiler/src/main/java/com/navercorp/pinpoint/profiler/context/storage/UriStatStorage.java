@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
  */
 public interface UriStatStorage {
 
-    void store(String uri, boolean status, long elapsedTime);
+    void store(String uri, boolean status, long startTime, long endTime);
 
     AgentUriStatData poll();
 

@@ -4,13 +4,11 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
-import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
@@ -21,20 +19,17 @@ import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.DefaultSampledAgentStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseAgentStatDaoOperations;
-import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseSampledAgentUriStatDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.HbaseSampledDataSourceDao;
 import com.navercorp.pinpoint.web.dao.hbase.stat.SampledAgentStatResultExtractorSupplier;
 import com.navercorp.pinpoint.web.dao.hbase.stat.SampledResultsExtractorSupplier;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
-import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.SampledDirectBuffer;
-import com.navercorp.pinpoint.web.vo.stat.SampledEachUriStatBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
@@ -42,7 +37,6 @@ import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -145,10 +139,4 @@ public class SampledAgentStatDaoConfiguration {
         return newSampledDao(AgentStatType.LOADED_CLASS, decoder, sampler);
     }
 
-//    @Bean
-    public SampledAgentStatDao<SampledAgentUriStat> getSampledAgentUriStatDao(@Qualifier("agentUriDaoOperations") HbaseAgentStatDaoOperations operations,
-                                                                              AgentStatDecoder<AgentUriStatBo> decoder,
-                                                                              AgentStatSampler<EachUriStatBo, SampledEachUriStatBo> sampler) {
-        return new HbaseSampledAgentUriStatDao(operations, decoder, sampler);
-    }
 }

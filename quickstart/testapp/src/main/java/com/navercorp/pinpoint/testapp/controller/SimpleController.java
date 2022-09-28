@@ -54,4 +54,26 @@ public class SimpleController {
 
         return map;
     }
+
+    @RequestMapping("/randomResponseTime/**")
+    @Description("Waits for random time and then returns")
+    public Map<String, Object> randomResponseTime() throws InterruptedException {
+        double a = Math.random() * 10000;
+        double fail = Math.random() * 10;
+
+        Thread.sleep(Math.round(a));
+
+        if ( fail < 2.0 ) {
+            throw new RuntimeException();
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("message", "ok");
+
+        return map;
+    }
+
+    @RequestMapping("/fails")
+    public void fails() throws Exception {
+        throw new RuntimeException();
+    }
 }

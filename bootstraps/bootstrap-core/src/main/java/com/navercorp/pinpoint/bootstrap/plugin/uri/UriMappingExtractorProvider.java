@@ -20,17 +20,18 @@ import com.navercorp.pinpoint.common.trace.UriExtractorType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class UriMappingExtractorProvider implements UriExtractorProvider {
 
-    private UriExtractorType uriExtractorType;
-    private String[] mappingKeyCandidates;
+    private final UriExtractorType uriExtractorType;
+    private final String[] mappingKeyCandidates;
 
     public UriMappingExtractorProvider(UriExtractorType uriExtractorType, String[] mappingKeyCandidates) {
-        this.uriExtractorType = uriExtractorType;
+        this.uriExtractorType = Objects.requireNonNull(uriExtractorType, "uriExtractorType");
 
         if (ArrayUtils.isEmpty(mappingKeyCandidates)) {
             throw new IllegalArgumentException("mappingKeyCandidates may not be empty");

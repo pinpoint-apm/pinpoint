@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.uri;
  */
 public class DisabledUriStatRecorder implements UriStatRecorder {
 
-    private static final DisabledUriStatRecorder INSTANCE = new DisabledUriStatRecorder();
+    private static final UriStatRecorder INSTANCE = new DisabledUriStatRecorder();
 
     public static <T> UriStatRecorder<T> create() {
         return (UriStatRecorder<T>) INSTANCE;

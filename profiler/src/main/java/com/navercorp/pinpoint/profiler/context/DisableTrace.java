@@ -54,6 +54,11 @@ public class DisableTrace implements Trace {
         return startTime;
     }
 
+    @Override
+    public long getEndTime() {
+        return 0L;
+    }
+
 
     @Override
     public SpanEventRecorder traceBlockBegin() {

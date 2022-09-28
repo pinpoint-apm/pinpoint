@@ -25,6 +25,6 @@ import java.util.List;
  */
 public interface UriExtractorProviderLocator {
 
-    <T extends UriExtractorProvider> List<T> get(Class<T> type, UriExtractorType uriExtractorType);
+    <T extends UriExtractorProvider> List<T> getUriExtractorProvider(Class<T> type, UriExtractorType uriExtractorType);
 
 }

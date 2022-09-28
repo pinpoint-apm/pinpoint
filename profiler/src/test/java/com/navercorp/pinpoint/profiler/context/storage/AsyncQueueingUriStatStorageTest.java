@@ -16,13 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.EachUriStatData;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.URIKey;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogram;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -36,18 +41,20 @@ public class AsyncQueueingUriStatStorageTest {
     @Test
     public void storageTest() {
         int collectInterval = 100;
-        int storeCount = RANDOM.nextInt(5) + 1;
+        storageTest(collectInterval, 1);
+        storageTest(collectInterval, 2);
+        storageTest(collectInterval, 3);
+        storageTest(collectInterval, 4);
+    }
 
+    private void storageTest(int collectInterval, int storeCount) {
         AsyncQueueingUriStatStorage storage = null;
         try {
-            storage = new AsyncQueueingUriStatStorage(5012, 3, "Test-Executor", collectInterval);
+            storage = new AsyncQueueingUriStatStorage(5012, 1000, "Test-Executor", collectInterval);
 
             long sleepTime = System.currentTimeMillis() % collectInterval;
 
-            try {
-                Thread.sleep(sleepTime + 2);
-            } catch (InterruptedException e) {
-            }
+            Uninterruptibles.sleepUninterruptibly(sleepTime + 2, TimeUnit.MILLISECONDS);
 
             for (int i = 0; i < storeCount; i++) {
                 storeRandomValue(storage);
@@ -55,20 +62,20 @@ public class AsyncQueueingUriStatStorageTest {
 
             Assertions.assertNull(storage.poll());
 
-            try {
-                Thread.sleep(collectInterval);
-            } catch (InterruptedException e) {
-            }
+            Uninterruptibles.sleepUninterruptibly(collectInterval, TimeUnit.MILLISECONDS);
 
             storage.pollTimeout(collectInterval);
 
             AgentUriStatData poll = storage.poll();
             Assertions.assertNotNull(poll);
 
-            Collection<EachUriStatData> allUriStatData = poll.getAllUriStatData();
-            for (EachUriStatData eachUriStatData : allUriStatData) {
-                storeCount -= eachUriStatData.getTotalHistogram().getCount();
-            }
+            Set<Map.Entry<URIKey, EachUriStatData>> allUriStatData = poll.getAllUriStatData();
+            storeCount -= allUriStatData
+                    .stream()
+                    .map(Map.Entry::getValue)
+                    .map(EachUriStatData::getTotalHistogram)
+                    .mapToLong(UriStatHistogram::getCount)
+                    .sum();
 
             Assertions.assertEquals(0, storeCount);
         } finally {
@@ -79,7 +86,8 @@ public class AsyncQueueingUriStatStorageTest {
     }
 
     private void storeRandomValue(AsyncQueueingUriStatStorage storage) {
-        storage.store(URI_EXAMPLES[RANDOM.nextInt(URI_EXAMPLES.length)], RANDOM.nextBoolean(), RANDOM.nextInt(10000));
+        final long timestamp = System.currentTimeMillis();
+        storage.store(URI_EXAMPLES[RANDOM.nextInt(URI_EXAMPLES.length)], RANDOM.nextBoolean(), timestamp - RANDOM.nextInt(10000), timestamp);
     }
 
 }

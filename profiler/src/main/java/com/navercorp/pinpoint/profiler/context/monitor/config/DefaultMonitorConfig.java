@@ -31,7 +31,7 @@ public class DefaultMonitorConfig implements MonitorConfig {
     @Value("${profiler.uri.stat.enable}")
     private boolean uriStatEnable = false;
     @Value("${profiler.uri.stat.completed.data.limit.size}")
-    private int completedUriStatDataLimitSize = 3;
+    private int completedUriStatDataLimitSize = 1000;
 
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;

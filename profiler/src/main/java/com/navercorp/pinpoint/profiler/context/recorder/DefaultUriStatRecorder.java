@@ -48,7 +48,7 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
             return;
         }
 
-        uriStatStorage.store(uri, status, endTime - startTime);
+        uriStatStorage.store(uri, status, startTime, endTime);
     }
 
 }

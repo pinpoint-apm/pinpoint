@@ -16,28 +16,17 @@
 
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.dao.hbase.HbaseAgentUriStatDao;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
-@Service("hBaseAgentUriStatService")
-public class HBaseAgentUriStatService implements AgentUriStatService {
-
-    private final HbaseAgentUriStatDao hbaseAgentUriStatDao;
-
-    public HBaseAgentUriStatService(HbaseAgentUriStatDao hbaseAgentUriStatDao) {
-        this.hbaseAgentUriStatDao = Objects.requireNonNull(hbaseAgentUriStatDao, "hbaseAgentUriStatDao");
-    }
-
+@ConditionalOnMissingBean(value = AgentUriStatService.class, ignored = EmptyAgentUriStatService.class)
+@Service
+public class EmptyAgentUriStatService implements AgentUriStatService {
     @Override
-    public void save(AgentUriStatBo agentUriStatBo) {
-        hbaseAgentUriStatDao.insert(agentUriStatBo);
-    }
-
+    public void save(AgentUriStatBo agentUriStatBo) {}
 }

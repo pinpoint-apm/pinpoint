@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
@@ -18,7 +17,6 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
-import com.navercorp.pinpoint.web.vo.stat.SampledAgentUriStat;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
@@ -31,7 +29,6 @@ import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.ActiveTraceChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentUriStatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.CpuLoadChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DeadlockChart;
@@ -178,18 +175,6 @@ public class AgentStatServiceConfiguration {
 
     @Bean
     public AgentStatService<DataSourceListBo> getDataSourceService(AgentStatDao<DataSourceListBo> statDao) {
-        return new DefaultStatService<>(statDao);
-    }
-
-    //-----------------------
-
-    //    @Bean
-    public AgentStatChartService<AgentUriStatChart> getAgentUriStatChartService(SampledAgentStatDao<SampledAgentUriStat> statDao) {
-        return new AgentUriStatChartService(statDao);
-    }
-
-    @Bean
-    public AgentStatService<AgentUriStatBo> getAgentUriChartService(AgentStatDao<AgentUriStatBo> statDao) {
         return new DefaultStatService<>(statDao);
     }
 

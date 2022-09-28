@@ -98,9 +98,4 @@ public class AgentStatDaoConfiguration {
     public AgentStatDao<LoadedClassBo> getLoadedClassWebDao(AgentStatDecoder<LoadedClassBo> decoder) {
         return newStatDao(AgentStatType.LOADED_CLASS, decoder);
     }
-
-    @Bean
-    public AgentStatDao<AgentUriStatBo> getAgentUriStatWebDao(AgentStatDecoder<AgentUriStatBo> decoder) {
-        return newStatDao(AgentStatType.URI, decoder);
-    }
 }

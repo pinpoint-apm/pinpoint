@@ -17,14 +17,28 @@
 package com.navercorp.pinpoint.common.server.bo.codec.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
-import com.navercorp.pinpoint.common.server.bo.stat.*;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
-
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -38,6 +52,8 @@ public class TestAgentStatFactory {
     private static final long TIMESTAMP_INTERVAL = 5000L;
 
     private static final Random RANDOM = new Random();
+
+    private static final UriStatHistogramBucket.Layout layout = UriStatHistogramBucket.getLayout();
 
     public static List<JvmGcBo> createJvmGcBos(String agentId, long startTimestamp, long initialTimestamp) {
         final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
@@ -460,17 +476,15 @@ public class TestAgentStatFactory {
         return loadedClassBos;
     }
 
-    public static List<AgentUriStatBo> createAgentUriStatBo(String agentId, long startTimestamp, long initialTimestamp) {
+    public static List<AgentUriStatBo> createAgentUriStatBo(String agentId) {
         final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
-        return createAgentUriStatBo(agentId, startTimestamp, initialTimestamp, numValues);
+        return createAgentUriStatBo(agentId, numValues);
     }
 
-    private static List<AgentUriStatBo> createAgentUriStatBo(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+    private static List<AgentUriStatBo> createAgentUriStatBo(String agentId, int numValues) {
         AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
         agentUriStatBo.setAgentId(agentId);
-        agentUriStatBo.setStartTimestamp(startTimestamp);
-        agentUriStatBo.setTimestamp(initialTimestamp);
-        agentUriStatBo.setBucketVersion(UriStatHistogramBucket.getBucketVersion());
+        agentUriStatBo.setBucketVersion(layout.getBucketVersion());
 
         List<EachUriStatBo> eachUriStatBoList = createEachUriStatBoList(numValues);
         agentUriStatBo.setEachUriStatBoList(eachUriStatBoList);
@@ -509,7 +523,7 @@ public class TestAgentStatFactory {
             UriStatHistogram fail = createHistogram(elapsedTimes, 3);
             eachUriStatBo.setFailedHistogram(fail);
         }
-
+        eachUriStatBo.setTimestamp(System.currentTimeMillis());
         return eachUriStatBo;
     }
 
@@ -532,7 +546,7 @@ public class TestAgentStatFactory {
             max = Math.max(max, elapsedTime);
             count++;
 
-            UriStatHistogramBucket value = UriStatHistogramBucket.getValue(elapsedTime);
+            UriStatHistogramBucket value = layout.getBucket(elapsedTime);
             histogramBucket[value.getIndex()] += 1;
         }
 
@@ -541,7 +555,7 @@ public class TestAgentStatFactory {
         }
 
         uriStatHistogram.setCount(count);
-        uriStatHistogram.setAvg(totalElapsed / count);
+        uriStatHistogram.setTotal(totalElapsed);
         uriStatHistogram.setMax(max);
 
         uriStatHistogram.setTimestampHistogram(histogramBucket);

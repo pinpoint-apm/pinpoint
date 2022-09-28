@@ -26,18 +26,18 @@ import java.util.List;
  */
 public class UriExtractorChain<T> implements UriExtractor<T> {
 
-    private final List<UriExtractor<T>> uriExtractorList;
+    private final UriExtractor<T>[] uriExtractorList;
 
     public UriExtractorChain(List<UriExtractor<T>> uriExtractorList) {
         if (CollectionUtils.isEmpty(uriExtractorList)) {
             throw new IllegalArgumentException("uriExtractorList may not be empty");
         }
-        this.uriExtractorList = uriExtractorList;
+        this.uriExtractorList = uriExtractorList.toArray(new UriExtractor[0]);
     }
 
     @Override
     public UriExtractorType getExtractorType() {
-        return uriExtractorList.get(0).getExtractorType();
+        return uriExtractorList[0].getExtractorType();
     }
 
     @Override

@@ -56,6 +56,8 @@ public final class DefaultTrace implements Trace {
     private final Span span;
     private final ActiveTraceHandle activeTraceHandle;
 
+    private long endTime = 0L;
+
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
@@ -69,6 +71,7 @@ public final class DefaultTrace implements Trace {
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
         this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
+
         setCurrentThread();
     }
 
@@ -189,6 +192,7 @@ public final class DefaultTrace implements Trace {
         }
 
         this.storage.close();
+        endTime = afterTime;
 
         purgeActiveTrace(afterTime);
     }
@@ -223,6 +227,11 @@ public final class DefaultTrace implements Trace {
     @Override
     public long getStartTime() {
         return getTraceRoot().getTraceStartTime();
+    }
+
+    @Override
+    public long getEndTime() {
+        return endTime;
     }
 
     @Override

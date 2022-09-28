@@ -21,6 +21,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.uri;
  */
 public interface UriExtractorService<T> {
 
-    UriExtractor<T> get(UriExtractorProviderLocator uriExtractorProviderLocator);
+    UriExtractor<T> getUriExtractor(UriExtractorProviderLocator uriExtractorProviderLocator);
 
 }

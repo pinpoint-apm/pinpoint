@@ -48,7 +48,7 @@ public class UriStatHistogramTest {
             value += prev.getTo();
         }
 
-        UriStatHistogramBucket result = UriStatHistogramBucket.getValue(value);
+        UriStatHistogramBucket result = UriStatHistogramBucket.getLayout().getBucket(value);
 
         Assertions.assertEquals(current, result);
         Assertions.assertEquals(expectedIndex, result.getIndex());
