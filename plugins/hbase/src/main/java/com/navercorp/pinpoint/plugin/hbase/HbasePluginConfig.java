@@ -30,6 +30,7 @@ public class HbasePluginConfig {
     private final boolean tableProfile;
     private final boolean paramsProfile;
     private final boolean tableNameProfile;
+    private final boolean dataSizeProfile;
 
     /**
      * Instantiates a new Hbase plugin config.
@@ -42,6 +43,7 @@ public class HbasePluginConfig {
         this.tableProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_TABLE_CONFIG, true);
         this.paramsProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_PARAMS_CONFIG, false);
         this.tableNameProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_TABLENAME_CONFIG, true);
+        this.dataSizeProfile = config.readBoolean(HbasePluginConstants.HBASE_CLIENT_DATA_SIZE_CONFIG, false);
     }
 
     /**
@@ -89,6 +91,15 @@ public class HbasePluginConfig {
         return tableNameProfile;
     }
 
+    /**
+     * Is dataSize profile boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isDataSizeProfile() {
+        return dataSizeProfile;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -100,6 +111,8 @@ public class HbasePluginConfig {
         builder.append(tableProfile);
         builder.append(", paramsProfile=");
         builder.append(paramsProfile);
+        builder.append(", dataSizeProfile=");
+        builder.append(dataSizeProfile);
         builder.append("]");
         return builder.toString();
     }

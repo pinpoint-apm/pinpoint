@@ -19,6 +19,9 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
@@ -66,6 +69,16 @@ public final class HbasePluginConstants {
     public static final AnnotationKey HBASE_TABLE_NAME = AnnotationKeyFactory.of(321, "hbase.table.name", VIEW_IN_RECORD_SET);
 
     /**
+     * The data size of param and result constant
+     */
+    public static final AnnotationKey HBASE_OP_DATA_SIZE = AnnotationKeyFactory.of(325, "hbase.op.data.size", VIEW_IN_RECORD_SET);
+
+    /**
+     * each rpc result number of scan
+     */
+    public static final AnnotationKey HBASE_SCAN_RPC_RESULT_NUM = AnnotationKeyFactory.of(327, "hbase.scan.rpc.result.num", VIEW_IN_RECORD_SET);
+
+    /**
      * The constant HBASE_DESTINATION_ID.
      */
     public static final String HBASE_DESTINATION_ID = "HBASE";
@@ -101,9 +114,17 @@ public final class HbasePluginConstants {
     public static final String HBASE_CLIENT_TABLENAME_CONFIG = "profiler.hbase.client.tablename.enable";
 
     /**
+     * The constant HBASE_CLIENT_DATA_SIZE_CONFIG
+     */
+    public static final String HBASE_CLIENT_DATA_SIZE_CONFIG = "profiler.hbase.client.data-size.enable";
+
+    /**
      * The constant tableMethodNames.
      */
+
     protected static final String[] tableMethodNames = new String[]{"append", "increment", "exists", "existsAll", "get", "getScanner", "put", "checkAndPut", "delete", "checkAndDelete", "mutateRow", "checkAndMutate"};
+    public static final List<String> tableReadMethodNames = Arrays.asList("exists", "existsAll", "get", "getScanner");
+    public static final List<String> tableWriteMethodNames = Arrays.asList("append", "increment", "put", "checkAndPut", "delete", "checkAndDelete", "mutateRow", "checkAndMutate");
 
     /**
      * The constant adminMethodNames.
