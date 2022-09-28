@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
+import org.apache.hadoop.hbase.client.ClientScanner;
+import org.apache.hadoop.hbase.client.Result;
 
 import java.net.InetSocketAddress;
 
@@ -55,7 +57,17 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
         recorder.recordEndPoint(endPoint != null ? endPoint : HbasePluginConstants.UNKNOWN_TABLE);
         recorder.recordDestinationId(HbasePluginConstants.HBASE_DESTINATION_ID);
         recorder.recordApi(getMethodDescriptor());
+        if (target instanceof ClientScanner) {
+            recorder.recordAttribute(HbasePluginConstants.HBASE_SCAN_RPC_RESULT_NUM, getScanRpcResultNum(result));
+        }
         recorder.recordException(throwable);
+    }
+
+    private int getScanRpcResultNum(Object result) {
+        if (result instanceof Result[]) {
+            return ((Result[]) result).length;
+        }
+        return 0;
     }
 
     /**
