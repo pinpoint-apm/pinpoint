@@ -9,44 +9,50 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SystemMetricView {
+public class SystemMetricView implements TimeSeriesView {
     private final SystemMetricData<? extends Number> systemMetricData;
 
     public SystemMetricView(SystemMetricData<? extends Number> systemMetricData) {
         this.systemMetricData = Objects.requireNonNull(systemMetricData, "systemMetricData");
     }
 
+    @Override
     public String getTitle() {
         return systemMetricData.getTitle();
     }
 
+    @Override
     public String getUnit() {
         return systemMetricData.getUnit();
     }
 
+    @Override
     public List<Long> getTimestamp() {
         return systemMetricData.getTimeStampList();
     }
 
-    public List<MetricValueGroupView> getMetricValueGroups() {
+    @Override
+    public List<TimeseriesValueGroupView> getMetricValueGroups() {
         return systemMetricData.getMetricValueGroupList()
                 .stream()
                 .map(MetricValueGroupView::new)
                 .collect(Collectors.toList());
     }
 
-    public static class MetricValueGroupView {
+    public static class MetricValueGroupView implements TimeseriesValueGroupView {
         private final MetricValueGroup<? extends Number> value;
 
         public MetricValueGroupView(MetricValueGroup value) {
             this.value = Objects.requireNonNull(value, "value");
         }
 
+        @Override
         public String getGroupName() {
             return value.getGroupName();
         }
 
-        public List<MetricValueView> getMetricValues() {
+        @Override
+        public List<TimeSeriesValueView> getMetricValues() {
             return value.getMetricValueList()
                     .stream()
                     .map(MetricValueView::new)
@@ -54,7 +60,7 @@ public class SystemMetricView {
         }
     }
 
-    public static class MetricValueView {
+    public static class MetricValueView implements TimeSeriesValueView {
         private final MetricValue<? extends Number> value;
 
         public MetricValueView(MetricValue<? extends Number> value) {

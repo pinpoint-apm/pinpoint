@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Random;
 
 /**
@@ -38,10 +39,12 @@ public class GrpcUriStatMessageConverterTest {
 
     private static final String[] URI_EXAMPLES = {"/index.html", "/main", "/error"};
 
+    private final UriStatHistogramBucket.Layout layout = UriStatHistogramBucket.getLayout();
+
     @Test
     public void convertTest() {
         long currentTimeMillis = System.currentTimeMillis();
-        AgentUriStatData agentUriStatData = new AgentUriStatData(currentTimeMillis);
+        AgentUriStatData agentUriStatData = new AgentUriStatData(currentTimeMillis, 10);
 
         List<UriStatInfo> uriStatInfoList = createRandomUriStatInfo(100);
         for (UriStatInfo uriStatInfo : uriStatInfoList) {
@@ -69,7 +72,8 @@ public class GrpcUriStatMessageConverterTest {
         int index = RANDOM.nextInt(URI_EXAMPLES.length);
         boolean status = RANDOM.nextBoolean();
         final int elapsedTime = RANDOM.nextInt(10000);
-        return new UriStatInfo(URI_EXAMPLES[index], status, elapsedTime);
+        final long timestamp = System.currentTimeMillis();
+        return new UriStatInfo(URI_EXAMPLES[index], status, timestamp - elapsedTime, timestamp);
     }
 
     private void assertData(List<UriStatInfo> uriStatInfoList, List<PEachUriStat> eachUriStatList) {
@@ -81,39 +85,32 @@ public class GrpcUriStatMessageConverterTest {
     }
 
     private void assertData(List<UriStatInfo> expected, PUriHistogram actual) {
-        Assertions.assertEquals(expected.size(), actual.getCount());
-        Assertions.assertEquals(getMax(expected), actual.getMax());
-        Assertions.assertEquals(new Double(getAvg(expected)).longValue(), new Double(actual.getAvg()).longValue());
+        LongSummaryStatistics summary = getSummary(expected);
+
+        Assertions.assertEquals(summary.getCount(), actual.getCount());
+        Assertions.assertEquals(summary.getMax(), actual.getMax());
+        Assertions.assertEquals(summary.getSum(), actual.getTotal());
 
         List<Integer> histogramList = actual.getHistogramList();
         for (int i = 0; i < histogramList.size(); i++) {
-            UriStatHistogramBucket valueByIndex = UriStatHistogramBucket.getValueByIndex(i);
+            UriStatHistogramBucket valueByIndex = layout.getBucketByIndex(i);
             int bucketCount = getBucketCount(expected, valueByIndex);
             Assertions.assertEquals(new Integer(bucketCount), histogramList.get(i));
         }
     }
 
-    private long getMax(List<UriStatInfo> expected) {
-        long max = 0;
-        for (UriStatInfo uriStatInfo : expected) {
-            max = Math.max(max, uriStatInfo.getElapsed());
-        }
-        return max;
+    private LongSummaryStatistics getSummary(List<UriStatInfo> expected) {
+        return expected.stream()
+                .mapToLong(UriStatInfo::getElapsed)
+                .summaryStatistics();
     }
 
-    private double getAvg(List<UriStatInfo> expected) {
-        long total = 0l;
-        for (UriStatInfo uriStatInfo : expected) {
-            total += uriStatInfo.getElapsed();
-        }
-        return total / expected.size();
-    }
 
     private int getBucketCount(List<UriStatInfo> uriStatInfoList, UriStatHistogramBucket type) {
         int count = 0;
 
         for (UriStatInfo uriStatInfo : uriStatInfoList) {
-            UriStatHistogramBucket value = UriStatHistogramBucket.getValue(uriStatInfo.getElapsed());
+            UriStatHistogramBucket value = layout.getBucket(uriStatInfo.getElapsed());
             if (value == type) {
                 count += 1;
             }

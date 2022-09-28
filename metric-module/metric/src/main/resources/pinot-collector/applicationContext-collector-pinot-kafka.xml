@@ -31,4 +31,8 @@
         <constructor-arg index="0" ref="kafkaProducerFactory"/>
     </bean>
 
+    <bean id="kafkaUriStatTemplate" class="org.springframework.kafka.core.KafkaTemplate">
+        <constructor-arg index="0" ref="kafkaProducerFactory"/>
+    </bean>
+
 </beans>

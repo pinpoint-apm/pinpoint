@@ -112,7 +112,7 @@ public class GrpcAgentUriStatHandlerV2Test {
         PUriHistogram.Builder histogramBuilder = PUriHistogram.newBuilder();
 
         int totalCount = 0;
-        for (int i = 0; i < UriStatHistogramBucket.getBucketSize(); i++) {
+        for (int i = 0; i < UriStatHistogramBucket.getLayout().getBucketSize(); i++) {
             int count = ThreadLocalRandom.current().nextInt(0, 10);
             totalCount += count;
 
@@ -123,10 +123,10 @@ public class GrpcAgentUriStatHandlerV2Test {
         PEachUriStat.Builder eachUriStatBuilder = PEachUriStat.newBuilder();
         eachUriStatBuilder.setUri("uri");
         eachUriStatBuilder.setTotalHistogram(histogramBuilder.build());
+        eachUriStatBuilder.setTimestamp(System.currentTimeMillis());
 
         PAgentUriStat.Builder builder = PAgentUriStat.newBuilder();
         builder.setBucketVersion(0);
-        builder.setTimestamp(System.currentTimeMillis());
         builder.addEachUriStat(eachUriStatBuilder.build());
 
         return builder.build();

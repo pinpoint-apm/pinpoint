@@ -162,16 +162,4 @@ public class AgentStatCoderConfiguration {
     public AgentStatEncoder<TransactionBo> getAgentTransactionEncoder(AgentStatCodec<TransactionBo> codec) {
         return new AgentStatEncoder<>(codec);
     }
-
-    // ----------------
-
-    @Bean
-    public AgentStatDecoder<AgentUriStatBo> getAgentAgentUriStatDecoder(List<AgentStatCodec<AgentUriStatBo>> codecs) {
-        return new AgentStatDecoder<>(codecs);
-    }
-
-    @Bean
-    public AgentStatEncoder<AgentUriStatBo> getAgentAgentUriStatEncoder(AgentStatCodec<AgentUriStatBo> codec) {
-        return new AgentStatEncoder<>(codec);
-    }
 }

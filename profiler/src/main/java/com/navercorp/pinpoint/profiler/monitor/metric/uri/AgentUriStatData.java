@@ -19,43 +19,59 @@ package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
 public class AgentUriStatData implements MetricType {
-
+    private final int capacity;
     private final long baseTimestamp;
 
-    private final Map<String, EachUriStatData> eachUriStatDataMap = new HashMap<>();
+    private final Map<URIKey, EachUriStatData> eachUriStatDataMap = new HashMap<>();
 
-    public AgentUriStatData(long baseTimestamp) {
+    public AgentUriStatData(long baseTimestamp, int capacity) {
+        Assert.isTrue(capacity > 0, "capacity must be  ` > 0`");
+        this.capacity = capacity;
         Assert.isTrue(baseTimestamp > 0, "baseTimestamp must be  ` > 0`");
-
         this.baseTimestamp = baseTimestamp;
+    }
+
+    public int getCapacity() {
+        return capacity;
     }
 
     public long getBaseTimestamp() {
         return baseTimestamp;
     }
 
-    public void add(UriStatInfo uriStatInfo) {
-        String uri = uriStatInfo.getUri();
+    public boolean add(UriStatInfo uriStatInfo) {
+        if (eachUriStatDataMap.size() >= this.capacity) {
+            return false;
+        }
 
-        EachUriStatData eachUriStatData = eachUriStatDataMap.get(uri);
+        URIKey key = newURIKey(uriStatInfo);
+
+        EachUriStatData eachUriStatData = eachUriStatDataMap.get(key);
         if (eachUriStatData == null) {
-            eachUriStatData = new EachUriStatData(uri);
-            eachUriStatDataMap.put(uri, eachUriStatData);
+            eachUriStatData = new EachUriStatData(key.getUri());
+            eachUriStatDataMap.put(key, eachUriStatData);
         }
 
         eachUriStatData.add(uriStatInfo);
+        return true;
     }
 
-    public Collection<EachUriStatData> getAllUriStatData() {
-        return eachUriStatDataMap.values();
+    private URIKey newURIKey(UriStatInfo uriStatInfo) {
+        String uri = uriStatInfo.getUri();
+        long endTime = uriStatInfo.getEndTime();
+        return new URIKey(uri, endTime);
+    }
+
+    public Set<Map.Entry<URIKey, EachUriStatData>> getAllUriStatData() {
+        return eachUriStatDataMap.entrySet();
     }
 
     @Override

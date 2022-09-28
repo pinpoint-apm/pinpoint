@@ -24,7 +24,7 @@ import java.util.Arrays;
 public class UriStatHistogram {
 
     private int count;
-    private double avg;
+    private long total;
     private long max = 0;
     private int[] timestampHistogram;
 
@@ -36,12 +36,12 @@ public class UriStatHistogram {
         this.count = count;
     }
 
-    public double getAvg() {
-        return avg;
+    public long getTotal() {
+        return total;
     }
 
-    public void setAvg(double avg) {
-        this.avg = avg;
+    public void setTotal(long total) {
+        this.total = total;
     }
 
     public long getMax() {
@@ -72,7 +72,7 @@ public class UriStatHistogram {
         UriStatHistogram that = (UriStatHistogram) o;
 
         if (count != that.count) return false;
-        if (Double.compare(that.avg, avg) != 0) return false;
+        if (total != that.total) return false;
         if (max != that.max) return false;
         return Arrays.equals(timestampHistogram, that.timestampHistogram);
     }
@@ -80,10 +80,8 @@ public class UriStatHistogram {
     @Override
     public int hashCode() {
         int result;
-        long temp;
         result = count;
-        temp = Double.doubleToLongBits(avg);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (int) (total ^ (total >>> 32));
         result = 31 * result + (int) (max ^ (max >>> 32));
         result = 31 * result + Arrays.hashCode(timestampHistogram);
         return result;
@@ -93,7 +91,7 @@ public class UriStatHistogram {
     public String toString() {
         final StringBuilder sb = new StringBuilder("UriStatHistogram{");
         sb.append("count=").append(count);
-        sb.append(", avg=").append(avg);
+        sb.append(", total=").append(total);
         sb.append(", max=").append(max);
         sb.append(", timestampHistogram=").append(Arrays.toString(timestampHistogram));
         sb.append('}');

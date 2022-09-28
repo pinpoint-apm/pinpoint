@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
-import com.navercorp.pinpoint.metric.web.util.QueryParameter;
+import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 import com.navercorp.pinpoint.metric.web.util.metric.DoubleUncollectedDataCreator;
@@ -82,7 +82,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     @Override
-    public List<SystemMetric> getSystemMetricBoList(QueryParameter queryParameter) {
+    public List<SystemMetric> getSystemMetricBoList(MetricsQueryParameter queryParameter) {
 
         MetricDataName metricDataName = new MetricDataName(queryParameter.getMetricName(), queryParameter.getFieldName());
         MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
@@ -98,7 +98,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     @Override
-    public SystemMetricChart<? extends Number> getSystemMetricChart(TimeWindow timeWindow, QueryParameter queryParameter) {
+    public SystemMetricChart<? extends Number> getSystemMetricChart(TimeWindow timeWindow, MetricsQueryParameter queryParameter) {
         String metricName = queryParameter.getMetricName();
         String fieldName = queryParameter.getFieldName();
 

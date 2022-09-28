@@ -14,7 +14,7 @@
         </constructor>
     </resultMap>
 
-    <select id="selectSystemMetric" resultMap="systemMetricResultMap" parameterType="QueryParameter">
+    <select id="selectSystemMetric" resultMap="systemMetricResultMap" parameterType="MetricsQueryParameter">
         SELECT metricName,
             hostName,
             fieldName,
@@ -47,7 +47,7 @@
         </constructor>
     </resultMap>
 
-    <select id="selectSampledSystemMetric" resultMap="sampledSystemMetricResultMap" parameterType="QueryParameter">
+    <select id="selectSampledSystemMetric" resultMap="sampledSystemMetricResultMap" parameterType="MetricsQueryParameter">
         SELECT
             AVG(fieldValue) AS avgValue,
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime,

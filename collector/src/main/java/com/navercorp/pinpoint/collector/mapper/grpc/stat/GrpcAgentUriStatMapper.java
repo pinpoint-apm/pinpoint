@@ -39,15 +39,14 @@ public class GrpcAgentUriStatMapper {
         final Header agentInfo = ServerContext.getAgentInfo();
 
         final String agentId = agentInfo.getAgentId();
-        final long startTimestamp = agentInfo.getAgentStartTime();
+        final String applicationName = agentInfo.getApplicationName();
 
-        long timestamp = agentUriStat.getTimestamp();
         int bucketVersion = agentUriStat.getBucketVersion();
 
         AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
+        agentUriStatBo.setServiceName("");                        // TODO: add serviceName when available
+        agentUriStatBo.setApplicationName(applicationName);
         agentUriStatBo.setAgentId(agentId);
-        agentUriStatBo.setStartTimestamp(startTimestamp);
-        agentUriStatBo.setTimestamp(timestamp);
         agentUriStatBo.setBucketVersion((byte) bucketVersion);
 
         List<PEachUriStat> eachUriStatList = agentUriStat.getEachUriStatList();
@@ -73,6 +72,8 @@ public class GrpcAgentUriStatMapper {
         final UriStatHistogram failedHistogram = convertUriStatHistogram(pFailedHistogram);
         eachUriStatBo.setFailedHistogram(failedHistogram);
 
+        eachUriStatBo.setTimestamp(pEachUriStat.getTimestamp());
+
         return eachUriStatBo;
     }
 
@@ -82,7 +83,7 @@ public class GrpcAgentUriStatMapper {
             return null;
         }
 
-        double avg = pUriHistogram.getAvg();
+        long total = pUriHistogram.getTotal();
         long max = pUriHistogram.getMax();
 
         int histogramCount = pUriHistogram.getHistogramCount();
@@ -95,7 +96,7 @@ public class GrpcAgentUriStatMapper {
 
         UriStatHistogram uriStatHistogram = new UriStatHistogram();
         uriStatHistogram.setCount(count);
-        uriStatHistogram.setAvg(avg);
+        uriStatHistogram.setTotal(total);
         uriStatHistogram.setMax(max);
         uriStatHistogram.setTimestampHistogram(histogram);
 

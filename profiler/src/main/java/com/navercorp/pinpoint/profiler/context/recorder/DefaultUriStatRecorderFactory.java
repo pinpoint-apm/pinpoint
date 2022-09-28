@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.DisabledUriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
-import com.google.inject.Provider;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -48,7 +48,7 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
     @Override
     public <T> UriStatRecorder<T> create(UriExtractorService<T> uriExtractorService) {
         Objects.requireNonNull(uriExtractorService, "uriExtractorService");
-        UriExtractor<T> uriExtractor = uriExtractorService.get(uriExtractorProviderLocator);
+        UriExtractor<T> uriExtractor = uriExtractorService.getUriExtractor(uriExtractorProviderLocator);
 
         if (uriExtractor == null) {
             return DisabledUriStatRecorder.create();

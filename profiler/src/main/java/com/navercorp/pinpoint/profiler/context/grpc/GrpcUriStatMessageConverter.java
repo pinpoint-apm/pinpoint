@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
@@ -23,10 +24,11 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.EachUriStatData;
+import com.navercorp.pinpoint.profiler.monitor.metric.uri.URIKey;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.UriStatHistogram;
-import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 
-import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -34,6 +36,7 @@ import java.util.Collection;
 public class GrpcUriStatMessageConverter implements MessageConverter<MetricType, PAgentUriStat> {
 
     private final static PUriHistogram EMPTY_DETAILED_DATA_INSTANCE = PUriHistogram.getDefaultInstance();
+    private final UriStatHistogramBucket.Layout layout = UriStatHistogramBucket.getLayout();
 
     @Override
     public PAgentUriStat toMessage(MetricType message) {
@@ -45,22 +48,20 @@ public class GrpcUriStatMessageConverter implements MessageConverter<MetricType,
     }
 
     private PAgentUriStat createPAgentUriStat(AgentUriStatData agentUriStatData) {
-        long baseTimestamp = agentUriStatData.getBaseTimestamp();
-
         PAgentUriStat.Builder builder = PAgentUriStat.newBuilder();
-        builder.setTimestamp(baseTimestamp);
-        builder.setBucketVersion(UriStatHistogramBucket.getBucketVersion());
+        builder.setBucketVersion(layout.getBucketVersion());
 
-        Collection<EachUriStatData> allUriStatData = agentUriStatData.getAllUriStatData();
-        for (EachUriStatData eachUriStatData : allUriStatData) {
-            PEachUriStat pEachUriStat = createPEachUriStat(eachUriStatData);
+        Set<Map.Entry<URIKey, EachUriStatData>> allUriStatData = agentUriStatData.getAllUriStatData();
+
+        for (Map.Entry<URIKey, EachUriStatData> eachUriStatData : allUriStatData) {
+            PEachUriStat pEachUriStat = createPEachUriStat(eachUriStatData.getValue(), eachUriStatData.getKey().getTimestamp());
             builder.addEachUriStat(pEachUriStat);
         }
 
         return builder.build();
     }
 
-    private PEachUriStat createPEachUriStat(EachUriStatData eachUriStatData) {
+    private PEachUriStat createPEachUriStat(EachUriStatData eachUriStatData, long timestamp) {
         String uri = eachUriStatData.getUri();
 
         PEachUriStat.Builder builder = PEachUriStat.newBuilder();
@@ -73,6 +74,8 @@ public class GrpcUriStatMessageConverter implements MessageConverter<MetricType,
         UriStatHistogram failedHistogram = eachUriStatData.getFailedHistogram();
         PUriHistogram failedPUriHistogram = createPUriHistogram(failedHistogram);
         builder.setFailedHistogram(failedPUriHistogram);
+
+        builder.setTimestamp(timestamp);
 
         return builder.build();
     }
@@ -90,8 +93,7 @@ public class GrpcUriStatMessageConverter implements MessageConverter<MetricType,
         long max = uriStatHistogram.getMax();
 
         builder.setCount(count);
-        final double avg = total / (double)count;
-        builder.setAvg(avg);
+        builder.setTotal(total);
         builder.setMax(max);
 
         int[] timestampHistograms = uriStatHistogram.getTimestampHistogram();

@@ -49,6 +49,11 @@ public class AsyncTrace implements Trace {
         return this.traceRoot.getTraceStartTime();
     }
 
+    @Override
+    public long getEndTime() {
+        return this.trace.getEndTime();
+    }
+
 
     @Override
     public TraceId getTraceId() {

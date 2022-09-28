@@ -87,6 +87,11 @@ public class DisableAsyncChildTrace implements Trace {
     }
 
     @Override
+    public long getEndTime() {
+        return 0L;
+    }
+
+    @Override
     public TraceId getTraceId() {
         return getTraceRoot().getTraceId();
     }

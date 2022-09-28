@@ -1,11 +1,11 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,57 +16,16 @@
 
 package com.navercorp.pinpoint.metric.web.util;
 
+public abstract class QueryParameter {
+    protected static final int TAG_SET_COUNT = 10;
+    protected final Range range;
+    protected final TimePrecision timePrecision;
+    protected final long limit;
 
-import com.navercorp.pinpoint.metric.common.model.Tag;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-/**
- * @author Hyunjoon Cho
- */
-public class QueryParameter {
-    private static final int TAG_SET_COUNT = 10;
-
-    private final String hostGroupName;
-    private final String hostName;
-    private final String metricName;
-    private final String fieldName;
-    private final List<Tag> tagList;
-    private final Range range;
-    private final TimePrecision timePrecision;
-    private final long limit;
-
-    public QueryParameter(Builder builder) {
-        this.hostGroupName = builder.hostGroupName;
-        this.hostName = builder.hostName;
-        this.metricName = builder.metricName;
-        this.fieldName = builder.fieldName;
-        this.tagList = builder.tagList;
-        this.range = builder.range;
-        this.timePrecision = builder.timePrecision;
-        this.limit = builder.limit;
-    }
-
-    public String getHostGroupName() {
-        return hostGroupName;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public List<Tag> getTagList() {
-        return tagList;
+    protected QueryParameter(Range range, TimePrecision timePrecision, long limit) {
+        this.range = range;
+        this.timePrecision = timePrecision;
+        this.limit = limit;
     }
 
     public Range getRange() {
@@ -81,36 +40,11 @@ public class QueryParameter {
         return limit;
     }
 
-    public static class Builder {
-        private String hostGroupName;
-        private String hostName;
-        private String metricName;
-        private String fieldName;
-        private List<Tag> tagList;
-        private Range range;
-        private TimePrecision timePrecision;
-        private int timeSize = 10000;
-        private long limit;
-
-        public void setHostGroupName(String hostGroupName) {
-            this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
-        }
-
-        public void setHostName(String hostName) {
-            this.hostName = Objects.requireNonNull(hostName, "hostName");
-        }
-
-        public void setMetricName(String metricName) {
-            this.metricName = Objects.requireNonNull(metricName, "metricName");
-        }
-
-        public void setFieldName(String fieldName) {
-            this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
-        }
-
-        public void setTagList(List<Tag> tagList) {
-            this.tagList = tagList;
-        }
+    public static abstract class Builder {
+        protected Range range;
+        protected TimePrecision timePrecision;
+        protected int timeSize = 10000;
+        protected long limit;
 
         public void setRange(Range range) {
             this.range = range;
@@ -128,13 +62,6 @@ public class QueryParameter {
             return (range.getRange() / timePrecision.getInterval() + 1) * TAG_SET_COUNT;
         }
 
-        public QueryParameter build() {
-            if (timePrecision == null) {
-                this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeSize);
-            }
-            this.limit = estimateLimit();
-
-            return new QueryParameter(this);
-        }
+        abstract public QueryParameter build();
     }
 }

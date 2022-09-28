@@ -32,8 +32,8 @@ import java.util.List;
 public class ServletRequestUriExtractorService implements UriExtractorService<HttpServletRequest> {
 
     @Override
-    public UriExtractor<HttpServletRequest> get(UriExtractorProviderLocator uriExtractorProviderLocator) {
-        List<UriMappingExtractorProvider> uriMappingExtractorProviderList = uriExtractorProviderLocator.get(UriMappingExtractorProvider.class, ServletRequestAttributesMappingExtractor.TYPE);
+    public UriExtractor<HttpServletRequest> getUriExtractor(UriExtractorProviderLocator locator) {
+        List<UriMappingExtractorProvider> uriMappingExtractorProviderList = locator.getUriExtractorProvider(UriMappingExtractorProvider.class, ServletRequestAttributesMappingExtractor.TYPE);
 
         List<UriExtractor<HttpServletRequest>> result = new ArrayList<>();
         for (UriMappingExtractorProvider uriMappingExtractorProvider : uriMappingExtractorProviderList) {

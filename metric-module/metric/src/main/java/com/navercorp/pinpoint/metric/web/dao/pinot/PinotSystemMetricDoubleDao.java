@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
-import com.navercorp.pinpoint.metric.web.util.QueryParameter;
+import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
@@ -64,12 +64,12 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
     }
 
     @Override
-    public List<SystemMetric> getSystemMetric(QueryParameter queryParameter) {
+    public List<SystemMetric> getSystemMetric(MetricsQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSystemMetric", queryParameter);
     }
 
     @Override
-    public List<SampledSystemMetric<Double>> getSampledSystemMetric(QueryParameter queryParameter) {
+    public List<SampledSystemMetric<Double>> getSampledSystemMetric(MetricsQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetric", queryParameter);
     }
 

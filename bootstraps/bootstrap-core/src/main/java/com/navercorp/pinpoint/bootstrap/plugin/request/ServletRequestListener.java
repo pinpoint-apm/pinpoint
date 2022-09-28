@@ -179,7 +179,7 @@ public class ServletRequestListener<REQ> {
             this.traceContext.removeTraceObject();
             trace.close();
             boolean status = isNotFailedStatus(statusCode);
-            uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), System.currentTimeMillis());
+            uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 

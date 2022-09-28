@@ -105,4 +105,12 @@ public final class MathUtils {
         }
 
     }
+
+    public static double average(long sum, long count) {
+        return count > 0 ? (double) sum / count : 0.0d;
+    }
+
+    public static double average(double sum, double count) {
+        return count > 0 ? sum / count : 0.0d;
+    }
 }

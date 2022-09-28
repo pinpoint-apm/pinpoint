@@ -19,18 +19,30 @@ package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class UriStatHistogram {
 
-    private static final byte BUCKET_VERSION = UriStatHistogramBucket.getBucketVersion();
+    private final UriStatHistogramBucket.Layout layout;
 
     private int count;
     private long total;
     private long max = 0;
-    private final int[] timestampHistogram = new int[UriStatHistogramBucket.getBucketSize()];
+
+    private final int[] timestampHistogram;
+
+
+    public UriStatHistogram() {
+        this(UriStatHistogramBucket.getLayout());
+    }
+
+    UriStatHistogram(UriStatHistogramBucket.Layout layout) {
+        this.layout = Objects.requireNonNull(layout, "layout");
+        this.timestampHistogram = new int[layout.getBucketSize()];
+    }
 
     public void add(long elapsed) {
         count++;
@@ -38,8 +50,8 @@ public class UriStatHistogram {
 
         this.max = Math.max(max, elapsed);
 
-        UriStatHistogramBucket uriStatHistogramBucket = UriStatHistogramBucket.getValue(elapsed);
-        timestampHistogram[uriStatHistogramBucket.getIndex()] = ++timestampHistogram[uriStatHistogramBucket.getIndex()];
+        UriStatHistogramBucket bucket = layout.getBucket(elapsed);
+        timestampHistogram[bucket.getIndex()]++;
     }
 
     private boolean isEmpty() {
@@ -63,7 +75,7 @@ public class UriStatHistogram {
     }
 
     public byte getBucketVersion() {
-        return BUCKET_VERSION;
+        return layout.getBucketVersion();
     }
 
     @Override
