@@ -41,7 +41,7 @@ public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-        final long error = rejectedCount.incrementAndGet();
+        final long error = rejectedCount.getAndIncrement();
         if ((error % logRate) == 0) {
             final int maxPoolSize = executor != null ? executor.getMaximumPoolSize() : -1;
             logger.warn("The executor uses finite bounds for both maximum threads and work queue capacity, and is saturated. Check the maxPoolSize, queueCapacity, and HBase options in the configuration. maxPoolSize={}, rejectedCount={}", maxPoolSize, error);

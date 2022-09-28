@@ -118,6 +118,7 @@
         <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverExecutor}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
         <property name="registry" ref="metricRegistry"/>
+        <property name="logRate" value="1"/>
     </bean>
 
     <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
