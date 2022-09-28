@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.data.DataOperationType;
 import com.navercorp.pinpoint.plugin.hbase.interceptor.data.DataSizeHelper;
 import com.navercorp.pinpoint.plugin.hbase.interceptor.util.HbaseTableNameProvider;
 import com.navercorp.pinpoint.plugin.hbase.interceptor.util.HbaseTableNameProviderFactory;
@@ -41,7 +42,7 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
 
     private final boolean paramsProfile;
     private final boolean tableNameProfile;
-    private final boolean dataSizeProfile;
+    private final int dataOpType;
     private final HbaseTableNameProvider nameProvider;
 
     /**
@@ -52,12 +53,12 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
      * @param paramsProfile params
      */
     public HbaseTableMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
-                                       boolean paramsProfile, boolean tableNameProfile, int hbaseVersion, boolean dataSizeProfile) {
+                                       boolean paramsProfile, boolean tableNameProfile, int hbaseVersion, int dataOpType) {
         super(traceContext, descriptor);
         this.paramsProfile = paramsProfile;
         this.tableNameProfile = tableNameProfile;
         this.nameProvider = HbaseTableNameProviderFactory.getTableNameProvider(hbaseVersion);
-        this.dataSizeProfile = dataSizeProfile;
+        this.dataOpType = dataOpType;
     }
 
     @Override
@@ -77,9 +78,15 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
             String tableName = getTableName(target);
             recorder.recordAttribute(HbasePluginConstants.HBASE_TABLE_NAME, tableName);
         }
-        if (dataSizeProfile) {
-            recorder.recordAttribute(HbasePluginConstants.HBASE_OP_DATA_SIZE,
-                    DataSizeHelper.getDataSizeFrom(getMethodDescriptor().getMethodName(), args, result));
+
+        if (DataOperationType.DISABLE == dataOpType) {
+            // skip
+        } else if (DataOperationType.WRITE == dataOpType) {
+            int dataWriteSize = DataSizeHelper.getDataWriteSize(args);
+            recorder.recordAttribute(HbasePluginConstants.HBASE_OP_WRITE_SIZE, dataWriteSize);
+        } else if (DataOperationType.READ == dataOpType) {
+            int dataReadSize = DataSizeHelper.getDataReadSize(result);
+            recorder.recordAttribute(HbasePluginConstants.HBASE_OP_READ_SIZE, dataReadSize);
         }
 
         recorder.recordApi(getMethodDescriptor());

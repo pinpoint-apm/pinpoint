@@ -14,27 +14,25 @@
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author jimo
  **/
 public class DataSizeHelper {
 
-    private static final List<? extends WriteSizeProvider> WRITE_SIZE_PROVIDERS = Arrays.asList(
+    private static final WriteSizeProvider[] WRITE_SIZE_PROVIDERS = new WriteSizeProvider[] {
             new MutateSizeProvider(),
             new PutListSizeProvider(),
             new DeleteListSizeProvider(),
             new RowMutationSizeProvider()
-    );
+    };
 
-    private static final List<? extends ReadSizeProvider> READ_SIZE_PROVIDERS = Arrays.asList(
+    private static final ReadSizeProvider[] READ_SIZE_PROVIDERS = new ReadSizeProvider[] {
             new GetSizeProvider(),
             new GetListSizeProvider()
-    );
+    };
 
     private DataSizeHelper() {
     }
@@ -57,18 +55,21 @@ public class DataSizeHelper {
         return 0;
     }
 
-    private static boolean checkIfWriteOp(String methodName) {
+    public static boolean checkIfWriteOp(String methodName) {
         return HbasePluginConstants.tableWriteMethodNames.contains(methodName);
     }
 
-    private static boolean checkIfReadOp(String methodName) {
+    public static boolean checkIfReadOp(String methodName) {
         return HbasePluginConstants.tableReadMethodNames.contains(methodName);
     }
 
     /*
      * Calculate the last arg data size of write method.
      */
-    private static int getDataWriteSize(Object[] args) {
+    public static int getDataWriteSize(Object[] args) {
+        if (ArrayUtils.getLength(args) == 0) {
+            return 0;
+        }
         Object arg = args[args.length - 1];
         for (WriteSizeProvider w : WRITE_SIZE_PROVIDERS) {
             if (w.isProviderOf(arg)) {
@@ -81,7 +82,10 @@ public class DataSizeHelper {
     /*
      * Calculate the result data size of read method
      */
-    private static int getDataReadSize(Object result) {
+    public static int getDataReadSize(Object result) {
+         if (result == null) {
+            return 0;
+        }
         for (ReadSizeProvider r : READ_SIZE_PROVIDERS) {
             if (r.isProviderOf(result)) {
                 return r.getDataSize(result);

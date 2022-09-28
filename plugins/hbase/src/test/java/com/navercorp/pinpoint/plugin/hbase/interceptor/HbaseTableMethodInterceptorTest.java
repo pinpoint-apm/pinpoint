@@ -5,10 +5,12 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 import com.navercorp.pinpoint.plugin.hbase.HbaseVersion;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.data.DataOperationType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +50,7 @@ public class HbaseTableMethodInterceptorTest {
         Object target = new Object();
         Object[] args = new Object[]{};
         int hbaseVersion = getHbaseVersion();
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, false, hbaseVersion, false);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, false, hbaseVersion, DataOperationType.DISABLE);
         interceptor.doInBeforeTrace(recorder, target, args);
         verify(recorder).recordServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
     }
@@ -63,7 +66,7 @@ public class HbaseTableMethodInterceptorTest {
         Object[] args = new Object[]{Collections.singletonList("test")};
 
         int hbaseVersion = getHbaseVersion();
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, false);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, DataOperationType.DISABLE);
         interceptor.doInAfterTrace(recorder, target, args, null, null);
         verify(recorder).recordAttribute(HbasePluginConstants.HBASE_CLIENT_PARAMS, "size: 1");
         verify(recorder).recordApi(descriptor);
@@ -79,7 +82,7 @@ public class HbaseTableMethodInterceptorTest {
         Object[] args = new Object[]{Collections.singletonList("test")};
 
         int hbaseVersion = getHbaseVersion();
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, false);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, DataOperationType.DISABLE);
         interceptor.doInAfterTrace(recorder, target, args, null, null);
         verify(recorder).recordAttribute(HbasePluginConstants.HBASE_TABLE_NAME, "test");
         verify(recorder).recordApi(descriptor);
@@ -92,7 +95,7 @@ public class HbaseTableMethodInterceptorTest {
         when(mockHTable.getName()).thenReturn(TableName.valueOf("HTable"));
 
         int hbaseVersion = getHbaseVersion();
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, false);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, DataOperationType.DISABLE);
 
         Method method = interceptor.getClass().getDeclaredMethod("getTableName", Object.class);
         method.setAccessible(true);
@@ -111,10 +114,10 @@ public class HbaseTableMethodInterceptorTest {
         Table target = new HTable(TableName.valueOf("test"), connection);
 
         int hbaseVersion = getHbaseVersion();
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, true);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, DataOperationType.WRITE);
 
-        interceptor.doInAfterTrace(recorder, target, null, null, null);
-        verify(recorder).recordAttribute(HbasePluginConstants.HBASE_OP_DATA_SIZE, 0);
+        interceptor.doInAfterTrace(recorder, target, va(new Put(new byte[10])), null, null);
+        verify(recorder).recordAttribute(HbasePluginConstants.HBASE_OP_WRITE_SIZE, 10);
         verify(recorder).recordApi(descriptor);
         verify(recorder).recordException(null);
     }

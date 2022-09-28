@@ -71,7 +71,8 @@ public final class HbasePluginConstants {
     /**
      * The data size of param and result constant
      */
-    public static final AnnotationKey HBASE_OP_DATA_SIZE = AnnotationKeyFactory.of(325, "hbase.op.data.size", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HBASE_OP_READ_SIZE = AnnotationKeyFactory.of(325, "hbase.op.read.size", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HBASE_OP_WRITE_SIZE = AnnotationKeyFactory.of(326, "hbase.op.write.size", VIEW_IN_RECORD_SET);
 
     /**
      * each rpc result number of scan
