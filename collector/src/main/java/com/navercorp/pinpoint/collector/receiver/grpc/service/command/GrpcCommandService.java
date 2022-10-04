@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.TransportCleaner;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
@@ -156,6 +157,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         if (pinpointGrpcServer == null) {
             return handleServerRegistrationFailed(requestObserver, clusterKey, transportId);
         }
+
+        ServerContext.getTransportCleaner().executeAfterTermination(pinpointGrpcServer::disconnected);
 
         final ServerCallStreamObserver<PCmdRequest> serverCallStreamObserver = (ServerCallStreamObserver<PCmdRequest>) requestObserver;
         serverCallStreamObserver.setOnReadyHandler(new Runnable() {

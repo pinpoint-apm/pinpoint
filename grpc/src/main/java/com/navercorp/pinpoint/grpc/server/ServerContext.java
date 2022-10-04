@@ -28,12 +28,18 @@ public class ServerContext {
 
     private static final Context.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Context.key("transportmetadata");
 
+    private static final Context.Key<TransportCleaner> TRANSPORT_CLEANER_KEY = Context.key("transportCleaner");
+
     public static Context.Key<Header> getAgentInfoKey() {
         return AGENT_INFO_KEY;
     }
 
     public static Context.Key<TransportMetadata> getTransportMetadataKey() {
         return TRANSPORT_METADATA_KEY;
+    }
+
+    public static Context.Key<TransportCleaner> getTransportCleanerKey() {
+        return TRANSPORT_CLEANER_KEY;
     }
 
     public static Header getAgentInfo() {
@@ -50,7 +56,17 @@ public class ServerContext {
         return getTransportMetadata(current);
     }
 
+    public static TransportCleaner getTransportCleaner() {
+        final Context current = Context.current();
+        return TRANSPORT_CLEANER_KEY.get(current);
+    }
+
     public static TransportMetadata getTransportMetadata(Context context) {
         return TRANSPORT_METADATA_KEY.get(context);
     }
+
+    public static TransportCleaner getTransportCleaner(Context context) {
+        return TRANSPORT_CLEANER_KEY.get(context);
+    }
+
 }

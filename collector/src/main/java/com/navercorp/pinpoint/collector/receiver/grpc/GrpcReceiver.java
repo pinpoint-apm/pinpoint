@@ -23,11 +23,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.security.SslServerConfig;
-import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
-import com.navercorp.pinpoint.grpc.server.ServerFactory;
-import com.navercorp.pinpoint.grpc.server.ServerOption;
-import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
-import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
+import com.navercorp.pinpoint.grpc.server.*;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -104,6 +100,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         this.serverFactory.addTransportFilter(metadataTransportFilter);
 
+        final CleanerServerTransportFilter cleanerServerTransportFilter = new CleanerServerTransportFilter();
+        this.serverFactory.addTransportFilter(cleanerServerTransportFilter);
+
         if (CollectionUtils.hasLength(transportFilterList)) {
             for (ServerTransportFilter transportFilter : transportFilterList) {
                 this.serverFactory.addTransportFilter(transportFilter);
@@ -113,6 +112,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         // Mandatory interceptor
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
+
+        final CleanerServerInterceptor cleanerServerInterceptor = new CleanerServerInterceptor();
+        this.serverFactory.addInterceptor(cleanerServerInterceptor);
 
         if (CollectionUtils.hasLength(serverInterceptorList)) {
             for (ServerInterceptor serverInterceptor : serverInterceptorList) {
