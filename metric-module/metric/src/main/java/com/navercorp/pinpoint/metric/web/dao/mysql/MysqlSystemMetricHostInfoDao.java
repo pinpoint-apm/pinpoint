@@ -21,12 +21,15 @@ import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
+import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
+import com.navercorp.pinpoint.metric.web.util.TagParser;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -56,6 +59,15 @@ public class MysqlSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     @Override
     public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupName, hostName));
+    }
+
+    @Override
+    public List<String> selectCollectedMetricTags(String hostGroupName, String hostName, String metricName) {
+        List<String> jsonStrings = sqlSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricTags", new MetricTagsSearchKey(hostGroupName, hostName, metricName));
+
+        return jsonStrings.stream()
+                .map(TagParser::toTagStrings)
+                .collect(Collectors.toList());
     }
 
     @Override

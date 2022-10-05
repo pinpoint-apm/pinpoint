@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.mapping.Metric;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
+import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -135,5 +136,13 @@ public class YMLSystemMetricBasicGroupManager {
         }
 
         return Collections.emptyList();
+    }
+
+    public MatchingRule findMatchingRule(String metricDefinitionId) {
+        Metric metric = this.definitionIdMap.get(metricDefinitionId);
+        if (metric != null) {
+            return metric.getFields().get(0).getMatchingRule();
+        }
+        throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
     }
 }

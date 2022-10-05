@@ -69,4 +69,8 @@ public class TagParser {
     private static String[] parseMultiValueFieldList(String string) {
         return string.replaceAll("[\\[\\]\"]", "").split(",");
     }
+
+    public static String toTagStrings(String jsonTagStrings) {
+         return jsonTagStrings.replaceAll("[{}\"]", "");
+    }
 }

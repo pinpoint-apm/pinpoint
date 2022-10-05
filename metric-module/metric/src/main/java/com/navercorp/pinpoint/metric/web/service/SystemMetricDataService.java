@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.web.service;
 
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
@@ -34,5 +35,5 @@ public interface SystemMetricDataService {
 
     SystemMetricChart<? extends Number> getSystemMetricChart(TimeWindow timeWindow, QueryParameter queryParameter);
 
-    SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow);
+    SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags);
 }
