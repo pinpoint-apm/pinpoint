@@ -42,8 +42,14 @@ export class TransactionTimelineContainerComponent implements OnInit, OnDestroy 
         this.connectStore();
         this.transactionSearchInteractionService.onSearch$.pipe(
             takeUntil(this.unsubscribe),
-        ).subscribe((params: ISearchParam) => {
-            this.transactionSearchInteractionService.setSearchResultCount(this.transactionTimelineComponent.searchRow(params));
+        ).subscribe(({type, query, resultIndex}: ISearchParam) => {
+            const resultCount = this.transactionTimelineComponent.getQueryedRowCount({type, query});
+
+            if (resultCount !== 0) {
+                this.transactionTimelineComponent.focusTargetRow(resultIndex);
+            }
+
+            this.transactionSearchInteractionService.setSearchResultCount(resultCount);
         });
     }
 

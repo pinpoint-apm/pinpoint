@@ -38,9 +38,9 @@
     background-color: var(--background-default);
 }
 
-/* ::ng-deep #call-tree-table .ag-row-selected {
+::ng-deep #call-tree-table .ag-row-selected {
     background-color: var(--background-hover-secondary);
-} */
+}
 
 ::ng-deep #call-tree-table .ag-row-exception {
     background-color: var(--background-row-danger);
