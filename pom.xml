@@ -171,10 +171,10 @@
         <caffeine.version>2.9.2</caffeine.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.72.Final</netty4.version>
+        <netty4.version>4.1.77.Final</netty4.version>
 
-        <grpc.version>1.43.2</grpc.version>
-        <protoc.version>3.19.2</protoc.version>
+        <grpc.version>1.49.2</grpc.version>
+        <protoc.version>3.21.7</protoc.version>
 
         <guava.version>31.1-jre</guava.version>
 
