@@ -32,5 +32,7 @@ public interface SystemMetricHostInfoDao {
 
     List<String> getCollectedMetricInfo(String hostGroupName, String hostName);
 
+    List<String> selectCollectedMetricTags(String hostGroupName, String hostName, String metricName);
+
     MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey);
 }

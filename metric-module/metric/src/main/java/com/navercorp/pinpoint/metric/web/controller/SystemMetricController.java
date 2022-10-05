@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.metric.web.controller;
 
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
+import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
@@ -151,9 +153,22 @@ public class SystemMetricController {
         return systemMetricHostInfoService.getHostList(hostGroupName);
     }
 
+    @Deprecated
     @GetMapping(value = "/hostGroup/host/collectedMetricInfo")
     public List<String> getCollectedMetricInfo(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
         return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupName, hostName);
+    }
+
+    @GetMapping(value = "/hostGroup/host/collectedMetricInfoV2")
+    public List<MetricInfo> getCollectedMetricInfoV2(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
+        return systemMetricHostInfoService.getCollectedMetricInfoV2(hostGroupName, hostName);
+    }
+
+    @GetMapping(value = "/hostGroup/host/collectedTags")
+    public List<String> getCollectedTags(@RequestParam("hostGroupName") String hostGroupName,
+                                         @RequestParam("hostName") String hostName,
+                                         @RequestParam("metricDefinitionId") String metricDefinitionId) {
+        return systemMetricHostInfoService.getCollectedMetricInfoTags(hostGroupName, hostName, metricDefinitionId);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
@@ -161,11 +176,13 @@ public class SystemMetricController {
                                                    @RequestParam("hostName") String hostName,
                                                    @RequestParam("metricDefinitionId") String metricDefinitionId,
                                                    @RequestParam("from") long from,
-                                                   @RequestParam("to") long to) {
+                                                   @RequestParam("to") long to,
+                                                   @RequestParam(value = "tags", required = false) String tags) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
-        SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow);
+        List<Tag> tagList = tagParser.parseTags(tags);
 
+        SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow, tagList);
         return new SystemMetricView(systemMetricData);
     }
 }

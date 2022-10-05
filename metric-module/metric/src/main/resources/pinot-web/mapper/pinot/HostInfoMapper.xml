@@ -31,6 +31,12 @@
         WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName}
     </select>
 
+    <select id="selectCollectedMetricTags" parameterType="metricTagsSearchKey" resultType="String">
+        SELECT DISTINCT tags
+        FROM systemMetricTag
+        WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName}
+    </select>
+
     <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
         SELECT hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
         FROM systemMetricTag

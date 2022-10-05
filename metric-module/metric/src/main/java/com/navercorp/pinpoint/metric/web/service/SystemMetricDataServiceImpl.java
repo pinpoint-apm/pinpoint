@@ -117,10 +117,10 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     @Override
-    public SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow) {
+    public SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags) {
         String metricDefinitionId = metricDataSearchKey.getMetricDefinitionId();
 
-        List<MetricValue<?>> metricValueList = getMetricValues(metricDataSearchKey, timeWindow);
+        List<MetricValue<?>> metricValueList = getMetricValues(metricDataSearchKey, timeWindow, tags);
 
         GroupingRule groupingRule = systemMetricBasicGroupManager.findGroupingRule(metricDefinitionId);
         List<MetricValueGroup<?>> metricValueGroupList = groupingMetricValue(metricValueList, groupingRule);
@@ -131,10 +131,10 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return new SystemMetricData(title, unit, timeStampList, metricValueGroupList);
     }
 
-    private List<MetricValue<? extends Number>> getMetricValues(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow) {
+    private List<MetricValue<? extends Number>> getMetricValues(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags) {
         Metric elementOfBasicGroupList = systemMetricBasicGroupManager.findElementOfBasicGroup(metricDataSearchKey.getMetricDefinitionId());
 
-        List<QueryResult<Number>> queryResults = selectAll(metricDataSearchKey, elementOfBasicGroupList);
+        List<QueryResult<Number>> queryResults = selectAll(metricDataSearchKey, elementOfBasicGroupList, tags);
 
         List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
         try {
@@ -158,13 +158,12 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         }
     }
 
-    private List<QueryResult<Number>> selectAll(MetricDataSearchKey metricDataSearchKey, Metric elementOfBasicGroupList) {
-
+    private List<QueryResult<Number>> selectAll(MetricDataSearchKey metricDataSearchKey, Metric elementOfBasicGroupList, List<Tag> tags) {
         List<QueryResult<? extends Number>> invokeList = new ArrayList<>();
         for (Field field : elementOfBasicGroupList.getFields()) {
             MetricDataName metricDataName = new MetricDataName(metricDataSearchKey.getMetricName(), field.getName());
             MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
-            List<MetricTag> metricTagList = systemMetricHostInfoService.getTag(metricDataSearchKey, field);
+            List<MetricTag> metricTagList = systemMetricHostInfoService.getTag(metricDataSearchKey, field, tags);
 
             // TODO : (minwoo) this line delete.
             metricDataType = MetricDataType.DOUBLE;
@@ -241,7 +240,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
         List<MetricValueGroup<?>> metricValueGroupList = new ArrayList<>(valueList.size());
         for (Map.Entry<TagGroup, List<MetricValue<?>>> entry : metricValueGroupMap.entrySet()) {
-            String groupName = entry.getKey().toString();
+            String groupName = entry.getKey().getTagList().toString();
             List<MetricValue<?>> value = entry.getValue();
             MetricValueGroup<?> group = new MetricValueGroup(value, groupName);
             metricValueGroupList.add(group);
