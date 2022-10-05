@@ -601,7 +601,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
             }
         });
 
-        this.gridOptions.api.ensureIndexVisible(targetIndex, 'top');
+        this.gridOptions.api.ensureIndexVisible(targetIndex, 'middle');
     }
 }
 

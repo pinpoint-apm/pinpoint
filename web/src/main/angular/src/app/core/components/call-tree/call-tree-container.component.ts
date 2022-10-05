@@ -58,7 +58,7 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy {
             const resultCount = resultRowList.length;
 
             if (!isEmpty(resultRowList)) {
-                const targetRowIndex = resultRowList[resultIndex].rowIndex;
+                // const targetRowIndex = resultRowList[resultIndex].rowIndex;
                 const targetRow = resultRowList[resultIndex];
     
                 // this.callTreeComponent.focusTargetRow(targetRowIndex);

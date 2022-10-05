@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
     selector: 'pp-transaction-timeline',
@@ -7,6 +8,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 
 export class TransactionTimelineComponent implements OnInit {
+    @ViewChild(CdkVirtualScrollViewport, {static: false}) viewPort: CdkVirtualScrollViewport;
     @Input() data: any[];
     @Input() keyIndex: { [key: string]: number};
     @Input() startTime: number;
@@ -65,28 +67,24 @@ export class TransactionTimelineComponent implements OnInit {
     onSelectCall(index: number, call: any): void {
         this.outSelectTransaction.emit(call[this.keyIndex.id]);
     }
-    searchRow({type, query}: {type: string, query: string | number}): number {
+    getQueryedRowCount({type, query}: {type: string, query: string}): number {
         let resultCount = 0;
+
         this.selectedRow = [];
-        const fnCompare = {
-            'self': (data: any, value: string): boolean => {
-                return data[this.keyIndex.executionMilliseconds] >= value;
-            },
-            'argument': (data: any, value: number): boolean => {
-                return data[this.keyIndex.arguments].indexOf(value) !== -1;
-            }
-        };
-        this.data.forEach((call: any, index: number) => {
-            if (fnCompare[type](call, query)) {
+        this.data.forEach((call: any, i: number) => {
+            // Check only "Self" at this moment
+            if (+call[this.keyIndex.executionMilliseconds] >= +query) {
+                this.selectedRow.push(i);
                 resultCount++;
-                this.selectedRow.push(index);
             }
         });
-        if (resultCount > 0) {
-            // move row
-        }
+
         return resultCount;
     }
+    focusTargetRow(targetIndex: number) {
+        this.viewPort.scrollToIndex(this.selectedRow[targetIndex]);
+    }
+
     showApplicationName(call: any, index: number): boolean {
         if (index === 0 || index >= this.data.length) {
             return true;

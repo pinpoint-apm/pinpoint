@@ -14,7 +14,7 @@ const enum SearchAction {
     styleUrls: ['./transaction-search.component.css']
 })
 export class TransactionSearchComponent implements OnInit, OnChanges {
-    @ViewChild('searchType', { static: true }) searchType: ElementRef;
+    @ViewChild('searchSelect', {static: true}) searchSelect: ElementRef;
     @Input() viewType: string;
     @Input() useArgument: boolean;
     // @Input() resultIndex: number;
@@ -34,7 +34,7 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes['viewType'] && changes['viewType'].currentValue) {
             this.onClear();
-            this.searchType.nativeElement.options[0].selected = true;
+            this.searchSelect.nativeElement.options[0].selected = true;
         }
 
         if (changes['resultCount']) {
@@ -47,10 +47,13 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
 
     onChangeType(): void {
         this.onClear();
+        if (this.searchSelect.nativeElement.value === 'exception') {
+            this.inputValue = 'Exception';
+        }
     }
 
     onSearch(searchAction?: SearchAction): void {
-        const type = this.searchType.nativeElement.value;
+        const type = this.searchSelect.nativeElement.value;
         const query = this.inputValue.trim();
 
         if (type !== 'exception' && query === '') {
