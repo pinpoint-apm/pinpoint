@@ -56,6 +56,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
 
     private originalData: ITransactionDetailData;
     private ratio: number;
+    private isRendered = false;
 
     gridOptions: GridOptions;
     rowData: IGridData[];
@@ -66,9 +67,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     ) {}
 
     ngAfterViewInit() {
-        const rowIndex = this.originalData.callStack.find((cs: any[]) => cs[4] === this.originalData.applicationId)[6];
-
-        this.moveRow(rowIndex);
+        this.moveRow(this.getInitialRowId());
     }
 
     ngOnInit() {
@@ -171,6 +170,15 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         }
 
         return color;
+    }
+
+    private getInitialRowId(): string {
+        const {callStack, callStackIndex, applicationId} = this.originalData;
+        const exceptionRow = callStack.find((call: any[]) => call[callStackIndex.hasException]);
+        const rowId = exceptionRow ? exceptionRow[callStackIndex.id]
+            : callStack.find((cs: any[]) => cs[callStackIndex.applicationName] === applicationId)[callStackIndex.id];
+
+        return rowId;
     }
 
     private getAgentKey(rowIndex: number): string {
@@ -413,6 +421,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     onRendered(): void {
+        this.isRendered = true;
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.forEachNode((row: any) => {
             row.state = {
@@ -423,10 +432,8 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     onRowDataChanged(): void {
-        if (this.gridOptions) {
-            const rowIndex = this.originalData.callStack.find((cs: any[]) => cs[4] === this.originalData.applicationId)[6];
-
-            this.moveRow(rowIndex);
+        if (this.isRendered) {
+            this.moveRow(this.getInitialRowId());
         }
     }
 
