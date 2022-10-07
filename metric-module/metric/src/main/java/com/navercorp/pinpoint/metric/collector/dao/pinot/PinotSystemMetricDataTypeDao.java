@@ -51,6 +51,7 @@ public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
         this.topic = Objects.requireNonNull(topic, "topic");
     }
 
+    @Deprecated
     @Override
     public List<MetricData> selectMetricDataTypeList() {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectMetricDataTypeList");

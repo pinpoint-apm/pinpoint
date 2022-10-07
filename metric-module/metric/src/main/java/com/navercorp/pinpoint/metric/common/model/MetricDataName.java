@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
+import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -25,12 +26,13 @@ public class MetricDataName {
 
     private final String fieldName;
     private final String metricName;
+    private final long saveTime;
 
     public MetricDataName(String metricName, String fieldName) {
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
+        this.saveTime = createSaveTime();
     }
-
 
     public String getFieldName() {
         return fieldName;
@@ -40,17 +42,31 @@ public class MetricDataName {
         return metricName;
     }
 
+    public long getSaveTime() {
+        return saveTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricDataName that = (MetricDataName) o;
-        return Objects.equals(fieldName, that.fieldName) &&
-                Objects.equals(metricName, that.metricName);
+        return saveTime == that.saveTime && fieldName.equals(that.fieldName) && metricName.equals(that.metricName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fieldName, metricName);
+        return Objects.hash(fieldName, metricName, saveTime);
+    }
+
+    public static long createSaveTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+
+        return calendar.getTimeInMillis();
     }
 }
