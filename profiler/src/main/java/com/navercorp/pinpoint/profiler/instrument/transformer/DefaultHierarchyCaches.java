@@ -70,15 +70,19 @@ public class DefaultHierarchyCaches implements HierarchyCaches {
 
     @Override
     public boolean get(String key, String classInternalName) {
-
         Hierarchy hierarchy = this.caches.get(key);
-        return hierarchy.cache.getIfPresent(classInternalName) != null;
+        if(hierarchy != null) {
+            return hierarchy.cache.getIfPresent(classInternalName) != null;
+        }
+        return false;
     }
 
     @Override
     public void put(String key, String classInternalName) {
         Hierarchy hierarchy = this.caches.get(key);
-        hierarchy.cache.put(classInternalName, Boolean.TRUE);
+        if(hierarchy != null) {
+            hierarchy.cache.put(classInternalName, Boolean.TRUE);
+        }
     }
 
     @Override

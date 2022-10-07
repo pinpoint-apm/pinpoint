@@ -81,10 +81,6 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
         }
         try {
             final Trace trace = createTrace(target, args);
-            if (trace == null) {
-                return;
-            }
-
             if (!trace.canSampled()) {
                 return;
             }
@@ -134,7 +130,7 @@ public class MethodInvocationHandlerInterceptor implements AroundInterceptor {
                 methodNameBuilder.append(declaringClass.getCanonicalName());
                 methodNameBuilder.append('.');
                 methodNameBuilder.append(methodInvoked.getName());
-                return methodInvoked.toString();
+                return methodNameBuilder.toString();
 
             } catch (final Exception exception) {
                 logger.error("An error occurred while fetching method details", exception);

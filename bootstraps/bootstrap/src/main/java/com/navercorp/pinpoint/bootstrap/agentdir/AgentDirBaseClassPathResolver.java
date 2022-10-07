@@ -108,6 +108,9 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     Path findBootstrapJar(Path bootstrapJarPath) {
         final Path fileName = bootstrapJarPath.getFileName();
+        if(fileName == null) {
+            return null;
+        }
         final Matcher matcher = bootstrap.getVersionPattern().matcher(fileName.toString());
         if (!matcher.find()) {
             return null;

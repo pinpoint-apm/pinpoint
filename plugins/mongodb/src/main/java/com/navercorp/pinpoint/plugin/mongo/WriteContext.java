@@ -154,17 +154,19 @@ class WriteContext {
             bsonWriter.writeEndArray();
 
             PushOptions options = ((PushOptionsGetter) arg)._$PINPOINT$_getPushOptions();
-            if (options.getPosition() != null) {
-                bsonWriter.writeInt32("$position", options.getPosition());
-            }
-            if (options.getSlice() != null) {
-                bsonWriter.writeInt32("$slice", options.getSlice());
-            }
-            if (options.getSort() != null) {
-                bsonWriter.writeInt32("$sort", options.getSort());
-            } else if (options.getSortDocument() != null) {
-                bsonWriter.writeName("$sort");
-                writeValue(options.getSortDocument());
+            if(options != null) {
+                if (options.getPosition() != null) {
+                    bsonWriter.writeInt32("$position", options.getPosition());
+                }
+                if (options.getSlice() != null) {
+                    bsonWriter.writeInt32("$slice", options.getSlice());
+                }
+                if (options.getSort() != null) {
+                    bsonWriter.writeInt32("$sort", options.getSort());
+                } else if (options.getSortDocument() != null) {
+                    bsonWriter.writeName("$sort");
+                    writeValue(options.getSortDocument());
+                }
             }
             bsonWriter.writeEndDocument();
             bsonWriter.writeEndDocument();
@@ -637,7 +639,7 @@ class WriteContext {
         if (arg == null) {
             bsonWriter.writeString("?");
             if (traceBsonBindValue) {
-                jsonParameter.add(String.valueOf(arg));
+                jsonParameter.add("null");
             }
         } else if (arg instanceof String) {
             bsonWriter.writeString("?");

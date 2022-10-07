@@ -49,11 +49,7 @@ public class BytesConverter implements Converter {
             return "null";
         }
         final byte[] bytes = (byte[]) value;
-        if (bytes == null) {
-            return "null";
-        } else {
-            return convert(bytes);
-        }
+        return convert(bytes);
     }
 
     protected String convert(byte[] bytes) {

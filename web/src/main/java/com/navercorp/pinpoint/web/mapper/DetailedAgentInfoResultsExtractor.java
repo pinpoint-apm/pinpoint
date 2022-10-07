@@ -47,9 +47,8 @@ public class DetailedAgentInfoResultsExtractor implements ResultsExtractor<Detai
 
     @Override
     public DetailedAgentInfo extractData(ResultScanner results) throws Exception {
-        int found = 0;
         for (Result result : results) {
-            AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(result, found++);
+            AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(result, 0);
             AgentInfo agentInfo = factory.build(agentInfoBo);
             return new DetailedAgentInfo(agentInfo, agentInfoBo.getServerMetaData(), agentInfoBo.getJvmInfo());
         }

@@ -60,21 +60,21 @@ public class DataSourceChart implements StatChart<AgentStatPoint<Integer>> {
         Objects.requireNonNull(timeWindow, "timeWindow");
 
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
-        if (CollectionUtils.isEmpty(sampledDataSources)) {
-            final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
-            // TODO avoid null
-            final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
-
-            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
-        } else {
+        if (Boolean.FALSE == CollectionUtils.isEmpty(sampledDataSources)) {
             SampledDataSource latestSampledDataSource = CollectionUtils.lastElement(sampledDataSources);
-
-            int id = latestSampledDataSource.getId();
-            String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
-            String databaseName = latestSampledDataSource.getDatabaseName();
-            String jdbcUrl = latestSampledDataSource.getJdbcUrl();
-            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
+            if (latestSampledDataSource != null) {
+                int id = latestSampledDataSource.getId();
+                String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
+                String databaseName = latestSampledDataSource.getDatabaseName();
+                String jdbcUrl = latestSampledDataSource.getJdbcUrl();
+                return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
+            }
         }
+        final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
+        // TODO avoid null
+        final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
+
+        return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
     }
 
     @Override

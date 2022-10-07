@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import java.util.Objects;
+
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -143,6 +144,9 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
                                 logger.info("turn off ActiveThreadCountTimerTask.");
                             }
                         }
+                        break;
+                    default:
+                        logger.info("unexpected updatedStateCode={}", updatedStateCode);
                         break;
                 }
             }

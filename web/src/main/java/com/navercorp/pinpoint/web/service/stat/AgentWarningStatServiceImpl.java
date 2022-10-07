@@ -137,6 +137,9 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
 
         AgentWarningStatDataPoint first = CollectionUtils.firstElement(agentWarningStatDataPointList);
         AgentWarningStatDataPoint last = CollectionUtils.lastElement(agentWarningStatDataPointList);
+        if(first == null || last == null) {
+            return null;
+        }
 
         AgentStatusTimelineSegment timelineSegment = new AgentStatusTimelineSegment();
         timelineSegment.setStartTimestamp(first.getTimestamp());

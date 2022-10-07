@@ -73,6 +73,9 @@ class XmlHbaseSchemaParser {
         } catch (IOException e) {
             LOGGER.error("{} file I/O error, skipping validation. Error:{}", XSD_FILE, e.getMessage(), e);
             return null;
+        } catch(NullPointerException npe) {
+            LOGGER.error("{} file I/O error, skipping validation. Error:{}", XSD_FILE, npe.getMessage(), npe);
+            return null;
         }
     }
 

@@ -90,7 +90,7 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
         }
 
         try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            trace.traceBlockBegin();
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
@@ -156,11 +156,9 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
     private boolean isSamplingRate(Object target) {
         if (target instanceof SamplingRateFlagAccessor) {
             final SamplingRateFlagAccessor samplingRateFlagAccessor = (SamplingRateFlagAccessor) target;
-            if (samplingRateFlagAccessor != null) {
-                final Boolean samplingRateFlag = samplingRateFlagAccessor._$PINPOINT$_getSamplingRateFlag();
-                if (samplingRateFlag != null) {
-                    return samplingRateFlag;
-                }
+            final Boolean samplingRateFlag = samplingRateFlagAccessor._$PINPOINT$_getSamplingRateFlag();
+            if (samplingRateFlag != null) {
+                return samplingRateFlag;
             }
         }
         return true;

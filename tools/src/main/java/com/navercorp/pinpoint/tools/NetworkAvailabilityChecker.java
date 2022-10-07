@@ -68,7 +68,7 @@ public class NetworkAvailabilityChecker {
             System.out.println("Active profile : " + activeProfile);
 
             if (activeProfile == null) {
-                System.out.println("Could not find activeProfile : " + activeProfile);
+                System.out.println("Could not find activeProfile : null");
                 return;
             }
 
