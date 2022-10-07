@@ -215,21 +215,21 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType> {
     
     public void printApis(PrintStream out) {
         List<Pair<Integer, String>> apis = syncCopy(apiIdMap);
-        Collections.sort(apis, COMPARATOR);
+        apis.sort(COMPARATOR);
         List<String> apiList = toStringList(apis);
         printEntries(out, apiList);
     }
     
     public void printStrings(PrintStream out) {
         List<Pair<Integer, String>> strings = syncCopy(stringIdMap);
-        Collections.sort(strings, COMPARATOR);
+        strings.sort(COMPARATOR);
         List<String> strList = toStringList(strings);
         printEntries(out, strList);
     }
 
     public void printSqls(PrintStream out) {
         List<Pair<Integer, String>> sqls = syncCopy(sqlIdMap);
-        Collections.sort(sqls, COMPARATOR);
+        sqls.sort(COMPARATOR);
         List<String> sqlList = toStringList(sqls);
         printEntries(out, sqlList);
     }

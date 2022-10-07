@@ -64,7 +64,7 @@ public class LimitedListTest {
         }
 
         List<ThreadDump> sortedList = new ArrayList<>(limitedList);
-        Collections.sort(sortedList, threadDump);
+        sortedList.sort(threadDump);
         for (ThreadDump activeTraceSnapshot : sortedList) {
             logger.debug("poll:{}", activeTraceSnapshot);
         }

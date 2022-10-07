@@ -107,7 +107,7 @@ public class UrlSamplerConfig {
 
         // sort by number
         final List<Map.Entry<Integer, UrlInfo>> entries = new LinkedList<>(result.entrySet());
-        Collections.sort(entries, new Comparator<Map.Entry<Integer, UrlInfo>>() {
+        entries.sort(new Comparator<Map.Entry<Integer, UrlInfo>>() {
             @Override
             public int compare(Map.Entry<Integer, UrlInfo> o1, Map.Entry<Integer, UrlInfo> o2) {
                 return o1.getKey().compareTo(o2.getKey());

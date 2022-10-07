@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 
-
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;
@@ -50,7 +48,7 @@ public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanCh
 
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
-            Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
+            spanEventList.sort(SEQUENCE_COMPARATOR);
         }
     }
 
@@ -60,7 +58,7 @@ public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanCh
 
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
-            Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
+            spanEventList.sort(SEQUENCE_COMPARATOR);
         }
     }
 

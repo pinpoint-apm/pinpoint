@@ -239,7 +239,7 @@ public class TraceMetadataLoader {
             logger.info("Finished loading ServiceType:");
 
             List<Pair<ServiceType>> serviceTypes = new ArrayList<>(serviceTypeCodeMap.values());
-            Collections.sort(serviceTypes, new Comparator<Pair<ServiceType>>() {
+            serviceTypes.sort(new Comparator<Pair<ServiceType>>() {
                 @Override
                 public int compare(Pair<ServiceType> o1, Pair<ServiceType> o2) {
                     short code1 = o1.value.getCode();
@@ -272,7 +272,7 @@ public class TraceMetadataLoader {
             logger.info("Finished loading AnnotationKeys:");
 
             List<Pair<AnnotationKey>> annotationKeys = new ArrayList<>(annotationKeyCodeMap.values());
-            Collections.sort(annotationKeys, new Comparator<Pair<AnnotationKey>>() {
+            annotationKeys.sort(new Comparator<Pair<AnnotationKey>>() {
                 @Override
                 public int compare(Pair<AnnotationKey> o1, Pair<AnnotationKey> o2) {
                     int code1 = o1.value.getCode();
