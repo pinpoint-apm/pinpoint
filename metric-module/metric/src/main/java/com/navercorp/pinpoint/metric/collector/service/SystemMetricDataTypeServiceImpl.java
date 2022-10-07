@@ -47,29 +47,19 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
     public void saveMetricDataType(SystemMetric systemMetric) {
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = metricDataTypeCache.getMetricDataType(metricDataName);
+
         if (!Objects.isNull(metricData)) {
             // cache hit
             return;
         }
 
-        long saveTime = getSaveTime();
+
         if (systemMetric instanceof LongMetric) {
-            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG, saveTime));
+            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG, MetricDataName.createSaveTime()));
         } else if (systemMetric instanceof DoubleMetric) {
-            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, saveTime));
+            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, MetricDataName.createSaveTime()));
         } else {
             logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
         }
-    }
-
-    private long getSaveTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.clear(Calendar.MINUTE);
-        calendar.clear(Calendar.SECOND);
-        calendar.clear(Calendar.MILLISECOND);
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-
-        return calendar.getTimeInMillis();
     }
 }
