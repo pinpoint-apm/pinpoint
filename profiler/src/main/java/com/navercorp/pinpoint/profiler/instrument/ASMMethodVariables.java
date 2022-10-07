@@ -35,7 +35,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -154,7 +153,7 @@ public class ASMMethodVariables {
         }
 
         // sort by index.
-        Collections.sort(localVariableNodes, INDEX_COMPARATOR);
+        localVariableNodes.sort(INDEX_COMPARATOR);
         String[] names = new String[this.argumentTypes.length];
 
         for (int i = 0; i < this.argumentTypes.length; i++) {

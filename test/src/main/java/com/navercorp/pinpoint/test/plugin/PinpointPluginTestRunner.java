@@ -119,7 +119,7 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
                 sorter.apply(each);
             }
             List<FrameworkMethod> sortedChildren = new ArrayList<>(getFilteredChildren());
-            Collections.sort(sortedChildren, comparator(sorter));
+            sortedChildren.sort(comparator(sorter));
             filteredChildren = Collections.unmodifiableCollection(sortedChildren);
         }
     }

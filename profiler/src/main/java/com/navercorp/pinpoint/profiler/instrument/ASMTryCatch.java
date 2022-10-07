@@ -20,7 +20,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 /**
@@ -54,7 +53,7 @@ public class ASMTryCatch {
             return;
         }
 
-        Collections.sort(this.methodNode.tryCatchBlocks, new Comparator<TryCatchBlockNode>() {
+        this.methodNode.tryCatchBlocks.sort(new Comparator<TryCatchBlockNode>() {
             @Override
             public int compare(TryCatchBlockNode o1, TryCatchBlockNode o2) {
                 return Integer.compare(blockLength(o1), blockLength(o2));

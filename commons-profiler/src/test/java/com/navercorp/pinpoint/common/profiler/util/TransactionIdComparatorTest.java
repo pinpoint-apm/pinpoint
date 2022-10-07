@@ -81,7 +81,7 @@ public class TransactionIdComparatorTest {
         }
         logger.debug("{}", list);
 
-        Collections.sort(list, comparator);
+        list.sort(comparator);
         int i = 0;
         for (TransactionId transactionId : list) {
             Assertions.assertEquals(i, transactionId.getTransactionSequence());

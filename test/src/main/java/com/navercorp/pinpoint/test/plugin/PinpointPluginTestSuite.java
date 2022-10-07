@@ -350,7 +350,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
                 sorter.apply(each);
             }
             List<Runner> sortedChildren = new ArrayList<>(getFilteredChildren());
-            Collections.sort(sortedChildren, comparator(sorter));
+            sortedChildren.sort(comparator(sorter));
             filteredChildren = Collections.unmodifiableCollection(sortedChildren);
         }
     }

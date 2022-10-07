@@ -18,7 +18,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -54,8 +53,8 @@ public class StaticMethodResolver {
             
             result.add(method);
         }
-        
-        Collections.sort(result, COMPARATOR);
+
+        result.sort(COMPARATOR);
         return result;
     }
 
