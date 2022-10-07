@@ -317,14 +317,18 @@ class PinpointStarter {
         // pinpoint module first
         for (Path path : releaseLib) {
             Path fileName = path.getFileName();
-            if (fileName.startsWith(PINPOINT_PREFIX)) {
-                orderList.add(path);
+            if(fileName != null) {
+                if (fileName.startsWith(PINPOINT_PREFIX)) {
+                    orderList.add(path);
+                }
             }
         }
         for (Path path : releaseLib) {
             Path fileName = path.getFileName();
-            if (!fileName.startsWith(PINPOINT_PREFIX)) {
-                orderList.add(path);
+            if(fileName != null) {
+                if (!fileName.startsWith(PINPOINT_PREFIX)) {
+                    orderList.add(path);
+                }
             }
         }
         return orderList;

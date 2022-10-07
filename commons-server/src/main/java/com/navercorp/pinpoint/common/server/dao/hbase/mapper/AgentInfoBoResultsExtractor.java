@@ -39,9 +39,8 @@ public class AgentInfoBoResultsExtractor implements ResultsExtractor<AgentInfoBo
 
     @Override
     public AgentInfoBo extractData(ResultScanner results) throws Exception {
-        int found = 0;
         for (Result result : results) {
-            return agentInfoMapper.mapRow(result, found++);
+            return agentInfoMapper.mapRow(result, 0);
         }
         return null;
     }

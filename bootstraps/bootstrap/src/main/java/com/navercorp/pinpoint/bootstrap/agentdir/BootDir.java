@@ -85,10 +85,12 @@ public class BootDir {
     private List<Path> findFileByPattern(List<Path> jarFiles, Pattern pattern) {
         List<Path> findList = new ArrayList<>();
         for (Path jarFile : jarFiles) {
-            String fileName = jarFile.getFileName().toString();
-            Matcher matcher = pattern.matcher(fileName);
-            if (matcher.matches()) {
-                findList.add(jarFile);
+            final Path fileName = jarFile.getFileName();
+            if(fileName != null) {
+                Matcher matcher = pattern.matcher(fileName.toString());
+                if (matcher.matches()) {
+                    findList.add(jarFile);
+                }
             }
         }
         return findList;

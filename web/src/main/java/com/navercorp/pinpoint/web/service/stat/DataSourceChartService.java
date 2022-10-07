@@ -51,13 +51,15 @@ public class DataSourceChartService implements AgentStatChartService<DataSourceC
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
-        List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
-        if (CollectionUtils.isEmpty(sampledAgentStatList)) {
-            return new DataSourceChart(timeWindow, Collections.emptyList(), serviceTypeRegistryService);
-        } else {
-            List<SampledDataSource> sampledDataSourceList = CollectionUtils.firstElement(sampledAgentStatList).getSampledDataSourceList();
-            return new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
+        final List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
+        if (Boolean.FALSE == CollectionUtils.isEmpty(sampledAgentStatList)) {
+            final SampledDataSourceList sampledDataSourceList = CollectionUtils.firstElement(sampledAgentStatList);
+            if (sampledDataSourceList != null) {
+                final List<SampledDataSource> list = sampledDataSourceList.getSampledDataSourceList();
+                return new DataSourceChart(timeWindow, list, serviceTypeRegistryService);
+            }
         }
+        return new DataSourceChart(timeWindow, Collections.emptyList(), serviceTypeRegistryService);
     }
 
     @Override

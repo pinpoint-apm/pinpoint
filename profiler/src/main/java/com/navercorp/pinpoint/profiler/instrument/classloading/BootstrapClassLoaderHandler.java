@@ -90,7 +90,7 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
                 return classLoader.getResourceAsStream(internalName);
             }
         } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", internalName, targetClassLoader, e);
+            logger.warn("Failed to load plugin resource as stream {} with classLoader", internalName, e);
             return null;
         }
         logger.warn("Invalid bootstrap class loader. cl={}", targetClassLoader);

@@ -90,7 +90,8 @@ public class GrpcUriStatMessageConverter implements MessageConverter<MetricType,
         long max = uriStatHistogram.getMax();
 
         builder.setCount(count);
-        builder.setAvg(total / count);
+        final double avg = total / (double)count;
+        builder.setAvg(avg);
         builder.setMax(max);
 
         int[] timestampHistograms = uriStatHistogram.getTimestampHistogram();

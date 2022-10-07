@@ -281,6 +281,8 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                         setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
                     }
                     break;
+                default:
+                    break;
             }
         }
 

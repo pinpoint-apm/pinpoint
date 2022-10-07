@@ -62,6 +62,9 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
         }
 
         final String uri = getUri(eachUriStatBoList);
+        if(uri == null) {
+            return null;
+        }
 
         List<UriStatHistogram> totalUriStatHistogramList = eachUriStatBoList.stream()
                 .map(EachUriStatBo::getTotalHistogram)
@@ -81,6 +84,9 @@ public class AgentUriStatSampler implements AgentStatSampler<EachUriStatBo, Samp
 
     private String getUri(List<EachUriStatBo> eachUriStatBoList) {
         EachUriStatBo representative = CollectionUtils.firstElement(eachUriStatBoList);
+        if(representative == null) {
+            return null;
+        }
         return representative.getUri();
     }
 

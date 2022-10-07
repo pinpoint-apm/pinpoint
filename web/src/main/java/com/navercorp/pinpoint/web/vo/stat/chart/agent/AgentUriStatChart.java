@@ -108,7 +108,7 @@ public class AgentUriStatChart implements StatChart<Point> {
             this.totalCount = sampledUriStatHistogramBoList.stream().mapToLong(o -> o.getCountPoint().getSumYVal()).sum();
             this.maxTime = sampledUriStatHistogramBoList.stream().mapToLong(o -> o.getMaxTimePoint().getMaxYVal()).max().getAsLong();
             if (totalCount != 0) {
-                this.avgTime = sampledUriStatHistogramBoList.stream().mapToLong(o -> o.getTotalElapsedTime()).sum() / totalCount;
+                this.avgTime = sampledUriStatHistogramBoList.stream().mapToLong(o -> o.getTotalElapsedTime()).sum() / (double)totalCount;
             } else {
                 this.avgTime = 0L;
             }

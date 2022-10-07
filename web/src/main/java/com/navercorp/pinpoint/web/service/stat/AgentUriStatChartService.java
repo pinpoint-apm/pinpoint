@@ -49,12 +49,13 @@ public class AgentUriStatChartService implements AgentStatChartService<AgentUriS
 
         List<SampledAgentUriStat> sampledAgentUriStatList = sampledAgentUriStatDao.getSampledAgentStatList(agentId, timeWindow);
 
-        if (CollectionUtils.isEmpty(sampledAgentUriStatList)) {
-            return new AgentUriStatChart(timeWindow, Collections.emptyList());
-        } else {
+        if (Boolean.FALSE == CollectionUtils.isEmpty(sampledAgentUriStatList)) {
             SampledAgentUriStat first = CollectionUtils.firstElement(sampledAgentUriStatList);
-            return new AgentUriStatChart(timeWindow, first.getSampledEachUriStatBoList());
+            if(first != null) {
+                return new AgentUriStatChart(timeWindow, first.getSampledEachUriStatBoList());
+            }
         }
+        return new AgentUriStatChart(timeWindow, Collections.emptyList());
     }
 
     @Override

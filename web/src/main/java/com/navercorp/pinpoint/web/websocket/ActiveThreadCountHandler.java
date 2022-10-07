@@ -188,7 +188,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
             sessionRepository.remove(closeSession);
             if (sessionRepository.isEmpty()) {
-                boolean turnOff = onTimerTask.compareAndSet(true, false);
+                onTimerTask.compareAndSet(true, false);
             }
         }
 

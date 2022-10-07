@@ -36,7 +36,7 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 @Component
 @Qualifier("oracle")
 public class OracleR2dbcDatabase implements R2dbcDatabase {
-    private static ConnectionFactory connectionFactory;
+    private ConnectionFactory connectionFactory;
 
     @PostConstruct
     public void init() throws Exception {

@@ -98,15 +98,17 @@ public class HealthCheckTaskletV2 implements Tasklet {
 
     private void checkJobExecuteStatus(ResponseEntity<Map> responseEntity, Map<String, Boolean> jobExecuteStatus) {
         Map<?, ?> responseData = responseEntity.getBody();
-        List<?> jobs = (List<?>)responseData.get("jobs");
+        if(responseData != null) {
+            List<?> jobs = (List<?>)responseData.get("jobs");
 
-        if (jobs != null) {
-            for (Object job : jobs) {
-                Map<?, ?> jobInfo = (Map<?, ?>)job;
-                final String jobName = (String) jobInfo.get(NAME);
-                if (jobExecuteStatus.containsKey(jobName)) {
-                    if (RUNNING.equals(jobInfo.get(STATE))) {
-                        jobExecuteStatus.put(jobName, true);
+            if (jobs != null) {
+                for (Object job : jobs) {
+                    Map<?, ?> jobInfo = (Map<?, ?>)job;
+                    final String jobName = (String) jobInfo.get(NAME);
+                    if (jobExecuteStatus.containsKey(jobName)) {
+                        if (RUNNING.equals(jobInfo.get(STATE))) {
+                            jobExecuteStatus.put(jobName, true);
+                        }
                     }
                 }
             }

@@ -252,14 +252,16 @@ public class ZookeeperJobWorker<K> implements Runnable, ClusterJobWorker<K> {
         }
 
         ZookeeperJob<K> defaultJob = CollectionUtils.firstElement(jobList);
-        ZookeeperJob.Type type = defaultJob.getType();
-        switch (type) {
-            case ADD:
-                return handleUpdate(jobList);
-            case REMOVE:
-                return handleDelete(jobList);
-            case CLEAR:
-                return handleClear(jobList);
+        if(defaultJob != null) {
+            ZookeeperJob.Type type = defaultJob.getType();
+            switch (type) {
+                case ADD:
+                    return handleUpdate(jobList);
+                case REMOVE:
+                    return handleDelete(jobList);
+                case CLEAR:
+                    return handleClear(jobList);
+            }
         }
 
         return false;
