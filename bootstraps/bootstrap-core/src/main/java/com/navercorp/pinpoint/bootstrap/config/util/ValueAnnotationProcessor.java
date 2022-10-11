@@ -133,8 +133,7 @@ public class ValueAnnotationProcessor {
         if (!method.getName().startsWith("set")) {
             return false;
         }
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (!(parameterTypes.length == 1)) {
+        if (!(method.getParameterCount() == 1)) {
             return false;
         }
         return true;

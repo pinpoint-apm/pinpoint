@@ -86,9 +86,6 @@ public class StaticMethodResolver {
         return resolvedArguments;
     }
 
-    private static final Comparator<Method> COMPARATOR = Comparator.comparingInt(StaticMethodResolver::getParameterTypesLength).reversed();
+    private static final Comparator<Method> COMPARATOR = Comparator.comparingInt(Method::getParameterCount).reversed();
 
-    private static int getParameterTypesLength(Method method) {
-        return method.getParameterTypes().length;
-    }
 }

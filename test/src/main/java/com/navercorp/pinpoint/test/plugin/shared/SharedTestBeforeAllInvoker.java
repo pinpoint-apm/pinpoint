@@ -31,10 +31,10 @@ public class SharedTestBeforeAllInvoker {
         if (method.getAnnotation(SharedTestBeforeAllResult.class) == null) {
             return false;
         }
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length != 1) {
+        if (method.getParameterCount() != 1) {
             return false;
         }
+        Class<?>[] parameterTypes = method.getParameterTypes();
         return Properties.class.isAssignableFrom(parameterTypes[0]);
     }
 

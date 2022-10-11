@@ -387,10 +387,10 @@ public class ASMMethodVariables {
     int getInterceptorParameterCount(final InterceptorDefinition interceptorDefinition) {
         if (interceptorDefinition.getBeforeMethod() != null) {
             // skip this.
-            return interceptorDefinition.getBeforeMethod().getParameterTypes().length - 1;
+            return interceptorDefinition.getBeforeMethod().getParameterCount() - 1;
         } else if (interceptorDefinition.getAfterMethod() != null) {
             // skip this, result, throwable.
-            return interceptorDefinition.getAfterMethod().getParameterTypes().length - 3;
+            return interceptorDefinition.getAfterMethod().getParameterCount() - 3;
         }
 
         return 0;

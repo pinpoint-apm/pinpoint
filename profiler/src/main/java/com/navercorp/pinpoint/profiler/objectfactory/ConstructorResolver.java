@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -88,10 +88,6 @@ public class ConstructorResolver {
     }
 
 
-    private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = Comparator.comparingInt(ConstructorResolver::parameterLength).reversed();
-
-    private static int parameterLength(Constructor<?> c) {
-        return c.getParameterTypes().length;
-    }
+    private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = (Comparator.<Constructor<?>>comparingInt(Constructor::getParameterCount)).reversed();
 
 }

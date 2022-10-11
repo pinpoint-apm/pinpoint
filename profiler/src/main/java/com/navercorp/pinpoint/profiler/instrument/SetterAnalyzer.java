@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
-import java.util.Objects;
-
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -32,19 +31,17 @@ public class SetterAnalyzer {
             throw new IllegalArgumentException("setterType " + setterType + "is not an interface");
         }
 
-        Method[] methods = setterType.getDeclaredMethods();
-
+        final Method[] methods = setterType.getDeclaredMethods();
         if (methods.length != 1) {
             throw new IllegalArgumentException("Setter interface must have only one method: " + setterType.getName());
         }
 
-        Method setter = methods[0];
-        Class<?>[] arguments = setter.getParameterTypes();
-
-        if (arguments.length != 1) {
+        final Method setter = methods[0];
+        if (setter.getParameterCount() != 1) {
             throw new IllegalArgumentException("Setter interface method must have exactly 1 argument: " + setterType.getName());
         }
 
+        Class<?>[] arguments = setter.getParameterTypes();
         Class<?> fieldType = arguments[0];
 
         Class<?> returnType = setter.getReturnType();

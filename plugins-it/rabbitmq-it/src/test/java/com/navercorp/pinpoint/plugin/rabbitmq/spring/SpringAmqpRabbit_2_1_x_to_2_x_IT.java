@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
@@ -171,9 +170,8 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT extends SpringAmqpRabbitITBase {
     private Method getExecuteListenerMethod(Class<?> abstractMessageListenerContainerClass) throws NoSuchMethodException {
         Method abstractMessageListenerContainerExecuteListener = getExecuteListenerMethod0(abstractMessageListenerContainerClass);
 
-        Class<?>[] parameterTypes = abstractMessageListenerContainerExecuteListener.getParameterTypes();
-
-        if (parameterTypes.length == 2) {
+        if (abstractMessageListenerContainerExecuteListener.getParameterCount() != 2) {
+            final Class<?>[] parameterTypes = abstractMessageListenerContainerExecuteListener.getParameterTypes();
             if (!parameterTypes[0].equals(Channel.class)) {
                 throw new NoSuchMethodException("executeListener");
             }

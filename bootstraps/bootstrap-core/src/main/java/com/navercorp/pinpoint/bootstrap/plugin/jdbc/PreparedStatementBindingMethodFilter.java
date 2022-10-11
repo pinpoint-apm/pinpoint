@@ -14,6 +14,9 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,9 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
  * @author Jongho Moon
@@ -45,11 +45,18 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
                 bindMethod.put(method.getName(), parameterTypeList);
             }
 
-            String[] paramTypeNames = getParameterTypeNames(method.getParameterTypes());
+            String[] paramTypeNames = getParameterTypeNames(method);
 
             parameterTypeList.add(paramTypeNames);
         }
         return bindMethod;
+    }
+
+    private static String[] getParameterTypeNames(Method method) {
+        if (method.getParameterCount() == 0) {
+            return new String[0];
+        }
+        return getParameterTypeNames(method.getParameterTypes());
     }
 
     private static String[] getParameterTypeNames(Class<?>[] paramTypes) {
