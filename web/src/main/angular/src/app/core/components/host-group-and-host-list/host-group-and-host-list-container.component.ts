@@ -47,11 +47,10 @@ export class HostGroupAndHostListContainerComponent implements OnInit, OnDestroy
         private translateReplaceService: TranslateReplaceService,
     ) {}
 
-    // TODO: Add search input box
     ngOnInit() {
         this.initI18nText();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.HOST_GROUP) && urlService.isValueChanged(UrlPathId.HOST_GROUP)),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.HOST_GROUP) && (urlService.isValueChanged(UrlPathId.HOST_GROUP) || !urlService.hasValue(UrlPathId.HOST))),
             map((urlService: NewUrlStateNotificationService) => urlService.getPathValue(UrlPathId.HOST_GROUP)),
             tap((hostGroup: string) => this.selectedHostGroup = hostGroup),
             switchMap((hostGroup: string) => this.hostGroupAndHostListDataService.getHostList(hostGroup).pipe(

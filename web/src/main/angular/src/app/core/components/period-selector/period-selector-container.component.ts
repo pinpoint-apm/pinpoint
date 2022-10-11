@@ -32,7 +32,7 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
     hiddenComponent: boolean;
     selectedPeriod: Period;
     selectedEndTime: EndTime;
-    periodList: Array<Period>;
+    periodList: Period[];
     maxPeriod: number;
     isRealTimeMode: boolean;
     showRealTimeButton: boolean;
