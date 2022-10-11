@@ -64,11 +64,11 @@ public final class PreparedStatementUtils {
         List<Method> bindMethod = new LinkedList<>();
         for (Method method : methods) {
             if (isSetter(method.getName())) {
-                final Class<?>[] parameterTypes = method.getParameterTypes();
-
-                if (parameterTypes.length < 2) {
+                if (method.getParameterCount() < 2) {
                     continue;
                 }
+
+                final Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes[0] != int.class) {
                     continue;
                 }

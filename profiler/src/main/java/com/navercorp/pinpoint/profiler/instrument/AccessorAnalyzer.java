@@ -15,7 +15,6 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
-
 import java.util.Objects;
 
 /**
@@ -29,7 +28,7 @@ public class AccessorAnalyzer {
         if (!accessorType.isInterface()) {
             throw new IllegalArgumentException("accessorType " + accessorType + "is not an interface");
         }
-        
+
         Method[] methods = accessorType.getDeclaredMethods();
         
         if (methods.length != 2) {
@@ -39,7 +38,7 @@ public class AccessorAnalyzer {
         Method getter;
         Method setter;
         
-        if (methods[0].getParameterTypes().length == 0) {
+        if (methods[0].getParameterCount() == 0) {
             getter = methods[0];
             setter = methods[1];
         } else {
@@ -54,13 +53,11 @@ public class AccessorAnalyzer {
         }
         
         
-        
-        Class<?>[] setterParamTypes = setter.getParameterTypes();
-        
-        if (setterParamTypes.length != 1) {
+        if (setter.getParameterCount() != 1) {
             throw new IllegalArgumentException("accessorType must declare an getter and setter: " + accessorType);
         }
-        
+
+        final Class<?>[] setterParamTypes = setter.getParameterTypes();
         if (setterParamTypes[0] != fieldType) {
             throw new IllegalArgumentException("The return type of getter is different to the parameter type of setter: " + accessorType);
         }

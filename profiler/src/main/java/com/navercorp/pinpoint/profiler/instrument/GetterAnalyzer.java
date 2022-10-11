@@ -15,7 +15,6 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
-
 import java.util.Objects;
 
 /**
@@ -38,7 +37,7 @@ public class GetterAnalyzer {
         
         Method getter = methods[0];
         
-        if (getter.getParameterTypes().length != 0) {
+        if (getter.getParameterCount() != 0) {
             throw new IllegalArgumentException("Getter interface method must be no-args and non-void: " + getterType.getName());
         }
         
