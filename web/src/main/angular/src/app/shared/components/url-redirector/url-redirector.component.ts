@@ -18,11 +18,12 @@ export class UrlRedirectorComponent {
         // RouteInfoCollectorService를 통해 초기화 되는 UrlStateNotifactionService 의 URL 초기화 정보를 사용하면 안됨.
         this.activatedRoute.data.subscribe((urlData: any) => {
             const params = this.getUrlParams();
+
             if (params.period) {
                 this.urlRouteManagerService.move({
                     url: [
                         urlData['path'] || params.startPath,
-                        params.application,
+                        params.application || params.hostGroup,
                         params.period
                     ],
                     needServerTimeRequest: true
@@ -31,7 +32,7 @@ export class UrlRedirectorComponent {
                 this.urlRouteManagerService.move({
                     url: [
                         urlData['path'] || params.startPath,
-                        params.application,
+                        params.application || params.hostGroup,
                         this.webAppSettingDataService.getUserDefaultPeriod().getValueWithTime()
                     ],
                     needServerTimeRequest: true
