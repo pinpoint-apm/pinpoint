@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.web.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import com.navercorp.pinpoint.web.vo.webhook.WebhookSendInfo;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,7 +60,7 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
 
     @Override
     public List<WebhookSendInfo> selectWebhookSendInfoByApplicationId(String applicationId) {
-        List<WebhookSendInfo> selectedWebhookSendInfos = new LinkedList<>();
+        List<WebhookSendInfo> selectedWebhookSendInfos = new ArrayList<>();
         List<Webhook> webhooks = webhookDao.selectWebhookByApplicationId(applicationId);
         for (Webhook webhook : webhooks) {
             for (WebhookSendInfo webhookSendInfo : webhookSendInfos.values()) {
@@ -74,7 +74,7 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
 
     @Override
     public List<WebhookSendInfo> selectWebhookSendInfoByServiceName(String serviceName) {
-        List<WebhookSendInfo> selectedWebhookSendInfos = new LinkedList<>();
+        List<WebhookSendInfo> selectedWebhookSendInfos = new ArrayList<>();
         List<Webhook> webhooks = webhookDao.selectWebhookByServiceName(serviceName);
         for (Webhook webhook : webhooks) {
             for (WebhookSendInfo webhookSendInfo : webhookSendInfos.values()) {
@@ -88,7 +88,7 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
 
     @Override
     public List<WebhookSendInfo> selectWebhookSendInfoByWebhookId(String webhookId) {
-        List<WebhookSendInfo> selectedWebhookSendInfos = new LinkedList<>();
+        List<WebhookSendInfo> selectedWebhookSendInfos = new ArrayList<>();
         for (WebhookSendInfo webhookSendInfo : webhookSendInfos.values()) {
             if (webhookId.equals(webhookSendInfo.getWebhookId())) {
                 selectedWebhookSendInfos.add(webhookSendInfo);
@@ -99,7 +99,7 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
 
     @Override
     public List<WebhookSendInfo> selectWebhookSendInfoByRuleId(String ruleId) {
-        List<WebhookSendInfo> selectedWebhookSendInfos = new LinkedList<>();
+        List<WebhookSendInfo> selectedWebhookSendInfos = new ArrayList<>();
         for (WebhookSendInfo webhookSendInfo : webhookSendInfos.values()) {
             if (ruleId.equals(webhookSendInfo.getRuleId())) {
                 selectedWebhookSendInfos.add(webhookSendInfo);

@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -46,10 +45,9 @@ public class ApdexScoreCheckerTest {
     @BeforeClass
     public static void before() {
         mockMapResponseDAO = (application, range) -> {
-            List<ResponseTime> list = new LinkedList<>();
             long timeStamp = 1409814914298L;
             ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
-            list.add(responseTime);
+            List<ResponseTime> list = List.of(responseTime);
 
             for (int i=0 ; i < 5; i++) {
                 for (int j=0 ; j < 5; j++) {

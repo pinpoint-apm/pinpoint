@@ -22,7 +22,10 @@ import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.CheckerDetectedValue
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.DetectedAgent;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -59,7 +62,7 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     }
 
     public List<String> getSmsMessage() {
-        List<String> messages = new LinkedList<>();
+        List<String> messages = new ArrayList<>();
         
         for (Entry<String, T> detected : detectedAgents.entrySet()) {
             messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", detected.getKey(), rule.getCheckerName(), detected.getValue(), unit, rule.getThreshold(), unit));
@@ -88,7 +91,7 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
         List<DetectedAgent<T>> detectedAgents = new ArrayList<>();
         
         for (Map.Entry<String, T> entry : this.detectedAgents.entrySet()) {
-            detectedAgents.add(new DetectedAgent(entry.getKey(), entry.getValue()));
+            detectedAgents.add(new DetectedAgent<>(entry.getKey(), entry.getValue()));
         }
         
         return new AgentCheckerDetectedValue<>(detectedAgents);

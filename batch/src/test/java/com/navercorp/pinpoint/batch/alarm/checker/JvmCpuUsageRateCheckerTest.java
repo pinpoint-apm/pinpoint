@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -74,7 +74,7 @@ public class JvmCpuUsageRateCheckerTest {
             }
 
             public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
-                List<CpuLoadBo> cpuLoads = new LinkedList<>();
+                List<CpuLoadBo> cpuLoads = new ArrayList<>();
 
                 for (int i = 0; i < 36; i++) {
                     CpuLoadBo cpuLoad = new CpuLoadBo();

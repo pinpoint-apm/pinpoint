@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @Disabled
@@ -55,8 +54,7 @@ public class AlarmWriterTest {
             }
         };
 
-        List<AlarmChecker<?>> checkers = new LinkedList<>();
-        checkers.add(checker);
+        List<AlarmChecker<?>> checkers = List.of(checker);
         writer.write(List.of(new AppAlarmChecker(checkers)));
     }
 
@@ -76,8 +74,7 @@ public class AlarmWriterTest {
             }
         };
 
-        List<AlarmChecker<?>> checkers = new LinkedList<>();
-        checkers.add(checker);
+        List<AlarmChecker<?>> checkers = List.of(checker);
         writer.write(List.of(new AppAlarmChecker(checkers)));
     }
 

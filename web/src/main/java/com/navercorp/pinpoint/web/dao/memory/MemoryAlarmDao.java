@@ -15,17 +15,21 @@
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.springframework.stereotype.Repository;
-
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
+import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author minwoo.jung
@@ -76,7 +80,7 @@ public class MemoryAlarmDao implements AlarmDao {
 
     @Override
     public List<Rule> selectRuleByUserGroupId(String userGroupId) {
-        List<Rule> ruleList = new LinkedList<>();
+        List<Rule> ruleList = new ArrayList<>();
 
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
             if (entry.getValue().getUserGroupId().equals(userGroupId)) {
@@ -89,7 +93,7 @@ public class MemoryAlarmDao implements AlarmDao {
     
     @Override
     public List<Rule> selectRuleByApplicationId(String applicationId) {
-        List<Rule> ruleList = new LinkedList<>();
+        List<Rule> ruleList = new ArrayList<>();
         
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
             if (entry.getValue().getApplicationId().equals(applicationId)) {

@@ -25,10 +25,10 @@ import com.navercorp.pinpoint.profiler.sampler.PercentRateSampler;
 import com.navercorp.pinpoint.profiler.sampler.PercentSamplerFactory;
 import com.navercorp.pinpoint.profiler.sampler.SamplerType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -106,13 +106,13 @@ public class UrlSamplerConfig {
         }
 
         // sort by number
-        final List<Map.Entry<Integer, UrlInfo>> entries = new LinkedList<>(result.entrySet());
+        final List<Map.Entry<Integer, UrlInfo>> entries = new ArrayList<>(result.entrySet());
         entries.sort(Comparator.comparingInt(Map.Entry::getKey));
 
         return entries;
     }
 
-    class UrlInfo {
+    static class UrlInfo {
         private String urlPath;
         private Sampler sampler;
         private int samplingNewThroughput;

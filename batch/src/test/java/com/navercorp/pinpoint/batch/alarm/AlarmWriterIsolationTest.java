@@ -32,11 +32,13 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AlarmWriterIsolationTest {
@@ -69,8 +71,7 @@ public class AlarmWriterIsolationTest {
 
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
 
-        List<AlarmChecker<?>> checkers = new LinkedList<>();
-        checkers.add(checker);
+        List<AlarmChecker<?>> checkers = List.of(checker);
 
         mockingAlarmService(getBeforeCheckerStub(0, 1));
         mockingAlarmMessageSender(checker);
@@ -91,8 +92,7 @@ public class AlarmWriterIsolationTest {
 
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
 
-        List<AlarmChecker<?>> checkers = new LinkedList<>();
-        checkers.add(checker);
+        List<AlarmChecker<?>> checkers = List.of(checker);
 
         mockingAlarmService(getBeforeCheckerStub(1, 1));
         mockingAlarmMessageSender(checker);

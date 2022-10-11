@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.web.calltree.span.Align;
@@ -31,13 +32,12 @@ import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -215,7 +215,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     // private void addlogLink(RecordSet recordSet) {
     // List<Record> records = recordSet.getRecordList();
-    // List<TransactionInfo> transactionInfoes = new LinkedList<TransactionInfo>();
+    // List<TransactionInfo> transactionInfoes = new ArrayList<TransactionInfo>();
     //
     // for (Iterator<Record> iterator = records.iterator(); iterator.hasNext();) {
     // Record record = (Record) iterator.next();

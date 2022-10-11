@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeAll;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public class GcCountCheckerTest {
 
             @Override
             public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
-                List<JvmGcBo> jvmGcs = new LinkedList<>();
+                List<JvmGcBo> jvmGcs = new ArrayList<>();
 
                 for (int i = 36; i > 0; i--) {
                     JvmGcBo jvmGc = new JvmGcBo();
@@ -103,7 +103,7 @@ public class GcCountCheckerTest {
             @Override
             public List<String> selectAgentIds(String applicationName) {
                 if (SERVICE_NAME.equals(applicationName)) {
-                    List<String> agentIds = new LinkedList<>();
+                    List<String> agentIds = new ArrayList<>();
                     agentIds.add("local_tomcat");
                     return agentIds;
                 }

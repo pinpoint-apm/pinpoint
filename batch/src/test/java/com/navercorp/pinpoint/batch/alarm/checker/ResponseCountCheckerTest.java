@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -50,10 +49,9 @@ public class ResponseCountCheckerTest {
 
             @Override
             public List<ResponseTime> selectResponseTime(Application application, Range range) {
-                List<ResponseTime> list = new LinkedList<>();
                 long timeStamp = 1409814914298L;
                 ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
-                list.add(responseTime);
+                List<ResponseTime> list = List.of(responseTime);
                 TimeHistogram histogram = null;
 
                 for (int i = 0; i < 5; i++) {
