@@ -26,11 +26,13 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TagComparator;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,7 +41,7 @@ import java.util.List;
 @Component
 public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> {
 
-    private final static TagComparator TAG_COMPARATOR = new TagComparator();
+    private final static Comparator<Tag> TAG_COMPARATOR = TagComparator.INSTANCE;
 
     public TelegrafJsonDeserializer() {
     }

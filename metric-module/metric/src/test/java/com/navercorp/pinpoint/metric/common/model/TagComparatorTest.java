@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -30,8 +29,7 @@ public class TagComparatorTest {
         Assertions.assertEquals(tagList.get(4).getName(), "ACCC");
         Assertions.assertEquals(tagList.get(5).getName(), "AAAAAAAA");
 
-        Comparator<Tag> comparator = new TagComparator();
-        tagList.sort(comparator);
+        tagList.sort(TagComparator.INSTANCE);
 
         Assertions.assertEquals(tagList.size(), 6);
         Assertions.assertEquals(tagList.get(0).getName(), "AAAA");

@@ -18,7 +18,6 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessPluginTestCase;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-
 import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
@@ -355,12 +354,8 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         }
     }
 
-    private Comparator<? super Runner> comparator(final Sorter sorter) {
-        return new Comparator<Runner>() {
-            public int compare(Runner o1, Runner o2) {
-                return sorter.compare(describeChild(o1), describeChild(o2));
-            }
-        };
+    private Comparator<? super Runner> comparator(final Comparator<Description> sorter) {
+        return Comparator.comparing(this::describeChild, sorter);
     }
 
     private void runChildren(final RunNotifier notifier) {

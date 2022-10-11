@@ -87,16 +87,11 @@ public class ConstructorResolver {
         }
     }
 
-    private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = new Comparator<Constructor<?>>() {
 
-        @Override
-        public int compare(Constructor<?> o1, Constructor<?> o2) {
-            int p1 = o1.getParameterTypes().length;
-            int p2 = o2.getParameterTypes().length;
-            
-            return Integer.compare(p2, p1);
-        }
+    private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = Comparator.comparingInt(ConstructorResolver::parameterLength).reversed();
 
-        
-    };
+    private static int parameterLength(Constructor<?> c) {
+        return c.getParameterTypes().length;
+    }
+
 }

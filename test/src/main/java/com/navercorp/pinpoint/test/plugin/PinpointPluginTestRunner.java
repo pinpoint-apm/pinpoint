@@ -124,12 +124,8 @@ public class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
         }
     }
 
-    private Comparator<? super FrameworkMethod> comparator(final Sorter sorter) {
-        return new Comparator<FrameworkMethod>() {
-            public int compare(FrameworkMethod o1, FrameworkMethod o2) {
-                return sorter.compare(describeChild(o1), describeChild(o2));
-            }
-        };
+    private Comparator<? super FrameworkMethod> comparator(final Comparator<Description> sorter) {
+        return Comparator.comparing(this::describeChild, sorter);
     }
 
     private void runChildren(final RunNotifier notifier) {

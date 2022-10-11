@@ -30,7 +30,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -70,12 +69,7 @@ public class MatchableTransformerRegistryTest {
     @Test
     public void packageNameBasedIndex() {
         // sorted
-        TreeMap<String, String> packageNameBasedIndex = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String key1, String key2) {
-                return key1.compareTo(key2);
-            }
-        });
+        TreeMap<String, String> packageNameBasedIndex = new TreeMap<>(String::compareTo);
 
         packageNameBasedIndex.put("a", "a");
         packageNameBasedIndex.put("aa", "a");

@@ -77,7 +77,7 @@ public class HeatMapBuilder {
         public long[] getIndex() {
             long[] index = new long[slotNumber];
             for (int i = 0; i < slotNumber; i++) {
-                index[i] = (i  * tick) + start;
+                index[i] = (i * tick) + start;
             }
             return index;
         }
@@ -132,16 +132,8 @@ public class HeatMapBuilder {
         return new HeatMap(list, success, fail, oldestAcceptedTime, latestAcceptedTime, xIndex, xTick, yIndex, yTick);
     }
 
-    private static final Comparator<Point> COMPARATOR = new Comparator<Point>() {
-
-        @Override
-        public int compare(Point o1, Point o2) {
-            final int comp1 = Long.compare(o2.getX(), o1.getX());
-            if (comp1 != 0) {
-                return comp1;
-            }
-            return Long.compare(o1.getY(), o2.getY());
-        }
-    };
+    private static final Comparator<Point> COMPARATOR = Comparator.comparingLong(Point::getX)
+                                                                    .reversed()
+                                                                    .thenComparingLong(Point::getY);
 
 }
