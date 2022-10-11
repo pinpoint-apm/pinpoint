@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
+import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;

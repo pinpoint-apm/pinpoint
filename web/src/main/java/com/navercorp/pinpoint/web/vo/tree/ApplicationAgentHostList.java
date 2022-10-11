@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo.tree;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.util.StringUtils;
