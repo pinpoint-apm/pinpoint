@@ -46,13 +46,7 @@ public class LogDirCleaner {
 
     private void delete(File[] agentDirectories) {
 
-        Arrays.sort(agentDirectories, new Comparator<File>() {
-            @Override
-            public int compare(File file1, File file2) {
-                return Long.compare(file1.lastModified(), file2.lastModified());
-            }
-        });
-
+        Arrays.sort(agentDirectories, Comparator.comparingLong(File::lastModified));
 
         int removeSize = agentDirectories.length - maxSize;
         File[] deleteTargets = Arrays.copyOfRange(agentDirectories, 0, removeSize);

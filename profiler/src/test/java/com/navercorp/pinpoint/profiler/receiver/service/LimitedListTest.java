@@ -42,7 +42,7 @@ public class LimitedListTest {
 
     @Test
     public void testMaxSize() {
-        Comparator<ThreadDump> threadDump = Collections.reverseOrder(new ThreadDumpComparator());
+        Comparator<ThreadDump> threadDump = ThreadDumpComparator.INSTANCE.reversed();
 
         final int maxSize = 10;
         Collection<ThreadDump> limitedList = new LimitedList<>(maxSize, threadDump);

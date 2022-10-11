@@ -48,14 +48,7 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType> {
 
     private final BiHashMap<Integer, String> stringIdMap = newBiHashMap();
 
-    private static final Comparator<Pair<Integer, ?>> COMPARATOR = new Comparator<Pair<Integer, ?>>() {
-        @Override
-        public int compare(Pair<Integer, ?> o1, Pair<Integer, ?> o2) {
-            final int key1 = o1.getKey();
-            final int key2 = o2.getKey();
-            return Integer.compare(key1, key2);
-        }
-    };
+    private static final Comparator<Pair<Integer, ?>> COMPARATOR = Comparator.comparingInt(Pair::getKey);
 
     private <K, V> BiHashMap<K, V> newBiHashMap() {
         return new BiHashMap<>();

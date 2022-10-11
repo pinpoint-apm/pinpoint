@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 
 import java.lang.management.ThreadInfo;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class ActiveThreadDumpCoreService {
 
     private final ActiveTraceRepository activeTraceRepository;
 
-    private final Comparator<ThreadDump> reverseOrder =  Collections.reverseOrder(new ThreadDumpComparator());
+    private final Comparator<ThreadDump> reverseOrder =  ThreadDumpComparator.INSTANCE.reversed();
 
     public ActiveThreadDumpCoreService(ActiveTraceRepository activeTraceRepository) {
         this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");

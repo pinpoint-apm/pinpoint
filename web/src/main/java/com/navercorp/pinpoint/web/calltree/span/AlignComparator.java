@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 
 import java.util.Comparator;
@@ -24,15 +23,8 @@ import java.util.Comparator;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class AlignComparator implements Comparator<Align> {
+public final class AlignComparator {
 
-    public static final Comparator<Align> INSTANCE = new AlignComparator();
-
-    @Override
-    public int compare(Align a1, Align a2) {
-        final SpanEventBo event1 = a1.getSpanEventBo();
-        final SpanEventBo event2 = a2.getSpanEventBo();
-        return SpanEventComparator.INSTANCE.compare(event1, event2);
-    }
+    public static final Comparator<Align> INSTANCE = Comparator.comparing(Align::getSpanEventBo, SpanEventComparator.INSTANCE);
 
 }

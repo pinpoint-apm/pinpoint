@@ -21,9 +21,8 @@ import java.util.Comparator;
 /**
  * @author minwoo.jung
  */
-public class TagComparator implements Comparator<Tag> {
-    @Override
-    public int compare(Tag tag1, Tag tag2) {
-        return tag1.getName().compareTo(tag2.getName());
-    }
+public class TagComparator {
+
+    public static final Comparator<Tag> INSTANCE = Comparator.comparing(Tag::getName, String::compareTo);
+
 }

@@ -86,13 +86,9 @@ public class StaticMethodResolver {
         return resolvedArguments;
     }
 
-    private static final Comparator<Method> COMPARATOR = new Comparator<Method>() {
+    private static final Comparator<Method> COMPARATOR = Comparator.comparingInt(StaticMethodResolver::getParameterTypesLength).reversed();
 
-        @Override
-        public int compare(Method o1, Method o2) {
-            int p1 = o1.getParameterTypes().length;
-            int p2 = o2.getParameterTypes().length;
-            return Integer.compare(p2, p1);
-        }
-    };
+    private static int getParameterTypesLength(Method method) {
+        return method.getParameterTypes().length;
+    }
 }

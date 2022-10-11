@@ -31,7 +31,6 @@ import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,12 +65,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
 
         // sorted by package name length.
-        this.packageNameBasedIndex = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String key1, String key2) {
-                return key1.compareTo(key2);
-            }
-        });
+        this.packageNameBasedIndex = new TreeMap<>(String::compareTo);
 
         final List<MatchableClassFileTransformer> baseTransformer = filterBaseMatcher(matchableClassFileTransformerList);
         for (MatchableClassFileTransformer transformer : baseTransformer) {

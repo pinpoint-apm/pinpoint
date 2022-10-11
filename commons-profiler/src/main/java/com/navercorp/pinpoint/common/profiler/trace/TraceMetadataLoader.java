@@ -239,19 +239,15 @@ public class TraceMetadataLoader {
             logger.info("Finished loading ServiceType:");
 
             List<Pair<ServiceType>> serviceTypes = new ArrayList<>(serviceTypeCodeMap.values());
-            serviceTypes.sort(new Comparator<Pair<ServiceType>>() {
-                @Override
-                public int compare(Pair<ServiceType> o1, Pair<ServiceType> o2) {
-                    short code1 = o1.value.getCode();
-                    short code2 = o2.value.getCode();
-
-                    return Integer.compare(code1, code2);
-                }
-            });
+            serviceTypes.sort(Comparator.comparingInt(this::getCode));
 
             for (Pair<ServiceType> serviceType : serviceTypes) {
                 logger.info(serviceTypePairToString(serviceType));
             }
+        }
+
+        private int getCode(Pair<ServiceType> p) {
+            return p.value.getCode();
         }
     }
 
@@ -272,19 +268,15 @@ public class TraceMetadataLoader {
             logger.info("Finished loading AnnotationKeys:");
 
             List<Pair<AnnotationKey>> annotationKeys = new ArrayList<>(annotationKeyCodeMap.values());
-            annotationKeys.sort(new Comparator<Pair<AnnotationKey>>() {
-                @Override
-                public int compare(Pair<AnnotationKey> o1, Pair<AnnotationKey> o2) {
-                    int code1 = o1.value.getCode();
-                    int code2 = o2.value.getCode();
-
-                    return Integer.compare(code1, code2);
-                }
-            });
+            annotationKeys.sort(Comparator.comparingInt(this::getCode));
 
             for (Pair<AnnotationKey> annotationKey : annotationKeys) {
                 logger.info(annotationKeyPairToString(annotationKey));
             }
+        }
+
+        private int getCode(Pair<AnnotationKey> a) {
+            return a.value.getCode();
         }
     }
 }
