@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.query;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ public class OutputParameterMongoJsonParser {
             return Collections.emptyList();
         }
 
-        final List<String> result = new LinkedList<String>();
+        final List<String> result = new ArrayList<>();
         StringBuilder params = new StringBuilder();
         int len = outputParams.length();
 

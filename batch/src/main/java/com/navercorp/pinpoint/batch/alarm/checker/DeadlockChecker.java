@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +48,7 @@ public class DeadlockChecker extends BooleanValueAgentChecker {
     }
 
     public List<String> getSmsMessage() {
-        List<String> messages = new LinkedList<>();
+        List<String> messages = new ArrayList<>();
 
         for (Map.Entry<String, Boolean> detected : detectedAgents.entrySet()) {
             messages.add(String.format("[PINPOINT Alarm - %s] Deadlock thread detected", detected.getKey()));

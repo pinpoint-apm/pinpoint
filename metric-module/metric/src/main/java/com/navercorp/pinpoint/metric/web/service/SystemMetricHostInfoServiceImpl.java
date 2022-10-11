@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,7 +59,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
         List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupName, hostName);
 
-        List<String> metricDefinitionIdList = new LinkedList<String>();
+        List<String> metricDefinitionIdList = new ArrayList<>();
         for (String metricName : metricNameList) {
             metricDefinitionIdList.addAll(systemMetricBasicGroupManager.findMetricDefinitionIdList(metricName));
         }

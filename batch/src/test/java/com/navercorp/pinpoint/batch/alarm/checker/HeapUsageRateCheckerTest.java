@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -57,7 +57,7 @@ public class HeapUsageRateCheckerTest {
 
             @Override
             public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
-                List<JvmGcBo> jvmGcs = new LinkedList<>();
+                List<JvmGcBo> jvmGcs = new ArrayList<>();
 
                 for (int i = 0; i < 36; i++) {
                     JvmGcBo jvmGcBo = new JvmGcBo();

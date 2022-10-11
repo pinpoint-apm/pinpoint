@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.web.dao.WebhookDao;
 import com.navercorp.pinpoint.web.vo.webhook.Webhook;
 import org.springframework.stereotype.Repository;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,7 +77,7 @@ public class MemoryWebhookDao implements WebhookDao {
 
     @Override
     public List<Webhook> selectWebhookByApplicationId(String applicationId) {
-        List<Webhook> selectedWebhooks = new LinkedList<>();
+        List<Webhook> selectedWebhooks = new ArrayList<>();
         for (Webhook webhook : webhooks.values()) {
             if (applicationId.equals(webhook.getApplicationId())) {
                 selectedWebhooks.add(webhook);
@@ -88,7 +88,7 @@ public class MemoryWebhookDao implements WebhookDao {
 
     @Override
     public List<Webhook> selectWebhookByServiceName(String serviceName) {
-        List<Webhook> selectedWebhooks = new LinkedList<>();
+        List<Webhook> selectedWebhooks = new ArrayList<>();
         for (Webhook webhook : webhooks.values()) {
             if (serviceName.equals(webhook.getServiceName())) {
                 selectedWebhooks.add(webhook);
@@ -99,7 +99,7 @@ public class MemoryWebhookDao implements WebhookDao {
 
     @Override
     public List<Webhook> selectWebhookByRuleId(String ruleId) {
-        List<Webhook> selectedWebhooks = new LinkedList<>();
+        List<Webhook> selectedWebhooks = new ArrayList<>();
         for (Webhook webhook : webhooks.values()) {
             List<Rule> rules = alarmDao.selectRuleByApplicationId(webhook.getApplicationId());
             for (Rule rule : rules) {

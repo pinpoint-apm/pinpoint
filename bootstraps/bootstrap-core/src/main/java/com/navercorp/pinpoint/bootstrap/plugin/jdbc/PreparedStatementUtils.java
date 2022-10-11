@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -61,7 +60,7 @@ public final class PreparedStatementUtils {
         }
         final Class<?> preparedStatement = SqlModule.getSqlPreparedStatement();
         Method[] methods = preparedStatement.getDeclaredMethods();
-        List<Method> bindMethod = new LinkedList<>();
+        List<Method> bindMethod = new ArrayList<>();
         for (Method method : methods) {
             if (isSetter(method.getName())) {
                 if (method.getParameterCount() < 2) {
