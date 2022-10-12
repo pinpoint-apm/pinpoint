@@ -19,7 +19,5 @@ package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
  **/
 public interface DataSizeProvider {
 
-    boolean isProviderOf(Object param);
-
     int getDataSize(Object param);
 }

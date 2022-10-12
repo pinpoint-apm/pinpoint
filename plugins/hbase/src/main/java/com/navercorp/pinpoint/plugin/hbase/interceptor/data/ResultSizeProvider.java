@@ -14,21 +14,17 @@
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
-import org.apache.hadoop.hbase.client.Mutation;
+import org.apache.hadoop.hbase.client.Result;
 
 /**
+ * HTable.get(Get)
+ *
  * @author jimo
  **/
-public class MutateSizeProvider implements WriteSizeProvider {
-
-    @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof Mutation;
-    }
-
+public class ResultSizeProvider implements DataSizeProvider {
     @Override
     public int getDataSize(Object param) {
-        Mutation mutation = (Mutation) param;
-        return DataSizeUtils.sumOfFamilyCellMap(mutation.getFamilyCellMap());
+        Result result = (Result) param;
+        return DataSizeUtils.sizeOfResult(result);
     }
 }

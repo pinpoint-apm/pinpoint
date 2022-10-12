@@ -20,18 +20,14 @@ import org.apache.hadoop.hbase.client.RowMutations;
 /**
  * @author jimo
  **/
-public class RowMutationSizeProvider implements WriteSizeProvider {
-    @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof RowMutations;
-    }
-
+public class RowMutationSizeProvider implements DataSizeProvider {
     @Override
     public int getDataSize(Object param) {
         RowMutations mutation = (RowMutations) param;
         int sizeInByte = 0;
+        sizeInByte += mutation.getRow().length;
         for (Mutation m : mutation.getMutations()) {
-            sizeInByte += DataSizeUtils.sumOfFamilyCellMap(m.getFamilyCellMap());
+            sizeInByte += DataSizeUtils.sizeOfMutation(m);
         }
         return sizeInByte;
     }

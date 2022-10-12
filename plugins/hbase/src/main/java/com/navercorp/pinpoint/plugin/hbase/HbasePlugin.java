@@ -167,7 +167,7 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
             final int hbaseVersion = HbaseVersion.getVersion(classLoader);
             final boolean dataSizeProfile = config.isDataSizeProfile();
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.tableMethodNames))) {
-                int opType = DataOperationType.resolve(dataSizeProfile, method.getName());
+                int opType = DataOperationType.resolve(dataSizeProfile, method.getName(), method.getParameterTypes());
                 method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile, tableNameProfile, hbaseVersion, opType));
             }
             return target.toBytecode();
