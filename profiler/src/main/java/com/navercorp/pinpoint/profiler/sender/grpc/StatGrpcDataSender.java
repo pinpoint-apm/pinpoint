@@ -41,13 +41,14 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  * @author jaehong.kim
  */
 public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
+    private static final String ID = "StatStream";
 
     private final ReconnectExecutor reconnectExecutor;
 
     private final Reconnector reconnector;
     private final StreamState failState;
     private final StreamExecutorFactory<PStatMessage> streamExecutorFactory;
-    private final String id = "StatStream";
+
 
     private volatile StreamTask<MetricType, PStatMessage> currentStreamTask;
 
@@ -100,7 +101,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
-        final Runnable reconnectJob = new NamedRunnable(this.id) {
+        final Runnable reconnectJob = new NamedRunnable(this.ID) {
             @Override
             public void run() {
                 startStream();
@@ -113,7 +114,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
             @Override
             public ClientCallStreamObserver<PStatMessage> newStream(ResponseStreamObserver<PStatMessage, Empty> response) {
-                logger.info("newStream {}", id);
+                logger.info("newStream {}", ID);
                 StatGrpc.StatStub statStub = StatGrpc.newStub(managedChannel);
                 return (ClientCallStreamObserver<PStatMessage>) statStub.sendAgentStat(response);
             }
@@ -127,7 +128,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
     private void startStream() {
 //        streamTaskManager.closeAllStream();
         try {
-            StreamTask<MetricType, PStatMessage> streamTask =  new DefaultStreamTask<>(id, clientStreamService,
+            StreamTask<MetricType, PStatMessage> streamTask =  new DefaultStreamTask<>(ID, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();
             this.currentStreamTask = streamTask;
@@ -153,7 +154,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         if (currentStreamTask != null) {
             currentStreamTask.stop();
         }
-        logger.info("{} close()", id);
+        logger.info("{} close()", ID);
         release();
     }
 

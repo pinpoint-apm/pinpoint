@@ -38,6 +38,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     static final String VERSION_PATTERN = "(-[0-9]+\\.[0-9]+\\.[0-9]+((\\-SNAPSHOT)|(-RC[0-9]+))?)?";
 
     static final JarDescription bootstrap = new JarDescription("pinpoint-bootstrap", true);
+    private static final String EXTENSIONS = "*.{jar,xml,properties}";
 
     // boot dir
     private final JarDescription commons = new JarDescription("pinpoint-commons", true);
@@ -50,7 +51,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private final Path bootstrapJarPath;
 
-    private final String extensions = "*.{jar,xml,properties}";
+
 
     public AgentDirBaseClassPathResolver(Path bootstrapJarPath) {
         this.bootstrapJarPath = Objects.requireNonNull(bootstrapJarPath, "classPath");
@@ -132,7 +133,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             return Collections.emptyList();
         }
 
-        final List<Path> libFileList = FileUtils.listFiles(agentLibPath, extensions);
+        final List<Path> libFileList = FileUtils.listFiles(agentLibPath, EXTENSIONS);
         if (libFileList.isEmpty()) {
             throw new RuntimeException(agentLibPath + " lib dir is empty");
         }

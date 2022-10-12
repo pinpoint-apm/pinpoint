@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultChannelzReporter implements ChannelzReporter {
+    private static final long TIMEOUT = 3000;
+
     private final Logger logger;
 
     private final InternalChannelz channelz = InternalChannelz.instance();
 
     private final ChannelStatsReporter reporter = new ChannelStatsReporter();
-    private final long timeout = 3000;
 
     public DefaultChannelzReporter(Logger logger) {
         this.logger = Objects.requireNonNull(logger, "logger");

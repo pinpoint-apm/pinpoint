@@ -55,7 +55,7 @@ public class EmbeddedTomcatConfiguration {
         for (String port : ports) {
             Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
             connector.setScheme("http");
-            connector.setPort(Integer.valueOf(port));
+            connector.setPort(Integer.parseInt(port));
             result.add(connector);
         }
         return result.toArray(new Connector[] {});

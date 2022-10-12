@@ -26,6 +26,8 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class DefaultMethodDescriptor implements MethodDescriptor {
+    private static final int TYPE = MethodType.DEFAULT;
+
     private final String className;
 
     private final String methodName;
@@ -33,7 +35,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
     private final String[] parameterTypes;
 
     private final String[] parameterVariableName;
-
 
     private final String parameterDescriptor;
 
@@ -44,9 +45,6 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
 
     private String fullName;
-
-    private final int type = MethodType.DEFAULT;
-
 
     public DefaultMethodDescriptor(String className, String methodName, String[] parameterTypes, String[] parameterVariableName, int lineNumber) {
         this.className = className;
@@ -124,7 +122,7 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
     }
 
     public int getType() {
-        return type;
+        return TYPE;
     }
 
 
@@ -150,7 +148,7 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         builder.append(", fullName=");
         builder.append(fullName);
         builder.append(", type=");
-        builder.append(type);
+        builder.append(TYPE);
         builder.append("}");
         return builder.toString();
     }

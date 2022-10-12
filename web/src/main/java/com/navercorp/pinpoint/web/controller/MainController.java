@@ -50,7 +50,7 @@ public class MainController {
     private final CacheService cacheService;
 
     // Reserve key
-    private final String key = CacheService.DEFAULT_KEY;
+    private static final String KEY = CacheService.DEFAULT_KEY;
 
     public MainController(CommonService commonService,
                           CacheService cacheService) {
@@ -65,24 +65,24 @@ public class MainController {
 
         final ETag eTag = ETagUtils.parseETag(eTagHeader);
         if (needClearCache(eTag, clearCache)) {
-            cacheService.remove(key);
+            cacheService.remove(KEY);
         }
 
         TagApplications cachedApplications;
         if (eTag != null) {
             logger.debug("eTag:{} ", eTag);
 
-            cachedApplications = cacheService.get(key);
+            cachedApplications = cacheService.get(KEY);
             if (cachedApplications != null) {
                 if (eTag.getTag().equals(cachedApplications.getTag())) {
-                    logger.debug("applicationList {} cache hit", key);
+                    logger.debug("applicationList {} cache hit", KEY);
                     return notModified();
                 } else {
-                    logger.debug("applicationList {} cache hit, ETag miss {}={}", key, clearCache, cachedApplications.getTag());
+                    logger.debug("applicationList {} cache hit, ETag miss {}={}", KEY, clearCache, cachedApplications.getTag());
                 }
             } else {
                 // ETag changed by another node.
-                logger.debug("applicationList {} cache miss", key);
+                logger.debug("applicationList {} cache miss", KEY);
             }
         }
 
@@ -94,7 +94,7 @@ public class MainController {
         // Update atomicity between multiple nodes is not guaranteed
         TagApplications tagApplications = wrapApplicationList(applicationList);
 
-        cacheService.put(key, tagApplications);
+        cacheService.put(KEY, tagApplications);
 
         ETag newETag = new ETag(true, tagApplications.getTag());
         logger.debug("eTag cache {} -> {}", eTag, newETag);

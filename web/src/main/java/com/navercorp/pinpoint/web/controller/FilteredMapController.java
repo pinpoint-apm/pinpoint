@@ -110,7 +110,7 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter, viewVersion).setUseStatisticsAgentState(useStatisticsAgentState).build();
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(limitedScanResult.getScanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion).setUseStatisticsAgentState(useStatisticsAgentState).build();
         final ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {

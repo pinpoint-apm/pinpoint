@@ -18,10 +18,10 @@ public class ElasticSearchServer {
     private final Logger logger = LogManager.getLogger(this.getClass());
     public ElasticsearchContainer elasticSearchContainer;
 
-    private final String address = "127.0.0.1";
+    private static final String ADDRESS = "127.0.0.1";
 
     public String getAddress() {
-        return address;
+        return ADDRESS;
     }
 
     public int getPort() {

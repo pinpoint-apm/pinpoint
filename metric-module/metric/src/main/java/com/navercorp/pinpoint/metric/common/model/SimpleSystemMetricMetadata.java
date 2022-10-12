@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 @Deprecated
 public class SimpleSystemMetricMetadata implements SystemMetricMetadata {
-    private final String METADATA_PATH = "/Users/user/workspace/pinpoint_olap/pinpoint/metric/SystemMetricMetadata.txt";
+    private static final String METADATA_PATH = "/Users/user/workspace/pinpoint_olap/pinpoint/metric/SystemMetricMetadata.txt";
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ConcurrentMap<String, MetricDataType> fieldTypeMap;
