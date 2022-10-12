@@ -43,7 +43,6 @@ public class FilteredMapServiceOption {
     public FilteredMapServiceOption(final Builder builder) {
         this.transactionIdList = builder.transactionIdList;
         this.originalRange = builder.originalRange;
-//        this.scanRange = builder.scanRange;
         this.scanRange = null;
         this.xGroupUnit = builder.xGroupUnit;
         this.yGroupUnit = builder.yGroupUnit;
@@ -107,7 +106,6 @@ public class FilteredMapServiceOption {
     public static class Builder {
         private List<TransactionId> transactionIdList;
         private Range originalRange;
-        private Range scanRange;
         private int xGroupUnit;
         private int yGroupUnit;
         private Filter<List<SpanBo>> filter;
@@ -125,11 +123,10 @@ public class FilteredMapServiceOption {
             this.filter = Filter.acceptAllFilter();
         }
 
-        public Builder(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version) {
+        public Builder(List<TransactionId> transactionIdList, Range originalRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version) {
             this.transactionIdList = Objects.requireNonNull(transactionIdList, "transactionIdList");
             this.filter = Objects.requireNonNull(filter, "filter");
             this.originalRange = originalRange;
-            this.scanRange = scanRange;
             this.xGroupUnit = xGroupUnit;
             this.yGroupUnit = yGroupUnit;
             this.version = version;

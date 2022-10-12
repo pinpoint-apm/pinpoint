@@ -204,7 +204,7 @@ public class FilteredMapServiceImplTest {
         when(traceDao.selectAllSpans(anyList(), isNull())).thenReturn(Collections.singletonList(Arrays.asList(rootSpan, appASpan)));
 
         // When
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(Collections.emptyList(), originalRange, scanRange, 1, 1, Filter.acceptAllFilter(), 0).build();
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(Collections.emptyList(), originalRange, 1, 1, Filter.acceptAllFilter(), 0).build();
         ApplicationMap applicationMap = filteredMapService.selectApplicationMapWithScatterData(option);
 
         // Then

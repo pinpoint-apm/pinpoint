@@ -50,8 +50,8 @@ public class UrlSamplerConfig {
         this.samplerType = samplerType;
     }
 
-    public List<Map.Entry<Integer, UrlInfo>> entryList() {
-        final Map<Integer, UrlInfo> result = new HashMap<>();
+    public List<Map.Entry<Integer, UrlSamplerInfo>> entryList() {
+        final Map<Integer, UrlSamplerInfo> result = new HashMap<>();
         final Map<String, String> patterns = config.readPattern(PATTERN_REGEX);
         if (MapUtils.isEmpty(patterns)) {
             return Collections.emptyList();
@@ -74,9 +74,9 @@ public class UrlSamplerConfig {
                 continue;
             }
 
-            UrlInfo target = result.get(number);
+            UrlSamplerInfo target = result.get(number);
             if (target == null) {
-                target = new UrlInfo();
+                target = new UrlSamplerInfo();
                 result.put(number, target);
             }
 
@@ -106,60 +106,9 @@ public class UrlSamplerConfig {
         }
 
         // sort by number
-        final List<Map.Entry<Integer, UrlInfo>> entries = new ArrayList<>(result.entrySet());
+        final List<Map.Entry<Integer, UrlSamplerInfo>> entries = new ArrayList<>(result.entrySet());
         entries.sort(Comparator.comparingInt(Map.Entry::getKey));
 
         return entries;
-    }
-
-    static class UrlInfo {
-        private String urlPath;
-        private Sampler sampler;
-        private int samplingNewThroughput;
-        private int samplingContinueThroughput;
-
-        public String getUrlPath() {
-            return urlPath;
-        }
-
-        public void setUrlPath(String urlPath) {
-            this.urlPath = urlPath;
-        }
-
-        public Sampler getSampler() {
-            return sampler;
-        }
-
-        public void setSampler(Sampler sampler) {
-            this.sampler = sampler;
-        }
-
-        public int getSamplingNewThroughput() {
-            return samplingNewThroughput;
-        }
-
-        public void setSamplingNewThroughput(int samplingNewThroughput) {
-            this.samplingNewThroughput = samplingNewThroughput;
-        }
-
-        public int getSamplingContinueThroughput() {
-            return samplingContinueThroughput;
-        }
-
-        public void setSamplingContinueThroughput(int samplingContinueThroughput) {
-            this.samplingContinueThroughput = samplingContinueThroughput;
-        }
-
-        public boolean isValid() {
-            if (this.urlPath == null) {
-                return false;
-            }
-
-            if (this.sampler == null) {
-                return false;
-            }
-
-            return true;
-        }
     }
 }

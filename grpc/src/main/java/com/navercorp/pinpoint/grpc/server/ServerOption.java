@@ -58,9 +58,9 @@ public class ServerOption {
     // Sets a custom max connection idle time, connection being idle for longer than which will be gracefully terminated.
     private final long maxConnectionIdle;
     // Sets a custom max connection age, connection lasting longer than which will be gracefully terminated.
-    private final long maxConnectionAge = DEFAULT_MAX_CONNECTION_AGE;
+//    private final long maxConnectionAge = DEFAULT_MAX_CONNECTION_AGE;
     // Sets a custom grace time for the graceful connection termination. Once the max connection age is reached, RPCs have the grace time to complete.
-    private final long maxConnectionAgeGrace = DEFAULT_MAX_CONNECTION_AGE_GRACE;
+//    private final long maxConnectionAgeGrace = DEFAULT_MAX_CONNECTION_AGE_GRACE;
 
     // The maximum number of concurrent calls permitted for each incoming connection. Defaults to no limit.
     private final int maxConcurrentCallsPerConnection;
@@ -116,11 +116,11 @@ public class ServerOption {
     }
 
     public long getMaxConnectionAge() {
-        return maxConnectionAge;
+        return DEFAULT_MAX_CONNECTION_AGE;
     }
 
     public long getMaxConnectionAgeGrace() {
-        return maxConnectionAgeGrace;
+        return DEFAULT_MAX_CONNECTION_AGE_GRACE;
     }
 
     public int getMaxConcurrentCallsPerConnection() {
@@ -163,8 +163,8 @@ public class ServerOption {
         sb.append(", permitKeepAliveTime=").append(permitKeepAliveTime);
         sb.append(", permitKeepAliveWithoutCalls=").append(permitKeepAliveWithoutCalls);
         sb.append(", maxConnectionIdle=").append(maxConnectionIdle);
-        sb.append(", maxConnectionAge=").append(maxConnectionAge);
-        sb.append(", maxConnectionAgeGrace=").append(maxConnectionAgeGrace);
+        sb.append(", maxConnectionAge=").append(DEFAULT_MAX_CONNECTION_AGE);
+        sb.append(", maxConnectionAgeGrace=").append(DEFAULT_MAX_CONNECTION_AGE_GRACE);
         sb.append(", maxConcurrentCallsPerConnection=").append(maxConcurrentCallsPerConnection);
         sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
         sb.append(", maxHeaderListSize=").append(maxHeaderListSize);

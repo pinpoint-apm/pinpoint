@@ -34,20 +34,17 @@ public class TestEnvironment {
     private static final TProtocolFactory PROTOCOL_FACTORY = new TBinaryProtocol.Factory();
     private static final String HTTP_PATH = "/thrift";
 
-    private final String serverHost = SERVER_HOST;
-    private final String serverIp = SERVER_IP;
     private final int port = MIN_SERVER_PORT + (int)(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT) + 1);
-    private final String httpPath = HTTP_PATH;
-    private final String httpUrl = "http://" + serverHost + ":" + port + httpPath;
+    private final String httpUrl = "http://" + SERVER_HOST + ":" + port + HTTP_PATH;
     private final InetSocketAddress serverAddress = new InetSocketAddress(SERVER_IP, this.port);
     private final TProtocolFactory protocolFactory = PROTOCOL_FACTORY;
 
     public String getServerHost() {
-        return this.serverHost;
+        return SERVER_HOST;
     }
 
     public String getServerIp() {
-        return this.serverIp;
+        return SERVER_IP;
     }
 
     public int getPort() {
@@ -55,7 +52,7 @@ public class TestEnvironment {
     }
 
     public String getHttpPath() {
-        return this.httpPath;
+        return HTTP_PATH;
     }
 
     public String getHttpUrl() {

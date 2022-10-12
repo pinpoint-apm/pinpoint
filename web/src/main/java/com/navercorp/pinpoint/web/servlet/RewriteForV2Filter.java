@@ -60,7 +60,7 @@ public class RewriteForV2Filter implements Filter {
             "/metric",
     };
 
-    private final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
+    private static final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
 
     private final boolean enable;
 

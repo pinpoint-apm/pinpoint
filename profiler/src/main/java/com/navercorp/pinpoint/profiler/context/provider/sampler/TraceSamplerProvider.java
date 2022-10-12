@@ -80,8 +80,8 @@ public class TraceSamplerProvider implements Provider<TraceSampler> {
     TraceSampler newUrlSampler(TraceSampler defaultTraceSampler, SamplerType samplerType) {
         final Map<String, TraceSampler> urlMap = new LinkedHashMap<>();
         final UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, samplerType);
-        for (Map.Entry<Integer, UrlSamplerConfig.UrlInfo> entry : urlSamplerConfig.entryList()) {
-            final UrlSamplerConfig.UrlInfo urlInfo = entry.getValue();
+        for (Map.Entry<Integer, UrlSamplerInfo> entry : urlSamplerConfig.entryList()) {
+            final UrlSamplerInfo urlInfo = entry.getValue();
             if (urlInfo == null || Boolean.FALSE == urlInfo.isValid()) {
                 continue;
             }

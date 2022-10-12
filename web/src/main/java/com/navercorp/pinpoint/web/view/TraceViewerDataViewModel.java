@@ -220,8 +220,8 @@ public class TraceViewerDataViewModel {
     }
 
     public static class TraceEvent {
+        private static final String PID = "";                  /* process id (not used in timeline, but necessary for trace_viewer spec. */
         private String cat;                             /* category name (Exception, Database, Trace) */
-        private final String pid = "";                  /* process id (not used in timeline, but necessary for trace_viewer spec. */
         private int tid;                               /* thread id (used to separate async call stacks) */
         private String id;                               /* thread id (used to separate async call stacks) */
         private long ts;                                /* start time (us) */
@@ -281,7 +281,7 @@ public class TraceViewerDataViewModel {
 
         public String getCat() { return cat; }
 
-        public String getPid() { return pid; }
+        public String getPid() { return PID; }
 
         public long getTs() { return ts; }
 

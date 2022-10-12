@@ -35,7 +35,7 @@ public class UrlSamplerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
-        List<Map.Entry<Integer, UrlSamplerConfig.UrlInfo>> entryList = urlSamplerConfig.entryList();
+        List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
         assertEquals(0, entryList.size());
     }
 
@@ -49,8 +49,8 @@ public class UrlSamplerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
-        List<Map.Entry<Integer, UrlSamplerConfig.UrlInfo>> entryList = urlSamplerConfig.entryList();
-        UrlSamplerConfig.UrlInfo urlInfo = entryList.get(0).getValue();
+        List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
+        UrlSamplerInfo urlInfo = entryList.get(0).getValue();
         assertEquals("/foo", urlInfo.getUrlPath());
         assertNotNull(urlInfo.getSampler());
         assertEquals(0, urlInfo.getSamplingNewThroughput());
@@ -66,8 +66,8 @@ public class UrlSamplerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
-        List<Map.Entry<Integer, UrlSamplerConfig.UrlInfo>> entryList = urlSamplerConfig.entryList();
-        UrlSamplerConfig.UrlInfo urlInfo = entryList.get(0).getValue();
+        List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
+        UrlSamplerInfo urlInfo = entryList.get(0).getValue();
         assertNull(urlInfo.getSampler());
         assertFalse(urlInfo.isValid());
     }
@@ -79,7 +79,7 @@ public class UrlSamplerConfigTest {
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
-        List<Map.Entry<Integer, UrlSamplerConfig.UrlInfo>> entryList = urlSamplerConfig.entryList();
+        List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
         assertEquals(0, entryList.size());
     }
 }
