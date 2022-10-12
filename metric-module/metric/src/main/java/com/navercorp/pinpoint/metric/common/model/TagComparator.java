@@ -23,6 +23,6 @@ import java.util.Comparator;
  */
 public class TagComparator {
 
-    public static final Comparator<Tag> INSTANCE = Comparator.comparing(Tag::getName, String::compareTo);
+    public static final Comparator<Tag> INSTANCE = Comparator.comparing(Tag::getName);
 
 }

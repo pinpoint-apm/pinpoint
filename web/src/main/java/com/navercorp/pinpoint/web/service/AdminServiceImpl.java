@@ -24,7 +24,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -132,7 +137,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Map<String, List<Application>> getAgentIdMap() {
-        Map<String, List<Application>> agentIdMap = new TreeMap<>(String::compareTo);
+        Map<String, List<Application>> agentIdMap = new TreeMap<>();
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
             List<String> agentIds = this.applicationIndexDao.selectAgentIds(application.getName());
@@ -146,7 +151,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Map<String, List<Application>> getDuplicateAgentIdMap() {
-        Map<String, List<Application>> duplicateAgentIdMap = new TreeMap<>(String::compareTo);
+        Map<String, List<Application>> duplicateAgentIdMap = new TreeMap<>();
         Map<String, List<Application>> agentIdMap = this.getAgentIdMap();
         for (Map.Entry<String, List<Application>> entry : agentIdMap.entrySet()) {
             String agentId = entry.getKey();
@@ -170,7 +175,7 @@ public class AdminServiceImpl implements AdminService {
             return Collections.emptyMap();
         }
         Map<String, List<Application>> agentIdMap = this.getAgentIdMap();
-        Map<String, List<Application>> inactiveAgentMap = new TreeMap<>(String::compareTo);
+        Map<String, List<Application>> inactiveAgentMap = new TreeMap<>();
         List<String> inactiveAgentIds = filterInactiveAgents(agentIds, durationDays);
         for (String inactiveAgentId : inactiveAgentIds) {
             List<Application> applications = agentIdMap.get(inactiveAgentId);
