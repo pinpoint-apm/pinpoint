@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
@@ -44,6 +45,7 @@ import java.net.URL;
 @JvmVersion(8)
 //@Dependency({"org.postgresql:postgresql:[42.2.15.jre6]",
 //        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
+@PinpointConfig("pinpoint-postgresql.config")
 @Dependency({"org.postgresql:postgresql:[9.4.1208,)",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.POSTGRESQL})
 @SharedTestLifeCycleClass(PostgreSqlServer.class)
