@@ -114,7 +114,7 @@ public class HbaseTableMethodInterceptorTest {
         Table target = new HTable(TableName.valueOf("test"), connection);
 
         int hbaseVersion = getHbaseVersion();
-        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, DataOperationType.WRITE);
+        HbaseTableMethodInterceptor interceptor = new HbaseTableMethodInterceptor(traceContext, descriptor, true, true, hbaseVersion, DataOperationType.MUTATION);
 
         interceptor.doInAfterTrace(recorder, target, va(new Put(new byte[10])), null, null);
         verify(recorder).recordAttribute(HbasePluginConstants.HBASE_OP_WRITE_SIZE, 10);

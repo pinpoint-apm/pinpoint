@@ -14,27 +14,15 @@
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor.data;
 
-import org.apache.hadoop.hbase.client.Delete;
-
-import java.util.List;
+import org.apache.hadoop.hbase.client.Mutation;
 
 /**
  * @author jimo
  **/
-public class DeleteListSizeProvider implements WriteSizeProvider {
-    @Override
-    public boolean isProviderOf(Object param) {
-        return param instanceof List && !((List<?>) param).isEmpty() && ((List<?>) param).get(0) instanceof Delete;
-    }
-
+public class MutationSizeProvider implements DataSizeProvider {
     @Override
     public int getDataSize(Object param) {
-        @SuppressWarnings("unchecked")
-        List<Delete> deletes = (List<Delete>) param;
-        int sizeInByte = 0;
-        for (Delete delete : deletes) {
-            sizeInByte += DataSizeUtils.sumOfFamilyCellMap(delete.getFamilyCellMap());
-        }
-        return sizeInByte;
+        Mutation mutation = (Mutation) param;
+        return DataSizeUtils.sizeOfMutation(mutation);
     }
 }

@@ -81,11 +81,11 @@ public class HbaseTableMethodInterceptor extends SpanEventSimpleAroundIntercepto
 
         if (DataOperationType.DISABLE == dataOpType) {
             // skip
-        } else if (DataOperationType.WRITE == dataOpType) {
-            int dataWriteSize = DataSizeHelper.getDataWriteSize(args);
+        } else if (DataOperationType.isWriteOp(dataOpType)) {
+            int dataWriteSize = DataSizeHelper.getDataSizeFromArgument(args, dataOpType);
             recorder.recordAttribute(HbasePluginConstants.HBASE_OP_WRITE_SIZE, dataWriteSize);
-        } else if (DataOperationType.READ == dataOpType) {
-            int dataReadSize = DataSizeHelper.getDataReadSize(result);
+        } else if (DataOperationType.isReadOp(dataOpType)) {
+            int dataReadSize = DataSizeHelper.getDataSizeFromResult(result, dataOpType);
             recorder.recordAttribute(HbasePluginConstants.HBASE_OP_READ_SIZE, dataReadSize);
         }
 

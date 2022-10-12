@@ -124,8 +124,14 @@ public final class HbasePluginConstants {
      */
 
     protected static final String[] tableMethodNames = new String[]{"append", "increment", "exists", "existsAll", "get", "getScanner", "put", "checkAndPut", "delete", "checkAndDelete", "mutateRow", "checkAndMutate"};
-    public static final List<String> tableReadMethodNames = Arrays.asList("exists", "existsAll", "get", "getScanner");
-    public static final List<String> tableWriteMethodNames = Arrays.asList("append", "increment", "put", "checkAndPut", "delete", "checkAndDelete", "mutateRow", "checkAndMutate");
+
+    /**
+     * exists, existsAll are skipped because it returns only boolean. (not related to data size)
+     * getScanner is skipped. (not related to data size)
+     */
+    public static final List<String> mutationMethodNames = Arrays.asList("append", "increment", "put", "checkAndPut", "delete", "checkAndDelete", "checkAndMutate");
+    public static final List<String> rowMutationMethodNames = Arrays.asList("mutateRow");
+    public static final List<String> getResultMethodNames = Arrays.asList("get");
 
     /**
      * The constant adminMethodNames.
