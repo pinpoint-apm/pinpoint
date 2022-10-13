@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import java.util.Objects;
 
+import com.navercorp.pinpoint.common.profiler.clock.Clock;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
@@ -82,8 +83,9 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         private final Object lock = new Object();
 
         private final int uriStatDataLimitSize;
-        private final int collectInterval;
+        private final Clock clock;
         private final LinkedList<AgentUriStatData> completedUriStatDataList;
+
 
         private AgentUriStatData currentAgentUriStatData;
 
@@ -96,14 +98,14 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             this.uriStatDataLimitSize = uriStatDataLimitSize;
 
             Assert.isTrue(collectInterval > 0, "collectInterval must be ' > 0'");
-            this.collectInterval = collectInterval;
+            this.clock = Clock.tick(collectInterval);
 
             this.completedUriStatDataList = new LinkedList<>();
         }
 
         @Override
         public void execute(Collection<UriStatInfo> messageList) {
-            final long currentBaseTimestamp = getBaseTimestamp();
+            final long currentBaseTimestamp = clock.millis();
             checkAndFlushOldData(currentBaseTimestamp);
 
             AgentUriStatData agentUriStatData = getCurrent(currentBaseTimestamp);
@@ -120,7 +122,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
         @Override
         public void execute(UriStatInfo message) {
-            long currentBaseTimestamp = getBaseTimestamp();
+            long currentBaseTimestamp = clock.millis();
             checkAndFlushOldData(currentBaseTimestamp);
 
             AgentUriStatData agentUriStatData = getCurrent(currentBaseTimestamp);
@@ -128,15 +130,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
         }
 
         public void executePollTimeout() {
-            long currentBaseTimestamp = getBaseTimestamp();
+            long currentBaseTimestamp = clock.millis();
             checkAndFlushOldData(currentBaseTimestamp);
         }
 
-        private long getBaseTimestamp() {
-            long currentTimeMillis = System.currentTimeMillis();
-            long timestamp = currentTimeMillis - (currentTimeMillis % collectInterval);
-            return timestamp;
-        }
 
         private boolean checkAndFlushOldData(long currentBaseTimestamp) {
             if (currentAgentUriStatData == null) {

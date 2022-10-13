@@ -1,9 +1,8 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
+import com.navercorp.pinpoint.common.profiler.clock.Clock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -26,8 +25,7 @@ public class DefaultIdleTimeoutTest {
 
     @Test
     public void isExpired_expired() {
-        Clock clock = mock(Clock.class);
-        when(clock.millis()).thenReturn(1L);
+        Clock clock = Clock.fixed(1L);
 
         IdleTimeout idleTimeout = new DefaultIdleTimeout(0, clock);
 
