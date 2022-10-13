@@ -38,6 +38,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -218,7 +219,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             }
         }
         List<String> libs = new ArrayList<>(result);
-        Collections.sort(libs);
+        libs.sort(Comparator.naturalOrder());
         return libs;
     }
 
