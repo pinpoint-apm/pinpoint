@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.grpc.server.flowcontrol;
 
+import com.navercorp.pinpoint.common.profiler.clock.Clock;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.time.Clock;
 import java.util.Objects;
 
 public class DefaultIdleTimeout implements IdleTimeout {
