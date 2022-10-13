@@ -56,6 +56,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +228,7 @@ public class DependencyResolver {
         VersionRangeResult rangeResult = system.resolveVersionRange(session, rangeRequest);
 
         List<Version> versions = new ArrayList<>(rangeResult.getVersions());
-        Collections.sort(versions);
+        versions.sort(Comparator.naturalOrder());
 
         return versions;
     }
