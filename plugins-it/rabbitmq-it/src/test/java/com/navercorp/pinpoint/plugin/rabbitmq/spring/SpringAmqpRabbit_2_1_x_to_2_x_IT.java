@@ -135,8 +135,8 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT extends SpringAmqpRabbitITBase {
         Method abstractMessageListenerContainerExecuteListener = getExecuteListenerMethod(abstractMessageListenerContainerClass);
 
         ExpectedTrace abstractMessageListenerContainerExecuteListenerTrace = Expectations.event(
-                    ServiceType.INTERNAL_METHOD.getName(),
-                    abstractMessageListenerContainerExecuteListener);
+                ServiceType.INTERNAL_METHOD.getName(),
+                abstractMessageListenerContainerExecuteListener);
 
         Class<?> propagationMarkerClass = PropagationMarker.class;
         Method propagationMarkerMark = propagationMarkerClass.getDeclaredMethod("mark");
@@ -169,13 +169,11 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT extends SpringAmqpRabbitITBase {
 
     private Method getExecuteListenerMethod(Class<?> abstractMessageListenerContainerClass) throws NoSuchMethodException {
         Method abstractMessageListenerContainerExecuteListener = getExecuteListenerMethod0(abstractMessageListenerContainerClass);
-
-        if (abstractMessageListenerContainerExecuteListener.getParameterCount() != 2) {
-            final Class<?>[] parameterTypes = abstractMessageListenerContainerExecuteListener.getParameterTypes();
+        final Class<?>[] parameterTypes = abstractMessageListenerContainerExecuteListener.getParameterTypes();
+        if (parameterTypes.length >= 2) {
             if (!parameterTypes[0].equals(Channel.class)) {
                 throw new NoSuchMethodException("executeListener");
             }
-
             if (parameterTypes[1].equals(Message.class) || parameterTypes[1].equals(Object.class)) {
                 return abstractMessageListenerContainerExecuteListener;
             }
