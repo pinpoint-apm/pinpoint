@@ -51,6 +51,7 @@ const PROXY_CONFIG = [
             "/getAgentStat/directBuffer/chart.pinpoint",
             "/getApplicationStat/directBuffer/chart.pinpoint",
             "/admin/removeAgentId.pinpoint",
+            "/admin/removeApplicationName",
             "/admin/removeInactiveAgents.pinpoint",
             "/bind.pinpoint",
             "/getAgentStat/uriStat/chartList.pinpoint",
