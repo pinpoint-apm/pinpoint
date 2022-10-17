@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.metric.web.util.metric.DoubleUncollectedDataCreato
 import com.navercorp.pinpoint.metric.web.util.metric.LongUncollectedDataCreator;
 import com.navercorp.pinpoint.metric.web.util.metric.TimeSeriesBuilder;
 import com.navercorp.pinpoint.metric.web.util.metric.UncollectedDataCreator;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -134,6 +135,8 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     private List<MetricValue<? extends Number>> getMetricValues(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags) {
         Metric elementOfBasicGroupList = systemMetricBasicGroupManager.findElementOfBasicGroup(metricDataSearchKey.getMetricDefinitionId());
 
+        StopWatch watch = StopWatch.createStarted();
+        logger.info("=========== thread start {} thread. metricDefinitionId:{}", Thread.currentThread().getName(), metricDataSearchKey.getMetricDefinitionId());
         List<QueryResult<Number>> queryResults = selectAll(metricDataSearchKey, elementOfBasicGroupList, tags);
 
         List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
@@ -148,10 +151,16 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
                     metricValueList.add(doubleMetricValue);
                 } else if (type == MetricDataType.DOUBLE) {
                     List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) (List<?>) systemMetricPoints;
+                    StopWatch dataProcessWatch = StopWatch.createStarted();
                     MetricValue<Double> doubleMetricValue = createSystemMetricValue(timeWindow, result.getTag(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                    dataProcessWatch.stop();
+                    logger.info("##### execute process data {} thread. processTime:{} metricDefinitionId:{}", Thread.currentThread().getName(), dataProcessWatch.getTime(), metricDataSearchKey.getMetricDefinitionId());
                     metricValueList.add(doubleMetricValue);
                 }
             }
+
+            logger.info("============ thread end {} thread. executeTime:{} metricDefinitionId:{}", Thread.currentThread().getName(), watch.getTime(), metricDataSearchKey.getMetricDefinitionId());
+            watch.stop();
             return metricValueList;
         } catch (Throwable e) {
             throw new RuntimeException(e);
