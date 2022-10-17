@@ -24,7 +24,16 @@ body {
   /* green */
   --green-default: #41c464;
   /* yellow */
-  --yellow-default: #ffff00;
+  --yellow-50: #ffffe6;
+  --yellow-100: #fcfdc0;
+  --yellow-200: #f9fa93;
+  --yellow-300: #f5f662;
+  --yellow-400: #f0f234;
+  --yellow-500: #ffff00;
+  --yellow-600: #ffeb00;
+  --yellow-700: #ffd100;
+  --yellow-800: #ffb700;
+  --yellow-900: #ff8a00;
   /* purple */
   --purple-default: #660099;
   /* red */
@@ -113,7 +122,16 @@ body.dark-mode {
   /* green */
   --green-default: #41c464;
   /* yellow */
-  --yellow-default: #ffff00;
+  --yellow-50: #ff8a00;
+  --yellow-100: #ffb700;
+  --yellow-200: #ffd100;
+  --yellow-300: #ffeb00;
+  --yellow-400: #ffff00;
+  --yellow-500: #f0f234;
+  --yellow-600: #f5f662;
+  --yellow-700: #f9fa93;
+  --yellow-800: #fcfdc0;
+  --yellow-900: #ffffe6;
   /* purple */
   --purple-default: #660099;
   /* red */
@@ -195,6 +213,8 @@ body {
   --background-danger: var(--red-50);
   --background-row-danger: var(--red-50);
   --background-row-danger-secondary: var(--red-100);
+  --background-row-search-target: var(--yellow-500);
+  --background-row-search-target-current: var(--orange-300);
   /* --background-row- */
   --background-hover-primary: var(--blue-50);
   --background-hover-primary-darker: var(--blue-100);
@@ -244,6 +264,7 @@ body {
   --text-knockout: var(--white-default);
   --text-shadow: var(--grey-100);
   --text-disable: var(--grey-300);
+  --text-highlight: var(--grey-700);
 
   --form-require: var(--red-900);
   --form-link: var(--blue-700);
@@ -287,7 +308,9 @@ body.dark-mode {
   --background-primary-darkest: var(--grey-300);
   --background-danger: var(--red-50);
   --background-row-danger: var(--red-50);
-  --background-row-danger-secondary: var(--red-100);
+  --background-row-danger-secondary: var(--red-400);
+  --background-row-search-target: var(--yellow-300);
+  --background-row-search-target-current: var(--orange-300);
   --background-hover-primary: var(--blue-50);
   --background-hover-primary-darker: var(--blue-100);
   --background-focus-primary: var(--blue-50);
@@ -336,6 +359,7 @@ body.dark-mode {
   --text-knockout: var(--black-default);
   --text-shadow: var(--grey-100);
   --text-disable: var(--blue-grey-100);
+  --text-highlight: var(--grey-100);
 
   --form-require: var(--red-300);
   --form-link: var(--blue-700);

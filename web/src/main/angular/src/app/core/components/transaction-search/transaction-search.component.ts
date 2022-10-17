@@ -42,6 +42,7 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
 
             this.isEmpty = resultCount === 0;
             this.resultIndex = 0;
+            this.prevQuery = null;
         }
     }
 
