@@ -46,11 +46,11 @@
     stroke-width: 2;
 }
 .selection-point line {
-    stroke: var(--yellow-default);
+    stroke: var(--yellow-500);
     stroke-width: 1;
 }
 .selection-point circle {
-    fill: var(--yellow-default);
+    fill: var(--yellow-500);
     stroke: var(--border-default);
     stroke-width: 2;
 }

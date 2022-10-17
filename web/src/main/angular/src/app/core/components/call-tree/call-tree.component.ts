@@ -46,6 +46,10 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         this.originalData = callTreeData;
         this.ratio = this.calcTimeRatio(callTreeData.callStack[0][callTreeData.callStackIndex.begin], callTreeData.callStack[0][callTreeData.callStackIndex.end]);
         this.rowData = this.makeGridData(callTreeData.callStack, callTreeData.callStackIndex);
+        if (this.gridOptions) {
+            this.gridOptions.context.focusIndex = null;
+            this.gridOptions.context.searchTargetIndexList = [];
+        }
     }
 
     @Input() timezone: string;
@@ -89,7 +93,10 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                         });
                         break;
                     case 'selectedRowId':
-                        this.moveRow(changes[propName].currentValue);
+                        const rowId = changes[propName].currentValue;
+                        const row = this.gridOptions.api.getRowNode(rowId);
+                        
+                        this.moveRow(row);
                         break;
                 }
             });
@@ -106,28 +113,20 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
             animateRows: true,
             enableCellTextSelection: true,
             rowHeight: 30,
-            getRowClass: (params: any) => {
-                if ( params.data.isFocused ) {
-                    return 'ag-row-focused';
-                } else if ( params.data.hasException ) {
-                    return 'ag-row-exception';
-                } else {
-                    return '';
-                }
+            context: {
+                focusIndex: null,
+                searchTargetIndexList: [],
             },
-            // rowClassRules: {
-            //     // 'ag-row-exception': ({data}: any) => data.hasException,
-            //     // 'ag-row-focused': ({data}: any) => data.isFocused,
-            //     // 'ag-row-search-target': ({data}: any) => data.isSearchTarget,
-            //     'ag-row-exception': ({data}: any) => data.hasException,
-            //     'ag-row-focused': (params: any) => {
-            //         // console.log(params);
-            //         // return false;
-            //         // return params.node.state.isFocused;
-            //         return params.node.state ? params.node.state.isFocused : false;
-            //     },
-            //     'ag-row-search-target': ({node}: any) => node.state ? node.state.isSearchTarget : false
-            // },
+            rowClassRules: {
+                'ag-row-search-target': ({context, rowIndex}: any) => {
+                    return context.searchTargetIndexList.includes(rowIndex);
+                },
+                'ag-row-focused': ({context, rowIndex}: any) => {
+                    return rowIndex === context.focusIndex;
+                },
+                'ag-row-exception': ({data}: any) => data.hasException,
+            },
+            getRowNodeId: (data) => data.id,
             getNodeChildDetails: (file) => {
                 if (file.folder) {
                     return {
@@ -147,13 +146,6 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
             },
             suppressRowClickSelection: !this.canSelectRow,
             rowSelection: this.rowSelection,
-            // processRowPostCreate: ({node}: any) => {
-            //     node.state = {
-            //         isFocused: node.state === undefined ? false : node.state.isFocused,
-            //         isSearchTarget: node.state === undefined ? false : node.state.isSearchTarget
-            //     }
-            //     console.log(node.state);
-            // }
         };
     }
 
@@ -172,13 +164,14 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         return color;
     }
 
-    private getInitialRowId(): string {
+    private getInitialRowId(): RowNode {
         const {callStack, callStackIndex, applicationId} = this.originalData;
         const exceptionRow = callStack.find((call: any[]) => call[callStackIndex.hasException]);
         const rowId = exceptionRow ? exceptionRow[callStackIndex.id]
             : callStack.find((cs: any[]) => cs[callStackIndex.applicationName] === applicationId)[callStackIndex.id];
+        const row = this.gridOptions.api.getRowNode(rowId);
 
-        return rowId;
+        return row;
     }
 
     private getAgentKey(rowIndex: number): string {
@@ -423,12 +416,6 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     onRendered(): void {
         this.isRendered = true;
         this.gridOptions.api.sizeColumnsToFit();
-        this.gridOptions.api.forEachNode((row: any) => {
-            row.state = {
-                isFocused: false,
-                isSearchTarget: false
-            }
-        })
     }
 
     onRowDataChanged(): void {
@@ -437,75 +424,18 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    getQueryedRowCount({type, query, resultIndex}: {type: string, query: string, resultIndex: number}): number {
-        let resultCount = 0;
-        // let targetIndex = -1;
-
-        this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-            if (this.hasValueOnType(type, rowNode.data, query)) {
-                // if (resultCount === 0) {
-                //     targetIndex = rowNode.data.index;
-                // }
-
-                resultCount++;
-                rowNode.setSelected(true);
-            } else {
-                rowNode.setSelected(false);
-            }
-        });
-
-        // if (resultCount > 0) {
-        //     this.gridOptions.api.ensureIndexVisible(targetIndex, 'top');
-        // }
-
-        return resultCount;
-    }
-
     getQueryedRowList({type, query}: {type: string, query: string}): RowNode[] {
         const rowList: RowNode[] = [];
 
+        this.gridOptions.context.searchTargetIndexList = [];
+
         this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-        // this.gridOptions.api.forEachNode((rowNode: any) => {
-            // console.log(rowNode);
-            // rowNode.setDataValue('isFocused', false);
-            // rowNode.state.isFocused = false
             if (this.hasValueOnType(type, rowNode.data, query)) {
-                rowNode.setSelected(true);
-                // rowNode.setDataValue('isSearchTarget', true);
-                // rowNode.state.isSearchTarget = true;
+                this.gridOptions.context.searchTargetIndexList.push(rowNode.rowIndex);
                 rowList.push(rowNode);
-            } else {
-                // rowNode.setDataValue('isSearchTarget', false);
-                // rowNode.state.isSearchTarget = false;
-                rowNode.setSelected(false);
             }
         });
-
         return rowList;
-    }
-
-    // focusTargetRow(rowIndex: number): void {
-    focusTargetRow(row: RowNode): void {
-    // focusTargetRow(row: any): void {
-        this.gridOptions.api.ensureNodeVisible(row, 'middle');
-        // this.gridOptions.api.ensureIndexVisible(rowIndex, 'middle');
-        // this.gridOptions.api.ensureIndexVisible(rowIndex);
-        // row.updateData({targetRow: true});
-        // row.setDataValue('isFocused', true);
-        // row.state.isFocused = true;
-        // console.log(row);
-
-        // ! dataValue 안 바뀌는이유가 col field로 사용되지않는 data value라 그럼
-        // * Custom Attribute로는 뭔짓해도 안됨 ㅠ
-        // * 아니면 setSelected를 그냥쓰고 이걸 searchTarget이라고 생각한다? 근데그럼 focus 이벤트에 대한 구분이 안됨..
-        // * Row의 엘리먼트에 직접접근해서 addClass하기?
-        /**
-         * 문제정리
-         * 1. searched와 target(focused)의 구분이 있었으면 좋겠음
-         * 2. 근데 custom attribute에 대한 방법이 없는듯함
-         * 3. 그나마 쓸수있는게 selected 이벤트인데, 필요한건 두가지(searched & focused) 경우의 구분임
-         * 4. 어떻게 할 수 있을까
-         */
     }
 
     private calcTimeRatio(begin: number, end: number): number {
@@ -562,7 +492,6 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         oRow['hasException'] = callTree[oIndex.hasException];
         oRow['isAuthorized'] = callTree[oIndex.isAuthorized];
         // oRow['isFocused'] = callTree[oIndex.isFocused];
-        // oRow['isSearchTarget'] = false;
         if (callTree[oIndex.hasChild]) {
             oRow['folder'] = true;
             oRow['open'] = true;
@@ -597,30 +526,9 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    moveRow(id: string): void {
-        let targetIndex = -1;
-        this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-            if (rowNode.data.id === id) {
-                targetIndex = rowNode.data.index;
-                rowNode.setSelected(true);
-            } else {
-                rowNode.setSelected(false);
-            }
-        });
-
-        this.gridOptions.api.ensureIndexVisible(targetIndex, 'middle');
+    moveRow(row: RowNode): void {
+        this.gridOptions.context.focusIndex = row.rowIndex;
+        this.gridOptions.api.ensureNodeVisible(row, 'middle');
+        this.gridOptions.api.redrawRows();
     }
 }
-
-// TODO: Selected, Searched, Focused 구분 필요할듯?
-/**
- * - initial -> Focused
- * - 검색 리스트 -> Searched
- * - 검색 리스트 중 타겟 -> Focused
- * 
- * Default Row 구분: 
- * 
- * 검색 대상들에 대해 setSelected가 아니라 setDataValue로 Searched 데이터밸류를 업데이트해야할듯
- * 이때 검색 리스트 중 타겟 Row에 대해서는 isFocused 데이터밸류 업데이트(true)
- * 고민) 
- */

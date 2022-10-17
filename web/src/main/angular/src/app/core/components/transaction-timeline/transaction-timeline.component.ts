@@ -16,8 +16,16 @@ export class TransactionTimelineComponent implements OnInit {
     @Input() barRatio: number;
     @Output() outSelectTransaction: EventEmitter<string> = new EventEmitter();
 
-    selectedRow: number[] = [];
+    searchTargetIndexList: number[] = [];
+    focusRowIndex: number;
     colorSet: { [key: string]: string } = {};
+    getTimelineBarState = (i: number) => {
+        return {
+            'search-target': this.searchTargetIndexList.includes(i),
+            'focus': this.focusRowIndex === i
+        };
+    };
+
     constructor() {}
     ngOnInit() {}
     private calcColor(str: string): string {
@@ -54,9 +62,6 @@ export class TransactionTimelineComponent implements OnInit {
     getTop(index: number): number {
         return index * 21;
     }
-    isSelectedRow(index: number): boolean {
-        return this.selectedRow.indexOf(index) !== -1;
-    }
     getStartTime(call: any): number {
         return call[this.keyIndex.begin] - this.startTime;
     }
@@ -70,11 +75,11 @@ export class TransactionTimelineComponent implements OnInit {
     getQueryedRowCount({type, query}: {type: string, query: string}): number {
         let resultCount = 0;
 
-        this.selectedRow = [];
+        this.searchTargetIndexList = [];
         this.data.forEach((call: any, i: number) => {
             // Check only "Self" at this moment
             if (+call[this.keyIndex.executionMilliseconds] >= +query) {
-                this.selectedRow.push(i);
+                this.searchTargetIndexList.push(i);
                 resultCount++;
             }
         });
@@ -82,7 +87,8 @@ export class TransactionTimelineComponent implements OnInit {
         return resultCount;
     }
     focusTargetRow(targetIndex: number) {
-        this.viewPort.scrollToIndex(this.selectedRow[targetIndex]);
+        this.focusRowIndex = this.searchTargetIndexList[targetIndex];
+        this.viewPort.scrollToIndex(this.focusRowIndex);
     }
 
     showApplicationName(call: any, index: number): boolean {

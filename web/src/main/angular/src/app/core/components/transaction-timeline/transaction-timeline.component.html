@@ -1,7 +1,7 @@
 <div class="l-wrapper">
     <cdk-virtual-scroll-viewport itemSize="20" style="width: 100%; height: 100%;">    
         <div class="l-timeline-bar" *cdkVirtualFor="let call of data; let i = index" [ngStyle]="getLineStyle(call)">
-            <div class="clickable-bar" [class.l-timeline-bar-selected]="isSelectedRow(i)" [ngStyle]="getStyles(call)" (click)="onSelectCall(i, call)">
+            <div class="clickable-bar" [ngClass]="getTimelineBarState(i)" [ngStyle]="getStyles(call)" (click)="onSelectCall(i, call)">
                 <div class="l-timeline-bar-frame">
                     <span>
                         <span class="before"><i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call)}}</span>ms</span>

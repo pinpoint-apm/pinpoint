@@ -48,6 +48,7 @@ export class TransactionTimelineContainerComponent implements OnInit, OnDestroy 
             if (resultCount !== 0) {
                 this.transactionTimelineComponent.focusTargetRow(resultIndex);
             }
+            this.cd.detectChanges();
 
             this.transactionSearchInteractionService.setSearchResultCount(resultCount);
         });
