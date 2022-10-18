@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package test.pinpoint.plugin.kafka;
+package com.pinpoint.test.plugin;
 
-/**
- * @author Younsung Hwang
- */
-public class OffsetStore {
-    private volatile long offset = 0L;
-    public long getOffset() {
-        return offset;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+
+public class TestConsumerRecordEntryPoint {
+
+    public void consumeRecord(ConsumerRecord<String, String> record) {
+        // cosume record ...
+        // This method is called for kafka consumer invocatino. This method does nothing.
     }
-    public void setOffset(long offset) {
-        this.offset = offset;
+
+    public void consumeRecord(ConsumerRecords<String, String> records) {
+        // cosume records ...
+        // This method is called for kafka consumer invocatino. This method does nothing.
     }
 }
