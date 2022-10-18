@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.ning</groupId>
             <artifactId>async-http-client</artifactId>
-            <version>1.8.3</version>
+            <version>1.9.0</version>
         </dependency>
 
         <dependency>
