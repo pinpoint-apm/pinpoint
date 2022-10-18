@@ -101,7 +101,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
                 agentsToCheckStatus.add(agentInfo);
             }
         }
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfos, timestamp);
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentsToCheckStatus, timestamp);
 
         List<Optional<AgentStatus>> agentStatusList = agentInfoService.getAgentStatus(query);
 
