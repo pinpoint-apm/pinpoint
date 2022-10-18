@@ -25,6 +25,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import test.pinpoint.plugin.kafka.Kafka3UnitServer;
+import test.pinpoint.plugin.kafka.KafkaITConstants;
 import test.pinpoint.plugin.kafka.TestConsumerRecordEntryPoint;
 
 import java.lang.reflect.Method;
@@ -68,6 +70,7 @@ public class KafkaClientITBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.awaitTraceCount(3, 100, MAX_TRACE_WAIT_TIME);
+
 
         String expectedRpc = "kafka://topic=" + TOPIC + "?partition=" + PARTITION + "&offset=" + offset;
         verifyConsumerEntryPoint(verifier, brokerUrl, TOPIC, expectedRpc, ConsumerRecord.class,

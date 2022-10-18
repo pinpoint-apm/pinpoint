@@ -74,6 +74,7 @@
         <module>jetty-plugin-testweb</module>
         <module>spring-data-r2dbc-plugin-testweb</module>
         <module>httpclient5-plugin-testweb</module>
+        <module>kafka-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

@@ -34,4 +34,5 @@ public final class TestcontainersOption {
 
     public static final String ELASTICSEARCH = "org.testcontainers:elasticsearch:" + VERSION;
     public static final String MONGODB = "org.testcontainers:mongodb:" + VERSION;
+    public static final String KAFKA = "org.testcontainers:kafka:" + VERSION;
 }

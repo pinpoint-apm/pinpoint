@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.*;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,8 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-kafka-plugin"})
 @Dependency({
         "org.apache.kafka:kafka_2.12:[3.2.0]", "log4j:log4j:[1.2.17]", "commons-io:commons-io:[2.5.0]",
-        "org.apache.kafka:kafka-clients:[3.2.0,3.max]"
+        "org.apache.kafka:kafka-clients:[3.2.0,3.max]",
+        TestcontainersOption.TEST_CONTAINER, TestcontainersOption.KAFKA
 })
 @JvmVersion(8)
 @SharedTestLifeCycleClass(Kafka3UnitServer.class)
