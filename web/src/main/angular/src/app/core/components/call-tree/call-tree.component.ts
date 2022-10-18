@@ -24,8 +24,6 @@ export interface IGridData {
     methodType: string;
     hasException: boolean;
     isAuthorized: boolean;
-    isFocused: boolean;
-    isSearchTarget: boolean;
     folder?: boolean;
     open?: boolean;
     children?: any[];
@@ -71,7 +69,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     ) {}
 
     ngAfterViewInit() {
-        this.moveRow(this.getInitialRowId());
+        this.moveRow(this.getInitialRow());
     }
 
     ngOnInit() {
@@ -164,7 +162,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         return color;
     }
 
-    private getInitialRowId(): RowNode {
+    private getInitialRow(): RowNode {
         const {callStack, callStackIndex, applicationId} = this.originalData;
         const exceptionRow = callStack.find((call: any[]) => call[callStackIndex.hasException]);
         const rowId = exceptionRow ? exceptionRow[callStackIndex.id]
@@ -420,7 +418,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
 
     onRowDataChanged(): void {
         if (this.isRendered) {
-            this.moveRow(this.getInitialRowId());
+            this.moveRow(this.getInitialRow());
         }
     }
 
@@ -491,7 +489,6 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         oRow['methodType'] = callTree[oIndex.methodType];
         oRow['hasException'] = callTree[oIndex.hasException];
         oRow['isAuthorized'] = callTree[oIndex.isAuthorized];
-        // oRow['isFocused'] = callTree[oIndex.isFocused];
         if (callTree[oIndex.hasChild]) {
             oRow['folder'] = true;
             oRow['open'] = true;
