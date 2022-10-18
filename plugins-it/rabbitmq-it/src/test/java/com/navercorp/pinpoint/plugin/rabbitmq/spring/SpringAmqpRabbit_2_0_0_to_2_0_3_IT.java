@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.rabbitmq.TestBrokerServer;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmArgument;
@@ -65,7 +66,8 @@ import java.lang.reflect.Method;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.0.0.RELEASE,2.0.3.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.0.0.RELEASE,2.0.3.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1",
+        TestcontainersOption.TEST_CONTAINER, TestcontainersOption.RABBITMQ})
 @JvmVersion(8)
 @JvmArgument("-DtestLoggerEnable=false")
 @SharedTestLifeCycleClass(TestBrokerServer.class)

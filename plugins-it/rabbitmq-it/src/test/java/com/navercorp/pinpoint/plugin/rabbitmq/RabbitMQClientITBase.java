@@ -45,7 +45,9 @@ public abstract class RabbitMQClientITBase {
     public void setUp() {
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
         connectionFactory.setPort(port);
-        connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
+//        connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
     }
 
     final ConnectionFactory getConnectionFactory() {

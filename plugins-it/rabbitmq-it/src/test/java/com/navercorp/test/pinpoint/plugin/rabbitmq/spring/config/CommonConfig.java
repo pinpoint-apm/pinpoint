@@ -52,7 +52,9 @@ public class CommonConfig {
         com.rabbitmq.client.ConnectionFactory connectionFactory = new com.rabbitmq.client.ConnectionFactory();
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
         connectionFactory.setPort(port);
-        connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
+//        connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
         connectionFactory.setAutomaticRecoveryEnabled(false);
         return new CachingConnectionFactory(connectionFactory);
     }
