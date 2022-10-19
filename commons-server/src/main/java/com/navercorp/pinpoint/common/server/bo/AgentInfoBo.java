@@ -29,9 +29,6 @@ import java.util.Comparator;
  */
 public class AgentInfoBo {
 
-    public static final Comparator<AgentInfoBo> AGENT_NAME_ASC_COMPARATOR
-            = Comparator.comparing(agentInfoBo -> StringUtils.defaultString(agentInfoBo.getAgentId()));
-
     private final String hostName;
     private final String ip;
     private final String ports;
@@ -151,7 +148,7 @@ public class AgentInfoBo {
         buffer.putLong(this.getStartTime());
         buffer.putLong(this.getEndTimeStamp());
         buffer.putInt(this.getEndStatus());
-        
+
         buffer.putPrefixedString(this.getVmVersion());
 
         buffer.putBoolean(this.isContainer());
@@ -176,7 +173,7 @@ public class AgentInfoBo {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AgentInfoBo other = (AgentInfoBo)obj;
+        AgentInfoBo other = (AgentInfoBo) obj;
         if (agentId == null) {
             if (other.agentId != null)
                 return false;
@@ -222,7 +219,7 @@ public class AgentInfoBo {
         private int endStatus;
 
         private boolean container;
-        
+
         // Should be serialized separately
         private ServerMetaDataBo serverMetaData;
         private JvmInfoBo jvmInfo;
@@ -265,7 +262,7 @@ public class AgentInfoBo {
         public void setPid(int pid) {
             this.pid = pid;
         }
-        
+
         public void setVmVersion(String vmVersion) {
             this.vmVersion = vmVersion;
         }
@@ -289,7 +286,7 @@ public class AgentInfoBo {
         public void isContainer(boolean container) {
             this.container = container;
         }
-        
+
         public void setServerMetaData(ServerMetaDataBo serverMetaData) {
             this.serverMetaData = serverMetaData;
         }
