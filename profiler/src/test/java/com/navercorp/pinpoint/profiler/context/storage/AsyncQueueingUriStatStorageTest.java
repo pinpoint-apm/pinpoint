@@ -57,7 +57,8 @@ public class AsyncQueueingUriStatStorageTest {
             Uninterruptibles.sleepUninterruptibly(sleepTime + 2, TimeUnit.MILLISECONDS);
 
             for (int i = 0; i < storeCount; i++) {
-                storeRandomValue(storage);
+                final long timestamp = System.currentTimeMillis();
+                storeRandomValue(storage, timestamp);
             }
 
             Assertions.assertNull(storage.poll());
@@ -68,7 +69,6 @@ public class AsyncQueueingUriStatStorageTest {
 
             AgentUriStatData poll = storage.poll();
             Assertions.assertNotNull(poll);
-
             Set<Map.Entry<URIKey, EachUriStatData>> allUriStatData = poll.getAllUriStatData();
             storeCount -= allUriStatData
                     .stream()
@@ -85,8 +85,8 @@ public class AsyncQueueingUriStatStorageTest {
         }
     }
 
-    private void storeRandomValue(AsyncQueueingUriStatStorage storage) {
-        final long timestamp = System.currentTimeMillis();
+    private void storeRandomValue(AsyncQueueingUriStatStorage storage, long timestamp) {
+        timestamp = System.currentTimeMillis();
         storage.store(URI_EXAMPLES[RANDOM.nextInt(URI_EXAMPLES.length)], RANDOM.nextBoolean(), timestamp - RANDOM.nextInt(10000), timestamp);
     }
 
