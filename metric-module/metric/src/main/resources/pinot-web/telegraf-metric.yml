@@ -8,15 +8,15 @@ mappings:
       - name: "usage_user"
         tags:
           - { name: "cpu", value: "cpu-total" }
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
       - name: "usage_system"
         tags:
           - { name: "cpu", value: "cpu-total" }
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
       - name: "usage_idle"
         tags:
           - { name: "cpu", value: "cpu-total" }
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
 
   - definitionId: "memoryPercent"
     name: "mem"
@@ -25,7 +25,7 @@ mappings:
     unit: "percent"
     fields:
       - name: "used_percent"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
 
   - definitionId: "memoryUsage"
     name: "mem"
@@ -34,9 +34,9 @@ mappings:
     unit: "byte"
     fields:
       - name: "total"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
       - name: "used"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
 
   - definitionId: "diskUsage"
     name: "disk"
@@ -78,11 +78,11 @@ mappings:
     unit: "percent"
     fields:
       - name: "load1"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
       - name: "load5"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
       - name: "load15"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
 
   - definitionId: "swap"
     name: "swap"
@@ -91,6 +91,28 @@ mappings:
     unit: "count"
     fields:
       - name: "total"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
       - name: "used"
-        matchingRule: EXACT
+        matchingRule: EXACT_ONE
+
+  - definitionId: "apacheWorker"
+    name: "apache"
+    title: "apache Worker"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "BusyWorkers"
+        matchingRule: ANY_ONE
+      - name: "IdleWorkers"
+        matchingRule: ANY_ONE
+
+  - definitionId: "nginxActive"
+    name: "nginx"
+    title: "nginx active/waiting"
+    grouping: "TAG"
+    unit: "count"
+    fields:
+      - name: "active"
+        matchingRule: ANY_ONE
+      - name: "waiting"
+        matchingRule: ANY_ONE

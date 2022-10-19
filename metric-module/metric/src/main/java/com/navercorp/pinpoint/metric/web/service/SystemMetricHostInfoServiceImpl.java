@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,13 +97,33 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         MatchingRule matchingRule = field.getMatchingRule();
 
         switch (matchingRule) {
-            case EXACT :
+            case EXACT_ONE:
                 return getExactMatchingTag(metricDataSearchKey, field);
+            case ANY_ONE:
+                return getAnyOneTag(metricDataSearchKey, field);
             case ALL :
                 return createTag(metricDataSearchKey, field, tags);
             default :
                 throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);
         }
+    }
+
+    private List<MetricTag> getAnyOneTag(MetricDataSearchKey metricDataSearchKey, Field field) {
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
+        MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
+
+        List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
+        List<MetricTag> anyOneTag = new ArrayList<>();
+
+        if (metricTagList.size() != 1) {
+            return Collections.emptyList();
+        }
+
+        MetricTag metricTag = metricTagList.get(0);
+        anyOneTag.add(metricTag.copy());
+
+        return anyOneTag;
+
     }
 
     private List<MetricTag> createTag(MetricDataSearchKey metricDataSearchKey, Field field, List<Tag> tags) {
@@ -139,7 +160,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
                 continue;
             }
             if (collectedTagList.containsAll(tagList)) {
-                exactMetricTagList.add(metricTag);
+                exactMetricTagList.add(metricTag.copy());
             }
         }
 
