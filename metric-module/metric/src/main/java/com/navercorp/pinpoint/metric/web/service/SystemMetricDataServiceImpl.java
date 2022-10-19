@@ -249,7 +249,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
         List<MetricValueGroup<?>> metricValueGroupList = new ArrayList<>(valueList.size());
         for (Map.Entry<TagGroup, List<MetricValue<?>>> entry : metricValueGroupMap.entrySet()) {
-            String groupName = entry.getKey().getTagList().toString();
+            String groupName = entry.getKey().getGroupName();
             List<MetricValue<?>> value = entry.getValue();
             MetricValueGroup<?> group = new MetricValueGroup(value, groupName);
             metricValueGroupList.add(group);
@@ -317,6 +317,14 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
         public List<Tag> getTagList() {
             return tagList;
+        }
+
+        public String getGroupName() {
+            if (tagList.isEmpty()) {
+                return "group with no tag";
+            }
+
+            return tagList.toString().replaceAll("[\\[\\]]", "");
         }
 
         @Override
