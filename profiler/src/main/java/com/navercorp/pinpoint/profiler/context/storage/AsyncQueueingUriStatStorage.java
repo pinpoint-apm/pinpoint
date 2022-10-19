@@ -133,7 +133,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
         public void executePollTimeout() {
             long currentBaseTimestamp = clock.millis();
-            checkAndFlushOldData(currentBaseTimestamp);
+            boolean flush = checkAndFlushOldData(currentBaseTimestamp);
+            if (flush) {
+                LOGGER.debug("checkAndFlushOldData {}", flush);
+            }
         }
 
 
