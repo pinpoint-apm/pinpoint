@@ -6,10 +6,16 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 public enum MatchingRule {
-    EXACT(1, "exact"),
-    CONTAIN(2, "contain"),
-    ALL(3, "all"),
-    UNKNOWN(100, "unknown");
+    // only one
+    EXACT_ONE(1, "exact_one"),
+    ANY_ONE(2, "any_one"),
+
+    //multi
+    CONTAIN(100, "contain"),
+    ALL(200, "all"),
+
+
+    UNKNOWN(999, "unknown");
 
     private final int code;
     private final String value;
