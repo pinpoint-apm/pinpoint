@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.profiler.plugin.Plugin;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.PluginPackageFilter;
-import org.apache.commons.lang.CharRange;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -44,11 +44,11 @@ public class JarProfilerPluginClassInjectorTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final List<String> LOG4_IMPL = Collections.singletonList(CharRange.class.getPackage().getName());
+    private static final List<String> LOG4_IMPL = Collections.singletonList(CharUtils.class.getPackage().getName());
 
     @Test
     public void testInjectClass() throws Exception {
-        String className = CharRange.class.getName();
+        String className = CharUtils.class.getName();
         final Plugin<?> plugin = getMockPlugin(className);
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
@@ -108,7 +108,7 @@ public class JarProfilerPluginClassInjectorTest {
 
         logger.debug("url:{}", location);
         PluginJar pluginJar = PluginJar.fromFilePath(location.getFile());
-        return new JarPlugin<>(pluginJar, Collections.emptyList(), Collections.<String>emptyList());
+        return new JarPlugin<>(pluginJar, Collections.emptyList(), Collections.emptyList());
     }
 
 }

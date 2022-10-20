@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.buffer;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -59,9 +59,9 @@ public class AutomaticBufferTest {
 
         byte[] result = buffer.getBuffer();
         Assertions.assertEquals(result.length, TOTAL_LENGTH);
-        Assertions.assertTrue(Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)), "check data");
+        Assertions.assertArrayEquals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE), "check data");
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        Assertions.assertTrue(Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)), "check pad");
+        Assertions.assertArrayEquals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH), "check pad");
 
     }
 

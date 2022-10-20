@@ -53,7 +53,7 @@ import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
@@ -499,8 +499,8 @@ public class AgentInfoSenderTest {
             agentInfoSender.start();
 
             while (System.currentTimeMillis() < startTime + stressTestTime) {
-                createAndDeleteServer(messageListenerFactory, Math.abs(RandomUtils.nextInt(randomMaxTime)));
-                sleep(Math.abs(RandomUtils.nextInt(1000)));
+                createAndDeleteServer(messageListenerFactory, Math.abs(RandomUtils.nextInt(0, randomMaxTime)));
+                sleep(Math.abs(RandomUtils.nextInt(0, 1000)));
             }
 
         } finally {

@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.apache.commons.lang.CharRange;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.MatcherAssert;
@@ -38,7 +38,7 @@ public class JarReaderTest {
 
     @Test
     public void read() throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(CharRange.class);
+        URL location = CodeSourceUtils.getCodeLocation(CharUtils.class);
 
         JarFile jarFile = new JarFile(location.getPath());
 
@@ -55,11 +55,11 @@ public class JarReaderTest {
 
     @Test
     public void getInputStream() throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(CharRange.class);
+        URL location = CodeSourceUtils.getCodeLocation(CharUtils.class);
 
         JarFile jarFile = new JarFile(location.getPath());
         JarReader jarReader = new JarReader(jarFile);
-        Assertions.assertNotNull(jarReader.getInputStream("org/apache/commons/lang/CharRange.class"));
-        Assertions.assertNull(jarReader.getInputStream("org/apache/commons/lang/NotFound.class"));
+        Assertions.assertNotNull(jarReader.getInputStream("org/apache/commons/lang3/CharUtils.class"));
+        Assertions.assertNull(jarReader.getInputStream("org/apache/commons/lang3/NotFound.class"));
     }
 }
