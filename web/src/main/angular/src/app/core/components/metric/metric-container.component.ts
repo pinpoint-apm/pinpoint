@@ -5,12 +5,13 @@ import * as moment from 'moment-timezone';
 
 import { AnalyticsService, DynamicPopupService, NewUrlStateNotificationService, StoreHelperService } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
-import { MetricDataService } from './metric-data.service';
+import { IMetricDataParams, MetricDataService } from './metric-data.service';
 import { TranslateService } from '@ngx-translate/core';
-import { combineLatest, forkJoin, of, Subject, EMPTY } from 'rxjs';
+import { combineLatest, forkJoin, of, Subject, EMPTY, iif } from 'rxjs';
 import { getMaxTickValue, makeXData } from 'app/core/utils/chart-util';
 import { isEmpty } from 'app/core/utils/util';
 import { getMetaInfo, Unit } from './metric-util';
+import { IMetricInfo } from 'app/core/components/metric-contents/metric-contents-data.service';
 
 export enum Layer {
     LOADING = 'loading',
@@ -24,17 +25,15 @@ export enum Layer {
     styleUrls: ['./metric-container.component.css']
 })
 export class MetricContainerComponent implements OnInit, OnDestroy {
-    @Input() type: string; // metricDefinitionId
+    @Input() metricInfo: IMetricInfo;
 
-    // private previousRange: number[];
-    private previousParam: {[key: string]: any};
+    private previousParams: IMetricDataParams;
     private timezone: string;
     private dateFormat: string[];
     private unsubscribe = new Subject<void>();
     private defaultYMax = 100;
 
-    private originalData: IMetricData;
-
+    private cachedData: {[key: string]: {timestamp: number[], metricValues: IMetricValue[]}} = {};
     private metaInfo: {yMax: number, getFormat: Function};
 
     title: string;
@@ -49,8 +48,8 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
     _activeLayer: Layer = Layer.LOADING;
 
     isGroupedMetric: boolean;
-    selectedMetricGroupName: string;
-    metricGroupList: string[];
+    selectedTag: string;
+    tagList: string[];
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -72,17 +71,27 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                 return !this.chartConfig || (urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME));
             }),
             tap(() => this.activeLayer = Layer.LOADING),
-            map((urlService: NewUrlStateNotificationService) => {
+            switchMap((urlService: NewUrlStateNotificationService) => {
                 const hostGroupName = urlService.getPathValue(UrlPathId.HOST_GROUP);
                 const hostName = urlService.getPathValue(UrlPathId.HOST);
+                const metricDefinitionId = this.metricInfo.metricDefinitionId;
                 const from = urlService.getStartTimeToNumber();
                 const to = urlService.getEndTimeToNumber();
+                const params = {hostGroupName, hostName, metricDefinitionId, from, to};
 
-                return {hostGroupName, hostName, from, to, metricDefinitionId: this.type};
+                return iif(() => this.metricInfo.tagGroup,
+                    this.metricDataService.getTagList({hostGroupName, hostName, metricDefinitionId}).pipe(
+                        tap((tagList: string[]) => this.tagList = tagList),
+                        map((tagList: string[]) => {
+                            return {...params, tags: tagList[0]};
+                        })
+                    ),
+                    of(params)
+                );
             }),
-            tap((param: object) => this.previousParam = param),
-            switchMap((param: object) => {
-                return this.metricDataService.getMetricData(param).pipe(
+            tap((params: IMetricDataParams) => this.previousParams = params),
+            switchMap((params: IMetricDataParams) => {
+                return this.metricDataService.getMetricData(params).pipe(
                     catchError((error: IServerError) => {
                         this.activeLayer = Layer.RETRY;
                         this.setRetryMessage(error.message);
@@ -90,18 +99,18 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
                     })
                 );
             }),
+            tap(() => this.cachedData = {}),
             map((data: IMetricData) => {
                 const {title, timestamp, metricValueGroups, unit} = data;
 
                 this.title = title;
-                this.isGroupedMetric = metricValueGroups.length > 1;
-                this.metricGroupList = metricValueGroups.map(({groupName}: {groupName: string}) => groupName);
-                this.originalData = data;
-                this.selectedMetricGroupName = metricValueGroups[0].groupName;
+                this.isGroupedMetric = this.metricInfo.tagGroup;
+                this.selectedTag = metricValueGroups[0].groupName;
                 this.metaInfo = getMetaInfo(unit as Unit);
+                this.cachedData[this.selectedTag] = {timestamp, metricValues: metricValueGroups[0].metricValues};
 
-                return {timestamp, metricValues: metricValueGroups[0].metricValues};
-            })
+                return this.cachedData[this.selectedTag];
+            }),
         ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
             this.setChartConfig(this.makeChartData(data));
         });
@@ -152,14 +161,29 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
         };
     }
 
-    onChangeGroup(key: string): void {
-        const data = {
-            timestamp: this.originalData.timestamp,
-            metricValues: this.originalData.metricValueGroups.find(({groupName}: {groupName: string}) => groupName === key).metricValues
-        };
+    onChangeTag(tag: string): void {
+        if (this.cachedData[tag]) {
+            this.setChartConfig(this.makeChartData(this.cachedData[tag]));
+        } else {
+            const params = {...this.previousParams, tags: tag};
 
-        this.setChartConfig(this.makeChartData(data));
-        this.selectedMetricGroupName = key;
+            this.metricDataService.getMetricData(params).pipe(
+                map(({timestamp, metricValueGroups}: IMetricData) => {
+                    this.selectedTag = metricValueGroups[0].groupName;
+                    // this.selectedTag = tag;
+                    this.cachedData[this.selectedTag] = {timestamp, metricValues: metricValueGroups[0].metricValues};
+
+                    return this.cachedData[this.selectedTag];
+                }),
+                catchError((error: IServerError) => {
+                    this.activeLayer = Layer.RETRY;
+                    this.setRetryMessage(error.message);
+                    return EMPTY;
+                })
+            ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
+                this.setChartConfig(this.makeChartData(data));
+            });
+        }
     }
 
     isActiveLayer(layer: string): boolean {
@@ -168,7 +192,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
 
     onRetry(): void {
         this.activeLayer = Layer.LOADING;
-        this.metricDataService.getMetricData(this.previousParam).pipe(
+        this.metricDataService.getMetricData(this.previousParams).pipe(
             catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
                 this.setRetryMessage(error.message);
