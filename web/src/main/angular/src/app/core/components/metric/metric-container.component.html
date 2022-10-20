@@ -7,9 +7,9 @@
         <ng-container *ngIf="isGroupedMetric">
             <div class="l-option-wrapper">
                 <h3 class="l-option-label">Group</h3>
-                <div class="l-select-container" [attr.data-content]="selectedMetricGroupName">
-                    <select class="l-metric-select" [ngModel]="selectedMetricGroupName" (ngModelChange)="onChangeGroup($event)">
-                        <option class="l-metric-select-option" *ngFor="let metricGroup of metricGroupList" [ngValue]="metricGroup">{{metricGroup}}</option>
+                <div class="l-select-container" [attr.data-content]="selectedTag">
+                    <select class="l-tag-select" [ngModel]="selectedTag" (ngModelChange)="onChangeTag($event)">
+                        <option class="l-tag-select-option" *ngFor="let tag of tagList" [ngValue]="tag">{{tag}}</option>
                     </select>
                     <span class="fas fa-angle-down"></span>
                 </div>

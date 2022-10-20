@@ -63,7 +63,7 @@
     font-size: 14px;
 }
 
-.l-metric-select {
+.l-tag-select {
     /* width: 400px; */
     width: 100%;
     cursor: pointer;
@@ -82,7 +82,7 @@
     appearance: none;
 }
 
-.l-metric-select-option {
+.l-tag-select-option {
     /* * Set text-color for options to handle os issue */
     color: var(--text-primary-lightest);
 }

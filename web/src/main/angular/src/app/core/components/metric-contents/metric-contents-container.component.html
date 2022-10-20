@@ -3,8 +3,6 @@
 </div>
 <div class="l-main-contents">
     <div class="l-chart-group-wrap" #chartGroupWrapper>
-        <!-- <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.APPLICATION_JVM_HEAP"></pp-inspector-chart-container></div> -->
-
-        <div *ngFor="let metric of metricList" class="l-chart-wrapper"><pp-metric-container [type]="metric"></pp-metric-container></div>
+        <div *ngFor="let metricInfo of metricInfoList" class="l-chart-wrapper"><pp-metric-container [metricInfo]="metricInfo"></pp-metric-container></div>
     </div>
 </div>

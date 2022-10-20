@@ -5,7 +5,7 @@ import { takeUntil, filter, switchMap, catchError, tap } from 'rxjs/operators';
 import { NewUrlStateNotificationService, DynamicPopupService } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
-import { MetricContentsDataService } from './metric-contents-data.service';
+import { IMetricInfo, MetricContentsDataService } from './metric-contents-data.service';
 
 @Component({
     selector: 'pp-metric-contents-container',
@@ -17,7 +17,8 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private chartNumPerRow = 3; // Set this 3 temporarily. Should be responsive later
 
-    metricList: string[];
+    // metricList: string[];
+    metricInfoList: IMetricInfo[];
 
     constructor(
         private renderer: Renderer2,
@@ -34,7 +35,7 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => urlService.isValueChanged(UrlPathId.HOST_GROUP) || urlService.isValueChanged(UrlPathId.HOST)),
-            tap(() => this.metricList = []),
+            tap(() => this.metricInfoList = []),
             switchMap((urlService: NewUrlStateNotificationService) => {
                 const hostGroup = urlService.getPathValue(UrlPathId.HOST_GROUP);
                 const host = urlService.getPathValue(UrlPathId.HOST);
@@ -56,8 +57,8 @@ export class MetricContentsContainerComponent implements OnInit, OnDestroy {
                     })
                 );
             })
-        ).subscribe((metricList: string[]) => {
-            this.metricList = [...metricList];
+        ).subscribe((metricInfoList: IMetricInfo[]) => {
+            this.metricInfoList = metricInfoList;
         });
     }
 

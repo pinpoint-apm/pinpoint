@@ -63,6 +63,8 @@ const PROXY_CONFIG = [
             "/systemMetric/hostGroup.pinpoint",
             "/systemMetric/hostGroup/host.pinpoint",
             "/systemMetric/hostGroup/host/collectedMetricInfo.pinpoint",
+            "/systemMetric/hostGroup/host/collectedMetricInfoV2.pinpoint",
+            "/systemMetric/hostGroup/host/collectedTags.pinpoint",
             "/systemMetric/hostGroup/host/collectedMetricData.pinpoint",
             "/getApdexScore.pinpoint",
             "/getApplicationStat/apdexScore/chart.pinpoint",
