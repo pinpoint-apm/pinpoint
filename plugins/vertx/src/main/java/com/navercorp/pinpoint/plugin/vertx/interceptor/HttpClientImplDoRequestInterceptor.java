@@ -84,6 +84,9 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
         }
         final HttpClientRequest request = resultToRequest;
 
+        if (request != null) {
+            requestTraceWriter.write(request, trace.getRequestId());
+        }
         if (!trace.canSampled()) {
             if (request != null) {
                 requestTraceWriter.write(request);

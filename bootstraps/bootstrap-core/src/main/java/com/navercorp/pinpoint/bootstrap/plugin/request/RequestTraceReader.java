@@ -39,6 +39,7 @@ public class RequestTraceReader<T> {
 
     private final TraceHeaderReader<T> traceHeaderReader;
     private final NameSpaceChecker<T> nameSpaceChecker;
+    private final RequestIdReader<T> requestIdReader;
 
     public RequestTraceReader(final TraceContext traceContext, RequestAdaptor<T> requestAdaptor) {
         this(traceContext, requestAdaptor, false);
@@ -47,7 +48,8 @@ public class RequestTraceReader<T> {
     public RequestTraceReader(final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final boolean async) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
-         this.traceHeaderReader = new DefaultTraceHeaderReader<T>(requestAdaptor);
+        this.traceHeaderReader = new DefaultTraceHeaderReader<T>(requestAdaptor);
+        this.requestIdReader = new RequestIdReader<T>(traceContext, requestAdaptor);
         this.async = async;
         String applicationNamespace = traceContext.getProfilerConfig().getApplicationNamespace();
         this.nameSpaceChecker = NameSpaceCheckFactory.newNamespace(requestAdaptor, applicationNamespace);
@@ -55,6 +57,12 @@ public class RequestTraceReader<T> {
 
     // Read the transaction information from the request.
     public Trace read(T request) {
+        final Trace trace = readInternal(request);
+        trace.setRequestId(requestIdReader.read(request));
+        return trace;
+    }
+
+    private Trace readInternal(T request) {
         Objects.requireNonNull(request, "request");
 
         final TraceHeader traceHeader = traceHeaderReader.read(request);
@@ -118,8 +126,7 @@ public class RequestTraceReader<T> {
         final long parentSpanId = traceHeader.getParentSpanId();
         final long spanId = traceHeader.getSpanId();
         final short flags = traceHeader.getFlags();
-        final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
-        return id;
+        return this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
 
 

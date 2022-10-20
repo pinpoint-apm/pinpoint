@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.log4j2.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
@@ -23,11 +24,13 @@ import org.apache.logging.log4j.ThreadContext;
 /**
  * @author minwoo.jung
  * @author licoco
+ * @author yjqg6666
  */
 public class LogEventFactoryInterceptor implements AroundInterceptor0 {
 
     private static final String TRANSACTION_ID = "PtxId";
     private static final String SPAN_ID = "PspanId";
+    private static final String REQUEST_ID = "PreqId";
     private final TraceContext traceContext;
 
     public LogEventFactoryInterceptor(TraceContext traceContext) {
@@ -41,10 +44,20 @@ public class LogEventFactoryInterceptor implements AroundInterceptor0 {
         if (trace == null) {
             ThreadContext.remove(TRANSACTION_ID);
             ThreadContext.remove(SPAN_ID);
-            return;
         } else {
             ThreadContext.put(TRANSACTION_ID, trace.getTraceId().getTransactionId());
             ThreadContext.put(SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
+        }
+        final Trace rawTraceObject = traceContext.currentRawTraceObject();
+        if (rawTraceObject != null) {
+            final RequestId requestId = rawTraceObject.getRequestId();
+            if (requestId != null && requestId.isSet()) {
+                ThreadContext.put(REQUEST_ID, String.valueOf(requestId.toId()));
+            } else {
+                ThreadContext.remove(REQUEST_ID);
+            }
+        } else {
+            ThreadContext.remove(REQUEST_ID);
         }
     }
 

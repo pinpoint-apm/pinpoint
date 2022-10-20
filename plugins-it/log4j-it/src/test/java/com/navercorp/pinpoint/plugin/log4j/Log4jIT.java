@@ -50,6 +50,7 @@ public class Log4jIT {
 
         Assert.assertNotNull("txId", MDC.get("PtxId"));
         Assert.assertNotNull("spanId", MDC.get("PspanId"));
+        Assert.assertNull("reqId", MDC.get("PreqId"));
     }
 
     @Test

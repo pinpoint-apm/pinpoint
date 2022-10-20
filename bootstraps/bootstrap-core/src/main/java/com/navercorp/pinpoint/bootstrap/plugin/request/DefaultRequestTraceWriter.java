@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -83,4 +84,15 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
         }
     }
+
+    @Override
+    public void write(T header, RequestId requestId) {
+        if (isDebug) {
+            logger.debug("Set request Id header. requestId={}, applicationName={}, serverTypeCode={}, applicationNamespace={}", requestId, applicationName, serverTypeCode, applicationNamespace);
+        }
+        if (header != null && requestId != null && requestId.isSet()) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_REQUEST_ID.toString(), requestId.toId());
+        }
+    }
+
 }

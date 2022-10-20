@@ -56,6 +56,8 @@ public final class DefaultTrace implements Trace {
     private final Span span;
     private final ActiveTraceHandle activeTraceHandle;
 
+    private RequestId requestId;
+
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
@@ -213,6 +215,16 @@ public final class DefaultTrace implements Trace {
     @Override
     public TraceId getTraceId() {
         return getTraceRoot().getTraceId();
+    }
+
+    @Override
+    public RequestId getRequestId() {
+        return requestId;
+    }
+
+    @Override
+    public void setRequestId(RequestId id) {
+        this.requestId = id;
     }
 
     @Override

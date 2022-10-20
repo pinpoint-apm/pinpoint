@@ -66,6 +66,7 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
             if (!trace.canSampled()) {
                 // Set sampling rate (s0)
                 requestTraceWriter.write(httpHeaders);
+                requestTraceWriter.write(httpHeaders, trace.getRequestId());
             }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {

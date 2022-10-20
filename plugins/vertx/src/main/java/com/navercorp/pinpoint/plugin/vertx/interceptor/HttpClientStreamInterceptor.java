@@ -95,6 +95,7 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
             recorder.recordNextSpanId(nextId.getSpanId());
 
             requestTraceWriter.write(request, nextId, host);
+            requestTraceWriter.write(request, trace.getRequestId());
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);

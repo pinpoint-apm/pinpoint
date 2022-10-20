@@ -22,6 +22,7 @@ public class KafkaConfig {
 
     // whether this plugin intercepts org.apache.kafka.common.header.Headers
     public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
+    public static final String HEADER_REQUEST_ID_ENABLE = "profiler.kafka.requestId.enable";
 
     // whether this plugin records kafka headers contents to Pinpoint
     static final String HEADER_RECORD = "profiler.kafka.header.record";
@@ -38,6 +39,7 @@ public class KafkaConfig {
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
     private final boolean headerRecorded;
+    private final boolean headerRequestIdEnable;
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
@@ -46,6 +48,7 @@ public class KafkaConfig {
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
         this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
+        this.headerRequestIdEnable = config.readBoolean(HEADER_REQUEST_ID_ENABLE, false);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
     }
 
@@ -69,6 +72,10 @@ public class KafkaConfig {
         return headerRecorded;
     }
 
+    public boolean isHeaderRequestIdEnable() {
+        return headerRequestIdEnable;
+    }
+
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
     }
@@ -80,6 +87,7 @@ public class KafkaConfig {
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", headerEnable=" + headerEnable +
+                ", headerRequestIdEnable=" + headerRequestIdEnable +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 '}';
     }

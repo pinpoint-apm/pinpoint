@@ -114,6 +114,9 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
             return;
         }
 
+        if (result instanceof HttpRequest) {
+            requestTraceWriter.write((HttpRequest) result, trace.getRequestId());
+        }
         if (!trace.canSampled()) {
             // Defense
             writeSamplingRateFalse(result);

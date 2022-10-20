@@ -32,6 +32,8 @@ public class AsyncTrace implements Trace {
 
     private final AsyncState asyncState;
 
+    private RequestId requestId;
+
     public AsyncTrace(final TraceRoot traceRoot, final DefaultTrace trace, final AsyncState asyncState) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.trace = Objects.requireNonNull(trace, "trace");
@@ -53,6 +55,16 @@ public class AsyncTrace implements Trace {
     @Override
     public TraceId getTraceId() {
         return this.traceRoot.getTraceId();
+    }
+
+    @Override
+    public RequestId getRequestId() {
+        return requestId;
+    }
+
+    @Override
+    public void setRequestId(RequestId id) {
+        this.requestId = id;
     }
 
     @Override

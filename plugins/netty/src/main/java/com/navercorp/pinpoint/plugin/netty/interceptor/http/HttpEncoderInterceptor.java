@@ -96,6 +96,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         if (!trace.canSampled()) {
             final HttpMessage httpMessage = (HttpMessage) args[1];
             this.requestTraceWriter.write(httpMessage);
+            this.requestTraceWriter.write(httpMessage, trace.getRequestId());
             return;
         }
         final SpanEventRecorder recorder = trace.traceBlockBegin();
@@ -140,6 +141,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         final HttpMessage httpMessage = (HttpMessage) args[1];
         final String host = getHost(channelHandlerContext);
         this.requestTraceWriter.write(httpMessage, nextId, host);
+        this.requestTraceWriter.write(httpMessage, trace.getRequestId());
     }
 
     private String getHost(ChannelHandlerContext channelHandlerContext) {

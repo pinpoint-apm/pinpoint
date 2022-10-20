@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.logback.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
 import org.slf4j.MDC;
 
@@ -23,10 +24,12 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 
 /**
  * @author minwoo.jung
+ * @author yjqg6666
  */
 public class LoggingEventOfLogbackInterceptor implements AroundInterceptor0 {
     private static final String TRANSACTION_ID = "PtxId";
     private static final String SPAN_ID = "PspanId";
+    private static final String REQUEST_ID = "PreqId";
 
     private final TraceContext traceContext;
 
@@ -41,10 +44,20 @@ public class LoggingEventOfLogbackInterceptor implements AroundInterceptor0 {
         if (trace == null) {
             MDC.remove(TRANSACTION_ID);
             MDC.remove(SPAN_ID);
-            return;
         } else {
             MDC.put(TRANSACTION_ID, trace.getTraceId().getTransactionId());
             MDC.put(SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
+        }
+        final Trace rawTraceObject = traceContext.currentRawTraceObject();
+        if (rawTraceObject != null) {
+            final RequestId requestId = rawTraceObject.getRequestId();
+            if (requestId != null && requestId.isSet()) {
+                MDC.put(REQUEST_ID, String.valueOf(requestId.toId()));
+            } else {
+                MDC.remove(REQUEST_ID);
+            }
+        } else {
+            MDC.remove(REQUEST_ID);
         }
     }
 

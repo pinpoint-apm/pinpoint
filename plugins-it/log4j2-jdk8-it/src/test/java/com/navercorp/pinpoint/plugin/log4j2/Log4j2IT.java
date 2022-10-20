@@ -45,6 +45,7 @@ public class Log4j2IT extends Log4j2TestBase {
         logger.error("for log4j2 plugin test");
         Assert.assertNotNull("txId", ThreadContext.get("PtxId"));
         Assert.assertNotNull("spanId", ThreadContext.get("PspanId"));
+        Assert.assertNull("reqId", ThreadContext.get("PreqId"));
     }
 
 }

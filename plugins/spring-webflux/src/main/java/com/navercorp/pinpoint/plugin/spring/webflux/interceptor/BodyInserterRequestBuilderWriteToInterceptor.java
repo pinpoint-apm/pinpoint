@@ -88,6 +88,7 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
             host = HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
         }
         requestTraceWriter.write(request, nextId, host);
+        requestTraceWriter.write(request, trace.getRequestId());
     }
 
     private boolean validate(final Object[] args) {

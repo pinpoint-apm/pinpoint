@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
@@ -133,6 +135,7 @@ public class ServletRequestListener<REQ> {
             // record root span
             recorder.recordServiceType(this.serviceType);
             recorder.recordApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
+            recordRequestId(recorder, trace);
             this.serverRequestRecorder.record(recorder, request);
             // record proxy HTTP header.
             this.proxyRequestRecorder.record(recorder, request);
@@ -180,6 +183,13 @@ public class ServletRequestListener<REQ> {
             trace.close();
             boolean status = isNotFailedStatus(statusCode);
             uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), System.currentTimeMillis());
+        }
+    }
+
+    private void recordRequestId(SpanRecorder recorder, Trace trace) {
+        final RequestId requestId = trace.getRequestId();
+        if (requestId != null && requestId.isSet()) {
+            recorder.recordAttribute(AnnotationKey.HTTP_REQUEST_ID, requestId.toId());
         }
     }
 

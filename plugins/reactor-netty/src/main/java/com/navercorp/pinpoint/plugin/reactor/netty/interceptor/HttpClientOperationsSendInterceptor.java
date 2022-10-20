@@ -85,6 +85,7 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventSi
         final HttpClientRequest request = (HttpClientRequest) target;
         final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
         this.requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
+        this.requestTraceWriter.write(request, trace.getRequestId());
     }
 
     // AFTER
