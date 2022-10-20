@@ -321,10 +321,12 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
         public String getGroupName() {
             if (tagList.isEmpty()) {
-                return "group with no tag";
+                return "groupWithNoTag";
             }
 
-            return tagList.toString().replaceAll("[\\[\\]]", "");
+            return tagList.stream()
+                    .map(Tag::toString)
+                    .collect(Collectors.joining(","));
         }
 
         @Override
