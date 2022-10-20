@@ -141,6 +141,8 @@
         <!-- library -->
         <metrics.version>3.2.6</metrics.version>
 
+        <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
+
         <fastxml.jackson.version>2.13.4</fastxml.jackson.version>
         <fastxml.jackson.databind.version>2.13.4.2</fastxml.jackson.databind.version>
         <snakeyaml.version>1.33</snakeyaml.version>
@@ -691,7 +693,7 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.27</version>
+                <version>8.0.28</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.protobuf</groupId>
