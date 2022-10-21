@@ -61,18 +61,19 @@ public class GrpcUriStatMessageConverterTest {
     }
 
     private List<UriStatInfo> createRandomUriStatInfo(int size) {
+        long endTime = System.currentTimeMillis();
+
         List<UriStatInfo> result = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            result.add(createRandomUriStatInfo());
+            result.add(createRandomUriStatInfo(endTime));
         }
         return result;
     }
 
-    private UriStatInfo createRandomUriStatInfo() {
+    private UriStatInfo createRandomUriStatInfo(long timestamp) {
         int index = RANDOM.nextInt(URI_EXAMPLES.length);
         boolean status = RANDOM.nextBoolean();
         final int elapsedTime = RANDOM.nextInt(10000);
-        final long timestamp = System.currentTimeMillis();
         return new UriStatInfo(URI_EXAMPLES[index], status, timestamp - elapsedTime, timestamp);
     }
 
@@ -87,7 +88,7 @@ public class GrpcUriStatMessageConverterTest {
     private void assertData(List<UriStatInfo> expected, PUriHistogram actual) {
         LongSummaryStatistics summary = getSummary(expected);
 
-        Assertions.assertEquals(summary.getCount(), actual.getCount());
+        Assertions.assertEquals(expected.size(), actual.getCount());
         Assertions.assertEquals(summary.getMax(), actual.getMax());
         Assertions.assertEquals(summary.getSum(), actual.getTotal());
 

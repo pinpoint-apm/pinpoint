@@ -48,9 +48,8 @@ public class AsyncQueueingUriStatStorageTest {
     }
 
     private void storageTest(int collectInterval, int storeCount) {
-        AsyncQueueingUriStatStorage storage = null;
-        try {
-            storage = new AsyncQueueingUriStatStorage(5012, 1000, "Test-Executor", collectInterval);
+        try (AsyncQueueingUriStatStorage storage
+                     = new AsyncQueueingUriStatStorage(5012, 1000, "Test-Executor", collectInterval)) {
 
             long sleepTime = System.currentTimeMillis() % collectInterval;
 
@@ -78,15 +77,10 @@ public class AsyncQueueingUriStatStorageTest {
                     .sum();
 
             Assertions.assertEquals(0, storeCount);
-        } finally {
-            if (storage != null) {
-                storage.close();
-            }
         }
     }
 
     private void storeRandomValue(AsyncQueueingUriStatStorage storage, long timestamp) {
-        timestamp = System.currentTimeMillis();
         storage.store(URI_EXAMPLES[RANDOM.nextInt(URI_EXAMPLES.length)], RANDOM.nextBoolean(), timestamp - RANDOM.nextInt(10000), timestamp);
     }
 
