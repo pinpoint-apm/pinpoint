@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.receiver.grpc.RemoteTrackingTransportFilter;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -38,6 +39,7 @@ import io.grpc.StatusRuntimeException;
 import org.apache.thrift.TBase;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,11 +65,18 @@ public class ClusterPointController {
 
     private final ClusterPointLocator<ClusterPoint<?>> clusterPointLocator;
 
+    private final RemoteTrackingTransportFilter remoteTracker;
+
     private final ObjectMapper mapper;
 
 
-    public ClusterPointController(ClusterPointLocator clusterPointLocator, ObjectMapper mapper) {
+    public ClusterPointController(
+            ClusterPointLocator clusterPointLocator,
+            @Qualifier("agentRemoteTracker") RemoteTrackingTransportFilter remoteTracker,
+            ObjectMapper mapper
+    ) {
         this.clusterPointLocator = Objects.requireNonNull(clusterPointLocator, "clusterPointLocator");
+        this.remoteTracker = Objects.requireNonNull(remoteTracker, "connectionTracker");
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
@@ -202,9 +211,14 @@ public class ClusterPointController {
         pinpointGrpcServer.close(SocketStateCode.ERROR_UNKNOWN);
     }
 
-    // If the occur excption in connection, do not retry
+    // If the occur exception in connection, do not retry
     // Multiple attempts only at timeout
     private Future<ResponseMessage> request0(GrpcAgentConnection grpcAgentConnection, int maxCount) {
+        final InetSocketAddress remoteAddress = grpcAgentConnection.getPinpointGrpcServer().getRemoteAddress();
+        if (!remoteTracker.has(remoteAddress)) {
+            throw new PinpointSocketException("Connection had already lost");
+        }
+
         for (int i = 0; i < maxCount; i++) {
             Future<ResponseMessage> responseFuture = grpcAgentConnection.request(CONNECTION_CHECK_COMMAND);
             boolean await = responseFuture.await();

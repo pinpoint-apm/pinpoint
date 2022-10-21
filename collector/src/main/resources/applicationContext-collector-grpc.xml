@@ -107,11 +107,16 @@
         <ref bean="commandService"/>
     </util:list>
 
-
     <util:list id="serverTransportFilterList" value-type="io.grpc.ServerTransportFilter">
         <bean class="com.navercorp.pinpoint.grpc.channelz.ChannelzServerTransportFilter">
             <constructor-arg ref="channelzRegistry"/>
         </bean>
+    </util:list>
+
+    <bean id="agentRemoteTracker" class="com.navercorp.pinpoint.collector.receiver.grpc.RemoteTrackingTransportFilter" />
+
+    <util:list id="agentTransportFilterList" value-type="io.grpc.ServerTransportFilter">
+        <ref bean="agentRemoteTracker" />
     </util:list>
 
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -127,6 +132,7 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="serverInterceptorList" ref="agentInterceptorList"/>
+        <property name="transportFilterList" ref="agentTransportFilterList" />
         <property name="enable" value="#{grpcAgentReceiverConfig.enable}"/>
         <property name="serverOption" value="#{grpcAgentReceiverConfig.serverOption}"/>
     </bean>
