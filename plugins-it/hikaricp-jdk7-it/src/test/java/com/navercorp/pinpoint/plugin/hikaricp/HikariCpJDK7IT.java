@@ -68,14 +68,10 @@ public class HikariCpJDK7IT {
         config.setDataSourceClassName(DATA_SOURCE_CLASS_NAME);
         config.addDataSourceProperty("url", JDBC_URL);
 
-        HikariDataSource dataSource = new HikariDataSource(config);
-        try {
-            Connection connection = dataSource.getConnection();
-            Assert.assertNotNull(connection);
-
-            Thread.sleep(500);
-
-            connection.close();
+        try (HikariDataSource dataSource = new HikariDataSource(config)) {
+            try (Connection connection = dataSource.getConnection()) {
+                Assert.assertNotNull(connection);
+            }
 
             Thread.sleep(500);
 
@@ -88,26 +84,16 @@ public class HikariCpJDK7IT {
             verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.pool.BaseHikariPool.BaseHikariPool(com.zaxxer.hikari.HikariConfig, java.lang.String, java.lang.String)"));
             verifier.verifyTrace(event(serviceType, getConnectionMethod1));
             verifier.verifyTrace(event(serviceType, proxyConnectionMethod));
-        } finally {
-            if (dataSource != null) {
-                dataSource.close();
-            }
         }
     }
 
     @Test
-    public void defaultTest2() throws InterruptedException, SQLException, NoSuchMethodException {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDataSourceClassName(DATA_SOURCE_CLASS_NAME);
-        dataSource.addDataSourceProperty("url", JDBC_URL);
+    public void defaultTest2() throws InterruptedException, SQLException {
+        try (HikariDataSource dataSource = newDataSource()) {
 
-        try {
-            Connection connection = dataSource.getConnection();
-            Assert.assertNotNull(connection);
-
-            Thread.sleep(500);
-
-            connection.close();
+            try (Connection connection = dataSource.getConnection()) {
+                Assert.assertNotNull(connection);
+            }
 
             Thread.sleep(500);
 
@@ -119,26 +105,17 @@ public class HikariCpJDK7IT {
             verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.pool.BaseHikariPool.BaseHikariPool(com.zaxxer.hikari.HikariConfig, java.lang.String, java.lang.String)"));
             verifier.verifyTrace(event(serviceType, proxyConnectionMethod));
 
-        } finally {
-            if (dataSource != null) {
-                dataSource.close();
-            }
         }
     }
 
+
     @Test
-    public void defaultTest3() throws InterruptedException, SQLException, NoSuchMethodException {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDataSourceClassName(DATA_SOURCE_CLASS_NAME);
-        dataSource.addDataSourceProperty("url", JDBC_URL);
+    public void defaultTest3() throws InterruptedException, SQLException {
 
-        try {
-            Connection connection = dataSource.getConnection("", "");
-            Assert.assertNotNull(connection);
-
-            Thread.sleep(500);
-
-            connection.close();
+        try (HikariDataSource dataSource = newDataSource()) {
+            try (Connection connection = dataSource.getConnection("", "")) {
+                Assert.assertNotNull(connection);
+            }
 
             Thread.sleep(500);
 
@@ -148,11 +125,16 @@ public class HikariCpJDK7IT {
             verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.HikariDataSource.HikariDataSource()"));
             verifier.verifyTrace(event(serviceType, getConnectionMethod2, annotation(AnnotationKey.ARGS0.getName(), "")));
             verifier.verifyTrace(event(serviceType, proxyConnectionMethod));
-        } finally {
-            if (dataSource != null) {
-                dataSource.close();
-            }
         }
     }
+
+
+    private HikariDataSource newDataSource() {
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setDataSourceClassName(DATA_SOURCE_CLASS_NAME);
+        hikariDataSource.addDataSourceProperty("url", JDBC_URL);
+        return hikariDataSource;
+    }
+
 
 }
