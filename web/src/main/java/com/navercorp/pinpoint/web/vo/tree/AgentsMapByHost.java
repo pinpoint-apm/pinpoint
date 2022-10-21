@@ -10,37 +10,37 @@ import java.util.List;
 import java.util.Objects;
 
 public class AgentsMapByHost {
-    private final AgentsListMap<AgentAndStatus> agentsListMap;
+    private final InstancesListMap<AgentAndStatus> instancesListMap;
 
     public static final String CONTAINER = "Container";
     private static final Comparator<String> CONTAINER_GOES_UP = Comparator.comparing((String s) -> !s.equals(CONTAINER))
             .thenComparing(Comparator.naturalOrder());
 
-    private AgentsMapByHost(AgentsListMap<AgentAndStatus> agentsListMap) {
-        this.agentsListMap = Objects.requireNonNull(agentsListMap, "agentsListMap");
+    private AgentsMapByHost(InstancesListMap<AgentAndStatus> instancesListMap) {
+        this.instancesListMap = Objects.requireNonNull(instancesListMap, "agentsListMap");
     }
 
-    public List<AgentsList<AgentAndStatus>> getAgentsListsList() {
-        return new ArrayList<>(agentsListMap.getListMap());
+    public List<InstancesList<AgentAndStatus>> getAgentsListsList() {
+        return new ArrayList<>(instancesListMap.getListMap());
     }
 
     public static AgentsMapByHost newAgentsMapByHost(AgentInfoFilter filter,
-                                                     SortBy<AgentAndStatus> sortBy,
+                                                     SortByAgentInfo<AgentAndStatus> sortByAgentInfo,
                                                      Collection<AgentAndStatus> agentCollection) {
         Objects.requireNonNull(filter, "filter");
-        Objects.requireNonNull(sortBy, "sortBy");
+        Objects.requireNonNull(sortByAgentInfo, "sortBy");
         Objects.requireNonNull(agentCollection, "agentCollection");
 
-        AgentsListMapBuilder<AgentAndStatus, AgentAndStatus> agentsListMapBuilder =
-                new AgentsListMapBuilder<>(
+        InstancesListMapBuilder<AgentAndStatus, AgentAndStatus> instancesListMapBuilder =
+                new InstancesListMapBuilder<>(
                         AgentsMapByHost::containerOrPhysical,
                         CONTAINER_GOES_UP,
-                        sortBy,
+                        sortByAgentInfo.getComparator(),
                         agentCollection
                 );
-        agentsListMapBuilder.withFilter(filter::filter);
+        instancesListMapBuilder.withFilter(filter::filter);
 
-        return new AgentsMapByHost(agentsListMapBuilder.build());
+        return new AgentsMapByHost(instancesListMapBuilder.build());
     }
 
     private static String containerOrPhysical(AgentAndStatus agentAndStatus) {
@@ -53,7 +53,7 @@ public class AgentsMapByHost {
     @Override
     public String toString() {
         return "AgentsMapByHost{" +
-                "agentsListMap=" + agentsListMap +
+                "instancesListMap=" + instancesListMap +
                 '}';
     }
 }

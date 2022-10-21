@@ -3,9 +3,9 @@ package com.navercorp.pinpoint.web.vo;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
-import com.navercorp.pinpoint.web.vo.tree.AgentsList;
+import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
-import com.navercorp.pinpoint.web.vo.tree.SortBy;
+import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,28 +24,28 @@ public class AgentsMapByHostTest {
         List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(containerAgent1, host1Agent1, host2Agent1, containerAgent2);
 
 
-        SortBy<AgentAndStatus> sortBy = SortBy.agentIdAsc(AgentAndStatus::getAgentInfo);
+        SortByAgentInfo<AgentAndStatus> sortBy = SortByAgentInfo.agentIdAsc(AgentAndStatus::getAgentInfo);
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentInfoFilter::accept, sortBy, agentAndStatusList);
-        List<AgentsList<AgentAndStatus>> agentsLists = agentsMapByHost.getAgentsListsList();
+        List<InstancesList<AgentAndStatus>> instancesLists = agentsMapByHost.getAgentsListsList();
 
-        Assertions.assertEquals(3, agentsLists.size());
+        Assertions.assertEquals(3, instancesLists.size());
 
-        AgentsList<AgentAndStatus> containerAgentsList = agentsLists.get(0);
-        Assertions.assertEquals(AgentsMapByHost.CONTAINER, containerAgentsList.getGroupName());
-        List<AgentAndStatus> containerAgents = containerAgentsList.getAgentSuppliersList();
+        InstancesList<AgentAndStatus> containerInstancesList = instancesLists.get(0);
+        Assertions.assertEquals(AgentsMapByHost.CONTAINER, containerInstancesList.getGroupName());
+        List<AgentAndStatus> containerAgents = containerInstancesList.getInstancesList();
         Assertions.assertEquals(2, containerAgents.size());
         Assertions.assertEquals(containerAgent1.getAgentInfo(), containerAgents.get(0).getAgentInfo());
         Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(1).getAgentInfo());
 
-        AgentsList<AgentAndStatus> host1AgentsList = agentsLists.get(1);
-        Assertions.assertEquals("Host1", host1AgentsList.getGroupName());
-        List<AgentAndStatus> host1Agents = host1AgentsList.getAgentSuppliersList();
+        InstancesList<AgentAndStatus> host1InstancesList = instancesLists.get(1);
+        Assertions.assertEquals("Host1", host1InstancesList.getGroupName());
+        List<AgentAndStatus> host1Agents = host1InstancesList.getInstancesList();
         Assertions.assertEquals(1, host1Agents.size());
         Assertions.assertEquals(host1Agent1.getAgentInfo(), host1Agents.get(0).getAgentInfo());
 
-        AgentsList<AgentAndStatus> host2AgentsList = agentsLists.get(2);
-        Assertions.assertEquals("Host2", host2AgentsList.getGroupName());
-        List<AgentAndStatus> host2Agents = host2AgentsList.getAgentSuppliersList();
+        InstancesList<AgentAndStatus> host2InstancesList = instancesLists.get(2);
+        Assertions.assertEquals("Host2", host2InstancesList.getGroupName());
+        List<AgentAndStatus> host2Agents = host2InstancesList.getInstancesList();
         Assertions.assertEquals(1, host2Agents.size());
         Assertions.assertEquals(host2Agent1.getAgentInfo(), host2Agents.get(0).getAgentInfo());
     }

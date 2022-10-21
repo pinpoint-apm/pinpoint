@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.vo.tree.AgentsList;
+import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,20 +27,20 @@ public class AgentsMapByApplicationTest {
         List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2);
 
         AgentsMapByApplication agentsMapByApplication = AgentsMapByApplication.newAgentsMapByApplication(AgentInfoFilter::accept, hyperLinkFactory, agentAndStatusList);
-        List<AgentsList<AgentStatusAndLink>> agentsLists = agentsMapByApplication.getAgentsListsList();
+        List<InstancesList<AgentStatusAndLink>> instancesLists = agentsMapByApplication.getAgentsListsList();
 
-        Assertions.assertEquals(2, agentsLists.size());
+        Assertions.assertEquals(2, instancesLists.size());
 
-        AgentsList<AgentStatusAndLink> app1AgentsList = agentsLists.get(0);
-        Assertions.assertEquals("APP_1", app1AgentsList.getGroupName());
-        List<AgentStatusAndLink> app1AgentInfos = app1AgentsList.getAgentSuppliersList();
+        InstancesList<AgentStatusAndLink> app1InstancesList = instancesLists.get(0);
+        Assertions.assertEquals("APP_1", app1InstancesList.getGroupName());
+        List<AgentStatusAndLink> app1AgentInfos = app1InstancesList.getInstancesList();
         Assertions.assertEquals(2, app1AgentInfos.size());
         Assertions.assertEquals(app1Agent1.getAgentInfo(), app1AgentInfos.get(0).getAgentInfo());
         Assertions.assertEquals(app1Agent2.getAgentInfo(), app1AgentInfos.get(1).getAgentInfo());
 
-        AgentsList<AgentStatusAndLink> app2AgentsList = agentsLists.get(1);
-        Assertions.assertEquals("APP_2", app2AgentsList.getGroupName());
-        List<AgentStatusAndLink> app2AgentInfos = app2AgentsList.getAgentSuppliersList();
+        InstancesList<AgentStatusAndLink> app2InstancesList = instancesLists.get(1);
+        Assertions.assertEquals("APP_2", app2InstancesList.getGroupName());
+        List<AgentStatusAndLink> app2AgentInfos = app2InstancesList.getInstancesList();
         Assertions.assertEquals(2, app2AgentInfos.size());
         Assertions.assertEquals(app2Agent1.getAgentInfo(), app2AgentInfos.get(0).getAgentInfo());
         Assertions.assertEquals(app2Agent2.getAgentInfo(), app2AgentInfos.get(1).getAgentInfo());

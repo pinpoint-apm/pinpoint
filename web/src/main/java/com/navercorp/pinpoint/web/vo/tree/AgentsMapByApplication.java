@@ -17,14 +17,14 @@ import java.util.Objects;
 
 public class AgentsMapByApplication {
 
-    private final AgentsListMap<AgentStatusAndLink> agentsListMap;
+    private final InstancesListMap<AgentStatusAndLink> instancesListMap;
 
-    private AgentsMapByApplication(AgentsListMap<AgentStatusAndLink> agentsListMap) {
-        this.agentsListMap = Objects.requireNonNull(agentsListMap, "agentsListMap");
+    private AgentsMapByApplication(InstancesListMap<AgentStatusAndLink> instancesListMap) {
+        this.instancesListMap = Objects.requireNonNull(instancesListMap, "agentsListMap");
     }
 
-    public List<AgentsList<AgentStatusAndLink>> getAgentsListsList() {
-        return new ArrayList<>(agentsListMap.getListMap());
+    public List<InstancesList<AgentStatusAndLink>> getAgentsListsList() {
+        return new ArrayList<>(instancesListMap.getListMap());
     }
 
     public static AgentsMapByApplication newAgentsMapByApplication(AgentInfoFilter filter,
@@ -34,17 +34,17 @@ public class AgentsMapByApplication {
         Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         Objects.requireNonNull(agentCollection, "agentCollection");
 
-        AgentsListMapBuilder<AgentAndStatus, AgentStatusAndLink> agentsListMapBuilder =
-                new AgentsListMapBuilder<>(
+        InstancesListMapBuilder<AgentAndStatus, AgentStatusAndLink> instancesListMapBuilder =
+                new InstancesListMapBuilder<>(
                         AgentsMapByApplication::byApplicationName,
                         Comparator.naturalOrder(),
-                        SortBy.agentIdAsc(AgentStatusAndLink::getAgentInfo),
+                        SortByAgentInfo.agentIdAsc(AgentStatusAndLink::getAgentInfo).getComparator(),
                         agentCollection
                 );
 
-        agentsListMapBuilder.withFilter(filter::filter)
+        instancesListMapBuilder.withFilter(filter::filter)
                 .withFinisher(x -> newAgentStatusAndLink(x, hyperLinkFactory));
-        return new AgentsMapByApplication(agentsListMapBuilder.build());
+        return new AgentsMapByApplication(instancesListMapBuilder.build());
     }
 
     private static String byApplicationName(AgentStatusAndLink agentStatusAndLink) {
@@ -61,8 +61,7 @@ public class AgentsMapByApplication {
     @Override
     public String toString() {
         return "AgentsMapByApplication{" +
-                "agentsListMap=" + agentsListMap +
+                "instancesListMap=" + instancesListMap +
                 '}';
     }
-
 }

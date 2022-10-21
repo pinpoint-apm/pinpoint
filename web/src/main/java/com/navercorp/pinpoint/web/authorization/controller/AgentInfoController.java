@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.vo.tree.AgentsList;
+import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -88,8 +88,8 @@ public class AgentInfoController {
     }
 
     private static TreeView<AgentStatusAndLink> treeView(AgentsMapByApplication agentsListsList) {
-        List<AgentsList<AgentStatusAndLink>> list = agentsListsList.getAgentsListsList();
-        return new SimpleTreeView<>(list, AgentsList::getGroupName, AgentsList::getAgentSuppliersList);
+        List<InstancesList<AgentStatusAndLink>> list = agentsListsList.getAgentsListsList();
+        return new SimpleTreeView<>(list, InstancesList::getGroupName, InstancesList::getInstancesList);
     }
 
     @GetMapping(value = "/getAgentList", params = {"application"})
@@ -123,8 +123,8 @@ public class AgentInfoController {
     }
 
     private static TreeView<AgentAndStatus> treeView(AgentsMapByHost agentsMapByHost) {
-        List<AgentsList<AgentAndStatus>> list = agentsMapByHost.getAgentsListsList();
-        return new SimpleTreeView<>(list, AgentsList::getGroupName, AgentsList::getAgentSuppliersList);
+        List<InstancesList<AgentAndStatus>> list = agentsMapByHost.getAgentsListsList();
+        return new SimpleTreeView<>(list, InstancesList::getGroupName, InstancesList::getInstancesList);
     }
 
     @GetMapping(value = "/getAgentInfo")
