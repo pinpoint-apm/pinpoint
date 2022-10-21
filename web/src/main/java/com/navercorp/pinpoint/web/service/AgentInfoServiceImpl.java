@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.tree.SortBy;
+import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -131,7 +131,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
-                SortBy.agentIdAsc(AgentAndStatus::getAgentInfo),
+                SortByAgentInfo.agentIdAsc(AgentAndStatus::getAgentInfo),
                 agentInfoAndStatuses);
 
         logger.debug("getAgentsMapByHostname={}", agentsMapByHost);

@@ -23,43 +23,43 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-public class AgentsList<T> {
+public class InstancesList<T> {
 
     private final String groupName;
 
-    private final List<T> agentSuppliersList;
+    private final List<T> instancesList;
 
-    public static <T> AgentsList<T> sorted(String groupName, List<T> agentSuppliersList, Comparator<T> sortBy) {
+    public static <T> InstancesList<T> sorted(String groupName, List<T> instancesList, Comparator<T> sortBy) {
         Objects.requireNonNull(groupName, "groupName");
-        Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
+        Objects.requireNonNull(instancesList, "instancesList");
         Objects.requireNonNull(sortBy, "sortBy");
 
-        sort(agentSuppliersList, sortBy);
-        return new AgentsList<>(groupName, agentSuppliersList);
+        sort(instancesList, sortBy);
+        return new InstancesList<>(groupName, instancesList);
     }
 
     private static <T> void sort(List<T> agentSuppliersList, Comparator<T> comparator) {
         agentSuppliersList.sort(comparator);
     }
 
-    public AgentsList(String groupName, List<T> agentSuppliersList) {
+    public InstancesList(String groupName, List<T> instancesList) {
         this.groupName = Objects.requireNonNull(groupName, "groupName");
-        this.agentSuppliersList = Objects.requireNonNull(agentSuppliersList, "agentSuppliersList");
+        this.instancesList = Objects.requireNonNull(instancesList, "agentSuppliersList");
     }
 
     public String getGroupName() {
         return groupName;
     }
 
-    public List<T> getAgentSuppliersList() {
-        return agentSuppliersList;
+    public List<T> getInstancesList() {
+        return instancesList;
     }
 
     @Override
     public String toString() {
-        return "AgentsList{" +
+        return "InstancesList{" +
                 "groupName='" + groupName + '\'' +
-                ", agentSuppliersList=" + agentSuppliersList +
+                ", instancesList=" + instancesList +
                 '}';
     }
 }

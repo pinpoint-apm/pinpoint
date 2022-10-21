@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class SortBy<T> {
+public class SortByAgentInfo<T> {
     public static Comparator<AgentInfo> AGENT_NAME_ASC = Comparator.comparing(AgentInfo::getAgentName)
             .thenComparing(AgentInfo::getAgentId);
 
@@ -21,19 +21,19 @@ public class SortBy<T> {
                         .reversed()
                         .thenComparing(AgentInfo::getAgentId);
 
-    public static <T> SortBy<T> agentNameAsc(Function<T, AgentInfo> keyExtractor) {
+    public static <T> SortByAgentInfo<T> agentNameAsc(Function<T, AgentInfo> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor");
-        return new SortBy<>(Comparator.comparing(keyExtractor, AGENT_NAME_ASC));
+        return new SortByAgentInfo<>(Comparator.comparing(keyExtractor, AGENT_NAME_ASC));
     }
 
-    public static <T> SortBy<T> agentIdAsc(Function<T, AgentInfo> keyExtractor) {
+    public static <T> SortByAgentInfo<T> agentIdAsc(Function<T, AgentInfo> keyExtractor) {
         Objects.requireNonNull(keyExtractor, "keyExtractor");
-        return new SortBy<>(Comparator.comparing(keyExtractor, AGENT_ID_ASC));
+        return new SortByAgentInfo<>(Comparator.comparing(keyExtractor, AGENT_ID_ASC));
     }
 
     private final Comparator<T> comparator;
 
-    private SortBy(Comparator<T> comparator) {
+    private SortByAgentInfo(Comparator<T> comparator) {
         this.comparator = Objects.requireNonNull(comparator, "comparator");
     }
 

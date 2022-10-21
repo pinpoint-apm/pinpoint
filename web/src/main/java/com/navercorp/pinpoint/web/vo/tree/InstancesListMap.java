@@ -11,18 +11,18 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class AgentsListMap<T> {
+public class InstancesListMap<T> {
 
-    private final List<AgentsList<T>> listMap;
+    private final List<InstancesList<T>> listMap;
 
-    private AgentsListMap(List<AgentsList<T>> listMap) {
+    private InstancesListMap(List<InstancesList<T>> listMap) {
         this.listMap = Objects.requireNonNull(listMap, "listMap");
     }
 
-    public static <T> AgentsListMap<T> newAgentsListMap(Collection<T> collection,
-                                                        Function<T, String> keyExtractor,
-                                                        Comparator<String> keyComparator,
-                                                        SortBy<T> sortBy) {
+    public static <T> InstancesListMap<T> newAgentsListMap(Collection<T> collection,
+                                                           Function<T, String> keyExtractor,
+                                                           Comparator<String> keyComparator,
+                                                           Comparator<T> sortNestedListBy) {
         if (collection.isEmpty()) {
             return empty();
         }
@@ -30,30 +30,30 @@ public class AgentsListMap<T> {
         Collector<T, ?, Map<String, List<T>>> collector = Collectors.groupingBy(keyExtractor);
         Map<String, List<T>> mapByGivenClassifier = collection.stream().collect(collector);
 
-        Map<String, AgentsList<T>> map = mapByGivenClassifier.entrySet().stream().collect(
+        Map<String, InstancesList<T>> map = mapByGivenClassifier.entrySet().stream().collect(
                 Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> AgentsList.sorted(e.getKey(), e.getValue(), sortBy.getComparator()),
+                        e -> InstancesList.sorted(e.getKey(), e.getValue(), sortNestedListBy),
                         (left, right) -> left,
                         () -> new TreeMap<>(keyComparator)
                 )
         );
 
-        List<AgentsList<T>> agentsListMap = new ArrayList<>(map.values());
-        return new AgentsListMap<>(agentsListMap);
+        List<InstancesList<T>> instancesListMap = new ArrayList<>(map.values());
+        return new InstancesListMap<>(instancesListMap);
     }
 
-    public static <T> AgentsListMap<T> empty() {
-        return new AgentsListMap<>(new ArrayList<>());
+    public static <T> InstancesListMap<T> empty() {
+        return new InstancesListMap<>(new ArrayList<>());
     }
 
-    public List<AgentsList<T>> getListMap() {
+    public List<InstancesList<T>> getListMap() {
         return listMap;
     }
 
     @Override
     public String toString() {
-        return "AgentsListMap{" +
+        return "InstancesListMap{" +
                 "listMap=" + listMap +
                 '}';
     }
