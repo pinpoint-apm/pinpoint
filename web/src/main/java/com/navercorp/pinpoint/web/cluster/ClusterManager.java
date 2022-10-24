@@ -148,10 +148,10 @@ public class ClusterManager {
         List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(clusterKey);
 
         if (clusterIdList.isEmpty()) {
-            logger.warn("{} couldn't find agent.", clusterKey);
+            logger.debug("{} couldn't find agent.", clusterKey);
             return Collections.emptyList();
         } else if (clusterIdList.size() > 1) {
-            logger.warn("{} found duplicate agent {}.", clusterKey, clusterIdList);
+            logger.debug("{} found duplicate agent {}.", clusterKey, clusterIdList);
         }
 
         List<PinpointSocket> pinpointSocketList = new ArrayList<>(clusterIdList.size());
