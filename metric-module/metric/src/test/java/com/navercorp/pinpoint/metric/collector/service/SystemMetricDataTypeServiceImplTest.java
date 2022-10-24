@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
@@ -60,11 +59,11 @@ public class SystemMetricDataTypeServiceImplTest {
         SystemMetricDataTypeService systemMetricDataTypeService = new SystemMetricDataTypeServiceImpl(metricDataTypeCache);
         when(metricDataTypeCache.getMetricDataType(any(MetricDataName.class))).thenReturn(null);
 
-        SystemMetric systemMetric = new LongMetric("metricName", "hostName", "fieldName", 0, new ArrayList<>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, new ArrayList<>(), Long.MAX_VALUE);
         systemMetricDataTypeService.saveMetricDataType(systemMetric);
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
-        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.LONG, metricDataName.getSaveTime());
+        MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, metricDataName.getSaveTime());
         verify(metricDataTypeCache, times(1)).saveMetricDataType(metricDataName, metricData);
     }
 

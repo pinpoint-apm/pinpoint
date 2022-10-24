@@ -60,61 +60,21 @@ import java.util.stream.Collectors;
 public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final SystemMetricDao<Long> systemMetricLongDao;
     private final SystemMetricDao<Double> systemMetricDoubleDao;
 
     private final SystemMetricDataTypeService systemMetricDataTypeService;
-//    private final SystemMetricBasicGroupManager systemMetricBasicGroupManager;
     private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
     private final SystemMetricHostInfoService systemMetricHostInfoService;
 
-    public SystemMetricDataServiceImpl(SystemMetricDao<Long> systemMetricLongDao,
-                                       SystemMetricDao<Double> systemMetricDoubleDao,
+    public SystemMetricDataServiceImpl(SystemMetricDao<Double> systemMetricDoubleDao,
                                        SystemMetricDataTypeService systemMetricDataTypeService,
                                        YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
                                        SystemMetricHostInfoService systemMetricHostInfoService) {
-        this.systemMetricLongDao = Objects.requireNonNull(systemMetricLongDao, "systemMetricLongDao");
         this.systemMetricDoubleDao = Objects.requireNonNull(systemMetricDoubleDao, "systemMetricDoubleDao");
         this.systemMetricDataTypeService = Objects.requireNonNull(systemMetricDataTypeService, "systemMetricDataTypeService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricMetadataManager");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
-    }
-
-    @Override
-    public List<SystemMetric> getSystemMetricBoList(MetricsQueryParameter queryParameter) {
-
-        MetricDataName metricDataName = new MetricDataName(queryParameter.getMetricName(), queryParameter.getFieldName());
-        MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
-
-        switch (metricDataType) {
-            case LONG:
-                return systemMetricLongDao.getSystemMetric(queryParameter);
-            case DOUBLE:
-                return systemMetricDoubleDao.getSystemMetric(queryParameter);
-            default:
-                throw new RuntimeException("No Such Metric");
-        }
-    }
-
-    @Override
-    public SystemMetricChart<? extends Number> getSystemMetricChart(TimeWindow timeWindow, MetricsQueryParameter queryParameter) {
-        String metricName = queryParameter.getMetricName();
-        String fieldName = queryParameter.getFieldName();
-
-        MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(new MetricDataName(metricName, fieldName));
-        String chartName = getChartName(metricName, fieldName);
-
-        switch (metricDataType) {
-            case LONG:
-                List<SampledSystemMetric<Long>> sampledLongSystemMetrics = systemMetricLongDao.getSampledSystemMetric(queryParameter);
-                return new SystemMetricChart<>(timeWindow, chartName, sampledLongSystemMetrics);
-            case DOUBLE:
-                List<SampledSystemMetric<Double>> sampledDoubleSystemMetrics = systemMetricDoubleDao.getSampledSystemMetric(queryParameter);
-                return new SystemMetricChart<>(timeWindow, chartName, sampledDoubleSystemMetrics);
-            default:
-                throw new RuntimeException("No Such Metric");
-        }
     }
 
     @Override
@@ -174,14 +134,8 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
             MetricDataType metricDataType = systemMetricDataTypeService.getMetricDataType(metricDataName);
             List<MetricTag> metricTagList = systemMetricHostInfoService.getTag(metricDataSearchKey, field, tags);
 
-            // TODO : (minwoo) this line delete.
-            metricDataType = MetricDataType.DOUBLE;
             for (MetricTag metricTag : metricTagList) {
                 switch (metricDataType) {
-                    case LONG:
-                        Future<List<SystemMetricPoint<Long>>> longFuture = systemMetricLongDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
-                        invokeList.add(new QueryResult<>(metricDataType, longFuture, metricTag));
-                        break;
                     case DOUBLE:
                         Future<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
                         invokeList.add(new QueryResult<>(metricDataType, doubleFuture, metricTag));

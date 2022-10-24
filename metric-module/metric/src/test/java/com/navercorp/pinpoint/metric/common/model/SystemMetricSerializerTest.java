@@ -40,7 +40,7 @@ public class SystemMetricSerializerTest {
         Tag fstypeTag = new Tag("fstype", "apfs");
         Tag modeTag = new Tag("mode", "ro");
         Tag pathTag = new Tag("path", "/");
-        LongMetric longMetric = new LongMetric("disk", "localhost", "free", 250685575168L,
+        DoubleMetric longMetric = new DoubleMetric("disk", "localhost", "free", 250685575168L,
                 Arrays.asList(deviceTag, fstypeTag, modeTag, pathTag), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);
@@ -49,7 +49,7 @@ public class SystemMetricSerializerTest {
 
     @Test
     public void testLongCounterWithoutTags() throws JsonProcessingException {
-        LongMetric longMetric = new LongMetric("mem", "localhost", "free", 103714816L,
+        DoubleMetric longMetric = new DoubleMetric("mem", "localhost", "free", 103714816L,
                 Collections.emptyList(), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);

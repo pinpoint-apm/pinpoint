@@ -17,23 +17,18 @@
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.pinot.PinotAsyncTemplate;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
-import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
-import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Future;
@@ -50,30 +45,13 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
     private final SqlSessionTemplate sqlPinotSessionTemplate;
     private final PinotAsyncTemplate asyncTemplate;
 
-    @Value("${pinpoint.pinot.jdbc.url}")
-    private String jdbcUrl;
-
     public PinotSystemMetricDoubleDao(SqlSessionTemplate sqlPinotSessionTemplate, PinotAsyncTemplate asyncTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
     }
 
-    @PostConstruct
-    public void log()  {
-        logger.info("#### jdbcUrl : {}", jdbcUrl);
-    }
-
     @Override
-    public List<SystemMetric> getSystemMetric(MetricsQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSystemMetric", queryParameter);
-    }
-
-    @Override
-    public List<SampledSystemMetric<Double>> getSampledSystemMetric(MetricsQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetric", queryParameter);
-    }
-
-    @Override
+    @Deprecated
     public List<SystemMetricPoint<Double>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         StopWatch watch = StopWatch.createStarted();
         logger.info("=========== thread start {} thread. tag:{}", Thread.currentThread().getName(), metricTag);
