@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
@@ -26,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -53,10 +51,7 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
             return;
         }
 
-
-        if (systemMetric instanceof LongMetric) {
-            metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.LONG, MetricDataName.createSaveTime()));
-        } else if (systemMetric instanceof DoubleMetric) {
+        if (systemMetric instanceof DoubleMetric) {
             metricDataTypeCache.saveMetricDataType(metricDataName, new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, MetricDataName.createSaveTime()));
         } else {
             logger.error("can not find metric data type.  systemMetric : {}", systemMetric);

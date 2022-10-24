@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +51,7 @@ public class PinotSystemMetricDaoTest {
     @Mock
     private KafkaTemplate<String, SystemMetricView> kafkaTemplate;
     @Mock
-    private LongMetric longMetric;
+    private DoubleMetric doubleMetric;
 
     @BeforeEach
     public void setupTemplate() {
@@ -69,22 +69,22 @@ public class PinotSystemMetricDaoTest {
 
     @Test
     public void testLogDao() throws JsonProcessingException {
-        PinotSystemMetricLongDao longDao = new PinotSystemMetricLongDao(kafkaTemplate, TOPIC);
-        List<LongMetric> longMetricList = createLongCounterList();
+        PinotSystemMetricDoubleDao longDao = new PinotSystemMetricDoubleDao(kafkaTemplate, TOPIC);
+        List<DoubleMetric> doubleMetricList = createDoubleCounterList();
 
-        longDao.insert("hostGroupName", "hostName", longMetricList);
+        longDao.insert("hostGroupName", "hostName", doubleMetricList);
 
-        Assertions.assertEquals(longMetricList.size(), sendCount.getSendCount());
+        Assertions.assertEquals(doubleMetricList.size(), sendCount.getSendCount());
     }
 
-    private List<LongMetric> createLongCounterList() {
-        List<LongMetric> longMetricList = new ArrayList<>();
+    private List<DoubleMetric> createDoubleCounterList() {
+        List<DoubleMetric> doubleMetricList = new ArrayList<>();
         int numCounter = random.nextInt(100);
         for (int i = 0; i < numCounter; i++) {
-            longMetricList.add(longMetric);
+            doubleMetricList.add(doubleMetric);
         }
 
-        return longMetricList;
+        return doubleMetricList;
     }
 
     public class SendCount {

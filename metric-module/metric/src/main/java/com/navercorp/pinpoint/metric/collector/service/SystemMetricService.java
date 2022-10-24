@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.metric.collector.service;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import org.springframework.stereotype.Service;
 
@@ -32,30 +31,16 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SystemMetricService {
-    private final SystemMetricDao<LongMetric> systemMetricLongDao;
     private final SystemMetricDao<DoubleMetric> systemMetricDoubleDao;
 
-    public SystemMetricService(SystemMetricDao<LongMetric> systemMetricLongDao,
-                               SystemMetricDao<DoubleMetric> systemMetricDoubleDao) {
-        this.systemMetricLongDao = Objects.requireNonNull(systemMetricLongDao, "systemMetricLongDao");
+    public SystemMetricService(SystemMetricDao<DoubleMetric> systemMetricDoubleDao) {
         this.systemMetricDoubleDao = Objects.requireNonNull(systemMetricDoubleDao, "systemMetricDoubleDao");
     }
 
     public void insert(Metrics systemMetrics) {
         Objects.requireNonNull(systemMetrics, "systemMetrics");
-
-        List<LongMetric> longMetrics = filterLongCounter(systemMetrics);
         List<DoubleMetric> doubleMetrics = filterDoubleCounter(systemMetrics);
-
-        systemMetricLongDao.insert(systemMetrics.getHostGroupName(), systemMetrics.getHostName(), longMetrics);
         systemMetricDoubleDao.insert(systemMetrics.getHostGroupName(), systemMetrics.getHostName(), doubleMetrics);
-    }
-
-    public List<LongMetric> filterLongCounter(Metrics systemMetrics) {
-        return systemMetrics.stream()
-                .filter(LongMetric.class::isInstance)
-                .map(LongMetric.class::cast)
-                .collect(Collectors.toList());
     }
 
     public List<DoubleMetric> filterDoubleCounter(Metrics systemMetrics) {

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
@@ -46,7 +46,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagKey metricTagKey = new MetricTagKey(applicationName, hostName, metricName, fieldName, saveTime);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(null);
 
-        SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
 
@@ -79,7 +79,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
-        SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
         verify(metricTagCache, times(0)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
@@ -107,7 +107,7 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
-        SystemMetric systemMetric = new LongMetric(metricName, hostName, fieldName, 0, new ArrayList<>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, new ArrayList<>(), Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
         verify(metricTagCache, times(1)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));

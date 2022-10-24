@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
-import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 
 import java.util.List;
@@ -30,10 +27,6 @@ import java.util.List;
  * @author minwoo.jung
  */
 public interface SystemMetricDataService {
-
-    List<SystemMetric> getSystemMetricBoList(MetricsQueryParameter queryParameter);
-
-    SystemMetricChart<? extends Number> getSystemMetricChart(TimeWindow timeWindow, MetricsQueryParameter queryParameter);
 
     SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags);
 }

@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricDoubleDao;
-import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricLongDao;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
-import com.navercorp.pinpoint.metric.common.model.LongMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.junit.jupiter.api.Assertions;
@@ -41,18 +39,14 @@ public class SystemMetricFilterTest {
     private SystemMetricService systemMetricService;
 
     @Mock
-    private LongMetric longMetric;
-    @Mock
     private DoubleMetric doubleMetric;
-    @Mock
-    private PinotSystemMetricLongDao longDao;
     @Mock
     private PinotSystemMetricDoubleDao doubleDao;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        systemMetricService = new SystemMetricService(longDao, doubleDao);
+        systemMetricService = new SystemMetricService(doubleDao);
     }
 
     @Test
@@ -61,19 +55,14 @@ public class SystemMetricFilterTest {
         int doubleCount = random.nextInt(100);
         Metrics systemMetrics = createList(longCount, doubleCount);
 
-        List<LongMetric> longMetricList = systemMetricService.filterLongCounter(systemMetrics);
         List<DoubleMetric> doubleMetricList = systemMetricService.filterDoubleCounter(systemMetrics);
 
-        Assertions.assertEquals(longCount, longMetricList.size());
         Assertions.assertEquals(doubleCount, doubleMetricList.size());
     }
 
     private Metrics createList(int longCount, int doubleCount) {
         List<SystemMetric> systemMetricList = new ArrayList<>();
 
-        for (int i = 0; i < longCount; i++) {
-            systemMetricList.add(longMetric);
-        }
         for (int i = 0; i < doubleCount; i++) {
             systemMetricList.add(doubleMetric);
         }

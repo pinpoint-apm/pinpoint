@@ -16,19 +16,15 @@
 
 package com.navercorp.pinpoint.metric.web.controller;
 
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
-import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
-import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TagParser;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
@@ -40,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Hyunjoon Cho
@@ -60,87 +55,6 @@ public class SystemMetricController {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
-    }
-
-    @Deprecated
-    @GetMapping(value = "/list")
-    public List<SystemMetric> getSystemMetricBoList(
-            @RequestParam("hostGroupName") String hostGroupName,
-            @RequestParam("hostName") String hostName,
-            @RequestParam("metricName") String metricName,
-            @RequestParam("fieldName") String fieldName,
-            @RequestParam(value = "tags", required = false) List<String> tags,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-
-        MetricsQueryParameter.Builder builder = new MetricsQueryParameter.Builder();
-        builder.setHostGroupName(hostGroupName);
-        builder.setHostName(hostName);
-        builder.setMetricName(metricName);
-        builder.setFieldName(fieldName);
-        builder.setTagList(tagParser.parseTags(tags));
-        builder.setRange(Range.newRange(from, to));
-        MetricsQueryParameter queryParameter = builder.build();
-
-        return systemMetricDataService.getSystemMetricBoList(queryParameter);
-    }
-
-    @Deprecated
-    @GetMapping(value = "/chart")
-    public SystemMetricChart getSystemMetricChart(
-            @RequestParam("hostGroupName") String hostGroupName,
-            @RequestParam("hostName") String hostName,
-            @RequestParam("metricName") String metricName,
-            @RequestParam("fieldName") String fieldName,
-            @RequestParam(value = "tags", required = false) List<String> tags,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-
-        MetricsQueryParameter.Builder builder = new MetricsQueryParameter.Builder();
-        builder.setHostGroupName(hostGroupName);
-        builder.setHostName(hostName);
-        builder.setMetricName(metricName);
-        builder.setFieldName(fieldName);
-        builder.setTagList(tagParser.parseTags(tags));
-        builder.setRange(Range.newRange(from, to));
-        builder.setTimeSize((int) timeWindow.getWindowSlotSize());
-        MetricsQueryParameter queryParameter = builder.build();
-
-        return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
-    }
-
-    @Deprecated
-    @GetMapping(value = "/chart", params = {"timeUnit", "timeSize"})
-    public SystemMetricChart getSystemMetricChart(
-            @RequestParam("hostGroupName") String hostGroupName,
-            @RequestParam("hostName") String hostName,
-            @RequestParam("metricName") String metricName,
-            @RequestParam("fieldName") String fieldName,
-            @RequestParam(value = "tags", required = false) List<String> tags,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam("timeUnit") String timeUnit,
-            @RequestParam("timeSize") Integer timeSize) {
-        TimePrecision timePrecision = TimePrecision.newTimePrecision(TimeUnit.valueOf(timeUnit.toUpperCase()), timeSize);
-
-        final long minSamplingInterval = 10000L;
-        final long inputInterval = timePrecision.getInterval();
-        final long interval = Math.max(inputInterval, minSamplingInterval);
-        TimeWindowSampler sampler = new TimeWindowSlotCentricSampler(interval, 200);
-        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
-
-        MetricsQueryParameter.Builder builder = new MetricsQueryParameter.Builder();
-        builder.setHostGroupName(hostGroupName);
-        builder.setHostName(hostName);
-        builder.setMetricName(metricName);
-        builder.setFieldName(fieldName);
-        builder.setTagList(tagParser.parseTags(tags));
-        builder.setRange(Range.newRange(from, to));
-        builder.setTimePrecision(timePrecision);
-        MetricsQueryParameter queryParameter = builder.build();
-
-        return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
 
     @GetMapping(value = "/hostGroup")
