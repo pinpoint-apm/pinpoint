@@ -21,6 +21,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.mapping.Metric;
+import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 import org.springframework.core.io.ClassPathResource;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,7 @@ public class YMLSystemMetricBasicGroupManager {
     public static final String TELEGRAF_METRIC = "/pinot-web/telegraf-metric.yml";
     private final Map<String, Metric> definitionIdMap;
     private final Map<String, List<String>> metricIdMap;
+    private final Comparator<MetricInfo> metricInfoComparator;
 
     public YMLSystemMetricBasicGroupManager() throws IOException {
         this(new ClassPathResource(TELEGRAF_METRIC));
@@ -84,6 +87,12 @@ public class YMLSystemMetricBasicGroupManager {
         }
         this.metricIdMap = metricIdMap;
 
+
+        List<String> metricIdSortOrder = new ArrayList<>(metrics.size());
+        for (Metric metric : metrics) {
+            metricIdSortOrder.add(metric.getDefinitionId());
+        }
+        metricInfoComparator = Comparator.comparing(metricInfo -> metricIdSortOrder.indexOf(metricInfo.getMetricDefinitionId()));
     }
 
     public Metric findElementOfBasicGroup(String metricDefinitionId) {
@@ -144,5 +153,9 @@ public class YMLSystemMetricBasicGroupManager {
             return metric.getFields().get(0).getMatchingRule();
         }
         throw new UnsupportedOperationException("unsupported metric :" + metricDefinitionId);
+    }
+
+    public Comparator<MetricInfo> getMetricInfoComparator() {
+        return metricInfoComparator;
     }
 }
