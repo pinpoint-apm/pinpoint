@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,12 +50,18 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
     @Override
     public List<String> getHostGroupNameList() {
-        return systemMetricHostInfoDao.selectHostGroupNameList();
+        List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList();
+        hostGroupNameList.sort(Comparator.naturalOrder());
+
+        return hostGroupNameList;
     }
 
     @Override
     public List<String> getHostList(String hostGroupName) {
-        return systemMetricHostInfoDao.selectHostList(hostGroupName);
+        List<String> hostList = systemMetricHostInfoDao.selectHostList(hostGroupName);
+        hostList.sort(Comparator.naturalOrder());
+
+        return hostList;
     }
 
     @Override
@@ -68,6 +75,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
                 metricDefinitionIdList.add(new MetricInfo(metricDefinitionId, isMatchingRuleAll));
             }
         }
+        metricDefinitionIdList.sort(systemMetricBasicGroupManager.getMetricInfoComparator());
 
         return metricDefinitionIdList;
     }
