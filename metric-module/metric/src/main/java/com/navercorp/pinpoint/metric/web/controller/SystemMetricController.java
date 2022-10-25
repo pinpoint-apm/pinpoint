@@ -67,12 +67,6 @@ public class SystemMetricController {
         return systemMetricHostInfoService.getHostList(hostGroupName);
     }
 
-    @Deprecated
-    @GetMapping(value = "/hostGroup/host/collectedMetricInfo")
-    public List<String> getCollectedMetricInfo(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
-        return systemMetricHostInfoService.getCollectedMetricInfo(hostGroupName, hostName);
-    }
-
     @GetMapping(value = "/hostGroup/host/collectedMetricInfoV2")
     public List<MetricInfo> getCollectedMetricInfoV2(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
         return systemMetricHostInfoService.getCollectedMetricInfoV2(hostGroupName, hostName);
