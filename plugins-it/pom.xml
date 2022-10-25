@@ -31,8 +31,6 @@
     <modules>
         <module>plugins-it-utils</module>
         <module>plugins-it-jdbc-test</module>
-
-
         <module>activemq-it</module>
         <module>cassandra-it</module>
         <module>cxf-it</module>
@@ -43,22 +41,18 @@
         <module>fastjson-it</module>
         <module>google-grpc-it</module>
         <module>google-httpclient-it</module>
-        <module>google-httpclient-jdk7-it</module>
         <module>gson-it</module>
         <module>hbase-it</module>
         <module>httpclient3-it</module>
         <module>httpclient4-it</module>
         <module>hikaricp-it</module>
-        <module>hikaricp-jdk7-it</module>
         <module>hystrix-it</module>
         <module>ibatis-it</module>
         <module>informix-jdbc-it</module>
         <module>jackson-it</module>
-        <module>jackson-jdk7-it</module>
         <module>jdk-http-it</module>
         <module>json-lib-it</module>
         <module>log4j2-it</module>
-        <module>log4j2-jdk8-it</module>
         <module>log4j-it</module>
         <module>logback-it</module>
         <module>mariadb-jdbc-it</module>

@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +29,7 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmVersion(8)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.13)"})
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,]", PluginITConstants.VERSION})
 @JvmArgument("-DtestLoggerEnable=false")
 public class Log4j2IT extends Log4j2TestBase {
 

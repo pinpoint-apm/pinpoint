@@ -37,8 +37,8 @@
         <!-- Hikari CP -->
         <dependency>
             <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP-java6</artifactId>
-            <version>2.3.13</version>
+            <artifactId>HikariCP</artifactId>
+            <version>4.0.3</version>
             <scope>test</scope>
         </dependency>
 

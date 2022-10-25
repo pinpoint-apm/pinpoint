@@ -18,15 +18,16 @@ package com.navercorp.pinpoint.plugin.hikaricp;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.proxy.ConnectionProxy;
+
+import com.zaxxer.hikari.pool.ProxyConnection;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,7 +38,6 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
@@ -46,8 +46,9 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-hikaricp-plugin")
-@Dependency({"com.zaxxer:HikariCP-java6:[2.3.0,2.3.4),(2.3.4,2.3.9],[2.3.12,]", "com.h2database:h2:1.4.191"})
-public class HikariCpIT {
+@JvmVersion(8)
+@Dependency({"com.zaxxer:HikariCP:[4.0.0,5.0.0)", "com.h2database:h2:1.4.196"})
+public class HikariCpJDK8IT {
 
     private static final String serviceType = "HIKARICP";
     private static final String DATA_SOURCE_CLASS_NAME = "org.h2.jdbcx.JdbcDataSource";
@@ -61,7 +62,7 @@ public class HikariCpIT {
     public static void setUp() throws NoSuchMethodException {
         getConnectionMethod1 = HikariDataSource.class.getDeclaredMethod("getConnection");
         getConnectionMethod2 = HikariDataSource.class.getDeclaredMethod("getConnection", String.class, String.class);
-        proxyConnectionMethod = ConnectionProxy.class.getDeclaredMethod("close");
+        proxyConnectionMethod = ProxyConnection.class.getDeclaredMethod("close");
     }
 
     @Test
@@ -83,7 +84,7 @@ public class HikariCpIT {
             verifier.printCache();
 
             verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.HikariDataSource.HikariDataSource(com.zaxxer.hikari.HikariConfig)"));
-            verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.pool.BaseHikariPool.BaseHikariPool(com.zaxxer.hikari.HikariConfig, java.lang.String, java.lang.String)"));
+            verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.pool.HikariPool.HikariPool(com.zaxxer.hikari.HikariConfig)"));
             verifier.verifyTrace(event(serviceType, getConnectionMethod1));
             verifier.verifyTrace(event(serviceType, proxyConnectionMethod));
         }
@@ -104,32 +105,11 @@ public class HikariCpIT {
 
             verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.HikariDataSource.HikariDataSource()"));
             verifier.verifyTrace(event(serviceType, getConnectionMethod1));
-            verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.pool.BaseHikariPool.BaseHikariPool(com.zaxxer.hikari.HikariConfig, java.lang.String, java.lang.String)"));
+            verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.pool.HikariPool.HikariPool(com.zaxxer.hikari.HikariConfig)"));
             verifier.verifyTrace(event(serviceType, proxyConnectionMethod));
 
         }
     }
-
-
-    @Test
-    public void defaultTest3() throws InterruptedException, SQLException {
-
-        try (HikariDataSource dataSource = newDataSource()) {
-            try (Connection connection = dataSource.getConnection("", "")) {
-                Assert.assertNotNull(connection);
-            }
-
-            Thread.sleep(500);
-
-            PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-            verifier.printCache();
-
-            verifier.verifyTrace(event(serviceType, "com.zaxxer.hikari.HikariDataSource.HikariDataSource()"));
-            verifier.verifyTrace(event(serviceType, getConnectionMethod2, annotation(AnnotationKey.ARGS0.getName(), "")));
-            verifier.verifyTrace(event(serviceType, proxyConnectionMethod));
-        }
-    }
-
 
     private HikariDataSource newDataSource() {
         HikariDataSource hikariDataSource = new HikariDataSource();
