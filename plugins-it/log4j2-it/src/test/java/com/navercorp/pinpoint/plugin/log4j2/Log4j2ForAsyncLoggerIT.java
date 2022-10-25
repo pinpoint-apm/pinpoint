@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmVersion(8)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.0,2.13)", "com.lmax:disruptor:[3.4.2]"})
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.17.1,]", "com.lmax:disruptor:[3.4.4]"})
 @JvmArgument({"-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector", "-DtestLoggerEnable=false"})
 public class Log4j2ForAsyncLoggerIT extends Log4j2TestBase {
 
