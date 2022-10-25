@@ -57,19 +57,6 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         return systemMetricHostInfoDao.selectHostList(hostGroupName);
     }
 
-    @Deprecated
-    @Override
-    public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
-        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupName, hostName);
-
-        List<String> metricDefinitionIdList = new ArrayList<>();
-        for (String metricName : metricNameList) {
-            metricDefinitionIdList.addAll(systemMetricBasicGroupManager.findMetricDefinitionIdList(metricName));
-        }
-
-        return metricDefinitionIdList;
-    }
-
     @Override
     public List<MetricInfo> getCollectedMetricInfoV2(String hostGroupName, String hostName) {
         List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupName, hostName);
@@ -128,7 +115,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
     private List<MetricTag> createTag(MetricDataSearchKey metricDataSearchKey, Field field, List<Tag> tags) {
         if (tags == null || tags.isEmpty()) {
-            return allMatchingTag(metricDataSearchKey, field);
+            return Collections.emptyList();
         }
 
         List<MetricTag> metricTagList = new ArrayList<>();
@@ -136,14 +123,6 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         metricTagList.add(singleMetricTag);
 
         return metricTagList;
-    }
-
-    @Deprecated
-    private List<MetricTag> allMatchingTag(MetricDataSearchKey metricDataSearchKey, Field field) {
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
-        MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
-
-        return metricTagCollection.getMetricTagList();
     }
 
     private List<MetricTag> getExactMatchingTag(MetricDataSearchKey metricDataSearchKey, Field field) {

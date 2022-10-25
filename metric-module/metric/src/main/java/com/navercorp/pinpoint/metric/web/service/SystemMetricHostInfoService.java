@@ -32,8 +32,6 @@ public interface SystemMetricHostInfoService {
 
     List<String> getHostList(String hostGroupName);
 
-    List<String> getCollectedMetricInfo(String hostGroupName, String hostName);
-
     List<MetricInfo> getCollectedMetricInfoV2(String hostGroupName, String hostName);
 
     List<String> getCollectedMetricInfoTags(String hostGroupName, String hostName, String metricDefinitionId);
