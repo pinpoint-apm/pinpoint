@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.util.time;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.util.Assert;
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 
 import java.time.Duration;
 import java.time.Instant;
