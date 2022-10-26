@@ -1,4 +1,5 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Output, Input, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 const enum SearchAction {
     NEW = 'new',
@@ -29,7 +30,9 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
 
     private prevQuery: string;
 
-    constructor() {}
+    constructor(
+        private analyticsService: AnalyticsService,
+    ) {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
         if (changes['viewType'] && changes['viewType'].currentValue) {
@@ -102,10 +105,12 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
     }
 
     onClickPrev(): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_PREV_BUTTON_ON_TRANSACTION_SEARCH);
         this.onSearch(SearchAction.PREV);
     }
 
     onClickNext(): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NEXT_BUTTON_ON_TRANSACTION_SEARCH);
         this.onSearch(SearchAction.NEXT);
     }
 }

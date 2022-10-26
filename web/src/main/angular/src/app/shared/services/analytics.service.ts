@@ -71,6 +71,8 @@ export enum TRACKED_EVENT_LIST {
     CHANGE_SELECTION_RANGE_ON_TIMELINE = 'Change Selection Range on Timeline',
     SEARCH_AGENT = 'Search Agent',
     SEARCH_TRANSACTION = 'Search Transaction',
+    CLICK_NEXT_BUTTON_ON_TRANSACTION_SEARCH = 'Click Next Button on Transaction Search',
+    CLICK_PREV_BUTTON_ON_TRANSACTION_SEARCH = 'Click Prev Button on Transaction Search',
     SELECT_SQL = 'Select SQL',
     OPEN_TRANSACTION_DETAIL_PAGE_WITH_ICON = 'Open Transaction Detail Page with Icon',
     OPEN_TRANSACTION_DETAIL = 'Open Transaction Detail',
