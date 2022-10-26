@@ -30,6 +30,7 @@ public class VertxConfig {
     private final boolean enableHttpClient;
     private final List<String> bootstrapMains;
     private final List<String> handlerBasePackageNames;
+    private final boolean uriStatEnable;
 
     public VertxConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -40,6 +41,7 @@ public class VertxConfig {
         this.enableHttpClient = config.readBoolean("profiler.vertx.http.client.enable", true);
         this.bootstrapMains = config.readList("profiler.vertx.bootstrap.main");
         this.handlerBasePackageNames = config.readList("profiler.vertx.handler.base-packages");
+        this.uriStatEnable = config.readBoolean("profiler.vertx.uri.stat.enable", false);
     }
 
     public boolean isEnable() {
@@ -60,6 +62,10 @@ public class VertxConfig {
 
     public List<String> getHandlerBasePackageNames() {
         return handlerBasePackageNames;
+    }
+
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
     }
 
     @Override

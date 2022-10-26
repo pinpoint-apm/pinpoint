@@ -23,6 +23,8 @@ public enum UriExtractorType {
 
     SERVLET_REQUEST_ATTRIBUTE,
 
+    BYPASSING,
+
     NONE
 
 }
