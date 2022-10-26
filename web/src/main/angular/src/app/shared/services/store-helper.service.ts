@@ -111,12 +111,6 @@ export class StoreHelperService {
     getAgentList(unsubscribe: Subject<void>): Observable<IAgentList> {
         return this.getObservable(STORE_KEY.ADMIN_AGENT_LIST, unsubscribe);
     }
-    getServerAndAgentQuery(unsubscribe: Subject<void>): Observable<string> {
-        return this.getObservable(STORE_KEY.SERVER_AND_AGENT, unsubscribe).pipe(
-            debounceTime(100),
-            distinctUntilChanged()
-        );
-    }
     getAgentSelection(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION, unsubscribe);
     }

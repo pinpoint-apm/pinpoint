@@ -13,18 +13,19 @@
     height: 48px;
     align-items: center;
     width: 100%;
-    padding: 10px 4px 8px 11px;
+    padding: 10px 11px 8px 11px;
+    gap: 7px;
 }
 
 .l-wrapper {
-    width: 205px;
+    /* width: 205px; */
+    flex: 1;
     height: 100%;
     color: var(--text-primary-lightest);
     position: relative;
-    margin-right: 7px;
 }
 
-.l-wrapper input {
+.l-search-input {
     width: 100%;
     height: 100%;
     border: 1px solid var(--form-input-border);
@@ -34,16 +35,18 @@
     white-space: nowrap;
     overflow: hidden;
 }
-.l-wrapper input:focus {
+.l-search-input:focus {
     border: 1px solid var(--primary);
     box-shadow: 0 0 1px 1px var(--primary);
     outline: none;
 }
-.l-wrapper button {
+.l-wrapper .fa-search {
     position: absolute;
     top: 50%;
     right: 8px;
     transform: translateY(-50%);
+    color: var(--icon-default);
+    font-size: 18px;
 }
 
 ::placeholder {

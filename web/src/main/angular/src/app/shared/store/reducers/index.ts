@@ -6,7 +6,6 @@ import * as applicationList from './application-list.reducer';
 import * as dateFormat from './date-format.reducer';
 import * as favoriteApplicationList from './favorite-application-list.reducer';
 import * as scatterChart from './scatter-chart.reducer';
-import * as serverAndAgent from './server-and-agent.reducer';
 import * as serverList from './server-list.reducer';
 import * as timeline from './timeline.reducer';
 import * as timezone from './timezone.reducer';
@@ -38,7 +37,6 @@ export interface AppState {
     transactionDetailData: ITransactionDetailData;
     transactionTimelineData: ITransactionTimelineData;
     adminAgentList: { [key: string]: IAgent[] };
-    serverAndAgent: string;
     uiState: IUIState;
     timeline: ITimelineInfo;
     applicationInspectorChartLayout: IChartLayoutInfoResponse;
@@ -66,7 +64,6 @@ export const STORE_KEY: {[key: string]: keyof AppState} = {
     TRANSACTION_DETAIL_DATA: 'transactionDetailData',
     TRANSACTION_TIMELINE_DATA: 'transactionTimelineData',
     ADMIN_AGENT_LIST: 'adminAgentList',
-    SERVER_AND_AGENT: 'serverAndAgent',
     UI_STATE: 'uiState',
     TIMELINE: 'timeline',
     APPLICATION_INSPECTOR_CHART_LAYOUT: 'applicationInspectorChartLayout',
@@ -93,7 +90,6 @@ export const reducers: ActionReducerMap<any> = {
     transactionDetailData: transactionDetailData.Reducer,
     transactionTimelineData: transactionTimelineData.Reducer,
     adminAgentList: admin.Reducer,
-    serverAndAgent: serverAndAgent.Reducer,
     uiState: uiState.Reducer,
     timeline: timeline.Reducer,
     applicationInspectorChartLayout: chartLayout.ApplicationInspectorChartLayoutReducer,
@@ -117,7 +113,6 @@ export const Actions = {
     'UpdateServerList': serverList.UpdateServerList,
     'AddScatterChartData': scatterChart.AddScatterChartData,
     'UpdateServerMapLoadingState': serverMapLoadingState.UpdateServerMapLoadingState,
-    'UpdateFilterOfServerAndAgentList': serverAndAgent.UpdateFilterOfServerAndAgentList,
     'UpdateAdminAgentList': admin.UpdateAdminAgentList,
     'ChangeInfoPerServerVisibleState': uiState.ChangeInfoPerServerVisibleState,
     'UpdateTimelineData': timeline.UpdateTimelineData,

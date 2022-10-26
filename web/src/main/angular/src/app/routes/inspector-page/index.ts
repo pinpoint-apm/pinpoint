@@ -9,7 +9,6 @@ import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { ApplicationInspectorTitleModule } from 'app/core/components/application-inspector-title';
 import { ServerAndAgentListModule } from 'app/core/components/server-and-agent-list';
-import { AgentSearchInputModule } from 'app/core/components/agent-search-input';
 import { ApplicationInspectorContentsModule } from 'app/core/components/application-inspector-contents';
 import { AgentInspectorContentsModule } from 'app/core/components/agent-inspector-contents';
 import { InspectorPageComponent } from './inspector-page.component';
@@ -32,7 +31,6 @@ import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar
         ServerAndAgentListModule,
         ApplicationInspectorContentsModule,
         AgentInspectorContentsModule,
-        AgentSearchInputModule,
         HelpViewerPopupModule,
         RouterModule.forChild(routing),
         AppWidgetModule,
