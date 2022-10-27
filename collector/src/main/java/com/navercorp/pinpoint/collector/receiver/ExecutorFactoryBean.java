@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.collector.monitor.RunnableDecorator;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -105,24 +103,21 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
 
     private RejectedExecutionHandler wrapHandlerChain(RejectedExecutionHandler rejectedExecutionHandler) {
 
-        final List<RejectedExecutionHandler> handlerList = new ArrayList<>();
+        RejectedExecutionHandlerChain.Builder builder = new RejectedExecutionHandlerChain.Builder();
         if (registry != null) {
             RejectedExecutionHandler countingHandler = new CountingRejectedExecutionHandler(beanName, registry);
-            handlerList.add(countingHandler);
+            builder.addRejectHandler(countingHandler);
         }
 
         if (logRate > -1) {
             RejectedExecutionHandler loggingHandler = new LoggingRejectedExecutionHandler(beanName, logRate);
-            handlerList.add(loggingHandler);
+            builder.addRejectHandler(loggingHandler);
         }
 
         // original exception policy
-        handlerList.add(rejectedExecutionHandler);
+        builder.addRejectHandler(rejectedExecutionHandler);
 
-        if (handlerList.isEmpty()) {
-            return rejectedExecutionHandler;
-        }
-        return RejectedExecutionHandlerChain.build(handlerList);
+        return builder.build();
     }
 
 
