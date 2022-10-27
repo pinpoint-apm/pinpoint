@@ -48,7 +48,6 @@ import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.util.AnnotationUtils;
 import com.navercorp.pinpoint.test.util.AssertionErrorBuilder;
-import com.navercorp.pinpoint.test.util.ObjectUtils;
 import com.navercorp.pinpoint.test.util.ThreadUtils;
 import com.navercorp.pinpoint.test.wrapper.ActualTrace;
 import com.navercorp.pinpoint.test.wrapper.ActualTraceFactory;
@@ -457,7 +456,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
             }
 
-            if (!ObjectUtils.equals(expectedValue, actualAnnotation.getValue())) {
+            if (!Objects.equals(expectedValue, actualAnnotation.getValue())) {
                 AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", index),
                         expectedAnnotationKey.getCode(), AnnotationUtils.toString(actualAnnotation));
                 builder.setComparison(expected, actual);
@@ -469,7 +468,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     private void verifyDataType(int index, DataType expectedValue, Annotation<?> actualAnnotation) {
         DataType annotationValue = (DataType) actualAnnotation.getValue();
 
-        if (!ObjectUtils.equals(expectedValue, annotationValue)) {
+        if (!Objects.equals(expectedValue, annotationValue)) {
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", index),
                     expectedValue, annotationValue);
             builder.throwAssertionError();
@@ -487,12 +486,12 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     private void verifyException(Exception expectedException, String actualExceptionClassName, String actualExceptionMessage) {
         String expectedExceptionClassName = expectedException.getClass().getName();
         String expectedExceptionMessage = StringUtils.abbreviate(expectedException.getMessage(), 256);
-        if (!ObjectUtils.equals(actualExceptionClassName, expectedExceptionClassName)) {
+        if (!Objects.equals(actualExceptionClassName, expectedExceptionClassName)) {
             AssertionErrorBuilder builder = new AssertionErrorBuilder("ExceptionClassName",
                     expectedExceptionClassName, actualExceptionClassName);
             builder.throwAssertionError();
         }
-        if (!ObjectUtils.equals(actualExceptionMessage, expectedExceptionMessage)) {
+        if (!Objects.equals(actualExceptionMessage, expectedExceptionMessage)) {
             AssertionErrorBuilder builder = new AssertionErrorBuilder("Exception Message",
                     expectedExceptionMessage, actualExceptionMessage);
             builder.throwAssertionError();
@@ -512,14 +511,14 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             builder.throwAssertionError();
         }
 
-        if (!ObjectUtils.equals(actualSql.getStringValue1(), expected.getOutput())) {
+        if (!Objects.equals(actualSql.getStringValue1(), expected.getOutput())) {
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.output", index),
                     expected.getOutput(), actualSql.getStringValue1());
             builder.setComparison(expected, actual);
             builder.throwAssertionError();
         }
 
-        if (!ObjectUtils.equals(actualSql.getStringValue2(), expected.getBindValuesAsString())) {
+        if (!Objects.equals(actualSql.getStringValue2(), expected.getBindValuesAsString())) {
             AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.bindValues", index),
                     expected.getBindValuesAsString(), actualSql.getStringValue2());
             builder.setComparison(expected, actual);
