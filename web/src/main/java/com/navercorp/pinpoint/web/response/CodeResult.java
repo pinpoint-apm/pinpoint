@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * @author Taejin Koo
  */
-public class CodeResult {
+public class CodeResult<T> {
 
     public static final int CODE_SUCCESS = 0;
 
@@ -29,17 +29,17 @@ public class CodeResult {
     public static final int CODE_FAIL = -1;
 
     private final int code;
-    private final Object message;
+    private final T message;
 
-    public static CodeResult ok(Object message) {
-        return new CodeResult(CODE_SUCCESS, message);
+    public static <T> CodeResult<T> ok(T message) {
+        return new CodeResult<>(CODE_SUCCESS, message);
     }
 
-    public CodeResult(int code) {
+    CodeResult(int code) {
         this(code, null);
     }
 
-    public CodeResult(int code, Object message) {
+    public CodeResult(int code, T message) {
         this.code = code;
         this.message = message;
     }
@@ -49,7 +49,7 @@ public class CodeResult {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Object getMessage() {
+    public T getMessage() {
         return message;
     }
 

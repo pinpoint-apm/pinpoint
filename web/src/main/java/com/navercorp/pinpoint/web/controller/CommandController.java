@@ -52,7 +52,7 @@ public class CommandController {
     }
 
     @GetMapping(value = "/echo")
-    public CodeResult echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
+    public CodeResult<String> echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
                                           @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
         final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp);

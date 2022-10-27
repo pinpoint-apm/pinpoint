@@ -21,7 +21,7 @@ public class AgentDownloadController {
     }
 
     @RequestMapping(value = "/getAgentInstallationInfo")
-    public CodeResult getAgentDownloadUrl() {
+    public CodeResult<AgentInstallationInfo> getAgentDownloadUrl() {
         AgentDownloadInfo latestStableAgentDownloadInfo = agentDownLoadService.getLatestStableAgentDownloadInfo();
         if (latestStableAgentDownloadInfo != null) {
             return CodeResult.ok(new AgentInstallationInfo(latestStableAgentDownloadInfo));

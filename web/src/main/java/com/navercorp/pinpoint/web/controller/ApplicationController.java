@@ -60,7 +60,7 @@ public class ApplicationController {
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
-    public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
+    public CodeResult<String> isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");
