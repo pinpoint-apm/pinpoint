@@ -25,5 +25,5 @@ public final class ASMVersion {
     private ASMVersion() {
     }
 
-    public static final int VERSION = Opcodes.ASM7;
+    public static final int VERSION = Opcodes.ASM9;
 }

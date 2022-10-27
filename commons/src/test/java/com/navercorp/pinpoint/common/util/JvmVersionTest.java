@@ -129,7 +129,7 @@ public class JvmVersionTest {
         assertSame(UNSUPPORTED, java_unsupported);
 
         // new version
-        final JvmVersion java20 = JvmVersion.getFromVersion(20.f);
+        final JvmVersion java20 = JvmVersion.getFromVersion(21.f);
         assertSame(JAVA_RECENT, java20);
     }
 
