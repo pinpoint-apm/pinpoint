@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.security.SslServerConfig;
 import io.grpc.BindableService;
 import io.grpc.InternalWithLogId;
 import io.grpc.Server;
+import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
@@ -59,7 +60,7 @@ public class ServerFactory {
 
     private final String name;
 
-    private String hostname;
+    private final String hostname;
     private final int port;
 
     private final Class<? extends ServerChannel> channelType;
@@ -70,6 +71,7 @@ public class ServerFactory {
     private final EventLoopGroup workerEventLoopGroup;
 
     private final Executor serverExecutor;
+    private final ServerCallExecutorSupplier callExecutor;
 
     private final List<Object> bindableServices = new ArrayList<>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<>();
@@ -79,11 +81,11 @@ public class ServerFactory {
     private final SslServerConfig sslServerConfig;
     private ChannelzRegistry channelzRegistry;
 
-    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {
-        this(name, hostname, port, serverExecutor, serverOption, SslServerConfig.DISABLED_CONFIG);
+    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption) {
+        this(name, hostname, port, serverExecutor, callExecutor, serverOption, SslServerConfig.DISABLED_CONFIG);
     }
 
-    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption, SslServerConfig sslServerConfig) {
+    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption, SslServerConfig sslServerConfig) {
         this.name = Objects.requireNonNull(name, "name");
         this.hostname = Objects.requireNonNull(hostname, "hostname");
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
@@ -98,7 +100,8 @@ public class ServerFactory {
         this.workerExecutor = newExecutor(name + "-Channel-Worker");
         this.workerEventLoopGroup = serverChannelType.newEventLoopGroup(CpuUtils.cpuCount(), workerExecutor);
 
-        this.serverExecutor = Objects.requireNonNull(serverExecutor, "executor");
+        this.serverExecutor = Objects.requireNonNull(serverExecutor, "serverExecutor");
+        this.callExecutor = callExecutor;
     }
 
     private ServerChannelType getChannelType() {
@@ -168,7 +171,12 @@ public class ServerFactory {
             serverBuilder.intercept(serverInterceptor);
         }
 
-        serverBuilder.executor(serverExecutor);
+        serverBuilder.executor(this.serverExecutor);
+
+        if (this.callExecutor != null) {
+            serverBuilder.callExecutor(this.callExecutor);
+        }
+
         setupServerOption(serverBuilder);
 
         if (sslServerConfig.isEnable()) {

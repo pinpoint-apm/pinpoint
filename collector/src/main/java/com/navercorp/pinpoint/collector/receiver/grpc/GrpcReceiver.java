@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import io.grpc.BindableService;
 import io.grpc.Server;
+import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NestedExceptionUtils;
 
+import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.net.BindException;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
     private ServerFactory serverFactory;
     private Executor executor;
+    private ServerCallExecutorSupplier serverCallExecutorSupplier;
 
     private List<Object> serviceList = new ArrayList<>();
 
@@ -91,9 +94,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
         if (grpcSslConfiguration != null) {
             final SslServerConfig sslServerConfig = grpcSslConfiguration.toSslServerConfig();
-            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, serverOption, sslServerConfig);
+            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, sslServerConfig);
         } else {
-            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, serverOption);
+            this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption);
         }
 
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
@@ -185,7 +188,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     }
 
     @Override
-    public void setBeanName(final String beanName) {
+    public void setBeanName(@Nonnull final String beanName) {
         this.beanName = beanName;
     }
 
@@ -203,6 +206,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
     public void setExecutor(Executor executor) {
         this.executor = executor;
+    }
+
+    public void setServerCallExecutorSupplier(ServerCallExecutorSupplier serverCallExecutorSupplier) {
+        this.serverCallExecutorSupplier = serverCallExecutorSupplier;
     }
 
     public void setServerOption(ServerOption serverOption) {

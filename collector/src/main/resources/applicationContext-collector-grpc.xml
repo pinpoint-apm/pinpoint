@@ -115,15 +115,27 @@
     </util:list>
 
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverExecutor}"/>
+        <property name="corePoolSize" value="0"/>
+        <property name="maxPoolSize" value="#{grpcAgentReceiverConfig.serverExecutor.threadSize}"/>
+        <property name="queueCapacity" value="0"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
+    </bean>
+
+    <bean id="grpcAgentServerCallExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+        <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverExecutor}"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Call-"/>
         <property name="registry" ref="metricRegistry"/>
         <property name="logRate" value="1"/>
+    </bean>
+
+    <bean id="grpcAgentServerCallExecutorSupplier" class="com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSupplier">
+        <constructor-arg ref="grpcAgentServerCallExecutor"/>
     </bean>
 
     <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindAddress" value="#{grpcAgentReceiverConfig.bindAddress}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
+        <property name="serverCallExecutorSupplier" ref="grpcAgentServerCallExecutorSupplier" />
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="serverInterceptorList" ref="agentInterceptorList"/>
@@ -134,6 +146,7 @@
     <bean id="grpcAgentSslReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindAddress" value="#{grpcAgentSslReceiverConfig.bindAddress}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
+        <property name="callExecutor" ref="grpcAgentServerCallExecutor" />
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="serverInterceptorList" ref="agentInterceptorList"/>
