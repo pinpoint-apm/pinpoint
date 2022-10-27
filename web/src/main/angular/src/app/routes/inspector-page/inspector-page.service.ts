@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { map, tap, takeUntil } from 'rxjs/operators';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 
 import {
@@ -10,12 +9,6 @@ import {
 } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { Timeline } from 'app/core/components/timeline/class';
-
-export interface ISourceForServerAndAgentList {
-    range: number[];
-    agentId: string;
-    emitAfter: number;
-}
 
 export interface ISourceForTimeline {
     timelineInfo: ITimelineInfo;
@@ -37,7 +30,6 @@ export interface ISourceForTimelineCommand {
 
 @Injectable()
 export class InspectorPageService {
-    private sourceForServerAndAgentList = new BehaviorSubject<ISourceForServerAndAgentList>(null);
     private sourceForTimeline = new Subject<ISourceForTimeline>();
     private sourceForAgentInfo = new Subject<ISourceForAgentInfo>();
     private sourceForChart = new Subject<ISourceForChart>();
@@ -46,7 +38,6 @@ export class InspectorPageService {
     private timelineInfo: ITimelineInfo;
     private agentId: string;
 
-    sourceForServerAndAgentList$: Observable<ISourceForServerAndAgentList>;
     sourceForTimeline$: Observable<ISourceForTimeline>;
     sourceForAgentInfo$: Observable<ISourceForAgentInfo>;
     sourceForChart$: Observable<ISourceForChart>;
@@ -57,7 +48,6 @@ export class InspectorPageService {
         private webAppSettingDataService: WebAppSettingDataService,
         private messageQueueService: MessageQueueService,
     ) {
-        this.sourceForServerAndAgentList$ = this.sourceForServerAndAgentList.asObservable();
         this.sourceForTimeline$ = this.sourceForTimeline.asObservable();
         this.sourceForAgentInfo$ = this.sourceForAgentInfo.asObservable();
         this.sourceForChart$ = this.sourceForChart.asObservable();
@@ -65,27 +55,8 @@ export class InspectorPageService {
     }
 
     activate(unsubscribe: Subject<void>): void {
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(unsubscribe),
-            tap((urlService: NewUrlStateNotificationService) => {
-                this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
-            }),
-            map((urlService: NewUrlStateNotificationService) => {
-                if (urlService.isRealTimeMode()) {
-                    const to = urlService.getUrlServerTimeData();
-                    const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
-
-                    return [from, to];
-                } else {
-                    return [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
-                }
-
-            })
-        ).subscribe((range: number[]) => {
-            this.notifyToServerAndAgentList(range);
-        });
-
-        this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.INSPECTOR_PAGE_VALID).subscribe(({range, now}: {range: number[], now: number}) => {
+        this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.AGENT_LIST_VALID).subscribe(({range, now, agentId}: {range: number[], now: number, agentId: string}) => {
+            this.agentId = agentId;
             this.notifyToTimeline(range);
             this.notifyToTimelineCommand();
             this.notifyToAgentInfo();
@@ -99,7 +70,13 @@ export class InspectorPageService {
                 const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
                 const emitAfter = isDelayed ? 0 : reservedNextTo - now;
 
-                this.notifyToServerAndAgentList([from, to], emitAfter);
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.FETCH_AGENT_LIST,
+                    param: {
+                        range: [from, to],
+                        emitAfter
+                    }
+                })
             }
         });
     }
@@ -148,14 +125,6 @@ export class InspectorPageService {
     private notifyToTimelineCommand(): void {
         this.sourceForTimelineCommand.next({
             selectedTime: this.timelineInfo.selectedTime
-        });
-    }
-
-    private notifyToServerAndAgentList(range: number[], emitAfter = 0): void {
-        this.sourceForServerAndAgentList.next({
-            range,
-            agentId: this.agentId,
-            emitAfter
         });
     }
 

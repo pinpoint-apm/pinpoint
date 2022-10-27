@@ -50,6 +50,16 @@ export class ComponentDefaultSettingDataService {
             new Period(10080),
             new Period(20160),
             new Period(40320),
+        ],
+        [UrlPath.URL_STATISTIC]: [
+            new Period(5, 'Last'),
+            new Period(20),
+            new Period(60),
+            new Period(720),
+            new Period(1440),
+            new Period(10080),
+            new Period(20160),
+            new Period(40320),
         ]
     };
     private maxPeriodTime = 60 * 24 * 2; // 2day

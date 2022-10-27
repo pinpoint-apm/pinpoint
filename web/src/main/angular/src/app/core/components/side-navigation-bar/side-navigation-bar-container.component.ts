@@ -98,6 +98,10 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         this.urlRouteManagerService.movePageOnSidebar(UrlPath.METRIC);
     }
 
+    onClickUrlStat(): void {
+        this.urlRouteManagerService.movePageOnSidebar(UrlPath.URL_STATISTIC);
+    }
+
     onClickGithubLink() {
        this.windowRefService.nativeWindow.open('http://github.com/naver/pinpoint');
     }
@@ -126,6 +130,13 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     path: '/inspector',
                     iconClass: 'fas fa-chart-line',
                     onClick: () => this.onClickInspector(),
+                },
+                {
+                    id: 'url-stat',
+                    title: 'URL Statistic',
+                    path: '/urlStatistic',
+                    iconClass: 'fas fa-chart-bar',
+                    onClick: () => this.onClickUrlStat(),
                 },
                 {
                     id: 'infrastructure',
