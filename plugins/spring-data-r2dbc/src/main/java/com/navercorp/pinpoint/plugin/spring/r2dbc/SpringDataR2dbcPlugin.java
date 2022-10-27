@@ -77,7 +77,6 @@ import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindNullI
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementExecuteInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.ConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.postgresql.PostgresqlConnectionFactoryConstructorInterceptor;
-import io.r2dbc.spi.Parameter;
 
 import java.security.ProtectionDomain;
 
@@ -146,7 +145,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             // Oracle
             transformTemplate.transform("oracle.r2dbc.impl.OracleConnectionFactoryImpl", OracleConnectionFactoryImplTransform.class);
             transformTemplate.transform("oracle.r2dbc.impl.OracleReactiveJdbcAdapter", OracleReactiveJdbcAdapterTransform.class);
-            final Matcher oracleConnectionFactoryImplLambdaMatcher = Matchers.newPackageBasedMatcher("oracle.r2dbc.impl.OracleConnectionFactoryImpl$$Lambda$");
+            final Matcher oracleConnectionFactoryImplLambdaMatcher = Matchers.newLambdaExpressionMatcher("oracle.r2dbc.impl.OracleConnectionFactoryImpl", "java.util.function.Function");
             transformTemplate.transform(oracleConnectionFactoryImplLambdaMatcher, OracleConnectionFactoryImplLambdaTransform.class);
             transformTemplate.transform("oracle.r2dbc.impl.OracleConnectionImpl", OracleConnectionImplTransform.class);
             transformTemplate.transform("oracle.r2dbc.impl.OracleStatementImpl", OracleStatementImplTransform.class);
@@ -166,7 +165,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         transformTemplate.transform("org.springframework.r2dbc.core.DefaultFetchSpec", DefaultFetchSpecTransform.class);
 
         // statementFunction, resultFunction Lambda
-        final Matcher defaultGenericExecuteSpecLambdaMatcher = Matchers.newPackageBasedMatcher("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec$$Lambda$");
+        final Matcher defaultGenericExecuteSpecLambdaMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec", "java.util.function.Function");
         transformTemplate.transform(defaultGenericExecuteSpecLambdaMatcher, DefaultGenericExecuteSpecStatementFunctionTransform.class);
     }
 
@@ -721,7 +720,6 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
             final InstrumentMethod lambdaMethod = target.getLambdaMethod("oracle.r2dbc.impl.OracleConnectionFactoryImpl", "oracle.r2dbc.impl.ReactiveJdbcAdapter");
             if (lambdaMethod != null) {
                 lambdaMethod.addInterceptor(OracleConnectionFactoryImplLambdaCreateInterceptor.class);
@@ -934,7 +932,6 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
             final InstrumentMethod resultFunctionGetLambdaMethod = target.getLambdaMethod("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec", "java.util.function.Function", "java.lang.String");
             if (resultFunctionGetLambdaMethod != null) {
                 // resultFunction
@@ -942,7 +939,6 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
                 target.addField(AsyncContextAccessor.class);
 
                 resultFunctionGetLambdaMethod.addInterceptor(DefaultGenericExecuteSpecStatementFunctionGetLambdaInterceptor.class);
-
                 final InstrumentMethod applyMethod = target.getDeclaredMethod("apply", "java.lang.Object");
                 if (applyMethod != null) {
                     applyMethod.addInterceptor(DefaultGenericExecuteSpecResultFunctionApplyInterceptor.class);

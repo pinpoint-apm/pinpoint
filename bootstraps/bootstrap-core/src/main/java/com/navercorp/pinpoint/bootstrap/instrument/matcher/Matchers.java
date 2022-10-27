@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+
 import java.util.List;
 
 /**
@@ -69,5 +70,9 @@ public final class Matchers {
 
     public static Matcher newMultiClassBasedMatcher(List<String> baseClassNames, MatcherOperand additional) {
         return new DefaultMultiClassBasedMatcher(baseClassNames, additional);
+    }
+
+    public static Matcher newLambdaExpressionMatcher(String baseClassName, String functionalInterfaceName) {
+        return new LambdaExpressionMatcher(baseClassName, functionalInterfaceName);
     }
 }
