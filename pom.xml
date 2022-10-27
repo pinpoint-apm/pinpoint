@@ -169,7 +169,7 @@
         <javax.servlet.version>3.0.1</javax.servlet.version>
 
 
-        <asm.version>9.2</asm.version>
+        <asm.version>9.4</asm.version>
         <thrift.version>0.16.0</thrift.version>
         <caffeine.version>2.9.2</caffeine.version>
 
