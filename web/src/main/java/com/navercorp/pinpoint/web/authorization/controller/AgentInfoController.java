@@ -204,7 +204,7 @@ public class AgentInfoController {
     }
 
     @RequestMapping(value = "/isAvailableAgentId")
-    public CodeResult isAvailableAgentId(@RequestParam("agentId") String agentId) {
+    public CodeResult<String> isAvailableAgentId(@RequestParam("agentId") String agentId) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(agentId, PinpointConstants.AGENT_ID_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");

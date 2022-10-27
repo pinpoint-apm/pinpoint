@@ -58,7 +58,7 @@ public class AgentCommandController {
     }
 
     @GetMapping(value = "/activeThreadDump")
-    public CodeResult getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
+    public CodeResult<ThreadDumpResult> getActiveThreadDump(@RequestParam(value = "applicationName") String applicationName,
                                           @RequestParam(value = "agentId") String agentId,
                                           @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                           @RequestParam(value = "threadName", required = false) List<String> threadNameList,
@@ -154,7 +154,7 @@ public class AgentCommandController {
     }
 
     @GetMapping(value = "/activeThreadLightDump")
-    public CodeResult getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
+    public CodeResult<ThreadDumpResult> getActiveThreadLightDump(@RequestParam(value = "applicationName") String applicationName,
                                                                @RequestParam(value = "agentId") String agentId,
                                                                @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
                                                                @RequestParam(value = "threadName", required = false) List<String> threadNameList,
