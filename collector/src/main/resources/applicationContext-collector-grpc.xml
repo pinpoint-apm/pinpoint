@@ -146,7 +146,7 @@
     <bean id="grpcAgentSslReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindAddress" value="#{grpcAgentSslReceiverConfig.bindAddress}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
-        <property name="callExecutor" ref="grpcAgentServerCallExecutor" />
+        <property name="serverCallExecutorSupplier" ref="grpcAgentServerCallExecutorSupplier" />
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="serverInterceptorList" ref="agentInterceptorList"/>
