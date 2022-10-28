@@ -96,7 +96,7 @@ public class ThreadDumpUtils {
                 threadDump.addStackTrace(element.toString());
             }
         } else {
-            threadDump.setStackTrace(Collections.<String>emptyList());
+            threadDump.setStackTrace(Collections.emptyList());
         }
     }
 
@@ -113,7 +113,7 @@ public class ThreadDumpUtils {
                 threadDump.addLockedMonitor(monitorInfoMetricSnapshot);
             }
         } else {
-            threadDump.setLockedMonitors(Collections.<MonitorInfoMetricSnapshot>emptyList());
+            threadDump.setLockedMonitors(Collections.emptyList());
         }
     }
 
@@ -132,7 +132,7 @@ public class ThreadDumpUtils {
                 threadDump.addLockedSynchronizer(lockInfo.toString());
             }
         } else {
-            threadDump.setLockedSynchronizers(Collections.<String>emptyList());
+            threadDump.setLockedSynchronizers(Collections.emptyList());
         }
     }
 }

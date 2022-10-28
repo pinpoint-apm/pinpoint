@@ -66,7 +66,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final List<String> importPluginIds;
 
     public AbstractPinpointPluginTestSuite(Class<?> testClass) throws InitializationError {
-        super(testClass, Collections.<Runner>emptyList());
+        super(testClass, Collections.emptyList());
 
         PinpointAgent agent = testClass.getAnnotation(PinpointAgent.class);
         this.agentJar = resolveAgentPath(agent);

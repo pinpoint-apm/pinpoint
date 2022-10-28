@@ -41,7 +41,7 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
     @Override
     public Collection<String> getHeaderNames(HttpServerRequest request) {
         final MultiMap headers = request.headers();
-        return headers == null ? Collections.<String>emptyList() : headers.names();
+        return headers == null ? Collections.emptyList() : headers.names();
     }
 
 

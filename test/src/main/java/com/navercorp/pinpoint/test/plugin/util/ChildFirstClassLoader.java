@@ -31,7 +31,7 @@ public class ChildFirstClassLoader extends URLClassLoader {
 
     public ChildFirstClassLoader(URL[] urls) {
         super(urls);
-        this.parentClass = new ParentClass(Collections.<String>emptyList());
+        this.parentClass = new ParentClass(Collections.emptyList());
     }
 
     public ChildFirstClassLoader(URL[] urls, List<String> delegateParent) {
@@ -41,7 +41,7 @@ public class ChildFirstClassLoader extends URLClassLoader {
 
     public ChildFirstClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
-        this.parentClass = new ParentClass(Collections.<String>emptyList());
+        this.parentClass = new ParentClass(Collections.emptyList());
     }
 
     public ChildFirstClassLoader(URL[] urls, ClassLoader parent, List<String> delegateParent) {

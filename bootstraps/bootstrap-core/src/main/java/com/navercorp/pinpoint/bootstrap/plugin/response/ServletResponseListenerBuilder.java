@@ -59,7 +59,7 @@ public class ServletResponseListenerBuilder<RESP> {
     public ServletResponseListener<RESP> build() {
         HttpStatusCodeRecorder httpStatusCodeRecorder;
         if (httpStatusCodeErrors == null) {
-            HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors(Collections.<String>emptyList());
+            HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors(Collections.emptyList());
             httpStatusCodeRecorder = new HttpStatusCodeRecorder(httpStatusCodeErrors);
         } else {
             httpStatusCodeRecorder = new HttpStatusCodeRecorder(httpStatusCodeErrors);
