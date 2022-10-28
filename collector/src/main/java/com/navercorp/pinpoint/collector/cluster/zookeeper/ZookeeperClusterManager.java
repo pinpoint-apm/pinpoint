@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Connecti
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -250,7 +250,7 @@ public class ZookeeperClusterManager {
             return needNotRetry;
         }
 
-        private List<Address> getTargetAddressList(String parentPath) throws PinpointZookeeperException, InterruptedException {
+        private List<Address> getTargetAddressList(String parentPath) throws PinpointZookeeperException {
             List<Address> result = new ArrayList<>();
 
             List<String> childNodeList = client.getChildNodeList(parentPath, true);
@@ -259,7 +259,7 @@ public class ZookeeperClusterManager {
                 for (String childNodeName : childNodeList) {
                     String fullPath = ZKPaths.makePath(parentPath, childNodeName);
                     byte[] data = client.getData(fullPath);
-                    String nodeContents = StringUtils.toString(data);
+                    String nodeContents = BytesUtils.toString(data);
 
                     String[] nodeAddresses = nodeContents.split("\r\n");
 
