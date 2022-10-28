@@ -283,7 +283,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     }
 
     private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) {
-        PinpointPluginTestInstance testCase = newNormalPluginTestCase(context, "", Collections.<String>emptyList());
+        PinpointPluginTestInstance testCase = newNormalPluginTestCase(context, "", Collections.emptyList());
 
         List<PinpointPluginTestInstance> cases = new ArrayList<>();
         cases.add(testCase);

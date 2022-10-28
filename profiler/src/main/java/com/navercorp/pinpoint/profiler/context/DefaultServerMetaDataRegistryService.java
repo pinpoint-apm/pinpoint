@@ -91,11 +91,11 @@ public class DefaultServerMetaDataRegistryService implements ServerMetaDataRegis
     private ServerMetaData createServerMetaData() {
         String serverName = this.serverName == null ? "" : this.serverName;
         List<String> vmArgs =
-                this.vmArgs == null ? Collections.<String>emptyList() : new ArrayList<>(this.vmArgs);
+                this.vmArgs == null ? Collections.emptyList() : new ArrayList<>(this.vmArgs);
         Map<Integer, String> connectors =
-                this.connectors.isEmpty() ? Collections.<Integer, String>emptyMap() : new HashMap<>(this.connectors);
+                this.connectors.isEmpty() ? Collections.emptyMap() : new HashMap<>(this.connectors);
         List<ServiceInfo> serviceInfos =
-                this.serviceInfos.isEmpty() ? Collections.<ServiceInfo>emptyList() : new ArrayList<>(this.serviceInfos);
+                this.serviceInfos.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.serviceInfos);
         return new DefaultServerMetaData(serverName, vmArgs, connectors, serviceInfos);
     }
 }

@@ -33,14 +33,14 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
     private final Map<String, Object> allowJdkClassNames;
 
     public UnmodifiableClassFilter() {
-        this(Collections.<String>emptyList());
+        this(Collections.emptyList());
     }
     public UnmodifiableClassFilter(List<String> allowJdkClassNames) {
         this.allowJdkClassNames = newJdkClassNameMap(allowJdkClassNames);
     }
 
     private Map<String, Object> newJdkClassNameMap(List<String> allowJdkClassNames) {
-        Map<String, Object> allowJdkClass = new HashMap<String, Object>();
+        Map<String, Object> allowJdkClass = new HashMap<>();
         for (String allowJdkClassName : allowJdkClassNames) {
             String jvmName = JavaAssistUtils.javaNameToJvmName(allowJdkClassName);
             allowJdkClass.put(jvmName, PRESENT);

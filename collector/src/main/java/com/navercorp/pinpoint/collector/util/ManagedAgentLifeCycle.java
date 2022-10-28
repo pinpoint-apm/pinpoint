@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.collector.util;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 public enum ManagedAgentLifeCycle {
     RUNNING(0, AgentLifeCycleState.RUNNING, AgentEventType.AGENT_CONNECTED, SocketStateCode.RUN_SIMPLEX,
@@ -58,7 +57,8 @@ public enum ManagedAgentLifeCycle {
         this.eventCounter = eventCounter;
         this.agentLifeCycleState = agentLifeCycleState;
         this.agentEventType = agentEventType;
-        this.managedStateCodeSet = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(managedStateCodes)));
+
+        this.managedStateCodeSet = EnumSet.copyOf(Arrays.asList(managedStateCodes));
     }
 
     public int getEventCounter() {
@@ -66,7 +66,7 @@ public enum ManagedAgentLifeCycle {
     }
 
     public Set<SocketStateCode> getManagedStateCodes() {
-        return this.managedStateCodeSet;
+        return Collections.unmodifiableSet(this.managedStateCodeSet);
     }
 
     public AgentLifeCycleState getMappedState() {
@@ -78,6 +78,9 @@ public enum ManagedAgentLifeCycle {
     }
 
     public static ManagedAgentLifeCycle getManagedAgentLifeCycleByStateCode(SocketStateCode stateCode) {
+        if (stateCode == null) {
+            return null;
+        }
         for (ManagedAgentLifeCycle agentLifeCycle : ALL) {
             if (agentLifeCycle.managedStateCodeSet.contains(stateCode)) {
                 return agentLifeCycle;
