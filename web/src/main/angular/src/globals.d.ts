@@ -457,15 +457,18 @@ interface IMetricData {
     unit: string;
 }
 
-// interface IMetricData {
-//     title: string;
-//     timestamp: number[];
-//     metricValues: IMetricValue[];
-// }
-
 interface IMetricValue {
     fieldName: string;
     // tagList: {name: string, value: string}[];
     tags?: any[]; // TODO: Check format
     values: number[];
+}
+
+
+interface IUrlStatInfoData {
+    uri: string;
+    totalCount: number;
+    failureCount: number;
+    maxTimeMs: number;
+    avgTimeMs: number;
 }

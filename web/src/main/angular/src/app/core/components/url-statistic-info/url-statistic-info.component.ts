@@ -6,8 +6,8 @@ import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChange
     styleUrls: ['./url-statistic-info.component.css']
 })
 export class UrlStatisticInfoComponent implements OnInit, OnChanges {
-    @Input() data: any[];
-    @Output() outSelectUrl = new EventEmitter<string>();
+    @Input() data: IUrlStatInfoData[];
+    @Output() outSelectUrlInfo = new EventEmitter<string>();
 
     private totalCount: number;
 
@@ -32,7 +32,7 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
         }
 
         this.selectedUrl = url;
-        this.outSelectUrl.emit(url);
+        this.outSelectUrlInfo.emit(url);
     }
 
     isSelectedUrl(url: string): boolean {

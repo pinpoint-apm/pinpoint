@@ -4,23 +4,24 @@
             <tr>
                 <th>URL</th>
                 <th>Total Count</th>
-                <th>Avg</th>
-                <th>Max</th>
+                <th>Failure Count</th>
+                <th>Avg(ms)</th>
+                <th>Max(ms)</th>
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let urlInfo of data" class="l-content-group" [class.active]="isSelectedUrl(urlInfo.uri)">
-                <td class="l-content-item l-url" (click)="onSelectUrl(urlInfo.uri)">{{urlInfo.uri}}</td>
-                <td class="l-content-item">
-                    <div class="l-sub">
-                        <div class="l-count">{{urlInfo.totalCount}}</div>
-                        <div class="l-ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">
-                            <!-- <div class="l-count">{{urlInfo.totalCount}}</div> -->
+            <tr *ngFor="let urlInfo of data" (click)="onSelectUrl(urlInfo.uri)" class="content-group" [class.active]="isSelectedUrl(urlInfo.uri)">
+                <td class="content-item url">{{urlInfo.uri}}</td>
+                <td class="content-item">
+                    <div class="sub">
+                        <div class="count">{{urlInfo.totalCount}}</div>
+                        <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">
                         </div>
                     </div>
                 </td>
-                <td class="l-content-item">{{urlInfo.avgTime}}</td>
-                <td class="l-content-item">{{urlInfo.maxTime}}</td>
+                <td class="content-item">{{urlInfo.failureCount}}</td>
+                <td class="content-item">{{urlInfo.avgTimeMs | number: '1.0-3'}}</td>
+                <td class="content-item">{{urlInfo.maxTimeMs}}</td>
             </tr>
         </tbody>
     </table>

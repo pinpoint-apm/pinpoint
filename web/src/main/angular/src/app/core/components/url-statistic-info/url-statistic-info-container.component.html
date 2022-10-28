@@ -1,1 +1,4 @@
-<p>url-statistic-info-container works!</p>
+<pp-url-statistic-info
+    [data]="data$ | async"
+    (outSelectUrlInfo)="onSelectUrlInfo($event)">
+</pp-url-statistic-info>
