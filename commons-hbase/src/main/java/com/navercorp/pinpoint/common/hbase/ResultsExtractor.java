@@ -19,7 +19,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 
 /**
  * Callback handling scanner results.
- * Implementations of this interface perform the actula work of extracting results from the
+ * Implementations of this interface perform the actual work of extracting results from the
  * {@link ResultScanner} but  without having to worry about exception handling or resource management.
  * 
  * @author Costin Leau

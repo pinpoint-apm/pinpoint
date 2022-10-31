@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.tree;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -47,10 +49,12 @@ public class InstancesList<T> {
         this.instancesList = Objects.requireNonNull(instancesList, "agentSuppliersList");
     }
 
+    @JsonProperty
     public String getGroupName() {
         return groupName;
     }
 
+    @JsonProperty
     public List<T> getInstancesList() {
         return instancesList;
     }

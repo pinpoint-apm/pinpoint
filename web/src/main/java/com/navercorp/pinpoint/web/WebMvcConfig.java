@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.navercorp.pinpoint.web.vo.tree.SortByRequestConverter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -66,4 +68,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .setCacheControl(CacheControl.noCache());
     }
 
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        WebMvcConfigurer.super.addFormatters(registry);
+        registry.addConverter(new SortByRequestConverter());
+    }
 }
