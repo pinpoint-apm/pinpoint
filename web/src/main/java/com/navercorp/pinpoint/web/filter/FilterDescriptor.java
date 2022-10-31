@@ -27,10 +27,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
@@ -260,7 +259,8 @@ public class FilterDescriptor {
         if (urlPattern == null) {
             return null;
         }
-        return new String(Base64.decodeBase64(urlPattern), StandardCharsets.UTF_8);
+        Base64.Decoder urlDecoder = Base64.getUrlDecoder();
+        return new String(urlDecoder.decode(urlPattern));
     }
 
 

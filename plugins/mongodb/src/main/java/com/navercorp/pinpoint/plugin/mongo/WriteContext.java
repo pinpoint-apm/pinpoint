@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.SearchGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOptionsGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter;
+import org.bson.BsonBinary;
 import org.bson.BsonDocument;
 import org.bson.BsonType;
 import org.bson.BsonValue;
@@ -49,6 +50,9 @@ import org.bson.json.JsonWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +72,7 @@ class WriteContext {
     private final boolean traceBsonBindValue;
     private final boolean decimal128Enabled;
 
-    private static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 8;
+    static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 8;
     static final String UNTRACED = "Unsupported-trace";
 
     public WriteContext(List<String> jsonParameterAppender, boolean decimal128Enabled, boolean traceBsonBindValue) {
@@ -81,8 +85,8 @@ class WriteContext {
         if (arg instanceof Bson) {
             writeValue(arg);
         } else if (arg instanceof List) {
-
-            if (((List) arg).get(0) instanceof Bson) {
+            final List<?> list = (List<?>) arg;
+            if (list.get(0) instanceof Bson) {
                 bsonWriter.writeStartDocument();
                 bsonWriter.writeName("bsons");
                 writeValue(arg);
@@ -445,14 +449,14 @@ class WriteContext {
             writeValue(arg.asString().getValue());
 
         } else if (bsonType.equals(BsonType.BINARY)) {
-
-            String abbreviatedBinary = binaryAbbreviationForMongo(arg);
+            BsonBinary bsonBinary = (BsonBinary) arg;
+            String abbreviatedBinary = binaryAbbreviationForMongo(bsonBinary);
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$binary");
             writeValue(abbreviatedBinary);
 
             bsonWriter.writeName("$type");
-            writeValue(String.valueOf(String.format("%02X", arg.asBinary().getType())));
+            writeValue(String.valueOf(String.format("%02X", bsonBinary.getType())));
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.OBJECT_ID)) {
@@ -592,15 +596,21 @@ class WriteContext {
 //        }
     }
 
-    private String binaryAbbreviationForMongo(BsonValue arg) {
+    private String binaryAbbreviationForMongo(BsonBinary bsonBinary) {
 
-        final byte[] binary = arg.asBinary().getData();
+        final byte[] binary = bsonBinary.getData();
         final int binaryLength = binary.length;
-
+        final Base64.Encoder encoder = Base64.getEncoder().withoutPadding();
         if (binaryLength > DEFAULT_ABBREVIATE_MAX_WIDTH) {
-            return Base64.encode(binary, 0, DEFAULT_ABBREVIATE_MAX_WIDTH) + "...(" + binaryLength + ")";
+            byte[] limitedBytes = Arrays.copyOf(binary, DEFAULT_ABBREVIATE_MAX_WIDTH);
+            StringBuilder buffer = new StringBuilder();
+            buffer.append(new String(encoder.encode(limitedBytes), StandardCharsets.UTF_8));
+            buffer.append("...(");
+            buffer.append(binaryLength);
+            buffer.append(")");
+            return buffer.toString();
         } else {
-            return Base64.encode(binary);
+            return encoder.encodeToString(binary);
         }
     }
 
@@ -655,7 +665,7 @@ class WriteContext {
         } else if (arg.getClass().isArray()) {
             parsePrimitiveArrayObject(arg);
         } else if (arg instanceof Collection) {
-            parseCollection((Collection) arg);
+            parseCollection((Collection<?>) arg);
         } else if (arg instanceof Bson) {
             parseBsonObject(arg);
         } else if (arg instanceof BsonValue) {
