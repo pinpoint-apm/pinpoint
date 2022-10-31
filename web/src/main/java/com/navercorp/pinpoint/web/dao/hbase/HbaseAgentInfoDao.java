@@ -95,9 +95,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
 
     /**
-     *
-     * @param agentId agent id
-     * @param agentStartTime agent start time in milliseconds
+     * @param agentId                 agent id
+     * @param agentStartTime          agent start time in milliseconds
      * @param deltaTimeInMilliSeconds limit the scan range in case of scanning for a non-exist agent
      * @return
      */
@@ -123,15 +122,14 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Override
     public List<AgentInfo> getAgentInfos(List<String> agentIds, long timestamp) {
-        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.simple());
+        return getAgentInfos0(agentIds, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
     }
-
 
     public List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp) {
-        return getAgentInfos0(agentIds, timestamp, AgentInfoColumn.simple());
+        return getAgentInfos0(agentIds, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
     }
 
-    public List<AgentInfo> getAgentInfos0(List<String> agentIds, long timestamp, AgentInfoColumn column) {
+    public <T> List<T> getAgentInfos0(List<String> agentIds, long timestamp, ResultsExtractor<T> action, AgentInfoColumn column) {
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
@@ -142,7 +140,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         }
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
+        return this.hbaseOperations2.findParallel(agentInfoTableName, scans, action);
     }
 
     private Scan createScan(String agentId, long currentTime, AgentInfoColumn column) {

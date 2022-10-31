@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -115,13 +116,20 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         return AgentsMapByApplication.newAgentsMapByApplication(
                 filter,
-                hyperLinkFactory,
                 agents
         );
     }
 
     @Override
     public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp) {
+        return getAgentsListByApplicationName(filter, applicationName, timestamp, SortByAgentInfo.Rules.AGENT_ID_ASC);
+    }
+
+    @Override
+    public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter,
+                                                          String applicationName,
+                                                          long timestamp,
+                                                          SortByAgentInfo.Rules sortBy) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
@@ -131,12 +139,14 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
-                SortByAgentInfo.agentIdAsc(AgentAndStatus::getAgentInfo),
+                SortByAgentInfo.agentIdAsc(AgentStatusAndLink::getAgentInfo),
+                hyperLinkFactory,
                 agentInfoAndStatuses);
 
         logger.debug("getAgentsMapByHostname={}", agentsMapByHost);
         return agentsMapByHost;
     }
+
 
     @Override
     public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays) {

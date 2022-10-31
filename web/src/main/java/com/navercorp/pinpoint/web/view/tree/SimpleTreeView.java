@@ -11,7 +11,7 @@ import java.util.function.Function;
  * @author emeroad
  */
 @JsonSerialize(using = SimpleTreeViewSerializer.class)
-public class SimpleTreeView<I, C> implements TreeView<C> {
+public class SimpleTreeView<I, C> implements TreeView<TreeNode<C>> {
 
     private final List<I> nodeList;
     private final Function<I, String> valueMapper;

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.authorization.controller.AdminController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentCommandController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentDownloadController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentInfoController;
+import com.navercorp.pinpoint.web.authorization.controller.AgentListController;
 import com.navercorp.pinpoint.web.authorization.controller.AgentStatController;
 import com.navercorp.pinpoint.web.authorization.controller.AlarmController;
 import com.navercorp.pinpoint.web.authorization.controller.ApplicationDataSourceController;
@@ -68,6 +69,12 @@ public class AuthorizationConfig {
     public AgentInfoController createAgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
         return new AgentInfoController(agentInfoService, agentEventService);
     }
+
+    @Bean
+    public AgentListController createAgentListController(AgentInfoService agentInfoService) {
+        return new AgentListController(agentInfoService);
+    }
+
     @Bean
     public AgentStatController<AgentStatDataPoint> createAgentStatController(List<AgentStatService> agentStatServiceList,
                                                                              List<AgentStatChartService> agentStatChartServiceList) {
