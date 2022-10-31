@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -82,7 +83,7 @@ public class FilterDescriptorTest {
 
         json.writeNumberField("ie", 1);
 
-        json.writeStringField("url", Base64.encodeBytes("/**".getBytes(StandardCharsets.UTF_8)));
+        json.writeStringField("url", encodeBase64("/**"));
         json.writeEndObject();
 //        json.writeEndArray();
 
@@ -92,6 +93,11 @@ public class FilterDescriptorTest {
         String jsonString = writer.toString();
         logger.debug("json:{}", jsonString);
         return jsonString;
+    }
+
+    private static String encodeBase64(String string) {
+        byte[] encode = Base64.getUrlEncoder().encode(string.getBytes(StandardCharsets.UTF_8));
+        return new String(encode, StandardCharsets.ISO_8859_1);
     }
 
     @Test
@@ -109,7 +115,7 @@ public class FilterDescriptorTest {
     }
 
     @Test
-    public void invalidJson() throws IOException {
+    public void invalidJson() {
         Assertions.assertThrows(IOException.class, () -> {
             mapper.readValue("INVALID", new TypeReference<List<FilterDescriptor>>() {
             });

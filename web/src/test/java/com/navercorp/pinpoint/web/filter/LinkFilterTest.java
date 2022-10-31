@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 
 import static com.navercorp.pinpoint.web.TestTraceUtils.BACKEND_TYPE_CODE;
@@ -485,8 +486,9 @@ public class LinkFilterTest {
         Assertions.assertFalse(linkFilter.include(Collections.singletonList(unmatchingSpan)));
     }
 
-    private String encodeUrl(String value) {
-        return Base64.encodeBytes(value.getBytes(StandardCharsets.UTF_8));
+    private String encodeUrl(String string) {
+        byte[] encode = Base64.getEncoder().encode(string.getBytes(StandardCharsets.UTF_8));
+        return new String(encode, StandardCharsets.UTF_8);
     }
 
 }
