@@ -3,9 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.guava.cassandra)
     testImplementation("com.datastax.cassandra:cassandra-driver-core:2.1.7.1")
-    testImplementation("org.testcontainers:cassandra:1.16.2")
+    testImplementation(libs.testcontainers.cassandra)
     testImplementation(project(":pinpoint-commons-profiler"))
     testImplementation(project(":pinpoint-plugin-it-utils"))
     testImplementation(project(":pinpoint-test")) {

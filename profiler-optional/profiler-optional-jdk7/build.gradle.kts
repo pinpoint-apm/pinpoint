@@ -5,13 +5,13 @@ plugins {
 dependencies {
     compileOnly(project(":pinpoint-profiler"))
     testCompileOnly(project(":pinpoint-profiler"))
-    implementation(libs.log4j.api.jdk7)
+    implementation(libs.log4j.api)
     testImplementation(libs.asm.core)
     testImplementation(libs.asm.commons)
     testImplementation(libs.asm.util)
     testImplementation(libs.asm.tree)
-    testImplementation(libs.log4j.slf4j.impl.jdk7)
-    testImplementation(libs.log4j.core.jdk7)
+    testImplementation(libs.log4j.slf4j.impl)
+    testImplementation(libs.log4j.core)
     testImplementation(libs.guice)
 }
 

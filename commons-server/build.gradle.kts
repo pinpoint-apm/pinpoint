@@ -16,8 +16,8 @@ dependencies {
     implementation(libs.spring.context)
     implementation(libs.spring.boot)
     implementation(libs.commons.lang3)
-    implementation(libs.libthrift.v012)
-    implementation(libs.log4j.api.jdk7)
+    implementation(libs.libthrift)
+    implementation(libs.log4j.api)
     runtimeOnly(libs.slf4j.api)
     runtimeOnly(libs.log4j.slf4j.impl)
     runtimeOnly(libs.log4j.core)
@@ -53,7 +53,12 @@ dependencies {
     implementation(libs.netty.codec.http2)
     implementation(libs.grpc.stub)
     implementation(libs.grpc.protobuf)
-    implementation(libs.jackson.core.asl)
+
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.annotations)
+    implementation(libs.jackson.databind)
+
+    implementation(libs.jackson.annotations)
     implementation(libs.commons.math3)
 }
 

@@ -1,0 +1,52 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Maven
+
+on:
+  push:
+    branches: [ master, 2.3.x ]
+  pull_request:
+    branches: [ master, 2.3.x ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Cache node modules
+      uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+    - name: Cache node install
+      uses: actions/cache@v2
+      with:
+        path: 'node_install'
+        key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-node_install-
+    - name: Set JAVA_HOME
+      run: |
+        echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+        echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
+        echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+    - name: Java Environment
+      run: env | grep '^JAVA'
+    - name: Build with Maven
+      run: ./gradlew assemble
+    - name: Code coverage
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./**/target/site/jacoco/jacoco.xml
+        name: codecov

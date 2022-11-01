@@ -6,7 +6,7 @@ dependencies {
     api(project(":pinpoint-plugin-it-jdbc-test"))
     api(project(":pinpoint-plugin-it-utils"))
     testImplementation(project(":pinpoint-oracle-jdbc-driver-plugin"))
-    testImplementation("org.testcontainers:oracle-xe:1.16.2")
+    testImplementation(libs.testcontainers.oraclexe)
     testImplementation(project(":pinpoint-test")) {
         exclude(group = "org.tinylog", module = "slf4j-tinylog")
     }

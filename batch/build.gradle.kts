@@ -44,6 +44,7 @@ dependencies {
     testImplementation(libs.spring.batch.test)
     testImplementation(libs.commons.lang3)
     compileOnly(libs.spring.boot.starter.tomcat)
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
 }
 
 description = "pinpoint-batch"

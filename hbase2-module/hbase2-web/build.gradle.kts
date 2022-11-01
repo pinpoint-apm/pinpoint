@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(project(":pinpoint-web"))
     implementation(project(":pinpoint-commons-server"))
-    implementation(libs.hbase.client) {
+    implementation(libs.hbase2.client) {
         exclude(group = "com.google.protobuf", module = "protobuf-java")
         exclude(group = "org.slf4j", module = "slf4j-log4j12")
         exclude(group = "javax.annotation", module = "javax.annotation-api")

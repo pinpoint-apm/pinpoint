@@ -7,8 +7,8 @@ dependencies {
     testCompileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(project(":pinpoint-commons"))
     testCompileOnly(project(":pinpoint-commons"))
-    compileOnly("org.apache.kafka:kafka-clients:0.11.0.1")
-    testCompileOnly("org.apache.kafka:kafka-clients:0.11.0.1")
+    compileOnly("org.apache.kafka:kafka-clients:3.1.0")
+    testCompileOnly("org.apache.kafka:kafka-clients:3.1.0")
 }
 
 description = "pinpoint-kafka-plugin"

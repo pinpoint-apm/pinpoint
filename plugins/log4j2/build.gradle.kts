@@ -7,9 +7,9 @@ dependencies {
     testCompileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(project(":pinpoint-commons"))
     testCompileOnly(project(":pinpoint-commons"))
-    compileOnly(libs.log4j.core.jdk7)
-    testCompileOnly(libs.log4j.core.jdk7)
-    compileOnly(libs.log4j.api.jdk7)
+    compileOnly(libs.log4j.core)
+    testCompileOnly(libs.log4j.core)
+    compileOnly(libs.log4j.api)
 }
 
 description = "pinpoint-log4j2-plugin"

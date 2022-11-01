@@ -18,11 +18,10 @@ dependencies {
     implementation(platform(project(":pinpoint-plugins")))
     implementation(platform(project(":pinpoint-agent-plugins")))
 
-    implementation(libs.guava.jdk8)
-    implementation(libs.netty)
+    implementation(libs.guava)
+    implementation(libs.netty3)
     implementation(libs.zookeeper)
     implementation(libs.commons.lang3)
-    implementation("org.apache.commons:commons-text:1.9")
     implementation(libs.commons.collections4)
     implementation(libs.libthrift) {
         exclude(group = "org.apache.httpcomponents", module = "httpclient")
@@ -102,9 +101,9 @@ dependencies {
 
 description = "pinpoint-web"
 
-//frontend {
-//    nodeVersion.set("14.18.1")
-//    assembleScript.set("run build:real")
-//    cleanScript.set("run clean")
-//    checkScript.set("run check")
-//}
+frontend {
+    nodeVersion.set("14.18.1")
+    packageJsonDirectory.set(file("src/main/angular"))
+    installScript.set("install")
+    assembleScript.set("run build:real")
+}

@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    testImplementation(libs.log4j.api.jdk7)
-    testImplementation(libs.log4j.slf4j.impl.jdk7)
-    testImplementation(libs.log4j.core.jdk7)
+    testImplementation(libs.log4j.api)
+    testImplementation(libs.log4j.slf4j.impl)
+    testImplementation(libs.log4j.core)
     testCompileOnly(project(":pinpoint-commons-profiler"))
     testCompileOnly(project(":pinpoint-plugins-loader"))
     compileOnly(project(":pinpoint-bootstrap-core"))

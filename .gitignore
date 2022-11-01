@@ -1,6 +1,8 @@
 # Maven
 deploy/
 target/
+# gradle
+build/
 
 # Eclipse
 .classpath

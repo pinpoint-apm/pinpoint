@@ -4,9 +4,9 @@ plugins {
 
 dependencies {
     implementation(libs.snakeyaml)
-    implementation(libs.log4j.api.jdk7)
-    testImplementation(libs.log4j.slf4j.impl.jdk7)
-    testImplementation(libs.log4j.core.jdk7)
+    implementation(libs.log4j.api)
+    testImplementation(libs.log4j.slf4j.impl)
+    testImplementation(libs.log4j.core)
     compileOnly(project(":pinpoint-commons"))
     testCompileOnly(project(":pinpoint-commons"))
     compileOnly(project(":pinpoint-bootstrap-core"))

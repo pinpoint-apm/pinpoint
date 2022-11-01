@@ -6,7 +6,7 @@ dependencies {
     implementation(libs.zookeeper)
     implementation(libs.spring.context)
     implementation(libs.spring.boot)
-    implementation(libs.log4j.api.jdk7)
+    implementation(libs.log4j.api)
     implementation(libs.curator.client) {
         exclude(group = "org.apache.zookeeper", module = "zookeeper")
         exclude(group = "org.apache.curator", module = "curator-test")

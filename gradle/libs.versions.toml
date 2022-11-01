@@ -6,17 +6,17 @@ springBatch = "4.3.3"
 springBoot = "2.5.12"
 springSecurity = "5.5.3"
 metrics = "3.2.6"
-fastxml-jackson = "2.12.6"
-fastxml-jackson-databind = "2.12.6.1"
-log4j2-jdk7 = "2.12.4"
-log4j2 = "2.17.1"
-netty4 = "4.1.72.Final"
+jackson = "2.13.4"
+jackson1 = "1.9.13"
+log4j2 = "2.17.2"
+netty4 = "4.1.77.Final"
 asm = "9.2"
-grpc = "1.43.2"
-protoc = "3.19.2"
+grpc = "1.49.2"
+protoc = "3.21.7"
 jaxbImpl = "2.3.3"
 tinylog = "2.2.1"
-jacksonASL = "1.9.13"
+mysql-connector-java="8.0.28"
+testcontainers="1.17.2"
 
 [libraries]
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring" }
@@ -73,33 +73,32 @@ metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "m
 metrics-jvm = { module = "io.dropwizard.metrics:metrics-jvm", version.ref = "metrics" }
 metrics-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "metrics" }
 
-jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "fastxml-jackson" }
-jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "fastxml-jackson" }
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "fastxml-jackson" }
-jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "fastxml-jackson" }
-snakeyaml = { module = "org.yaml:snakeyaml", version = "1.27" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 
-hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.1" }
-hbase-client = { module = "org.apache.hbase:hbase-client", version = "2.4.11" }
+jackson1-core = { module = "org.codehaus.jackson:jackson-core-asl", version.ref = "jackson1" }
+jackson1-mapper = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jackson1" }
+
+snakeyaml = { module = "org.yaml:snakeyaml", version = "1.33" }
+
+hbase-shaded-client = { module = "org.apache.hbase:hbase-shaded-client", version = "1.7.2" }
+hbase2-client = { module = "org.apache.hbase:hbase-client", version = "2.4.11" }
 
 springdoc-openapi-ui = { module = "org.springdoc:springdoc-openapi-ui", version = "1.4.4" }
 
-jackson-core-asl = { module = "org.codehaus.jackson:jackson-core-asl", version.ref = "jacksonASL" }
-jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jacksonASL" }
 hbasewd = { module = "com.sematext.hbasewd:hbasewd", version = "0.1.0" }
 
 # Logging dependencies
-log4j-api-jdk7 = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2-jdk7" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2" }
-log4j-core-jdk7 = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2-jdk7" }
+
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version = "1.7.30" }
-log4j-slf4j-impl-jdk7 = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2-jdk7" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2" }
 
 # thrift logging lib
 commons-logging = { module = "commons-logging:commons-logging", version = "1.2" }
-log4j-jcl-jdk7 = { module = "org.apache.logging.log4j:log4j-jcl", version.ref = "log4j2-jdk7" }
 log4j-jcl = { module = "org.apache.logging.log4j:log4j-jcl", version.ref = "log4j2" }
 log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4j2" }
 log4j = { module = "log4j:log4j", version = "1.2.17" }
@@ -109,9 +108,10 @@ mybatis = { module = "org.mybatis:mybatis", version = "3.5.7" }
 # 2.0.x java8 & spring5 https://mybatis.org/spring/index.html
 mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "2.0.6" }
 mybatis-spring-boot-starter = { module = "org.mybatis.spring.boot:mybatis-spring-boot-starter", version = "2.1.4" }
-mysql-connector-java = { module = "mysql:mysql-connector-java", version = "8.0.27" }
+mysql-connector-java = { module = "mysql:mysql-connector-java", version.ref = "mysql-connector-java" }
 
-netty = { module = "io.netty:netty", version = "3.10.6.Final" }
+netty3 = { module = "io.netty:netty", version = "3.10.6.Final" }
+
 netty-bom = { module = "io.netty:netty-bom", version.ref = "netty4" }
 netty-all = { module = "io.netty:netty-all", version.ref = "netty4" }
 netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty4" }
@@ -177,12 +177,9 @@ curator-client = { module = "org.apache.curator:curator-client", version = "4.2.
 curator-framework = { module = "org.apache.curator:curator-framework", version = "4.2.1" }
 curator-test = { module = "org.apache.curator:curator-test", version = "2.13.0" }
 
-libthrift = { module = "org.apache.thrift:libthrift", version = "0.15.0" }
-libthrift-v012 = { module = "org.apache.thrift:libthrift", version = "0.12.0" }
+libthrift = { module = "org.apache.thrift:libthrift", version = "0.16.0" }
 
-guava-jdk7 = { module = "com.google.guava:guava", version = "30.1-android" }
-guava-jdk8 = { module = "com.google.guava:guava", version = "31.1-jre" }
-guava-cassandra = { module = "com.google.guava:guava", version = "14.0.1" }
+guava = { module = "com.google.guava:guava", version = "31.1-jre" }
 guice = { module = "com.google.inject:guice", version = "4.2.2" }
 
 grpc-core = { module = "io.grpc:grpc-core", version.ref = "grpc" }
@@ -206,8 +203,19 @@ nanohttpd = { module = "org.nanohttpd:nanohttpd", version = "2.3.1" }
 
 maven-resolver-api = { module = "org.apache.maven.resolver:maven-resolver-api", version = "1.6.1" }
 
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-jdbc = { module = "org.testcontainers:jdbc", version.ref = "testcontainers" }
+testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
+testcontainers-mariadb = { module = "org.testcontainers:mariadb", version.ref = "testcontainers" }
+testcontainers-mssqlserver = { module = "org.testcontainers:mssqlserver", version.ref = "testcontainers" }
+testcontainers-oraclexe = { module = "org.testcontainers:oracle-xe", version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+testcontainers-cassandra = { module = "org.testcontainers:cassandra", version.ref = "testcontainers" }
+
+
 [bundles]
 asm = ["asm-core", "asm-commons", "asm-util", "asm-tree", "asm-analysis"]
+grpc = ["grpc-core", "grpc-netty", "grpc-stub", "grpc-protobuf", "protobuf-java"]
 
 [plugins]
 protobuf = { id = "com.google.protobuf", version = "0.8.19" }

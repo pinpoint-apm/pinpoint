@@ -4,9 +4,9 @@ plugins {
 
 dependencies {
     implementation(project(":pinpoint-commons"))
-    testImplementation(libs.log4j.api.jdk7)
-    testImplementation(libs.log4j.slf4j.impl.jdk7)
-    testImplementation(libs.log4j.core.jdk7)
+    testImplementation(libs.log4j.api)
+    testImplementation(libs.log4j.slf4j.impl)
+    testImplementation(libs.log4j.core)
     testImplementation(libs.commons.lang)
 }
 
