@@ -604,13 +604,13 @@ class WriteContext {
         if (binaryLength > DEFAULT_ABBREVIATE_MAX_WIDTH) {
             byte[] limitedBytes = Arrays.copyOf(binary, DEFAULT_ABBREVIATE_MAX_WIDTH);
             StringBuilder buffer = new StringBuilder();
-            buffer.append(new String(encoder.encode(limitedBytes), StandardCharsets.UTF_8));
+            buffer.append(new String(encoder.encode(limitedBytes), StandardCharsets.ISO_8859_1));
             buffer.append("...(");
             buffer.append(binaryLength);
             buffer.append(")");
             return buffer.toString();
         } else {
-            return encoder.encodeToString(binary);
+            return new String(encoder.encode(binary), StandardCharsets.ISO_8859_1);
         }
     }
 
