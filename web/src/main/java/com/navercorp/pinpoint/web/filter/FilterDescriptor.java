@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -260,7 +261,8 @@ public class FilterDescriptor {
             return null;
         }
         Base64.Decoder urlDecoder = Base64.getUrlDecoder();
-        return new String(urlDecoder.decode(urlPattern));
+        byte[] decode = urlDecoder.decode(urlPattern);
+        return new String(decode, StandardCharsets.ISO_8859_1);
     }
 
 
