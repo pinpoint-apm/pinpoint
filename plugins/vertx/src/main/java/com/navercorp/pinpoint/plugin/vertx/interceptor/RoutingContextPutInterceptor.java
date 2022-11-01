@@ -22,7 +22,7 @@ public class RoutingContextPutInterceptor implements AroundInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         RoutingContext context = (RoutingContext) target;
         Object value = context.data().get(VertxConstants.VERTX_URL_STAT_TEMPLATE_KEY);
-        if (!Objects.isNull(value)) {
+        if (value != null) {
             VertxUrlTemplate attachment = (VertxUrlTemplate)scope.getCurrentInvocation().getAttachment();
             attachment.setUrlTemplate((String)value);
         }
