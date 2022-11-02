@@ -464,11 +464,19 @@ interface IMetricValue {
     values: number[];
 }
 
-
 interface IUrlStatInfoData {
     uri: string;
     totalCount: number;
     failureCount: number;
     maxTimeMs: number;
     avgTimeMs: number;
+}
+
+interface IUrlStatChartData {
+    title: string;
+    timestamp: number[];
+    metricValueGroups: {
+        groupName: string;
+        metricValues: IMetricValue[]
+    }[];
 }

@@ -8,10 +8,7 @@ import { NoticeModule } from 'app/core/components/notice';
 import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { ServerAndAgentListModule } from 'app/core/components/server-and-agent-list';
 import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
-// import { UrlStatisticContentsModule } from 'app/core/components/url-statistic-contents';
 import { UrlStatisticContentsModule } from 'app/core/components/url-statistic-contents';
-// import { UrlStatisticContentModule } from 'app/core/components/url-statistic-contents';
-import { UrlStatisticModule } from 'app/core/components/url-statistic';
 
 @NgModule({
     declarations: [
@@ -24,10 +21,8 @@ import { UrlStatisticModule } from 'app/core/components/url-statistic';
         ApplicationListModule,
         PeriodSelectorModule,
         ServerAndAgentListModule,
-        // UrlStatisticContentModule,
         UrlStatisticContentsModule,
         UrlStatisticPageRoutingModule,
-        // UrlStatisticModule,
     ],
     exports: [],
     providers: []

@@ -3,10 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface IUrlStatInfoDataParams {
-    applicationName: string;
     from: number;
     to: number;
-    agentId?: string;
+    applicationName: string;
+    agentId: string;
 }
 
 @Injectable({
@@ -24,9 +24,9 @@ export class UrlStatisticInfoDataService {
         return this.http.get<IUrlStatInfoData>(this.url, this.makeRequestOptionsArgs(params));
     }
 
-    private makeRequestOptionsArgs(param: object): object {
+    private makeRequestOptionsArgs(params: IUrlStatInfoDataParams): object {
         return {
-            params: {...param}
+            params: {...params}
         };
     }
 }

@@ -37,6 +37,7 @@
 .chart-wrapper {
     width: 100%;
     height: 45%; /* TODO: Check the height */
+    margin-bottom: 30px;
 }
 
 .info-wrapper {

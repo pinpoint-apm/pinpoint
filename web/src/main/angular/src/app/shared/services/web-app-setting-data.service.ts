@@ -302,4 +302,7 @@ export class WebAppSettingDataService {
     getExperimentalConfiguration(): Observable<ExperimentalConfigurationMeta> {
         return this.newUrlStateNotificationService.getConfiguration('experimental');
     }
+    getUrlStatFieldNameList(): string[] {
+        return this.componentDefaultSettingDataService.getUrlStatFieldNameList();
+    }
 }

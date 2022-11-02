@@ -126,6 +126,17 @@ export class ComponentDefaultSettingDataService {
         'Mapped Buffer Memory',
         'Data Source'
     ];
+    private urlStatFieldNameList = [
+        '0 ~ 100',
+        '100 ~ 300',
+        '300 ~ 500',
+        '500 ~ 1000',
+        '1000 ~ 3000',
+        '3000 ~ 5000',
+        '5000 ~ 8000',
+        '8000 ~ ',
+    ];
+
     constructor() {}
     getInboundList(): number[] {
         return this.inboundList;
@@ -177,5 +188,8 @@ export class ComponentDefaultSettingDataService {
     }
     getAgentInspectorDefaultChartOrderList(): string[] {
         return this.agentChartOrderList;
+    }
+    getUrlStatFieldNameList(): string[] {
+        return this.urlStatFieldNameList;
     }
 }

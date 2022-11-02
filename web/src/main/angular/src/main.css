@@ -22,7 +22,16 @@ body {
   --emerald-green-800: #006843;
   --emerald-green-900: #004c29;
   /* green */
-  --green-default: #41c464;
+  --green-50: #e5f7e9;
+  --green-100: #c1eac8;
+  --green-200: #98dca5;
+  --green-300: #6acf80;
+  --green-400: #41c464;
+  --green-500: #00b947;
+  --green-600: #00a93d;
+  --green-700: #009731;
+  --green-800: #008626;
+  --green-900: #006612;
   /* yellow */
   --yellow-50: #ffffe6;
   --yellow-100: #fcfdc0;
@@ -120,7 +129,17 @@ body.dark-mode {
   --emerald-green-800: #acdfd0;
   --emerald-green-900: #ddf2ed;                
   /* green */
-  --green-default: #41c464;
+  --green-50: #006612;
+  --green-100: #008626;
+  --green-200: #009731;
+  --green-300: #00a93d;
+  --green-400: #00b947;
+  --green-500: #41c464;
+  --green-600: #6acf80;
+  --green-700: #98dca5;
+  --green-800: #c1eac8;
+  --green-900: #e5f7e9;
+
   /* yellow */
   --yellow-50: #ff8a00;
   --yellow-100: #ffb700;
@@ -199,7 +218,7 @@ body {
   --secondary: var(--emerald-green-300);
   --secondary-lighter: var(--emerald-green-100);
 
-  --status-success: var(--green-default);
+  --status-success: var(--green-400);
   --status-good: var(--blue-500);
   --status-warn: var(--orange-600);
   --status-fail: var(--red-400);
@@ -295,7 +314,7 @@ body.dark-mode {
   --secondary: var(--emerald-green-600);
   --secondary-lighter: var(--emerald-green-100);
 
-  --status-success: var(--green-default);
+  --status-success: var(--green-400);
   --status-good: var(--blue-500);
   --status-warn: var(--orange-600);
   --status-fail: var(--red-400);
