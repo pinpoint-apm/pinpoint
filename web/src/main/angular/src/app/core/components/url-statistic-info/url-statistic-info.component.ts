@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, ElementRef } from '@angular/core';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-url-statistic-info',
@@ -9,16 +10,25 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
     @Input() data: IUrlStatInfoData[];
     @Output() outSelectUrlInfo = new EventEmitter<string>();
 
-    private totalCount: number;
-
+    totalCount: number;
     selectedUrl: string;
+    isEmpty: boolean;
 
-    constructor() {}
+    constructor(
+        private el: ElementRef
+    ) {}
+
     ngOnChanges(changes: SimpleChanges) {
         const dataChange = changes['data'];
-
+        
         if (dataChange && dataChange.currentValue) {
-            this.selectedUrl = dataChange.currentValue[0].uri;
+            this.isEmpty = isEmpty(dataChange.currentValue);
+            if (this.isEmpty) {
+                return;
+            }
+
+            // this.selectedUrl = dataChange.currentValue[0].uri;
+            this.selectedUrl = '';
             this.totalCount = dataChange.currentValue.reduce((acc: number, {totalCount}: any) => {
                 return acc + totalCount;
             }, 0);
@@ -26,7 +36,7 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {}
-    onSelectUrl(url: string): void {
+    onSelectUrlInfo(url: string): void {
         if (this.selectedUrl === url) {
             return;
         }
@@ -40,6 +50,10 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
     }
 
     getRatioBackgroundColor(count: number): string {
-        return `linear-gradient(to right, #DAE6F0 ${count / this.totalCount * 100}%, #F2F2F2 ${count / this.totalCount * 100}% 100%)`;
+        const computedStyle = getComputedStyle(this.el.nativeElement);
+        const urlCountRatio = computedStyle.getPropertyValue('--url-count-ratio');
+        const urlCountRatioBG = computedStyle.getPropertyValue('--url-count-ratio-background');
+
+        return `linear-gradient(to right, ${urlCountRatio} ${count / this.totalCount * 100}%, ${urlCountRatioBG} ${count / this.totalCount * 100}% 100%)`;
     }
 }

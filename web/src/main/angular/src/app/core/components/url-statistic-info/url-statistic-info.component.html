@@ -10,19 +10,26 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let urlInfo of data" (click)="onSelectUrl(urlInfo.uri)" class="content-group" [class.active]="isSelectedUrl(urlInfo.uri)">
-                <td class="content-item url">{{urlInfo.uri}}</td>
-                <td class="content-item">
-                    <div class="sub">
-                        <div class="count">{{urlInfo.totalCount}}</div>
-                        <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">
+            <ng-container *ngIf="isEmpty; else contents">
+                <tr class="content-group">
+                    <td class="content-item" colspan="5">No Data</td>
+                </tr>
+            </ng-container>
+            <ng-template #contents>
+                <tr *ngFor="let urlInfo of data" (click)="onSelectUrlInfo(urlInfo.uri)" class="content-group" [class.active]="isSelectedUrl(urlInfo.uri)">
+                    <td class="content-item url">{{urlInfo.uri}}</td>
+                    <td class="content-item">
+                        <div class="sub">
+                            <div class="count">{{urlInfo.totalCount}}</div>
+                            <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">
+                            </div>
                         </div>
-                    </div>
-                </td>
-                <td class="content-item">{{urlInfo.failureCount}}</td>
-                <td class="content-item">{{urlInfo.avgTimeMs | number: '1.0-3'}}</td>
-                <td class="content-item">{{urlInfo.maxTimeMs}}</td>
-            </tr>
+                    </td>
+                    <td class="content-item">{{urlInfo.failureCount}}</td>
+                    <td class="content-item">{{urlInfo.avgTimeMs | number: '1.0-3'}}</td>
+                    <td class="content-item">{{urlInfo.maxTimeMs}}</td>
+                </tr>
+            </ng-template>
         </tbody>
     </table>
 </ng-container>
