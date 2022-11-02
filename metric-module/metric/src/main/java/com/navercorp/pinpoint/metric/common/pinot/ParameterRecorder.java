@@ -23,7 +23,7 @@ public class ParameterRecorder extends AbstractBasePreparedStatement {
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

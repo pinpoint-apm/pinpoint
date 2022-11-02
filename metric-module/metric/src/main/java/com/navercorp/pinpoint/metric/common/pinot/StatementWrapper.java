@@ -21,7 +21,7 @@ public class StatementWrapper extends AbstractBaseStatement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
