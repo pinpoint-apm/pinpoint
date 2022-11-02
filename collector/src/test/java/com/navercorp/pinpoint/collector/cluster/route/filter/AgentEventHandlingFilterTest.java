@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
@@ -36,9 +35,10 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import org.apache.thrift.TBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,10 +51,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class AgentEventHandlingFilterTest {
-
-    @Mock
-    private PinpointServer pinpointServer;
 
     @Mock
     private AgentEventDao agentEventDao;
@@ -72,10 +70,10 @@ public class AgentEventHandlingFilterTest {
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         agentEventHandlingFilter = new AgentEventHandlingFilter(agentEventService, deserializerFactory);
     }
+
 
     @Test
     @SuppressWarnings({"rawtypes", "unchecked"})

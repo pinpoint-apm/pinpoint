@@ -23,36 +23,40 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import org.apache.thrift.TBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 import java.util.Timer;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author youngjin.kim2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ActiveThreadCountResponseAggregatorTest {
 
     @Mock
-    AgentService agentService;
+    private AgentService agentService;
     @Mock
-    Timer timer;
+    private Timer timer;
     @Mock
-    TimerTaskDecorator timerTaskDecorator;
+    private TimerTaskDecorator timerTaskDecorator;
     @Mock
-    ClientStreamChannel channel;
+    private ClientStreamChannel channel;
     @Mock
-    WebSocketSession session;
+    private WebSocketSession session;
 
     final String applicationName = "sample-app";
     final ClusterKey clusterKey = ClusterKey.parse("sample-app:sample-agent-1:1234");
@@ -61,8 +65,8 @@ public class ActiveThreadCountResponseAggregatorTest {
 
     ActiveThreadCountResponseAggregator aggregator;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    public void beforeEach() throws Exception {
         when(this.agentService.getRecentAgentInfoList(eq(applicationName), anyLong()))
                 .thenReturn(List.of(cks));
         when(this.agentService.openStream(eq(clusterKey), any(TBase.class), any()))

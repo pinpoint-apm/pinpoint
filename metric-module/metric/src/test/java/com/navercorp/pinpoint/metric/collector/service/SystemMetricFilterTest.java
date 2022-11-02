@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Random;
 /**
  * @author Hyunjoon Cho
  */
+@ExtendWith(MockitoExtension.class)
 public class SystemMetricFilterTest {
     private final Random random = new Random(System.currentTimeMillis());
 
@@ -44,8 +46,7 @@ public class SystemMetricFilterTest {
     private PinotSystemMetricDoubleDao doubleDao;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         systemMetricService = new SystemMetricService(doubleDao);
     }
 

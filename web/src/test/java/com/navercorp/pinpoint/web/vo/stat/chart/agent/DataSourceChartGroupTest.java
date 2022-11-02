@@ -31,8 +31,9 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +41,12 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 /**
  * @author Taejin Koo
  */
+@ExtendWith(MockitoExtension.class)
 public class DataSourceChartGroupTest {
 
     private static final int MIN_VALUE_OF_MAX_CONNECTION_SIZE = 20;
@@ -56,10 +58,11 @@ public class DataSourceChartGroupTest {
     private ServiceTypeRegistryService serviceTypeRegistryService;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        when(serviceTypeRegistryService.findServiceType(any(Short.class))).thenReturn(ServiceType.UNKNOWN);
+    public void beforeEach() {
+        lenient().when(serviceTypeRegistryService.findServiceType(any(Short.class)))
+                .thenReturn(ServiceType.UNKNOWN);
     }
+
 
     @Test
     public void basicFunctionTest1() {

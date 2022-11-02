@@ -27,9 +27,10 @@ import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class AgentEventAsyncTaskServiceTest {
 
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
@@ -57,11 +59,12 @@ public class AgentEventAsyncTaskServiceTest {
 
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
+
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         this.agentEventAsyncTaskService = new AgentEventAsyncTaskService(agentEventService);
     }
+
 
     @Test
     public void handler_should_handle_events_with_empty_message_body() {

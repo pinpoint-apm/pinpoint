@@ -27,8 +27,9 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class HbaseSchemaServiceImplTest {
 
     @Mock
@@ -58,9 +60,9 @@ public class HbaseSchemaServiceImplTest {
 
     private HbaseSchemaService hbaseSchemaService;
 
+
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         hbaseSchemaService = new HbaseSchemaServiceImpl(hbaseAdminOperation, schemaChangeLogService, hbaseSchemaVerifier);
     }
 

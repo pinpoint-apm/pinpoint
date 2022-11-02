@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -93,7 +93,7 @@ public class NodeHistogramAppenderTest {
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
         // Then
         Assertions.assertTrue(nodeList.getNodeList().isEmpty());
-        verifyZeroInteractions(wasNodeHistogramDataSource);
+        verifyNoInteractions(wasNodeHistogramDataSource);
     }
 
     /**

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import org.apache.logging.log4j.LogManager;
@@ -24,9 +23,10 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.kafka.core.KafkaTemplate;
 
@@ -41,6 +41,7 @@ import static org.mockito.Mockito.doAnswer;
 /**
  * @author Hyunjoon Cho
  */
+@ExtendWith(MockitoExtension.class)
 public class PinotSystemMetricDaoTest {
 
     private final static String TOPIC = "test-topic";
@@ -55,7 +56,6 @@ public class PinotSystemMetricDaoTest {
 
     @BeforeEach
     public void setupTemplate() {
-        MockitoAnnotations.initMocks(this);
 
         doAnswer(new Answer() {
             @Override
@@ -67,8 +67,9 @@ public class PinotSystemMetricDaoTest {
         }).when(kafkaTemplate).send(anyString(), anyString(), any(SystemMetricView.class));
     }
 
+
     @Test
-    public void testLogDao() throws JsonProcessingException {
+    public void testLogDao() {
         PinotSystemMetricDoubleDao longDao = new PinotSystemMetricDoubleDao(kafkaTemplate, TOPIC);
         List<DoubleMetric> doubleMetricList = createDoubleCounterList();
 

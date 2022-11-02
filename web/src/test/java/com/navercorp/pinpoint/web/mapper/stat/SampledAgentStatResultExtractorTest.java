@@ -31,11 +31,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,9 +62,8 @@ public class SampledAgentStatResultExtractorTest {
     private AgentStatMapperV2<TestAgentStatDataPoint> rowMapper;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this.getClass());
-        when(this.resultScanner.iterator()).thenReturn(Arrays.asList(this.result).iterator());
+    public void beforeEach() {
+        when(this.resultScanner.iterator()).thenReturn(List.of(this.result).iterator());
     }
 
     @Test

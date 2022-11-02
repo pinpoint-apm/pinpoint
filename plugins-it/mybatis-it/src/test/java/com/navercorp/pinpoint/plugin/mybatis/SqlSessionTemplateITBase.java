@@ -22,9 +22,10 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@Ignore
+@Disabled
 public class SqlSessionTemplateITBase extends SqlSessionTestBase {
 
     private static final ExecutorType EXECUTOR_TYPE = ExecutorType.SIMPLE;
@@ -50,9 +51,11 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
 
     private SqlSessionTemplate sqlSessionTemplate;
 
-    @Before
+    private AutoCloseable openMocks;
+
+    @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        openMocks = MockitoAnnotations.openMocks(this);
         Configuration configuration = mock(Configuration.class);
         TransactionFactory transactionFactory = mock(TransactionFactory.class);
         DataSource dataSource = mock(DataSource.class);
@@ -61,6 +64,11 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
         when(this.sqlSessionFactory.getConfiguration()).thenReturn(configuration);
         when(this.sqlSessionFactory.openSession(EXECUTOR_TYPE)).thenReturn(this.sqlSessionProxy);
         this.sqlSessionTemplate = new SqlSessionTemplate(this.sqlSessionFactory, EXECUTOR_TYPE);
+    }
+
+    @AfterEach
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     @Override
