@@ -39,7 +39,19 @@ import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOption
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter;
 import org.bson.BsonBinary;
+import org.bson.BsonBoolean;
+import org.bson.BsonDateTime;
+import org.bson.BsonDbPointer;
 import org.bson.BsonDocument;
+import org.bson.BsonDouble;
+import org.bson.BsonInt32;
+import org.bson.BsonInt64;
+import org.bson.BsonJavaScript;
+import org.bson.BsonJavaScriptWithScope;
+import org.bson.BsonRegularExpression;
+import org.bson.BsonString;
+import org.bson.BsonSymbol;
+import org.bson.BsonTimestamp;
 import org.bson.BsonType;
 import org.bson.BsonValue;
 import org.bson.BsonWriter;
@@ -83,7 +95,8 @@ class WriteContext {
 
     public String parse(Object arg) {
         if (arg instanceof Bson) {
-            writeValue(arg);
+            Bson bson = (Bson) arg;
+            writeBsonObject(bson);
         } else if (arg instanceof List) {
             final List<?> list = (List<?>) arg;
             if (list.get(0) instanceof Bson) {
@@ -158,7 +171,7 @@ class WriteContext {
             bsonWriter.writeEndArray();
 
             PushOptions options = ((PushOptionsGetter) arg)._$PINPOINT$_getPushOptions();
-            if(options != null) {
+            if (options != null) {
                 if (options.getPosition() != null) {
                     bsonWriter.writeInt32("$position", options.getPosition());
                 }
@@ -169,7 +182,7 @@ class WriteContext {
                     bsonWriter.writeInt32("$sort", options.getSort());
                 } else if (options.getSortDocument() != null) {
                     bsonWriter.writeName("$sort");
-                    writeValue(options.getSortDocument());
+                    writeBsonObject(options.getSortDocument());
                 }
             }
             bsonWriter.writeEndDocument();
@@ -204,7 +217,7 @@ class WriteContext {
 
             bsonWriter.writeStartArray("$updates");
             for (Bson value : ((ExtendedBsonListGetter) arg)._$PINPOINT$_getExtendedBsonList()) {
-                writeValue(value);
+                writeBsonObject(value);
             }
             bsonWriter.writeEndArray();
             bsonWriter.writeEndDocument();
@@ -223,7 +236,7 @@ class WriteContext {
 
             bsonWriter.writeStartArray("$sorts");
             for (Bson value : ((ExtendedBsonListGetter) arg)._$PINPOINT$_getExtendedBsonList()) {
-                writeValue(value);
+                writeBsonObject(value);
             }
             bsonWriter.writeEndArray();
             bsonWriter.writeEndDocument();
@@ -311,7 +324,8 @@ class WriteContext {
 
             bsonWriter.writeStartDocument();
             bsonWriter.writeName(((FieldNameGetter) arg)._$PINPOINT$_getFieldName());
-            writeValue(((BsonValueGetter) arg)._$PINPOINT$_getValue());
+            BsonValue bsonValue = ((BsonValueGetter) arg)._$PINPOINT$_getValue();
+            writeBsonValueObject(bsonValue);
             bsonWriter.writeEndDocument();
         }
 
@@ -325,7 +339,7 @@ class WriteContext {
             bsonWriter.writeStartArray();
             for (Bson bsonFilter : ((FiltersGetter) arg)._$PINPOINT$_getFilters()) {
                 logger.debug("writing filters");
-                writeValue(bsonFilter);
+                writeBsonObject(bsonFilter);
             }
             bsonWriter.writeEndArray();
             bsonWriter.writeEndDocument();
@@ -338,7 +352,7 @@ class WriteContext {
             bsonWriter.writeStartDocument();
 
             bsonWriter.writeName("$not");
-            writeValue(((FilterGetter) arg)._$PINPOINT$_getFilter());
+            writeBsonObject(((FilterGetter) arg)._$PINPOINT$_getFilter());
             bsonWriter.writeEndDocument();
         }
 
@@ -350,20 +364,20 @@ class WriteContext {
             bsonWriter.writeName("$text");
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$search");
-            writeValue(((SearchGetter) arg)._$PINPOINT$_getSearch());
+            writeString(((SearchGetter) arg)._$PINPOINT$_getSearch());
 
             TextSearchOptions textSearchOptions = ((TextSearchOptionsGetter) arg)._$PINPOINT$_getTextSearchOptions();
             if (textSearchOptions.getLanguage() != null) {
                 bsonWriter.writeName("$language");
-                writeValue(textSearchOptions.getLanguage());
+                writeString(textSearchOptions.getLanguage());
             }
             if (textSearchOptions.getCaseSensitive() != null) {
                 bsonWriter.writeName("$caseSensitive");
-                writeValue(textSearchOptions.getCaseSensitive());
+                writeBoolean(textSearchOptions.getCaseSensitive());
             }
             if (textSearchOptions.getDiacriticSensitive() != null) {
                 bsonWriter.writeName("$diacriticSensitive");
-                writeValue(textSearchOptions.getDiacriticSensitive());
+                writeBoolean(textSearchOptions.getDiacriticSensitive());
             }
 
             bsonWriter.writeEndDocument();
@@ -379,7 +393,7 @@ class WriteContext {
             bsonWriter.writeName(input);
             bsonWriter.writeStartArray();
             for (Bson bsonFilter : ((FiltersGetter) arg)._$PINPOINT$_getFilters()) {
-                writeValue(bsonFilter);
+                writeBsonObject(bsonFilter);
             }
             bsonWriter.writeEndArray();
             bsonWriter.writeEndDocument();
@@ -399,8 +413,8 @@ class WriteContext {
         return input;
     }
 
-    private void parseBsonObject(Object arg) {
-        final Map<String, ?> map = getBsonKeyValueMap(arg);
+    private void writeBsonObject(Bson bson) {
+        final Map<String, ?> map = getBsonKeyValueMap(bson);
         if (map == null) {
             return;
         }
@@ -419,15 +433,15 @@ class WriteContext {
         bsonWriter.writeEndDocument();
     }
 
-    private void parsePrimitiveArrayObject(Object arg) {
+    private void writePrimitiveArrayObject(Object arrayObject) {
         bsonWriter.writeStartArray();
 
-        arrayAbbreviationForMongo(arg);
+        arrayAbbreviationForMongo(arrayObject);
 
         bsonWriter.writeEndArray();
     }
 
-    private <T> void parseCollection(Collection<T> arg) {
+    private <T> void writeCollection(Collection<T> arg) {
         bsonWriter.writeStartArray();
 
         collectionAbbreviationForMongo(arg);
@@ -435,136 +449,151 @@ class WriteContext {
         bsonWriter.writeEndArray();
     }
 
-    private void parseBsonValueObject(BsonValue arg) {
+    private void writeBsonValueObject(BsonValue arg) {
 
         BsonType bsonType = arg.getBsonType();
 
         //write with same format of JsonWriter(JsonMode.STRICT)
         if (bsonType.equals(BsonType.DOUBLE)) {
 
-            writeValue(arg.asDouble().getValue());
+            BsonDouble bsonDouble = arg.asDouble();
+            writeDouble(bsonDouble.getValue());
 
         } else if (bsonType.equals(BsonType.STRING)) {
 
-            writeValue(arg.asString().getValue());
+            BsonString bsonString = arg.asString();
+            writeString(bsonString.getValue());
 
         } else if (bsonType.equals(BsonType.BINARY)) {
             BsonBinary bsonBinary = (BsonBinary) arg;
             String abbreviatedBinary = binaryAbbreviationForMongo(bsonBinary);
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$binary");
-            writeValue(abbreviatedBinary);
+            writeString(abbreviatedBinary);
 
             bsonWriter.writeName("$type");
-            writeValue(String.valueOf(String.format("%02X", bsonBinary.getType())));
+            writeString(String.valueOf(String.format("%02X", bsonBinary.getType())));
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.OBJECT_ID)) {
 
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$oid");
-            writeValue(String.valueOf(arg.asObjectId().getValue()));
+            writeString(String.valueOf(arg.asObjectId().getValue()));
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.BOOLEAN)) {
 
-            writeValue(arg.asBoolean().getValue());
+            BsonBoolean bsonBoolean = arg.asBoolean();
+            writeBoolean(bsonBoolean.getValue());
 
         } else if (bsonType.equals(BsonType.DATE_TIME)) {
 
+            BsonDateTime bsonDateTime = arg.asDateTime();
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$date");
-            writeValue(arg.asDateTime().getValue());
+            writeInt64(bsonDateTime.getValue());
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.REGULAR_EXPRESSION)) {
 
+            BsonRegularExpression bsonRegularExpression = arg.asRegularExpression();
+
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$regex");
-            writeValue(arg.asRegularExpression().getPattern());
+            writeString(bsonRegularExpression.getPattern());
             bsonWriter.writeName("$options");
-            writeValue(arg.asRegularExpression().getOptions());
+            writeString(bsonRegularExpression.getOptions());
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.DB_POINTER)) {
 
+            BsonDbPointer bsonDbPointer = arg.asDBPointer();
+
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$ref");
-            writeValue(arg.asDBPointer().getNamespace());
+            writeString(bsonDbPointer.getNamespace());
             bsonWriter.writeName("$id");
 
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$oid");
-            writeValue(String.valueOf(arg.asDBPointer().getId()));
+            writeString(String.valueOf(bsonDbPointer.getId()));
             bsonWriter.writeEndDocument();
 
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.JAVASCRIPT)) {
 
+            BsonJavaScript bsonJavaScript = arg.asJavaScript();
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$code");
-            writeValue(arg.asJavaScript().getCode());
+            writeString(bsonJavaScript.getCode());
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.SYMBOL)) {
 
+            final BsonSymbol bsonSymbol = arg.asSymbol();
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$symbol");
-            writeValue(arg.asSymbol().getSymbol());
+            writeString(bsonSymbol.getSymbol());
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.JAVASCRIPT_WITH_SCOPE)) {
 
+            final BsonJavaScriptWithScope bsonJavaScript = arg.asJavaScriptWithScope();
             bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$code");
-            writeValue(arg.asJavaScriptWithScope().getCode());
+            bsonWriter.writeString("$code");
+            writeString(bsonJavaScript.getCode());
             bsonWriter.writeName("$scope");
-            writeValue(arg.asJavaScriptWithScope().getScope());
+            writeValue(bsonJavaScript.getScope());
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.INT32)) {
 
-            writeValue(arg.asInt32().getValue());
+            BsonInt32 int32 = arg.asInt32();
+            writeInt32(int32.getValue());
 
         } else if (bsonType.equals(BsonType.TIMESTAMP)) {
+            BsonTimestamp bsonTimestamp = arg.asTimestamp();
 
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$timestamp");
 
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("t");
-            writeValue(arg.asTimestamp().getTime());
+            writeInt32(bsonTimestamp.getTime());
             bsonWriter.writeName("i");
-            writeValue(arg.asTimestamp().getInc());
+            writeInt32(bsonTimestamp.getInc());
             bsonWriter.writeEndDocument();
 
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.INT64)) {
 
+            BsonInt64 bsonInt64 = arg.asInt64();
+
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$numberLong");
-            writeValue(String.valueOf(arg.asInt64().getValue()));
+            writeInt64(bsonInt64.getValue());
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.UNDEFINED)) {
 
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$undefined");
-            writeValue(true);
+            writeBoolean(true);
             bsonWriter.writeEndDocument();
 
         } else if (bsonType.equals(BsonType.NULL)) {
 
-            writeValue(null);
+            writeNull();
 
         } else if (decimal128Enabled && bsonType.equals(BsonType.DECIMAL128)) {
 
             //since Mongo Java Driver 3.4
             bsonWriter.writeStartDocument();
             bsonWriter.writeName("$numberDecimal");
-            writeValue(String.valueOf(arg.asDecimal128().getValue()));
+            writeString(String.valueOf(arg.asDecimal128().getValue()));
             bsonWriter.writeEndDocument();
         }
 //        BsonType.DOCUMENT //taken care of in Bson
@@ -573,7 +602,7 @@ class WriteContext {
 
     }
 
-    private Map<String, ?> getBsonKeyValueMap(Object bson) {
+    private Map<String, ?> getBsonKeyValueMap(Bson bson) {
         if (bson instanceof BasicDBObject) {
             return (BasicDBObject) bson;
         } else if (bson instanceof BsonDocument) {
@@ -614,16 +643,13 @@ class WriteContext {
         }
     }
 
-    private void arrayAbbreviationForMongo(Object arg) {
-        final int length = Array.getLength(arg);
+    private void arrayAbbreviationForMongo(Object arrayObject) {
+        final int length = Array.getLength(arrayObject);
         for (int i = 0; i < length && i < DEFAULT_ABBREVIATE_MAX_WIDTH - 1; i++) {
-            writeValue(Array.get(arg, i));
+            writeValue(Array.get(arrayObject, i));
         }
         if (length > DEFAULT_ABBREVIATE_MAX_WIDTH - 2) {
-            bsonWriter.writeString("?");
-            if (traceBsonBindValue) {
-                jsonParameter.add("...(" + length + ")");
-            }
+            writeLength(length);
         }
     }
 
@@ -638,24 +664,22 @@ class WriteContext {
             }
         }
         if (length > DEFAULT_ABBREVIATE_MAX_WIDTH - 2) {
-            bsonWriter.writeString("?");
-            if (traceBsonBindValue) {
-                jsonParameter.add("...(" + length + ")");
-            }
+            writeLength(length);
+        }
+    }
+
+    private void writeLength(int length) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add("...(" + length + ")");
         }
     }
 
     private void writeValue(Object arg) {
         if (arg == null) {
-            bsonWriter.writeString("?");
-            if (traceBsonBindValue) {
-                jsonParameter.add("null");
-            }
+            writeNull();
         } else if (arg instanceof String) {
-            bsonWriter.writeString("?");
-            if (traceBsonBindValue) {
-                jsonParameter.add("\"" + StringUtils.abbreviate(StringUtils.replace((String) arg, "\"", "\"\"")) + "\"");
-            }
+            writeString((String) arg);
         } else if (isFilter(arg)) {
             parseFilterObject(arg);
         } else if (isUpdates(arg)) {
@@ -663,18 +687,65 @@ class WriteContext {
         } else if (isSort(arg)) {
             parseSortObject(arg);
         } else if (arg.getClass().isArray()) {
-            parsePrimitiveArrayObject(arg);
+            writePrimitiveArrayObject(arg);
         } else if (arg instanceof Collection) {
-            parseCollection((Collection<?>) arg);
+            writeCollection((Collection<?>) arg);
         } else if (arg instanceof Bson) {
-            parseBsonObject(arg);
+            Bson bson = (Bson) arg;
+            writeBsonObject(bson);
         } else if (arg instanceof BsonValue) {
-            parseBsonValueObject((BsonValue) arg);
+            writeBsonValueObject((BsonValue) arg);
         } else {
-            bsonWriter.writeString("?");
-            if (traceBsonBindValue) {
-                jsonParameter.add(StringUtils.abbreviate(String.valueOf(arg)));
-            }
+            writeRaw(arg);
+        }
+    }
+
+    private void writeRaw(Object arg) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add(StringUtils.abbreviate(String.valueOf(arg)));
+        }
+    }
+
+    private void writeString(String string) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add("\"" + StringUtils.abbreviate(StringUtils.replace(string, "\"", "\"\"")) + "\"");
+        }
+    }
+
+    private void writeInt32(int int32) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add(Integer.toString(int32));
+        }
+    }
+
+    private void writeInt64(long int64) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add(Long.toString(int64));
+        }
+    }
+
+    private void writeDouble(double doubleValue) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add(Double.toString(doubleValue));
+        }
+    }
+
+    private void writeBoolean(boolean boolValue) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add(Boolean.toString(boolValue));
+        }
+    }
+
+    private void writeNull() {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add("null");
         }
     }
 

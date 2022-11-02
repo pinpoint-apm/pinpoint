@@ -32,9 +32,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class AgentStatMonitorTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -53,8 +55,7 @@ public class AgentStatMonitorTest {
     private AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         when(agentStatCollector.collect()).thenReturn(new AgentStatMetricSnapshot());
 
         this.tBaseRecorder = new TBaseRecorder<>();
@@ -64,6 +65,7 @@ public class AgentStatMonitorTest {
         listenableDataSender.setListener((ListenableDataSender.Listener<MetricType>) recorderAdaptor);
         this.dataSender = listenableDataSender;
     }
+
 
     @Test
     public void testAgentStatMonitor() throws InterruptedException {

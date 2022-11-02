@@ -32,9 +32,10 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -48,6 +49,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class HbaseAgentLifeCycleDaoTest {
 
     @Mock
@@ -75,14 +77,13 @@ public class HbaseAgentLifeCycleDaoTest {
     @Mock
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
-
     private AgentLifeCycleDao agentLifeCycleDao;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         this.agentLifeCycleDao = new HbaseAgentLifeCycleDao(hbaseOperations2, tableNameProvider, agentLifeCycleMapper);
     }
+
 
     @Test
     public void status_should_be_set_appropriately_if_status_is_known() {

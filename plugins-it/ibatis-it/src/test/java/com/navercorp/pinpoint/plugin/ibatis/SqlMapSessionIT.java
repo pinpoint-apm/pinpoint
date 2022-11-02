@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
+import com.ibatis.sqlmap.client.SqlMapSession;
+import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
+import com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.ibatis.sqlmap.client.SqlMapSession;
-import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
-import com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 /**
  * @author HyunGil Jeong
@@ -36,19 +35,19 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-ibatis-plugin")
-@Dependency({ "org.apache.ibatis:ibatis-sqlmap:[2.3.4.726]", "org.mockito:mockito-all:1.8.4" })
+@Dependency({ "org.apache.ibatis:ibatis-sqlmap:[2.3.4.726]", "org.mockito:mockito-core:4.8.1" })
 public class SqlMapSessionIT extends SqlMapExecutorTestBase {
 
     private SqlMapClientImpl sqlMapClient;
     
     @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    public void beforeEach() {
+        super.beforeEach();
         this.sqlMapClient = new SqlMapClientImpl(super.mockSqlMapExecutorDelegate);
     }
 
     @After
-    public void cleanUp() {
+    public void afterEach() {
         this.sqlMapClient = null;
     }
 

@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -86,8 +86,8 @@ public class ServerInfoAppenderTest {
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assertions.assertNull(nodeList);
-        verifyZeroInteractions(serverGroupListDataSource);
-        verifyZeroInteractions(linkDataDuplexMap);
+        verifyNoInteractions(serverGroupListDataSource);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
@@ -100,8 +100,8 @@ public class ServerInfoAppenderTest {
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assertions.assertTrue(nodeList.getNodeList().isEmpty());
-        verifyZeroInteractions(serverGroupListDataSource);
-        verifyZeroInteractions(linkDataDuplexMap);
+        verifyNoInteractions(serverGroupListDataSource);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ServerInfoAppenderTest {
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assertions.assertSame(serverGroupList, wasNode.getServerGroupList());
-        verifyZeroInteractions(linkDataDuplexMap);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class ServerInfoAppenderTest {
         // Then
         Assertions.assertSame(serverGroupList1, wasNode1.getServerGroupList());
         Assertions.assertSame(serverGroupList2, wasNode2.getServerGroupList());
-        verifyZeroInteractions(linkDataDuplexMap);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class ServerInfoAppenderTest {
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assertions.assertEquals(0, userNode.getServerGroupList().getInstanceCount());
-        verifyZeroInteractions(linkDataDuplexMap);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
@@ -230,6 +230,6 @@ public class ServerInfoAppenderTest {
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
         Assertions.assertEquals(0, unknownNode.getServerGroupList().getInstanceCount());
-        verifyZeroInteractions(linkDataDuplexMap);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 }

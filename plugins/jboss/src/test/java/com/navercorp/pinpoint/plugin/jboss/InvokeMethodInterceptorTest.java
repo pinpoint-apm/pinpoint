@@ -37,8 +37,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +47,7 @@ import java.util.Enumeration;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -58,6 +60,7 @@ import static org.mockito.Mockito.when;
  *
  * @author emeroad
  */
+@ExtendWith(MockitoExtension.class)
 public class InvokeMethodInterceptorTest {
 
     /**
@@ -83,6 +86,7 @@ public class InvokeMethodInterceptorTest {
     @Mock
     private RequestRecorderFactory<HttpServletRequest> requestRecorderFactory;
 
+    
     /**
      * Before.
      */
@@ -98,14 +102,15 @@ public class InvokeMethodInterceptorTest {
      * @throws Exception the exception
      */
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
 
-        when(requestRecorderFactory.getProxyRequestRecorder(any(RequestAdaptor.class))).thenReturn(new DisableRequestRecorder<HttpServletRequest>());
+        when(requestRecorderFactory.getProxyRequestRecorder(any(RequestAdaptor.class)))
+                .thenReturn(new DisableRequestRecorder<HttpServletRequest>());
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         applicationContext = MockTraceContextFactory.newMockApplicationContext(profilerConfig);
     }
+
 
     @AfterEach
     public void tearDown() throws Exception {
@@ -129,12 +134,12 @@ public class InvokeMethodInterceptorTest {
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(null);
-        when(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn(null);
-        when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn(null);
-        when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn(null);
-        when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn(null);
+        lenient().when(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn(null);
+        lenient().when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn(null);
+        lenient().when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn(null);
+        lenient().when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn(null);
         final Enumeration<?> enumeration = mock(Enumeration.class);
-        when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
+        lenient().when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
         final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, requestRecorderFactory);
@@ -158,14 +163,14 @@ public class InvokeMethodInterceptorTest {
     public void testInvalidHeaderExists() {
 
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
-        when(request.getRemoteAddr()).thenReturn("10.0.0.1");
+        lenient().when(request.getRemoteAddr()).thenReturn("10.0.0.1");
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn("TRACEID");
         when(request.getHeader(Header.HTTP_PARENT_SPAN_ID.toString())).thenReturn("PARENTSPANID");
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
         final Enumeration<?> enumeration = mock(Enumeration.class);
-        when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
+        lenient().when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
         final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, requestRecorderFactory);
@@ -202,7 +207,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
         final Enumeration<?> enumeration = mock(Enumeration.class);
-        when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
+        lenient().when(request.getParameterNames()).thenReturn((Enumeration<String>) enumeration);
 
         TraceContext traceContext = spyTraceContext();
         final StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, requestRecorderFactory);

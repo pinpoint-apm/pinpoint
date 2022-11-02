@@ -21,14 +21,38 @@ import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatBatchM
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
-import com.navercorp.pinpoint.common.server.bo.stat.*;
-import com.navercorp.pinpoint.thrift.dto.*;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import com.navercorp.pinpoint.thrift.dto.TDeadlock;
+import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
+import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TLoadedClass;
+import com.navercorp.pinpoint.thrift.dto.TResponseTime;
+import com.navercorp.pinpoint.thrift.dto.TTotalThreadCount;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +60,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class ThriftAgentStatHandlerV2Test {
 
     @Mock
@@ -93,14 +118,14 @@ public class ThriftAgentStatHandlerV2Test {
     private HBaseAgentStatService hBaseAgentStatService;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach()  {
         hBaseAgentStatService = new HBaseAgentStatService(new AgentStatDao[]{jvmGcDao, jvmGcDetailedDao, cpuLoadDao, transactionDao,
                 activeTraceDao, dataSourceDao, responseTimeDao, deadlockDao, fileDescriptorDao,
                 directBufferDao, totalThreadCountDao, loadedClassDao});
         agentStatServiceList.add(hBaseAgentStatService);
         thriftAgentStatHandlerV2 = new ThriftAgentStatHandlerV2(agentStatMapper, agentStatBatchMapper, agentStatServiceList.toArray(new AgentStatService[0]));
     }
+
 
     @Test
     public void testHandleForTAgentStat() {
@@ -164,17 +189,17 @@ public class ThriftAgentStatHandlerV2Test {
         // When
         thriftAgentStatHandlerV2.handleSimple(agentStat);
         // Then
-        verifyZeroInteractions(jvmGcDao);
-        verifyZeroInteractions(jvmGcDetailedDao);
-        verifyZeroInteractions(cpuLoadDao);
-        verifyZeroInteractions(transactionDao);
-        verifyZeroInteractions(activeTraceDao);
-        verifyZeroInteractions(dataSourceDao);
-        verifyZeroInteractions(responseTimeDao);
-        verifyZeroInteractions(fileDescriptorDao);
-        verifyZeroInteractions(directBufferDao);
-        verifyZeroInteractions(totalThreadCountDao);
-        verifyZeroInteractions(loadedClassDao);
+        verifyNoInteractions(jvmGcDao);
+        verifyNoInteractions(jvmGcDetailedDao);
+        verifyNoInteractions(cpuLoadDao);
+        verifyNoInteractions(transactionDao);
+        verifyNoInteractions(activeTraceDao);
+        verifyNoInteractions(dataSourceDao);
+        verifyNoInteractions(responseTimeDao);
+        verifyNoInteractions(fileDescriptorDao);
+        verifyNoInteractions(directBufferDao);
+        verifyNoInteractions(totalThreadCountDao);
+        verifyNoInteractions(loadedClassDao);
     }
 
     @Test
@@ -189,17 +214,17 @@ public class ThriftAgentStatHandlerV2Test {
         // When
         thriftAgentStatHandlerV2.handleSimple(agentStatBatch);
         // Then
-        verifyZeroInteractions(jvmGcDao);
-        verifyZeroInteractions(jvmGcDetailedDao);
-        verifyZeroInteractions(cpuLoadDao);
-        verifyZeroInteractions(transactionDao);
-        verifyZeroInteractions(activeTraceDao);
-        verifyZeroInteractions(dataSourceDao);
-        verifyZeroInteractions(responseTimeDao);
-        verifyZeroInteractions(fileDescriptorDao);
-        verifyZeroInteractions(directBufferDao);
-        verifyZeroInteractions(totalThreadCountDao);
-        verifyZeroInteractions(loadedClassDao);
+        verifyNoInteractions(jvmGcDao);
+        verifyNoInteractions(jvmGcDetailedDao);
+        verifyNoInteractions(cpuLoadDao);
+        verifyNoInteractions(transactionDao);
+        verifyNoInteractions(activeTraceDao);
+        verifyNoInteractions(dataSourceDao);
+        verifyNoInteractions(responseTimeDao);
+        verifyNoInteractions(fileDescriptorDao);
+        verifyNoInteractions(directBufferDao);
+        verifyNoInteractions(totalThreadCountDao);
+        verifyNoInteractions(loadedClassDao);
     }
 
     @Test

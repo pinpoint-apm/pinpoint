@@ -16,19 +16,18 @@ package com.navercorp.pinpoint.plugin.tomcat;
  */
 
 
-
-import static org.junit.Assert.*;
-
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardService;
 import org.apache.catalina.util.ServerInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author hyungil.jeong
@@ -39,12 +38,19 @@ public class StandardServiceModifierTest extends BasePinpointTest {
     
     @Mock
     private StandardEngine engine;
-    
+
+    private AutoCloseable openMocks;
+
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
+        this.openMocks = MockitoAnnotations.openMocks(this);
         this.service = new StandardService();
         this.service.setContainer(this.engine);
+    }
+
+    @After
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     @Test

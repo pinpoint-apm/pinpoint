@@ -24,8 +24,9 @@ import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class SchemaChangeLogServiceImplTest {
 
     private final Random random = new Random();
@@ -50,11 +52,12 @@ public class SchemaChangeLogServiceImplTest {
 
     private SchemaChangeLogService schemaChangeLogService;
 
+
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
         schemaChangeLogService = new SchemaChangeLogServiceImpl(schemaChangeLogDao);
     }
+
 
     @Test
     public void recordChangeSet() {

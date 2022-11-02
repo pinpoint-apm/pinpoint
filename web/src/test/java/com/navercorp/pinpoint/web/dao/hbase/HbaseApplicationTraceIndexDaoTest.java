@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,11 +87,18 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     private ApplicationTraceIndexDao applicationTraceIndexDao;
 
+    private AutoCloseable openMocks;
+    
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
+        openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartConfig scatterChartConfig = new ScatterChartConfig();
         this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+    }
+
+    @AfterEach
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     @Test
