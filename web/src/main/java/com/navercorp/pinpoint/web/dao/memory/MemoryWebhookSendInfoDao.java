@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
     private final Map<String, WebhookSendInfo> webhookSendInfos = new ConcurrentHashMap<>();
-    private final AtomicInteger webhookSendInfoIdGenerator = new AtomicInteger();
+    private final IdGenerator webhookSendInfoIdGenerator = new IdGenerator();
 
     private final WebhookDao webhookDao;
 
@@ -24,7 +23,7 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
 
     @Override
     public String insertWebhookSendInfo(WebhookSendInfo webhookSendInfo) {
-        String webhookSendInfoId = String.valueOf(webhookSendInfoIdGenerator.getAndIncrement());
+        String webhookSendInfoId = webhookSendInfoIdGenerator.getId();
         webhookSendInfo.setWebhookSendInfoId(webhookSendInfoId);
         webhookSendInfos.put(webhookSendInfoId, webhookSendInfo);
         return webhookSendInfoId;

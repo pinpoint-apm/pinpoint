@@ -26,12 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class MemoryWebhookDao implements WebhookDao {
     private final Map<String, Webhook> webhooks = new ConcurrentHashMap<>();
-    private final AtomicInteger webhookIdGenerator = new AtomicInteger();
+    private final IdGenerator webhookIdGenerator = new IdGenerator();
 
     private final AlarmDao alarmDao;
 
@@ -41,7 +40,7 @@ public class MemoryWebhookDao implements WebhookDao {
 
     @Override
     public String insertWebhook(Webhook webhook) {
-        String webhookId = String.valueOf(webhookIdGenerator.getAndIncrement());
+        String webhookId = webhookIdGenerator.getId();
         webhook.setWebhookId(webhookId);
         webhooks.put(webhookId, webhook);
         return webhookId;
