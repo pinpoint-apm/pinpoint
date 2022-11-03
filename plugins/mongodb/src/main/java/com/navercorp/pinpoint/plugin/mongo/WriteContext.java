@@ -542,7 +542,7 @@ class WriteContext {
 
             final BsonJavaScriptWithScope bsonJavaScript = arg.asJavaScriptWithScope();
             bsonWriter.writeStartDocument();
-            bsonWriter.writeString("$code");
+            bsonWriter.writeName("$code");
             writeString(bsonJavaScript.getCode());
             bsonWriter.writeName("$scope");
             writeValue(bsonJavaScript.getScope());
