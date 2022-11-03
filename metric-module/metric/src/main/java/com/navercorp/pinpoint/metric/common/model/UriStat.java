@@ -29,6 +29,7 @@ public class UriStat {
     private final String agentId;
     private final String uri;
     private final long count;
+    private final long failCount;
     private final long maxLatencyMs;
     private final long totalTimeMs;
     private final int[] totalHistogram;
@@ -36,17 +37,18 @@ public class UriStat {
     private final long timestamp;
     private final int version;
 
-    public UriStat(long timestamp, String serviceName, String applicationName, String agentId, String uri, long count, long maxLatencyMs, long totalTimeMs, int[] totalHistogram, int[] failureHistogram, int version) {
+    public UriStat(long timestamp, String serviceName, String applicationName, String agentId, String uri, long maxLatencyMs, long totalTimeMs, int[] totalHistogram, int[] failureHistogram, int version) {
         this.timestamp = timestamp;
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.uri = StringPrecondition.requireHasLength(uri, "uri");
-        this.count = count;
         this.maxLatencyMs = maxLatencyMs;
         this.totalTimeMs = totalTimeMs;
         this.totalHistogram = Objects.requireNonNull(totalHistogram, "totalHistogram");
         this.failureHistogram = Objects.requireNonNull(failureHistogram, "totalHistogram");
+        this.count = Arrays.stream(totalHistogram).sum();
+        this.failCount = Arrays.stream(failureHistogram).sum();
         this.version = version;
     }
 
@@ -60,6 +62,7 @@ public class UriStat {
         this.agentId = StringUtils.EMPTY;
         this.uri = StringUtils.EMPTY;
         this.count = EMPTY_NUMBER;
+        this.failCount = EMPTY_NUMBER;
         this.maxLatencyMs = EMPTY_NUMBER;
         this.totalTimeMs = EMPTY_NUMBER;
         this.totalHistogram = new int[]{(int) tot0, (int) tot1, (int) tot2, (int) tot3, (int) tot4, (int) tot5, (int) tot6, (int) tot7};
@@ -85,6 +88,10 @@ public class UriStat {
 
     public long getCount() {
         return count;
+    }
+
+    public long getFailureCount() {
+        return failCount;
     }
 
     public long getMaxLatencyMs() {

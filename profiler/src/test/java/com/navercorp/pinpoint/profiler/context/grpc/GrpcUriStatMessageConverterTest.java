@@ -88,7 +88,6 @@ public class GrpcUriStatMessageConverterTest {
     private void assertData(List<UriStatInfo> expected, PUriHistogram actual) {
         LongSummaryStatistics summary = getSummary(expected);
 
-        Assertions.assertEquals(expected.size(), actual.getCount());
         Assertions.assertEquals(summary.getMax(), actual.getMax());
         Assertions.assertEquals(summary.getSum(), actual.getTotal());
 

@@ -92,7 +92,6 @@ public class GrpcUriStatMessageConverter implements MessageConverter<MetricType,
         long total = uriStatHistogram.getTotal();
         long max = uriStatHistogram.getMax();
 
-        builder.setCount(count);
         builder.setTotal(total);
         builder.setMax(max);
 

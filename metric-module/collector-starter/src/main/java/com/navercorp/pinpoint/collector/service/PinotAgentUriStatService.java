@@ -58,7 +58,7 @@ public class PinotAgentUriStatService implements AgentUriStatService {
             final long timestamp = eachUriStatBo.getTimestamp();
             final UriStatHistogram totalHistogram = eachUriStatBo.getTotalHistogram();
             final UriStatHistogram failureHistogram = eachUriStatBo.getFailedHistogram();
-            data.add(new UriStat(timestamp, serviceName, applicationName, agentId, uri, totalHistogram.getCount(), totalHistogram.getMax(),
+            data.add(new UriStat(timestamp, serviceName, applicationName, agentId, uri, totalHistogram.getMax(),
                     totalHistogram.getTotal(), getHistogramArray(totalHistogram), getHistogramArray(failureHistogram), version));
         }
         uriStatDao.insert(data);

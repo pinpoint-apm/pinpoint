@@ -23,18 +23,9 @@ import java.util.Arrays;
  */
 public class UriStatHistogram {
 
-    private int count;
     private long total;
     private long max = 0;
     private int[] timestampHistogram;
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
 
     public long getTotal() {
         return total;
@@ -71,7 +62,6 @@ public class UriStatHistogram {
 
         UriStatHistogram that = (UriStatHistogram) o;
 
-        if (count != that.count) return false;
         if (total != that.total) return false;
         if (max != that.max) return false;
         return Arrays.equals(timestampHistogram, that.timestampHistogram);
@@ -80,8 +70,7 @@ public class UriStatHistogram {
     @Override
     public int hashCode() {
         int result;
-        result = count;
-        result = 31 * result + (int) (total ^ (total >>> 32));
+        result = (int) (total ^ (total >>> 32));
         result = 31 * result + (int) (max ^ (max >>> 32));
         result = 31 * result + Arrays.hashCode(timestampHistogram);
         return result;
@@ -90,8 +79,7 @@ public class UriStatHistogram {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("UriStatHistogram{");
-        sb.append("count=").append(count);
-        sb.append(", total=").append(total);
+        sb.append("total=").append(total);
         sb.append(", max=").append(max);
         sb.append(", timestampHistogram=").append(Arrays.toString(timestampHistogram));
         sb.append('}');

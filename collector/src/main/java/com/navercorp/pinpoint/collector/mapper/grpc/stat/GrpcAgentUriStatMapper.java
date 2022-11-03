@@ -78,15 +78,15 @@ public class GrpcAgentUriStatMapper {
     }
 
     private UriStatHistogram convertUriStatHistogram(PUriHistogram pUriHistogram) {
-        int count = pUriHistogram.getCount();
-        if (count == 0) {
+        int histogramCount = pUriHistogram.getHistogramCount();
+
+        if (histogramCount <= 0) {
             return null;
         }
 
         long total = pUriHistogram.getTotal();
         long max = pUriHistogram.getMax();
 
-        int histogramCount = pUriHistogram.getHistogramCount();
         List<Integer> histogramList = pUriHistogram.getHistogramList();
 
         int[] histogram = new int[histogramCount];
@@ -95,7 +95,6 @@ public class GrpcAgentUriStatMapper {
         }
 
         UriStatHistogram uriStatHistogram = new UriStatHistogram();
-        uriStatHistogram.setCount(count);
         uriStatHistogram.setTotal(total);
         uriStatHistogram.setMax(max);
         uriStatHistogram.setTimestampHistogram(histogram);
