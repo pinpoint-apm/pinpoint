@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 public class MemoryUserDao implements UserDao {
 
     private final Map<String, User> users = new ConcurrentHashMap<>();
-    private final AtomicInteger userNumGenerator  = new AtomicInteger(); 
+    private final IdGenerator userNumGenerator  = new IdGenerator();
     
     private final UserGroupDao userGroupDao;
 
@@ -46,7 +45,7 @@ public class MemoryUserDao implements UserDao {
 
     @Override
     public void insertUser(User user) {
-        String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
+        String userNumber = userNumGenerator.getId();
         user.setNumber(userNumber);
         users.put(user.getUserId(), user);
     }
@@ -54,7 +53,7 @@ public class MemoryUserDao implements UserDao {
     @Override
     public void insertUserList(List<User> users) {
         for (User user : users) {
-            String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
+            String userNumber = userNumGenerator.getId();
             user.setNumber(userNumber);
             this.users.put(user.getUserId(), user);
         }
@@ -137,6 +136,6 @@ public class MemoryUserDao implements UserDao {
     @Override
     public void dropAndCreateUserTable() {
         users.clear();
-        userNumGenerator.lazySet(1);
+        userNumGenerator.reset(1);
     }
 }

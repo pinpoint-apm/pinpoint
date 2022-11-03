@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author minwoo.jung
@@ -41,8 +40,8 @@ public class MemoryUserGroupDao implements UserGroupDao {
     private final Map<String, UserGroup> userGroups = new ConcurrentHashMap<>();
     private final Map<String, UserGroupMember> userGroupMembers = new ConcurrentHashMap<>();
     
-    private final AtomicInteger userGroupNumGenerator  = new AtomicInteger();
-    private final AtomicInteger userGroupMemNumGenerator  = new AtomicInteger();
+    private final IdGenerator userGroupNumGenerator  = new IdGenerator();
+    private final IdGenerator userGroupMemNumGenerator  = new IdGenerator();
     
     private final UserDao userDao;
 
@@ -52,7 +51,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public String createUserGroup(UserGroup userGroup) {
-        String userGroupNumber = String.valueOf(userGroupNumGenerator.getAndIncrement());
+        String userGroupNumber = userGroupNumGenerator.getId();
         userGroup.setNumber(userGroupNumber);
         userGroups.put(userGroupNumber, userGroup);
         return userGroup.getNumber();
@@ -114,7 +113,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public void insertMember(UserGroupMember userGroupMember) {
-        String memberNum = String.valueOf(userGroupMemNumGenerator.getAndIncrement());
+        String memberNum = userGroupMemNumGenerator.getId();
         userGroupMember.setNumber(memberNum);
         userGroupMembers.put(memberNum, userGroupMember);
     }

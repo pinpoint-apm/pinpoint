@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -47,7 +48,7 @@ public class PinotSystemMetricDaoTest {
     private final static String TOPIC = "test-topic";
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final Random random = new Random(System.currentTimeMillis());
-    private final SendCount sendCount = new SendCount();
+    private final MutableInt sendCount = new MutableInt();
 
     @Mock
     private KafkaTemplate<String, SystemMetricView> kafkaTemplate;
@@ -60,8 +61,8 @@ public class PinotSystemMetricDaoTest {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                sendCount.increase();
-                logger.info("Sending View {}", sendCount.getSendCount());
+                sendCount.increment();
+                logger.info("Sending View {}", sendCount.intValue());
                 return null;
             }
         }).when(kafkaTemplate).send(anyString(), anyString(), any(SystemMetricView.class));
@@ -75,7 +76,7 @@ public class PinotSystemMetricDaoTest {
 
         longDao.insert("hostGroupName", "hostName", doubleMetricList);
 
-        Assertions.assertEquals(doubleMetricList.size(), sendCount.getSendCount());
+        Assertions.assertEquals(doubleMetricList.size(), sendCount.intValue());
     }
 
     private List<DoubleMetric> createDoubleCounterList() {
@@ -88,19 +89,4 @@ public class PinotSystemMetricDaoTest {
         return doubleMetricList;
     }
 
-    public class SendCount {
-        private int sendCount = 0;
-
-        public void setZero() {
-            sendCount = 0;
-        }
-
-        public void increase() {
-            sendCount++;
-        }
-
-        public int getSendCount() {
-            return sendCount;
-        }
-    }
 }
