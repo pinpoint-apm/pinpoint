@@ -22,15 +22,13 @@ import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.profiler.context.config.DefaultContextConfig;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.sampler.BasicTraceSampler;
-import com.navercorp.pinpoint.profiler.sampler.RateLimitTraceSampler;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sampler.UrlTraceSampler;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
 
 public class TraceSamplerProviderTest {
 
@@ -42,7 +40,7 @@ public class TraceSamplerProviderTest {
 
         TraceSamplerProvider provider = new TraceSamplerProvider(profilerConfig, new DefaultContextConfig(), TrueSampler.INSTANCE, new AtomicIdGenerator());
         TraceSampler traceSampler = provider.get();
-        assertNotNull(traceSampler);
+        Assertions.assertNotNull(traceSampler);
     }
 
     @Test
@@ -57,7 +55,7 @@ public class TraceSamplerProviderTest {
         TraceSamplerProvider provider = new TraceSamplerProvider(profilerConfig, new DefaultContextConfig(), TrueSampler.INSTANCE, new AtomicIdGenerator());
         TraceSampler traceSampler = provider.get();
         if(Boolean.FALSE == (traceSampler instanceof UrlTraceSampler)) {
-            Assert.fail("Unexpected sampler type. traceSampler=" + traceSampler);
+            Assertions.fail("Unexpected sampler type. traceSampler=" + traceSampler);
         }
     }
 
@@ -72,8 +70,8 @@ public class TraceSamplerProviderTest {
 
         TraceSamplerProvider provider = new TraceSamplerProvider(profilerConfig, new DefaultContextConfig(), TrueSampler.INSTANCE, new AtomicIdGenerator());
         TraceSampler traceSampler = provider.get();
-        if(Boolean.FALSE == (traceSampler instanceof BasicTraceSampler)) {
-            Assert.fail("Unexpected sampler type. traceSampler=" + traceSampler);
+        if (Boolean.FALSE == (traceSampler instanceof BasicTraceSampler)) {
+            Assertions.fail("Unexpected sampler type. traceSampler=" + traceSampler);
         }
     }
 
@@ -88,8 +86,8 @@ public class TraceSamplerProviderTest {
 
         TraceSamplerProvider provider = new TraceSamplerProvider(profilerConfig, new DefaultContextConfig(), TrueSampler.INSTANCE, new AtomicIdGenerator());
         TraceSampler traceSampler = provider.get();
-        if(Boolean.FALSE == (traceSampler instanceof BasicTraceSampler)) {
-            Assert.fail("Unexpected sampler type. traceSampler=" + traceSampler);
+        if (Boolean.FALSE == (traceSampler instanceof BasicTraceSampler)) {
+            Assertions.fail("Unexpected sampler type. traceSampler=" + traceSampler);
         }
     }
 }
