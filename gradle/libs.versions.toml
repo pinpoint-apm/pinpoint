@@ -104,9 +104,9 @@ log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4
 log4j = { module = "log4j:log4j", version = "1.2.17" }
 
 hikariCP = { module = "com.zaxxer:HikariCP", version = "4.0.3" }
-mybatis = { module = "org.mybatis:mybatis", version = "3.5.7" }
+mybatis = { module = "org.mybatis:mybatis", version = "3.5.11" }
 # 2.0.x java8 & spring5 https://mybatis.org/spring/index.html
-mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "2.0.6" }
+mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "2.0.7" }
 mybatis-spring-boot-starter = { module = "org.mybatis.spring.boot:mybatis-spring-boot-starter", version = "2.1.4" }
 mysql-connector-java = { module = "mysql:mysql-connector-java", version.ref = "mysql-connector-java" }
 
