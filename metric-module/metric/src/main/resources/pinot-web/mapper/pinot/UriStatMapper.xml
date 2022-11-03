@@ -41,7 +41,7 @@
             sum("count") as totalCount,
             max(maxLatencyMs) as maxLatencyMs,
             sum(totalTimeMs) as totalTimeMs,
-            sum(fail0 + fail1 + fail2 + fail3 + fail4 + fail5 + fail6 + fail7) as failureCount,
+            sum(failureCount) as failureCount,
             version
         FROM uriStat
         WHERE applicationName = #{applicationName}
@@ -57,7 +57,7 @@
             sum("count") as totalCount,
             max(maxLatencyMs) as maxLatencyMs,
             sum(totalTimeMs) as totalTimeMs,
-            sum(fail0 + fail1 + fail2 + fail3 + fail4 + fail5 + fail6 + fail7) as failureCount,
+            sum(failureCount) as failureCount,
             version
         FROM uriStat
         WHERE applicationName = #{applicationName}

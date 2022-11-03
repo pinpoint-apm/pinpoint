@@ -29,6 +29,10 @@
       "dataType": "LONG"
     },
     {
+      "name": "failureCount",
+      "dataType": "LONG"
+    },
+    {
       "name": "maxLatencyMs",
       "dataType": "LONG"
     },

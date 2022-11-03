@@ -554,7 +554,6 @@ public class TestAgentStatFactory {
             return null;
         }
 
-        uriStatHistogram.setCount(count);
         uriStatHistogram.setTotal(totalElapsed);
         uriStatHistogram.setMax(max);
 
