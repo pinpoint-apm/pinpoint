@@ -19,13 +19,13 @@ package com.navercorp.pinpoint.profiler.context.provider.sampler;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.profiler.sampler.SamplerType;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
 
 public class UrlSamplerConfigTest {
 
@@ -36,7 +36,7 @@ public class UrlSamplerConfigTest {
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
-        assertEquals(0, entryList.size());
+        Assertions.assertEquals(0, entryList.size());
     }
 
     @Test
@@ -51,11 +51,11 @@ public class UrlSamplerConfigTest {
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
         UrlSamplerInfo urlInfo = entryList.get(0).getValue();
-        assertEquals("/foo", urlInfo.getUrlPath());
-        assertNotNull(urlInfo.getSampler());
-        assertEquals(0, urlInfo.getSamplingNewThroughput());
-        assertEquals(0, urlInfo.getSamplingContinueThroughput());
-        assertTrue(urlInfo.isValid());
+        Assertions.assertEquals("/foo", urlInfo.getUrlPath());
+        Assertions.assertNotNull(urlInfo.getSampler());
+        Assertions.assertEquals(0, urlInfo.getSamplingNewThroughput());
+        Assertions.assertEquals(0, urlInfo.getSamplingContinueThroughput());
+        Assertions.assertTrue(urlInfo.isValid());
     }
 
     @Test
@@ -68,8 +68,8 @@ public class UrlSamplerConfigTest {
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
         UrlSamplerInfo urlInfo = entryList.get(0).getValue();
-        assertNull(urlInfo.getSampler());
-        assertFalse(urlInfo.isValid());
+        Assertions.assertNull(urlInfo.getSampler());
+        Assertions.assertFalse(urlInfo.isValid());
     }
 
     @Test
@@ -80,6 +80,6 @@ public class UrlSamplerConfigTest {
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
-        assertEquals(0, entryList.size());
+        Assertions.assertEquals(0, entryList.size());
     }
 }
