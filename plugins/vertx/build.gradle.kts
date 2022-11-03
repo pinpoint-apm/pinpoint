@@ -7,7 +7,10 @@ dependencies {
     testCompileOnly(project(":pinpoint-bootstrap-core"))
     compileOnly(project(":pinpoint-commons"))
     compileOnly(project(":pinpoint-annotations"))
-    compileOnly("io.vertx:vertx-core:4.2.2")
+
+    val vertx = "4.2.2"
+    compileOnly("io.vertx:vertx-core:${vertx}")
+    compileOnly("io.vertx:vertx-web:${vertx}")
 }
 
 description = "pinpoint-vertx-plugin"
