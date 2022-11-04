@@ -33,11 +33,12 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
 
     @Override
     public boolean execute() throws SQLException {
-        ResultSet resultSet = executeQuery();
-        if (resultSet.isLast()) {
-            return false;
-        } else {
-            return true;
+        try (ResultSet resultSet = executeQuery()) {
+            if (resultSet.isLast()) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 }
