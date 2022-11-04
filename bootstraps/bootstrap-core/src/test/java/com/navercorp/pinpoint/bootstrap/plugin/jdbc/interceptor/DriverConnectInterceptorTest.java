@@ -30,7 +30,6 @@ import java.sql.SQLException;
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,8 +58,8 @@ public class DriverConnectInterceptorTest {
         driverConnectInterceptor.prepareAfterTrace(driver, va(invalidJdbcUrl), setAccessor, null);
         driverConnectInterceptor.doInAfterTrace(spanEventRecorder, driver, va(invalidJdbcUrl), getAccessor, null);
 
-        verify(setAccessor, times(1))._$PINPOINT$_setDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
-        verify(getAccessor, times(1))._$PINPOINT$_getDatabaseInfo();
+        verify(setAccessor)._$PINPOINT$_setDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
+        verify(getAccessor)._$PINPOINT$_getDatabaseInfo();
     }
 
     @Test

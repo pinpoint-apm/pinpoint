@@ -10,12 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +48,7 @@ public class SystemMetricDataTypeServiceImplTest {
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, metricDataName.getSaveTime());
-        verify(metricDataTypeCache, times(1)).saveMetricDataType(metricDataName, metricData);
+        verify(metricDataTypeCache).saveMetricDataType(metricDataName, metricData);
     }
 
     @Test
@@ -64,7 +62,7 @@ public class SystemMetricDataTypeServiceImplTest {
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, metricDataName.getSaveTime());
-        verify(metricDataTypeCache, times(1)).saveMetricDataType(metricDataName, metricData);
+        verify(metricDataTypeCache).saveMetricDataType(metricDataName, metricData);
     }
 
     @Test
@@ -78,6 +76,6 @@ public class SystemMetricDataTypeServiceImplTest {
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.LONG, metricDataName.getSaveTime());
-        verify(metricDataTypeCache, times(0)).saveMetricDataType(any(MetricDataName.class), any(MetricData.class));
+        verify(metricDataTypeCache, never()).saveMetricDataType(any(MetricDataName.class), any(MetricData.class));
     }
 }

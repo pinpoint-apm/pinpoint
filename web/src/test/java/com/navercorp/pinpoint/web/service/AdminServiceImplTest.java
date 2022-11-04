@@ -81,7 +81,7 @@ public class AdminServiceImplTest {
         adminService.removeApplicationName(APPLICATION_NAME1);
 
         // then
-        verify(applicationIndexDao, times(1)).deleteApplicationName(APPLICATION_NAME1);
+        verify(applicationIndexDao).deleteApplicationName(APPLICATION_NAME1);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class AdminServiceImplTest {
         adminService.removeAgentId(APPLICATION_NAME1, AGENT_ID1);
 
         // then
-        verify(applicationIndexDao, times(1)).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        verify(applicationIndexDao).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class AdminServiceImplTest {
         // when
         adminService.removeInactiveAgents(durationDays);
 
-        verify(applicationIndexDao, times(0)).deleteAgentIds(any());
+        verify(applicationIndexDao, never()).deleteAgentIds(any());
     }
 
     @Test

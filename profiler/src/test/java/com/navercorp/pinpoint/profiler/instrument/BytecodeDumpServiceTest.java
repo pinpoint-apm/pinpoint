@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,9 +40,9 @@ public class BytecodeDumpServiceTest {
 
         bytecodeDumpService.dumpBytecode("testDump", classInternalName, classFile, classLoader);
 
-        Mockito.verify(this.disassembler, times(1)).dumpBytecode(classFile);
-        Mockito.verify(this.disassembler, times(1)).dumpVerify(classFile, classLoader);
-        Mockito.verify(this.disassembler, times(1)).dumpASM(classFile);
+        Mockito.verify(this.disassembler).dumpBytecode(classFile);
+        Mockito.verify(this.disassembler).dumpVerify(classFile, classLoader);
+        Mockito.verify(this.disassembler).dumpASM(classFile);
     }
 
 

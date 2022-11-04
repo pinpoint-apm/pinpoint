@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +58,7 @@ public class MetricTagCacheTest {
         MetricTag metricTag = new MetricTag("applicationId", "hostName", "metricName", "fieldName", new ArrayList<Tag>(), new Date().getTime());
         metricTagCache.saveMetricTag(metricTag);
 
-        verify(metricTagDao, times(1)).insertMetricTag(metricTag);
+        verify(metricTagDao).insertMetricTag(metricTag);
     }
 
     @Test

@@ -65,7 +65,7 @@ public class RefreshStrategyTest {
         // refresh lookup
         refreshStrategy.resolve();
 
-        Mockito.verify(socketAddressProvider, times(1)).resolve();
+        Mockito.verify(socketAddressProvider).resolve();
     }
 
     @Test
@@ -89,6 +89,6 @@ public class RefreshStrategyTest {
         // refresh lookup
         refreshStrategy.resolve();
 
-        Mockito.verify(socketAddressProvider, times(1)).resolve();
+        Mockito.verify(socketAddressProvider).resolve();
     }
 }

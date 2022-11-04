@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,8 +89,8 @@ public class ActiveThreadCountResponseAggregatorTest {
 
         assertEquals(1, aggregator.countWebSocketSession(), "# of sessions should be 1");
 
-        verify(this.agentService, times(1)).getRecentAgentInfoList(eq(applicationName), anyLong());
-        verify(this.agentService, times(1)).openStream(eq(clusterKey), any(TBase.class), any());
+        verify(this.agentService).getRecentAgentInfoList(eq(applicationName), anyLong());
+        verify(this.agentService).openStream(eq(clusterKey), any(TBase.class), any());
     }
 
     @Test
@@ -98,19 +98,19 @@ public class ActiveThreadCountResponseAggregatorTest {
         aggregator.start();
 
         aggregator.addWebSocketSession(this.session);
-        verify(this.channel, times(0)).close();
+        verify(this.channel, never()).close();
         assertEquals(1, aggregator.countWebSocketSession(), "# of sessions should be 1");
 
         aggregator.addWebSocketSession(session);
-        verify(this.channel, times(0)).close();
+        verify(this.channel, never()).close();
         assertEquals(2, aggregator.countWebSocketSession(), "# of sessions should be 2");
 
         aggregator.removeWebSocketSessionAndGetIsCleared(session);
-        verify(this.channel, times(0)).close();
+        verify(this.channel, never()).close();
         assertEquals(1, aggregator.countWebSocketSession(), "# of sessions should be 1");
 
         aggregator.removeWebSocketSessionAndGetIsCleared(session);
-        verify(this.channel, times(1)).close();
+        verify(this.channel).close();
         assertEquals(0, aggregator.countWebSocketSession(), "# of sessions should be 0");
     }
 }

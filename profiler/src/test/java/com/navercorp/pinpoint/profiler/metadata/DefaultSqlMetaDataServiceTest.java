@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -45,10 +44,10 @@ public class DefaultSqlMetaDataServiceTest {
         boolean newValue = sqlMetaDataService.cacheSql(parsingResult);
 
         Assertions.assertTrue(newValue);
-        verify(dataSender, times(1)).request(any(SqlMetaData.class));
+        verify(dataSender).request(any(SqlMetaData.class));
 
         boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult);
         Assertions.assertFalse(notNewValue);
-        verify(dataSender, times(1)).request(any(SqlMetaData.class));
+        verify(dataSender).request(any(SqlMetaData.class));
     }
 }

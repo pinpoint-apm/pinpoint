@@ -42,7 +42,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 
 /**
  * @author Taejin Koo
@@ -88,7 +88,7 @@ public class GrpcAgentUriStatHandlerV2Test {
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
         handler.handleSimple(mockServerRequest);
 
-        Mockito.verify(mockAgentUriStatService, times(0)).save(Mockito.any());
+        Mockito.verify(mockAgentUriStatService, never()).save(Mockito.any());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class GrpcAgentUriStatHandlerV2Test {
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, true);
         handler.handleSimple(mockServerRequest);
 
-        Mockito.verify(mockAgentUriStatService, times(1)).save(Mockito.any());
+        Mockito.verify(mockAgentUriStatService).save(Mockito.any());
     }
 
     private PAgentUriStat createPAgentUriStat() {

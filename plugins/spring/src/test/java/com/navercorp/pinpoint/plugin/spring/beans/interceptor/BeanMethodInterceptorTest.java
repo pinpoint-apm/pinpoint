@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 
@@ -55,6 +54,6 @@ public class BeanMethodInterceptorTest {
         final Exception throwable = new Exception();
         beanMethodInterceptor.after(thisObject, 10, null, null, throwable);
 
-        Mockito.verify(recorder, times(1)).recordException(true, throwable);
+        Mockito.verify(recorder).recordException(true, throwable);
     }
 }

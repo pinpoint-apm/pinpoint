@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -46,11 +45,11 @@ public class DefaultApiMetaDataServiceTest {
         int first = apiMetaDataService.cacheApi(methodDescriptor);
 
         Assertions.assertNotEquals(first, 0, "not exist");
-        verify(dataSender, times(1)).request(any(ApiMetaData.class));
+        verify(dataSender).request(any(ApiMetaData.class));
 
         int second = apiMetaDataService.cacheApi(methodDescriptor);
         Assertions.assertEquals(first, second, "check cache");
-        verify(dataSender, times(1)).request(any(ApiMetaData.class));
+        verify(dataSender).request(any(ApiMetaData.class));
     }
 
 }
