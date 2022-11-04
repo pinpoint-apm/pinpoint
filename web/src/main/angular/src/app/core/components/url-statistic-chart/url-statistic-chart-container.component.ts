@@ -221,11 +221,11 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                         format: (v: number): string => this.convertWithUnit(v)
                     },
                     padding: {
-                        top: 0,
+                        // top: 0,
                         bottom: 0
                     },
                     min: 0,
-                    max: yMax,
+                    // max: yMax,
                     default: [0, this.defaultYMax]
                 }
             },
@@ -240,7 +240,8 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
             tooltip: {
                 order: '',
                 format: {
-                    value: (v: number) => this.addComma(v.toString())
+                    // value: (v: number): string => this.addComma(v.toString())
+                    value: (v: number): string => this.convertWithUnit(v)
                 }
             },
             transition: {

@@ -1,35 +1,39 @@
-<ng-container *ngIf="data">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>URL</th>
-                <th>Total Count</th>
-                <th>Failure Count</th>
-                <th>Avg(ms)</th>
-                <th>Max(ms)</th>
-            </tr>
-        </thead>
-        <tbody>
+<!-- <ng-container *ngIf="data"> -->
+    <div class="url-info-table table">
+        <div class="url-info-header">
+            <div class="url-info-row header-row">
+                <div class="url-info-cell header-cell index-cell">#</div>
+                <div class="url-info-cell header-cell url-cell">URL</div>
+                <div class="url-info-cell header-cell total-count-cell">Total Count</div>
+                <div class="url-info-cell header-cell failure-count-cell">Failure Count</div>
+                <div class="url-info-cell header-cell avg-cell">Avg(ms)</div>
+                <div class="url-info-cell header-cell max-cell">Max(ms)</div>
+            </div>
+        </div>
+        <div class="url-info-body" #urlInfoTableBody>
             <ng-container *ngIf="isEmpty; else contents">
-                <tr class="content-group">
-                    <td class="content-item" colspan="5">No Data</td>
-                </tr>
+                <div class="url-info-row">
+                    <div class="url-info-cell empty">No Data</div>
+                </div>
             </ng-container>
             <ng-template #contents>
-                <tr *ngFor="let urlInfo of data" (click)="onSelectUrlInfo(urlInfo.uri)" class="content-group" [class.active]="isSelectedUrl(urlInfo.uri)">
-                    <td class="content-item url">{{urlInfo.uri}}</td>
-                    <td class="content-item">
-                        <div class="sub">
-                            <div class="count">{{urlInfo.totalCount}}</div>
-                            <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">
-                            </div>
-                        </div>
-                    </td>
-                    <td class="content-item">{{urlInfo.failureCount}}</td>
-                    <td class="content-item">{{urlInfo.avgTimeMs | number: '1.0-3'}}</td>
-                    <td class="content-item">{{urlInfo.maxTimeMs}}</td>
-                </tr>
+                <div 
+                    *ngFor="let urlInfo of data; let i = index"
+                    class="url-info-row"
+                    (click)="onSelectUrlInfo(urlInfo.uri)"
+                    [class.active]="isSelectedUrl(urlInfo.uri)"
+                >
+                    <div class="url-info-cell index-cell">{{i + 1}}</div>
+                    <div class="url-info-cell url-cell">{{urlInfo.uri}}</div>
+                    <div class="url-info-cell total-count-cell">
+                        <div class="total-count">{{urlInfo.totalCount | number}}</div>
+                        <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)"></div>
+                    </div>
+                    <div class="url-info-cell failure-count-cell">{{urlInfo.failureCount | number}}</div>
+                    <div class="url-info-cell avg-cell">{{urlInfo.avgTimeMs | number: '1.0-3'}}</div>
+                    <div class="url-info-cell max-cell">{{urlInfo.maxTimeMs | number: '1.0-3'}}</div>
+                </div>
             </ng-template>
-        </tbody>
-    </table>
-</ng-container>
+        </div>
+    </div>
+<!-- </ng-container> -->

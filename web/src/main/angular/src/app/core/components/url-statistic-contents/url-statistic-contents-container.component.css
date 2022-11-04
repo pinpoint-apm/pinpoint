@@ -36,10 +36,11 @@
 
 .chart-wrapper {
     width: 100%;
-    height: 45%; /* TODO: Check the height */
+    height: 45%;
     margin-bottom: 30px;
 }
 
 .info-wrapper {
     width: 100%;
+    height: calc(55% - 30px);
 }

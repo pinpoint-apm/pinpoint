@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, ElementRef, Renderer2, ViewChild } from '@angular/core';
+
 import { isEmpty } from 'app/core/utils/util';
 
 @Component({
@@ -7,6 +8,7 @@ import { isEmpty } from 'app/core/utils/util';
     styleUrls: ['./url-statistic-info.component.css']
 })
 export class UrlStatisticInfoComponent implements OnInit, OnChanges {
+    @ViewChild('urlInfoTableBody' , {static: true}) urlInfoTableBody: ElementRef;
     @Input() data: IUrlStatInfoData[];
     @Output() outSelectUrlInfo = new EventEmitter<string>();
 
@@ -15,27 +17,32 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
     isEmpty: boolean;
 
     constructor(
-        private el: ElementRef
+        private el: ElementRef,
+        private renderer: Renderer2
     ) {}
 
     ngOnChanges(changes: SimpleChanges) {
         const dataChange = changes['data'];
         
         if (dataChange && dataChange.currentValue) {
-            this.isEmpty = isEmpty(dataChange.currentValue);
+            const data = dataChange.currentValue as IUrlStatInfoData[];
+
+            this.isEmpty = isEmpty(data);
             if (this.isEmpty) {
                 return;
             }
 
-            // this.selectedUrl = dataChange.currentValue[0].uri;
             this.selectedUrl = '';
-            this.totalCount = dataChange.currentValue.reduce((acc: number, {totalCount}: any) => {
+            this.totalCount = data.reduce((acc: number, {totalCount}: any) => {
                 return acc + totalCount;
             }, 0);
         }
     }
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.renderer.setStyle(this.urlInfoTableBody.nativeElement, 'max-height', `${this.el.nativeElement.offsetHeight - 40}px`);
+    }
+
     onSelectUrlInfo(url: string): void {
         if (this.selectedUrl === url) {
             return;
