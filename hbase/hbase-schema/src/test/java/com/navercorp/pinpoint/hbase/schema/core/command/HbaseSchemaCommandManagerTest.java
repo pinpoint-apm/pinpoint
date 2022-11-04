@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +62,7 @@ public class HbaseSchemaCommandManagerTest {
         String tableName = "table1";
         HTableDescriptor sameNamespaceHtd = createHtd(namespace, tableName, "CF1");
         HTableDescriptor differentNamespaceHtd = createHtd(differentNamespace, tableName, "CF1");
-        List<HTableDescriptor> htds = Arrays.asList(sameNamespaceHtd, differentNamespaceHtd);
+        List<HTableDescriptor> htds = List.of(sameNamespaceHtd, differentNamespaceHtd);
         HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, htds);
 
         ColumnFamilyChange createColumnFamilyChange = newColumnFamilyChange("CF2");
@@ -82,7 +81,7 @@ public class HbaseSchemaCommandManagerTest {
             String namespace = "namespace";
             String tableName = "table";
             HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
-            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
+            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, List.of(existingTable));
 
             TableChange createTableChange = newTableChange(ChangeType.CREATE, tableName);
             ChangeSet createTableChangeSet = newChangeSet(createTableChange);
@@ -98,7 +97,7 @@ public class HbaseSchemaCommandManagerTest {
             String tableName = "table";
             String nonExistingTableName = "anotherTable";
             HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
-            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
+            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, List.of(existingTable));
 
             TableChange modifyTableChange = newTableChange(ChangeType.MODIFY, nonExistingTableName);
             ChangeSet modifyTableChangeSet = newChangeSet(modifyTableChange);
@@ -164,7 +163,7 @@ public class HbaseSchemaCommandManagerTest {
         String newColumnFamily2 = "CF2";
 
         HTableDescriptor existingHtd = createHtd(namespace, tableName, existingColumnFamily);
-        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(new HTableDescriptor(existingHtd)));
+        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, List.of(new HTableDescriptor(existingHtd)));
 
         ChangeSet createColumnFamilyChangeSet1 = newChangeSet(newTableChange(ChangeType.MODIFY, tableName, newColumnFamilyChange(newColumnFamily1)));
         ChangeSet createColumnFamilyChangeSet2 = newChangeSet(newTableChange(ChangeType.MODIFY, tableName, newColumnFamilyChange(newColumnFamily2)));
@@ -224,7 +223,7 @@ public class HbaseSchemaCommandManagerTest {
         for (TableCommand tableCommand : manager.getCommands()) {
             tableCommand.execute(mockHbaseAdminOperation);
         }
-        verify(mockHbaseAdminOperation, times(1)).createTable(any(HTableDescriptor.class));
+        verify(mockHbaseAdminOperation).createTable(any(HTableDescriptor.class));
     }
 
     private ColumnFamilyChange newColumnFamilyChange(String cfName) {
@@ -232,7 +231,7 @@ public class HbaseSchemaCommandManagerTest {
     }
 
     private TableChange newTableChange(ChangeType changeType, String tableName, ColumnFamilyChange... cfChanges) {
-        List<ColumnFamilyChange> columnFamilyChanges = Arrays.asList(cfChanges);
+        List<ColumnFamilyChange> columnFamilyChanges = List.of(cfChanges);
         switch (changeType) {
             case CREATE:
                 return new CreateTableChange(tableName, TableConfiguration.EMPTY_CONFIGURATION, columnFamilyChanges, CreateTableChange.SplitOption.NONE);
@@ -244,7 +243,7 @@ public class HbaseSchemaCommandManagerTest {
     }
 
     private ChangeSet newChangeSet(TableChange... tableChanges) {
-        return new ChangeSet("id", "value", Arrays.asList(tableChanges));
+        return new ChangeSet("id", "value", List.of(tableChanges));
     }
 
     private HTableDescriptor createHtd(String namespace, String tableQualifier, String... columnFamilyNames) {

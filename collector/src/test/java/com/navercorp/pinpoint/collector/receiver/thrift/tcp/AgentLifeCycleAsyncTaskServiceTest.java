@@ -47,7 +47,6 @@ import java.util.concurrent.Executor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -195,7 +194,7 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
         long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(TEST_SOCKET_ID, expectedEventCounter);
         this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, eventIdentifier);
-        verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
+        verify(this.agentLifeCycleService).insert(argCaptor.capture());
 
         // then
         AgentLifeCycleBo actualAgentLifeCycleBo = argCaptor.getValue();

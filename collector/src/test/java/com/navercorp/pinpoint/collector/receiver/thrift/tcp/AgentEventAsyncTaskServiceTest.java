@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -75,7 +74,7 @@ public class AgentEventAsyncTaskServiceTest {
         ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
         AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
         this.agentEventAsyncTaskService.handleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedEventType);
-        verify(this.agentEventService, times(1)).insert(argCaptor.capture());
+        verify(this.agentEventService).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());

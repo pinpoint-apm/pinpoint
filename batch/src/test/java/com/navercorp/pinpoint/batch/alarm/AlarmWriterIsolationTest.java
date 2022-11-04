@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,8 +80,8 @@ public class AlarmWriterIsolationTest {
         writer.write(List.of(new AppAlarmChecker(checkers)));
 
         // then
-        verify(alarmMessageSender, times(1)).sendSms(checker, 1, null);
-        verify(alarmMessageSender, times(1)).sendEmail(checker, 1, null);
+        verify(alarmMessageSender).sendSms(checker, 1, null);
+        verify(alarmMessageSender).sendEmail(checker, 1, null);
     }
 
     @Test
@@ -101,8 +101,8 @@ public class AlarmWriterIsolationTest {
         writer.write(List.of(new AppAlarmChecker(checkers)));
 
         // then
-        verify(alarmMessageSender, times(0)).sendSms(checker, 1, null);
-        verify(alarmMessageSender, times(0)).sendEmail(checker, 1, null);
+        verify(alarmMessageSender, never()).sendSms(checker, 1, null);
+        verify(alarmMessageSender, never()).sendEmail(checker, 1, null);
     }
 
     private void mockingAlarmService(CheckerResult beforeCheckerFixture) {

@@ -17,9 +17,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AlarmProcessorTest {
@@ -78,10 +86,10 @@ public class AlarmProcessorTest {
         AppAlarmChecker appChecker = processor.process(application);
 
         // Validations
-        verify(alarmService, times(1)).selectRuleByApplicationId(SERVICE_NAME);
-        verify(applicationIndexDao, times(1)).selectAgentIds(SERVICE_NAME);
+        verify(alarmService).selectRuleByApplicationId(SERVICE_NAME);
+        verify(applicationIndexDao).selectAgentIds(SERVICE_NAME);
         verify(agentInfoService, times(3)).isActiveAgent(anyString(), any());
-        verify(dataCollectorFactory, times(1)).createDataCollector(any(), any(), any(), anyLong());
+        verify(dataCollectorFactory).createDataCollector(any(), any(), any(), anyLong());
 
         assertNotNull(appChecker, "processed object is null");
         assertEquals(2, appChecker.getChildren().size(), "rules should be propagated");

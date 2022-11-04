@@ -43,11 +43,11 @@ public class DefaultStringMetaDataServiceTest {
         int first = stringMetaDataService.cacheString(str);
 
         Assertions.assertNotEquals(first, 0, "not exist");
-        verify(dataSender, times(1)).request(any(StringMetaData.class));
+        verify(dataSender).request(any(StringMetaData.class));
 
         int second = stringMetaDataService.cacheString(str);
         Assertions.assertEquals(first, second, "check cache");
-        verify(dataSender, times(1)).request(any(StringMetaData.class));
+        verify(dataSender).request(any(StringMetaData.class));
     }
 
 }

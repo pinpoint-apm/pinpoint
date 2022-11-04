@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,8 +55,8 @@ public class SystemMetricTagServiceImplTest {
         metricTagList.add(metricTag);
         MetricTagCollection metricTagCollection = new MetricTagCollection(applicationName, hostName, metricName, fieldName, metricTagList);
 
-        verify(metricTagCache, times(1)).updateCacheForMetricTag(metricTagKey, metricTagCollection);
-        verify(metricTagCache, times(1)).saveMetricTag(metricTag);
+        verify(metricTagCache).updateCacheForMetricTag(metricTagKey, metricTagCollection);
+        verify(metricTagCache).saveMetricTag(metricTag);
     }
 
     @Test
@@ -82,8 +82,8 @@ public class SystemMetricTagServiceImplTest {
         SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
-        verify(metricTagCache, times(0)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
-        verify(metricTagCache, times(0)).saveMetricTag(any(MetricTag.class));
+        verify(metricTagCache, never()).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
+        verify(metricTagCache, never()).saveMetricTag(any(MetricTag.class));
     }
 
 
@@ -110,8 +110,8 @@ public class SystemMetricTagServiceImplTest {
         SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, new ArrayList<>(), Long.MAX_VALUE);
         systemMetricTagService.saveMetricTag(applicationName, systemMetric);
 
-        verify(metricTagCache, times(1)).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
-        verify(metricTagCache, times(1)).saveMetricTag(any(MetricTag.class));
+        verify(metricTagCache).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
+        verify(metricTagCache).saveMetricTag(any(MetricTag.class));
     }
 
     @Test

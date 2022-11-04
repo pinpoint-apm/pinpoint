@@ -34,7 +34,7 @@ public class RewriteForV2FilterTest {
     public static final String ADMIN_REWRITE_TARGET = "/auth";
 
     @Test
-    public void rewriteTest() throws IOException, ServletException {
+    public void rewriteTest() {
         Assertions.assertThrows(NullPointerException.class, () -> {
             RewriteForV2Filter rewriteForV2Filter = new RewriteForV2Filter(true);
 
@@ -60,7 +60,7 @@ public class RewriteForV2FilterTest {
 
         rewriteForV2Filter.doFilter(servletRequest, servletResponse, filterChain);
 
-        Mockito.verify(filterChain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.any());
+        Mockito.verify(filterChain).doFilter(Mockito.any(), Mockito.any());
     }
 
 }

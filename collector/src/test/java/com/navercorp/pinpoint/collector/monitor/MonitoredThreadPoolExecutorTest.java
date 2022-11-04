@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -61,7 +60,7 @@ public class MonitoredThreadPoolExecutorTest {
             }
         });
 
-        verify(runnableDecorator, times(1)).decorate(any(Runnable.class));
+        verify(runnableDecorator).decorate(any(Runnable.class));
     }
 
     @Test
@@ -73,7 +72,7 @@ public class MonitoredThreadPoolExecutorTest {
             }
         });
 
-        verify(runnableDecorator, times(1)).decorate(any(Runnable.class));
+        verify(runnableDecorator).decorate(any(Runnable.class));
     }
 
     @Test
@@ -84,6 +83,6 @@ public class MonitoredThreadPoolExecutorTest {
             }
         }, new Object());
 
-        verify(runnableDecorator, times(1)).decorate(any(Runnable.class));
+        verify(runnableDecorator).decorate(any(Runnable.class));
     }
 }
