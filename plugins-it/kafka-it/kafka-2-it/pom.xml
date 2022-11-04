@@ -16,7 +16,6 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <test.jdk.home>${env.JAVA_9_HOME}</test.jdk.home>
     </properties>
 
     <dependencies>
