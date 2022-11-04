@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
+import com.navercorp.pinpoint.web.service.AgentCollectionService;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.TreeNode;
@@ -57,10 +58,12 @@ import java.util.Set;
 public class AgentInfoController {
     private final AgentInfoService agentInfoService;
 
+    private final AgentCollectionService agentCollectionService;
     private final AgentEventService agentEventService;
 
-    public AgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
+    public AgentInfoController(AgentInfoService agentInfoService, AgentCollectionService agentCollectionService, AgentEventService agentEventService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.agentCollectionService = Objects.requireNonNull(agentCollectionService, "agentCollectionService");
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
     }
 
@@ -76,7 +79,7 @@ public class AgentInfoController {
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
         long timestamp = to;
-        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(filter, timestamp);
+        AgentsMapByApplication allAgentsList = this.agentCollectionService.getAllAgentsList(filter, timestamp);
         return treeView(allAgentsList);
     }
 
@@ -84,7 +87,7 @@ public class AgentInfoController {
     @GetMapping(value = "/getAgentList", params = {"!application", "timestamp"})
     public TreeView<TreeNode<AgentAndStatus>> getAgentList(
             @RequestParam("timestamp") long timestamp) {
-        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
+        AgentsMapByApplication allAgentsList = this.agentCollectionService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
         return treeView(allAgentsList);
     }
 
@@ -108,7 +111,7 @@ public class AgentInfoController {
                 new DefaultAgentInfoFilter(from)
         );
         long timestamp = to;
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(currentRunFilter, applicationName, timestamp);
+        AgentsMapByHost list = this.agentCollectionService.getAgentsListByApplicationName(currentRunFilter, applicationName, timestamp);
         return treeView(list);
     }
 
@@ -119,7 +122,7 @@ public class AgentInfoController {
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(runningAgentFilter, applicationName, timestamp);
+        AgentsMapByHost list = this.agentCollectionService.getAgentsListByApplicationName(runningAgentFilter, applicationName, timestamp);
         return treeView(list);
     }
 
@@ -132,14 +135,14 @@ public class AgentInfoController {
     public AgentAndStatus getAgentInfo(
             @RequestParam("agentId") String agentId,
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getAgentInfo(agentId, timestamp);
+        return this.agentInfoService.getAgentAndStatus(agentId, timestamp);
     }
 
     @GetMapping(value = "/getDetailedAgentInfo")
     public DetailedAgentAndStatus getDetailedAgentInfo(
             @RequestParam("agentId") String agentId,
             @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getDetailedAgentInfo(agentId, timestamp);
+        return this.agentInfoService.getDetailedAgentAndStatus(agentId, timestamp);
     }
 
     @GetMapping(value = "/getAgentStatus")

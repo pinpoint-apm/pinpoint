@@ -135,8 +135,8 @@ public class FilteredMapServiceImplTest {
 
         when(serverInstanceDatasourceService.getServerGroupListDataSource())
                 .thenAnswer(invocation -> {
-                    AgentInfoService agentInfoService = mock(AgentInfoService.class);
-                    return new AgentInfoServerGroupListDataSource(agentInfoService, HyperLinkFactory.empty());
+                    AgentCollectionService agentCollectionService = mock(AgentCollectionService.class);
+                    return new AgentInfoServerGroupListDataSource(agentCollectionService, HyperLinkFactory.empty());
                 });
 
         filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,

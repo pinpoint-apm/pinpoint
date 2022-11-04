@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.web.service.AgentCollectionService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
@@ -39,12 +40,12 @@ import java.util.Objects;
 public class ApplicationController {
     public static final int MAX_PAGING_LIMIT = 100;
 
-    private final AgentInfoService agentInfoService;
+    private final AgentCollectionService agentCollectionService;
 
     private final ApplicationService applicationService;
 
-    public ApplicationController(AgentInfoService agentInfoService, ApplicationService applicationService) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+    public ApplicationController(AgentCollectionService agentCollectionService, ApplicationService applicationService) {
+        this.agentCollectionService = Objects.requireNonNull(agentCollectionService, "agentInfoService");
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
     }
 
@@ -54,9 +55,9 @@ public class ApplicationController {
             @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
             @RequestParam(value = "durationDays", required = false) Integer durationDays) {
         int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
-        durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
+        durationDays = ObjectUtils.defaultIfNull(durationDays, AgentCollectionService.NO_DURATION);
 
-        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDays);
+        return agentCollectionService.getApplicationAgentHostList(offset, maxLimit, durationDays);
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")

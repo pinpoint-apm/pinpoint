@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Agen
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.service.AgentCollectionService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
@@ -87,8 +88,9 @@ public class ApplicationMapBuilderTest {
         responseHistogramBuilderNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
 
         AgentInfoService agentInfoService = mock(AgentInfoService.class);
+        AgentCollectionService agentCollectionService = mock(AgentCollectionService.class);
         HyperLinkFactory hyperLinkFactory = mock(HyperLinkFactory.class);
-        agentInfoServerGroupListDataSource = new AgentInfoServerGroupListDataSource(agentInfoService, hyperLinkFactory);
+        agentInfoServerGroupListDataSource = new AgentInfoServerGroupListDataSource(agentCollectionService, hyperLinkFactory);
 
         Answer<List<ResponseTime>> responseTimeAnswer = new Answer<>() {
             final long timestamp = System.currentTimeMillis();
@@ -106,7 +108,7 @@ public class ApplicationMapBuilderTest {
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
-        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
+        when(agentCollectionService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentAndStatus>>() {
             @Override
             public Set<AgentAndStatus> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -116,7 +118,7 @@ public class ApplicationMapBuilderTest {
                 return Set.of(new AgentAndStatus(agentInfo, agentStatus));
             }
         });
-        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
+        when(agentCollectionService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<Set<AgentInfo>>() {
             @Override
             public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
@@ -145,7 +147,7 @@ public class ApplicationMapBuilderTest {
                 }
                 return result;
             }
-        }).when(agentInfoService).getAgentStatus(any());
+        }).when(agentCollectionService).getAgentStatusList(any());
     }
 
     @AfterEach

@@ -71,7 +71,7 @@ public class AgentServiceImpl implements AgentService {
 
     private long timeDiffMs;
 
-    private final AgentInfoService agentInfoService;
+    private final AgentCollectionService agentCollectionService;
 
     private final ClusterManager clusterManager;
 
@@ -79,10 +79,10 @@ public class AgentServiceImpl implements AgentService {
 
     private final DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
-    public AgentServiceImpl(AgentInfoService agentInfoService, ClusterManager clusterManager,
+    public AgentServiceImpl(AgentCollectionService agentCollectionService, ClusterManager clusterManager,
                             @Qualifier("commandHeaderTBaseSerializerFactory") SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory,
                             @Qualifier("commandHeaderTBaseDeserializerFactory") DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.agentCollectionService = Objects.requireNonNull(agentCollectionService, "agentInfoService");
         this.clusterManager = Objects.requireNonNull(clusterManager, "clusterManager");
         this.commandSerializerFactory = Objects.requireNonNull(commandSerializerFactory, "commandSerializerFactory");
         this.commandDeserializerFactory = Objects.requireNonNull(commandDeserializerFactory, "commandDeserializerFactory");
@@ -97,7 +97,7 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+        Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo == null) {
                 continue;
@@ -125,7 +125,7 @@ public class AgentServiceImpl implements AgentService {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
-            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+            Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
             for (AgentInfo agentInfo : agentInfos) {
                 if (agentInfo == null) {
                     continue;
@@ -158,7 +158,7 @@ public class AgentServiceImpl implements AgentService {
 
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentAndStatus> agentInfoAndStatusSet = agentInfoService.getRecentAgentsByApplicationName(applicationName, currentTime, timeDiff);
+        Set<AgentAndStatus> agentInfoAndStatusSet = agentCollectionService.getRecentAgentsByApplicationName(applicationName, currentTime, timeDiff);
         return agentInfoAndStatusSet.stream()
                 .filter(Objects::nonNull)
                 .map(ClusterKeyUtils::withStatusFrom)

@@ -9,15 +9,15 @@ import java.util.Objects;
 
 @Component
 public class ServerInstanceDatasourceService {
-    private final AgentInfoService agentInfoService;
+    private final AgentCollectionService agentCollectionService;
     private final HyperLinkFactory hyperLinkFactory;
 
-    public ServerInstanceDatasourceService(AgentInfoService agentInfoService, HyperLinkFactory hyperLinkFactory) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+    public ServerInstanceDatasourceService(AgentCollectionService agentCollectionService, HyperLinkFactory hyperLinkFactory) {
+        this.agentCollectionService = Objects.requireNonNull(agentCollectionService, "agentCollectionService");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public ServerGroupListDataSource getServerGroupListDataSource() {
-        return new AgentInfoServerGroupListDataSource(agentInfoService, hyperLinkFactory);
+        return new AgentInfoServerGroupListDataSource(agentCollectionService, hyperLinkFactory);
     }
 }

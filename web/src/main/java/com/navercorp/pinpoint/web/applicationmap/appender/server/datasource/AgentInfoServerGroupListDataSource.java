@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.service.AgentCollectionService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -51,11 +52,12 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AgentInfoService agentInfoService;
+    private final AgentCollectionService agentCollectionService;
     private final HyperLinkFactory hyperLinkFactory;
 
-    public AgentInfoServerGroupListDataSource(AgentInfoService agentInfoService, HyperLinkFactory hyperLinkFactory) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+    public AgentInfoServerGroupListDataSource(AgentCollectionService agentCollectionService,
+                                              HyperLinkFactory hyperLinkFactory) {
+        this.agentCollectionService = Objects.requireNonNull(agentCollectionService, "agentCollectionService");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
@@ -67,7 +69,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         }
 
         Application application = node.getApplication();
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp.toEpochMilli());
+        Set<AgentInfo> agentInfos = agentCollectionService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp.toEpochMilli());
         if (CollectionUtils.isEmpty(agentInfos)) {
             logger.warn("agentInfo not found. application:{}", application);
             return ServerGroupList.empty();
@@ -103,7 +105,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         }
         AgentStatusQuery query = AgentStatusQuery.buildQuery(agentsToCheckStatus, timestamp);
 
-        List<Optional<AgentStatus>> agentStatusList = agentInfoService.getAgentStatus(query);
+        List<Optional<AgentStatus>> agentStatusList = agentCollectionService.getAgentStatusList(query);
 
         int idx = 0;
         for (AgentInfo agentInfo : agentsToCheckStatus) {

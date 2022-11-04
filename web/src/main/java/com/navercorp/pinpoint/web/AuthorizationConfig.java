@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.authorization.controller.UserGroupController;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.AdminService;
+import com.navercorp.pinpoint.web.service.AgentCollectionService;
 import com.navercorp.pinpoint.web.service.AgentDownLoadService;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
@@ -66,13 +67,15 @@ public class AuthorizationConfig {
     }
 
     @Bean
-    public AgentInfoController createAgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
-        return new AgentInfoController(agentInfoService, agentEventService);
+    public AgentInfoController createAgentInfoController(AgentInfoService agentInfoService,
+                                                         AgentCollectionService agentCollectionService,
+                                                         AgentEventService agentEventService) {
+        return new AgentInfoController(agentInfoService, agentCollectionService, agentEventService);
     }
 
     @Bean
-    public AgentListController createAgentListController(AgentInfoService agentInfoService) {
-        return new AgentListController(agentInfoService);
+    public AgentListController createAgentListController(AgentCollectionService agentCollectionService) {
+        return new AgentListController(agentCollectionService);
     }
 
     @Bean
