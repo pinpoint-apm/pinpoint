@@ -18,18 +18,17 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
-public class DataSourceBo implements AgentStatDataPoint {
+public class DataSourceBo extends AbstractAgentStatDataPoint {
 
-    public static final int UNCOLLECTED_INT_VALUE = -1;
+    public static final int UNCOLLECTED_INT_VALUE = UNCOLLECTED_INT;
     public static final String UNCOLLECTED_STRING_VALUE = "";
     public static final ServiceType UNCOLLECTED_SERVICE_TYPE_VALUE = ServiceType.UNKNOWN;
 
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
 
     private int id = UNCOLLECTED_INT_VALUE;
     private short serviceTypeCode = UNCOLLECTED_SERVICE_TYPE_VALUE.getCode();
@@ -38,39 +37,9 @@ public class DataSourceBo implements AgentStatDataPoint {
     private int activeConnectionSize = UNCOLLECTED_INT_VALUE;
     private int maxConnectionSize = UNCOLLECTED_INT_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
 
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public AgentStatType getAgentStatType() {
-        return AgentStatType.DATASOURCE;
+    public DataSourceBo() {
+        super(AgentStatType.DATASOURCE);
     }
 
     public int getId() {
@@ -125,26 +94,21 @@ public class DataSourceBo implements AgentStatDataPoint {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         DataSourceBo that = (DataSourceBo) o;
 
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
         if (id != that.id) return false;
         if (serviceTypeCode != that.serviceTypeCode) return false;
         if (activeConnectionSize != that.activeConnectionSize) return false;
         if (maxConnectionSize != that.maxConnectionSize) return false;
-        if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
-        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
-        return jdbcUrl != null ? jdbcUrl.equals(that.jdbcUrl) : that.jdbcUrl == null;
-
+        if (!Objects.equals(databaseName, that.databaseName)) return false;
+        return Objects.equals(jdbcUrl, that.jdbcUrl);
     }
 
     @Override
     public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        int result = super.hashCode();
         result = 31 * result + id;
         result = 31 * result + (int) serviceTypeCode;
         result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
@@ -156,18 +120,13 @@ public class DataSourceBo implements AgentStatDataPoint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DataSourceBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", id=").append(id);
-        sb.append(", serviceTypeCode=").append(serviceTypeCode);
-        sb.append(", databaseName='").append(databaseName).append('\'');
-        sb.append(", jdbcUrl='").append(jdbcUrl).append('\'');
-        sb.append(", activeConnectionSize=").append(activeConnectionSize);
-        sb.append(", maxConnectionSize=").append(maxConnectionSize);
-        sb.append('}');
-        return sb.toString();
+        return "DataSourceBo{" +
+                "id=" + id +
+                ", serviceTypeCode=" + serviceTypeCode +
+                ", databaseName='" + databaseName + '\'' +
+                ", jdbcUrl='" + jdbcUrl + '\'' +
+                ", activeConnectionSize=" + activeConnectionSize +
+                ", maxConnectionSize=" + maxConnectionSize +
+                "} " + super.toString();
     }
-
 }

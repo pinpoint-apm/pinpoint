@@ -28,19 +28,19 @@ import java.util.List;
 /**
  * @author Roy Kim
  */
-public class ApplicationFileDescriptorChart extends DefaultApplicationChart<AggreJoinFileDescriptorBo, Long> {
+public class ApplicationFileDescriptorChart extends DefaultApplicationChart<AggreJoinFileDescriptorBo, LongApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Long>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<LongApplicationStatPoint> UNCOLLECTED_POINT
             = new LongApplicationStatPoint.UncollectedCreator(JoinFileDescriptorBo.UNCOLLECTED_VALUE);
 
-    private static final ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinFileDescriptorBo, LongApplicationStatPoint> BUILDER = newChartBuilder();
 
     public enum FileDescriptorChartType implements StatChartGroup.ApplicationChartType {
         OPEN_FILE_DESCRIPTOR_COUNT
     }
 
-    static ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinFileDescriptorBo, LongApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinFileDescriptorBo, LongApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, ApplicationFileDescriptorChart::newOpenFileDescriptorCount);
         return builder;
     }
@@ -49,7 +49,7 @@ public class ApplicationFileDescriptorChart extends DefaultApplicationChart<Aggr
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Long> newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
+    private static LongApplicationStatPoint newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
         final JoinLongFieldBo openFdCountJoinValue = fileDescriptor.getOpenFdCountJoinValue();
         long timestamp = fileDescriptor.getTimestamp();
         return StatPointUtils.toLongStatPoint(timestamp, openFdCountJoinValue);

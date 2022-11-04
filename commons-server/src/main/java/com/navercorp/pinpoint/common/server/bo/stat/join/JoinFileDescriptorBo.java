@@ -53,7 +53,9 @@ public class JoinFileDescriptorBo implements JoinStatBo {
             return EMPTY_JOIN_FILE_DESCRIPTOR_BO;
         }
 
-        List<JoinLongFieldBo> openFdCountFieldBoList = joinFileDescriptorBoList.stream().map(e -> e.openFdCountJoinValue).collect(Collectors.toList());
+        List<JoinLongFieldBo> openFdCountFieldBoList = joinFileDescriptorBoList.stream()
+                .map(JoinFileDescriptorBo::getOpenFdCountJoinValue)
+                .collect(Collectors.toList());
         JoinLongFieldBo openFdCountJoinValue = JoinLongFieldBo.merge(openFdCountFieldBoList);
 
         final JoinFileDescriptorBo firstJoinFileDescriptorBo = joinFileDescriptorBoList.get(0);

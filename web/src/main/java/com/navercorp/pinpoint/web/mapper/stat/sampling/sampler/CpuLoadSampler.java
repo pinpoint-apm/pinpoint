@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -38,14 +37,14 @@ public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoa
 
     @Override
     public SampledCpuLoad sampleDataPoints(int timeWindowIndex, long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
-        final AgentStatPoint<Double> jvmCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getJvmCpuLoad);
-        final AgentStatPoint<Double> systemCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getSystemCpuLoad);
+        final DoubleAgentStatPoint jvmCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getJvmCpuLoad);
+        final DoubleAgentStatPoint systemCpuLoad = newAgentStatPoint(timestamp, dataPoints, CpuLoadBo::getSystemCpuLoad);
 
         SampledCpuLoad sampledCpuLoad = new SampledCpuLoad(jvmCpuLoad, systemCpuLoad);
         return sampledCpuLoad;
     }
 
-    private AgentStatPoint<Double> newAgentStatPoint(long timestamp, List<CpuLoadBo> dataPoints, ToDoubleFunction<CpuLoadBo> filter) {
+    private DoubleAgentStatPoint newAgentStatPoint(long timestamp, List<CpuLoadBo> dataPoints, ToDoubleFunction<CpuLoadBo> filter) {
         List<Double> jvmCpuLoads = filter(dataPoints, filter);
         return createPoint(timestamp, jvmCpuLoads);
     }
@@ -61,7 +60,7 @@ public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoa
         return result;
     }
 
-    private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
+    private DoubleAgentStatPoint createPoint(long timestamp, List<Double> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

@@ -40,7 +40,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -74,11 +73,11 @@ public class AgentStatMapperV2Test {
 
     private final AgentStatCodec<TestAgentStat> codec = new TestAgentStatCodec();
 
-    private final AgentStatEncoder<TestAgentStat> encoder = new TestAgentStatEncoder(this.codec);
+    private final AgentStatEncoder<TestAgentStat> encoder = new AgentStatEncoder<>(this.codec);
 
-    private final AgentStatDecoder<TestAgentStat> decoder = new TestAgentStatDecoder(this.codec);
+    private final AgentStatDecoder<TestAgentStat> decoder = new AgentStatDecoder<>(List.of(this.codec));
 
-    private final AgentStatSerializer<TestAgentStat> serializer = new TestAgentStatSerializer(this.encoder);
+    private final AgentStatSerializer<TestAgentStat> serializer = new AgentStatSerializer<>(this.encoder);
 
     @Test
     public void mapperTest() throws Exception {
@@ -151,24 +150,6 @@ public class AgentStatMapperV2Test {
                 agentStats.add(agentStat);
             }
             return agentStats;
-        }
-    }
-
-    private static class TestAgentStatEncoder extends AgentStatEncoder<TestAgentStat> {
-        protected TestAgentStatEncoder(AgentStatCodec<TestAgentStat> codec) {
-            super(codec);
-        }
-    }
-
-    private static class TestAgentStatDecoder extends AgentStatDecoder<TestAgentStat> {
-        protected TestAgentStatDecoder(AgentStatCodec<TestAgentStat> codec) {
-            super(Arrays.asList(codec));
-        }
-    }
-
-    private static class TestAgentStatSerializer extends AgentStatSerializer<TestAgentStat> {
-        protected TestAgentStatSerializer(AgentStatEncoder<TestAgentStat> encoder) {
-            super(encoder);
         }
     }
 

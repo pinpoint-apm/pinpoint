@@ -53,28 +53,26 @@ public class ApplicationDataSourceChartGroupTest {
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo4);
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo5);
 
-        StatChartGroup<ApplicationStatPoint<Integer>> applicationDataSourceChartGroup = new ApplicationDataSourceChart.ApplicationDataSourceChartGroup(timeWindow, "jdbc:mysql", "dbcp2", aggreJoinDataSourceBoList);
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Integer>>> charts = applicationDataSourceChartGroup.getCharts();
+        StatChartGroup<IntApplicationStatPoint> applicationDataSourceChartGroup = new ApplicationDataSourceChart.ApplicationDataSourceChartGroup(timeWindow, "jdbc:mysql", "dbcp2", aggreJoinDataSourceBoList);
+        Map<StatChartGroup.ChartType, Chart<IntApplicationStatPoint>> charts = applicationDataSourceChartGroup.getCharts();
         assertEquals(1, charts.size());
 
-        Chart<ApplicationStatPoint<Integer>> dataSourceChart = charts.get(ApplicationDataSourceChart.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
-        List<ApplicationStatPoint<Integer>> dataSourcePoints = dataSourceChart.getPoints();
+        Chart<IntApplicationStatPoint> dataSourceChart = charts.get(ApplicationDataSourceChart.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
+        List<IntApplicationStatPoint> dataSourcePoints = dataSourceChart.getPoints();
         assertEquals(5, dataSourcePoints.size());
         int index = dataSourcePoints.size();
 
-        for (ApplicationStatPoint<Integer> point : dataSourcePoints) {
+        for (IntApplicationStatPoint point : dataSourcePoints) {
             testDataSource(point, aggreJoinDataSourceBoList.get(--index));
         }
     }
 
-    private void testDataSource(ApplicationStatPoint<Integer> dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
-        assertEquals(dataSourcePoint.getXVal(), aggreJoinDataSourceBo.getTimestamp());
+    private void testDataSource(IntApplicationStatPoint dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
+        assertEquals(dataSourcePoint.getTimestamp(), aggreJoinDataSourceBo.getTimestamp());
         final JoinIntFieldBo activeConnectionSizeJoinValue = aggreJoinDataSourceBo.getActiveConnectionSizeJoinValue();
-        assertEquals(dataSourcePoint.getYValForAvg(), activeConnectionSizeJoinValue.getAvg(), 0);
-        assertEquals(dataSourcePoint.getYValForMin(), activeConnectionSizeJoinValue.getMin(), 0);
-        assertEquals(dataSourcePoint.getYValForMax(), activeConnectionSizeJoinValue.getMax(), 0);
-        assertEquals(dataSourcePoint.getAgentIdForMin(), activeConnectionSizeJoinValue.getMinAgentId());
-        assertEquals(dataSourcePoint.getAgentIdForMax(), activeConnectionSizeJoinValue.getMaxAgentId());
+
+        JoinIntFieldBo intFieldBo = dataSourcePoint.getIntFieldBo();
+        assertEquals(intFieldBo, activeConnectionSizeJoinValue);
     }
 
 

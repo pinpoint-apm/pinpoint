@@ -24,8 +24,10 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHead
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldStrategyAnalyzer;
+import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -66,8 +68,8 @@ public class CpuLoadCodec implements ApplicationStatCodec<JoinCpuLoadBo> {
         JoinLongFieldStrategyAnalyzer.Builder systemCpuLoadAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
         for (JoinCpuLoadBo joinCpuLoadBo : joinCpuLoadBoList) {
             timestamps.add(joinCpuLoadBo.getTimestamp());
-            jvmCpuLoadAnalyzerBuilder.addValue(joinCpuLoadBo.getJvmCpuLoadJoinValue().toLongFieldBo());
-            systemCpuLoadAnalyzerBuilder.addValue(joinCpuLoadBo.getSystemCpuLoadJoinValue().toLongFieldBo());
+            jvmCpuLoadAnalyzerBuilder.addValue(longFormat(joinCpuLoadBo.getJvmCpuLoadJoinValue()));
+            systemCpuLoadAnalyzerBuilder.addValue(longFormat(joinCpuLoadBo.getSystemCpuLoadJoinValue()));
         }
         codec.encodeTimestamps(valueBuffer, timestamps);
         encodeDataPoints(valueBuffer, jvmCpuLoadAnalyzerBuilder.build(), systemCpuLoadAnalyzerBuilder.build());
@@ -117,10 +119,24 @@ public class CpuLoadCodec implements ApplicationStatCodec<JoinCpuLoadBo> {
             JoinCpuLoadBo joinCpuLoadBo = new JoinCpuLoadBo();
             joinCpuLoadBo.setId(id);
             joinCpuLoadBo.setTimestamp(timestamps.get(i));
-            joinCpuLoadBo.setJvmCpuLoadJoinValue(jvmCpuLoadList.get(i).toLongFieldBo());
-            joinCpuLoadBo.setSystemCpuLoadJoinValue(systemCpuLoadList.get(i).toLongFieldBo());
+            joinCpuLoadBo.setJvmCpuLoadJoinValue(doubleFormat(jvmCpuLoadList.get(i)));
+            joinCpuLoadBo.setSystemCpuLoadJoinValue(doubleFormat(systemCpuLoadList.get(i)));
             joinCpuLoadBoList.add(joinCpuLoadBo);
         }
         return joinCpuLoadBoList;
+    }
+
+    public JoinDoubleFieldBo doubleFormat(JoinLongFieldBo field) {
+        double avg = AgentStatUtils.convertLongToDouble(field.getAvg());
+        double min = AgentStatUtils.convertLongToDouble(field.getMin());
+        double max = AgentStatUtils.convertLongToDouble(field.getMax());
+        return new JoinDoubleFieldBo(avg, min, field.getMinAgentId(), max, field.getMaxAgentId());
+    }
+
+    public JoinLongFieldBo longFormat(JoinDoubleFieldBo field) {
+        final long avg = AgentStatUtils.convertDoubleToLong(field.getAvg());
+        final long min = AgentStatUtils.convertDoubleToLong(field.getMin());
+        final long max = AgentStatUtils.convertDoubleToLong(field.getMax());
+        return new JoinLongFieldBo(avg, min, field.getMinAgentId(), max, field.getMaxAgentId());
     }
 }

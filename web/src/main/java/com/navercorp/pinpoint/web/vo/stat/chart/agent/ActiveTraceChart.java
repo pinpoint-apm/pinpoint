@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public class ActiveTraceChart extends DefaultAgentChart<SampledActiveTrace, Integer> {
+public class ActiveTraceChart extends DefaultAgentChart<SampledActiveTrace, IntAgentStatPoint> {
 
     public enum ActiveTraceChartType implements StatChartGroup.AgentChartType {
         ACTIVE_TRACE_VERY_SLOW,
@@ -42,10 +42,10 @@ public class ActiveTraceChart extends DefaultAgentChart<SampledActiveTrace, Inte
         }
     }
 
-    private static final ChartGroupBuilder<SampledActiveTrace, AgentStatPoint<Integer>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledActiveTrace, IntAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledActiveTrace, AgentStatPoint<Integer>> newChartBuilder() {
-        ChartGroupBuilder<SampledActiveTrace, AgentStatPoint<Integer>> builder = new ChartGroupBuilder<>(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledActiveTrace, IntAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledActiveTrace, IntAgentStatPoint> builder = new ChartGroupBuilder<>(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_FAST, SampledActiveTrace::getFastCounts);
         builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_NORMAL, SampledActiveTrace::getNormalCounts);
         builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_SLOW, SampledActiveTrace::getSlowCounts);

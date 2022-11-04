@@ -9,31 +9,31 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
 
-public class ApplicationApdexScoreChart extends DefaultApplicationChart<DoubleApplicationStatPoint, Double> {
+public class ApplicationApdexScoreChart extends DefaultApplicationChart<DoubleApplicationStatPoint, DoubleApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<DoubleApplicationStatPoint> UNCOLLECTED_POINT
             = new DoubleApplicationStatPoint.UncollectedCreator(-1D);
 
     public enum ApdexScoreChartType implements StatChartGroup.ApplicationChartType {
         APDEX_SCORE
     }
 
-    private static final ChartGroupBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
-    private static final InspectorDataBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> INSPECTOR_VIEW_DATA_BUILDER = newViewBuilder();
+    private static final ChartGroupBuilder<DoubleApplicationStatPoint, DoubleApplicationStatPoint> BUILDER = newChartBuilder();
+    private static final InspectorDataBuilder<DoubleApplicationStatPoint, DoubleApplicationStatPoint> INSPECTOR_VIEW_DATA_BUILDER = newViewBuilder();
 
-    static ChartGroupBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<DoubleApplicationStatPoint, DoubleApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<DoubleApplicationStatPoint, DoubleApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(ApdexScoreChartType.APDEX_SCORE, ApplicationApdexScoreChart::newApdexScorePoint);
         return builder;
     }
 
-    static InspectorDataBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> newViewBuilder() {
-        InspectorDataBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> builder = new InspectorDataBuilder<>(UNCOLLECTED_POINT, "applicationApdexScore", "noUnit");
-        builder.addValueFunction("min", ApplicationStatPoint::getYValForMin);
-        builder.addValueFunction("minAgentId", ApplicationStatPoint::getAgentIdForMin);
-        builder.addValueFunction("max", ApplicationStatPoint::getYValForMax);
-        builder.addValueFunction("maxAgentId", ApplicationStatPoint::getAgentIdForMax);
-        builder.addValueFunction("avg", ApplicationStatPoint::getYValForAvg);
+    static InspectorDataBuilder<DoubleApplicationStatPoint, DoubleApplicationStatPoint> newViewBuilder() {
+        InspectorDataBuilder<DoubleApplicationStatPoint, DoubleApplicationStatPoint> builder = new InspectorDataBuilder<>(UNCOLLECTED_POINT, "applicationApdexScore", "noUnit");
+        builder.addValueFunction("min", p -> p.getDoubleFieldBo().getMin());
+        builder.addValueFunction("minAgentId", p -> p.getDoubleFieldBo().getMinAgentId());
+        builder.addValueFunction("max", p -> p.getDoubleFieldBo().getMax());
+        builder.addValueFunction("maxAgentId", p -> p.getDoubleFieldBo().getMaxAgentId());
+        builder.addValueFunction("avg", p -> p.getDoubleFieldBo().getAvg());
         builder.addPointFunction(ApdexScoreChartType.APDEX_SCORE, ApplicationApdexScoreChart::newApdexScorePoint);
 
         return builder;
@@ -43,7 +43,7 @@ public class ApplicationApdexScoreChart extends DefaultApplicationChart<DoubleAp
         super(timeWindow, statList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Double> newApdexScorePoint(DoubleApplicationStatPoint apdexScore) {
+    private static DoubleApplicationStatPoint newApdexScorePoint(DoubleApplicationStatPoint apdexScore) {
         return apdexScore;
     }
 

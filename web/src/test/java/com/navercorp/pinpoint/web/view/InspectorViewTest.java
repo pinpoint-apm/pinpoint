@@ -9,7 +9,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorDataBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,15 +27,15 @@ public class InspectorViewTest {
 
     private static class TestAgentStatDataPoint implements SampledAgentStatDataPoint {
 
-        public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(-1);
+        public static final Point.UncollectedPointCreator<IntAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(-1);
 
-        private final AgentStatPoint<Integer> agentStatPoint;
+        private final IntAgentStatPoint agentStatPoint;
 
-        public TestAgentStatDataPoint(AgentStatPoint<Integer> agentStatPoint) {
+        public TestAgentStatDataPoint(IntAgentStatPoint agentStatPoint) {
             this.agentStatPoint = agentStatPoint;
         }
 
-        public AgentStatPoint<Integer> getAgentStatPoint() {
+        public IntAgentStatPoint getAgentStatPoint() {
             return agentStatPoint;
         }
     }
@@ -44,16 +44,16 @@ public class InspectorViewTest {
     public void inspectorViewTest() {
         String title = "testTitle";
         String unit = "testUnit";
-        Map<String, Function<AgentStatPoint<Integer>, ?>> valueFunctionMap = new HashMap<>();
-        valueFunctionMap.put("function1", AgentStatPoint::getMinYVal);
-        valueFunctionMap.put("function2", AgentStatPoint::getMinYVal);
-        valueFunctionMap.put("function3", AgentStatPoint::getMinYVal);
+        Map<String, Function<IntAgentStatPoint, ?>> valueFunctionMap = new HashMap<>();
+        valueFunctionMap.put("function1", IntAgentStatPoint::getMin);
+        valueFunctionMap.put("function2", IntAgentStatPoint::getMin);
+        valueFunctionMap.put("function3", IntAgentStatPoint::getMin);
         Range range = Range.between(0, 1000 * 60);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
         List<TestAgentStatDataPoint> testAgentStatDataPoints = createTestAgentStatDataPoint();
 
-        InspectorDataBuilder<TestAgentStatDataPoint, AgentStatPoint<Integer>> inspectorDataBuilder = new InspectorDataBuilder<>(TestAgentStatDataPoint.UNCOLLECTED_POINT_CREATOR, title, unit);
-        for (Map.Entry<String, Function<AgentStatPoint<Integer>, ?>> e : valueFunctionMap.entrySet()) {
+        InspectorDataBuilder<TestAgentStatDataPoint, IntAgentStatPoint> inspectorDataBuilder = new InspectorDataBuilder<>(TestAgentStatDataPoint.UNCOLLECTED_POINT_CREATOR, title, unit);
+        for (Map.Entry<String, Function<IntAgentStatPoint, ?>> e : valueFunctionMap.entrySet()) {
             inspectorDataBuilder.addValueFunction(e.getKey(), e.getValue());
         }
         inspectorDataBuilder.addPointFunction(TestChartType.TEST_CHART_TYPE, TestAgentStatDataPoint::getAgentStatPoint);
@@ -71,8 +71,8 @@ public class InspectorViewTest {
 
     private List<TestAgentStatDataPoint> createTestAgentStatDataPoint() {
         List<TestAgentStatDataPoint> testAgentStatDataPoints = new ArrayList<>();
-        testAgentStatDataPoints.add(new TestAgentStatDataPoint(new AgentStatPoint<>(0, 1)));
-        testAgentStatDataPoints.add(new TestAgentStatDataPoint(new AgentStatPoint<>(1000 * 60, 2)));
+        testAgentStatDataPoints.add(new TestAgentStatDataPoint(IntAgentStatPoint.ofSingle(0, 1)));
+        testAgentStatDataPoints.add(new TestAgentStatDataPoint(IntAgentStatPoint.ofSingle(1000 * 60, 2)));
 
         return testAgentStatDataPoints;
     }

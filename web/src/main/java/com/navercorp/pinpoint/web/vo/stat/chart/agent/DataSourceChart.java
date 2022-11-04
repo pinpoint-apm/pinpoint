@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class DataSourceChart implements StatChart<AgentStatPoint<Integer>> {
+public class DataSourceChart implements StatChart<IntAgentStatPoint> {
 
     public enum DataSourceChartType implements StatChartGroup.AgentChartType {
         ACTIVE_CONNECTION_SIZE,
@@ -42,10 +42,10 @@ public class DataSourceChart implements StatChart<AgentStatPoint<Integer>> {
 
     private final DataSourceChartGroup dataSourceChartGroup;
 
-    private static final ChartGroupBuilder<SampledDataSource, AgentStatPoint<Integer>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledDataSource, IntAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledDataSource, AgentStatPoint<Integer>> newChartBuilder() {
-        ChartGroupBuilder<SampledDataSource, AgentStatPoint<Integer>> builder = new ChartGroupBuilder<>(SampledDataSource.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledDataSource, IntAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledDataSource, IntAgentStatPoint> builder = new ChartGroupBuilder<>(SampledDataSource.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(DataSourceChartType.ACTIVE_CONNECTION_SIZE, SampledDataSource::getActiveConnectionSize);
         builder.addPointFunction(DataSourceChartType.MAX_CONNECTION_SIZE, SampledDataSource::getMaxConnectionSize);
         return builder;
@@ -59,26 +59,26 @@ public class DataSourceChart implements StatChart<AgentStatPoint<Integer>> {
     static DataSourceChartGroup newDataSourceChartGroup(TimeWindow timeWindow, List<SampledDataSource> sampledDataSources, ServiceTypeRegistryService serviceTypeRegistryService) {
         Objects.requireNonNull(timeWindow, "timeWindow");
 
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
-        if (Boolean.FALSE == CollectionUtils.isEmpty(sampledDataSources)) {
-            SampledDataSource latestSampledDataSource = CollectionUtils.lastElement(sampledDataSources);
-            if (latestSampledDataSource != null) {
-                int id = latestSampledDataSource.getId();
-                String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
-                String databaseName = latestSampledDataSource.getDatabaseName();
-                String jdbcUrl = latestSampledDataSource.getJdbcUrl();
-                return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
-            }
-        }
-        final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
-        // TODO avoid null
-        final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
+        Map<StatChartGroup.ChartType, Chart<IntAgentStatPoint>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
+        if (CollectionUtils.isEmpty(sampledDataSources)) {
+            final Integer uncollectedValue = SampledDataSource.UNCOLLECTED_VALUE;
+            // TODO avoid null
+            final String uncollectedString = SampledDataSource.UNCOLLECTED_STRING;
 
-        return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
+            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, uncollectedValue, uncollectedString, uncollectedString, uncollectedString);
+        } else {
+            SampledDataSource latestSampledDataSource = CollectionUtils.lastElement(sampledDataSources);
+
+            int id = latestSampledDataSource.getId();
+            String serviceTypeName = serviceTypeRegistryService.findServiceType(latestSampledDataSource.getServiceTypeCode()).getName();
+            String databaseName = latestSampledDataSource.getDatabaseName();
+            String jdbcUrl = latestSampledDataSource.getJdbcUrl();
+            return new DataSourceChartGroup(timeWindow, chartTypeChartMap, id, serviceTypeName, databaseName, jdbcUrl);
+        }
     }
 
     @Override
-    public StatChartGroup<AgentStatPoint<Integer>> getCharts() {
+    public StatChartGroup<IntAgentStatPoint> getCharts() {
         return dataSourceChartGroup;
     }
 
@@ -99,22 +99,22 @@ public class DataSourceChart implements StatChart<AgentStatPoint<Integer>> {
     }
 
     @VisibleForTesting
-    static Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> newDatasourceChart(TimeWindow timeWindow, List<SampledDataSource> sampledDataSourceList) {
+    static Map<StatChartGroup.ChartType, Chart<IntAgentStatPoint>> newDatasourceChart(TimeWindow timeWindow, List<SampledDataSource> sampledDataSourceList) {
         return BUILDER.buildMap(timeWindow, sampledDataSourceList);
     }
 
-    public static class DataSourceChartGroup implements StatChartGroup<AgentStatPoint<Integer>> {
+    public static class DataSourceChartGroup implements StatChartGroup<IntAgentStatPoint> {
 
         private final TimeWindow timeWindow;
 
-        private final Map<ChartType, Chart<AgentStatPoint<Integer>>> dataSourceCharts;
+        private final Map<ChartType, Chart<IntAgentStatPoint>> dataSourceCharts;
 
         private final int id;
         private final String serviceTypeName;
         private final String databaseName;
         private final String jdbcUrl;
 
-        public DataSourceChartGroup(TimeWindow timeWindow, Map<ChartType, Chart<AgentStatPoint<Integer>>> dataSourceCharts, int id, String serviceTypeName, String databaseName, String jdbcUrl) {
+        public DataSourceChartGroup(TimeWindow timeWindow, Map<ChartType, Chart<IntAgentStatPoint>> dataSourceCharts, int id, String serviceTypeName, String databaseName, String jdbcUrl) {
             this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
             this.dataSourceCharts = dataSourceCharts;
             this.id = id;
@@ -130,7 +130,7 @@ public class DataSourceChart implements StatChart<AgentStatPoint<Integer>> {
         }
 
         @Override
-        public Map<ChartType, Chart<AgentStatPoint<Integer>>> getCharts() {
+        public Map<ChartType, Chart<IntAgentStatPoint>> getCharts() {
             return dataSourceCharts;
         }
 

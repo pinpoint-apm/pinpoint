@@ -32,8 +32,8 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class ApplicationDataSourceChart implements StatChart<ApplicationStatPoint<Integer>> {
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Integer>> UNCOLLECTED_POINT
+public class ApplicationDataSourceChart implements StatChart<IntApplicationStatPoint> {
+    private static final Point.UncollectedPointCreator<IntApplicationStatPoint> UNCOLLECTED_POINT
             = new IntApplicationStatPoint.UncollectedCreator(JoinDataSourceBo.UNCOLLECTED_VALUE);
 
     public enum DataSourceChartType implements StatChartGroup.ApplicationChartType {
@@ -42,10 +42,10 @@ public class ApplicationDataSourceChart implements StatChart<ApplicationStatPoin
 
     private final ApplicationDataSourceChartGroup applicationDataSourceChartGroup;
 
-    private static final ChartGroupBuilder<AggreJoinDataSourceBo, ApplicationStatPoint<Integer>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinDataSourceBo, IntApplicationStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<AggreJoinDataSourceBo, ApplicationStatPoint<Integer>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinDataSourceBo, ApplicationStatPoint<Integer>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinDataSourceBo, IntApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinDataSourceBo, IntApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(DataSourceChartType.ACTIVE_CONNECTION_SIZE, ApplicationDataSourceChartGroup::newDataSource);
         return builder;
     }
@@ -55,7 +55,7 @@ public class ApplicationDataSourceChart implements StatChart<ApplicationStatPoin
     }
 
     @Override
-    public StatChartGroup<ApplicationStatPoint<Integer>> getCharts() {
+    public StatChartGroup<IntApplicationStatPoint> getCharts() {
         return applicationDataSourceChartGroup;
     }
 
@@ -67,12 +67,12 @@ public class ApplicationDataSourceChart implements StatChart<ApplicationStatPoin
         return applicationDataSourceChartGroup.getJdbcUrl();
     }
 
-    public static class ApplicationDataSourceChartGroup implements StatChartGroup<ApplicationStatPoint<Integer>> {
+    public static class ApplicationDataSourceChartGroup implements StatChartGroup<IntApplicationStatPoint> {
 
         private final TimeWindow timeWindow;
         private final String url;
         private final String serviceTypeCodeName;
-        private final Map<ChartType, Chart<ApplicationStatPoint<Integer>>> dataSourceChartMap;
+        private final Map<ChartType, Chart<IntApplicationStatPoint>> dataSourceChartMap;
 
         public ApplicationDataSourceChartGroup(TimeWindow timeWindow, String url, String serviceTypeCodeName, List<AggreJoinDataSourceBo> appStatList) {
             this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
@@ -81,13 +81,13 @@ public class ApplicationDataSourceChart implements StatChart<ApplicationStatPoin
             this.dataSourceChartMap = newChart(appStatList);
         }
 
-        private Map<ChartType, Chart<ApplicationStatPoint<Integer>>> newChart(List<AggreJoinDataSourceBo> appStatList) {
-            StatChartGroup<ApplicationStatPoint<Integer>> group = BUILDER.build(timeWindow, appStatList);
+        private Map<ChartType, Chart<IntApplicationStatPoint>> newChart(List<AggreJoinDataSourceBo> appStatList) {
+            StatChartGroup<IntApplicationStatPoint> group = BUILDER.build(timeWindow, appStatList);
             return group.getCharts();
         }
 
 
-        private static ApplicationStatPoint<Integer> newDataSource(AggreJoinDataSourceBo ds) {
+        private static IntApplicationStatPoint newDataSource(AggreJoinDataSourceBo ds) {
             final JoinIntFieldBo activeConnectionSizeJoinValue = ds.getActiveConnectionSizeJoinValue();
             long timestamp = ds.getTimestamp();
             return StatPointUtils.toIntStatPoint(timestamp, activeConnectionSizeJoinValue);
@@ -107,7 +107,7 @@ public class ApplicationDataSourceChart implements StatChart<ApplicationStatPoin
         }
 
         @Override
-        public Map<ChartType, Chart<ApplicationStatPoint<Integer>>> getCharts() {
+        public Map<ChartType, Chart<IntApplicationStatPoint>> getCharts() {
             return dataSourceChartMap;
         }
     }

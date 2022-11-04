@@ -30,19 +30,19 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationActiveTraceChart extends DefaultApplicationChart<AggreJoinActiveTraceBo, Integer> {
+public class ApplicationActiveTraceChart extends DefaultApplicationChart<AggreJoinActiveTraceBo, IntApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Integer>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<IntApplicationStatPoint> UNCOLLECTED_POINT
             = new IntApplicationStatPoint.UncollectedCreator(JoinActiveTraceBo.UNCOLLECTED_VALUE);
 
     public enum ActiveTraceChartType implements StatChartGroup.ApplicationChartType {
         ACTIVE_TRACE_COUNT
     }
 
-    private static final ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinActiveTraceBo, IntApplicationStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinActiveTraceBo, IntApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinActiveTraceBo, IntApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_COUNT, ApplicationActiveTraceChart::newActiveTracePoint);
         return builder;
     }
@@ -51,7 +51,7 @@ public class ApplicationActiveTraceChart extends DefaultApplicationChart<AggreJo
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Integer> newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
+    private static IntApplicationStatPoint newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
         final JoinIntFieldBo totalCountValue = activeTrace.getTotalCountJoinValue();
         long timestamp = activeTrace.getTimestamp();
 

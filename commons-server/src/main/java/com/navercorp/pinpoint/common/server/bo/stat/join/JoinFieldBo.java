@@ -19,16 +19,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 /**
  * @author Taejin Koo
  */
-public interface JoinFieldBo<V extends Number> {
-
-    V getAvg();
-
-    V getMin();
-
-    String getMinAgentId();
-
-    V getMax();
-
-    String getMaxAgentId();
+public interface JoinFieldBo {
 
 }

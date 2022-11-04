@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public class TransactionChart extends DefaultAgentChart<SampledTransaction, Double> {
+public class TransactionChart extends DefaultAgentChart<SampledTransaction, DoubleAgentStatPoint> {
 
     public enum TransactionChartType implements StatChartGroup.AgentChartType {
         TPS_SAMPLED_NEW,
@@ -38,10 +38,10 @@ public class TransactionChart extends DefaultAgentChart<SampledTransaction, Doub
         TPS_TOTAL
     }
 
-    private static final ChartGroupBuilder<SampledTransaction, AgentStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledTransaction, DoubleAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledTransaction, AgentStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<SampledTransaction, AgentStatPoint<Double>> builder = new ChartGroupBuilder<>(SampledTransaction.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledTransaction, DoubleAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledTransaction, DoubleAgentStatPoint> builder = new ChartGroupBuilder<>(SampledTransaction.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(TransactionChartType.TPS_SAMPLED_NEW, SampledTransaction::getSampledNew);
         builder.addPointFunction(TransactionChartType.TPS_SAMPLED_CONTINUATION, SampledTransaction::getSampledContinuation);
         builder.addPointFunction(TransactionChartType.TPS_UNSAMPLED_NEW, SampledTransaction::getUnsampledNew);

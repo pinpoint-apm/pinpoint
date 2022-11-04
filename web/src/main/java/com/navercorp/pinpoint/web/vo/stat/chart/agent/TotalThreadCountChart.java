@@ -23,16 +23,16 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
 
-public class TotalThreadCountChart extends DefaultAgentChart<SampledTotalThreadCount, Long> {
+public class TotalThreadCountChart extends DefaultAgentChart<SampledTotalThreadCount, LongAgentStatPoint> {
 
     public enum TotalThreadCountChartType implements StatChartGroup.AgentChartType {
         TOTAL_THREAD_COUNT
     }
 
-    private static final ChartGroupBuilder<SampledTotalThreadCount, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledTotalThreadCount, LongAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledTotalThreadCount, AgentStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<SampledTotalThreadCount, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledTotalThreadCount, LongAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledTotalThreadCount, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(TotalThreadCountChartType.TOTAL_THREAD_COUNT, SampledTotalThreadCount::getTotalThreadCount);
         return builder;
     }

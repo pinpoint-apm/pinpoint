@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
@@ -25,7 +26,7 @@ import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
 
 import java.util.ArrayList;
@@ -104,7 +105,8 @@ public class AgentTimeHistogram {
         List<SampledApdexScore> result = new ArrayList<>();
         for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
             if (timeHistogram.getTotalCount() != 0) {
-                AgentStatPoint<Double> agentStatPoint = new AgentStatPoint<>(timeHistogram.getTimeStamp(), ApdexScore.toDoubleFromHistogram(timeHistogram));
+                double apdexScore = ApdexScore.toDoubleFromHistogram(timeHistogram);
+                DoubleAgentStatPoint agentStatPoint = DoubleAgentStatPoint.ofSingle(timeHistogram.getTimeStamp(), apdexScore);
                 result.add(new SampledApdexScore(agentStatPoint));
             }
         }
@@ -172,7 +174,8 @@ public class AgentTimeHistogram {
             Histogram histogram = sumHistogram.get(index);
             if (histogram.getTotalCount() != 0) {
                 double avg = ApdexScore.toDoubleFromHistogram(histogram);
-                DoubleApplicationStatPoint point = new DoubleApplicationStatPoint(timestamp, min.get(index), minAgentId.get(index), max.get(index), maxAgentId.get(index), avg);
+                JoinDoubleFieldBo doubleFieldBo = new JoinDoubleFieldBo(avg, min.get(index), minAgentId.get(index), max.get(index), maxAgentId.get(index));
+                DoubleApplicationStatPoint point = new DoubleApplicationStatPoint(timestamp, doubleFieldBo);
                 applicationStatPoints.add(point);
             }
         }

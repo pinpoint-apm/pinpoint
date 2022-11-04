@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -126,7 +126,7 @@ public class JvmGcSampler implements AgentStatSampler<JvmGcBo, SampledJvmGc> {
         }
     }
 
-    private AgentStatPoint<Long> createSampledPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createSampledPoint(long timestamp, List<Long> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledJvmGc.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

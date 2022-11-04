@@ -19,9 +19,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -40,21 +39,21 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
     @Override
     public SampledTransaction sampleDataPoints(int timeWindowIndex, long timestamp, List<TransactionBo> dataPoints, TransactionBo previousDataPoint) {
 
-        final AgentStatPoint<Double> sampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledNewCount);
-        final AgentStatPoint<Double> sampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledContinuationCount);
-        final AgentStatPoint<Double> unsampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledNewCount);
-        final AgentStatPoint<Double> unsampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledContinuationCount);
-        final AgentStatPoint<Double> skippedNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSkippedNewSkipCount);
-        final AgentStatPoint<Double> skippedContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSkippedContinuationCount);
+        final DoubleAgentStatPoint sampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledNewCount);
+        final DoubleAgentStatPoint sampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledContinuationCount);
+        final DoubleAgentStatPoint unsampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledNewCount);
+        final DoubleAgentStatPoint unsampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledContinuationCount);
+        final DoubleAgentStatPoint skippedNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSkippedNewSkipCount);
+        final DoubleAgentStatPoint skippedContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSkippedContinuationCount);
 
         final List<Double> totals = calculateTotalTps(dataPoints);
-        AgentStatPoint<Double> total = createPoint(timestamp, totals);
+        DoubleAgentStatPoint total = createPoint(timestamp, totals);
 
         SampledTransaction sampledTransaction = new SampledTransaction(sampledNew, sampledContinuation, unsampledNew, unsampledContinuation, skippedNew, skippedContinuation, total);
         return sampledTransaction;
     }
 
-    private AgentStatPoint<Double> newAgentStatPoint(long timestamp, List<TransactionBo> dataPoints, ToLongFunction<TransactionBo> function) {
+    private DoubleAgentStatPoint newAgentStatPoint(long timestamp, List<TransactionBo> dataPoints, ToLongFunction<TransactionBo> function) {
         final List<Double> sampledNews = calculateTps(dataPoints, function);
         return createPoint(timestamp, sampledNews);
     }
@@ -131,7 +130,7 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
         return AgentStatUtils.calculateRate(count, intervalMs, NUM_DECIMAL_PLACES, SampledTransaction.UNCOLLECTED_VALUE);
     }
 
-    private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
+    private DoubleAgentStatPoint createPoint(long timestamp, List<Double> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledTransaction.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

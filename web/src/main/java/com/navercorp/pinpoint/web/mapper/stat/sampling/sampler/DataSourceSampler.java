@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -84,7 +84,7 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
         return sampledDataSource;
     }
 
-    private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
+    private IntAgentStatPoint createPoint(long timestamp, List<Integer> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledDataSource.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

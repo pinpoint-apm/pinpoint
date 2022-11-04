@@ -28,20 +28,20 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationCpuLoadChart extends DefaultApplicationChart<AggreJoinCpuLoadBo, Double> {
+public class ApplicationCpuLoadChart extends DefaultApplicationChart<AggreJoinCpuLoadBo, DoubleApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<DoubleApplicationStatPoint> UNCOLLECTED_POINT
             = new DoubleApplicationStatPoint.UncollectedCreator(JoinCpuLoadBo.UNCOLLECTED_VALUE);
 
-    private static final ChartGroupBuilder<AggreJoinCpuLoadBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinCpuLoadBo, DoubleApplicationStatPoint> BUILDER = newChartBuilder();
 
     public enum CpuLoadChartType implements StatChartGroup.ApplicationChartType {
         CPU_LOAD_JVM,
         CPU_LOAD_SYSTEM
     }
 
-    static ChartGroupBuilder<AggreJoinCpuLoadBo, ApplicationStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinCpuLoadBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinCpuLoadBo, DoubleApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinCpuLoadBo, DoubleApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(CpuLoadChartType.CPU_LOAD_JVM, ApplicationCpuLoadChart::newJvmCpu);
         builder.addPointFunction(CpuLoadChartType.CPU_LOAD_SYSTEM, ApplicationCpuLoadChart::newSystemCpu);
         return builder;
@@ -51,13 +51,13 @@ public class ApplicationCpuLoadChart extends DefaultApplicationChart<AggreJoinCp
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Double> newSystemCpu(AggreJoinCpuLoadBo statBo) {
+    private static DoubleApplicationStatPoint newSystemCpu(AggreJoinCpuLoadBo statBo) {
         JoinDoubleFieldBo point = statBo.getSystemCpuLoadJoinValue();
         long timestamp = statBo.getTimestamp();
         return StatPointUtils.toDoubleStatPoint(timestamp, point);
     }
 
-    private static ApplicationStatPoint<Double> newJvmCpu(AggreJoinCpuLoadBo statBo) {
+    private static DoubleApplicationStatPoint newJvmCpu(AggreJoinCpuLoadBo statBo) {
         JoinDoubleFieldBo point = statBo.getJvmCpuLoadJoinValue();
         long timestamp = statBo.getTimestamp();
         return StatPointUtils.toDoubleStatPoint(timestamp, point);

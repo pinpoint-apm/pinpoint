@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
+import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
@@ -45,17 +46,17 @@ public class JvmGcDetailedChart implements StatChart {
         JVM_DETAILED_METASPACE_USED
     }
 
-    private static final ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Long>> LONG_BUILDER = newLongChartBuilder();
-    private static final ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Double>> DOUBLE_BUILDER = newDoubleChartBuilder();
+    private static final ChartGroupBuilder<SampledJvmGcDetailed, LongAgentStatPoint> LONG_BUILDER = newLongChartBuilder();
+    private static final ChartGroupBuilder<SampledJvmGcDetailed, DoubleAgentStatPoint> DOUBLE_BUILDER = newDoubleChartBuilder();
 
-    static ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Long>> newLongChartBuilder() {
-        ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR);
+    static ChartGroupBuilder<SampledJvmGcDetailed, LongAgentStatPoint> newLongChartBuilder() {
+        ChartGroupBuilder<SampledJvmGcDetailed, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR);
         builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_COUNT, SampledJvmGcDetailed::getGcNewCount);
         builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_GC_NEW_TIME, SampledJvmGcDetailed::getGcNewTime);
         return builder;
     }
-    static ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Double>> newDoubleChartBuilder() {
-        ChartGroupBuilder<SampledJvmGcDetailed, AgentStatPoint<Double>> builder = new ChartGroupBuilder<>(SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
+    static ChartGroupBuilder<SampledJvmGcDetailed, DoubleAgentStatPoint> newDoubleChartBuilder() {
+        ChartGroupBuilder<SampledJvmGcDetailed, DoubleAgentStatPoint> builder = new ChartGroupBuilder<>(SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR);
         builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_CODE_CACHE_USED, SampledJvmGcDetailed::getCodeCacheUsed);
         builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_NEW_GEN_USED, SampledJvmGcDetailed::getNewGenUsed);
         builder.addPointFunction(JvmGcDetailedChartType.JVM_DETAILED_OLD_GEN_USED, SampledJvmGcDetailed::getOldGenUsed);
@@ -75,12 +76,12 @@ public class JvmGcDetailedChart implements StatChart {
 
     @Override
     public StatChartGroup getCharts() {
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Long>>> longMap = LONG_BUILDER.buildMap(timeWindow, statList);
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Double>>> doubleMap = DOUBLE_BUILDER.buildMap(timeWindow, statList);
+        Map<StatChartGroup.ChartType, Chart<LongAgentStatPoint>> longMap = LONG_BUILDER.buildMap(timeWindow, statList);
+        Map<StatChartGroup.ChartType, Chart<DoubleAgentStatPoint>> doubleMap = DOUBLE_BUILDER.buildMap(timeWindow, statList);
 
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<?>>> merge = new HashMap<>();
-        merge.putAll((Map<StatChartGroup.ChartType, Chart<AgentStatPoint<?>>>) (Map<StatChartGroup.ChartType, ?>) longMap);
-        merge.putAll((Map<StatChartGroup.ChartType, Chart<AgentStatPoint<?>>>) (Map<StatChartGroup.ChartType, ?>) doubleMap);
+        Map<StatChartGroup.ChartType, Chart<Point>> merge = new HashMap<>();
+        merge.putAll((Map<StatChartGroup.ChartType, Chart<Point>>) (Map<StatChartGroup.ChartType, ?>) longMap);
+        merge.putAll((Map<StatChartGroup.ChartType, Chart<Point>>) (Map<StatChartGroup.ChartType, ?>) doubleMap);
         return new DefaultStatChartGroup<>(timeWindow, merge);
     }
 

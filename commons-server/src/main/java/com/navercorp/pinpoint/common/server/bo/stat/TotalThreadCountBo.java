@@ -16,47 +16,46 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-public class TotalThreadCountBo implements AgentStatDataPoint {
-    public static final long UNCOLLECTED_VALUE = -1L;
+public class TotalThreadCountBo extends AbstractAgentStatDataPoint {
+    public static final long UNCOLLECTED_VALUE = UNCOLLECTED_LONG;
 
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private long totalThreadCount = UNCOLLECTED_VALUE;
 
-    @Override
-    public String getAgentId() { return agentId; }
+
+    public TotalThreadCountBo() {
+        super(AgentStatType.TOTAL_THREAD);
+    }
+
+    public long getTotalThreadCount() {
+        return totalThreadCount;
+    }
+
+    public void setTotalThreadCount(long totalThreadCount) {
+        this.totalThreadCount = totalThreadCount;
+    }
 
     @Override
-    public void setAgentId(String agentId) { this.agentId = agentId; }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        TotalThreadCountBo that = (TotalThreadCountBo) o;
+
+        return totalThreadCount == that.totalThreadCount;
+    }
 
     @Override
-    public long getStartTimestamp() { return startTimestamp; }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) { this.startTimestamp = startTimestamp; }
-
-    @Override
-    public long getTimestamp() { return timestamp; }
-
-    @Override
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
-    @Override
-    public AgentStatType getAgentStatType() { return AgentStatType.TOTAL_THREAD; }
-
-    public long getTotalThreadCount() { return totalThreadCount; }
-
-    public void setTotalThreadCount(long totalThreadCount) { this.totalThreadCount = totalThreadCount; }
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (totalThreadCount ^ (totalThreadCount >>> 32));
+        return result;
+    }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TotalThreadCountBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", totalThreadCount=").append(totalThreadCount);
-        sb.append('}');
-        return sb.toString();
+        return "TotalThreadCountBo{" +
+                "totalThreadCount=" + totalThreadCount +
+                "} " + super.toString();
     }
 }

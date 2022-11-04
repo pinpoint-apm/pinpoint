@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -29,9 +31,9 @@ import java.util.List;
  */
 public class AgentStatPointFactory {
 
-    private final Point.UncollectedPointCreator<AgentStatPoint<Integer>> uncollectedIntValuePointCreator;
-    private final Point.UncollectedPointCreator<AgentStatPoint<Long>> uncollectedLongValuePointCreator;
-    private final Point.UncollectedPointCreator<AgentStatPoint<Double>> uncollectedDoubleValuePointCreator;
+    private final Point.UncollectedPointCreator<IntAgentStatPoint> uncollectedIntValuePointCreator;
+    private final Point.UncollectedPointCreator<LongAgentStatPoint> uncollectedLongValuePointCreator;
+    private final Point.UncollectedPointCreator<DoubleAgentStatPoint> uncollectedDoubleValuePointCreator;
 
     private final int defaultValueDecimal;
 
@@ -47,48 +49,48 @@ public class AgentStatPointFactory {
         this.defaultValueDecimal = defaultValueDecimal;
     }
 
-    public AgentStatPoint<Integer> createIntPoint(long timestamp, List<Integer> values) {
+    public IntAgentStatPoint createIntPoint(long timestamp, List<Integer> values) {
         return createIntPoint(timestamp, values, defaultValueDecimal);
     }
 
-    public AgentStatPoint<Integer> createIntPoint(long timestamp, List<Integer> values, int numDecimals) {
+    public IntAgentStatPoint createIntPoint(long timestamp, List<Integer> values, int numDecimals) {
         if (CollectionUtils.isEmpty(values)) {
             return uncollectedIntValuePointCreator.createUnCollectedPoint(timestamp);
         }
         return AgentStatPointSummary.intSummary(timestamp, values, numDecimals);
     }
 
-    public AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values) {
+    public LongAgentStatPoint createLongPoint(long timestamp, List<Long> values) {
         return createLongPoint(timestamp, values, defaultValueDecimal);
     }
 
-    public AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values, int numDecimals) {
+    public LongAgentStatPoint createLongPoint(long timestamp, List<Long> values, int numDecimals) {
         if (CollectionUtils.isEmpty(values)) {
             return uncollectedLongValuePointCreator.createUnCollectedPoint(timestamp);
         }
         return AgentStatPointSummary.longSummary(timestamp, values, numDecimals);
     }
 
-    public AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values) {
+    public DoubleAgentStatPoint createDoublePoint(long timestamp, List<Double> values) {
         return createDoublePoint(timestamp, values, defaultValueDecimal);
     }
 
-    public AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values, int numDecimals) {
+    public DoubleAgentStatPoint createDoublePoint(long timestamp, List<Double> values, int numDecimals) {
         if (CollectionUtils.isEmpty(values)) {
             return uncollectedDoubleValuePointCreator.createUnCollectedPoint(timestamp);
         }
         return AgentStatPointSummary.doubleSummary(timestamp, values, numDecimals);
     }
 
-    public Point.UncollectedPointCreator<AgentStatPoint<Integer>> getUncollectedIntValuePointCreator() {
+    public Point.UncollectedPointCreator<IntAgentStatPoint> getUncollectedIntValuePointCreator() {
         return uncollectedIntValuePointCreator;
     }
 
-    public Point.UncollectedPointCreator<AgentStatPoint<Long>> getUncollectedLongValuePointCreator() {
+    public Point.UncollectedPointCreator<LongAgentStatPoint> getUncollectedLongValuePointCreator() {
         return uncollectedLongValuePointCreator;
     }
 
-    public Point.UncollectedPointCreator<AgentStatPoint<Double>> getUncollectedDoubleValuePointCreator() {
+    public Point.UncollectedPointCreator<DoubleAgentStatPoint> getUncollectedDoubleValuePointCreator() {
         return uncollectedDoubleValuePointCreator;
     }
 }

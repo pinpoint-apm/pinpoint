@@ -53,7 +53,7 @@ public class TimeSeriesChartBuilder<P extends Point> {
         }
         List<P> points = createInitialPoints(timeWindow);
         for (P sampledPoint : sampledPoints) {
-            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getXVal());
+            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getTimestamp());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
             }

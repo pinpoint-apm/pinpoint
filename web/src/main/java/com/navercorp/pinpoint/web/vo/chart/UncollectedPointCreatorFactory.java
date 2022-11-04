@@ -16,36 +16,38 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 
 /**
  * @author Taejin Koo
  */
 public class UncollectedPointCreatorFactory {
 
-    public static Point.UncollectedPointCreator<AgentStatPoint<Integer>> createIntPointCreator(int uncollectedValue) {
-        return new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
+    public static Point.UncollectedPointCreator<IntAgentStatPoint> createIntPointCreator(int uncollectedValue) {
+        return new Point.UncollectedPointCreator<IntAgentStatPoint>() {
             @Override
-            public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedValue);
+            public IntAgentStatPoint createUnCollectedPoint(long xVal) {
+                return IntAgentStatPoint.ofUnCollected(xVal, uncollectedValue);
             }
         };
     }
 
-    public static Point.UncollectedPointCreator<AgentStatPoint<Long>> createLongPointCreator(long uncollectedValue) {
-        return new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
+    public static Point.UncollectedPointCreator<LongAgentStatPoint> createLongPointCreator(long uncollectedValue) {
+        return new Point.UncollectedPointCreator<LongAgentStatPoint>() {
             @Override
-            public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedValue);
+            public LongAgentStatPoint createUnCollectedPoint(long xVal) {
+                return LongAgentStatPoint.ofUnCollected(xVal, uncollectedValue);
             }
         };
     }
 
-    public static Point.UncollectedPointCreator<AgentStatPoint<Double>> createDoublePointCreator(double uncollectedValue) {
-        return new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
+    public static Point.UncollectedPointCreator<DoubleAgentStatPoint> createDoublePointCreator(double uncollectedValue) {
+        return new Point.UncollectedPointCreator<DoubleAgentStatPoint>() {
             @Override
-            public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedValue);
+            public DoubleAgentStatPoint createUnCollectedPoint(long xVal) {
+                return DoubleAgentStatPoint.ofUnCollected(xVal, uncollectedValue);
             }
         };
     }

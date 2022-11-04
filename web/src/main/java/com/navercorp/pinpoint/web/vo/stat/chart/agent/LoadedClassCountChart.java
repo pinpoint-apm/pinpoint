@@ -23,17 +23,17 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
 
-public class LoadedClassCountChart extends DefaultAgentChart<SampledLoadedClassCount, Long> {
+public class LoadedClassCountChart extends DefaultAgentChart<SampledLoadedClassCount, LongAgentStatPoint> {
 
     public enum LoadedClassCountChartType implements StatChartGroup.AgentChartType {
         LOADED_CLASS_COUNT,
         UNLOADED_CLASS_COUNT
     }
 
-    private static final ChartGroupBuilder<SampledLoadedClassCount, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledLoadedClassCount, LongAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledLoadedClassCount, AgentStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<SampledLoadedClassCount, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledLoadedClassCount, LongAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledLoadedClassCount, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(LoadedClassCountChartType.LOADED_CLASS_COUNT, SampledLoadedClassCount::getLoadedClassCount);
         builder.addPointFunction(LoadedClassCountChartType.UNLOADED_CLASS_COUNT, SampledLoadedClassCount::getUnloadedClassCount);
         return builder;

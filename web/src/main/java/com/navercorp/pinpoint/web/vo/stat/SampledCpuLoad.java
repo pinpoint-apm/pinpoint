@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 
 import java.util.Objects;
 
@@ -28,22 +28,22 @@ import java.util.Objects;
 public class SampledCpuLoad implements SampledAgentStatDataPoint {
 
     public static final Double UNCOLLECTED_PERCENTAGE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_PERCENTAGE);
+    public static final Point.UncollectedPointCreator<DoubleAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_PERCENTAGE);
 
-    private final AgentStatPoint<Double> jvmCpuLoad;
-    private final AgentStatPoint<Double> systemCpuLoad;
+    private final DoubleAgentStatPoint jvmCpuLoad;
+    private final DoubleAgentStatPoint systemCpuLoad;
 
-    public SampledCpuLoad(AgentStatPoint<Double> jvmCpuLoad, AgentStatPoint<Double> systemCpuLoad) {
+    public SampledCpuLoad(DoubleAgentStatPoint jvmCpuLoad, DoubleAgentStatPoint systemCpuLoad) {
         this.jvmCpuLoad = Objects.requireNonNull(jvmCpuLoad, "jvmCpuLoad");
         this.systemCpuLoad = Objects.requireNonNull(systemCpuLoad, "systemCpuLoad");
     }
 
-    public AgentStatPoint<Double> getJvmCpuLoad() {
+    public DoubleAgentStatPoint getJvmCpuLoad() {
         return jvmCpuLoad;
     }
 
 
-    public AgentStatPoint<Double> getSystemCpuLoad() {
+    public DoubleAgentStatPoint getSystemCpuLoad() {
         return systemCpuLoad;
     }
 

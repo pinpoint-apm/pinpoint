@@ -17,22 +17,49 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.view.LongApplicationStatSerializer;
+import com.navercorp.pinpoint.web.vo.chart.Point;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @JsonSerialize(using = LongApplicationStatSerializer.class)
-public class LongApplicationStatPoint extends ApplicationStatPoint<Long> {
+public class LongApplicationStatPoint implements Point {
 
     public static final long UNCOLLECTED_VALUE = -1L;
 
-    public LongApplicationStatPoint(long xVal, Long yValForMin, String agentIdForMin, Long yValForMax, String agentIdForMax, Long yValForAvg) {
-        super(xVal, yValForMin, agentIdForMin, yValForMax, agentIdForMax, yValForAvg);
+    private final long xVal;
+    private final JoinLongFieldBo longFieldBo;
+
+
+    public LongApplicationStatPoint(long xVal, JoinLongFieldBo longFieldBo) {
+        this.xVal = xVal;
+        this.longFieldBo = Objects.requireNonNull(longFieldBo, "longFieldBo");
     }
 
-    public static class UncollectedCreator implements UncollectedPointCreator<ApplicationStatPoint<Long>> {
+    @Override
+    public long getTimestamp() {
+        return xVal;
+    }
+
+    public JoinLongFieldBo getLongFieldBo() {
+        return longFieldBo;
+    }
+
+
+    @Override
+    public String toString() {
+        return "LongApplicationStatPoint{" +
+                "xVal=" + xVal +
+                ", longFieldBo=" + longFieldBo +
+                '}';
+    }
+
+    public static class UncollectedCreator implements UncollectedPointCreator<LongApplicationStatPoint> {
 
         private final long uncollectedValue;
 
@@ -45,10 +72,9 @@ public class LongApplicationStatPoint extends ApplicationStatPoint<Long> {
         }
 
         @Override
-        public ApplicationStatPoint<Long> createUnCollectedPoint(long xVal) {
-            return new LongApplicationStatPoint(xVal, uncollectedValue,
-                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue,
-                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue);
+        public LongApplicationStatPoint createUnCollectedPoint(long xVal) {
+            JoinLongFieldBo empty = new JoinLongFieldBo(uncollectedValue, uncollectedValue, JoinStatBo.UNKNOWN_AGENT, uncollectedValue, JoinStatBo.UNKNOWN_AGENT);
+            return new LongApplicationStatPoint(xVal, empty);
         }
 
     }

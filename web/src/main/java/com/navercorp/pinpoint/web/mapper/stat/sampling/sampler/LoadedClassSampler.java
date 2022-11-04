@@ -19,9 +19,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -34,14 +33,14 @@ public class LoadedClassSampler implements AgentStatSampler<LoadedClassBo, Sampl
 
     @Override
     public SampledLoadedClassCount sampleDataPoints(int timeWindowIndex, long timestamp, List<LoadedClassBo> dataPoints, LoadedClassBo previousDataPoint) {
-        final AgentStatPoint<Long> loadedClassCount = newAgentStatPoint(timestamp, dataPoints, LoadedClassBo::getLoadedClassCount);
-        final AgentStatPoint<Long> unloadedClassCount = newAgentStatPoint(timestamp, dataPoints, LoadedClassBo::getUnloadedClassCount);
+        final LongAgentStatPoint loadedClassCount = newAgentStatPoint(timestamp, dataPoints, LoadedClassBo::getLoadedClassCount);
+        final LongAgentStatPoint unloadedClassCount = newAgentStatPoint(timestamp, dataPoints, LoadedClassBo::getUnloadedClassCount);
 
         SampledLoadedClassCount sampledLoadedClassCount = new SampledLoadedClassCount(loadedClassCount, unloadedClassCount);
         return sampledLoadedClassCount;
     }
 
-    private AgentStatPoint<Long> newAgentStatPoint(long timestamp, List<LoadedClassBo> dataPoints, ToLongFunction<LoadedClassBo> filter) {
+    private LongAgentStatPoint newAgentStatPoint(long timestamp, List<LoadedClassBo> dataPoints, ToLongFunction<LoadedClassBo> filter) {
         List<Long> loadedCounts = filter(dataPoints, filter);
         return createPoint(timestamp, loadedCounts);
     }
@@ -57,7 +56,7 @@ public class LoadedClassSampler implements AgentStatSampler<LoadedClassBo, Sampl
         return result;
     }
 
-    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createPoint(long timestamp, List<Long> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

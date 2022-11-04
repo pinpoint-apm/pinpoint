@@ -18,21 +18,23 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 
 import java.util.Objects;
 
 public class SampledTotalThreadCount implements SampledAgentStatDataPoint {
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<LongAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
 
-    private final AgentStatPoint<Long> totalThreadCount;
+    private final LongAgentStatPoint totalThreadCount;
 
-    public SampledTotalThreadCount(AgentStatPoint<Long> totalThreadCount) {
+    public SampledTotalThreadCount(LongAgentStatPoint totalThreadCount) {
         this.totalThreadCount = Objects.requireNonNull(totalThreadCount, "totalThreadCount");
     }
 
-    public AgentStatPoint<Long> getTotalThreadCount() { return totalThreadCount; }
+    public LongAgentStatPoint getTotalThreadCount() {
+        return totalThreadCount;
+    }
 
     @Override
     public String toString() {

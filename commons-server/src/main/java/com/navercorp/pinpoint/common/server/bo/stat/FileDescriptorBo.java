@@ -19,49 +19,14 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author Roy Kim
  */
-public class FileDescriptorBo implements AgentStatDataPoint {
+public class FileDescriptorBo extends AbstractAgentStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
-
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
+    public static final long UNCOLLECTED_VALUE = UNCOLLECTED_LONG;
 
     private long openFileDescriptorCount = UNCOLLECTED_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public AgentStatType getAgentStatType() {
-        return AgentStatType.FILE_DESCRIPTOR;
+    public FileDescriptorBo() {
+        super(AgentStatType.FILE_DESCRIPTOR);
     }
 
     public long getOpenFileDescriptorCount() {
@@ -77,22 +42,16 @@ public class FileDescriptorBo implements AgentStatDataPoint {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
-        FileDescriptorBo fileDescriptorBo = (FileDescriptorBo) o;
+        FileDescriptorBo that = (FileDescriptorBo) o;
 
-        if (startTimestamp != fileDescriptorBo.startTimestamp) return false;
-        if (timestamp != fileDescriptorBo.timestamp) return false;
-        if (openFileDescriptorCount != fileDescriptorBo.openFileDescriptorCount) return false;
-        return agentId != null ? agentId.equals(fileDescriptorBo.agentId) : fileDescriptorBo.agentId == null;
-
+        return openFileDescriptorCount == that.openFileDescriptorCount;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        int result = super.hashCode();
         result = 31 * result + (int) (openFileDescriptorCount ^ (openFileDescriptorCount >>> 32));
         return result;
     }
@@ -100,10 +59,7 @@ public class FileDescriptorBo implements AgentStatDataPoint {
     @Override
     public String toString() {
         return "FileDescriptorBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
-                ", openFileDescriptorCount=" + openFileDescriptorCount +
-                '}';
+                "openFileDescriptorCount=" + openFileDescriptorCount +
+                "} " + super.toString();
     }
 }

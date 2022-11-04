@@ -70,7 +70,7 @@ public class DataSourceChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
-        StatChartGroup<AgentStatPoint<Integer>> dataSourceChartGroup = DataSourceChart.newDataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
+        StatChartGroup<IntAgentStatPoint> dataSourceChartGroup = DataSourceChart.newDataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
 
         assertEquals(sampledDataSourceList, dataSourceChartGroup);
     }
@@ -88,7 +88,7 @@ public class DataSourceChartGroupTest {
         Assertions.assertNull(dataSourceChartGroup.getDatabaseName());
         Assertions.assertNull(dataSourceChartGroup.getServiceType());
 
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> charts = dataSourceChartGroup.getCharts().getCharts();
+        Map<StatChartGroup.ChartType, Chart<IntAgentStatPoint>> charts = dataSourceChartGroup.getCharts().getCharts();
         Assertions.assertEquals(2, charts.size());
 
         for (Chart<? extends Point> chart : charts.values()) {
@@ -117,8 +117,8 @@ public class DataSourceChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, dataSourceBoList, null);
     }
 
-    private void assertEquals(List<SampledDataSource> sampledDataSourceList, StatChartGroup<AgentStatPoint<Integer>> dataSourceChartGroup) {
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> charts = dataSourceChartGroup.getCharts();
+    private void assertEquals(List<SampledDataSource> sampledDataSourceList, StatChartGroup<IntAgentStatPoint> dataSourceChartGroup) {
+        Map<StatChartGroup.ChartType, Chart<IntAgentStatPoint>> charts = dataSourceChartGroup.getCharts();
 
         Chart<? extends Point> activeConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
         List<? extends Point> activeConnectionSizeChartPointList = activeConnectionSizeChart.getPoints();
@@ -130,11 +130,11 @@ public class DataSourceChartGroupTest {
             Assertions.assertEquals(activeConnectionSizeChartPointList.get(i), point);
         }
 
-        Chart<AgentStatPoint<Integer>> maxConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartType.MAX_CONNECTION_SIZE);
-        List<AgentStatPoint<Integer>> maxConnectionSizeChartPointList = maxConnectionSizeChart.getPoints();
+        Chart<IntAgentStatPoint> maxConnectionSizeChart = charts.get(DataSourceChart.DataSourceChartType.MAX_CONNECTION_SIZE);
+        List<IntAgentStatPoint> maxConnectionSizeChartPointList = maxConnectionSizeChart.getPoints();
         for (int i = 0; i < sampledDataSourceList.size(); i++) {
             SampledDataSource sampledDataSource = sampledDataSourceList.get(i);
-            AgentStatPoint<Integer> point = sampledDataSource.getMaxConnectionSize();
+            IntAgentStatPoint point = sampledDataSource.getMaxConnectionSize();
 
             Assertions.assertEquals(maxConnectionSizeChartPointList.get(i), point);
         }

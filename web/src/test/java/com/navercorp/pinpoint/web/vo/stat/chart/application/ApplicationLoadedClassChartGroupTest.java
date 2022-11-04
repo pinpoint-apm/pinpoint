@@ -49,47 +49,41 @@ public class ApplicationLoadedClassChartGroupTest {
         aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo4);
         aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo5);
 
-        ChartGroupBuilder<AggreJoinLoadedClassBo, ApplicationStatPoint<Long>> builder = ApplicationLoadedClassChart.newChartBuilder();
-        StatChartGroup<ApplicationStatPoint<Long>> statChartGroup = builder.build(timeWindow, aggreJoinLoadedClassBoList);
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = statChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinLoadedClassBo, LongApplicationStatPoint> builder = ApplicationLoadedClassChart.newChartBuilder();
+        StatChartGroup<LongApplicationStatPoint> statChartGroup = builder.build(timeWindow, aggreJoinLoadedClassBoList);
+        Map<StatChartGroup.ChartType, Chart<LongApplicationStatPoint>> charts = statChartGroup.getCharts();
         assertEquals(2, charts.size());
 
-        Chart<ApplicationStatPoint<Long>> loadedClassChart = charts.get(ApplicationLoadedClassChart.LoadedClassChartType.LOADED_CLASS_COUNT);
-        List<ApplicationStatPoint<Long>> loadedClassChartPoints = loadedClassChart.getPoints();
+        Chart<LongApplicationStatPoint> loadedClassChart = charts.get(ApplicationLoadedClassChart.LoadedClassChartType.LOADED_CLASS_COUNT);
+        List<LongApplicationStatPoint> loadedClassChartPoints = loadedClassChart.getPoints();
         assertEquals(5, loadedClassChartPoints.size());
         int index = loadedClassChartPoints.size();
 
-        for (ApplicationStatPoint<Long> point : loadedClassChartPoints) {
+        for (LongApplicationStatPoint point : loadedClassChartPoints) {
             testLoadedCLass(point, aggreJoinLoadedClassBoList.get(--index));
         }
 
-        Chart<ApplicationStatPoint<Long>> unloadedClassChart = charts.get(ApplicationLoadedClassChart.LoadedClassChartType.UNLOADED_CLASS_COUNT);
-        List<ApplicationStatPoint<Long>> unloadedClassChartPoints = unloadedClassChart.getPoints();
+        Chart<LongApplicationStatPoint> unloadedClassChart = charts.get(ApplicationLoadedClassChart.LoadedClassChartType.UNLOADED_CLASS_COUNT);
+        List<LongApplicationStatPoint> unloadedClassChartPoints = unloadedClassChart.getPoints();
         assertEquals(5, unloadedClassChartPoints.size());
         index = unloadedClassChartPoints.size();
 
-        for (ApplicationStatPoint<Long> point : unloadedClassChartPoints) {
+        for (LongApplicationStatPoint point : unloadedClassChartPoints) {
             testUnloadedCLass(point, aggreJoinLoadedClassBoList.get(--index));
         }
     }
 
-    private void testLoadedCLass(ApplicationStatPoint<Long> point, AggreJoinLoadedClassBo loadedClassBo) {
+    private void testLoadedCLass(LongApplicationStatPoint point, AggreJoinLoadedClassBo loadedClassBo) {
         final JoinLongFieldBo loadedClass = loadedClassBo.getLoadedClassJoinValue();
-        assertEquals(point.getXVal(), loadedClassBo.getTimestamp());
-        assertEquals(point.getYValForAvg(), loadedClass.getAvg(), 0);
-        assertEquals(point.getYValForMin(), loadedClass.getMin(), 0);
-        assertEquals(point.getYValForMax(), loadedClass.getMax(), 0);
-        assertEquals(point.getAgentIdForMin(), loadedClass.getMinAgentId());
-        assertEquals(point.getAgentIdForMax(), loadedClass.getMaxAgentId());
+        assertEquals(point.getTimestamp(), loadedClassBo.getTimestamp());
+        JoinLongFieldBo longFieldBo = point.getLongFieldBo();
+        assertEquals(longFieldBo, loadedClass);
     }
 
-    private void testUnloadedCLass(ApplicationStatPoint<Long> point, AggreJoinLoadedClassBo loadedClassBo) {
+    private void testUnloadedCLass(LongApplicationStatPoint point, AggreJoinLoadedClassBo loadedClassBo) {
         final JoinLongFieldBo unloadedClass = loadedClassBo.getUnloadedClassJoinValue();
-        assertEquals(point.getXVal(), loadedClassBo.getTimestamp());
-        assertEquals(point.getYValForAvg(), unloadedClass.getAvg(), 0);
-        assertEquals(point.getYValForMin(), unloadedClass.getMin(), 0);
-        assertEquals(point.getYValForMax(), unloadedClass.getMax(), 0);
-        assertEquals(point.getAgentIdForMin(), unloadedClass.getMinAgentId());
-        assertEquals(point.getAgentIdForMax(), unloadedClass.getMaxAgentId());
+        assertEquals(point.getTimestamp(), loadedClassBo.getTimestamp());
+        JoinLongFieldBo longFieldBo = point.getLongFieldBo();
+        assertEquals(longFieldBo, unloadedClass);
     }
 }

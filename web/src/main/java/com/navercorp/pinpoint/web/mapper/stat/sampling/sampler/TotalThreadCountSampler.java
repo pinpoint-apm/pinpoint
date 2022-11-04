@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -32,11 +32,11 @@ public class TotalThreadCountSampler implements AgentStatSampler<TotalThreadCoun
 
     @Override
     public SampledTotalThreadCount sampleDataPoints(int index, long timestamp, List<TotalThreadCountBo> dataPoints, TotalThreadCountBo previousDataPoint) {
-        final AgentStatPoint<Long> totalThreadCount = newAgentStatPoint(timestamp, dataPoints, TotalThreadCountBo::getTotalThreadCount);
+        final LongAgentStatPoint totalThreadCount = newAgentStatPoint(timestamp, dataPoints, TotalThreadCountBo::getTotalThreadCount);
         return new SampledTotalThreadCount(totalThreadCount);
     }
 
-    private AgentStatPoint<Long> newAgentStatPoint(long timestamp, List<TotalThreadCountBo> dataPoints, ToLongFunction<TotalThreadCountBo> filter) {
+    private LongAgentStatPoint newAgentStatPoint(long timestamp, List<TotalThreadCountBo> dataPoints, ToLongFunction<TotalThreadCountBo> filter) {
         List<Long> totalThreadCounts = filter(dataPoints, filter);
         return createPoint(timestamp, totalThreadCounts);
     }
@@ -52,7 +52,7 @@ public class TotalThreadCountSampler implements AgentStatSampler<TotalThreadCoun
         return result;
     }
 
-    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createPoint(long timestamp, List<Long> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

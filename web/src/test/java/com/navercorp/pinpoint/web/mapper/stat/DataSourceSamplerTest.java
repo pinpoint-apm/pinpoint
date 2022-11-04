@@ -20,11 +20,13 @@ import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.LongSummaryStatistics;
 
 /**
  * @author Taejin Koo
@@ -48,33 +50,22 @@ public class DataSourceSamplerTest {
     }
 
     private void assertEquals(SampledDataSource sampledDataSource, List<DataSourceBo> dataSourceBoList) {
-        int minActiveConnectionSize = Integer.MAX_VALUE;
-        int maxActiveConnectionSize = Integer.MIN_VALUE;
-        int sumActiveConnectionSize = 0;
+        LongSummaryStatistics activeSummary = dataSourceBoList.stream()
+                .mapToLong(DataSourceBo::getActiveConnectionSize)
+                .summaryStatistics();
+        LongSummaryStatistics maxSummary = dataSourceBoList.stream()
+                .mapToLong(DataSourceBo::getMaxConnectionSize)
+                .summaryStatistics();
 
-        int minMaxConnectionSize = Integer.MAX_VALUE;
-        int maxMaxConnectionSize = Integer.MIN_VALUE;
-        int sumMaxConnectionSize = 0;
+        IntAgentStatPoint active = sampledDataSource.getActiveConnectionSize();
+        Assertions.assertEquals(activeSummary.getMin(), active.getMin());
+        Assertions.assertEquals(activeSummary.getMax(), active.getMax());
+        Assertions.assertEquals(activeSummary.getSum(), active.getSum());
 
-        for (DataSourceBo dataSourceBo : dataSourceBoList) {
-            int activeConnectionSize = dataSourceBo.getActiveConnectionSize();
-            minActiveConnectionSize = Math.min(activeConnectionSize, minActiveConnectionSize);
-            maxActiveConnectionSize = Math.max(activeConnectionSize, maxActiveConnectionSize);
-            sumActiveConnectionSize += activeConnectionSize;
-
-            int maxConnectionSize = dataSourceBo.getMaxConnectionSize();
-            minMaxConnectionSize = Math.min(maxConnectionSize, minMaxConnectionSize);
-            maxMaxConnectionSize = Math.max(maxConnectionSize, maxMaxConnectionSize);
-            sumMaxConnectionSize += maxConnectionSize;
-        }
-
-        Assertions.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMinYVal(), minActiveConnectionSize);
-        Assertions.assertEquals((int) sampledDataSource.getActiveConnectionSize().getMaxYVal(), maxActiveConnectionSize);
-        Assertions.assertEquals((int) sampledDataSource.getActiveConnectionSize().getSumYVal(), sumActiveConnectionSize);
-
-        Assertions.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMinYVal(), minMaxConnectionSize);
-        Assertions.assertEquals((int) sampledDataSource.getMaxConnectionSize().getMaxYVal(), maxMaxConnectionSize);
-        Assertions.assertEquals((int) sampledDataSource.getMaxConnectionSize().getSumYVal(), sumMaxConnectionSize);
+        IntAgentStatPoint max = sampledDataSource.getMaxConnectionSize();
+        Assertions.assertEquals(maxSummary.getMin(), max.getMin());
+        Assertions.assertEquals(maxSummary.getMax(), max.getMax());
+        Assertions.assertEquals(maxSummary.getSum(), max.getSum());
     }
 
 }

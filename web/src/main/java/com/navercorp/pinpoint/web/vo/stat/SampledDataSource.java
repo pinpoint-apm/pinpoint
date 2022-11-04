@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 
 /**
  * @author Taejin Koo
@@ -27,14 +27,14 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
 
     public static final Integer UNCOLLECTED_VALUE = -1;
     public static final String UNCOLLECTED_STRING = null;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<IntAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(UNCOLLECTED_VALUE);
 
     private int id;
     private short serviceTypeCode;
     private String databaseName;
     private String jdbcUrl;
-    private AgentStatPoint<Integer> activeConnectionSize;
-    private AgentStatPoint<Integer> maxConnectionSize;
+    private IntAgentStatPoint activeConnectionSize;
+    private IntAgentStatPoint maxConnectionSize;
 
     public int getId() {
         return id;
@@ -68,19 +68,19 @@ public class SampledDataSource implements SampledAgentStatDataPoint {
         this.jdbcUrl = jdbcUrl;
     }
 
-    public AgentStatPoint<Integer> getActiveConnectionSize() {
+    public IntAgentStatPoint getActiveConnectionSize() {
         return activeConnectionSize;
     }
 
-    public void setActiveConnectionSize(AgentStatPoint<Integer> activeConnectionSize) {
+    public void setActiveConnectionSize(IntAgentStatPoint activeConnectionSize) {
         this.activeConnectionSize = activeConnectionSize;
     }
 
-    public AgentStatPoint<Integer> getMaxConnectionSize() {
+    public IntAgentStatPoint getMaxConnectionSize() {
         return maxConnectionSize;
     }
 
-    public void setMaxConnectionSize(AgentStatPoint<Integer> maxConnectionSize) {
+    public void setMaxConnectionSize(IntAgentStatPoint maxConnectionSize) {
         this.maxConnectionSize = maxConnectionSize;
     }
 

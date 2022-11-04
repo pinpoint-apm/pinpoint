@@ -29,20 +29,20 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationResponseTimeChart extends DefaultApplicationChart<AggreJoinResponseTimeBo, Double> {
+public class ApplicationResponseTimeChart extends DefaultApplicationChart<AggreJoinResponseTimeBo, DoubleApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<DoubleApplicationStatPoint> UNCOLLECTED_POINT
             = new DoubleApplicationStatPoint.UncollectedCreator(JoinResponseTimeBo.UNCOLLECTED_VALUE);
 
 
-    private static final ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinResponseTimeBo, DoubleApplicationStatPoint> BUILDER = newChartBuilder();
 
     public enum ResponseTimeChartType implements StatChartGroup.ApplicationChartType {
         RESPONSE_TIME;
     }
 
-    static ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinResponseTimeBo, DoubleApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinResponseTimeBo, DoubleApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(ResponseTimeChartType.RESPONSE_TIME, ApplicationResponseTimeChart::newResponseTime);
         return builder;
     }
@@ -51,7 +51,7 @@ public class ApplicationResponseTimeChart extends DefaultApplicationChart<AggreJ
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Double> newResponseTime(AggreJoinResponseTimeBo time) {
+    private static DoubleApplicationStatPoint newResponseTime(AggreJoinResponseTimeBo time) {
         final JoinLongFieldBo responseTimeJoinValue = time.getResponseTimeJoinValue();
         long timestamp = time.getTimestamp();
         return StatPointUtils.longToDoubleStatPoint(timestamp, responseTimeJoinValue);

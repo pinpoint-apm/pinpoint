@@ -23,14 +23,12 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.TitledAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.math3.util.Precision;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.function.ToIntFunction;
 
@@ -48,25 +46,25 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
             return newUnSampledActiveTrace(timestamp);
         }
 
-        AgentStatPoint<Integer> fast = newAgentStatPoint(schema.getFastSlot(), timestamp, dataPoints, ActiveTraceHistogram::getFastCount);
-        AgentStatPoint<Integer> normal = newAgentStatPoint(schema.getNormalSlot(), timestamp, dataPoints, ActiveTraceHistogram::getNormalCount);
-        AgentStatPoint<Integer> slow = newAgentStatPoint(schema.getSlowSlot(), timestamp, dataPoints, ActiveTraceHistogram::getSlowCount);
-        AgentStatPoint<Integer> verySlow = newAgentStatPoint(schema.getVerySlowSlot(), timestamp, dataPoints, ActiveTraceHistogram::getVerySlowCount);
+        IntAgentStatPoint fast = newAgentStatPoint(schema.getFastSlot(), timestamp, dataPoints, ActiveTraceHistogram::getFastCount);
+        IntAgentStatPoint normal = newAgentStatPoint(schema.getNormalSlot(), timestamp, dataPoints, ActiveTraceHistogram::getNormalCount);
+        IntAgentStatPoint slow = newAgentStatPoint(schema.getSlowSlot(), timestamp, dataPoints, ActiveTraceHistogram::getSlowCount);
+        IntAgentStatPoint verySlow = newAgentStatPoint(schema.getVerySlowSlot(), timestamp, dataPoints, ActiveTraceHistogram::getVerySlowCount);
         SampledActiveTrace sampledActiveTrace = new SampledActiveTrace(fast, normal, slow, verySlow);
 
         return sampledActiveTrace;
     }
 
     private SampledActiveTrace newUnSampledActiveTrace(long timestamp) {
-        Point.UncollectedPointCreator<AgentStatPoint<Integer>> uncollected = SampledActiveTrace.UNCOLLECTED_POINT_CREATOR;
-        AgentStatPoint<Integer> fast = uncollected.createUnCollectedPoint(timestamp);
-        AgentStatPoint<Integer> normal = uncollected.createUnCollectedPoint(timestamp);
-        AgentStatPoint<Integer> slow = uncollected.createUnCollectedPoint(timestamp);
-        AgentStatPoint<Integer> verySlow = uncollected.createUnCollectedPoint(timestamp);
+        Point.UncollectedPointCreator<IntAgentStatPoint> uncollected = SampledActiveTrace.UNCOLLECTED_POINT_CREATOR;
+        IntAgentStatPoint fast = uncollected.createUnCollectedPoint(timestamp);
+        IntAgentStatPoint normal = uncollected.createUnCollectedPoint(timestamp);
+        IntAgentStatPoint slow = uncollected.createUnCollectedPoint(timestamp);
+        IntAgentStatPoint verySlow = uncollected.createUnCollectedPoint(timestamp);
         return new SampledActiveTrace(fast, normal, slow, verySlow);
     }
 
-    private AgentStatPoint<Integer> newAgentStatPoint(HistogramSlot slot, long timestamp, List<ActiveTraceBo> dataPoints, ToIntFunction<ActiveTraceHistogram> counter) {
+    private IntAgentStatPoint newAgentStatPoint(HistogramSlot slot, long timestamp, List<ActiveTraceBo> dataPoints, ToIntFunction<ActiveTraceHistogram> counter) {
         List<Integer> fastCounts = filterActiveTraceBoList(dataPoints, counter);
         return createSampledTitledPoint(slot.getSlotName(), timestamp, fastCounts);
     }
@@ -83,20 +81,14 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
         return result;
     }
 
-    private AgentStatPoint<Integer> createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
+    private IntAgentStatPoint createSampledTitledPoint(String title, long timestamp, List<Integer> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        IntSummaryStatistics stats = values.stream()
+        TitledAgentStatPoint agentStatPoint = new TitledAgentStatPoint(title, timestamp, 1);
+        values.stream()
                 .mapToInt(Integer::intValue)
-                .summaryStatistics();
-        double avg = Precision.round(stats.getAverage(), 1);
-        return new TitledAgentStatPoint<>(
-                title,
-                timestamp,
-                stats.getMin(),
-                stats.getMax(),
-                avg,
-                (int) stats.getSum());
+                .forEach(agentStatPoint);
+        return agentStatPoint;
     }
 }

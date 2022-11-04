@@ -102,10 +102,10 @@ public class AgentTimeHistogramTest {
 
         List<DoubleApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
         Assertions.assertEquals(applicationStatPointList.size(), 2);
-        Assertions.assertEquals(applicationStatPointList.get(0).getXVal(), 0);
-        Assertions.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
-        Assertions.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
-        Assertions.assertEquals(applicationStatPointList.get(1).getYValForAvg(), 0.5, 0.001);
+        Assertions.assertEquals(applicationStatPointList.get(0).getTimestamp(), 0);
+        Assertions.assertEquals(applicationStatPointList.get(0).getDoubleFieldBo().getAvg(), 1.0, 0.001);
+        Assertions.assertEquals(applicationStatPointList.get(1).getTimestamp(), 1000 * 60);
+        Assertions.assertEquals(applicationStatPointList.get(1).getDoubleFieldBo().getAvg(), 0.5, 0.001);
     }
 
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {

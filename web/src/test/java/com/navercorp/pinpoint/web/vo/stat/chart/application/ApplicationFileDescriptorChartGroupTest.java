@@ -54,28 +54,25 @@ public class ApplicationFileDescriptorChartGroupTest {
         aggreFileDescriptorList.add(aggreJoinFileDescriptorBo4);
         aggreFileDescriptorList.add(aggreJoinFileDescriptorBo5);
 
-        ChartGroupBuilder<AggreJoinFileDescriptorBo, ApplicationStatPoint<Long>> builder = ApplicationFileDescriptorChart.newChartBuilder();
-        StatChartGroup<ApplicationStatPoint<Long>> applicationFileDescriptorChartGroup = builder.build(timeWindow, aggreFileDescriptorList);
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = applicationFileDescriptorChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinFileDescriptorBo, LongApplicationStatPoint> builder = ApplicationFileDescriptorChart.newChartBuilder();
+        StatChartGroup<LongApplicationStatPoint> applicationFileDescriptorChartGroup = builder.build(timeWindow, aggreFileDescriptorList);
+        Map<StatChartGroup.ChartType, Chart<LongApplicationStatPoint>> charts = applicationFileDescriptorChartGroup.getCharts();
         assertEquals(1, charts.size());
 
-        Chart<ApplicationStatPoint<Long>> fileDescriptorChart = charts.get(ApplicationFileDescriptorChart.FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT);
-        List<ApplicationStatPoint<Long>> fileDescriptorPoints = fileDescriptorChart.getPoints();
+        Chart<LongApplicationStatPoint> fileDescriptorChart = charts.get(ApplicationFileDescriptorChart.FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT);
+        List<LongApplicationStatPoint> fileDescriptorPoints = fileDescriptorChart.getPoints();
         assertEquals(5, fileDescriptorPoints.size());
         int index = fileDescriptorPoints.size();
 
-        for (ApplicationStatPoint<Long> point : fileDescriptorPoints) {
+        for (LongApplicationStatPoint point : fileDescriptorPoints) {
             testOpenFileDescriptor(point, aggreFileDescriptorList.get(--index));
         }
     }
 
-    private void testOpenFileDescriptor(ApplicationStatPoint<Long> fileDescriptorPoint, AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo) {
-        assertEquals(fileDescriptorPoint.getXVal(), aggreJoinFileDescriptorBo.getTimestamp());
+    private void testOpenFileDescriptor(LongApplicationStatPoint fileDescriptorPoint, AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo) {
+        assertEquals(fileDescriptorPoint.getTimestamp(), aggreJoinFileDescriptorBo.getTimestamp());
         final JoinLongFieldBo openFdCountJoinValue = aggreJoinFileDescriptorBo.getOpenFdCountJoinValue();
-        assertEquals(fileDescriptorPoint.getYValForAvg(), openFdCountJoinValue.getAvg(), 0);
-        assertEquals(fileDescriptorPoint.getYValForMin(), openFdCountJoinValue.getMin(), 0);
-        assertEquals(fileDescriptorPoint.getYValForMax(), openFdCountJoinValue.getMax(), 0);
-        assertEquals(fileDescriptorPoint.getAgentIdForMin(), openFdCountJoinValue.getMinAgentId());
-        assertEquals(fileDescriptorPoint.getAgentIdForMax(), openFdCountJoinValue.getMaxAgentId());
+        JoinLongFieldBo longFieldBo = fileDescriptorPoint.getLongFieldBo();
+        assertEquals(longFieldBo, openFdCountJoinValue);
     }
 }

@@ -29,20 +29,20 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationMemoryChart extends DefaultApplicationChart<AggreJoinMemoryBo, Double> {
+public class ApplicationMemoryChart extends DefaultApplicationChart<AggreJoinMemoryBo, DoubleApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<DoubleApplicationStatPoint> UNCOLLECTED_POINT
             = new DoubleApplicationStatPoint.UncollectedCreator(JoinMemoryBo.UNCOLLECTED_VALUE);
 
-    private static final ChartGroupBuilder<AggreJoinMemoryBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinMemoryBo, DoubleApplicationStatPoint> BUILDER = newChartBuilder();
 
     public enum MemoryChartType implements StatChartGroup.ApplicationChartType {
         MEMORY_HEAP,
         MEMORY_NON_HEAP
     }
 
-    static ChartGroupBuilder<AggreJoinMemoryBo, ApplicationStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinMemoryBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinMemoryBo, DoubleApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinMemoryBo, DoubleApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(MemoryChartType.MEMORY_HEAP, ApplicationMemoryChart::newHeap);
         builder.addPointFunction(MemoryChartType.MEMORY_NON_HEAP, ApplicationMemoryChart::newNonHeap);
         return builder;
@@ -53,13 +53,13 @@ public class ApplicationMemoryChart extends DefaultApplicationChart<AggreJoinMem
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Double> newHeap(AggreJoinMemoryBo memory) {
+    private static DoubleApplicationStatPoint newHeap(AggreJoinMemoryBo memory) {
         final JoinLongFieldBo heapUsedJoinValue = memory.getHeapUsedJoinValue();
         long timestamp = memory.getTimestamp();
         return StatPointUtils.longToDoubleStatPoint(timestamp, heapUsedJoinValue);
     }
 
-    private static ApplicationStatPoint<Double> newNonHeap(AggreJoinMemoryBo memory) {
+    private static DoubleApplicationStatPoint newNonHeap(AggreJoinMemoryBo memory) {
         final JoinLongFieldBo nonHeapUsedJoinValue = memory.getNonHeapUsedJoinValue();
         long timestamp = memory.getTimestamp();
         return StatPointUtils.longToDoubleStatPoint(timestamp, nonHeapUsedJoinValue);

@@ -58,7 +58,7 @@ public class TimeSeriesChartBuilderTest {
         }
 
         @Override
-        public long getXVal() {
+        public long getTimestamp() {
             return xVal;
         }
 

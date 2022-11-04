@@ -49,7 +49,7 @@ public class TFActiveTraceMapper implements FlinkStatMapper<ActiveTraceBo, TFAge
             return Collections.emptyList();
         }
 
-        List<Integer> activeTraceCountList = new ArrayList<>();
+        List<Integer> activeTraceCountList = new ArrayList<>(4);
         activeTraceCountList.add(0, activeTraceCountMap.getFastCount());
         activeTraceCountList.add(1, activeTraceCountMap.getNormalCount());
         activeTraceCountList.add(2, activeTraceCountMap.getSlowCount());

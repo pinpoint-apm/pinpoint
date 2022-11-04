@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view.agentstat;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 
 import java.io.IOException;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentStatPointSerializer extends JsonSerializer<AgentStatPoint<? extends Number>> {
+public class DoubleAgentStatPointSerializer extends JsonSerializer<DoubleAgentStatPoint> {
 
     @Override
-    public void serialize(AgentStatPoint<? extends Number> agentStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(DoubleAgentStatPoint agentStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
         jgen.writeStartArray();
-        jgen.writeObject(agentStatPoint.getMinYVal());
-        jgen.writeObject(agentStatPoint.getMaxYVal());
-        jgen.writeObject(agentStatPoint.getAvgYVal());
-        jgen.writeObject(agentStatPoint.getSumYVal());
+        jgen.writeObject(agentStatPoint.getMin());
+        jgen.writeObject(agentStatPoint.getMax());
+        jgen.writeObject(agentStatPoint.getAvg());
+        jgen.writeObject(agentStatPoint.getSum());
         jgen.writeEndArray();
     }
 }

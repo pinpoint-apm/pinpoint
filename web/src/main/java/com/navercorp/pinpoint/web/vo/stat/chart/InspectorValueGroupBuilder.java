@@ -25,7 +25,7 @@ public class InspectorValueGroupBuilder<P extends Point> {
     public InspectorValueGroup build(TimeWindow timeWindow, String groupName, List<P> sampledPoints) {
         List<P> points = createInitialPoints(timeWindow);
         for (P sampledPoint : sampledPoints) {
-            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getXVal());
+            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getTimestamp());
             if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
                 continue;
             }

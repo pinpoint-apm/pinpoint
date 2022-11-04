@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 
 import java.util.Objects;
 
@@ -28,32 +28,32 @@ import java.util.Objects;
 public class SampledDirectBuffer implements SampledAgentStatDataPoint {
 
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<LongAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
 
-    private final AgentStatPoint<Long> directCount;
-    private final AgentStatPoint<Long> directMemoryUsed;
-    private final AgentStatPoint<Long> mappedCount;
-    private final AgentStatPoint<Long> mappedMemoryUsed;
+    private final LongAgentStatPoint directCount;
+    private final LongAgentStatPoint directMemoryUsed;
+    private final LongAgentStatPoint mappedCount;
+    private final LongAgentStatPoint mappedMemoryUsed;
 
-    public SampledDirectBuffer(AgentStatPoint<Long> directCount, AgentStatPoint<Long> directMemoryUsed, AgentStatPoint<Long> mappedCount, AgentStatPoint<Long> mappedMemoryUsed) {
+    public SampledDirectBuffer(LongAgentStatPoint directCount, LongAgentStatPoint directMemoryUsed, LongAgentStatPoint mappedCount, LongAgentStatPoint mappedMemoryUsed) {
         this.directCount = Objects.requireNonNull(directCount, "directCount");
         this.directMemoryUsed = Objects.requireNonNull(directMemoryUsed, "directMemoryUsed");
         this.mappedCount = Objects.requireNonNull(mappedCount, "mappedCount");
         this.mappedMemoryUsed = Objects.requireNonNull(mappedMemoryUsed, "mappedMemoryUsed");
     }
-    public AgentStatPoint<Long> getDirectCount() {
+    public LongAgentStatPoint getDirectCount() {
         return directCount;
     }
 
-    public AgentStatPoint<Long> getDirectMemoryUsed() {
+    public LongAgentStatPoint getDirectMemoryUsed() {
         return directMemoryUsed;
     }
 
-    public AgentStatPoint<Long> getMappedCount() {
+    public LongAgentStatPoint getMappedCount() {
         return mappedCount;
     }
 
-    public AgentStatPoint<Long> getMappedMemoryUsed() {
+    public LongAgentStatPoint getMappedMemoryUsed() {
         return mappedMemoryUsed;
     }
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -56,27 +57,28 @@ public class ApplicationTransactionChartGroupTest {
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo4);
         aggreJoinTransactionBoList.add(aggreJoinTransactionBo5);
 
-        ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> builder = ApplicationTransactionChart.newChartBuilder();
-        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = builder.build(timeWindow, aggreJoinTransactionBoList);
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> charts = statChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinTransactionBo, DoubleApplicationStatPoint> builder = ApplicationTransactionChart.newChartBuilder();
+        StatChartGroup<DoubleApplicationStatPoint> statChartGroup = builder.build(timeWindow, aggreJoinTransactionBoList);
+        Map<StatChartGroup.ChartType, Chart<DoubleApplicationStatPoint>> charts = statChartGroup.getCharts();
 
-        Chart<ApplicationStatPoint<Double>> tranCountChart = charts.get(ApplicationTransactionChart.TransactionChartType.TRANSACTION_COUNT);
-        List<ApplicationStatPoint<Double>> tranCountPointList = tranCountChart.getPoints();
+        Chart<DoubleApplicationStatPoint> tranCountChart = charts.get(ApplicationTransactionChart.TransactionChartType.TRANSACTION_COUNT);
+        List<DoubleApplicationStatPoint> tranCountPointList = tranCountChart.getPoints();
         assertEquals(5, tranCountPointList.size());
         int index = tranCountPointList.size();
-        for (ApplicationStatPoint<Double> point : tranCountPointList) {
+        for (DoubleApplicationStatPoint point : tranCountPointList) {
             testTranCount(point, aggreJoinTransactionBoList.get(--index));
         }
 
     }
 
-    private void testTranCount(ApplicationStatPoint<Double> transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
+    private void testTranCount(DoubleApplicationStatPoint transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
         final JoinLongFieldBo totalCountJoinValue = aggreJoinTransactionBo.getTotalCountJoinValue();
-        assertEquals(transactionPoint.getYValForAvg(), calculateTPS(totalCountJoinValue.getAvg(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getYValForMin(), calculateTPS(totalCountJoinValue.getMin(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getYValForMax(), calculateTPS(totalCountJoinValue.getMax(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getAgentIdForMin(), totalCountJoinValue.getMinAgentId());
-        assertEquals(transactionPoint.getAgentIdForMax(), totalCountJoinValue.getMaxAgentId());
+        JoinDoubleFieldBo doubleFieldBo = transactionPoint.getDoubleFieldBo();
+        assertEquals(doubleFieldBo.getAvg(), calculateTPS(totalCountJoinValue.getAvg(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(doubleFieldBo.getMin(), calculateTPS(totalCountJoinValue.getMin(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(doubleFieldBo.getMax(), calculateTPS(totalCountJoinValue.getMax(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(doubleFieldBo.getMinAgentId(), totalCountJoinValue.getMinAgentId());
+        assertEquals(doubleFieldBo.getMaxAgentId(), totalCountJoinValue.getMaxAgentId());
     }
 
     private double calculateTPS(double value, long timeMs) {

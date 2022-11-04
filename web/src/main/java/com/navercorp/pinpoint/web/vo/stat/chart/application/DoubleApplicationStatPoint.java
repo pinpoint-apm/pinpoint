@@ -17,22 +17,48 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.view.DoubleApplicationStatSerializer;
+import com.navercorp.pinpoint.web.vo.chart.Point;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @JsonSerialize(using = DoubleApplicationStatSerializer.class)
-public class DoubleApplicationStatPoint extends ApplicationStatPoint<Double> {
+public class DoubleApplicationStatPoint implements Point {
 
-    public static final double UNCOLLECTED_VALUE = -1L;
+    public static final double UNCOLLECTED_VALUE = -1D;
 
-    public DoubleApplicationStatPoint(long xVal, Double yValForMin, String agentIdForMin, Double yValForMax, String agentIdForMax, Double yValForAvg) {
-        super(xVal, yValForMin, agentIdForMin, yValForMax, agentIdForMax, yValForAvg);
+    private final long xVal;
+
+    private final JoinDoubleFieldBo doubleFieldBo;
+
+    public DoubleApplicationStatPoint(long xVal, JoinDoubleFieldBo doubleFieldBo) {
+        this.xVal = xVal;
+        this.doubleFieldBo = Objects.requireNonNull(doubleFieldBo, "doubleFieldBo");
     }
 
-    public static class UncollectedCreator implements UncollectedPointCreator<ApplicationStatPoint<Double>> {
+    @Override
+    public long getTimestamp() {
+        return xVal;
+    }
+
+    public JoinDoubleFieldBo getDoubleFieldBo() {
+        return doubleFieldBo;
+    }
+
+    @Override
+    public String toString() {
+        return "DoubleApplicationStatPoint{" +
+                "xVal=" + xVal +
+                ", doubleFieldBo=" + doubleFieldBo +
+                '}';
+    }
+
+    public static class UncollectedCreator implements UncollectedPointCreator<DoubleApplicationStatPoint> {
 
         private final double uncollectedValue;
 
@@ -45,10 +71,9 @@ public class DoubleApplicationStatPoint extends ApplicationStatPoint<Double> {
         }
 
         @Override
-        public ApplicationStatPoint<Double> createUnCollectedPoint(long xVal) {
-            return new DoubleApplicationStatPoint(xVal, uncollectedValue,
-                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue,
-                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue);
+        public DoubleApplicationStatPoint createUnCollectedPoint(long xVal) {
+            JoinDoubleFieldBo empty = new JoinDoubleFieldBo(uncollectedValue, uncollectedValue, JoinStatBo.UNKNOWN_AGENT, uncollectedValue, JoinStatBo.UNKNOWN_AGENT);
+            return new DoubleApplicationStatPoint(xVal, empty);
         }
 
     }

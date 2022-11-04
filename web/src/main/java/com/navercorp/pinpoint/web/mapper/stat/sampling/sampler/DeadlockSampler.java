@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +36,7 @@ public class DeadlockSampler implements AgentStatSampler<DeadlockThreadCountBo, 
     public SampledDeadlock sampleDataPoints(int index, long timestamp, List<DeadlockThreadCountBo> deadlockThreadCountBoList, DeadlockThreadCountBo previousDataPoint) {
         List<Integer> deadlockedThreadCountList = filter(deadlockThreadCountBoList);
 
-        AgentStatPoint<Integer> point = createPoint(timestamp, deadlockedThreadCountList);
+        IntAgentStatPoint point = createPoint(timestamp, deadlockedThreadCountList);
         SampledDeadlock sampledDeadlock = new SampledDeadlock(point);
 
         return sampledDeadlock;
@@ -52,7 +51,7 @@ public class DeadlockSampler implements AgentStatSampler<DeadlockThreadCountBo, 
         return deadlockedThreadCountList;
     }
 
-    private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
+    private IntAgentStatPoint createPoint(long timestamp, List<Integer> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledDeadlock.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

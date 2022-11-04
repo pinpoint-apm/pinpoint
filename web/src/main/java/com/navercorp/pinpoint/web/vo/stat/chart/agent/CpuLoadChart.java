@@ -26,17 +26,17 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public class CpuLoadChart extends DefaultAgentChart<SampledCpuLoad, Double> {
+public class CpuLoadChart extends DefaultAgentChart<SampledCpuLoad, DoubleAgentStatPoint> {
 
     public enum CpuLoadChartType implements StatChartGroup.AgentChartType {
         CPU_LOAD_JVM,
         CPU_LOAD_SYSTEM
     }
 
-    private static final ChartGroupBuilder<SampledCpuLoad, AgentStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledCpuLoad, DoubleAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledCpuLoad, AgentStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<SampledCpuLoad, AgentStatPoint<Double>> builder = new ChartGroupBuilder<>(SampledCpuLoad.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledCpuLoad, DoubleAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledCpuLoad, DoubleAgentStatPoint> builder = new ChartGroupBuilder<>(SampledCpuLoad.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(CpuLoadChartType.CPU_LOAD_JVM, SampledCpuLoad::getJvmCpuLoad);
         builder.addPointFunction(CpuLoadChartType.CPU_LOAD_SYSTEM, SampledCpuLoad::getSystemCpuLoad);
         return builder;

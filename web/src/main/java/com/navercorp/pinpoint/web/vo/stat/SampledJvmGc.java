@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 
 /**
  * @author HyunGil Jeong
@@ -27,15 +27,15 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 public class SampledJvmGc implements SampledAgentStatDataPoint {
 
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<LongAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
 
     private JvmGcType jvmGcType;
-    private AgentStatPoint<Long> heapUsed;
-    private AgentStatPoint<Long> heapMax;
-    private AgentStatPoint<Long> nonHeapUsed;
-    private AgentStatPoint<Long> nonHeapMax;
-    private AgentStatPoint<Long> gcOldCount;
-    private AgentStatPoint<Long> gcOldTime;
+    private LongAgentStatPoint heapUsed;
+    private LongAgentStatPoint heapMax;
+    private LongAgentStatPoint nonHeapUsed;
+    private LongAgentStatPoint nonHeapMax;
+    private LongAgentStatPoint gcOldCount;
+    private LongAgentStatPoint gcOldTime;
 
     public JvmGcType getJvmGcType() {
         return jvmGcType;
@@ -45,51 +45,51 @@ public class SampledJvmGc implements SampledAgentStatDataPoint {
         this.jvmGcType = jvmGcType;
     }
 
-    public AgentStatPoint<Long> getHeapUsed() {
+    public LongAgentStatPoint getHeapUsed() {
         return heapUsed;
     }
 
-    public void setHeapUsed(AgentStatPoint<Long> heapUsed) {
+    public void setHeapUsed(LongAgentStatPoint heapUsed) {
         this.heapUsed = heapUsed;
     }
 
-    public AgentStatPoint<Long> getHeapMax() {
+    public LongAgentStatPoint getHeapMax() {
         return heapMax;
     }
 
-    public void setHeapMax(AgentStatPoint<Long> heapMax) {
+    public void setHeapMax(LongAgentStatPoint heapMax) {
         this.heapMax = heapMax;
     }
 
-    public AgentStatPoint<Long> getNonHeapUsed() {
+    public LongAgentStatPoint getNonHeapUsed() {
         return nonHeapUsed;
     }
 
-    public void setNonHeapUsed(AgentStatPoint<Long> nonHeapUsed) {
+    public void setNonHeapUsed(LongAgentStatPoint nonHeapUsed) {
         this.nonHeapUsed = nonHeapUsed;
     }
 
-    public AgentStatPoint<Long> getNonHeapMax() {
+    public LongAgentStatPoint getNonHeapMax() {
         return nonHeapMax;
     }
 
-    public void setNonHeapMax(AgentStatPoint<Long> nonHeapMax) {
+    public void setNonHeapMax(LongAgentStatPoint nonHeapMax) {
         this.nonHeapMax = nonHeapMax;
     }
 
-    public AgentStatPoint<Long> getGcOldCount() {
+    public LongAgentStatPoint getGcOldCount() {
         return gcOldCount;
     }
 
-    public void setGcOldCount(AgentStatPoint<Long> gcOldCount) {
+    public void setGcOldCount(LongAgentStatPoint gcOldCount) {
         this.gcOldCount = gcOldCount;
     }
 
-    public AgentStatPoint<Long> getGcOldTime() {
+    public LongAgentStatPoint getGcOldTime() {
         return gcOldTime;
     }
 
-    public void setGcOldTime(AgentStatPoint<Long> gcOldTime) {
+    public void setGcOldTime(LongAgentStatPoint gcOldTime) {
         this.gcOldTime = gcOldTime;
     }
 

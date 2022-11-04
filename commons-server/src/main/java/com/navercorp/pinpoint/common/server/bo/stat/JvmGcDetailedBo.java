@@ -19,14 +19,11 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcDetailedBo implements AgentStatDataPoint {
+public class JvmGcDetailedBo extends AbstractAgentStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
-    public static final double UNCOLLECTED_PERCENTAGE = -1;
+    public static final long UNCOLLECTED_VALUE = UNCOLLECTED_LONG;
+    public static final double UNCOLLECTED_PERCENTAGE = UNCOLLECTED_DOUBLE;
 
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private long gcNewCount = UNCOLLECTED_VALUE;
     private long gcNewTime = UNCOLLECTED_VALUE;
     private double codeCacheUsed = UNCOLLECTED_PERCENTAGE;
@@ -36,39 +33,8 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     private double permGenUsed = UNCOLLECTED_PERCENTAGE;
     private double metaspaceUsed = UNCOLLECTED_PERCENTAGE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public AgentStatType getAgentStatType() {
-        return AgentStatType.JVM_GC_DETAILED;
+    public JvmGcDetailedBo() {
+        super(AgentStatType.JVM_GC_DETAILED);
     }
 
     public long getGcNewCount() {
@@ -139,11 +105,10 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         JvmGcDetailedBo that = (JvmGcDetailedBo) o;
 
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
         if (gcNewCount != that.gcNewCount) return false;
         if (gcNewTime != that.gcNewTime) return false;
         if (Double.compare(that.codeCacheUsed, codeCacheUsed) != 0) return false;
@@ -151,18 +116,13 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
         if (Double.compare(that.oldGenUsed, oldGenUsed) != 0) return false;
         if (Double.compare(that.survivorSpaceUsed, survivorSpaceUsed) != 0) return false;
         if (Double.compare(that.permGenUsed, permGenUsed) != 0) return false;
-        if (Double.compare(that.metaspaceUsed, metaspaceUsed) != 0) return false;
-        return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
-
+        return Double.compare(that.metaspaceUsed, metaspaceUsed) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result;
+        int result = super.hashCode();
         long temp;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (int) (gcNewCount ^ (gcNewCount >>> 32));
         result = 31 * result + (int) (gcNewTime ^ (gcNewTime >>> 32));
         temp = Double.doubleToLongBits(codeCacheUsed);
@@ -183,10 +143,7 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     @Override
     public String toString() {
         return "JvmGcDetailedBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
-                ", gcNewCount=" + gcNewCount +
+                "gcNewCount=" + gcNewCount +
                 ", gcNewTime=" + gcNewTime +
                 ", codeCacheUsed=" + codeCacheUsed +
                 ", newGenUsed=" + newGenUsed +
@@ -194,6 +151,6 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
                 ", survivorSpaceUsed=" + survivorSpaceUsed +
                 ", permGenUsed=" + permGenUsed +
                 ", metaspaceUsed=" + metaspaceUsed +
-                '}';
+                "} " + super.toString();
     }
 }

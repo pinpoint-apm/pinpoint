@@ -18,19 +18,19 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 
 import java.util.Objects;
 
 public class SampledLoadedClassCount implements SampledAgentStatDataPoint {
 
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<LongAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
 
-    private final AgentStatPoint<Long> loadedClassCount;
-    private final AgentStatPoint<Long> unloadedClassCount;
+    private final LongAgentStatPoint loadedClassCount;
+    private final LongAgentStatPoint unloadedClassCount;
 
-    public SampledLoadedClassCount(AgentStatPoint<Long> loadedClassCount, AgentStatPoint<Long> unloadedClassCount) {
+    public SampledLoadedClassCount(LongAgentStatPoint loadedClassCount, LongAgentStatPoint unloadedClassCount) {
         this.loadedClassCount = Objects.requireNonNull(loadedClassCount, "directCount");
         this.unloadedClassCount = Objects.requireNonNull(unloadedClassCount, "directMemoryUsed");
     }
@@ -44,7 +44,7 @@ public class SampledLoadedClassCount implements SampledAgentStatDataPoint {
         return sb.toString();
     }
 
-    public AgentStatPoint<Long> getUnloadedClassCount() { return unloadedClassCount; }
+    public LongAgentStatPoint getUnloadedClassCount() { return unloadedClassCount; }
 
-    public AgentStatPoint<Long> getLoadedClassCount() { return loadedClassCount; }
+    public LongAgentStatPoint getLoadedClassCount() { return loadedClassCount; }
 }

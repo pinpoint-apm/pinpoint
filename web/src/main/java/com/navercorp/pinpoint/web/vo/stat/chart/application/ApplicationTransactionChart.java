@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -30,19 +31,19 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationTransactionChart extends DefaultApplicationChart<AggreJoinTransactionBo, Double> {
+public class ApplicationTransactionChart extends DefaultApplicationChart<AggreJoinTransactionBo, DoubleApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<DoubleApplicationStatPoint> UNCOLLECTED_POINT
             = new DoubleApplicationStatPoint.UncollectedCreator(JoinTransactionBo.UNCOLLECTED_VALUE);
 
     public enum TransactionChartType implements StatChartGroup.ApplicationChartType {
         TRANSACTION_COUNT
     }
 
-    private static final ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinTransactionBo, DoubleApplicationStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinTransactionBo, DoubleApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinTransactionBo, DoubleApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(TransactionChartType.TRANSACTION_COUNT, ApplicationTransactionChart::newTransactionPoint);
         return builder;
     }
@@ -51,12 +52,13 @@ public class ApplicationTransactionChart extends DefaultApplicationChart<AggreJo
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Double> newTransactionPoint(AggreJoinTransactionBo transaction) {
+    private static DoubleApplicationStatPoint newTransactionPoint(AggreJoinTransactionBo transaction) {
         final JoinLongFieldBo totalCountJoinValue = transaction.getTotalCountJoinValue();
         double minTotalCount = calculateTPS(totalCountJoinValue.getMin(), transaction.getCollectInterval());
         double maxTotalCount = calculateTPS(totalCountJoinValue.getMax(), transaction.getCollectInterval());
         double totalCount = calculateTPS(totalCountJoinValue.getAvg(), transaction.getCollectInterval());
-        return new DoubleApplicationStatPoint(transaction.getTimestamp(), minTotalCount, totalCountJoinValue.getMinAgentId(), maxTotalCount, totalCountJoinValue.getMaxAgentId(), totalCount);
+        JoinDoubleFieldBo doubleFieldBo = new JoinDoubleFieldBo(totalCount, minTotalCount, totalCountJoinValue.getMinAgentId(), maxTotalCount, totalCountJoinValue.getMaxAgentId());
+        return new DoubleApplicationStatPoint(transaction.getTimestamp(), doubleFieldBo);
     }
 
     private static double calculateTPS(double value, long timeMs) {

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 
 import java.util.Objects;
 
@@ -28,17 +28,17 @@ import java.util.Objects;
 public class SampledTransaction implements SampledAgentStatDataPoint {
 
     public static final double UNCOLLECTED_VALUE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<DoubleAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_VALUE);
 
-    private final AgentStatPoint<Double> sampledNew;
-    private final AgentStatPoint<Double> sampledContinuation;
-    private final AgentStatPoint<Double> unsampledNew;
-    private final AgentStatPoint<Double> unsampledContinuation;
-    private final AgentStatPoint<Double> skippedNew;
-    private final AgentStatPoint<Double> skippedContinuation;
-    private final AgentStatPoint<Double> total;
+    private final DoubleAgentStatPoint sampledNew;
+    private final DoubleAgentStatPoint sampledContinuation;
+    private final DoubleAgentStatPoint unsampledNew;
+    private final DoubleAgentStatPoint unsampledContinuation;
+    private final DoubleAgentStatPoint skippedNew;
+    private final DoubleAgentStatPoint skippedContinuation;
+    private final DoubleAgentStatPoint total;
 
-    public SampledTransaction(AgentStatPoint<Double> sampledNew, AgentStatPoint<Double> sampledContinuation, AgentStatPoint<Double> unsampledNew, AgentStatPoint<Double> unsampledContinuation, AgentStatPoint<Double> skippedNew, AgentStatPoint<Double> skippedContinuation, AgentStatPoint<Double> total) {
+    public SampledTransaction(DoubleAgentStatPoint sampledNew, DoubleAgentStatPoint sampledContinuation, DoubleAgentStatPoint unsampledNew, DoubleAgentStatPoint unsampledContinuation, DoubleAgentStatPoint skippedNew, DoubleAgentStatPoint skippedContinuation, DoubleAgentStatPoint total) {
         this.sampledNew = Objects.requireNonNull(sampledNew, "sampledNew");
         this.sampledContinuation = Objects.requireNonNull(sampledContinuation, "sampledContinuation");
         this.unsampledNew = Objects.requireNonNull(unsampledNew, "unsampledNew");
@@ -48,31 +48,31 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
         this.total = Objects.requireNonNull(total, "total");
     }
 
-    public AgentStatPoint<Double> getSampledNew() {
+    public DoubleAgentStatPoint getSampledNew() {
         return sampledNew;
     }
 
-    public AgentStatPoint<Double> getSampledContinuation() {
+    public DoubleAgentStatPoint getSampledContinuation() {
         return sampledContinuation;
     }
 
-    public AgentStatPoint<Double> getUnsampledNew() {
+    public DoubleAgentStatPoint getUnsampledNew() {
         return unsampledNew;
     }
 
-    public AgentStatPoint<Double> getUnsampledContinuation() {
+    public DoubleAgentStatPoint getUnsampledContinuation() {
         return unsampledContinuation;
     }
 
-    public AgentStatPoint<Double> getTotal() {
+    public DoubleAgentStatPoint getTotal() {
         return total;
     }
 
-    public AgentStatPoint<Double> getSkippedNew() {
+    public DoubleAgentStatPoint getSkippedNew() {
         return skippedNew;
     }
 
-    public AgentStatPoint<Double> getSkippedContinuation() {
+    public DoubleAgentStatPoint getSkippedContinuation() {
         return skippedContinuation;
     }
 

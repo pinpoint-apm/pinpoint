@@ -18,27 +18,30 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.TitledAgentStatPointSerializer;
+import org.apache.commons.math3.util.Precision;
 
 /**
  * @author HyunGil Jeong
  */
 @JsonSerialize(using = TitledAgentStatPointSerializer.class)
-public class TitledAgentStatPoint<Y extends Number> extends AgentStatPoint<Y> {
+public class TitledAgentStatPoint extends IntAgentStatPoint {
 
     private final String title;
+    private int avgRound;
 
-    public TitledAgentStatPoint(String title, long xVal, Y yVal) {
-        super(xVal, yVal);
+    public TitledAgentStatPoint(String title, long xVal, int avgRound) {
+        super(xVal);
         this.title = title;
-    }
-
-    public TitledAgentStatPoint(String title, long xVal, Y minYVal, Y maxYVal, Double avgYVal, Y sumYVal) {
-        super(xVal, minYVal, maxYVal, avgYVal, sumYVal);
-        this.title = title;
+        this.avgRound = avgRound;
     }
 
     public String getTitle() {
         return title;
+    }
+
+    @Override
+    public double getAvg() {
+        return Precision.round(super.getAvg(), avgRound);
     }
 
     @Override
@@ -47,7 +50,7 @@ public class TitledAgentStatPoint<Y extends Number> extends AgentStatPoint<Y> {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        TitledAgentStatPoint<?> that = (TitledAgentStatPoint<?>) o;
+        TitledAgentStatPoint that = (TitledAgentStatPoint) o;
 
         return title != null ? title.equals(that.title) : that.title == null;
     }

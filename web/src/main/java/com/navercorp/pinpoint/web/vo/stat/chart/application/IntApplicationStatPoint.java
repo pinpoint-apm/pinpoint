@@ -17,22 +17,47 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.view.IntApplicationStatSerializer;
+import com.navercorp.pinpoint.web.vo.chart.Point;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @JsonSerialize(using = IntApplicationStatSerializer.class)
-public class IntApplicationStatPoint extends ApplicationStatPoint<Integer> {
+public class IntApplicationStatPoint implements Point {
 
     public static final int UNCOLLECTED_VALUE = -1;
 
-    public IntApplicationStatPoint(long xVal, Integer yValForMin, String agentIdForMin, Integer yValForMax, String agentIdForMax, Integer yValForAvg) {
-        super(xVal, yValForMin, agentIdForMin, yValForMax, agentIdForMax, yValForAvg);
+    private final long xVal;
+    private final JoinIntFieldBo intFieldBo;
+
+    public IntApplicationStatPoint(long xVal, JoinIntFieldBo intFieldBo) {
+        this.xVal = xVal;
+        this.intFieldBo = Objects.requireNonNull(intFieldBo, "intFieldBo");
     }
 
-    public static class UncollectedCreator implements UncollectedPointCreator<ApplicationStatPoint<Integer>> {
+    @Override
+    public long getTimestamp() {
+        return xVal;
+    }
+
+    public JoinIntFieldBo getIntFieldBo() {
+        return intFieldBo;
+    }
+
+    @Override
+    public String toString() {
+        return "IntApplicationStatPoint{" +
+                "xVal=" + xVal +
+                ", intFieldBo=" + intFieldBo +
+                '}';
+    }
+
+    public static class UncollectedCreator implements UncollectedPointCreator<IntApplicationStatPoint> {
 
         private final int uncollectedValue;
 
@@ -45,10 +70,9 @@ public class IntApplicationStatPoint extends ApplicationStatPoint<Integer> {
         }
 
         @Override
-        public ApplicationStatPoint<Integer> createUnCollectedPoint(long xVal) {
-            return new IntApplicationStatPoint(xVal, uncollectedValue,
-                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue,
-                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue);
+        public IntApplicationStatPoint createUnCollectedPoint(long xVal) {
+            JoinIntFieldBo empty = new JoinIntFieldBo(uncollectedValue, uncollectedValue, JoinStatBo.UNKNOWN_AGENT, uncollectedValue, JoinStatBo.UNKNOWN_AGENT);
+            return new IntApplicationStatPoint(xVal, empty);
         }
 
     }

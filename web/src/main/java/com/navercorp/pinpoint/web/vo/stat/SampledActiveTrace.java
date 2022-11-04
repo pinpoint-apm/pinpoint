@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.IntAgentStatPoint;
 
 import java.util.Objects;
 
@@ -28,34 +28,34 @@ import java.util.Objects;
 public class SampledActiveTrace implements SampledAgentStatDataPoint {
 
     public static final int UNCOLLECTED_COUNT = -1;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(UNCOLLECTED_COUNT);
+    public static final Point.UncollectedPointCreator<IntAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(UNCOLLECTED_COUNT);
 
-    private final AgentStatPoint<Integer> fastCounts;
-    private final AgentStatPoint<Integer> normalCounts;
-    private final AgentStatPoint<Integer> slowCounts;
-    private final AgentStatPoint<Integer> verySlowCounts;
+    private final IntAgentStatPoint fastCounts;
+    private final IntAgentStatPoint normalCounts;
+    private final IntAgentStatPoint slowCounts;
+    private final IntAgentStatPoint verySlowCounts;
 
-    public SampledActiveTrace(AgentStatPoint<Integer> fastCounts, AgentStatPoint<Integer> normalCounts, AgentStatPoint<Integer> slowCounts, AgentStatPoint<Integer> verySlowCounts) {
+    public SampledActiveTrace(IntAgentStatPoint fastCounts, IntAgentStatPoint normalCounts, IntAgentStatPoint slowCounts, IntAgentStatPoint verySlowCounts) {
         this.fastCounts = Objects.requireNonNull(fastCounts, "fastCounts");
         this.normalCounts = Objects.requireNonNull(normalCounts, "normalCounts");
         this.slowCounts = Objects.requireNonNull(slowCounts, "slowCounts");
         this.verySlowCounts = Objects.requireNonNull(verySlowCounts, "verySlowCounts");
     }
 
-    public AgentStatPoint<Integer> getFastCounts() {
+    public IntAgentStatPoint getFastCounts() {
         return fastCounts;
     }
 
-    public AgentStatPoint<Integer> getNormalCounts() {
+    public IntAgentStatPoint getNormalCounts() {
         return normalCounts;
     }
 
-    public AgentStatPoint<Integer> getSlowCounts() {
+    public IntAgentStatPoint getSlowCounts() {
         return slowCounts;
     }
 
 
-    public AgentStatPoint<Integer> getVerySlowCounts() {
+    public IntAgentStatPoint getVerySlowCounts() {
         return verySlowCounts;
     }
 

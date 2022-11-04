@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -53,34 +54,31 @@ public class ApplicationMemoryChartGroupTest {
         aggreJoinMemoryList.add(aggreJoinMemoryBo4);
         aggreJoinMemoryList.add(aggreJoinMemoryBo5);
 
-        ChartGroupBuilder<AggreJoinMemoryBo, ApplicationStatPoint<Double>> builder = ApplicationMemoryChart.newChartBuilder();
-        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = builder.build(timeWindow, aggreJoinMemoryList);
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> charts = statChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinMemoryBo, DoubleApplicationStatPoint> builder = ApplicationMemoryChart.newChartBuilder();
+        StatChartGroup<DoubleApplicationStatPoint> statChartGroup = builder.build(timeWindow, aggreJoinMemoryList);
+        Map<StatChartGroup.ChartType, Chart<DoubleApplicationStatPoint>> charts = statChartGroup.getCharts();
 
-        Chart<ApplicationStatPoint<Double>> heapChart = charts.get(ApplicationMemoryChart.MemoryChartType.MEMORY_HEAP);
-        List<ApplicationStatPoint<Double>> heapPoints = heapChart.getPoints();
+        Chart<DoubleApplicationStatPoint> heapChart = charts.get(ApplicationMemoryChart.MemoryChartType.MEMORY_HEAP);
+        List<DoubleApplicationStatPoint> heapPoints = heapChart.getPoints();
         assertEquals(5, heapPoints.size());
         int index = heapPoints.size();
-        for (ApplicationStatPoint<Double> point : heapPoints) {
+        for (DoubleApplicationStatPoint point : heapPoints) {
             testHeap(point, aggreJoinMemoryList.get(--index));
         }
 
-        Chart<ApplicationStatPoint<Double>> nonHeapChart = charts.get(ApplicationMemoryChart.MemoryChartType.MEMORY_NON_HEAP);
-        List<ApplicationStatPoint<Double>> nonHeapPoints = heapChart.getPoints();
+        Chart<DoubleApplicationStatPoint> nonHeapChart = charts.get(ApplicationMemoryChart.MemoryChartType.MEMORY_NON_HEAP);
+        List<DoubleApplicationStatPoint> nonHeapPoints = heapChart.getPoints();
         assertEquals(5, nonHeapPoints.size());
         index = nonHeapPoints.size();
-        for (ApplicationStatPoint<Double> point : nonHeapPoints) {
+        for (DoubleApplicationStatPoint point : nonHeapPoints) {
             testHeap(point, aggreJoinMemoryList.get(--index));
         }
     }
 
-    private void testHeap(ApplicationStatPoint<Double> memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
+    private void testHeap(DoubleApplicationStatPoint memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
         final JoinLongFieldBo heapUsedJoinValue = aggreJoinMemoryBo.getHeapUsedJoinValue();
-        assertEquals(memoryPoint.getYValForAvg(), heapUsedJoinValue.getAvg(), 0);
-        assertEquals(memoryPoint.getYValForMin(), heapUsedJoinValue.getMin(), 0);
-        assertEquals(memoryPoint.getYValForMax(), heapUsedJoinValue.getMax(), 0);
-        assertEquals(memoryPoint.getAgentIdForMin(), heapUsedJoinValue.getMinAgentId());
-        assertEquals(memoryPoint.getAgentIdForMax(), heapUsedJoinValue.getMaxAgentId());
+        JoinDoubleFieldBo doubleFieldBo = memoryPoint.getDoubleFieldBo();
+        assertEquals(doubleFieldBo, StatPointUtils.toDoubleFieldBo(heapUsedJoinValue));
     }
 
 }

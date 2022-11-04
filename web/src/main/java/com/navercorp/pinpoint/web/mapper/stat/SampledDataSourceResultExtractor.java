@@ -76,7 +76,7 @@ public class SampledDataSourceResultExtractor implements ResultsExtractor<List<S
                     continue;
                 }
                 DataSourceBo first = CollectionUtils.firstElement(dataPoint.getList());
-                if(first != null) {
+                if (first != null) {
                     int id = first.getId();
 
                     List<DataSourceBo> dataSourceBoList = dataSourceBoListMap.computeIfAbsent(id, k -> new ArrayList<>());

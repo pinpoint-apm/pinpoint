@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 
 import java.util.Objects;
 
@@ -28,22 +29,22 @@ import java.util.Objects;
 public class SampledJvmGcDetailed implements SampledAgentStatDataPoint {
 
     public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Long>> UNCOLLECTED_VALUE_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<LongAgentStatPoint> UNCOLLECTED_VALUE_POINT_CREATOR = UncollectedPointCreatorFactory.createLongPointCreator(UNCOLLECTED_VALUE);
 
     public static final Double UNCOLLECTED_PERCENTAGE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_PERCENTAGE_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_VALUE);
+    public static final Point.UncollectedPointCreator<DoubleAgentStatPoint> UNCOLLECTED_PERCENTAGE_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_VALUE);
 
-    private final AgentStatPoint<Long> gcNewCount;
-    private final AgentStatPoint<Long> gcNewTime;
-    private final AgentStatPoint<Double> codeCacheUsed;
-    private final AgentStatPoint<Double> newGenUsed;
-    private final AgentStatPoint<Double> oldGenUsed;
-    private final AgentStatPoint<Double> survivorSpaceUsed;
-    private final AgentStatPoint<Double> permGenUsed;
-    private final AgentStatPoint<Double> metaspaceUsed;
+    private final LongAgentStatPoint gcNewCount;
+    private final LongAgentStatPoint gcNewTime;
+    private final DoubleAgentStatPoint codeCacheUsed;
+    private final DoubleAgentStatPoint newGenUsed;
+    private final DoubleAgentStatPoint oldGenUsed;
+    private final DoubleAgentStatPoint survivorSpaceUsed;
+    private final DoubleAgentStatPoint permGenUsed;
+    private final DoubleAgentStatPoint metaspaceUsed;
 
-    public SampledJvmGcDetailed(AgentStatPoint<Long> gcNewCount, AgentStatPoint<Long> gcNewTime, AgentStatPoint<Double> codeCacheUsed, AgentStatPoint<Double> newGenUsed,
-                                AgentStatPoint<Double> oldGenUsed, AgentStatPoint<Double> survivorSpaceUsed, AgentStatPoint<Double> permGenUsed, AgentStatPoint<Double> metaspaceUsed) {
+    public SampledJvmGcDetailed(LongAgentStatPoint gcNewCount, LongAgentStatPoint gcNewTime, DoubleAgentStatPoint codeCacheUsed, DoubleAgentStatPoint newGenUsed,
+                                DoubleAgentStatPoint oldGenUsed, DoubleAgentStatPoint survivorSpaceUsed, DoubleAgentStatPoint permGenUsed, DoubleAgentStatPoint metaspaceUsed) {
         this.gcNewCount = Objects.requireNonNull(gcNewCount, "gcNewCount");
         this.gcNewTime = Objects.requireNonNull(gcNewTime, "gcNewTime");
         this.codeCacheUsed = Objects.requireNonNull(codeCacheUsed, "codeCacheUsed");
@@ -54,35 +55,35 @@ public class SampledJvmGcDetailed implements SampledAgentStatDataPoint {
         this.metaspaceUsed = Objects.requireNonNull(metaspaceUsed, "metaspaceUsed");
     }
 
-    public AgentStatPoint<Long> getGcNewCount() {
+    public LongAgentStatPoint getGcNewCount() {
         return gcNewCount;
     }
 
-    public AgentStatPoint<Long> getGcNewTime() {
+    public LongAgentStatPoint getGcNewTime() {
         return gcNewTime;
     }
 
-    public AgentStatPoint<Double> getCodeCacheUsed() {
+    public DoubleAgentStatPoint getCodeCacheUsed() {
         return codeCacheUsed;
     }
 
-    public AgentStatPoint<Double> getNewGenUsed() {
+    public DoubleAgentStatPoint getNewGenUsed() {
         return newGenUsed;
     }
 
-    public AgentStatPoint<Double> getOldGenUsed() {
+    public DoubleAgentStatPoint getOldGenUsed() {
         return oldGenUsed;
     }
 
-    public AgentStatPoint<Double> getSurvivorSpaceUsed() {
+    public DoubleAgentStatPoint getSurvivorSpaceUsed() {
         return survivorSpaceUsed;
     }
 
-    public AgentStatPoint<Double> getPermGenUsed() {
+    public DoubleAgentStatPoint getPermGenUsed() {
         return permGenUsed;
     }
 
-    public AgentStatPoint<Double> getMetaspaceUsed() {
+    public DoubleAgentStatPoint getMetaspaceUsed() {
         return metaspaceUsed;
     }
 

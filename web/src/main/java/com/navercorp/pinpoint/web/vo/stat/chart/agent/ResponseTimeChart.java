@@ -27,17 +27,17 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class ResponseTimeChart extends DefaultAgentChart<SampledResponseTime, Long> {
+public class ResponseTimeChart extends DefaultAgentChart<SampledResponseTime, LongAgentStatPoint> {
 
     public enum ResponseTimeChartType implements StatChartGroup.AgentChartType {
         AVG,
         MAX
     }
 
-    private static final ChartGroupBuilder<SampledResponseTime, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledResponseTime, LongAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledResponseTime, AgentStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<SampledResponseTime, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledResponseTime, LongAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledResponseTime, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledLoadedClassCount.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(ResponseTimeChartType.AVG, SampledResponseTime::getAvg);
         builder.addPointFunction(ResponseTimeChartType.MAX, SampledResponseTime::getMax);
         return builder;

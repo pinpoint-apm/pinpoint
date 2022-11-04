@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.web.vo.stat.chart.application.LongApplicationStatPoint;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.LongApplicationStatPoint;
 
 import java.io.IOException;
 
@@ -32,11 +32,12 @@ public class LongApplicationStatSerializer extends JsonSerializer<LongApplicatio
     @Override
     public void serialize(LongApplicationStatPoint longApplicationStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
         jgen.writeStartArray();
-        jgen.writeNumber(longApplicationStatPoint.getYValForMin());
-        jgen.writeString(longApplicationStatPoint.getAgentIdForMin());
-        jgen.writeNumber(longApplicationStatPoint.getYValForMax());
-        jgen.writeString(longApplicationStatPoint.getAgentIdForMax());
-        jgen.writeNumber(longApplicationStatPoint.getYValForAvg());
+        JoinLongFieldBo longFieldBo = longApplicationStatPoint.getLongFieldBo();
+        jgen.writeNumber(longFieldBo.getMin());
+        jgen.writeString(longFieldBo.getMinAgentId());
+        jgen.writeNumber(longFieldBo.getMax());
+        jgen.writeString(longFieldBo.getMaxAgentId());
+        jgen.writeNumber(longFieldBo.getAvg());
         jgen.writeEndArray();
     }
 }

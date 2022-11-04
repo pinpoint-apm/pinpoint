@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -36,10 +35,10 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
     @Override
     public SampledResponseTime sampleDataPoints(int timeWindowIndex, long timestamp, List<ResponseTimeBo> dataPoints, ResponseTimeBo previousDataPoint) {
         List<Long> avgs = getAvg(dataPoints);
-        AgentStatPoint<Long> avg = createPoint(timestamp, avgs);
+        LongAgentStatPoint avg = createPoint(timestamp, avgs);
 
         List<Long> maxs = getMax(dataPoints);
-        AgentStatPoint<Long> max = createPoint(timestamp, maxs);
+        LongAgentStatPoint max = createPoint(timestamp, maxs);
 
         SampledResponseTime sampledResponseTime = new SampledResponseTime(avg, max);
         return sampledResponseTime;
@@ -61,7 +60,7 @@ public class ResponseTimeSampler implements AgentStatSampler<ResponseTimeBo, Sam
         return maxs;
     }
 
-    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createPoint(long timestamp, List<Long> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledResponseTime.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

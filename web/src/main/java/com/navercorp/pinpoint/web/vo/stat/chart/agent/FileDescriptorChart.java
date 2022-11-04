@@ -26,16 +26,16 @@ import java.util.List;
 /**
  * @author Roy Kim
  */
-public class FileDescriptorChart extends DefaultAgentChart<SampledFileDescriptor, Long> {
+public class FileDescriptorChart extends DefaultAgentChart<SampledFileDescriptor, LongAgentStatPoint> {
 
     public enum FileDescriptorChartType implements StatChartGroup.AgentChartType {
         OPEN_FILE_DESCRIPTOR_COUNT
     }
 
-    private static final ChartGroupBuilder<SampledFileDescriptor, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledFileDescriptor, LongAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledFileDescriptor, AgentStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<SampledFileDescriptor, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledFileDescriptor, LongAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledFileDescriptor, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, SampledFileDescriptor::getOpenFileDescriptorCount);
         return builder;
     }

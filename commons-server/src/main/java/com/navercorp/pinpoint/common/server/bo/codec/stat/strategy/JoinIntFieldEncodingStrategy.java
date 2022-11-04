@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.stat.join.AbstractJoinFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 
 import java.util.ArrayList;
@@ -65,19 +64,19 @@ public class JoinIntFieldEncodingStrategy implements JoinEncodingStrategy<JoinIn
 
     @Override
     public void encodeValues(Buffer buffer, List<JoinIntFieldBo> values) {
-        final List<Integer> avgValues = mapping(values, AbstractJoinFieldBo::getAvg);
+        final List<Integer> avgValues = mapping(values, JoinIntFieldBo::getAvg);
         avgValueStrategy.encodeValues(buffer, avgValues);
 
-        final List<Integer> minValues = mapping(values, AbstractJoinFieldBo::getMin);
+        final List<Integer> minValues = mapping(values, JoinIntFieldBo::getMin);
         minValueStrategy.encodeValues(buffer, minValues);
 
-        final List<String> minAgentIds = mapping(values, AbstractJoinFieldBo::getMinAgentId);
+        final List<String> minAgentIds = mapping(values, JoinIntFieldBo::getMinAgentId);
         minAgentIdStrategy.encodeValues(buffer, minAgentIds);
 
-        final List<Integer> maxValues = mapping(values, AbstractJoinFieldBo::getMax);
+        final List<Integer> maxValues = mapping(values, JoinIntFieldBo::getMax);
         maxValueStrategy.encodeValues(buffer, maxValues);
 
-        final List<String> maxAgentIds = mapping(values, AbstractJoinFieldBo::getMaxAgentId);
+        final List<String> maxAgentIds = mapping(values, JoinIntFieldBo::getMaxAgentId);
         maxAgentIdStrategy.encodeValues(buffer, maxAgentIds);
     }
 

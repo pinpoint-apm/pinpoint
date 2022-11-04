@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFDataSource;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -36,11 +36,10 @@ public class TFDataSourceListBoMapper implements FlinkStatMapper<DataSourceListB
 
     public TFDataSourceList map(DataSourceListBo dataSourceListBo) {
         List<DataSourceBo> dataSourceBoList = dataSourceListBo.getList();
-        List<TFDataSource> dataSourceList = new ArrayList<>(dataSourceBoList.size());
 
-        for (DataSourceBo dataSourceBo : dataSourceBoList) {
-            dataSourceList.add(tFDataSourceBoMapper.map(dataSourceBo));
-        }
+        List<TFDataSource> dataSourceList = dataSourceBoList.stream().
+                map(tFDataSourceBoMapper::map)
+                .collect(Collectors.toList());
 
         TFDataSourceList tFDataSourceList = new TFDataSourceList();
         tFDataSourceList.setDataSourceList(dataSourceList);

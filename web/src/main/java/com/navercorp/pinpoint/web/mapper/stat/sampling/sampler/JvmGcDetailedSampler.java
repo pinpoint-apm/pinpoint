@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -38,21 +39,21 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
 
     @Override
     public SampledJvmGcDetailed sampleDataPoints(int timeWindowIndex, long timestamp, List<JvmGcDetailedBo> dataPoints, JvmGcDetailedBo previousDataPoint) {
-        AgentStatPoint<Long> gcNewCounts = newLongPoint(timestamp, dataPoints, JvmGcDetailedBo::getGcNewCount);
-        AgentStatPoint<Long> gcNewTimes = newLongPoint(timestamp, dataPoints, JvmGcDetailedBo::getGcNewTime);
-        AgentStatPoint<Double> codeCacheUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getCodeCacheUsed);
-        AgentStatPoint<Double> newGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getNewGenUsed);
-        AgentStatPoint<Double> oldGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getOldGenUsed);
-        AgentStatPoint<Double> survivorSpaceUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getSurvivorSpaceUsed);
-        AgentStatPoint<Double> permGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getPermGenUsed);
-        AgentStatPoint<Double> metaspaceUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getMetaspaceUsed);
+        LongAgentStatPoint gcNewCounts = newLongPoint(timestamp, dataPoints, JvmGcDetailedBo::getGcNewCount);
+        LongAgentStatPoint gcNewTimes = newLongPoint(timestamp, dataPoints, JvmGcDetailedBo::getGcNewTime);
+        DoubleAgentStatPoint codeCacheUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getCodeCacheUsed);
+        DoubleAgentStatPoint newGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getNewGenUsed);
+        DoubleAgentStatPoint oldGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getOldGenUsed);
+        DoubleAgentStatPoint survivorSpaceUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getSurvivorSpaceUsed);
+        DoubleAgentStatPoint permGenUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getPermGenUsed);
+        DoubleAgentStatPoint metaspaceUseds = newDoublePoint(timestamp, dataPoints, JvmGcDetailedBo::getMetaspaceUsed);
 
         SampledJvmGcDetailed sampledJvmGcDetailed = new SampledJvmGcDetailed(gcNewCounts, gcNewTimes, codeCacheUseds, newGenUseds,
                 oldGenUseds, survivorSpaceUseds, permGenUseds, metaspaceUseds);
         return sampledJvmGcDetailed;
     }
 
-    private AgentStatPoint<Long> newLongPoint(long timestamp, List<JvmGcDetailedBo> dataPoints, ToLongFunction<JvmGcDetailedBo> filter) {
+    private LongAgentStatPoint newLongPoint(long timestamp, List<JvmGcDetailedBo> dataPoints, ToLongFunction<JvmGcDetailedBo> filter) {
         List<Long> filteredList = longFilter(dataPoints, filter);
         return createLongPoint(timestamp, filteredList);
     }
@@ -68,7 +69,7 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
         return result;
     }
 
-    private AgentStatPoint<Double> newDoublePoint(long timestamp, List<JvmGcDetailedBo> dataPoints, ToDoubleFunction<JvmGcDetailedBo> filter) {
+    private DoubleAgentStatPoint newDoublePoint(long timestamp, List<JvmGcDetailedBo> dataPoints, ToDoubleFunction<JvmGcDetailedBo> filter) {
         List<Double> filteredList = doubleFilter(dataPoints, filter);
         return createDoublePoint(timestamp, filteredList);
     }
@@ -86,14 +87,14 @@ public class JvmGcDetailedSampler implements AgentStatSampler<JvmGcDetailedBo, S
     }
 
 
-    private AgentStatPoint<Long> createLongPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createLongPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
             return SampledJvmGcDetailed.UNCOLLECTED_VALUE_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
         return AgentStatPointSummary.longSummary(timestamp, values);
     }
 
-    private AgentStatPoint<Double> createDoublePoint(long timestamp, List<Double> values) {
+    private DoubleAgentStatPoint createDoublePoint(long timestamp, List<Double> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledJvmGcDetailed.UNCOLLECTED_PERCENTAGE_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

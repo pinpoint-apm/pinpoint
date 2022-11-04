@@ -48,7 +48,7 @@ public class DeadlockChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDeadlock> sampledDeadlockList = createSampledResponseTimeList(timeWindow);
-        StatChart<AgentStatPoint<Integer>> deadlockChartGroup = new DeadlockChart(timeWindow, sampledDeadlockList);
+        StatChart<IntAgentStatPoint> deadlockChartGroup = new DeadlockChart(timeWindow, sampledDeadlockList);
 
         assertEquals(sampledDeadlockList, deadlockChartGroup.getCharts());
     }
@@ -81,15 +81,15 @@ public class DeadlockChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, deadlockThreadCountBoList, null);
     }
 
-    private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup<AgentStatPoint<Integer>> deadlockChartGroup) {
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> charts = deadlockChartGroup.getCharts();
+    private void assertEquals(List<SampledDeadlock> sampledDeadlockList, StatChartGroup<IntAgentStatPoint> deadlockChartGroup) {
+        Map<StatChartGroup.ChartType, Chart<IntAgentStatPoint>> charts = deadlockChartGroup.getCharts();
 
-        Chart<AgentStatPoint<Integer>> deadlockCountChart = charts.get(DeadlockChart.DeadlockChartType.DEADLOCK_COUNT);
-        List<AgentStatPoint<Integer>> deadlockCountChartPointList = deadlockCountChart.getPoints();
+        Chart<IntAgentStatPoint> deadlockCountChart = charts.get(DeadlockChart.DeadlockChartType.DEADLOCK_COUNT);
+        List<IntAgentStatPoint> deadlockCountChartPointList = deadlockCountChart.getPoints();
 
         for (int i = 0; i < sampledDeadlockList.size(); i++) {
             SampledDeadlock sampledDeadlock = sampledDeadlockList.get(i);
-            AgentStatPoint<Integer> point = sampledDeadlock.getDeadlockedThreadCount();
+            IntAgentStatPoint point = sampledDeadlock.getDeadlockedThreadCount();
 
             Assertions.assertEquals(deadlockCountChartPointList.get(i), point);
         }

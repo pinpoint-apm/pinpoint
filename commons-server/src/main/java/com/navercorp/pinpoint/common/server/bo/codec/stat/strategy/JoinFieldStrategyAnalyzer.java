@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public interface JoinFieldStrategyAnalyzer<T extends JoinFieldBo<? extends Number>> {
+public interface JoinFieldStrategyAnalyzer<T extends JoinFieldBo> {
 
     EncodingStrategy<T> getBestStrategy();
 
     List<T> getValues();
 
-    interface JoinFieldStrategyAnalyzerBuilder<T extends JoinFieldBo<? extends Number>> {
+    interface JoinFieldStrategyAnalyzerBuilder<T extends JoinFieldBo> {
 
         JoinFieldStrategyAnalyzerBuilder<T> addValue(T value);
 

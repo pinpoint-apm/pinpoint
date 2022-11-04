@@ -19,13 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class TransactionBo implements AgentStatDataPoint {
+public class TransactionBo extends AbstractAgentStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
+    public static final long UNCOLLECTED_VALUE = UNCOLLECTED_LONG;
 
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private long collectInterval = UNCOLLECTED_VALUE;
     private long sampledNewCount = UNCOLLECTED_VALUE;
     private long sampledContinuationCount = UNCOLLECTED_VALUE;
@@ -34,39 +31,9 @@ public class TransactionBo implements AgentStatDataPoint {
     private long skippedNewSkipCount = UNCOLLECTED_VALUE;
     private long skippedContinuationCount = UNCOLLECTED_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
 
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public AgentStatType getAgentStatType() {
-        return AgentStatType.TRANSACTION;
+    public TransactionBo() {
+        super(AgentStatType.TRANSACTION);
     }
 
     public long getCollectInterval() {
@@ -129,27 +96,22 @@ public class TransactionBo implements AgentStatDataPoint {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         TransactionBo that = (TransactionBo) o;
 
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
         if (collectInterval != that.collectInterval) return false;
         if (sampledNewCount != that.sampledNewCount) return false;
         if (sampledContinuationCount != that.sampledContinuationCount) return false;
         if (unsampledNewCount != that.unsampledNewCount) return false;
         if (unsampledContinuationCount != that.unsampledContinuationCount) return false;
         if (skippedNewSkipCount != that.skippedNewSkipCount) return false;
-        if (skippedContinuationCount != that.skippedContinuationCount) return false;
-        return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
-
+        return skippedContinuationCount == that.skippedContinuationCount;
     }
 
     @Override
     public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        int result = super.hashCode();
         result = 31 * result + (int) (collectInterval ^ (collectInterval >>> 32));
         result = 31 * result + (int) (sampledNewCount ^ (sampledNewCount >>> 32));
         result = 31 * result + (int) (sampledContinuationCount ^ (sampledContinuationCount >>> 32));
@@ -162,18 +124,14 @@ public class TransactionBo implements AgentStatDataPoint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TransactionBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", collectInterval=").append(collectInterval);
-        sb.append(", sampledNewCount=").append(sampledNewCount);
-        sb.append(", sampledContinuationCount=").append(sampledContinuationCount);
-        sb.append(", unsampledNewCount=").append(unsampledNewCount);
-        sb.append(", unsampledContinuationCount=").append(unsampledContinuationCount);
-        sb.append(", skippedNewSkipCount=").append(skippedNewSkipCount);
-        sb.append(", skippedContinuationCount=").append(skippedContinuationCount);
-        sb.append('}');
-        return sb.toString();
+        return "TransactionBo{" +
+                "collectInterval=" + collectInterval +
+                ", sampledNewCount=" + sampledNewCount +
+                ", sampledContinuationCount=" + sampledContinuationCount +
+                ", unsampledNewCount=" + unsampledNewCount +
+                ", unsampledContinuationCount=" + unsampledContinuationCount +
+                ", skippedNewSkipCount=" + skippedNewSkipCount +
+                ", skippedContinuationCount=" + skippedContinuationCount +
+                "} " + super.toString();
     }
 }

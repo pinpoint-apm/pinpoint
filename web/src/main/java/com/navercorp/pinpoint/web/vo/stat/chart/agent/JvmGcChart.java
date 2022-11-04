@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcChart extends DefaultAgentChart<SampledJvmGc, Long> {
+public class JvmGcChart extends DefaultAgentChart<SampledJvmGc, LongAgentStatPoint> {
 
     public enum JvmGcChartType implements StatChartGroup.AgentChartType {
         JVM_MEMORY_HEAP_USED,
@@ -37,10 +37,10 @@ public class JvmGcChart extends DefaultAgentChart<SampledJvmGc, Long> {
         JVM_GC_OLD_TIME
     }
 
-    private static final ChartGroupBuilder<SampledJvmGc, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledJvmGc, LongAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledJvmGc, AgentStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<SampledJvmGc, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledJvmGc.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledJvmGc, LongAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledJvmGc, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledJvmGc.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(JvmGcChartType.JVM_MEMORY_HEAP_USED, SampledJvmGc::getHeapUsed);
         builder.addPointFunction(JvmGcChartType.JVM_MEMORY_HEAP_MAX, SampledJvmGc::getHeapMax);
         builder.addPointFunction(JvmGcChartType.JVM_MEMORY_NON_HEAP_USED, SampledJvmGc::getNonHeapUsed);

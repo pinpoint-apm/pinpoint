@@ -54,26 +54,24 @@ public class ApplicationActiveTraceChartGroupTest {
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo4);
         aggreJoinActiveTraceBoList.add(aggreJoinActiveTraceBo5);
 
-        ChartGroupBuilder<AggreJoinActiveTraceBo, ApplicationStatPoint<Integer>> builder = ApplicationActiveTraceChart.newChartBuilder();
-        StatChartGroup<ApplicationStatPoint<Integer>> statChartGroup = builder.build(timeWindow, aggreJoinActiveTraceBoList);
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Integer>>> charts = statChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinActiveTraceBo, IntApplicationStatPoint> builder = ApplicationActiveTraceChart.newChartBuilder();
+        StatChartGroup<IntApplicationStatPoint> statChartGroup = builder.build(timeWindow, aggreJoinActiveTraceBoList);
+        Map<StatChartGroup.ChartType, Chart<IntApplicationStatPoint>> charts = statChartGroup.getCharts();
 
-        Chart<ApplicationStatPoint<Integer>> activeTraceChart = charts.get(ApplicationActiveTraceChart.ActiveTraceChartType.ACTIVE_TRACE_COUNT);
-        List<ApplicationStatPoint<Integer>> activeTracePointList = activeTraceChart.getPoints();
+        Chart<IntApplicationStatPoint> activeTraceChart = charts.get(ApplicationActiveTraceChart.ActiveTraceChartType.ACTIVE_TRACE_COUNT);
+        List<IntApplicationStatPoint> activeTracePointList = activeTraceChart.getPoints();
         assertEquals(5, activeTracePointList.size());
         int index = activeTracePointList.size();
-        for (ApplicationStatPoint<Integer> point : activeTracePointList) {
+        for (IntApplicationStatPoint point : activeTracePointList) {
             testActiveTraceCount(point, aggreJoinActiveTraceBoList.get(--index));
         }
     }
 
-    private void testActiveTraceCount(ApplicationStatPoint<Integer> activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
+    private void testActiveTraceCount(IntApplicationStatPoint activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
         final JoinIntFieldBo totalCountJoinValue = aggreJoinActiveTraceBo.getTotalCountJoinValue();
-        assertEquals(activeTracePoint.getYValForAvg(), totalCountJoinValue.getAvg());
-        assertEquals(activeTracePoint.getYValForMin(), totalCountJoinValue.getMin());
-        assertEquals(activeTracePoint.getYValForMax(), totalCountJoinValue.getMax());
-        assertEquals(activeTracePoint.getAgentIdForMin(), totalCountJoinValue.getMinAgentId());
-        assertEquals(activeTracePoint.getAgentIdForMax(), totalCountJoinValue.getMaxAgentId());
+
+        JoinIntFieldBo intFieldBo = activeTracePoint.getIntFieldBo();
+        assertEquals(intFieldBo, totalCountJoinValue);
     }
 
 }

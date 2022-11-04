@@ -165,7 +165,7 @@ public class JoinApplicationStatBoTest {
         JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo(id, currentTime + 5000, 4000 + plus, 1000 + plus, 7000 + plus, id + "_1", id + "_2", 400 + plus, 150 + plus, 600 + plus, id + "_3", id + "_4");
         JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo(id, currentTime + 10000, 5000 + plus, 3000 + plus, 8000 + plus, id + "_1", id + "_2", 200 + plus, 100 + plus, 200 + plus, id + "_3", id + "_4");
         JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo(id, currentTime + 15000, 1000 + plus, 100 + plus, 3000 + plus, id + "_1", id + "_2", 100 + plus, 900 + plus, 1000 + plus, id + "_3", id + "_4");
-        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(id, currentTime + +20000, 2000 + plus, 1000 + plus, 6000 + plus, id + "_1", id + "_2", 300 + plus, 100 + plus, 2900 + plus, id + "_3", id + "_4");
+        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(id, currentTime + 20000, 2000 + plus, 1000 + plus, 6000 + plus, id + "_1", id + "_2", 300 + plus, 100 + plus, 2900 + plus, id + "_3", id + "_4");
 
         joinMemoryBoList.add(joinMemoryBo1);
         joinMemoryBoList.add(joinMemoryBo2);
@@ -263,11 +263,11 @@ public class JoinApplicationStatBoTest {
         List<JoinMemoryBo> joinMemoryBoList = joinApplicationStatBo.getJoinMemoryBoList();
         joinMemoryBoList.sort(Comparator.comparingLong(JoinMemoryBo::getTimestamp));
         assertEquals(joinMemoryBoList.size(), 5);
-        assertEquals((long) joinMemoryBoList.get(0).getHeapUsedJoinValue().getAvg(), 4000);
-        assertEquals((long) joinMemoryBoList.get(1).getHeapUsedJoinValue().getAvg(), 2000);
-        assertEquals((long) joinMemoryBoList.get(2).getHeapUsedJoinValue().getAvg(), 4000);
-        assertEquals((long) joinMemoryBoList.get(3).getHeapUsedJoinValue().getAvg(), 8800);
-        assertEquals((long) joinMemoryBoList.get(4).getHeapUsedJoinValue().getAvg(), 7800);
+        assertEquals(joinMemoryBoList.get(0).getHeapUsedJoinValue().getAvg(), 4000);
+        assertEquals(joinMemoryBoList.get(1).getHeapUsedJoinValue().getAvg(), 2000);
+        assertEquals(joinMemoryBoList.get(2).getHeapUsedJoinValue().getAvg(), 4000);
+        assertEquals(joinMemoryBoList.get(3).getHeapUsedJoinValue().getAvg(), 8800);
+        assertEquals(joinMemoryBoList.get(4).getHeapUsedJoinValue().getAvg(), 7800);
     }
 
     @Test
@@ -381,11 +381,11 @@ public class JoinApplicationStatBoTest {
         List<JoinTransactionBo> joinTransactionBoList = joinApplicationStatBo.getJoinTransactionBoList();
         joinTransactionBoList.sort(Comparator.comparingLong(JoinTransactionBo::getTimestamp));
         assertEquals(joinTransactionBoList.size(), 5);
-        assertEquals((long) joinTransactionBoList.get(0).getTotalCountJoinValue().getAvg(), 100);
-        assertEquals((long) joinTransactionBoList.get(1).getTotalCountJoinValue().getAvg(), 200);
-        assertEquals((long) joinTransactionBoList.get(2).getTotalCountJoinValue().getAvg(), 300);
-        assertEquals((long) joinTransactionBoList.get(3).getTotalCountJoinValue().getAvg(), 400);
-        assertEquals((long) joinTransactionBoList.get(4).getTotalCountJoinValue().getAvg(), 30);
+        assertEquals(joinTransactionBoList.get(0).getTotalCountJoinValue().getAvg(), 100);
+        assertEquals(joinTransactionBoList.get(1).getTotalCountJoinValue().getAvg(), 200);
+        assertEquals(joinTransactionBoList.get(2).getTotalCountJoinValue().getAvg(), 300);
+        assertEquals(joinTransactionBoList.get(3).getTotalCountJoinValue().getAvg(), 400);
+        assertEquals(joinTransactionBoList.get(4).getTotalCountJoinValue().getAvg(), 30);
     }
 
     @Test
@@ -442,11 +442,11 @@ public class JoinApplicationStatBoTest {
         List<JoinActiveTraceBo> joinActiveTraceBoList = joinApplicationStatBo.getJoinActiveTraceBoList();
         joinActiveTraceBoList.sort(Comparator.comparingLong(JoinActiveTraceBo::getTimestamp));
         assertEquals(joinActiveTraceBoList.size(), 5);
-        assertEquals((int) joinActiveTraceBoList.get(0).getTotalCountJoinValue().getAvg(), 100);
-        assertEquals((int) joinActiveTraceBoList.get(1).getTotalCountJoinValue().getAvg(), 200);
-        assertEquals((int) joinActiveTraceBoList.get(2).getTotalCountJoinValue().getAvg(), 300);
-        assertEquals((int) joinActiveTraceBoList.get(3).getTotalCountJoinValue().getAvg(), 400);
-        assertEquals((int) joinActiveTraceBoList.get(4).getTotalCountJoinValue().getAvg(), 30);
+        assertEquals(joinActiveTraceBoList.get(0).getTotalCountJoinValue().getAvg(), 100);
+        assertEquals(joinActiveTraceBoList.get(1).getTotalCountJoinValue().getAvg(), 200);
+        assertEquals(joinActiveTraceBoList.get(2).getTotalCountJoinValue().getAvg(), 300);
+        assertEquals(joinActiveTraceBoList.get(3).getTotalCountJoinValue().getAvg(), 400);
+        assertEquals(joinActiveTraceBoList.get(4).getTotalCountJoinValue().getAvg(), 30);
     }
 
 
@@ -543,7 +543,6 @@ public class JoinApplicationStatBoTest {
 
         joinApplicationStatBoList.add(joinApplicationStatBo1.build());
 
-        List<JoinResponseTimeBo> joinResponseTimeBoList2 = new ArrayList<>();
         JoinResponseTimeBo joinResponseTimeBo2_1 = new JoinResponseTimeBo("agent1", 1498462545000L, 50, 20, "agent1", 230, "agent1");
         JoinResponseTimeBo joinResponseTimeBo2_2 = new JoinResponseTimeBo("agent2", 1498462550000L, 200, 60, "agent2", 400, "agent2");
         JoinResponseTimeBo joinResponseTimeBo2_3 = new JoinResponseTimeBo("agent3", 1498462555000L, 500, 10, "agent3", 100, "agent3");
@@ -574,11 +573,11 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinResponseTimeBoList.size(), 5);
 
 
-        assertEquals((long) joinResponseTimeBoList.get(0).getResponseTimeJoinValue().getAvg(), 100);
-        assertEquals((long) joinResponseTimeBoList.get(1).getResponseTimeJoinValue().getAvg(), 200);
-        assertEquals((long) joinResponseTimeBoList.get(2).getResponseTimeJoinValue().getAvg(), 300);
-        assertEquals((long) joinResponseTimeBoList.get(3).getResponseTimeJoinValue().getAvg(), 400);
-        assertEquals((long) joinResponseTimeBoList.get(4).getResponseTimeJoinValue().getAvg(), 30);
+        assertEquals(joinResponseTimeBoList.get(0).getResponseTimeJoinValue().getAvg(), 100);
+        assertEquals(joinResponseTimeBoList.get(1).getResponseTimeJoinValue().getAvg(), 200);
+        assertEquals(joinResponseTimeBoList.get(2).getResponseTimeJoinValue().getAvg(), 300);
+        assertEquals(joinResponseTimeBoList.get(3).getResponseTimeJoinValue().getAvg(), 400);
+        assertEquals(joinResponseTimeBoList.get(4).getResponseTimeJoinValue().getAvg(), 30);
     }
 
     private void assertJoinResponseTimeBoList(List<JoinResponseTimeBo> joinResponseTimeBoList) {
@@ -707,15 +706,15 @@ public class JoinApplicationStatBoTest {
         List<JoinDataSourceListBo> joinDataSourceListBoList = joinApplicationStatBo.getJoinDataSourceListBoList();
         joinDataSourceListBoList.sort(Comparator.comparingLong(JoinDataSourceListBo::getTimestamp));
         assertEquals(joinDataSourceListBoList.size(), 5);
-        assertEquals((int) joinDataSourceListBoList.get(0).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 100);
+        assertEquals(joinDataSourceListBoList.get(0).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 100);
         assertEquals(joinDataSourceListBoList.get(0).getJoinDataSourceBoList().size(), 1);
-        assertEquals((int) joinDataSourceListBoList.get(1).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 200);
+        assertEquals(joinDataSourceListBoList.get(1).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 200);
         assertEquals(joinDataSourceListBoList.get(1).getJoinDataSourceBoList().size(), 1);
-        assertEquals((int) joinDataSourceListBoList.get(2).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 300);
+        assertEquals(joinDataSourceListBoList.get(2).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 300);
         assertEquals(joinDataSourceListBoList.get(2).getJoinDataSourceBoList().size(), 1);
-        assertEquals((int) joinDataSourceListBoList.get(3).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 400);
+        assertEquals(joinDataSourceListBoList.get(3).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 400);
         assertEquals(joinDataSourceListBoList.get(3).getJoinDataSourceBoList().size(), 1);
-        assertEquals((int) joinDataSourceListBoList.get(4).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 30);
+        assertEquals(joinDataSourceListBoList.get(4).getJoinDataSourceBoList().get(0).getActiveConnectionSizeJoinValue().getAvg(), 30);
         assertEquals(joinDataSourceListBoList.get(4).getJoinDataSourceBoList().size(), 1);
     }
 
@@ -1119,7 +1118,7 @@ public class JoinApplicationStatBoTest {
     @Test
     public void createJoinApplicationStatBoTest() {
 
-        JoinAgentStatBo.Builder builder = JoinAgentStatBo.newBuilder("Agent", Long.MIN_VALUE, 1498462565000L);
+        JoinAgentStatBo.Builder builder = JoinAgentStatBo.newBuilder("Agent", Long.MIN_VALUE,  1498462565000L);
 
         JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo("agent1", 44, 70, "agent1", 30, "agent1", 50, 60, "agent1", 33, "agent1", 1498462565000L);
         JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo("agent1", 33, 40, "agent1", 10, "agent1", 20, 78, "agent1", 12, "agent1", 1498462570000L);

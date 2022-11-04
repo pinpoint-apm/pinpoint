@@ -25,19 +25,19 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
 
-public class ApplicationTotalThreadCountChart extends DefaultApplicationChart<AggreJoinTotalThreadCountBo, Long> {
+public class ApplicationTotalThreadCountChart extends DefaultApplicationChart<AggreJoinTotalThreadCountBo, LongApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Long>> UNCOLLECTED_POINT
+    private static final Point.UncollectedPointCreator<LongApplicationStatPoint> UNCOLLECTED_POINT
             = new LongApplicationStatPoint.UncollectedCreator(AggreJoinTotalThreadCountBo.UNCOLLECTED_VALUE);
 
-    private static final ChartGroupBuilder<AggreJoinTotalThreadCountBo, ApplicationStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<AggreJoinTotalThreadCountBo, LongApplicationStatPoint> BUILDER = newChartBuilder();
 
     public enum TotalThreadCountChartType implements StatChartGroup.ApplicationChartType {
         TOTAL_THREAD_COUNT
     }
 
-    static ChartGroupBuilder<AggreJoinTotalThreadCountBo, ApplicationStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<AggreJoinTotalThreadCountBo, ApplicationStatPoint<Long>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<AggreJoinTotalThreadCountBo, LongApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinTotalThreadCountBo, LongApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(TotalThreadCountChartType.TOTAL_THREAD_COUNT, ApplicationTotalThreadCountChart::newTotalThreadCount);
         return builder;
     }
@@ -46,7 +46,7 @@ public class ApplicationTotalThreadCountChart extends DefaultApplicationChart<Ag
         super(timeWindow, appStatList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Long> newTotalThreadCount(AggreJoinTotalThreadCountBo totalThreadCountBo) {
+    private static LongApplicationStatPoint newTotalThreadCount(AggreJoinTotalThreadCountBo totalThreadCountBo) {
         final JoinLongFieldBo totalThreadCountJoinValue = totalThreadCountBo.getTotalThreadCountJoinValue();
         long timestamp = totalThreadCountBo.getTimestamp();
         return StatPointUtils.toLongStatPoint(timestamp, totalThreadCountJoinValue);

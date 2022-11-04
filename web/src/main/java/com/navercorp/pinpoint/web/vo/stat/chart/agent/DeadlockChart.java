@@ -26,16 +26,16 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class DeadlockChart extends DefaultAgentChart<SampledDeadlock, Integer> {
+public class DeadlockChart extends DefaultAgentChart<SampledDeadlock, IntAgentStatPoint> {
 
     public enum DeadlockChartType implements StatChartGroup.AgentChartType {
         DEADLOCK_COUNT
     }
 
-    private static final ChartGroupBuilder<SampledDeadlock, AgentStatPoint<Integer>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledDeadlock, IntAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledDeadlock, AgentStatPoint<Integer>> newChartBuilder() {
-        ChartGroupBuilder<SampledDeadlock, AgentStatPoint<Integer>> builder = new ChartGroupBuilder<>(SampledDeadlock.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledDeadlock, IntAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledDeadlock, IntAgentStatPoint> builder = new ChartGroupBuilder<>(SampledDeadlock.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(DeadlockChartType.DEADLOCK_COUNT, SampledDeadlock::getDeadlockedThreadCount);
         return builder;
     }

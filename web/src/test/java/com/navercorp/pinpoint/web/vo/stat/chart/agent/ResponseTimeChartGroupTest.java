@@ -52,7 +52,7 @@ public class ResponseTimeChartGroupTest {
         List<SampledResponseTime> sampledResponseTimeList = createSampledResponseTimeList(timeWindow);
 
         ResponseTimeChart responseTimeChart = new ResponseTimeChart(timeWindow, sampledResponseTimeList);
-        StatChartGroup<AgentStatPoint<Long>> responseTimeChartGroup = responseTimeChart.getCharts();
+        StatChartGroup<LongAgentStatPoint> responseTimeChartGroup = responseTimeChart.getCharts();
 
         assertEquals(sampledResponseTimeList, responseTimeChartGroup);
     }
@@ -87,11 +87,11 @@ public class ResponseTimeChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, responseTimeBoList, null);
     }
 
-    private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, StatChartGroup<AgentStatPoint<Long>> responseTimeChartGroup) {
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Long>>> charts = responseTimeChartGroup.getCharts();
+    private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, StatChartGroup<LongAgentStatPoint> responseTimeChartGroup) {
+        Map<StatChartGroup.ChartType, Chart<LongAgentStatPoint>> charts = responseTimeChartGroup.getCharts();
 
-        Chart<AgentStatPoint<Long>> avgChart = charts.get(ResponseTimeChart.ResponseTimeChartType.AVG);
-        List<AgentStatPoint<Long>> avgChartPointList = avgChart.getPoints();
+        Chart<LongAgentStatPoint> avgChart = charts.get(ResponseTimeChart.ResponseTimeChartType.AVG);
+        List<LongAgentStatPoint> avgChartPointList = avgChart.getPoints();
         for (int i = 0; i < sampledResponseTimeList.size(); i++) {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
             Point point = sampledResponseTime.getAvg();
@@ -99,11 +99,11 @@ public class ResponseTimeChartGroupTest {
             Assertions.assertEquals(avgChartPointList.get(i), point);
         }
 
-        Chart<AgentStatPoint<Long>> maxChart = charts.get(ResponseTimeChart.ResponseTimeChartType.MAX);
-        List<AgentStatPoint<Long>> maxChartPointList = maxChart.getPoints();
+        Chart<LongAgentStatPoint> maxChart = charts.get(ResponseTimeChart.ResponseTimeChartType.MAX);
+        List<LongAgentStatPoint> maxChartPointList = maxChart.getPoints();
         for (int i = 0; i < sampledResponseTimeList.size(); i++) {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
-            AgentStatPoint<Long> point = sampledResponseTime.getMax();
+            LongAgentStatPoint point = sampledResponseTime.getMax();
 
             Assertions.assertEquals(maxChartPointList.get(i), point);
         }

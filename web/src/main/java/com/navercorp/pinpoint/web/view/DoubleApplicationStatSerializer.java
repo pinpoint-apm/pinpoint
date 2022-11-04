@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
 
 import java.io.IOException;
 
@@ -32,11 +32,12 @@ public class DoubleApplicationStatSerializer extends JsonSerializer<DoubleApplic
     @Override
     public void serialize(DoubleApplicationStatPoint doubleApplicationStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
         jgen.writeStartArray();
-        jgen.writeNumber(doubleApplicationStatPoint.getYValForMin());
-        jgen.writeString(doubleApplicationStatPoint.getAgentIdForMin());
-        jgen.writeNumber(doubleApplicationStatPoint.getYValForMax());
-        jgen.writeString(doubleApplicationStatPoint.getAgentIdForMax());
-        jgen.writeNumber(doubleApplicationStatPoint.getYValForAvg());
+        JoinDoubleFieldBo doubleFieldBo = doubleApplicationStatPoint.getDoubleFieldBo();
+        jgen.writeNumber(doubleFieldBo.getMin());
+        jgen.writeString(doubleFieldBo.getMinAgentId());
+        jgen.writeNumber(doubleFieldBo.getMax());
+        jgen.writeString(doubleFieldBo.getMaxAgentId());
+        jgen.writeNumber(doubleFieldBo.getAvg());
         jgen.writeEndArray();
     }
 }

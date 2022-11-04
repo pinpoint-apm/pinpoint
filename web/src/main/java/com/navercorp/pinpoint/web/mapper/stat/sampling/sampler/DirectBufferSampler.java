@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledDirectBuffer;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
@@ -35,16 +35,16 @@ public class DirectBufferSampler implements AgentStatSampler<DirectBufferBo, Sam
 
     @Override
     public SampledDirectBuffer sampleDataPoints(int timeWindowIndex, long timestamp, List<DirectBufferBo> dataPoints, DirectBufferBo previousDataPoint) {
-        final AgentStatPoint<Long> directCount = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getDirectCount);
-        final AgentStatPoint<Long> directMemoryUsed = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getDirectMemoryUsed);
-        final AgentStatPoint<Long> mappedCount = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getMappedCount);
-        final AgentStatPoint<Long> mappedMemoryUsed = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getMappedMemoryUsed);
+        final LongAgentStatPoint directCount = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getDirectCount);
+        final LongAgentStatPoint directMemoryUsed = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getDirectMemoryUsed);
+        final LongAgentStatPoint mappedCount = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getMappedCount);
+        final LongAgentStatPoint mappedMemoryUsed = newAgentStatPoint(timestamp, dataPoints, DirectBufferBo::getMappedMemoryUsed);
 
         SampledDirectBuffer sampledDirectBuffer = new SampledDirectBuffer(directCount, directMemoryUsed, mappedCount, mappedMemoryUsed);
         return sampledDirectBuffer;
     }
 
-    private AgentStatPoint<Long> newAgentStatPoint(long timestamp, List<DirectBufferBo> dataPoints, ToLongFunction<DirectBufferBo> filter) {
+    private LongAgentStatPoint newAgentStatPoint(long timestamp, List<DirectBufferBo> dataPoints, ToLongFunction<DirectBufferBo> filter) {
         List<Long> directBuffers = filter(dataPoints, filter);
         return createPoint(timestamp, directBuffers);
     }
@@ -60,7 +60,7 @@ public class DirectBufferSampler implements AgentStatSampler<DirectBufferBo, Sam
         return result;
     }
 
-    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createPoint(long timestamp, List<Long> values) {
         if (CollectionUtils.isEmpty(values)) {
             return SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

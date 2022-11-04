@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.LongAgentStatPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -35,13 +35,13 @@ public class FileDescriptorSampler implements AgentStatSampler<FileDescriptorBo,
 
     @Override
     public SampledFileDescriptor sampleDataPoints(int timeWindowIndex, long timestamp, List<FileDescriptorBo> dataPoints, FileDescriptorBo previousDataPoint) {
-        final AgentStatPoint<Long> openFileDescriptorCount = newAgentStatPoint(timestamp, dataPoints, FileDescriptorBo::getOpenFileDescriptorCount);
+        final LongAgentStatPoint openFileDescriptorCount = newAgentStatPoint(timestamp, dataPoints, FileDescriptorBo::getOpenFileDescriptorCount);
 
         SampledFileDescriptor sampledFileDescriptor = new SampledFileDescriptor(openFileDescriptorCount);
         return sampledFileDescriptor;
     }
 
-    private AgentStatPoint<Long> newAgentStatPoint(long timestamp, List<FileDescriptorBo> dataPoints, ToLongFunction<FileDescriptorBo> filter) {
+    private LongAgentStatPoint newAgentStatPoint(long timestamp, List<FileDescriptorBo> dataPoints, ToLongFunction<FileDescriptorBo> filter) {
         List<Long> fileDescriptors = filter(dataPoints, filter);
         return createPoint(timestamp, fileDescriptors);
     }
@@ -57,7 +57,7 @@ public class FileDescriptorSampler implements AgentStatSampler<FileDescriptorBo,
         return result;
     }
 
-    private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
+    private LongAgentStatPoint createPoint(long timestamp, List<Long> values) {
         if (values.isEmpty()) {
             return SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }

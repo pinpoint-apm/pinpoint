@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Roy Kim
  */
-public class DirectBufferChart extends DefaultAgentChart<SampledDirectBuffer, Long> {
+public class DirectBufferChart extends DefaultAgentChart<SampledDirectBuffer, LongAgentStatPoint> {
 
     public enum DirectBufferChartType implements StatChartGroup.AgentChartType {
         DIRECT_COUNT,
@@ -35,10 +35,10 @@ public class DirectBufferChart extends DefaultAgentChart<SampledDirectBuffer, Lo
         MAPPED_MEMORY_USED
     }
 
-    private static final ChartGroupBuilder<SampledDirectBuffer, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledDirectBuffer, LongAgentStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledDirectBuffer, AgentStatPoint<Long>> newChartBuilder() {
-        ChartGroupBuilder<SampledDirectBuffer, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR);
+    static ChartGroupBuilder<SampledDirectBuffer, LongAgentStatPoint> newChartBuilder() {
+        ChartGroupBuilder<SampledDirectBuffer, LongAgentStatPoint> builder = new ChartGroupBuilder<>(SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR);
         builder.addPointFunction(DirectBufferChartType.DIRECT_COUNT, SampledDirectBuffer::getDirectCount);
         builder.addPointFunction(DirectBufferChartType.DIRECT_MEMORY_USED, SampledDirectBuffer::getDirectMemoryUsed);
         builder.addPointFunction(DirectBufferChartType.MAPPED_COUNT, SampledDirectBuffer::getMappedCount);

@@ -2,22 +2,22 @@ package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.DoubleAgentStatPoint;
 
 import java.util.Objects;
 
 public class SampledApdexScore implements SampledAgentStatDataPoint {
 
     public static final Double UNCOLLECTED_SCORE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_SCORE);
+    public static final Point.UncollectedPointCreator<DoubleAgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_SCORE);
 
-    private final AgentStatPoint<Double> apdexScore;
+    private final DoubleAgentStatPoint apdexScore;
 
-    public SampledApdexScore(AgentStatPoint<Double> apdexScore) {
+    public SampledApdexScore(DoubleAgentStatPoint apdexScore) {
         this.apdexScore = Objects.requireNonNull(apdexScore, "apdexScore");
     }
 
-    public AgentStatPoint<Double> getApdexScore() {
+    public DoubleAgentStatPoint getApdexScore() {
         return apdexScore;
     }
 

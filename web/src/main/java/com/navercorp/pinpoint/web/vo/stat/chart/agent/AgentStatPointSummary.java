@@ -3,76 +3,104 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import org.apache.commons.math3.util.Precision;
 
-import java.util.DoubleSummaryStatistics;
-import java.util.IntSummaryStatistics;
 import java.util.List;
-import java.util.LongSummaryStatistics;
 import java.util.Objects;
 
 public class AgentStatPointSummary {
 
-    public static AgentStatPoint<Double> doubleSummary(long timestamp, List<Double> values, int avgScale) {
+    public static DoubleAgentStatPoint doubleSummary(long timestamp, List<Double> values, int avgScale) {
         Objects.requireNonNull(values, "values");
 
-        DoubleSummaryStatistics stats = values.stream()
+        DoubleAgentStatPoint statPoint = new DoubleAgentStatPoint(timestamp) {
+            @Override
+            public double getAvg() {
+                return Precision.round(super.getAvg(), avgScale);
+            }
+        };
+        values.stream()
                 .mapToDouble(Double::doubleValue)
-                .summaryStatistics();
-        double average = round(stats.getAverage(), avgScale);
-        return new AgentStatPoint<>(timestamp, stats.getMin(), stats.getMax(), average, stats.getSum());
+                .forEach(statPoint);
+        return statPoint;
     }
 
-    public static AgentStatPoint<Double> doubleSummaryWithAllScale(long timestamp, List<Double> values, int allScale) {
+    public static DoubleAgentStatPoint doubleSummaryWithAllScale(long timestamp, List<Double> values, int allScale) {
         Objects.requireNonNull(values, "values");
 
-        DoubleSummaryStatistics stats = values.stream()
+        DoubleAgentStatPoint statPoint = new DoubleAgentStatPoint(timestamp) {
+            @Override
+            public double getMin() {
+                return round(super.getMin());
+            }
+
+            @Override
+            public double getMax() {
+                return round(super.getMax());
+            }
+
+            @Override
+            public double getAvg() {
+                return round(super.getAvg());
+            }
+
+            private double round(double value) {
+                return Precision.round(value, allScale);
+            }
+        };
+
+        values.stream()
                 .mapToDouble(Double::doubleValue)
-                .summaryStatistics();
-        double min = round(stats.getMin(), allScale);
-        double max = round(stats.getMax(), allScale);
-        double average = round(stats.getAverage(), allScale);
-        double sum = stats.getSum();
-        return new AgentStatPoint<>(timestamp, min, max, average, sum);
+                .forEach(statPoint);
+        return statPoint;
     }
 
-    public static AgentStatPoint<Long> longSummary(long timestamp, List<Long> values) {
+    public static LongAgentStatPoint longSummary(long timestamp, List<Long> values) {
         Objects.requireNonNull(values, "values");
 
-        LongSummaryStatistics stats = values.stream()
+        LongAgentStatPoint statPoint = new LongAgentStatPoint(timestamp);
+        values.stream()
                 .mapToLong(Long::longValue)
-                .summaryStatistics();
-        return new AgentStatPoint<>(timestamp, stats.getMin(), stats.getMax(), stats.getAverage(), stats.getSum());
+                .forEach(statPoint);
+        return statPoint;
     }
 
-    public static AgentStatPoint<Long> longSummary(long timestamp, List<Long> values, int avgScale) {
+    public static LongAgentStatPoint longSummary(long timestamp, List<Long> values, int avgScale) {
         Objects.requireNonNull(values, "values");
 
-        LongSummaryStatistics stats = values.stream()
+        LongAgentStatPoint statPoint = new LongAgentStatPoint(timestamp) {
+            @Override
+            public double getAvg() {
+                return Precision.round(super.getAvg(), avgScale);
+            }
+        };
+        values.stream()
                 .mapToLong(Long::longValue)
-                .summaryStatistics();
-        double average = round(stats.getAverage(), avgScale);
-        return new AgentStatPoint<>(timestamp, stats.getMin(), stats.getMax(), average, stats.getSum());
+                .forEach(statPoint);
+        return statPoint;
     }
 
-    public static AgentStatPoint<Integer> intSummary(long timestamp, List<Integer> values) {
+    public static IntAgentStatPoint intSummary(long timestamp, List<Integer> values) {
         Objects.requireNonNull(values, "values");
 
-        IntSummaryStatistics stats = values.stream()
+        IntAgentStatPoint statPoint = new IntAgentStatPoint(timestamp);
+        values.stream()
                 .mapToInt(Integer::intValue)
-                .summaryStatistics();
-        return new AgentStatPoint<>(timestamp, stats.getMin(), stats.getMax(), stats.getAverage(), (int) stats.getSum());
+                .forEach(statPoint);
+        return statPoint;
     }
 
-    public static AgentStatPoint<Integer> intSummary(long timestamp, List<Integer> values, int avgScale) {
+    public static IntAgentStatPoint intSummary(long timestamp, List<Integer> values, int avgScale) {
         Objects.requireNonNull(values, "values");
 
-        IntSummaryStatistics stats = values.stream()
+        IntAgentStatPoint statPoint = new IntAgentStatPoint(timestamp) {
+            public double getAvg() {
+                return Precision.round(super.getAvg(), avgScale);
+            }
+        };
+        values.stream()
                 .mapToInt(Integer::intValue)
-                .summaryStatistics();
-        double average = round(stats.getAverage(), avgScale);
-        return new AgentStatPoint<>(timestamp, stats.getMin(), stats.getMax(), average, (int) stats.getSum());
+                .forEach(statPoint);
+
+        return statPoint;
     }
 
-    private static double round(double value, int scale) {
-        return Precision.round(value, scale);
-    }
 }

@@ -20,44 +20,16 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  * @author Taejin Koo
  * @author jaehong.kim - Remove TThreadDump List
  */
-public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
+public class DeadlockThreadCountBo extends AbstractAgentStatDataPoint implements AgentWarningStatDataPoint {
 
-    public static final int UNCOLLECTED_INT_VALUE = -1;
+    public static final int UNCOLLECTED_INT_VALUE = UNCOLLECTED_INT;
 
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private int deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
+    public DeadlockThreadCountBo() {
+        super(AgentStatType.DEADLOCK);
     }
 
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -74,13 +46,8 @@ public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DeadlockThreadCountBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", deadlockedThreadCount=").append(deadlockedThreadCount);
-        sb.append('}');
-        return sb.toString();
+        return "DeadlockThreadCountBo{" +
+                "deadlockedThreadCount=" + deadlockedThreadCount +
+                "} " + super.toString();
     }
-
 }

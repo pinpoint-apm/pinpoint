@@ -8,24 +8,26 @@ public final class StatPointUtils {
     private StatPointUtils() {
     }
 
-    public static ApplicationStatPoint<Long> toLongStatPoint(long timestamp, JoinLongFieldBo field) {
-        return new LongApplicationStatPoint(timestamp, field.getMin(), field.getMinAgentId(),
-                field.getMax(), field.getMaxAgentId(), field.getAvg());
+    public static LongApplicationStatPoint toLongStatPoint(long timestamp, JoinLongFieldBo field) {
+        return new LongApplicationStatPoint(timestamp, field);
     }
 
-    public static ApplicationStatPoint<Integer> toIntStatPoint(long timestamp, JoinIntFieldBo field) {
-        return new IntApplicationStatPoint(timestamp, field.getMin(), field.getMinAgentId(),
-                field.getMax(), field.getMaxAgentId(), field.getAvg());
+    public static IntApplicationStatPoint toIntStatPoint(long timestamp, JoinIntFieldBo field) {
+        return new IntApplicationStatPoint(timestamp, field);
     }
 
-    public static ApplicationStatPoint<Double> toDoubleStatPoint(long timestamp, JoinDoubleFieldBo field) {
-        return new DoubleApplicationStatPoint(timestamp, field.getMin(), field.getMinAgentId(),
-                field.getMax(), field.getMaxAgentId(), field.getAvg());
+    public static DoubleApplicationStatPoint toDoubleStatPoint(long timestamp, JoinDoubleFieldBo field) {
+        return new DoubleApplicationStatPoint(timestamp, field);
     }
 
 
-    public static ApplicationStatPoint<Double> longToDoubleStatPoint(long timestamp, JoinLongFieldBo field) {
-        return new DoubleApplicationStatPoint(timestamp, (double) field.getMin(), field.getMinAgentId(),
-                (double) field.getMax(), field.getMaxAgentId(), (double) field.getAvg());
+    public static DoubleApplicationStatPoint longToDoubleStatPoint(long timestamp, JoinLongFieldBo field) {
+        JoinDoubleFieldBo doubleFieldBo = toDoubleFieldBo(field);
+        return new DoubleApplicationStatPoint(timestamp, doubleFieldBo);
+    }
+
+    static JoinDoubleFieldBo toDoubleFieldBo(JoinLongFieldBo field) {
+        return new JoinDoubleFieldBo((double) field.getAvg(), (double) field.getMin(), field.getMinAgentId(),
+                (double) field.getMax(), field.getMaxAgentId());
     }
 }

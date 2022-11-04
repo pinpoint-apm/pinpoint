@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -49,7 +48,7 @@ public class JvmGcSamplerTest {
         long gcTime = randomGcTime() + previousGcTime;
         JvmGcBo jvmGcBo = createJvmGcBoForGcTest(gcCount, gcTime);
 
-        List<JvmGcBo> jvmGcBos = Arrays.asList(jvmGcBo);
+        List<JvmGcBo> jvmGcBos = List.of(jvmGcBo);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
@@ -57,8 +56,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = gcCount - previousGcCount;
         long expectedGcTime = gcTime - previousGcTime;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -70,7 +69,7 @@ public class JvmGcSamplerTest {
         long gcTime = randomGcTime();
         JvmGcBo jvmGcBo = createJvmGcBoForGcTest(gcCount, gcTime);
 
-        List<JvmGcBo> jvmGcBos = Arrays.asList(jvmGcBo);
+        List<JvmGcBo> jvmGcBos = List.of(jvmGcBo);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
@@ -78,8 +77,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = 0L;
         long expectedGcTime = 0L;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -99,7 +98,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo = createJvmGcBoForGcTest(secondGcCount, secondGcTime);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, firstJvmGcBo);
+        List<JvmGcBo> jvmGcBos = List.of(secondJvmGcBo, firstJvmGcBo);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
@@ -107,8 +106,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = secondGcCount - previousGcCount;
         long expectedGcTime = secondGcTime - previousGcTime;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -124,7 +123,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo = createJvmGcBoForGcTest(secondGcCount, secondGcTime);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, firstJvmGcBo);
+        List<JvmGcBo> jvmGcBos = List.of(secondJvmGcBo, firstJvmGcBo);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
@@ -132,8 +131,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = secondGcCount - firstGcCount;
         long expectedGcTime = secondGcTime - firstGcTime;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -163,7 +162,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo_2 = createJvmGcBoForGcTest(secondAgentStartTimestamp, secondGcCount_2, secondGcTime_2);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo_2, firstJvmGcBo_2, secondJvmGcBo_1, firstJvmGcBo_1);
+        List<JvmGcBo> jvmGcBos = List.of(secondJvmGcBo_2, firstJvmGcBo_2, secondJvmGcBo_1, firstJvmGcBo_1);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
@@ -175,8 +174,8 @@ public class JvmGcSamplerTest {
         long gcTimesAfterJvmRestart = secondGcTime_2;
         long expectedGcCount = gcCountsBeforeJvmRestart + gcCountsAfterJvmRestart;
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -202,7 +201,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo_2 = createJvmGcBoForGcTest(secondAgentStartTimestamp, secondGcCount_2, secondGcTime_2);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo_2, firstJvmGcBo_2, secondJvmGcBo_1, firstJvmGcBo_1);
+        List<JvmGcBo> jvmGcBos = List.of(secondJvmGcBo_2, firstJvmGcBo_2, secondJvmGcBo_1, firstJvmGcBo_1);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
@@ -214,8 +213,8 @@ public class JvmGcSamplerTest {
         long gcTimesAfterJvmRestart = secondGcTime_2;
         long expectedGcCount = gcCountsBeforeJvmRestart + gcCountsAfterJvmRestart;
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -238,7 +237,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo = createJvmGcBoForGcTest(secondGcCount, secondGcTime);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, uncollectedJvmGcBo3, uncollectedJvmGcBo2, firstJvmGcBo, uncollectedJvmGcBo1);
+        List<JvmGcBo> jvmGcBos = List.of(secondJvmGcBo, uncollectedJvmGcBo3, uncollectedJvmGcBo2, firstJvmGcBo, uncollectedJvmGcBo1);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
@@ -246,8 +245,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = secondGcCount - previousGcCount;
         long expectedGcTime = secondGcTime - previousGcTime;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -265,7 +264,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo = createJvmGcBoForGcTest(secondGcCount, secondGcTime);
         JvmGcBo uncollectedJvmGcBo3 = createJvmGcBoForGcTest(JvmGcBo.UNCOLLECTED_VALUE, JvmGcBo.UNCOLLECTED_VALUE);
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(uncollectedJvmGcBo3, secondJvmGcBo, uncollectedJvmGcBo2, uncollectedJvmGcBo1, firstJvmGcBo);
+        List<JvmGcBo> jvmGcBos = List.of(uncollectedJvmGcBo3, secondJvmGcBo, uncollectedJvmGcBo2, uncollectedJvmGcBo1, firstJvmGcBo);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, null);
@@ -273,8 +272,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = secondGcCount - firstGcCount;
         long expectedGcTime = secondGcTime - firstGcTime;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
 
@@ -295,7 +294,7 @@ public class JvmGcSamplerTest {
         JvmGcBo secondJvmGcBo = createJvmGcBoForGcTest(secondGcCount, secondGcTime);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(secondJvmGcBo, uncollectedJvmGcBo2, firstJvmGcBo, uncollectedJvmGcBo1);
+        List<JvmGcBo> jvmGcBos = List.of(secondJvmGcBo, uncollectedJvmGcBo2, firstJvmGcBo, uncollectedJvmGcBo1);
 
         // When
         SampledJvmGc sampledJvmGc = sampler.sampleDataPoints(0, System.currentTimeMillis(), jvmGcBos, previousJvmGcBo);
@@ -303,8 +302,8 @@ public class JvmGcSamplerTest {
         // Then
         long expectedGcCount = secondGcCount - firstGcCount;
         long expectedGcTime = secondGcTime - firstGcTime;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -338,7 +337,7 @@ public class JvmGcSamplerTest {
         JvmGcBo uncollectedJvmGcBo2_2 = createJvmGcBoForGcTest(secondAgentStartTimestamp, JvmGcBo.UNCOLLECTED_VALUE, JvmGcBo.UNCOLLECTED_VALUE);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(
+        List<JvmGcBo> jvmGcBos = List.of(
                 uncollectedJvmGcBo2_2, thirdJvmGcBo_2, secondJvmGcBo_2, firstJvmGcBo_2, uncollectedJvmGcBo1_2,
                 uncollectedJvmGcBo2_1, firstJvmGcBo_1, uncollectedJvmGcBo1_1
         );
@@ -353,8 +352,8 @@ public class JvmGcSamplerTest {
         long gcTimesAfterJvmRestart = thirdGcTime_2;
         long expectedGcCount = gcCountsBeforeJvmRestart + gcCountsAfterJvmRestart;
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -384,7 +383,7 @@ public class JvmGcSamplerTest {
         JvmGcBo uncollectedJvmGcBo2_2 = createJvmGcBoForGcTest(secondAgentStartTimestamp, JvmGcBo.UNCOLLECTED_VALUE, JvmGcBo.UNCOLLECTED_VALUE);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(
+        List<JvmGcBo> jvmGcBos = List.of(
                 uncollectedJvmGcBo2_2, thirdJvmGcBo_2, secondJvmGcBo_2, uncollectedJvmGcBo1_2, firstJvmGcBo_2,
                 uncollectedJvmGcBo2_1, firstJvmGcBo_1, uncollectedJvmGcBo1_1
         );
@@ -399,8 +398,8 @@ public class JvmGcSamplerTest {
         long gcTimesAfterJvmRestart = thirdGcTime_2;
         long expectedGcCount = gcCountsBeforeJvmRestart + gcCountsAfterJvmRestart;
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
     }
@@ -435,7 +434,7 @@ public class JvmGcSamplerTest {
         JvmGcBo uncollectedJvmGcBo2_2 = createJvmGcBoForGcTest(secondAgentStartTimestamp, JvmGcBo.UNCOLLECTED_VALUE, JvmGcBo.UNCOLLECTED_VALUE);
 
         // must be in descending order
-        List<JvmGcBo> jvmGcBos = Arrays.asList(
+        List<JvmGcBo> jvmGcBos = List.of(
                 uncollectedJvmGcBo2_2, thirdJvmGcBo_2, secondJvmGcBo_2, uncollectedJvmGcBo1_2, firstJvmGcBo_2,
                 uncollectedJvmGcBo2_1, secondJvmGcBo_1, firstJvmGcBo_1, uncollectedJvmGcBo1_1
         );
@@ -450,8 +449,8 @@ public class JvmGcSamplerTest {
         long gcTimesAfterJvmRestart = thirdGcTime_2;
         long expectedGcCount = gcCountsBeforeJvmRestart + gcCountsAfterJvmRestart;
         long expectedGcTime = gcTimesBeforeJvmRestart + gcTimesAfterJvmRestart;
-        long actualGcCount = sampledJvmGc.getGcOldCount().getSumYVal();
-        long actualGcTime = sampledJvmGc.getGcOldTime().getSumYVal();
+        long actualGcCount = sampledJvmGc.getGcOldCount().getSum();
+        long actualGcTime = sampledJvmGc.getGcOldTime().getSum();
         Assertions.assertEquals(expectedGcCount, actualGcCount);
         Assertions.assertEquals(expectedGcTime, actualGcTime);
 
