@@ -36,9 +36,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.Callable;
 
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -90,12 +89,7 @@ public class PipelineFactoryTest {
     private void assertMessageReceivedCount(int expectedCount, final DiscardServerHandler discardServerHandler) {
         Awaitility.await()
                 .ignoreExceptions()
-                .until(new Callable<Integer>() {
-                    @Override
-                    public Integer call() {
-                        return discardServerHandler.getMessageReceivedCount();
-                    }
-                }, is(expectedCount));
+                .untilAsserted(() -> assertThat(discardServerHandler.getMessageReceivedCount()).isEqualTo(expectedCount));
     }
 
     private static class TestPipelineFactory implements PipelineFactory {

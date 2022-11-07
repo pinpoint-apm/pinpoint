@@ -23,17 +23,15 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFactory;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -56,9 +54,9 @@ public class ServerGroupListTest {
         ServerGroupList serverGroupList = builder.build();
         List<String> agentIdList = serverGroupList.getAgentIdList();
 
-        MatcherAssert.assertThat(agentIdList, hasSize(2));
-        MatcherAssert.assertThat(agentIdList, hasItem("agentId1"));
-        MatcherAssert.assertThat(agentIdList, hasItem("agentId2"));
+        assertThat(agentIdList).hasSize(2);
+        assertThat(agentIdList).contains("agentId1");
+        assertThat(agentIdList).contains("agentId2");
     }
 
     public static AgentAndStatus createAgentInfo(String agentId, String hostName) {

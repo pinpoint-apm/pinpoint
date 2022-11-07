@@ -39,8 +39,7 @@ import java.lang.management.ThreadMXBean;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.hamcrest.Matchers.is;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
@@ -116,6 +115,7 @@ public class ReconnectTest {
     // it takes very long time. 
     // @Test
     @Disabled
+    @SuppressWarnings("unused")
     public void reconnectStressTest() throws IOException, InterruptedException {
         int count = 3;
 
@@ -155,7 +155,7 @@ public class ReconnectTest {
 
 
     @Test
-    public void scheduledConnect() throws IOException, InterruptedException {
+    public void scheduledConnect() {
         final PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setReconnectDelay(200);
         PinpointClient client = null;
@@ -208,23 +208,23 @@ public class ReconnectTest {
         client.send(new byte[10]);
 
         try {
-            Future future = client.sendAsync(new byte[10]);
+            Future<?> future = client.sendAsync(new byte[10]);
             future.await();
             future.getResult();
             Assertions.fail();
-        } catch (PinpointSocketException e) {
+        } catch (PinpointSocketException ignored) {
         }
 
         try {
             client.sendSync(new byte[10]);
             Assertions.fail();
-        } catch (PinpointSocketException e) {
+        } catch (PinpointSocketException ignored) {
         }
 
         try {
             PinpointRPCTestUtils.request(client, new byte[10]);
             Assertions.fail();
-        } catch (PinpointSocketException e) {
+        } catch (PinpointSocketException ignored) {
         }
 
         PinpointRPCTestUtils.close(client);
@@ -269,7 +269,7 @@ public class ReconnectTest {
         try {
             response.getResult();
             Assertions.fail("expected exception");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         assertClientDisconnected(client);
@@ -278,7 +278,7 @@ public class ReconnectTest {
 
     private void assertClientDisconnected(final PinpointClient client) {
         Awaitility.await("assertClientDisconnected")
-                .until(isConnected(client), is(false));
+                .untilAsserted(() -> assertThat(isConnected(client).call()).isFalse());
     }
 
     private void assertClientConnected(final PinpointClient client) {

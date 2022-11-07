@@ -66,7 +66,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -75,24 +74,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgentInfoSenderTest {
 
     public static final String HOST = "127.0.0.1";
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(50, TimeUnit.MILLISECONDS)
                 .timeout(60000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
     private AgentInformation agentInformation;
     private ServerMetaDataRegistryService serverMetaDataRegistryService;
-    private JvmInformation jvmInformation;
     private AgentInfoFactory agentInfoFactory;
     private MessageConverter<Object, ResultResponse> resultResponseMessageConverter;
 
@@ -100,7 +97,7 @@ public class AgentInfoSenderTest {
     public void init() {
         agentInformation = createAgentInformation();
         serverMetaDataRegistryService = new ServerMetaDataRegistryServiceProvider().get();
-        jvmInformation = new JvmInformationProvider().get();
+        JvmInformation jvmInformation = new JvmInformationProvider().get();
         agentInfoFactory = new AgentInfoFactory(agentInformation, serverMetaDataRegistryService, jvmInformation);
         resultResponseMessageConverter = new ThriftMessageToResultConverter();
 
@@ -472,6 +469,7 @@ public class AgentInfoSenderTest {
         assertEquals(threadCount, messageListener.getSuccessCount());
     }
 
+    @SuppressWarnings("unused")
     public void reconnectionStressTest() {
         final long stressTestTime = 60 * 1000L;
         final int randomMaxTime = 3000;
@@ -510,7 +508,7 @@ public class AgentInfoSenderTest {
         assertEquals(expectedTriesUntilSuccess, messageListener.getRequestCount());
     }
 
-    private void createAndDeleteServer(ServerMessageListenerFactory messageListenerFactory, long waitTimeMillis) {
+    private void createAndDeleteServer(ServerMessageListenerFactory<?> messageListenerFactory, long waitTimeMillis) {
         int availableTcpPort = SocketUtils.findAvailableTcpPort(47000);
 
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(messageListenerFactory);
@@ -533,10 +531,9 @@ public class AgentInfoSenderTest {
     }
 
     private AgentInformation createAgentInformation() {
-        AgentInformation agentInfo = new DefaultAgentInformation("agentId", "agentName", "appName", false,
+        return new DefaultAgentInformation("agentId", "agentName", "appName", false,
                 System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", ServiceType.USER,
                 JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
-        return agentInfo;
     }
 
 
@@ -567,10 +564,6 @@ public class AgentInfoSenderTest {
         private final AtomicInteger successCount;
 
         private final int successCondition;
-
-        public ResponseServerMessageListener() {
-            this(1);
-        }
 
         public ResponseServerMessageListener(int successCondition) {
             this.requestCount = new AtomicInteger();
@@ -638,22 +631,12 @@ public class AgentInfoSenderTest {
 
     private void waitExpectedRequestCount(final int expectedRequestCount, final ResponseServerMessageListener listener) {
         awaitility()
-                .until(new Callable<Integer>() {
-                    @Override
-                    public Integer call() {
-                        return listener.getRequestCount();
-                    }
-                }, is(expectedRequestCount));
+                .untilAsserted(() -> assertThat(listener.getRequestCount()).isEqualTo(expectedRequestCount));
     }
 
     private void waitExpectedSuccessCount(final int expectedRequestCount, final ResponseServerMessageListener listener) {
         awaitility()
-                .until(new Callable<Integer>() {
-                    @Override
-                    public Integer call() {
-                        return listener.getSuccessCount();
-                    }
-                }, is(expectedRequestCount));
+                .untilAsserted(() -> assertThat(listener.getSuccessCount()).isEqualTo(expectedRequestCount));
     }
 
 

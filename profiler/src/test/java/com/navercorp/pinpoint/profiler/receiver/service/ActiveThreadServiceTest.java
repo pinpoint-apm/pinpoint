@@ -25,14 +25,13 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 
 import org.apache.thrift.TBase;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -64,16 +63,17 @@ public class ActiveThreadServiceTest {
         addActiveTrace(activeTraceRepository, SLOW_EXECUTION_TIME, SLOW_COUNT);
         addActiveTrace(activeTraceRepository, VERY_SLOW_EXECUTION_TIME, VERY_SLOW_COUNT);
 
-        ActiveThreadCountService service = new ActiveThreadCountService(activeTraceRepository);
-        TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
-        if (tBase instanceof TCmdActiveThreadCountRes) {
-            List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
-            MatcherAssert.assertThat(activeThreadCount.get(0), is(FAST_COUNT));
-            MatcherAssert.assertThat(activeThreadCount.get(1), is(NORMAL_COUNT));
-            MatcherAssert.assertThat(activeThreadCount.get(2), is(SLOW_COUNT));
-            MatcherAssert.assertThat(activeThreadCount.get(3), is(VERY_SLOW_COUNT));
-        } else {
-            Assertions.fail();
+        try (ActiveThreadCountService service = new ActiveThreadCountService(activeTraceRepository)) {
+            TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
+            if (tBase instanceof TCmdActiveThreadCountRes) {
+                List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
+                assertThat(activeThreadCount.get(0)).isEqualTo(FAST_COUNT);
+                assertThat(activeThreadCount.get(1)).isEqualTo(NORMAL_COUNT);
+                assertThat(activeThreadCount.get(2)).isEqualTo(SLOW_COUNT);
+                assertThat(activeThreadCount.get(3)).isEqualTo(VERY_SLOW_COUNT);
+            } else {
+                Assertions.fail();
+            }
         }
     }
 

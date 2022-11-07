@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.rpc.util;
 
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionTimeoutException;
-import org.hamcrest.Matchers;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -52,12 +52,7 @@ public final class AwaitIOUtils {
         Awaitility.await()
                 .pollDelay(waitUnitTime, TimeUnit.MILLISECONDS)
                 .timeout(maxWaitTime, TimeUnit.MILLISECONDS)
-                .until(new Callable<Integer>() {
-                    @Override
-                    public Integer call() throws Exception {
-                        return inputStream.available();
-                    }
-                }, Matchers.greaterThan(0));
+                .untilAsserted(() -> assertThat(inputStream.available()).isGreaterThan(0));
     }
 
     public static void write(OutputStream outputStream, byte[] payload) throws IOException {

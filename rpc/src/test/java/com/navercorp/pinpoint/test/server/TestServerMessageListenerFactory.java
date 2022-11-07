@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -159,10 +159,11 @@ public class TestServerMessageListenerFactory implements ServerMessageListenerFa
 
         private void awaitAssertExpectedCount(int expectedCount, AtomicInteger handlePingCount, long maxWaitTime) {
             if (maxWaitTime > 100) {
-                Awaitility.waitAtMost(maxWaitTime, TimeUnit.MILLISECONDS)
-                        .untilAtomic(handlePingCount, is(expectedCount));
+                Awaitility
+                        .waitAtMost(maxWaitTime, TimeUnit.MILLISECONDS)
+                        .untilAsserted(() -> assertThat(handlePingCount.get()).isEqualTo(expectedCount));
             } else {
-                Assertions.assertTrue(expectedCount == handlePingCount.get());
+                Assertions.assertEquals(expectedCount, handlePingCount.get());
             }
         }
 

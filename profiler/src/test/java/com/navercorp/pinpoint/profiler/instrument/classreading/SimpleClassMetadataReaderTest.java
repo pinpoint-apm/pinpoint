@@ -19,22 +19,18 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SimpleClassMetadataReaderTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testSimpleClassMetadata() {
@@ -48,7 +44,7 @@ public class SimpleClassMetadataReaderTest {
         // interfaces
         List<String> interfaceList = getInterfaceList(clazz.getInterfaces());
         List<String> interfaceNames = simpleClassMetadata.getInterfaceNames();
-        MatcherAssert.assertThat(interfaceNames, containsInAnyOrder(interfaceList.toArray()));
+        assertThat(interfaceNames).containsAll(interfaceList);
 
         // super
         Assertions.assertEquals(simpleClassMetadata.getSuperClassName(), "java.lang.Object");

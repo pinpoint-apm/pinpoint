@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
+import org.assertj.core.matcher.AssertionMatcher;
 
 import java.util.Map;
 import java.util.Random;
@@ -33,6 +34,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DE
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -241,5 +243,14 @@ public class TestTraceUtils {
         public BackEndSpanEventBuilder(String destinationId, String endPoint, int startElapsed, int endElapsed) {
             super(BACKEND_TYPE_CODE, destinationId, endPoint, startElapsed, endElapsed);
         }
+    }
+
+    public static <K> AssertionMatcher<Map<K, ?>> hasKey(K key) {
+        return new AssertionMatcher<>() {
+            @Override
+            public void assertion(Map<K, ?> map) throws AssertionError {
+                assertThat(map).containsKey(key);
+            }
+        };
     }
 }
