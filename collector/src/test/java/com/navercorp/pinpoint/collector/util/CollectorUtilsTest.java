@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.util;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CollectorUtilsTest {
 
@@ -12,6 +12,6 @@ public class CollectorUtilsTest {
         String serverIdentifier = CollectorUtils.getHumanFriendlyServerIdentifier();
 
         String pid = String.valueOf(ProcessHandle.current().pid());
-        MatcherAssert.assertThat(serverIdentifier, Matchers.endsWith(pid));
+        assertThat(serverIdentifier).endsWith(pid);
     }
 }

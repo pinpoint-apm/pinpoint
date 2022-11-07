@@ -28,8 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -40,20 +39,18 @@ public class HtdHbaseSchemaVerifierTest {
 
     @Test
     public void emptyExpectedSchemas_shouldReturnTrue() {
-        List<HTableDescriptor> nullExpectedSchemas = null;
         List<HTableDescriptor> emptyExpectedSchemas = Collections.emptyList();
-        List<HTableDescriptor> actualSchemas = Arrays.asList(createHtd("table1", "table1_1"));
-        assertThat(verifier.verifySchemas(nullExpectedSchemas, actualSchemas), is(true));
-        assertThat(verifier.verifySchemas(emptyExpectedSchemas, actualSchemas), is(true));
+        List<HTableDescriptor> actualSchemas = List.of(createHtd("table1", "table1_1"));
+        assertThat(verifier.verifySchemas(null, actualSchemas)).isTrue();
+        assertThat(verifier.verifySchemas(emptyExpectedSchemas, actualSchemas)).isTrue();
     }
 
     @Test
     public void emptyActualSchemas_shouldReturnFalse() {
-        List<HTableDescriptor> nullActualSchemas = null;
         List<HTableDescriptor> emptyActualSchemas = Collections.emptyList();
-        List<HTableDescriptor> expectedSchemas = Arrays.asList(createHtd("table1", "table1_1"));
-        assertThat(verifier.verifySchemas(expectedSchemas, nullActualSchemas), is(false));
-        assertThat(verifier.verifySchemas(expectedSchemas, emptyActualSchemas), is(false));
+        List<HTableDescriptor> expectedSchemas = List.of(createHtd("table1", "table1_1"));
+        assertThat(verifier.verifySchemas(expectedSchemas, null)).isFalse();
+        assertThat(verifier.verifySchemas(expectedSchemas, emptyActualSchemas)).isFalse();
     }
 
     @Test
@@ -63,7 +60,7 @@ public class HtdHbaseSchemaVerifierTest {
                 createHtd("table2", "table2_1", "table2_2", "table2_3"),
                 createHtd("table3"));
         List<HTableDescriptor> actualSchemas = copySchema(expectedSchemas);
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(true));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isTrue();
     }
 
     @Test
@@ -74,7 +71,7 @@ public class HtdHbaseSchemaVerifierTest {
                 createHtd("table3"));
         List<HTableDescriptor> actualSchemas = copySchema(expectedSchemas);
         actualSchemas.add(createHtd("table4", "table4_1"));
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(true));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isTrue();
     }
 
     @Test
@@ -87,7 +84,7 @@ public class HtdHbaseSchemaVerifierTest {
         for (HTableDescriptor htd : actualSchemas) {
             htd.addFamily(new HColumnDescriptor("newCF"));
         }
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(true));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isTrue();
     }
 
     @Test
@@ -98,7 +95,7 @@ public class HtdHbaseSchemaVerifierTest {
                 createHtd("table3"));
         List<HTableDescriptor> expectedSchemas = copySchema(actualSchemas);
         expectedSchemas.add(createHtd("table4", "table4_1"));
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(false));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isFalse();
     }
 
     @Test
@@ -111,21 +108,21 @@ public class HtdHbaseSchemaVerifierTest {
         for (HTableDescriptor htd : expectedSchemas) {
             htd.addFamily(new HColumnDescriptor("newCF"));
         }
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(false));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isFalse();
     }
 
     @Test
     public void tableNameMismatch_shouldReturnFalse() {
-        List<HTableDescriptor> expectedSchemas = Arrays.asList(createHtd("table1", "CF1"));
-        List<HTableDescriptor> actualSchemas = Arrays.asList(createHtd("table2", "CF1"));
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(false));
+        List<HTableDescriptor> expectedSchemas = List.of(createHtd("table1", "CF1"));
+        List<HTableDescriptor> actualSchemas = List.of(createHtd("table2", "CF1"));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isFalse();
     }
 
     @Test
     public void columnFamilyMismatch_shouldReturnFalse() {
-        List<HTableDescriptor> expectedSchemas = Arrays.asList(createHtd("table1", "CF1"));
-        List<HTableDescriptor> actualSchemas = Arrays.asList(createHtd("table1", "CF2"));
-        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas), is(false));
+        List<HTableDescriptor> expectedSchemas = List.of(createHtd("table1", "CF1"));
+        List<HTableDescriptor> actualSchemas = List.of(createHtd("table1", "CF2"));
+        assertThat(verifier.verifySchemas(expectedSchemas, actualSchemas)).isFalse();
     }
 
     private HTableDescriptor createHtd(String tableQualifier, String... columnFamilyNames) {

@@ -25,12 +25,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
@@ -40,10 +40,9 @@ public class TcpDataSenderReconnectTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(100, TimeUnit.MILLISECONDS)
                 .timeout(5000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
     @Test
@@ -53,7 +52,7 @@ public class TcpDataSenderReconnectTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
+        TcpDataSender<TApiMetaData> sender = new TcpDataSender<>(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
         oldTestPinpointServerAcceptor.assertAwaitClientConnected(5000);
 
         oldTestPinpointServerAcceptor.close();
@@ -84,13 +83,8 @@ public class TcpDataSenderReconnectTest {
         return clientFactory;
     }
 
-    private void waitClientDisconnected(final TcpDataSender sender) {
-        awaitility().until(new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return sender.isConnected();
-            }
-        }, Matchers.not(true));
+    private void waitClientDisconnected(final TcpDataSender<?> sender) {
+        awaitility().untilAsserted(() -> assertThat(sender.isConnected()).isFalse());
     }
 
 }

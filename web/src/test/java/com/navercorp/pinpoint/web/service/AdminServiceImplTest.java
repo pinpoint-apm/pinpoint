@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -54,21 +53,21 @@ public class AdminServiceImplTest {
             new AdminServiceImpl(null, agentInfoService);
             fail("applicationIndexDao can not be null");
         } catch (NullPointerException e) {
-            assertThat(e.getMessage(), is("applicationIndexDao"));
+            assertThat(e.getMessage()).isEqualTo("applicationIndexDao");
         }
 
         try {
             new AdminServiceImpl(applicationIndexDao, null);
             fail("agentInfoService can not be null");
         } catch (NullPointerException e) {
-            assertThat(e.getMessage(), is("agentInfoService"));
+            assertThat(e.getMessage()).isEqualTo("agentInfoService");
         }
 
         try {
             new AdminServiceImpl(null, null);
             fail("applicationIndexDao and jvmGcDao can not be null");
         } catch (NullPointerException e) {
-            assertThat(e.getMessage(), is("applicationIndexDao"));
+            assertThat(e.getMessage()).isEqualTo("applicationIndexDao");
         }
     }
 
@@ -102,7 +101,7 @@ public class AdminServiceImplTest {
             adminService.removeInactiveAgents(29);
             fail("Exception must be caught when durationDays is less than MIN_DURATION_DAYS_FOR_INACIVITY");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days"));
+            assertThat(e.getMessage()).isEqualTo("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
 
         try {
@@ -141,9 +140,9 @@ public class AdminServiceImplTest {
             Map<String, List<String>> inactiveAgentMap = invocation.getArgument(0);
             List<String> inactiveAgents = inactiveAgentMap.get(APPLICATION_NAME1);
 
-            assertThat(inactiveAgents.size(), is(2));
-            assertThat(inactiveAgents.get(0), is(AGENT_ID1));
-            assertThat(inactiveAgents.get(1), is(AGENT_ID2));
+            assertThat(inactiveAgents.size()).isEqualTo(2);
+            assertThat(inactiveAgents.get(0)).isEqualTo(AGENT_ID1);
+            assertThat(inactiveAgents.get(1)).isEqualTo(AGENT_ID2);
 
             return inactiveAgents;
         }).when(applicationIndexDao).deleteAgentIds(any());
@@ -166,8 +165,7 @@ public class AdminServiceImplTest {
         Map<String, List<Application>> agentIdMap = adminService.getAgentIdMap();
 
         // then
-        assertThat(agentIdMap == null, is(false));
-        assertThat(agentIdMap.size(), is(0));
+        assertThat(agentIdMap).isNotNull().isEmpty();
     }
 
     @Test
@@ -189,10 +187,10 @@ public class AdminServiceImplTest {
         // then
         Map<String, List<Application>> duplicateAgentIdMap = adminService.getDuplicateAgentIdMap();
 
-        assertThat(duplicateAgentIdMap.size(), is(3));
-        assertThat(duplicateAgentIdMap.get(AGENT_ID1).size(), is(2));
-        assertThat(duplicateAgentIdMap.get(AGENT_ID2).size(), is(2));
-        assertThat(duplicateAgentIdMap.get(AGENT_ID3).size(), is(2));
+        assertThat(duplicateAgentIdMap.size()).isEqualTo(3);
+        assertThat(duplicateAgentIdMap.get(AGENT_ID1).size()).isEqualTo(2);
+        assertThat(duplicateAgentIdMap.get(AGENT_ID2).size()).isEqualTo(2);
+        assertThat(duplicateAgentIdMap.get(AGENT_ID3).size()).isEqualTo(2);
 
         // check the application names
         List<String> applicationNamesOfAgentId1 = duplicateAgentIdMap.get(AGENT_ID1).stream().map(Application::getName).collect(Collectors.toList());

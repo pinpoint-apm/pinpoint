@@ -32,10 +32,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -49,14 +46,14 @@ public class TestPinpointServerAcceptor {
     private final PinpointServerAcceptor serverAcceptor;
 
     public TestPinpointServerAcceptor() {
-        this((ServerMessageListenerFactory) null);
+        this((ServerMessageListenerFactory<?>) null);
     }
 
-    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory) {
+    public TestPinpointServerAcceptor(ServerMessageListenerFactory<?> messageListenerFactory) {
         this(messageListenerFactory, null);
     }
 
-    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
+    public TestPinpointServerAcceptor(ServerMessageListenerFactory<?> messageListenerFactory, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
         this(messageListenerFactory, streamChannelMessageHandler, null);
     }
 
@@ -64,7 +61,7 @@ public class TestPinpointServerAcceptor {
         this(null, null, messageHandler);
     }
 
-    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory, ServerStreamChannelMessageHandler streamChannelMessageHandler, ChannelHandler messageHandler) {
+    public TestPinpointServerAcceptor(ServerMessageListenerFactory<?> messageListenerFactory, ServerStreamChannelMessageHandler streamChannelMessageHandler, ChannelHandler messageHandler) {
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
 
         if (messageListenerFactory != null) {
@@ -97,14 +94,14 @@ public class TestPinpointServerAcceptor {
         Assert.isTrue(maxWaitTime > 100, "maxWaitTime must be greater than 100");
         Awaitility.await()
                 .timeout(maxWaitTime, TimeUnit.MILLISECONDS)
-                .until(getConnectedPinpointSocketListWrap(), is(not(empty())));
+                .untilAsserted(() -> assertThat(getConnectedPinpointSocketListWrap().call()).hasSizeGreaterThan(0));
     }
 
     public void assertAwaitClientConnected(int expectedConnectedClientCount, int maxWaitTime) {
         Assert.isTrue(maxWaitTime > 100, "maxWaitTime must be greater than 100");
         Awaitility.await()
                 .timeout(maxWaitTime, TimeUnit.MILLISECONDS)
-                .until(getConnectedPinpointSocketListWrap(), is(hasSize(expectedConnectedClientCount)));
+                .untilAsserted(() -> assertThat(getConnectedPinpointSocketListWrap().call()).hasSize(expectedConnectedClientCount));
     }
 
     private Callable<List<PinpointSocket>> getConnectedPinpointSocketListWrap() {

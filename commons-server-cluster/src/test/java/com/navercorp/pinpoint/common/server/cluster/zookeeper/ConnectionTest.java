@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * This test compares the connection status of Curator and Zookeeper.
@@ -45,10 +45,9 @@ public class ConnectionTest {
     private final Logger logger = LogManager.getLogger(ConnectionTest.class);
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(100, TimeUnit.MILLISECONDS)
                 .timeout(3000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
     private static int zookeeperPort;
@@ -125,7 +124,8 @@ public class ConnectionTest {
 
 
     private void assertAwaitState(ZooKeeper.States expectedState, ZooKeeper zookeeper) {
-        awaitility().until(zookeeper::getState, is(expectedState));
+        awaitility()
+                .untilAsserted(() -> assertThat(zookeeper.getState()).isEqualTo(expectedState));
     }
 
     // Even if the Instance of the ZookeeperServer changes, the Curator will automatically reconnect.
@@ -168,7 +168,7 @@ public class ConnectionTest {
 
     private void assertAwaitState(boolean expectedConnected, CuratorZookeeperClient curatorZookeeperClient) {
         awaitility()
-                .until(curatorZookeeperClient::isConnected, is(expectedConnected));
+                .untilAsserted(() -> assertThat(curatorZookeeperClient.isConnected()).isEqualTo(expectedConnected));
     }
 
     private static class LoggingZookeeperEventWatcher implements ZookeeperEventWatcher {

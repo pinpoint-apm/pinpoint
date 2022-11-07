@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOperator;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +39,7 @@ public class LambdaExpressionMatcherTest {
     }
 
     @Test
-    public void getMatcherOperandWithFuncationalInterfaceNameIsNull() {
+    public void getMatcherOperandWithFunctionalInterfaceNameIsNull() {
         Assertions.assertThrows(NullPointerException.class, () -> {
             LambdaExpressionMatcher lambdaExpressionMatcher = new LambdaExpressionMatcher("java.lang.Runnable", null);
         });

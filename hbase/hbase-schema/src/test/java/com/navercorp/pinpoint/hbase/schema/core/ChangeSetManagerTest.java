@@ -26,12 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -49,34 +44,33 @@ public class ChangeSetManagerTest {
 
         ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
         List<ChangeSet> executedChangeSets = changeSetManager.getExecutedChangeSets(schemaChangeLogs);
-        assertThat(executedChangeSets, contains(changeSet1, changeSet2));
+        assertThat(executedChangeSets).contains(changeSet1, changeSet2);
     }
 
     @Test
     public void getExecutedChangeSets_emptySchemaChangeLogs() {
-        ChangeSetManager changeSetManager = new ChangeSetManager(Arrays.asList(newChangeSet("id1", "value1")));
-        assertThat(changeSetManager.getExecutedChangeSets(Collections.emptyList()), equalTo(Collections.emptyList()));
-        assertThat(changeSetManager.getExecutedChangeSets(null), equalTo(Collections.emptyList()));
+        ChangeSetManager changeSetManager = new ChangeSetManager(List.of(newChangeSet("id1", "value1")));
+        assertThat(changeSetManager.getExecutedChangeSets(Collections.emptyList())).isEmpty();
+        assertThat(changeSetManager.getExecutedChangeSets(null)).isEmpty();
     }
 
     @Test
     public void getExecutedChangeSets_largerSchemaChangeLogs() {
         ChangeSet changeSet = newChangeSet("id1", "value1");
-        ChangeSetManager changeSetManager = new ChangeSetManager(Arrays.asList(changeSet));
+        ChangeSetManager changeSetManager = new ChangeSetManager(List.of(changeSet));
         List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(
                 newSchemaChangeLog("id1", "value1", 1),
                 newSchemaChangeLog("id2", "value2", 2));
         List<ChangeSet> executedChangeSets = changeSetManager.getExecutedChangeSets(schemaChangeLogs);
-        assertThat(executedChangeSets, hasSize(1));
-        assertThat(executedChangeSets, contains(changeSet));
+        assertThat(executedChangeSets).hasSize(1).contains(changeSet);
     }
 
     @Test
     public void getExecutedChangeSets_invalidId() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             ChangeSet changeSet = newChangeSet("id1", "value1");
-            List<ChangeSet> changeSets = Arrays.asList(changeSet);
-            List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(newSchemaChangeLog("id2", "value1", 1));
+            List<ChangeSet> changeSets = List.of(changeSet);
+            List<SchemaChangeLog> schemaChangeLogs = Collections.singletonList(newSchemaChangeLog("id2", "value1", 1));
 
             ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
             changeSetManager.getExecutedChangeSets(schemaChangeLogs);
@@ -87,9 +81,9 @@ public class ChangeSetManagerTest {
     public void getExecutedChangeSets_invalidCheckSum() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             ChangeSet changeSet = newChangeSet("id1", "value1");
-            List<ChangeSet> changeSets = Arrays.asList(changeSet);
+            List<ChangeSet> changeSets = List.of(changeSet);
             CheckSum invalidCheckSum = CheckSum.compute(CheckSum.getCurrentVersion(), "value2");
-            List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(newSchemaChangeLog("id1", "value1", invalidCheckSum, 1));
+            List<SchemaChangeLog> schemaChangeLogs = Collections.singletonList(newSchemaChangeLog("id1", "value1", invalidCheckSum, 1));
 
             ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
             changeSetManager.getExecutedChangeSets(schemaChangeLogs);
@@ -100,8 +94,8 @@ public class ChangeSetManagerTest {
     public void getExecutedChangeSets_invalidOrder() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             ChangeSet changeSet1 = newChangeSet("id1", "value1");
-            List<ChangeSet> changeSets = Arrays.asList(changeSet1);
-            List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(newSchemaChangeLog("id1", "value1", 2));
+            List<ChangeSet> changeSets = List.of(changeSet1);
+            List<SchemaChangeLog> schemaChangeLogs = Collections.singletonList(newSchemaChangeLog("id1", "value1", 2));
 
             ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
             changeSetManager.getExecutedChangeSets(schemaChangeLogs);
@@ -119,7 +113,7 @@ public class ChangeSetManagerTest {
 
         ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
         List<ChangeSet> filteredChangeSets = changeSetManager.filterExecutedChangeSets(schemaChangeLogs);
-        assertThat(filteredChangeSets, contains(changeSet2, changeSet3, changeSet4));
+        assertThat(filteredChangeSets).contains(changeSet2, changeSet3, changeSet4);
     }
 
     @Test
@@ -128,27 +122,27 @@ public class ChangeSetManagerTest {
         ChangeSet changeSet2 = newChangeSet("id2", "value2");
         List<ChangeSet> changeSets = Arrays.asList(changeSet1, changeSet2);
         ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
-        assertThat(changeSetManager.filterExecutedChangeSets(Collections.emptyList()), contains(changeSet1, changeSet2));
-        assertThat(changeSetManager.filterExecutedChangeSets(null), contains(changeSet1, changeSet2));
+        assertThat(changeSetManager.filterExecutedChangeSets(Collections.emptyList())).contains(changeSet1, changeSet2);
+        assertThat(changeSetManager.filterExecutedChangeSets(null)).contains(changeSet1, changeSet2);
     }
 
     @Test
     public void filterExecutedChangeSets_largerSchemaChangeLogs() {
         ChangeSet changeSet = newChangeSet("id1", "value1");
-        ChangeSetManager changeSetManager = new ChangeSetManager(Arrays.asList(changeSet));
+        ChangeSetManager changeSetManager = new ChangeSetManager(List.of(changeSet));
         List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(
                 newSchemaChangeLog("id1", "value1", 1),
                 newSchemaChangeLog("id2", "value2", 2));
         List<ChangeSet> unexecutedChangeSets = changeSetManager.filterExecutedChangeSets(schemaChangeLogs);
-        assertThat(unexecutedChangeSets, is(empty()));
+        assertThat(unexecutedChangeSets).isEmpty();
     }
 
     @Test
     public void filterExecutedChangeSets_invalidId() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             ChangeSet changeSet = newChangeSet("id1", "value1");
-            List<ChangeSet> changeSets = Arrays.asList(changeSet);
-            List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(newSchemaChangeLog("id2", "value1", 1));
+            List<ChangeSet> changeSets = List.of(changeSet);
+            List<SchemaChangeLog> schemaChangeLogs = Collections.singletonList(newSchemaChangeLog("id2", "value1", 1));
 
             ChangeSetManager changeSetManager = new ChangeSetManager(changeSets);
             changeSetManager.filterExecutedChangeSets(schemaChangeLogs);
@@ -159,7 +153,7 @@ public class ChangeSetManagerTest {
     public void filterExecutedChangeSets_invalidCheckSum() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             ChangeSet changeSet = newChangeSet("id1", "value1");
-            List<ChangeSet> changeSets = Arrays.asList(changeSet);
+            List<ChangeSet> changeSets = List.of(changeSet);
             CheckSum invalidCheckSum = CheckSum.compute(CheckSum.getCurrentVersion(), "value2");
             List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(newSchemaChangeLog("id1", "value1", invalidCheckSum, 1));
 

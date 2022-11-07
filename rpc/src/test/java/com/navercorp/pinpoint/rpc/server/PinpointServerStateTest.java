@@ -29,10 +29,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
-import static org.hamcrest.Matchers.is;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -139,12 +137,7 @@ public class PinpointServerStateTest {
 
     private void assertPinpointServerState(final SocketStateCode stateCode, final PinpointServer pinpointServer) {
         Awaitility.await()
-                .until(new Callable<SocketStateCode>() {
-                    @Override
-                    public SocketStateCode call() {
-                        return pinpointServer.getCurrentStateCode();
-                    }
-                }, is(stateCode));
+                .untilAsserted(() -> assertThat(pinpointServer.getCurrentStateCode()).isEqualTo(stateCode));
     }
 
 }

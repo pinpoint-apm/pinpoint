@@ -33,7 +33,6 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -47,10 +46,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -65,10 +63,9 @@ public class ClusterTest {
     // when failures happen, you have to copy pinpoint-web-root.properties of resource-test to resource-local. Tests will succeed.
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(100, TimeUnit.MILLISECONDS)
                 .timeout(10000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
 
@@ -76,18 +73,16 @@ public class ClusterTest {
     static ClusterConnectionManager clusterConnectionManager;
     static ZookeeperClusterDataManager clusterDataManager;
 
-    private static int zookeeperPort;
     private static String zookeeperAddress;
 
     private static int acceptorPort;
-    private static String acceptorAddress;
     private static String CLUSTER_NODE_PATH;
 
     private static TestingServer ts = null;
 
     @BeforeAll
     public static void setUp() throws Exception {
-        zookeeperPort = SocketUtils.findAvailableTcpPort(28000);
+        int zookeeperPort = SocketUtils.findAvailableTcpPort(28000);
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
         ts = createZookeeperServer(zookeeperPort);
 
@@ -103,7 +98,7 @@ public class ClusterTest {
                 thenReturn(ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH));
 
         acceptorPort = SocketUtils.findAvailableTcpPort(zookeeperPort);
-        acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
+        String acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
         when(config.getClusterTcpPort()).thenReturn(acceptorPort);
 
         CLUSTER_NODE_PATH
@@ -183,9 +178,7 @@ public class ClusterTest {
         });
         awaitZookeeperConnected(zookeeper);
 
-        if (zookeeper != null) {
-            zookeeper.close();
-        }
+        zookeeper.close();
     }
 
     @Test
@@ -213,9 +206,7 @@ public class ClusterTest {
         ts.restart();
         getNodeAndCompareContents(zookeeper);
 
-        if (zookeeper != null) {
-            zookeeper.close();
-        }
+        zookeeper.close();
     }
 
     @Test
@@ -250,11 +241,13 @@ public class ClusterTest {
     }
 
     private void awaitZookeeperDisconnected(final ZooKeeper zookeeper) {
-        awaitility().until(() -> getNodeAndCompareContents0(zookeeper), is(false));
+        awaitility()
+                .untilAsserted(() -> assertThat(getNodeAndCompareContents0(zookeeper)).isFalse());
     }
 
     private void awaitPinpointClientConnected(final ClusterConnectionManager connectionManager) {
-        awaitility().until(connectionManager::getClusterList, not(IsEmptyCollection.empty()));
+        awaitility()
+                .untilAsserted(() -> assertThat(connectionManager.getClusterList()).isNotEmpty());
     }
 
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {

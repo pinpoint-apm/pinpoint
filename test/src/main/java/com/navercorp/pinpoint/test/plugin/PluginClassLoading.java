@@ -10,7 +10,7 @@ public final class PluginClassLoading {
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_CONTAINS = new String[]{
             "junit", // JUnit
-            "hamcrest", // for JUnit
+            "assertj-core",
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
             "/test/target/classes", // pinpoint-test build output directory
             "/testcase/target/classes",

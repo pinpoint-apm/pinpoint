@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.awaitility.Awaitility;
-import org.hamcrest.Matchers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,8 @@ import org.junit.jupiter.api.Test;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Objects;
-import java.util.concurrent.Callable;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -145,12 +145,7 @@ public class PinpointClientStateTest {
 
     private void assertHandlerState(final SocketStateCode stateCode, final DefaultPinpointClientHandler handler) {
         Awaitility.await()
-                .until(new Callable<SocketStateCode>() {
-                    @Override
-                    public SocketStateCode call() {
-                        return handler.getCurrentStateCode();
-                    }
-                }, Matchers.is(stateCode));
+                .untilAsserted(() -> assertThat(handler.getCurrentStateCode()).isEqualTo(stateCode));
     }
 
     private DefaultPinpointClientHandler connect(DefaultPinpointClientFactory factory, int port) {
@@ -163,9 +158,8 @@ public class PinpointClientStateTest {
         Objects.requireNonNull(address, "address");
 
         Channel channel = channelConnectFuture.getChannel();
-        PinpointClientHandler pinpointClientHandler = (PinpointClientHandler) channel.getPipeline().getLast();
 
-        return pinpointClientHandler;
+        return (PinpointClientHandler) channel.getPipeline().getLast();
     }
 
     private void closeHandler(DefaultPinpointClientHandler handler) {

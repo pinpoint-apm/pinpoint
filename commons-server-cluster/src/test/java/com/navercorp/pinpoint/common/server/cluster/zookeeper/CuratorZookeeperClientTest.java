@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -53,10 +53,9 @@ public class CuratorZookeeperClientTest {
     private static final Logger LOGGER = LogManager.getLogger(CuratorZookeeperClientTest.class);
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(100, TimeUnit.MILLISECONDS)
                 .timeout(3000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
     private static TestingServer ts = null;
@@ -141,7 +140,6 @@ public class CuratorZookeeperClientTest {
 
             ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(testNodePath);
             String path = pathAndNode.getPath();
-            String node = pathAndNode.getNode();
 
             try {
                 curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes()));
@@ -209,7 +207,7 @@ public class CuratorZookeeperClientTest {
 
     private void assertGetWatchedEvent(String path, String message) throws PinpointZookeeperException {
         awaitility()
-                .until(eventHoldingZookeeperEventWatcher::getLastWatchedEvent, notNullValue());
+                .untilAsserted(() -> assertThat(eventHoldingZookeeperEventWatcher.getLastWatchedEvent()).isNotNull());
 
         WatchedEvent lastWatchedEvent = eventHoldingZookeeperEventWatcher.getLastWatchedEvent();
         Assertions.assertEquals(Watcher.Event.EventType.NodeDataChanged, lastWatchedEvent.getType());
@@ -232,7 +230,7 @@ public class CuratorZookeeperClientTest {
             zooKeeper.create(testNodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 
             awaitility()
-                    .until(eventHoldingZookeeperEventWatcher::getLastWatchedEvent, notNullValue());
+                    .untilAsserted(() -> assertThat(eventHoldingZookeeperEventWatcher.getLastWatchedEvent()).isNotNull());
 
             WatchedEvent lastWatchedEvent = eventHoldingZookeeperEventWatcher.getLastWatchedEvent();
             Assertions.assertEquals(Watcher.Event.EventType.NodeChildrenChanged, lastWatchedEvent.getType());
@@ -245,14 +243,12 @@ public class CuratorZookeeperClientTest {
     }
 
     private ZooKeeper createZookeeper() throws IOException {
-        ZooKeeper zooKeeper = new ZooKeeper(ts.getConnectString(), 3000, new Watcher() {
+        return new ZooKeeper(ts.getConnectString(), 3000, new Watcher() {
             @Override
             public void process(WatchedEvent watchedEvent) {
                 LOGGER.debug("process:{}", watchedEvent);
             }
         });
-
-        return zooKeeper;
     }
 
     private boolean isExistNode(ZooKeeper zooKeeper, String path) throws KeeperException, InterruptedException {

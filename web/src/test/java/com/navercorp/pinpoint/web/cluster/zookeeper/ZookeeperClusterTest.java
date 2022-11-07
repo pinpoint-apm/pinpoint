@@ -35,7 +35,6 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -48,8 +47,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -70,10 +69,9 @@ public class ZookeeperClusterTest {
     private static TestingServer ts = null;
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(100, TimeUnit.MILLISECONDS)
                 .timeout(10000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
     @BeforeAll
@@ -86,9 +84,7 @@ public class ZookeeperClusterTest {
 
         ts = createZookeeperServer(zookeeperPort);
 
-        WebClusterConfig mockWebClusterConfig = getWebClusterConfig();
-
-        webClusterConfig = mockWebClusterConfig;
+        webClusterConfig = getWebClusterConfig();
     }
 
     private static WebClusterConfig getWebClusterConfig() {
@@ -219,12 +215,12 @@ public class ZookeeperClusterTest {
 
     private void awaitCheckAgentRegistered(final ZookeeperClusterDataManager manager, ClusterKey clusterKey) {
         awaitility()
-                .until(getRegisteredAgentList(manager, clusterKey), not(IsEmptyCollection.empty()));
+                .untilAsserted(() -> assertThat(getRegisteredAgentList(manager, clusterKey).call()).isNotEmpty());
     }
 
     private void awaitCheckAgentUnRegistered(final ZookeeperClusterDataManager manager, ClusterKey clusterKey) {
         awaitility()
-                .until(getRegisteredAgentList(manager, clusterKey), IsEmptyCollection.empty());
+                .untilAsserted(() -> assertThat(getRegisteredAgentList(manager, clusterKey).call()).isEmpty());
     }
 
     private Callable<List<ClusterId>> getRegisteredAgentList(ZookeeperClusterDataManager manager, ClusterKey clusterKey) {
@@ -248,6 +244,7 @@ public class ZookeeperClusterTest {
         }
     }
 
+    @SuppressWarnings("unused")
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
         byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
