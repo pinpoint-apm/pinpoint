@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.collector.dao;
-
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-
-import java.util.List;
+package com.navercorp.pinpoint.metric.common.pinot;
 
 /**
- * @author Hyunjoon Cho
+ * @author minwoo.jung
  */
-public interface SystemMetricDao<T extends SystemMetric> {
-    void insert(String tenantId, String hostGroupName, String hostName, List<T> systemMetrics);
+public interface TenantProvider {
+
+    String getTenantId();
 }

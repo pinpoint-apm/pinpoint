@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.web.controller;
 
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
@@ -46,37 +47,43 @@ public class SystemMetricController {
     private final SystemMetricDataService systemMetricDataService;
     private final SystemMetricHostInfoService systemMetricHostInfoService;
     private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
+    private final TenantProvider tenantProvider;
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 200);
 
     private final TagParser tagParser = new TagParser();
 
-    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager) {
+    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager, TenantProvider tenantProvider) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
+        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     @GetMapping(value = "/hostGroup")
     public List<String> getHostGroup() {
-        return systemMetricHostInfoService.getHostGroupNameList();
+        String tenantId = tenantProvider.getTenantId();
+        return systemMetricHostInfoService.getHostGroupNameList(tenantId);
     }
 
     @GetMapping(value = "/hostGroup/host")
     public List<String> getHostGroup(@RequestParam("hostGroupName") String hostGroupName) {
-        return systemMetricHostInfoService.getHostList(hostGroupName);
+        String tenantId = tenantProvider.getTenantId();
+        return systemMetricHostInfoService.getHostList(tenantId, hostGroupName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricInfoV2")
     public List<MetricInfo> getCollectedMetricInfoV2(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
-        return systemMetricHostInfoService.getCollectedMetricInfoV2(hostGroupName, hostName);
+        String tenantId = tenantProvider.getTenantId();
+        return systemMetricHostInfoService.getCollectedMetricInfoV2(tenantId, hostGroupName, hostName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedTags")
     public List<String> getCollectedTags(@RequestParam("hostGroupName") String hostGroupName,
                                          @RequestParam("hostName") String hostName,
                                          @RequestParam("metricDefinitionId") String metricDefinitionId) {
-        return systemMetricHostInfoService.getCollectedMetricInfoTags(hostGroupName, hostName, metricDefinitionId);
+        String tenantId = tenantProvider.getTenantId();
+        return systemMetricHostInfoService.getCollectedMetricInfoTags(tenantId, hostGroupName, hostName, metricDefinitionId);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
@@ -86,8 +93,9 @@ public class SystemMetricController {
                                                    @RequestParam("from") long from,
                                                    @RequestParam("to") long to,
                                                    @RequestParam(value = "tags", required = false) String tags) {
+        String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
+        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(tenantId, hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
         List<Tag> tagList = tagParser.parseTags(tags);
 
         SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow, tagList);

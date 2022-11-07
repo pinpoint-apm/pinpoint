@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
+import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
 import com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,6 +62,7 @@ public class PinotMetricTagDao implements MetricTagDao {
 
     private static class MetricJsonTag {
 
+        private String tenantId;
         private String hostGroupName;
         private String hostName;
         private String metricName;
@@ -68,12 +70,13 @@ public class PinotMetricTagDao implements MetricTagDao {
         private String tags;
         private long saveTime;
 
-        public MetricJsonTag(String hostGroupName, String hostName, String metricName, String fieldName, String jsonTag, long saveTime) {
-            this.hostGroupName = hostGroupName;
-            this.hostName = hostName;
-            this.metricName = metricName;
-            this.fieldName = fieldName;
-            this.tags = jsonTag;
+        public MetricJsonTag(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, String jsonTag, long saveTime) {
+            this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
+            this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
+            this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
+            this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
+            this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
+            this.tags = StringPrecondition.requireHasLength(jsonTag, "jsonTag");
             this.saveTime = saveTime;
         }
 
@@ -101,15 +104,19 @@ public class PinotMetricTagDao implements MetricTagDao {
             return saveTime;
         }
 
+        public String getTenantId() {
+            return tenantId;
+        }
+
         static MetricJsonTag covertMetricJsonTag(TagListTypeHandler tagListTypeHandler, MetricTag metricTag) {
             String jsonTag = tagListTypeHandler.serialize(metricTag.getTags());
-            return new MetricJsonTag(metricTag.getHostGroupName(), metricTag.getHostName(), metricTag.getMetricName(), metricTag.getFieldName(), jsonTag, metricTag.getSaveTime());
+            return new MetricJsonTag(metricTag.getTenantId(), metricTag.getHostGroupName(), metricTag.getHostName(), metricTag.getMetricName(), metricTag.getFieldName(), jsonTag, metricTag.getSaveTime());
         }
     }
 
     @Override
     public MetricTagCollection selectMetricTag(MetricTagKey metricTagKey) {
         List<MetricTag> metricTagList = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
-        return new MetricTagCollection(metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagKey.getTenantId(), metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 }

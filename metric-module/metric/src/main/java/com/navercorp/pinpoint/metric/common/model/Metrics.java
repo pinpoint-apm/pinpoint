@@ -8,13 +8,15 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Metrics implements Iterable<SystemMetric> {
+    private final String tenantId;
     private final String hostGroupName;
     private final String hostName;
 
     @Valid
     private final List<SystemMetric> metrics;
 
-    public Metrics(String hostGroupName, String hostName, List<SystemMetric> metrics) {
+    public Metrics(String tenantId, String hostGroupName, String hostName, List<SystemMetric> metrics) {
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.metrics = Objects.requireNonNull(metrics, "metrics");
@@ -26,6 +28,10 @@ public class Metrics implements Iterable<SystemMetric> {
 
     public String getHostName() {
         return hostName;
+    }
+
+    public String getTenantId() {
+        return tenantId;
     }
 
     public List<SystemMetric> getMetrics() {

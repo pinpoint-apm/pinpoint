@@ -28,13 +28,13 @@ import java.util.List;
  * @author minwoo.jung
  */
 public interface SystemMetricHostInfoService {
-    List<String> getHostGroupNameList();
+    List<String> getHostGroupNameList(String tenantId);
 
-    List<String> getHostList(String hostGroupName);
+    List<String> getHostList(String tenantId, String hostGroupName);
 
-    List<MetricInfo> getCollectedMetricInfoV2(String hostGroupName, String hostName);
+    List<MetricInfo> getCollectedMetricInfoV2(String tenantId, String hostGroupName, String hostName);
 
-    List<String> getCollectedMetricInfoTags(String hostGroupName, String hostName, String metricDefinitionId);
+    List<String> getCollectedMetricInfoTags(String tenantId, String hostGroupName, String hostName, String metricDefinitionId);
 
     List<MetricTag> getTag(MetricDataSearchKey metricDataSearchKey, Field elementOfBasicGroup, List<Tag> tags);
 }

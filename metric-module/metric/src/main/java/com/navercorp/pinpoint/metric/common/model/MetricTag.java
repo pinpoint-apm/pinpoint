@@ -25,6 +25,7 @@ import java.util.Objects;
  */
 public class MetricTag {
 
+    private String tenantId;
     private String hostGroupName;
     private String hostName;
     private String metricName;
@@ -35,7 +36,8 @@ public class MetricTag {
     public MetricTag() {
     }
 
-    public MetricTag(String hostGroupName, String hostName, String metricName, String fieldName, List<Tag> tags, long saveTime) {
+    public MetricTag(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, List<Tag> tags, long saveTime) {
+        this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -92,21 +94,27 @@ public class MetricTag {
         this.saveTime = saveTime;
     }
 
+    public String getTenantId() {
+        return tenantId;
+    }
 
     public MetricTag copy() {
         List<Tag> tagList = new ArrayList<>(this.tags);
 
-        return new MetricTag(hostGroupName, hostName, metricName, fieldName, tagList, saveTime);
+        return new MetricTag(tenantId, hostGroupName, hostName, metricName, fieldName, tagList, saveTime);
     }
+
 
     @Override
     public String toString() {
         return "MetricTag{" +
-                "hostGroupName='" + hostGroupName + '\'' +
+                "tenantId='" + tenantId + '\'' +
+                ", hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
                 ", tags=" + tags +
+                ", saveTime=" + saveTime +
                 '}';
     }
 
@@ -115,11 +123,11 @@ public class MetricTag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTag metricTag = (MetricTag) o;
-        return saveTime == metricTag.saveTime && Objects.equals(hostGroupName, metricTag.hostGroupName) && Objects.equals(hostName, metricTag.hostName) && Objects.equals(metricName, metricTag.metricName) && Objects.equals(fieldName, metricTag.fieldName) && Objects.equals(tags, metricTag.tags);
+        return saveTime == metricTag.saveTime && tenantId.equals(metricTag.tenantId) && hostGroupName.equals(metricTag.hostGroupName) && hostName.equals(metricTag.hostName) && metricName.equals(metricTag.metricName) && fieldName.equals(metricTag.fieldName) && tags.equals(metricTag.tags);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hostGroupName, hostName, metricName, fieldName, tags, saveTime);
+        return Objects.hash(tenantId, hostGroupName, hostName, metricName, fieldName, tags, saveTime);
     }
 }

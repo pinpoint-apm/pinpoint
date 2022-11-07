@@ -2,6 +2,11 @@
   "schemaName": "systemMetricDouble",
   "dimensionFieldSpecs": [
     {
+      "name": "tenantId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
       "name": "serviceName",
       "dataType": "STRING",
       "defaultNullValue": ""

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,21 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class MetricInfoSearchKey {
+public class HostInfoSearchKey {
 
     private final String tenantId;
     private final String hostGroupName;
-    private final String hostName;
 
-    public MetricInfoSearchKey(String tenantId, String hostGroupName, String hostName) {
+    public HostInfoSearchKey(String tenantId, String hostGroupName) {
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
-        this.hostName = Objects.requireNonNull(hostName, "hostName");
-    }
-
-    public String getHostGroupName() {
-        return hostGroupName;
-    }
-
-    public String getHostName() {
-        return hostName;
     }
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getHostGroupName() {
+        return hostGroupName;
     }
 }
