@@ -23,4 +23,7 @@ public interface UriExtractorService<T> {
 
     UriExtractor<T> getUriExtractor(UriExtractorProviderLocator uriExtractorProviderLocator);
 
+    @Deprecated
+    UriExtractor<T> get(UriExtractorProviderLocator uriExtractorProviderLocator);
+
 }

@@ -11,4 +11,10 @@ public class BypassingUriExtractorService implements UriExtractorService {
         result.add(extractor);
         return new UriExtractorChain<>(result);
     }
+
+    @Override
+    @Deprecated
+    public UriExtractor get(UriExtractorProviderLocator uriExtractorProviderLocator) {
+        return getUriExtractor(uriExtractorProviderLocator);
+    }
 }
