@@ -20,13 +20,8 @@ import org.junit.Test;
 
 import java.util.SortedSet;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author WonChul Heo(heowc)
@@ -35,14 +30,18 @@ public class SocketUtilsTest {
 
     @Test
     public void testSuccessfulFindAvailableTcpPort() {
-        assertThat(SocketUtils.findAvailableTcpPort(),
-                allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX)));
-        assertThat(SocketUtils.findAvailableTcpPort(SocketUtils.PORT_RANGE_MIN + 1),
-                allOf(greaterThan(SocketUtils.PORT_RANGE_MIN + 1), lessThan(SocketUtils.PORT_RANGE_MAX)));
-        assertThat(SocketUtils.findAvailableTcpPort(SocketUtils.PORT_RANGE_MIN, SocketUtils.PORT_RANGE_MAX - 1),
-                allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX - 1)));
-        assertThat(SocketUtils.findAvailableTcpPort(1, SocketUtils.PORT_RANGE_MAX),
-                allOf(greaterThan(1), lessThan(SocketUtils.PORT_RANGE_MAX)));
+        assertThat(SocketUtils.findAvailableTcpPort())
+                .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX);
+        assertThat(SocketUtils.findAvailableTcpPort(SocketUtils.PORT_RANGE_MIN + 1))
+                .isGreaterThan(SocketUtils.PORT_RANGE_MIN + 1)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX);
+        assertThat(SocketUtils.findAvailableTcpPort(SocketUtils.PORT_RANGE_MIN, SocketUtils.PORT_RANGE_MAX - 1))
+                .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX - 1);
+        assertThat(SocketUtils.findAvailableTcpPort(1, SocketUtils.PORT_RANGE_MAX))
+                .isGreaterThan(1)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX);
     }
 
     @Test
@@ -76,21 +75,27 @@ public class SocketUtilsTest {
     @Test
     public void testSuccessfulFindAvailableTcpPorts() {
         SortedSet<Integer> availableTcpPorts = SocketUtils.findAvailableTcpPorts(1);
-        assertThat(availableTcpPorts.size(), is(1));
+        assertThat(availableTcpPorts.size()).isEqualTo(1);
         for (Integer port : availableTcpPorts) {
-            assertThat(port, allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX)));
+            assertThat(port)
+                    .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                    .isLessThan(SocketUtils.PORT_RANGE_MAX);
         }
 
         availableTcpPorts = SocketUtils.findAvailableTcpPorts(2);
-        assertThat(availableTcpPorts.size(), is(2));
+        assertThat(availableTcpPorts.size()).isEqualTo(2);
         for (Integer port : availableTcpPorts) {
-            assertThat(port, allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX)));
+            assertThat(port)
+                    .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                    .isLessThan(SocketUtils.PORT_RANGE_MAX);
         }
 
         availableTcpPorts = SocketUtils.findAvailableTcpPorts(3, SocketUtils.PORT_RANGE_MIN + 1, SocketUtils.PORT_RANGE_MAX - 1);
-        assertThat(availableTcpPorts.size(), is(3));
+        assertThat(availableTcpPorts.size()).isEqualTo(3);
         for (Integer port : availableTcpPorts) {
-            assertThat(port, allOf(greaterThan(SocketUtils.PORT_RANGE_MIN + 1), lessThan(SocketUtils.PORT_RANGE_MAX - 1)));
+            assertThat(port)
+                    .isGreaterThan(SocketUtils.PORT_RANGE_MIN + 1)
+                    .isLessThan(SocketUtils.PORT_RANGE_MAX - 1);
         }
     }
 
@@ -130,14 +135,18 @@ public class SocketUtilsTest {
 
     @Test
     public void testSuccessfulFindAvailableUdpPort() {
-        assertThat(SocketUtils.findAvailableUdpPort(),
-                allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX)));
-        assertThat(SocketUtils.findAvailableUdpPort(SocketUtils.PORT_RANGE_MIN + 1),
-                allOf(greaterThan(SocketUtils.PORT_RANGE_MIN + 1), lessThan(SocketUtils.PORT_RANGE_MAX)));
-        assertThat(SocketUtils.findAvailableUdpPort(SocketUtils.PORT_RANGE_MIN, SocketUtils.PORT_RANGE_MAX - 1),
-                allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX - 1)));
-        assertThat(SocketUtils.findAvailableUdpPort(1, SocketUtils.PORT_RANGE_MAX),
-                allOf(greaterThan(1), lessThan(SocketUtils.PORT_RANGE_MAX)));
+        assertThat(SocketUtils.findAvailableUdpPort())
+                .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX);
+        assertThat(SocketUtils.findAvailableUdpPort(SocketUtils.PORT_RANGE_MIN + 1))
+                .isGreaterThan(SocketUtils.PORT_RANGE_MIN + 1)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX - 1);
+        assertThat(SocketUtils.findAvailableUdpPort(SocketUtils.PORT_RANGE_MIN, SocketUtils.PORT_RANGE_MAX - 1))
+                .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX - 1);
+        assertThat(SocketUtils.findAvailableUdpPort(1, SocketUtils.PORT_RANGE_MAX))
+                .isGreaterThan(1)
+                .isLessThan(SocketUtils.PORT_RANGE_MAX);
     }
 
     @Test
@@ -171,21 +180,27 @@ public class SocketUtilsTest {
     @Test
     public void testSuccessfulFindAvailableUdpPorts() {
         SortedSet<Integer> availableTcpPorts = SocketUtils.findAvailableUdpPorts(1);
-        assertThat(availableTcpPorts.size(), is(1));
+        assertThat(availableTcpPorts.size()).isEqualTo(1);
         for (Integer port : availableTcpPorts) {
-            assertThat(port, allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX)));
+            assertThat(port)
+                    .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                    .isLessThan(SocketUtils.PORT_RANGE_MAX);
         }
 
         availableTcpPorts = SocketUtils.findAvailableUdpPorts(2);
-        assertThat(availableTcpPorts.size(), is(2));
+        assertThat(availableTcpPorts.size()).isEqualTo(2);
         for (Integer port : availableTcpPorts) {
-            assertThat(port, allOf(greaterThan(SocketUtils.PORT_RANGE_MIN), lessThan(SocketUtils.PORT_RANGE_MAX)));
+            assertThat(port)
+                    .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                    .isLessThan(SocketUtils.PORT_RANGE_MAX);
         }
 
         availableTcpPorts = SocketUtils.findAvailableUdpPorts(3, SocketUtils.PORT_RANGE_MIN + 1, SocketUtils.PORT_RANGE_MAX - 1);
-        assertThat(availableTcpPorts.size(), is(3));
+        assertThat(availableTcpPorts.size()).isEqualTo(3);
         for (Integer port : availableTcpPorts) {
-            assertThat(port, allOf(greaterThan(SocketUtils.PORT_RANGE_MIN + 1), lessThan(SocketUtils.PORT_RANGE_MAX - 1)));
+            assertThat(port)
+                    .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
+                    .isLessThan(SocketUtils.PORT_RANGE_MAX);
         }
     }
 
@@ -229,8 +244,8 @@ public class SocketUtilsTest {
             fail();
         } catch (RuntimeException e) {
             if (clazz.isInstance(e)) {
-                assertThat(e, isA(clazz));
-                assertThat(e.getMessage(), is(message));
+                assertThat(e).isInstanceOf(clazz);
+                assertThat(e.getMessage()).isEqualTo(message);
             } else {
                 throw e;
             }

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
@@ -37,8 +37,8 @@ public class LRUCacheTest {
         for (int i = 0; i < 1000; i++) {
             cache.put(String.valueOf(random.nextInt(100000)));
         }
-        ConditionFactory await = Awaitility.await();
-        await.until(cache::getSize, is(cacheSize));
+        Awaitility.await()
+                .untilAsserted(() -> assertThat(cache.getSize()).isEqualTo(cacheSize));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class LRUCacheTest {
         boolean hit2 = cache.put(sqlObject);
         Assertions.assertFalse(hit2);
         ConditionFactory await = Awaitility.await();
-        await.until(cache::getSize, is(1L));
+        await.untilAsserted(() -> assertThat(cache.getSize()).isEqualTo(1));
 //        "23 123";
 //        "DCArMlhwQO 7"
         cache.put("23 123");
@@ -63,7 +63,6 @@ public class LRUCacheTest {
         cache.put("3");
         cache.put("4");
 
-        await.until(cache::getSize, is(2L));
-
+        await.untilAsserted(() -> assertThat(cache.getSize()).isEqualTo(2));
     }
 }

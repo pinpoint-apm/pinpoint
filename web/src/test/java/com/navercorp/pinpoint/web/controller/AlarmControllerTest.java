@@ -37,7 +37,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,6 +44,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 
 /**
  * @author minwoo.jung
@@ -94,7 +94,6 @@ public class AlarmControllerTest {
         this.alarmDao.deleteRuleByUserGroupId(USER_GROUP_ID_UPDATED);
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void insertAndSelectAndDeleteRule() throws Exception {
         String jsonParm = "{" +
@@ -139,7 +138,6 @@ public class AlarmControllerTest {
                         .andReturn();
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void updateRule() throws Exception {
         String jsonParm = "{" +

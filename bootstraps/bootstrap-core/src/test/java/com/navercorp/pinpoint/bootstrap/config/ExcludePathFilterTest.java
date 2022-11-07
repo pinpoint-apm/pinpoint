@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static com.navercorp.pinpoint.bootstrap.config.Filter.FILTERED;
 import static com.navercorp.pinpoint.bootstrap.config.Filter.NOT_FILTERED;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -93,11 +92,11 @@ public class ExcludePathFilterTest {
     }
 
     private void assertFiltered(Filter<String> filter, String testValue) {
-        MatcherAssert.assertThat(filter.filter(testValue), is(FILTERED));
+        assertThat(filter.filter(testValue)).isEqualTo(FILTERED);
     }
 
     private void assertNotFiltered(Filter<String> filter, String testValue) {
-        MatcherAssert.assertThat(filter.filter(testValue), is(NOT_FILTERED));
+        assertThat(filter.filter(testValue)).isEqualTo(NOT_FILTERED);
     }
 
     // Tests for urls

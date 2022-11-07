@@ -37,11 +37,6 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -49,6 +44,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -71,8 +67,9 @@ public class HbaseSchemaCommandManagerTest {
         manager.applyChangeSet(modifyTableChangeSet);
 
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot, contains(sameNamespaceHtd));
-        assertThat(schemaSnapshot, not(contains(differentNamespaceHtd)));
+        assertThat(schemaSnapshot)
+                .contains(sameNamespaceHtd)
+                .doesNotContain(differentNamespaceHtd);
     }
 
     @Test
@@ -127,7 +124,7 @@ public class HbaseSchemaCommandManagerTest {
             fail("Expected an InvalidHbaseSchemaException to be thrown");
         } catch (InvalidHbaseSchemaException expected) {
             List<HTableDescriptor> currentSnapshot = manager.getSchemaSnapshot();
-            assertThat(currentSnapshot, equalTo(initialSnapshot));
+            assertThat(currentSnapshot).isEqualTo(initialSnapshot);
         }
 
         // create existing table
@@ -138,7 +135,7 @@ public class HbaseSchemaCommandManagerTest {
             fail("Expected an InvalidHbaseSchemaException to be thrown");
         } catch (InvalidHbaseSchemaException expected) {
             List<HTableDescriptor> currentSnapshot = manager.getSchemaSnapshot();
-            assertThat(currentSnapshot, equalTo(initialSnapshot));
+            assertThat(currentSnapshot).isEqualTo(initialSnapshot);
         }
 
         // create existing column family
@@ -150,7 +147,7 @@ public class HbaseSchemaCommandManagerTest {
             fail("Expected an InvalidHbaseSchemaException to be thrown");
         } catch (InvalidHbaseSchemaException expected) {
             List<HTableDescriptor> currentSnapshot = manager.getSchemaSnapshot();
-            assertThat(currentSnapshot, equalTo(initialSnapshot));
+            assertThat(currentSnapshot).isEqualTo(initialSnapshot);
         }
     }
 
@@ -172,11 +169,11 @@ public class HbaseSchemaCommandManagerTest {
 
         // verify schema snapshot
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot.size(), is(1));
+        assertThat(schemaSnapshot.size()).isEqualTo(1);
         HTableDescriptor snapshotTable = schemaSnapshot.get(0);
-        assertThat(snapshotTable.getTableName(), is(TableName.valueOf(namespace, tableName)));
+        assertThat(snapshotTable.getTableName()).isEqualTo(TableName.valueOf(namespace, tableName));
         List<String> snapshotColumnFamilies = snapshotTable.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
-        assertThat(snapshotColumnFamilies, contains(existingColumnFamily, newColumnFamily1, newColumnFamily2));
+        assertThat(snapshotColumnFamilies).contains(existingColumnFamily, newColumnFamily1, newColumnFamily2);
 
         // verify command - should add 2 column families
         HbaseAdminOperation mockHbaseAdminOperation = Mockito.mock(HbaseAdminOperation.class);
@@ -210,11 +207,11 @@ public class HbaseSchemaCommandManagerTest {
 
         // verify schema snapshot
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot.size(), is(1));
+        assertThat(schemaSnapshot.size()).isEqualTo(1);
         HTableDescriptor snapshotTable = schemaSnapshot.get(0);
-        assertThat(snapshotTable.getTableName(), is(TableName.valueOf(namespace, tableName)));
+        assertThat(snapshotTable.getTableName()).isEqualTo(TableName.valueOf(namespace, tableName));
         List<String> snapshotColumnFamilies = snapshotTable.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
-        assertThat(snapshotColumnFamilies, contains(columnFamily1, columnFamily2, columnFamily3));
+        assertThat(snapshotColumnFamilies).contains(columnFamily1, columnFamily2, columnFamily3);
 
         // verify command - should create 1 table (with all 3 column families)
         HbaseAdminOperation mockHbaseAdminOperation = Mockito.mock(HbaseAdminOperation.class);

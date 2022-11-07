@@ -29,8 +29,6 @@ import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.apache.curator.utils.ZKPaths;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +42,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,15 +55,12 @@ public class ZookeeperJobWorkerTest {
     private static final String PATH =
             ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, IDENTIFIER);
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
 
     private ConditionFactory awaitility() {
-        ConditionFactory conditionFactory = Awaitility.await()
+        return Awaitility.await()
                 .pollDelay(50, TimeUnit.MILLISECONDS)
                 .timeout(3000, TimeUnit.MILLISECONDS);
-        return conditionFactory;
     }
 
     @Test
@@ -73,7 +68,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -97,7 +92,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -121,7 +116,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -160,7 +155,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -212,7 +207,7 @@ public class ZookeeperJobWorkerTest {
     }
 
     private void waitZookeeperServerData(final int expectedServerDataCount, final InMemoryZookeeperClient zookeeperClient) {
-        awaitility().until(() -> getServerData(zookeeperClient), hasSize(expectedServerDataCount));
+        awaitility()
+                .untilAsserted(() -> assertThat(getServerData(zookeeperClient)).hasSize(expectedServerDataCount));
     }
-
 }

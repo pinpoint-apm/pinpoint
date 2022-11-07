@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +49,7 @@ public class JarReaderTest {
         logger.debug("file:{}", fileBinaries);
 
         for (FileBinary fileBinary : fileBinaries) {
-            MatcherAssert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
+            assertThat(fileBinary.getFileName()).endsWith(".class");
         }
     }
 

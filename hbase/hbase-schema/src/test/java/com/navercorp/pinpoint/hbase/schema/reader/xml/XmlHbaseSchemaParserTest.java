@@ -32,9 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -69,18 +67,18 @@ public class XmlHbaseSchemaParserTest {
         XmlHbaseSchemaParseResult parseResult = parser.parseSchema(new InputSource(inputStream));
 
         List<String> includeFiles = new ArrayList<>(parseResult.getIncludeFiles());
-        assertThat(includeFiles.size(), is(1));
+        assertThat(includeFiles.size()).isEqualTo(1);
         String includeFile = includeFiles.get(0);
-        assertThat(includeFile, is("test-hbase-schema-include.xml"));
+        assertThat(includeFile).isEqualTo("test-hbase-schema-include.xml");
 
         List<ChangeSet> changeSets = new ArrayList<>(parseResult.getChangeSets());
-        assertThat(changeSets.size(), is(2));
+        assertThat(changeSets.size()).isEqualTo(2);
 
         ChangeSet changeSet1 = changeSets.get(0);
-        assertThat(changeSet1.getId(), is("id-1"));
-        assertThat(changeSet1.getTableChanges(), is(Arrays.asList(expectedChangeSet1_tableChange)));
+        assertThat(changeSet1.getId()).isEqualTo("id-1");
+        assertThat(changeSet1.getTableChanges()).isEqualTo(List.of(expectedChangeSet1_tableChange));
         ChangeSet changeSet2 = changeSets.get(1);
-        assertThat(changeSet2.getId(), is("id-2"));
-        assertThat(changeSet2.getTableChanges(), is(Arrays.asList(expectedChangeSet2_tableChange)));
+        assertThat(changeSet2.getId()).isEqualTo("id-2");
+        assertThat(changeSet2.getTableChanges()).isEqualTo(List.of(expectedChangeSet2_tableChange));
     }
 }

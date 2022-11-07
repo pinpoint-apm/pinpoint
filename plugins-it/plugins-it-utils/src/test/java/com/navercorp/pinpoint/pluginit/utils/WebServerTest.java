@@ -30,9 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author WonChul Heo(heowc)
@@ -53,17 +51,17 @@ public class WebServerTest {
 
     @Test
     public void testGetHostAndPort() {
-        assertThat(webServer.getHostAndPort(), startsWith("localhost:"));
+        assertThat(webServer.getHostAndPort()).startsWith("localhost:");
     }
 
     @Test
     public void testGetCallHttpUrl() {
-        assertThat(webServer.getCallHttpUrl(), startsWith("http://localhost:"));
+        assertThat(webServer.getCallHttpUrl()).startsWith("http://localhost:");
     }
 
     @Test
     public void testHostname() {
-        assertThat(webServer.getHostname(), is("localhost"));
+        assertThat(webServer.getHostname()).isEqualTo("localhost");
     }
 
     @Test
@@ -150,10 +148,10 @@ public class WebServerTest {
 
     private static void assertResponse(NanoHTTPD.Response response, String responseData) {
         try {
-            assertThat(response.getStatus().getRequestStatus(), is(NanoHTTPD.Response.Status.OK.getRequestStatus()));
-            assertThat(response.getMimeType(), is(NanoHTTPD.MIME_HTML));
+            assertThat(response.getStatus().getRequestStatus()).isEqualTo(NanoHTTPD.Response.Status.OK.getRequestStatus());
+            assertThat(response.getMimeType()).isEqualTo(NanoHTTPD.MIME_HTML);
             final String actualData = new String(IOUtils.toByteArray(response.getData()), Charset.defaultCharset());
-            assertThat(actualData, is(responseData));
+            assertThat(actualData).isEqualTo(responseData);
         } catch (IOException e) {
             // ignored
         }

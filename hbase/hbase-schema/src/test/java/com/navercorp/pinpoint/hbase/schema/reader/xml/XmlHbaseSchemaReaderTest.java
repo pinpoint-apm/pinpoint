@@ -23,17 +23,13 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.CreateTableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ModifyTableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableConfiguration;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -47,15 +43,15 @@ public class XmlHbaseSchemaReaderTest {
         final String schemaFilePath = "classpath:hbase-schema/test-hbase-schema.xml";
 
         String expectedIncludeChangeSetId = "include-1";
-        List<TableChange> expectedIncludeChangeSetTableChanges = Arrays.asList(
+        List<TableChange> expectedIncludeChangeSetTableChanges = List.of(
                 new CreateTableChange(
                         "IncludeTable1",
                         TableConfiguration.EMPTY_CONFIGURATION,
-                        Arrays.asList(new CreateColumnFamilyChange("CF1", new ColumnFamilyConfiguration.Builder().timeToLive(5184000).build())),
+                        List.of(new CreateColumnFamilyChange("CF1", new ColumnFamilyConfiguration.Builder().timeToLive(5184000).build())),
                         new CreateTableChange.SplitOption.Manual(Arrays.asList("\\x01", "\\x02", "\\x03"))));
 
         String expectedChangeSetId1 = "id-1";
-        List<TableChange> expectedChangeSet1TableChanges = Arrays.asList(
+        List<TableChange> expectedChangeSet1TableChanges = List.of(
                 new CreateTableChange(
                         "Table1",
                         new TableConfiguration.Builder().durability(TableConfiguration.Durability.ASYNC_WAL).build(),
@@ -65,41 +61,31 @@ public class XmlHbaseSchemaReaderTest {
                         new CreateTableChange.SplitOption.Auto(16)));
 
         String expectedChangeSetId2 = "id-2";
-        List<TableChange> expectedChangeSet2TableChanges = Arrays.asList(
+        List<TableChange> expectedChangeSet2TableChanges = List.of(
                 new ModifyTableChange(
                         "Table1",
                         TableConfiguration.EMPTY_CONFIGURATION,
-                        Arrays.asList(new CreateColumnFamilyChange("CF3", ColumnFamilyConfiguration.EMPTY_CONFIGURATION))));
+                        List.of(new CreateColumnFamilyChange("CF3", ColumnFamilyConfiguration.EMPTY_CONFIGURATION))));
 
         List<ChangeSet> changeSets = reader.loadChangeSets(schemaFilePath);
-        assertThat(changeSets.size(), is(3));
+        assertThat(changeSets.size()).isEqualTo(3);
 
         ChangeSet includeChangeSet = changeSets.get(0);
-        assertThat(includeChangeSet, matches(expectedIncludeChangeSetId, expectedIncludeChangeSetTableChanges));
+        assertMatches(includeChangeSet, expectedIncludeChangeSetId, expectedIncludeChangeSetTableChanges);
         ChangeSet changeSet1 = changeSets.get(1);
-        assertThat(changeSet1, matches(expectedChangeSetId1, expectedChangeSet1TableChanges));
+        assertMatches(changeSet1, expectedChangeSetId1, expectedChangeSet1TableChanges);
         ChangeSet changeSet2 = changeSets.get(2);
-        assertThat(changeSet2, matches(expectedChangeSetId2, expectedChangeSet2TableChanges));
-
+        assertMatches(changeSet2, expectedChangeSetId2, expectedChangeSet2TableChanges);
     }
 
-    private static Matcher<ChangeSet> matches(String expectedId, List<TableChange> expectedTableChanges) {
-        return new BaseMatcher<ChangeSet>() {
-            @Override
-            public boolean matches(Object item) {
-                if (item instanceof ChangeSet) {
-                    ChangeSet actualChangeSet = (ChangeSet) item;
-                    return Objects.equals(expectedId, actualChangeSet.getId()) &&
-                            Objects.equals(expectedTableChanges, actualChangeSet.getTableChanges());
-                }
-                return false;
+    private static void assertMatches(ChangeSet cs, String expectedId, List<TableChange> expectedTableChanges) {
+        assertThat(cs).matches(item -> {
+            if (item != null) {
+                return Objects.equals(expectedId, item.getId()) &&
+                        Objects.equals(expectedTableChanges, item.getTableChanges());
             }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendValue("ChangeSet with id : " + expectedId + ", and tableChanges : " + expectedTableChanges);
-            }
-        };
+            return false;
+        }, "ChangeSet with id : " + expectedId + ", and tableChanges : " + expectedTableChanges);
     }
 
 }

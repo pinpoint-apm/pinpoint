@@ -26,11 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -119,15 +116,15 @@ public class TraceMetadataProviderYamlParserTest {
 
         void verifyServiceType(ServiceTypeInfoExpectation expectation) {
             ServiceTypeInfo actualServiceTypeInfo = serviceTypes.get(expectation.code);
-            assertThat(actualServiceTypeInfo, is(notNullValue()));
+            assertThat(actualServiceTypeInfo).isNotNull();
 
             ServiceType actualServiceType = actualServiceTypeInfo.getServiceType();
-            assertThat(actualServiceType.getCode(), is(expectation.code));
-            assertThat(actualServiceType.getName(), is(expectation.name));
+            assertThat(actualServiceType.getCode()).isEqualTo(expectation.code);
+            assertThat(actualServiceType.getName()).isEqualTo(expectation.name);
             if (expectation.desc == null) {
-                assertThat(actualServiceType.getDesc(), is(expectation.name));
+                assertThat(actualServiceType.getDesc()).isEqualTo(expectation.name);
             } else {
-                assertThat(actualServiceType.getDesc(), is(expectation.desc));
+                assertThat(actualServiceType.getDesc()).isEqualTo(expectation.desc);
             }
 
             for (ServiceTypeProperty expectedServiceTypeProperty : expectation.serviceTypeProperties) {
@@ -149,19 +146,19 @@ public class TraceMetadataProviderYamlParserTest {
 
             AnnotationKeyMatcher actualMatcher = actualServiceTypeInfo.getPrimaryAnnotationKeyMatcher();
             if (expectation.annotationKeyMatcher == null) {
-                assertThat(actualMatcher, is(nullValue()));
+                assertThat(actualMatcher).isNull();
             } else {
                 // do toString() matching
-                assertThat(actualMatcher.toString(), is(expectation.annotationKeyMatcher.toString()));
+                assertThat(actualMatcher.toString()).isEqualTo(expectation.annotationKeyMatcher.toString());
             }
         }
 
         void verifyAnnotationKey(AnnotationKeyExpectation expectation) {
             AnnotationKey actualAnnotationKey = annotationKeys.get(expectation.code);
-            assertThat(actualAnnotationKey, is(notNullValue()));
+            assertThat(actualAnnotationKey).isNotNull();
 
-            assertThat(actualAnnotationKey.getCode(), is(expectation.code));
-            assertThat(actualAnnotationKey.getName(), is(expectation.name));
+            assertThat(actualAnnotationKey.getCode()).isEqualTo(expectation.code);
+            assertThat(actualAnnotationKey.getName()).isEqualTo(expectation.name);
 
             for (AnnotationKeyProperty expectedAnnotationKeyProperty : expectation.annotationKeyProperties) {
                 switch (expectedAnnotationKeyProperty) {
