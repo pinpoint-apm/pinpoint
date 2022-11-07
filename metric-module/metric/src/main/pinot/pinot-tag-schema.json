@@ -2,6 +2,11 @@
   "schemaName": "systemMetricTag",
   "dimensionFieldSpecs": [
     {
+      "name": "tenantId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
       "name": "serviceName",
       "dataType": "STRING",
       "defaultNullValue": ""
@@ -37,6 +42,6 @@
     }
   ],
   "primaryKeyColumns": [
-    "serviceName", "hostGroupName", "hostName", "metricName", "fieldName", "tags"
+    "tenantId","serviceName", "hostGroupName", "hostName", "metricName", "fieldName", "tags"
   ]
 }

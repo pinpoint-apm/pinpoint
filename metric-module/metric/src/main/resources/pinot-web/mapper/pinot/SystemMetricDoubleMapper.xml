@@ -3,43 +3,6 @@
 
 
 <mapper namespace="com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricDoubleDao">
-    <resultMap id="systemMetricResultMap" type="DoubleMetric">
-        <constructor>
-            <arg column="metricName" javaType="string"/>
-            <arg column="hostName" javaType="string"/>
-            <arg column="fieldName" javaType="string"/>
-            <arg column="fieldValue" javaType="_double"/>
-            <arg column="tags" javaType="list" typeHandler="TagListHandler" />
-            <arg column="eventTime" javaType="_long"/>
-        </constructor>
-    </resultMap>
-
-    <select id="selectSystemMetric" resultMap="systemMetricResultMap" parameterType="MetricsQueryParameter">
-        SELECT metricName,
-            hostName,
-            fieldName,
-            fieldValue,
-            tags,
-            eventTime
-        FROM systemMetricDouble
-        WHERE hostGroupName = #{hostGroupName}
-            AND hostName = #{hostName}
-            AND metricName = #{metricName}
-            AND fieldName = #{fieldName}
-            <foreach collection="tagList" item="tag" separator=" ">
-                AND tags = #{tag}
-            </foreach>
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
-        LIMIT ${limit}
-    </select>
-
-    <resultMap id="sampledSystemMetricResultMap" type="SampledSystemMetric">
-        <constructor>
-            <arg resultMap="systemMetricPointResultMap" javaType="SystemMetricPoint" />
-            <arg column="tags" javaType="list" typeHandler="TagListHandler"/>
-        </constructor>
-    </resultMap>
-
     <resultMap id="systemMetricPointResultMap" type="SystemMetricPoint">
         <constructor>
             <arg column="avgTime" javaType="_long"/>
@@ -47,31 +10,13 @@
         </constructor>
     </resultMap>
 
-    <select id="selectSampledSystemMetric" resultMap="sampledSystemMetricResultMap" parameterType="MetricsQueryParameter">
-        SELECT
-            AVG(fieldValue) AS avgValue,
-            DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime,
-            tags
-        FROM systemMetricDouble
-        WHERE hostGroupName = #{hostGroupName}
-            AND metricName = #{metricName}
-            AND hostName = #{hostName}
-            AND fieldName = #{fieldName}
-            <foreach collection="tagList" item="tag" separator=" ">
-                AND tags = #{tag}
-            </foreach>
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
-        GROUP BY avgTime, tags
-        ORDER BY avgTime asc
-        LIMIT ${limit}
-    </select>
-
     <select id="selectSampledSystemMetricData" resultMap="systemMetricPointResultMap" parameterType="systemMetricDataSearchKey">
         SELECT
         AVG(fieldValue) AS avgValue,
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM systemMetricDouble
-        WHERE hostGroupName = #{hostGroupName}
+        WHERE tenantId = #{tenantId}
+        AND hostGroupName = #{hostGroupName}
         AND metricName = #{metricName}
         AND hostName = #{hostName}
         AND fieldName = #{fieldName}

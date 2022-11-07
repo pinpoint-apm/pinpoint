@@ -30,6 +30,7 @@ import java.util.Objects;
  */
 public class SystemMetricDataSearchKey {
 
+    private final String tenantId;
     private final String hostGroupName;
     private final String hostName;
     private final String metricName;
@@ -43,6 +44,7 @@ public class SystemMetricDataSearchKey {
         Objects.requireNonNull(metricDataSearchKey, "range");
         Objects.requireNonNull(metricTag, "metricTag");
 
+        this.tenantId = metricDataSearchKey.getTenantId();
         this.hostGroupName = metricDataSearchKey.getHostGroupName();
         this.hostName = metricDataSearchKey.getHostName();
         this.metricName = metricDataSearchKey.getMetricName();
@@ -52,6 +54,10 @@ public class SystemMetricDataSearchKey {
 
         this.fieldName = metricTag.getFieldName();
         this.tagList = metricTag.getTags();
+    }
+
+    public String getTenantId() {
+        return tenantId;
     }
 
     public String getHostGroupName() {

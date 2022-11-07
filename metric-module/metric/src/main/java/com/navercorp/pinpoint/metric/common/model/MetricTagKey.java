@@ -23,13 +23,15 @@ import java.util.Objects;
  */
 public class MetricTagKey {
 
+    private final String tenantId;
     private final String hostGroupName;
     private final String hostName;
     private final String metricName;
     private final String fieldName;
     private final long saveTime;
 
-    public MetricTagKey(String hostGroupName, String hostName, String metricName, String fieldName, long saveTime) {
+    public MetricTagKey(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, long saveTime) {
+        this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -57,27 +59,28 @@ public class MetricTagKey {
         return saveTime;
     }
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTagKey that = (MetricTagKey) o;
-        return saveTime == that.saveTime &&
-                Objects.equals(hostGroupName, that.hostGroupName) &&
-                Objects.equals(hostName, that.hostName) &&
-                Objects.equals(metricName, that.metricName) &&
-                Objects.equals(fieldName, that.fieldName);
+        return saveTime == that.saveTime && tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hostGroupName, hostName, metricName, fieldName, saveTime);
+        return Objects.hash(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime);
     }
 
     @Override
     public String toString() {
         return "MetricTagKey{" +
-                "hostGroupName='" + hostGroupName + '\'' +
+                "tenantId='" + tenantId + '\'' +
+                ", hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +

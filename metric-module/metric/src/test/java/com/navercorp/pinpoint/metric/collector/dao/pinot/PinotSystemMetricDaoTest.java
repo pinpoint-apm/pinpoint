@@ -74,7 +74,7 @@ public class PinotSystemMetricDaoTest {
         PinotSystemMetricDoubleDao longDao = new PinotSystemMetricDoubleDao(kafkaTemplate, TOPIC);
         List<DoubleMetric> doubleMetricList = createDoubleCounterList();
 
-        longDao.insert("hostGroupName", "hostName", doubleMetricList);
+        longDao.insert("tenantId", "hostGroupName", "hostName", doubleMetricList);
 
         Assertions.assertEquals(doubleMetricList.size(), sendCount.intValue());
     }

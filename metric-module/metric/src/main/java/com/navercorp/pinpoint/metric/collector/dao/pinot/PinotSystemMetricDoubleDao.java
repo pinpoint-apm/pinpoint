@@ -43,7 +43,8 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
     }
 
     @Override
-    public void insert(String hostGroupName, String hostName, List<DoubleMetric> systemMetrics) {
+    public void insert(String tenantId, String hostGroupName, String hostName, List<DoubleMetric> systemMetrics) {
+        Objects.requireNonNull(tenantId, "tenantId");
         Objects.requireNonNull(hostGroupName, "hostGroupName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
+import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
 import com.navercorp.pinpoint.metric.web.util.TagParser;
@@ -45,23 +46,23 @@ public class PinotSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     }
 
     @Override
-    public List<String> selectHostGroupNameList() {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList");
+    public List<String> selectHostGroupNameList(String tenantId) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList", tenantId);
     }
 
     @Override
-    public List<String> selectHostList(String hostGroupName) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostList", hostGroupName);
+    public List<String> selectHostList(String tenantId, String hostGroupName) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostList", new HostInfoSearchKey(tenantId, hostGroupName));
     }
 
     @Override
-    public List<String> getCollectedMetricInfo(String hostGroupName, String hostName) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(hostGroupName, hostName));
+    public List<String> getCollectedMetricInfo(String tenantId, String hostGroupName, String hostName) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(tenantId, hostGroupName, hostName));
     }
 
     @Override
-    public List<String> selectCollectedMetricTags(String hostGroupName, String hostName, String metricName) {
-        List<String> jsonStrings = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricTags", new MetricTagsSearchKey(hostGroupName, hostName, metricName));
+    public List<String> selectCollectedMetricTags(String tenantId, String hostGroupName, String hostName, String metricName) {
+        List<String> jsonStrings = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricTags", new MetricTagsSearchKey(tenantId, hostGroupName, hostName, metricName));
 
         return jsonStrings.stream()
                 .map(TagParser::toTagStrings)
@@ -71,6 +72,6 @@ public class PinotSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     @Override
     public MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey) {
         List<MetricTag> metricTagList = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
-        return new MetricTagCollection(metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagKey.getTenantId(), metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 }

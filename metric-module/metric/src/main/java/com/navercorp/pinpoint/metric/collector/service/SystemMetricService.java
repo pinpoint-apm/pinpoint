@@ -40,7 +40,7 @@ public class SystemMetricService {
     public void insert(Metrics systemMetrics) {
         Objects.requireNonNull(systemMetrics, "systemMetrics");
         List<DoubleMetric> doubleMetrics = filterDoubleCounter(systemMetrics);
-        systemMetricDoubleDao.insert(systemMetrics.getHostGroupName(), systemMetrics.getHostName(), doubleMetrics);
+        systemMetricDoubleDao.insert(systemMetrics.getTenantId(), systemMetrics.getHostGroupName(), systemMetrics.getHostName(), doubleMetrics);
     }
 
     public List<DoubleMetric> filterDoubleCounter(Metrics systemMetrics) {

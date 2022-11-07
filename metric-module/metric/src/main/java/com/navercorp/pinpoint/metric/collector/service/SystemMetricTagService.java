@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.metric.common.model.SystemMetric;
  * @author minwoo.jung
  */
 public interface SystemMetricTagService {
-    void saveMetricTag(String applicationName, SystemMetric systemMetric);
+    void saveMetricTag(String tenantId, String hostGroupName, SystemMetric systemMetric);
 }

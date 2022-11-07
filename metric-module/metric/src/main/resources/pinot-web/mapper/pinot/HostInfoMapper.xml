@@ -5,6 +5,7 @@
 
     <resultMap id="MetricTagResultMap" type="MetricTag">
         <constructor>
+            <arg column="tenantId" javaType="string"/>
             <arg column="hostGroupName" javaType="string"/>
             <arg column="hostName" javaType="string"/>
             <arg column="metricName" javaType="string"/>
@@ -14,33 +15,34 @@
         </constructor>
     </resultMap>
 
-    <select id="selectHostGroupNameList" resultType="String">
+    <select id="selectHostGroupNameList" parameterType="String" resultType="String">
         SELECT DISTINCT hostGroupName
         FROM systemMetricTag
+        WHERE tenantId = #{tenantId}
     </select>
 
-    <select id="selectHostList" parameterType="String" resultType="String">
+    <select id="selectHostList" parameterType="hostInfoSearchKey" resultType="String">
         SELECT DISTINCT hostName
         FROM systemMetricTag
-        WHERE hostGroupName = #{hostGroupName}
+        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName}
     </select>
 
     <select id="selectCollectedMetricInfo" parameterType="metricInfoSearchKey" resultType="String">
         SELECT DISTINCT metricName
         FROM systemMetricTag
-        WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName}
+        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName}
     </select>
 
     <select id="selectCollectedMetricTags" parameterType="metricTagsSearchKey" resultType="String">
         SELECT DISTINCT tags
         FROM systemMetricTag
-        WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName}
+        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName}
     </select>
 
     <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
-        SELECT hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
+        SELECT tenantId, hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
         FROM systemMetricTag
-        WHERE hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName}
+        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName}
     </select>
 
 </mapper>

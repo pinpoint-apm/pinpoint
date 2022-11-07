@@ -24,6 +24,7 @@ import java.util.Objects;
  */
 public class MetricTagCollection {
 
+    private final String tenantId;
     private final String hostGroupName;
     private final String hostName;
     private final String metricName;
@@ -31,7 +32,8 @@ public class MetricTagCollection {
 
     private final List<MetricTag> metricTagList;
 
-    public MetricTagCollection(String hostGroupName, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
+    public MetricTagCollection(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
+        this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -59,10 +61,15 @@ public class MetricTagCollection {
         return fieldName;
     }
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
     @Override
     public String toString() {
         return "MetricTagCollection{" +
-                "hostGroupName='" + hostGroupName + '\'' +
+                "tenantId='" + tenantId + '\'' +
+                ", hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +
                 ", fieldName='" + fieldName + '\'' +
@@ -75,10 +82,7 @@ public class MetricTagCollection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetricTagCollection that = (MetricTagCollection) o;
-        return Objects.equals(hostGroupName, that.hostGroupName) &&
-                Objects.equals(hostName, that.hostName) &&
-                Objects.equals(metricName, that.metricName) &&
-                Objects.equals(fieldName, that.fieldName) &&
-                Objects.equals(metricTagList, that.metricTagList);
+        return tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricTagList.equals(that.metricTagList);
     }
+
 }

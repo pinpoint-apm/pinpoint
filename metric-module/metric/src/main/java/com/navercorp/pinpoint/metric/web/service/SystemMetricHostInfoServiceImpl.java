@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
+import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
@@ -43,30 +44,30 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     private final SystemMetricHostInfoDao systemMetricHostInfoDao;
     private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
 
-    public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager) {
-        this.systemMetricHostInfoDao = systemMetricHostInfoDao;
+    public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager, TenantProvider tenantProvider) {
+        this.systemMetricHostInfoDao = Objects.requireNonNull(systemMetricHostInfoDao, "systemMetricHostInfoDao");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
     }
 
     @Override
-    public List<String> getHostGroupNameList() {
-        List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList();
+    public List<String> getHostGroupNameList(String tenantId) {
+        List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId);
         hostGroupNameList.sort(Comparator.naturalOrder());
 
         return hostGroupNameList;
     }
 
     @Override
-    public List<String> getHostList(String hostGroupName) {
-        List<String> hostList = systemMetricHostInfoDao.selectHostList(hostGroupName);
+    public List<String> getHostList(String tenantId, String hostGroupName) {
+        List<String> hostList = systemMetricHostInfoDao.selectHostList(tenantId, hostGroupName);
         hostList.sort(Comparator.naturalOrder());
 
         return hostList;
     }
 
     @Override
-    public List<MetricInfo> getCollectedMetricInfoV2(String hostGroupName, String hostName) {
-        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(hostGroupName, hostName);
+    public List<MetricInfo> getCollectedMetricInfoV2(String tenantId, String hostGroupName, String hostName) {
+        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(tenantId, hostGroupName, hostName);
 
         List<MetricInfo> metricDefinitionIdList = new ArrayList<>();
         for (String metricName : metricNameList) {
@@ -81,10 +82,10 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getCollectedMetricInfoTags(String hostGroupName, String hostName, String metricDefinitionId) {
+    public List<String> getCollectedMetricInfoTags(String tenantId, String hostGroupName, String hostName, String metricDefinitionId) {
         String metricName = systemMetricBasicGroupManager.findMetricName(metricDefinitionId);
 
-        return systemMetricHostInfoDao.selectCollectedMetricTags(hostGroupName, hostName, metricName);
+        return systemMetricHostInfoDao.selectCollectedMetricTags(tenantId, hostGroupName, hostName, metricName);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     private List<MetricTag> getAnyOneTag(MetricDataSearchKey metricDataSearchKey, Field field) {
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
 
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
@@ -127,14 +128,14 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         }
 
         List<MetricTag> metricTagList = new ArrayList<>();
-        MetricTag singleMetricTag = new MetricTag(metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), tags, getSaveTime());
+        MetricTag singleMetricTag = new MetricTag(metricDataSearchKey.getTenantId(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), tags, getSaveTime());
         metricTagList.add(singleMetricTag);
 
         return metricTagList;
     }
 
     private List<MetricTag> getExactMatchingTag(MetricDataSearchKey metricDataSearchKey, Field field) {
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
 
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();

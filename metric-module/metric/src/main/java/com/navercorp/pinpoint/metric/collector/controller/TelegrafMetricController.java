@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.validation.SimpleErrorMessage;
+import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
@@ -55,15 +56,18 @@ public class TelegrafMetricController {
     private final SystemMetricService systemMetricService;
     private final SystemMetricDataTypeService systemMetricMetadataService;
     private final SystemMetricTagService systemMetricTagService;
+    private final TenantProvider tenantProvider;
 
     private static final List<String> ignoreTags = Collections.singletonList("host");
 
     public TelegrafMetricController(SystemMetricService systemMetricService,
                                     SystemMetricDataTypeService systemMetricMetadataService,
-                                    SystemMetricTagService systemMetricTagService) {
+                                    SystemMetricTagService systemMetricTagService,
+                                    TenantProvider tenantProvider) {
         this.systemMetricService = Objects.requireNonNull(systemMetricService, "systemMetricService");
         this.systemMetricMetadataService = Objects.requireNonNull(systemMetricMetadataService, "systemMetricMetadataService");
         this.systemMetricTagService = Objects.requireNonNull(systemMetricTagService, "systemMetricTagService");
+        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
 
@@ -84,7 +88,9 @@ public class TelegrafMetricController {
             logger.debug("hostGroupName:{} host:{} size:{}", hostGroupName, hostName, telegrafMetrics.size());
         }
 
-        Metrics systemMetric = toMetrics(hostGroupName, hostName, telegrafMetrics);
+        String tenantId = tenantProvider.getTenantId();
+
+        Metrics systemMetric = toMetrics(tenantId, hostGroupName, hostName, telegrafMetrics);
 
         updateMetadata(systemMetric);
         systemMetricService.insert(systemMetric);
@@ -105,14 +111,14 @@ public class TelegrafMetricController {
         return host.getValue();
     }
 
-    private Metrics toMetrics(String hostGroupName, String hostName, TelegrafMetrics telegrafMetrics) {
+    private Metrics toMetrics(String tenantId, String hostGroupName, String hostName, TelegrafMetrics telegrafMetrics) {
         List<TelegrafMetric> metrics = telegrafMetrics.getMetrics();
 
         List<SystemMetric> metricList = metrics.stream()
                 .flatMap(this::toMetric)
                 .collect(Collectors.toList());
 
-        return new Metrics(hostGroupName, hostName, metricList);
+        return new Metrics(tenantId, hostGroupName, hostName, metricList);
     }
 
     Stream<SystemMetric> toMetric(TelegrafMetric tMetric) {
@@ -148,7 +154,7 @@ public class TelegrafMetricController {
     private void updateMetadata(Metrics systemMetrics) {
         for (SystemMetric systemMetric : systemMetrics) {
             systemMetricMetadataService.saveMetricDataType(systemMetric);
-            systemMetricTagService.saveMetricTag(systemMetrics.getHostGroupName(), systemMetric);
+            systemMetricTagService.saveMetricTag(systemMetrics.getTenantId(), systemMetrics.getHostGroupName(), systemMetric);
         }
 
     }

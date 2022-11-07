@@ -45,6 +45,7 @@
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricTagKey" alias="MetricTagKey"/>
         <typeAlias type="com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey" alias="metricInfoSearchKey"/>
         <typeAlias type="com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey" alias="metricTagsSearchKey"/>
+        <typeAlias type="com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey" alias="hostInfoSearchKey"/>
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.TagListTypeHandler" alias="TagListTypeHandler"/>
 
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricData" alias="MetricData"/>

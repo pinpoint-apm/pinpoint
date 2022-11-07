@@ -16,6 +16,7 @@
 
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-kafka.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-metric-cache.xml"/>
+    <import resource="classpath:pinot-collector/applicationContext-collector-metric-namespace.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-dao-config.xml"/>
     <import resource="classpath:pinot-collector/applicationContext-collector-pinot-datasource.xml"/>
 

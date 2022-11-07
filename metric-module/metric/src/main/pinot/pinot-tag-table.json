@@ -7,11 +7,11 @@
     "schemaName": "systemMetricTag",
     "replicasPerPartition": "1",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "42"
+    "retentionTimeValue": "70"
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["serviceName", "hostGroupName", "hostName"],
+    "sortedColumn": ["tenantId", "serviceName", "hostGroupName", "hostName"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
