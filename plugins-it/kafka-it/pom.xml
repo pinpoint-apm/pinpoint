@@ -19,7 +19,6 @@
     </properties>
 
     <modules>
-        <module>kafka-it-commons</module>
         <module>kafka-2-it</module>
         <module>kafka-3-it</module>
     </modules>

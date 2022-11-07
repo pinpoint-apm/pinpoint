@@ -16,9 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.*;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,7 +31,6 @@ import test.pinpoint.plugin.kafka.Kafka2UnitServer;
 import test.pinpoint.plugin.kafka.TestProducer;
 
 import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_MULTI_RECORDS;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 
 import java.util.Random;
 
