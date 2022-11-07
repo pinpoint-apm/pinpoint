@@ -19,16 +19,16 @@ package com.navercorp.pinpoint.bootstrap.plugin.uri;
 /**
  * @author Taejin Koo
  */
-public class DisabledUriStatRecorder implements UriStatRecorder {
+public class DisabledUriStatRecorder<T> implements UriStatRecorder<T> {
 
-    private static final UriStatRecorder INSTANCE = new DisabledUriStatRecorder();
+    private static final UriStatRecorder<?> INSTANCE = new DisabledUriStatRecorder<>();
 
     public static <T> UriStatRecorder<T> create() {
         return (UriStatRecorder<T>) INSTANCE;
     }
 
     @Override
-    public void record(Object request, String rawUri, boolean status, long startTime, long endTime) {
+    public void record(T request, String rawUri, boolean status, long startTime, long endTime) {
         // do nothing
     }
 

@@ -1,20 +1,17 @@
 package com.navercorp.pinpoint.bootstrap.plugin.uri;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
-public class BypassingUriExtractorService implements UriExtractorService {
+public class BypassingUriExtractorService<T> implements UriExtractorService<T> {
     @Override
-    public UriExtractor getUriExtractor(UriExtractorProviderLocator uriExtractorProviderLocator) {
-        List<UriExtractor<Object>> result = new ArrayList<>();
-        BypassingUriExtractor extractor = new BypassingUriExtractor();
-        result.add(extractor);
-        return new UriExtractorChain<>(result);
+    public UriExtractor<T> getUriExtractor(UriExtractorProviderLocator uriExtractorProviderLocator) {
+        BypassingUriExtractor<T> extractor = new BypassingUriExtractor<>();
+        return new UriExtractorChain<>(Collections.singletonList(extractor));
     }
 
     @Override
     @Deprecated
-    public UriExtractor get(UriExtractorProviderLocator uriExtractorProviderLocator) {
+    public UriExtractor<T> get(UriExtractorProviderLocator uriExtractorProviderLocator) {
         return getUriExtractor(uriExtractorProviderLocator);
     }
 }
