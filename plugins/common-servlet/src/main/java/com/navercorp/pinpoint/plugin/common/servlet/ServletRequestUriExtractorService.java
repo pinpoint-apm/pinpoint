@@ -48,4 +48,10 @@ public class ServletRequestUriExtractorService implements UriExtractorService<Ht
         }
     }
 
+    @Override
+    @Deprecated
+    public UriExtractor<HttpServletRequest> get(UriExtractorProviderLocator uriExtractorProviderLocator) {
+        return getUriExtractor(uriExtractorProviderLocator);
+    }
+
 }
