@@ -80,6 +80,6 @@ public class UriStatController {
             uriStats = uriStatService.getCollectedUriStatAgent(builder.build());
         }
 
-        return new UriStatView(uri, uriStats);
+        return new UriStatView(uri, timeWindow, uriStats);
     }
 }
