@@ -28,7 +28,6 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -84,7 +83,7 @@ public class DataSourceDataCollector extends DataCollector {
                             .average()
                             .orElse(-1);
                     DataSourceBo dataSourceBo = org.springframework.util.CollectionUtils.firstElement(dataSourceBoList);
-                    if (Objects.isNull(dataSourceBo)) {
+                    if (dataSourceBo == null) {
                         continue;
                     }
 

@@ -31,7 +31,11 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 /**
@@ -90,7 +94,7 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
             @Nonnull ChunkContext chunkContext
     ) throws Exception {
         String applicationName = this.applicationNameQueue.poll();
-        if (Objects.isNull(applicationName)) {
+        if (applicationName == null) {
             return RepeatStatus.FINISHED;
         }
 

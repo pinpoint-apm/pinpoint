@@ -19,13 +19,12 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.response.SuccessResponse;
-import com.navercorp.pinpoint.web.service.AlarmService;
-import com.navercorp.pinpoint.web.service.WebhookSendInfoService;
 import com.navercorp.pinpoint.web.response.AlarmResponse;
 import com.navercorp.pinpoint.web.response.Response;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.web.response.SuccessResponse;
+import com.navercorp.pinpoint.web.service.AlarmService;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,14 +52,12 @@ public class AlarmController {
     public final static String APPLICATION_ID = "applicationId";
 
     private final AlarmService alarmService;
-    private final WebhookSendInfoService webhookSendInfoService;
 
     @Value("${webhook.enable:false}")
     private boolean webhookEnable;
 
-    public AlarmController(AlarmService alarmService, WebhookSendInfoService webhookSendInfoService) {
+    public AlarmController(AlarmService alarmService) {
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
-        this.webhookSendInfoService = Objects.requireNonNull(webhookSendInfoService, "webhookSendInfoService");
     }
 
     private Response getAlarmResponse(String result, String ruleId) {
@@ -68,7 +65,16 @@ public class AlarmController {
     }
 
     private boolean isRuleDataValidForPost(Rule rule) {
-        if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || Objects.isNull(rule.getThreshold())) {
+        if (StringUtils.isEmpty(rule.getApplicationId())) {
+            return false;
+        }
+        if (StringUtils.isEmpty(rule.getCheckerName())) {
+            return false;
+        }
+        if (StringUtils.isEmpty(rule.getUserGroupId())) {
+            return false;
+        }
+        if (rule.getThreshold() == null) {
             return false;
         }
         return true;

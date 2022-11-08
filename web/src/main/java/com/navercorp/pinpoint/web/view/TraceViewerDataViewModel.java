@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
 
 public class TraceViewerDataViewModel {
@@ -202,7 +201,7 @@ public class TraceViewerDataViewModel {
         int nextTid = tid;
         Integer searchingFor = invisibleRecords.get(record.getParentId());
 
-        if (Objects.isNull(searchingFor)) {
+        if (searchingFor == null) {
             searchingFor = record.getParentId();
         }
 
