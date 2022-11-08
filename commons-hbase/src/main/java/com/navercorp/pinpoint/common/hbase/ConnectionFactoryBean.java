@@ -21,8 +21,8 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RegionLocator;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -73,7 +73,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     public void afterPropertiesSet() throws Exception {
         hbaseSecurityInterceptor.process(configuration);
         try {
-            if (Objects.isNull(executorService)) {
+            if (executorService == null) {
                 connection = ConnectionFactory.createConnection(this.configuration);
             } else {
                 connection = ConnectionFactory.createConnection(this.configuration, executorService);

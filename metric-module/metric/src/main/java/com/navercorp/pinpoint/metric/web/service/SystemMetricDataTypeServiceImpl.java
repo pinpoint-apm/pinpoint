@@ -41,7 +41,7 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
     public MetricDataType getMetricDataType(MetricDataName metricDataName) {
         MetricData metricData = pinotSystemMetricLongDao.selectMetricDataType(metricDataName);
 
-        if (Objects.isNull(metricData)) {
+        if (metricData == null) {
             return MetricDataType.UNKNOWN;
         }
 

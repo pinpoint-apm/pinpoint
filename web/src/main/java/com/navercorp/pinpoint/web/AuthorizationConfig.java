@@ -44,7 +44,6 @@ import com.navercorp.pinpoint.web.service.HeatMapService;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.service.UserService;
-import com.navercorp.pinpoint.web.service.WebhookSendInfoService;
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService;
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
@@ -115,8 +114,8 @@ public class AuthorizationConfig {
 
 
     @Bean
-    public AlarmController createAlarmController(AlarmService alarmService, WebhookSendInfoService webhookSendInfoService) {
-        return new AlarmController(alarmService, webhookSendInfoService);
+    public AlarmController createAlarmController(AlarmService alarmService) {
+        return new AlarmController(alarmService);
     }
 
     @Bean

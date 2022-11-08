@@ -46,7 +46,7 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = metricDataTypeCache.getMetricDataType(metricDataName);
 
-        if (!Objects.isNull(metricData)) {
+        if (metricData != null) {
             // cache hit
             return;
         }

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
+import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -54,7 +54,7 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
 
         MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime));
 
-        if (Objects.isNull(metricTagCollection)) {
+        if (metricTagCollection == null) {
             MetricTagKey metricTagKey = new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
