@@ -21,3 +21,9 @@
 
     --chart-very-slow: var(--orange-100);
 }
+
+.chart-area-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}

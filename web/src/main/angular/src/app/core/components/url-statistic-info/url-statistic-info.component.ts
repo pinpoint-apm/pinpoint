@@ -10,6 +10,7 @@ import { isEmpty } from 'app/core/utils/util';
 export class UrlStatisticInfoComponent implements OnInit, OnChanges {
     @ViewChild('urlInfoTableBody' , {static: true}) urlInfoTableBody: ElementRef;
     @Input() data: IUrlStatInfoData[];
+    @Input() emptyMessage: string;
     @Output() outSelectUrlInfo = new EventEmitter<string>();
 
     totalCount: number;

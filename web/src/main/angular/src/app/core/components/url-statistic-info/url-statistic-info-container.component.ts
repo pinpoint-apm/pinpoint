@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
 import { UrlStatisticInfoDataService } from './url-statistic-info-data.service';
@@ -14,15 +15,19 @@ import { UrlPathId } from 'app/shared/models';
 export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
 
-    data$: Observable<IUrlStatInfoData>;
+    data$: Observable<IUrlStatInfoData[]>;
+    emptyMessage$: Observable<string>;
+    errorMessage: string;
 
     constructor(
         private urlStatisticInfoDataService: UrlStatisticInfoDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private messageQueueService: MessageQueueService,
+        private translateService: TranslateService,
     ) { }
 
     ngOnInit() {
+        this.emptyMessage$ = this.translateService.get('COMMON.NO_DATA');
         this.data$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             switchMap((urlService: NewUrlStateNotificationService) => {
@@ -33,8 +38,11 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
                 const params = {from, to, applicationName, agentId};
 
                 return this.urlStatisticInfoDataService.getData(params);
+            }),
+            catchError((error: IServerError) => {
+                this.errorMessage = error.message;
+                return of([])
             })
-            // TODO: Add error handling
         );
     }
 
@@ -48,5 +56,9 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
             to: MESSAGE_TO.SELECT_URL_INFO,
             param: url
         })
+    }
+
+    onCloseErrorMessage(): void {
+        this.errorMessage = '';
     }
 }

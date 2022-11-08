@@ -12,8 +12,8 @@
         </div>
         <div class="url-info-body" #urlInfoTableBody>
             <ng-container *ngIf="isEmpty; else contents">
-                <div class="url-info-row">
-                    <div class="url-info-cell empty">No Data</div>
+                <div class="url-info-row empty">
+                    <div class="url-info-cell empty">{{emptyMessage}}</div>
                 </div>
             </ng-container>
             <ng-template #contents>

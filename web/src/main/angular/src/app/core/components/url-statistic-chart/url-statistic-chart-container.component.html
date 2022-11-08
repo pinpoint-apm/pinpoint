@@ -1,24 +1,14 @@
-<!-- <div class="l-title-group">
-    <h2 class="l-chart-title">{{title}}</h2>
-</div> -->
-<!-- <div class="chart-area-wrapper"> -->
-    <!-- TODO: Add guide text for selecting uri below -->
-    <!-- <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
-    <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry> -->
-    
-    <!-- [ngClass]="chartVisibility" -->
-    <!-- <pp-url-statistic-chart
-        [chartConfig]="chartConfig"
-        (outRendered)="onRendered()">
-    </pp-url-statistic-chart> -->
-<!-- </div> -->
-
-<ng-container *ngIf="isUriSelected && chartConfig; else guideText">
-    <pp-url-statistic-chart
-        [chartConfig]="chartConfig"
-        (outRendered)="onRendered()">
-    </pp-url-statistic-chart>
+<!-- <ng-container *ngIf="isUriSelected && chartConfig; else guideText"> -->
+<ng-container *ngIf="isUriSelected; else guideText">
+    <div class="chart-area-wrapper">
+        <!-- <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading> -->
+        <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
+        <pp-url-statistic-chart
+            [chartConfig]="chartConfig"
+            (outRendered)="onRendered()">
+        </pp-url-statistic-chart>
+    </div>
 </ng-container>
 <ng-template #guideText>
-    <p>아래에서 URL을 선택해주세요</p>
+    <p>{{guideMessage}}</p>
 </ng-template>

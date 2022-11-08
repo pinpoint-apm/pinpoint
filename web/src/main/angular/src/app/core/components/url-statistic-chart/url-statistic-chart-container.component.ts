@@ -1,13 +1,20 @@
 import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { iif, of, Subject } from 'rxjs';
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { EMPTY, forkJoin, iif, Observable, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Data, PrimitiveArray, bar, zoom, areaStep } from 'billboard.js';
 import * as moment from 'moment-timezone';
+import { TranslateService } from '@ngx-translate/core';
 
 import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService, StoreHelperService, WebAppSettingDataService } from 'app/shared/services';
-import { UrlStatisticChartDataService } from './url-statistic-chart-data.service';
+import { IUrlStatChartDataParams, UrlStatisticChartDataService } from './url-statistic-chart-data.service';
 import { UrlPathId } from 'app/shared/models';
 import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
+
+export enum Layer {
+    LOADING = 'loading',
+    RETRY = 'retry',
+    CHART = 'chart'
+}
 
 @Component({
     selector: 'pp-url-statistic-chart-container',
@@ -23,10 +30,18 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     private dateFormatDay: string;
 	private cachedData: {[key: string]: {timestamp: number[], metricValues: IMetricValue[]}} = {};
     private fieldNameList: string[];
+    private previousParams: IUrlStatChartDataParams;
     
     isUriSelected: boolean;
+    selectedUri: string;
 	chartConfig: IChartConfig;
-    showLoading = true;
+    showLoading: boolean;
+    showRetry: boolean;
+    retryMessage: string;
+    guideMessage: string;
+    emptyMessage: string;
+    chartVisibility = {};
+    _activeLayer: Layer = Layer.LOADING;
 
 	constructor(
 		private messageQueueService: MessageQueueService,
@@ -34,12 +49,14 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         private storeHelperService: StoreHelperService,
 		private newUrlStateNotificationService: NewUrlStateNotificationService,
 		private urlStatisticChartDataService: UrlStatisticChartDataService,
+        private translateService: TranslateService,
         private el: ElementRef,
 	) { }
 
 	ngOnInit() {
         this.initFieldNameList();
 		this.initChartColorList();
+        this.initI18nText();
         this.listenToEmitter();
 
 		this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -47,11 +64,15 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 		).subscribe(() => {
 			this.cachedData = {};
             this.isUriSelected = false;
+            this.selectedUri = null;
             this.chartConfig = null;
 		});
 
 		this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SELECT_URL_INFO).pipe(
-            tap(() => this.isUriSelected = true),
+            tap((uri) => {
+                this.isUriSelected = true;
+                this.selectedUri = uri;
+            }),
 			switchMap((uri: string) => {
 				if (Boolean(this.cachedData[uri])) {
 					return of(this.cachedData[uri]);
@@ -61,14 +82,20 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 					const to = urlService.getEndTimeToNumber();
 					const applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
 					const agentId = urlService.getPathValue(UrlPathId.AGENT_ID) || '';
-					const params = {from, to, applicationName, agentId, uri};
-
-					// TODO: Add error handling?
+					const params = this.previousParams = {from, to, applicationName, agentId, uri};
+                    
+                    this.activeLayer = Layer.LOADING;
 					return this.urlStatisticChartDataService.getData(params).pipe(
 						map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
 							this.cachedData[uri] = {timestamp, metricValues: metricValueGroups[0].metricValues};
 							return this.cachedData[uri];
 						}),
+                        catchError((error: IServerError) => {
+                            this.activeLayer = Layer.RETRY;
+                            this.setRetryMessage(error.message);
+
+                            return EMPTY;
+                        })
 					);	
 				}
 			})
@@ -82,9 +109,46 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 		this.unsubscribe.complete();
 	}
 
-	onRendered(): void {
+    set activeLayer(layer: Layer) {
+        this._activeLayer = layer;
+        this.setChartVisibility(this._activeLayer === Layer.CHART);
+    }
 
+    get activeLayer(): Layer {
+        return this._activeLayer;
+    }
+
+    private setChartVisibility(showChart: boolean): void {
+        this.chartVisibility = {
+            'show-chart': showChart,
+            'shady-chart': !showChart && this.chartConfig !== undefined,
+        };
+    }
+
+    onRendered(): void {
+        this.activeLayer = Layer.CHART;
 	}
+
+    isActiveLayer(layer: string): boolean {
+        return this.activeLayer === layer;
+    }
+
+    onRetry(): void {
+        this.activeLayer = Layer.LOADING;
+        this.urlStatisticChartDataService.getData(this.previousParams).pipe(
+            map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
+                this.cachedData[this.selectedUri] = {timestamp, metricValues: metricValueGroups[0].metricValues};
+                return this.cachedData[this.selectedUri];
+            }),
+            catchError((error: IServerError) => {
+                this.activeLayer = Layer.RETRY;
+                this.setRetryMessage(error.message);
+                return EMPTY;
+            }),
+        ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
+            this.setChartConfig(this.makeChartData(data));
+        });
+    }
 
     private initFieldNameList(): void {
         this.fieldNameList = this.webAppSettingDataService.getUrlStatFieldNameList();
@@ -105,6 +169,16 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         ]
     }
 
+    private initI18nText(): void {
+        forkJoin([
+            this.translateService.get('URL_STAT.SELECT_URL_INFO'),
+            this.translateService.get('COMMON.NO_DATA')
+        ]).subscribe(([guideMessage, emptyMessage]: string[]) => {
+            this.guideMessage = guideMessage;
+            this.emptyMessage = emptyMessage;
+        });
+    }
+
     private listenToEmitter(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
@@ -116,47 +190,16 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         });
     }
 
+    private setRetryMessage(message: string): void {
+        this.retryMessage = message;
+    }
+
 	private makeChartData({timestamp, metricValues}: {[key: string]: any}): PrimitiveArray[] {
 		return [
             ['x', ...makeXData(timestamp)],
             ...metricValues.map(({values}: IMetricValue, i: number) => {
                 return [this.fieldNameList[i], ...values.map((v: number) => v < 0 ? null : v)];
             })
-        ];
-        // * Use mock data temporarily
-        const size = 128;
-        const startDatetime = 1607463120000;
-        const interval = 1000 * 60;
-
-        const x = Array(size)
-            .fill(0)
-            .map((v, i) => startDatetime + interval * i);
-
-        const data = [300, 200, 100, 50, 30, 20, 10, 10]
-            .map(v => Array(size)
-                .fill(0)
-                .map(() => Math.round(Math.random() * v))
-            );
-
-        return [
-            ['x', ...x],
-            ['0 ~ 100', ...data[0]],
-            ['100 ~ 300', ...data[1]],
-            ['300 ~ 500', ...data[2]],
-            ['500 ~ 1000', ...data[3]],
-            ['1000 ~ 3000', ...data[4]],
-            ['3000 ~ 5000', ...data[5]],
-            ['5000 ~ 8000', ...data[6]],
-            ['8000 ~ ', ...data[7]],
-            // ['x', ...makeXData(charts.x)],
-            // ['0 ~ 100', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 0)],
-            // ['100 ~ 300', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 1)],
-            // ['300 ~ 500', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 2)],
-            // ['500 ~ 1000', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 3)],
-            // ['1000 ~ 3000', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 4)],
-            // ['3000 ~ 5000', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 5)],
-            // ['5000 ~ 8000', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 6)],
-            // ['8000 ~ ', ...makeYData(charts.y['HISTOGRAM_BUCKET'], 7)],
         ];
     }
 
@@ -173,11 +216,11 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         return {
             x: 'x',
             columns,
-            // empty: {
-            //     label: {
-            //         text: this.dataEmptyText
-            //     }
-            // },
+            empty: {
+                label: {
+                    text: this.emptyMessage
+                }
+            },
             type: bar(),
             // type: areaStep(),
             colors: keyList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
