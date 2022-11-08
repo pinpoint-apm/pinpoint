@@ -63,6 +63,7 @@ public class ConfigController {
         result.put("showApplicationStat", webProperties.isShowApplicationStat());
         result.put("showStackTraceOnError", webProperties.isShowStackTraceOnError());
         result.put("showSystemMetric", webProperties.isShowSystemMetric());
+        result.put("showUrlStat", webProperties.isShowUrlStat());
         result.put("openSource", webProperties.isOpenSource());
         result.put("webhookEnable", webProperties.isWebhookEnable());
 
