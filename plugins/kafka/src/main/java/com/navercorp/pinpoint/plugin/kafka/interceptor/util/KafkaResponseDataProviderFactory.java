@@ -1,13 +1,8 @@
 package com.navercorp.pinpoint.plugin.kafka.interceptor.util;
 
 import com.navercorp.pinpoint.plugin.kafka.KafkaVersion;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.Uuid;
-import org.apache.kafka.common.message.FetchResponseData;
 
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public final class KafkaResponseDataProviderFactory {
 

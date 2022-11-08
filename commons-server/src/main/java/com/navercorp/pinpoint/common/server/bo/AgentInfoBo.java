@@ -18,10 +18,6 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import org.apache.commons.lang3.StringUtils;
-
-
-import java.util.Comparator;
 
 /**
  * @author emeroad

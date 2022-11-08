@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 
 import java.util.Arrays;
 

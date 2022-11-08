@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
-import com.navercorp.pinpoint.common.trace.UriExtractorType;
 
 /**
  * @author jaehong.kim

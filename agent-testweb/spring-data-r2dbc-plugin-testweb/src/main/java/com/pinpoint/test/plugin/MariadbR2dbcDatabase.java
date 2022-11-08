@@ -20,7 +20,6 @@ import io.r2dbc.spi.ConnectionFactory;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

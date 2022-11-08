@@ -24,12 +24,10 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.util.CharsetUtil;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.time.Duration;
 
 @Component
 @Qualifier("jasync-mysql")
