@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Configuration
 public class SimpleRoute {

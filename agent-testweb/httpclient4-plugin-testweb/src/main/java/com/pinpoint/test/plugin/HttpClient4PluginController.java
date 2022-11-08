@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 @RestController
 public class HttpClient4PluginController {

@@ -20,7 +20,6 @@ import io.r2dbc.mssql.MssqlConnectionConfiguration;
 import io.r2dbc.mssql.MssqlConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

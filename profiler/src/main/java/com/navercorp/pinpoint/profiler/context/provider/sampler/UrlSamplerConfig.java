@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context.provider.sampler;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;

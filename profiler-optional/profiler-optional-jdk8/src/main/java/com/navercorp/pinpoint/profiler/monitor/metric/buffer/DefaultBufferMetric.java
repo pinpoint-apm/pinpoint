@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.buffer;
 
-import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
-import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferType;
-
 import javax.management.ObjectName;
 import java.lang.management.BufferPoolMXBean;
 import java.lang.management.ManagementFactory;

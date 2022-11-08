@@ -25,19 +25,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import test.pinpoint.plugin.kafka.Kafka3UnitServer;
-import test.pinpoint.plugin.kafka.KafkaITConstants;
 import test.pinpoint.plugin.kafka.TestConsumerRecordEntryPoint;
 
 import java.lang.reflect.Method;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.KAFKA_CLIENT_INTERNAL_SERVICE_TYPE;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.KAFKA_CLIENT_SERVICE_TYPE;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.MAX_TRACE_WAIT_TIME;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.PARTITION;
-import static test.pinpoint.plugin.kafka.KafkaITConstants.TOPIC;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.*;
 
 /**
  * @author Younsung Hwang

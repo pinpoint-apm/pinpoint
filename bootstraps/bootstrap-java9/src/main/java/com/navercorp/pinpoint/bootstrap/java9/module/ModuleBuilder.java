@@ -26,9 +26,15 @@ import java.lang.module.ModuleFinder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 /**
  * @author Woonduk Kang(emeroad)
