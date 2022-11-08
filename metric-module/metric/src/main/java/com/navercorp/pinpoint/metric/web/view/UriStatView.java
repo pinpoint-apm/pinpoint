@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.metric.web.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.metric.common.model.UriStat;
 import com.navercorp.pinpoint.metric.web.model.UriStatGroup;
+import com.navercorp.pinpoint.metric.web.util.Range;
+import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +32,25 @@ public class UriStatView implements TimeSeriesView {
 
     private final List<TimeseriesValueGroupView> uriStats = new ArrayList<>();
 
-    public UriStatView(String uri, List<UriStat> uriStats) {
+    public UriStatView(String uri, TimeWindow timeWindow, List<UriStat> uriStats) {
+        Objects.requireNonNull(timeWindow, "timeWindow");
         Objects.requireNonNull(uriStats, "uriStats");
-        this.timestampList = uriStats.stream().map(UriStat::getTimestamp).collect(Collectors.toList());
+        this.timestampList = createTimeStampList(timeWindow);
         if (uriStats.isEmpty()) {
             this.uriStats.add(UriStatGroup.EMPTY_URI_STAT_GROUP);
         } else {
-            this.uriStats.add(new UriStatGroup(uri, uriStats));
+            this.uriStats.add(new UriStatGroup(uri, timestampList.size(), timeWindow, uriStats));
         }
+    }
+
+    private List<Long> createTimeStampList(TimeWindow timeWindow) {
+        List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
+
+        for (Long timestamp : timeWindow) {
+            timestampList.add(timestamp);
+        }
+
+        return timestampList;
     }
 
     @Override
