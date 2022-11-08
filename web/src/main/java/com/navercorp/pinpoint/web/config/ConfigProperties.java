@@ -67,6 +67,8 @@ public class ConfigProperties {
     @Value("${config.show.systemMetric:false}")
     private boolean showSystemMetric;
 
+    @Value("${config.show.urlStat:false}")
+    private boolean showUrlStat;
 
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
@@ -116,6 +118,10 @@ public class ConfigProperties {
 
     public boolean isShowSystemMetric() {
         return showSystemMetric;
+    }
+
+    public boolean isShowUrlStat() {
+        return showUrlStat;
     }
 
     public String getWebSocketAllowedOrigins() {
