@@ -7,7 +7,6 @@ import { NoticeModule } from 'app/core/components/notice';
 import { ApplicationListModule } from 'app/core/components/application-list';
 import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
-import { ApplicationInspectorTitleModule } from 'app/core/components/application-inspector-title';
 import { ServerAndAgentListModule } from 'app/core/components/server-and-agent-list';
 import { ApplicationInspectorContentsModule } from 'app/core/components/application-inspector-contents';
 import { AgentInspectorContentsModule } from 'app/core/components/agent-inspector-contents';
@@ -27,7 +26,6 @@ import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar
         ApplicationListModule,
         PeriodSelectorModule,
         ConfigurationIconModule,
-        ApplicationInspectorTitleModule,
         ServerAndAgentListModule,
         ApplicationInspectorContentsModule,
         AgentInspectorContentsModule,

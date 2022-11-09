@@ -1,0 +1,11 @@
+<pp-url-statistic-info
+    [data]="data$ | async"
+    [emptyMessage]="emptyMessage$ | async"
+    (outSelectUrlInfo)="onSelectUrlInfo($event)">
+</pp-url-statistic-info>
+<ng-container *ngIf="errorMessage">
+    <pp-server-error-message
+        [message]="errorMessage"
+        (outClose)="onCloseErrorMessage()">
+    </pp-server-error-message>
+</ng-container>

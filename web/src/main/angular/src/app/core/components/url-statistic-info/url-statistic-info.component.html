@@ -1,0 +1,39 @@
+<!-- <ng-container *ngIf="data"> -->
+    <div class="url-info-table table">
+        <div class="url-info-header">
+            <div class="url-info-row header-row">
+                <div class="url-info-cell header-cell index-cell">#</div>
+                <div class="url-info-cell header-cell url-cell">URL</div>
+                <div class="url-info-cell header-cell total-count-cell">Total Count</div>
+                <div class="url-info-cell header-cell failure-count-cell">Failure Count</div>
+                <div class="url-info-cell header-cell avg-cell">Avg(ms)</div>
+                <div class="url-info-cell header-cell max-cell">Max(ms)</div>
+            </div>
+        </div>
+        <div class="url-info-body" #urlInfoTableBody>
+            <ng-container *ngIf="isEmpty; else contents">
+                <div class="url-info-row empty">
+                    <div class="url-info-cell empty">{{emptyMessage}}</div>
+                </div>
+            </ng-container>
+            <ng-template #contents>
+                <div 
+                    *ngFor="let urlInfo of data; let i = index"
+                    class="url-info-row"
+                    (click)="onSelectUrlInfo(urlInfo.uri)"
+                    [class.active]="isSelectedUrl(urlInfo.uri)"
+                >
+                    <div class="url-info-cell index-cell">{{i + 1}}</div>
+                    <div class="url-info-cell url-cell">{{urlInfo.uri}}</div>
+                    <div class="url-info-cell total-count-cell">
+                        <div class="total-count">{{urlInfo.totalCount | number}}</div>
+                        <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)"></div>
+                    </div>
+                    <div class="url-info-cell failure-count-cell">{{urlInfo.failureCount | number}}</div>
+                    <div class="url-info-cell avg-cell">{{urlInfo.avgTimeMs | number: '1.0-0'}}</div>
+                    <div class="url-info-cell max-cell">{{urlInfo.maxTimeMs | number: '1.0-0'}}</div>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+<!-- </ng-container> -->

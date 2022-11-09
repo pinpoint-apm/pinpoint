@@ -59,7 +59,7 @@ export class UrlStatisticChartComponent implements OnInit, OnChanges {
             : this.getEmptyDataKeys(currColumns);
 
         this.chartInstance.config('data.groups', [currKeys.slice(1)]);
-        this.chartInstance.config('axis.y.max', y.max);
+        // this.chartInstance.config('axis.y.max', y.max);
         this.chartInstance.load({
             columns: currColumns,
             colors,

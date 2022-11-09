@@ -33,14 +33,15 @@ interface ISNBMeta {
 export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
 
+    private showMetric: boolean;
+    private showUrlStat: boolean;
+
     enableRealTime: boolean;
     logoPath: string;
     minimize = false;
     currentItemId: string;
     userId = '';
     meta: ISNBMeta;
-
-    showMetric: boolean;
 
     constructor(
         private cd: ChangeDetectorRef,
@@ -56,6 +57,10 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         this.minimize = this.webAppSettingDataService.getSideNavBarScale();
         this.webAppSettingDataService.showMetric().subscribe((showMetric: boolean) => {
             this.showMetric = showMetric;
+        });
+
+        this.webAppSettingDataService.showUrlStat().subscribe((showUrlStat: boolean) => {
+            this.showUrlStat = showUrlStat;
         });
 
         this.webAppSettingDataService.getUserId().subscribe(userId => {
@@ -98,6 +103,10 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         this.urlRouteManagerService.moveToHostMenu(UrlPath.METRIC);
     }
 
+    onClickUrlStat(): void {
+        this.urlRouteManagerService.moveToAppMenu(UrlPath.URL_STATISTIC);
+    }
+
     onClickGithubLink() {
        this.windowRefService.nativeWindow.open('http://github.com/naver/pinpoint');
     }
@@ -134,7 +143,15 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     iconClass: 'fas fa-server',
                     showItem: this.showMetric,
                     onClick: () => this.onClickMetric(),
-                }
+                },
+                {
+                    id: 'url-stat',
+                    title: 'URL Statistic',
+                    path: '/urlStatistic',
+                    iconClass: 'fas fa-chart-bar',
+                    showItem: this.showUrlStat,
+                    onClick: () => this.onClickUrlStat(),
+                },
             ],
             bottomItems: [
                 {

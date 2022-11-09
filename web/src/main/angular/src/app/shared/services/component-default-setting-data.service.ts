@@ -50,6 +50,16 @@ export class ComponentDefaultSettingDataService {
             new Period(10080),
             new Period(20160),
             new Period(40320),
+        ],
+        [UrlPath.URL_STATISTIC]: [
+            new Period(5, 'Last'),
+            new Period(20),
+            new Period(60),
+            new Period(720),
+            new Period(1440),
+            new Period(10080),
+            new Period(20160),
+            new Period(40320),
         ]
     };
     private maxPeriodTime = 60 * 24 * 2; // 2day
@@ -116,6 +126,17 @@ export class ComponentDefaultSettingDataService {
         'Mapped Buffer Memory',
         'Data Source'
     ];
+    private urlStatFieldNameList = [
+        '0 ~ 100ms',
+        '100 ~ 300ms',
+        '300 ~ 500ms',
+        '500 ~ 1000ms',
+        '1000 ~ 3000ms',
+        '3000 ~ 5000ms',
+        '5000 ~ 8000ms',
+        '8000ms ~ ',
+    ];
+
     constructor() {}
     getInboundList(): number[] {
         return this.inboundList;
@@ -167,5 +188,8 @@ export class ComponentDefaultSettingDataService {
     }
     getAgentInspectorDefaultChartOrderList(): string[] {
         return this.agentChartOrderList;
+    }
+    getUrlStatFieldNameList(): string[] {
+        return this.urlStatFieldNameList;
     }
 }

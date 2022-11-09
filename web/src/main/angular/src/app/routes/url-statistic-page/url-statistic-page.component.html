@@ -1,6 +1,23 @@
-<header class="l-header flex-container flex-row">
-    <pp-header-logo></pp-header-logo>
-</header>
-<div class="l-main-container">
-    <pp-url-statistic-container></pp-url-statistic-container>
-</div>
+<ng-container *ngIf="showUrlStat$ | async">
+    <pp-notice-container></pp-notice-container>
+    <div class="container">
+        <pp-side-navigation-bar></pp-side-navigation-bar>
+        <div class="main-container">
+            <div class="widget-group">
+                <pp-application-list-for-header-container></pp-application-list-for-header-container>
+                <pp-period-selector-container></pp-period-selector-container>
+            </div>
+            <section *ngIf="showSideMenu" class="sidemenu-wrap font-opensans">
+                <div class="sidemenu-left">
+                    <div (click)="onSelectApp()" class="selected-app-wrapper" [class.active]="isAppActivated" [attr.title]="selectedAppName">
+                        <img [src]="selectedAppImg" class="app-img"><span class="selected-app-name">{{selectedAppName}}</span>
+                    </div>
+                    <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
+                </div>
+            </section>
+            <section class="main-section" [ngStyle]="mainSectionStyle">
+                <router-outlet></router-outlet>
+            </section>
+        </div>    
+    </div>
+</ng-container>

@@ -230,14 +230,11 @@ caption {
     }
 }
 
-.l-agent-inspector-contents .bb-axis-y-label,
-.l-agent-inspector-contents .bb-axis-y2-label,
-.l-application-inspector-contents .bb-axis-y-label,
-.l-transaction-view-top-contents .bb-axis-y-label,
-.l-transaction-view-top-contents .bb-axis-y2-label {
+.bb-axis-y-label,
+.bb-axis-y2-label {
     text-anchor: middle !important;
     font-family: 'Open Sans';
-    font-size: 0.75vw;
+    font-size: 13px;
     fill: var(--text-primary);
     font-weight: bold;
 }
@@ -409,7 +406,8 @@ caption {
     opacity: 1 !important;
 }
 
-.l-load-chart .bb-line {
+.l-load-chart .bb-line,
+.l-url-statistic-chart .bb-line {
     stroke-width: 0;
 }
 
