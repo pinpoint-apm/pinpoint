@@ -1,0 +1,14 @@
+<!-- <ng-container *ngIf="isUriSelected && chartConfig; else guideText"> -->
+<ng-container *ngIf="isUriSelected; else guideText">
+    <div class="chart-area-wrapper">
+        <!-- <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading> -->
+        <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
+        <pp-url-statistic-chart
+            [chartConfig]="chartConfig"
+            (outRendered)="onRendered()">
+        </pp-url-statistic-chart>
+    </div>
+</ng-container>
+<ng-template #guideText>
+    <p>{{guideMessage}}</p>
+</ng-template>

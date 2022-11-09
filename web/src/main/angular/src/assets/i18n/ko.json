@@ -29,6 +29,9 @@
         "SELECT_HOST_GROUP": "호스트 그룹을 선택하세요.",
         "INPUT_HOST_GROUP_NAME_PLACE_HOLDER": "호스트 그룹 이름을 입력하세요."
     },
+    "URL_STAT": {
+        "SELECT_URL_INFO": "아래에서 URL 정보를 선택하세요."
+    },
     "INSPECTOR": {
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://pinpoint-apm.gitbook.io/pinpoint/documents/application-inspector\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
         "APPLICAITION_NAME_ISSUE": {

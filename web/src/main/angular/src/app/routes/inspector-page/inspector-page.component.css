@@ -78,3 +78,36 @@ button {
 .l-auth-img {
     width: 200px;
 }
+
+.selected-app-wrapper {
+    display: flex;
+    border-bottom: 1px solid var(--border-primary);
+    height: 40px;
+    gap: 4px;
+    padding: 0 6px 0 13px;
+    align-items: center;
+}
+
+.selected-app-wrapper.active {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.selected-app-wrapper:hover {
+    cursor: pointer;
+    color: var(--primary);
+    background-color: var(--background-hover-default);
+}
+
+.app-img {
+    width: 22px;
+    height: 18px;
+}
+
+.selected-app-name {
+    flex: 1;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

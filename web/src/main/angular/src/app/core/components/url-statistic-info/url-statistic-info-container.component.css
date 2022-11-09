@@ -2,9 +2,5 @@
     display: block;
     width: 100%;
     height: 100%;
-}
-
-.l-chart-section {
-    width: 100%;
-    height: 100%;
+    position: relative;
 }

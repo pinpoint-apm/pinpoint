@@ -1,10 +1,10 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, OnDestroy } from '@angular/core';
 import { state, style, animate, transition, trigger } from '@angular/animations';
 import { Observable, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, takeUntil, tap } from 'rxjs/operators';
 
-import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
-import { UrlPathId } from 'app/shared/models';
+import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO, UrlRouteManagerService } from 'app/shared/services';
+import { UrlPath, UrlPathId } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorPageService } from './inspector-page.service';
 
@@ -34,6 +34,7 @@ import { InspectorPageService } from './inspector-page.service';
 })
 export class InspectorPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+    private funcImagePath: Function;
 
     sideNavigationUI: boolean;
     unAuthImgPath: string;
@@ -42,6 +43,9 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     isAccessDenyed$: Observable<boolean>;
 
     mainSectionStyle = {};
+    isAppActivated: boolean;
+    selectedAppImg: string;
+    selectedAppName: string;
 
     constructor(
         private inspectorPageService: InspectorPageService,
@@ -52,14 +56,25 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
         private injector: Injector,
         private webAppSettingDataService: WebAppSettingDataService,
         private messageQueueService: MessageQueueService,
+        private urlRouteManagerService: UrlRouteManagerService,
     ) {}
 
     ngOnInit() {
+        this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
         this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
         this.unAuthImgPath = this.webAppSettingDataService.getServerMapIconPathMakeFunc()('UNAUTHORIZED');
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
+            tap((urlService: NewUrlStateNotificationService) => {
+                if (urlService.hasValue(UrlPathId.APPLICATION)) {
+                    const selectedApp: IApplication = urlService.getPathValue(UrlPathId.APPLICATION);
+
+                    this.selectedAppName = selectedApp.getApplicationName();
+                    this.selectedAppImg = this.funcImagePath(selectedApp.getServiceType());
+                    this.isAppActivated = !urlService.hasValue(UrlPathId.AGENT_ID);
+                }
+            }),
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
@@ -76,6 +91,17 @@ export class InspectorPageComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    onSelectApp(): void {
+        this.urlRouteManagerService.moveOnPage({
+            url: [
+                UrlPath.INSPECTOR,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+            ]
+        })
     }
 
     onShowHelp($event: MouseEvent): void {

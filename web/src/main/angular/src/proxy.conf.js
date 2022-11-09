@@ -54,7 +54,6 @@ const PROXY_CONFIG = [
             "/admin/removeAgentId.pinpoint",
             "/admin/removeInactiveAgents.pinpoint",
             "/bind.pinpoint",
-            "/getAgentStat/uriStat/chartList.pinpoint",
             "/heatmap/drag.pinpoint",
             "/traceViewerData.pinpoint",
             "/application/webhook.pinpoint",
@@ -68,7 +67,9 @@ const PROXY_CONFIG = [
             "/systemMetric/hostGroup/host/collectedMetricData.pinpoint",
             "/getApdexScore.pinpoint",
             "/getApplicationStat/apdexScore/chart.pinpoint",
-            "/getAgentStat/apdexScore/chart.pinpoint"
+            "/getAgentStat/apdexScore/chart.pinpoint",
+            "/uriStat/top50.pinpoint",
+            "/uriStat/chart.pinpoint"
         ],
         target: 'http://localhost:8080',
         secure: false

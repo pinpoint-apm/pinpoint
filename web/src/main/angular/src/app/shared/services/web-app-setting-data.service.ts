@@ -80,6 +80,9 @@ export class WebAppSettingDataService {
     showMetric(): Observable<boolean> {
         return this.newUrlStateNotificationService.getConfiguration('showSystemMetric');
     }
+    showUrlStat(): Observable<boolean> {
+        return this.newUrlStateNotificationService.getConfiguration('showUrlStat');
+    }
     getImagePath(): string {
         return this.IMAGE_PATH;
     }
@@ -301,5 +304,8 @@ export class WebAppSettingDataService {
     }
     getExperimentalConfiguration(): Observable<ExperimentalConfigurationMeta> {
         return this.newUrlStateNotificationService.getConfiguration('experimental');
+    }
+    getUrlStatFieldNameList(): string[] {
+        return this.componentDefaultSettingDataService.getUrlStatFieldNameList();
     }
 }

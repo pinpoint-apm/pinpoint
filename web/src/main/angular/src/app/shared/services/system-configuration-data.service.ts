@@ -43,6 +43,7 @@ export class SystemConfigurationDataService {
         userName: '',
         userDepartment: '',
         showSystemMetric: false,
+        showUrlStat: false
     };
 
     constructor(
