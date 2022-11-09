@@ -86,16 +86,16 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
         this.logoPath = this.webAppSettingDataService.getLogoPath(this.minimize);
     }
 
-    onClickInspector(): void {
-        this.urlRouteManagerService.movePageOnSidebar(UrlPath.INSPECTOR);
+    onClickServermap(): void {
+        this.urlRouteManagerService.moveToAppMenu(UrlPath.MAIN);
     }
 
-    onClickServermap(): void {
-        this.urlRouteManagerService.movePageOnSidebar(UrlPath.MAIN);
+    onClickInspector(): void {
+        this.urlRouteManagerService.moveToAppMenu(UrlPath.INSPECTOR);
     }
 
     onClickMetric(): void {
-        this.urlRouteManagerService.movePageOnSidebar(UrlPath.METRIC);
+        this.urlRouteManagerService.moveToHostMenu(UrlPath.METRIC);
     }
 
     onClickGithubLink() {

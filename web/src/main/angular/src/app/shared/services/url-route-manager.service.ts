@@ -4,11 +4,11 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import { WindowRefService } from 'app/shared/services/window-ref.service';
 import { ServerTimeDataService } from 'app/shared/services/server-time-data.service';
-import { EndTime } from 'app/core/models/end-time';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
 import { WebAppSettingDataService } from 'app/shared/services/web-app-setting-data.service';
 import { isEmpty } from 'app/core/utils/util';
+import { Period, EndTime } from 'app/core/models';
 
 // TODO: Router Navigation Refactoring
 @Injectable()
@@ -66,9 +66,50 @@ export class UrlRouteManagerService {
         ]);
     }
 
-    movePageOnSidebar(rootRoute: string): void {
-        // TODO: Keep realtime state when switching pages after refactoring the url structure
-        const pageUrlInfo = this.newUrlStateNotificationService.getPageUrlInfo(rootRoute);
+    moveToAppMenu(rootRoute: string): void {
+        /**
+         * Navigation flow
+         * 1. From HostMenu to AppMenu: Navigate to the last url state
+         * 2. From AppMenu to AppMenu: Keep the every state(app, period, endTime)
+         * 3. From AppMenu to AppMenu in realtime: Keep the app state with the default period, endTime
+         */
+        const urlService = this.newUrlStateNotificationService;
+        const pageUrlInfo = urlService.getPageUrlInfo(rootRoute);
+
+        if (urlService.hasValue(UrlPathId.APPLICATION)) {
+            const isRealTimeMode = urlService.isRealTimeMode()
+            const app = urlService.getPathValue(UrlPathId.APPLICATION) as IApplication;
+            const period = urlService.getPathValue(UrlPathId.PERIOD) as Period;
+            const endTime = urlService.getPathValue(UrlPathId.END_TIME) as EndTime;
+
+            if (isRealTimeMode) {
+                this.router.navigate([
+                    rootRoute,
+                    app.getUrlStr()
+                ]);    
+            } else {
+                this.router.navigate([
+                    rootRoute,
+                    app.getUrlStr(),
+                    period.getValueWithTime(),
+                    endTime.getEndTime()
+                ]);
+            }
+        } else if (pageUrlInfo) {
+            this.router.navigate([
+                rootRoute,
+                ...pageUrlInfo.pathParams.values()
+            ]);
+        } else {
+            this.router.navigate([
+                rootRoute
+            ]);
+        }
+    }
+
+    moveToHostMenu(rootRoute: string): void {
+        const urlService = this.newUrlStateNotificationService;
+        const pageUrlInfo = urlService.getPageUrlInfo(rootRoute);
 
         if (!pageUrlInfo) {
             this.router.navigate([
