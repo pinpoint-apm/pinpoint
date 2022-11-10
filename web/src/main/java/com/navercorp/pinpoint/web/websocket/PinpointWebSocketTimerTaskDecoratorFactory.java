@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.web.task.TimerTaskDecorator;
 import com.navercorp.pinpoint.web.task.TimerTaskDecoratorFactory;
+import com.navercorp.pinpoint.web.util.SecurityContextUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,8 +41,7 @@ public class PinpointWebSocketTimerTaskDecoratorFactory implements TimerTaskDeco
 
         private SecurityContextPreservingTimerTaskDecorator() {
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-            SecurityContext currentSecurityContext = SecurityContextHolder.getContext();
-            Authentication authentication = currentSecurityContext.getAuthentication();
+            final Authentication authentication = SecurityContextUtils.getAuthentication();
             if (authentication != null) {
                 securityContext.setAuthentication(authentication);
             }
