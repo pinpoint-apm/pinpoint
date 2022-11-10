@@ -44,6 +44,7 @@ public class TestClassList {
         add("com.navercorp.pinpoint.test.junit4.IsRootSpan");
         add("org.apache.thrift.TBase");
         add("junit.");
+        add("org.hamcrest.");
         add("org.assertj.");
         add("org.junit.");
     }
