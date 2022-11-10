@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoEncoder;
+import com.navercorp.pinpoint.web.util.SecurityContextUtils;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoEncoder;
 import com.navercorp.pinpoint.web.vo.User;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,14 +130,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public String getUserIdFromSecurity() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof String) {
-                return (String)authentication.getPrincipal();
-            }
-        }
-
-        return EMPTY;
+        return SecurityContextUtils.defaultStringPrincipal(EMPTY);
     }
 }

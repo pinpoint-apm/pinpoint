@@ -48,7 +48,7 @@ public class WebhookSendInfoController {
         }
 
         if (!StringUtils.hasText(webhookSendInfo.getRuleId()) || !StringUtils.hasText(webhookSendInfo.getWebhookId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be ruleId and webhookIdto insert webhookSendInfo");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there should be ruleId and webhookId to insert webhookSendInfo");
         }
         String webhookSendInfoId = webhookSendInfoService.insertWebhookSendInfo(webhookSendInfo);
         return new WebhookSendInfoResponse("SUCCESS", webhookSendInfoId);
