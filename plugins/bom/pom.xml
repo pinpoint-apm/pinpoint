@@ -33,6 +33,7 @@
         <jedis.version>2.4.2</jedis.version>
         <lettuce.version>6.1.5.RELEASE</lettuce.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
+        <cassandra4.driver.version>4.15.0</cassandra4.driver.version>
 
         <mongo.driver.3.version>3.12.11</mongo.driver.3.version>
         <mongo.driver.4.version>4.6.1</mongo.driver.4.version>
@@ -58,6 +59,11 @@
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${cassandra.driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-core</artifactId>
+                <version>${cassandra4.driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cassandra</groupId>

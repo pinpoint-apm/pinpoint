@@ -76,6 +76,8 @@
         <module>httpclient5-plugin-testweb</module>
         <module>httpclient4-plugin-testweb</module>
         <module>kafka-plugin-testweb</module>
+        <module>cassandra3-plugin-testweb</module>
+        <module>cassandra4-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>
