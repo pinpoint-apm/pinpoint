@@ -33,6 +33,7 @@
         <module>plugins-it-jdbc-test</module>
         <module>activemq-it</module>
         <module>cassandra-it</module>
+        <module>cassandra4-it</module>
         <module>cxf-it</module>
         <module>druid-it</module>
         <module>dubbo-it</module>
