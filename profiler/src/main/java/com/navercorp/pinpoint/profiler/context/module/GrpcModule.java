@@ -50,11 +50,13 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.SubconnectionExpiringLoadBalancerProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzScheduledReporter;
+import io.grpc.LoadBalancerRegistry;
 import io.grpc.NameResolverProvider;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -90,6 +92,8 @@ public class GrpcModule extends PrivateModule {
 
         bind(ScheduledExecutorService.class).toProvider(ReconnectSchedulerProvider.class).in(Scopes.SINGLETON);
 
+        registerGrpcProviders(grpcTransportConfig);
+
         // not singleton
         bind(ReconnectExecutor.class).toProvider(ReconnectExecutorProvider.class);
 
@@ -105,6 +109,10 @@ public class GrpcModule extends PrivateModule {
 
         NettyPlatformDependent nettyPlatformDependent = new NettyPlatformDependent(profilerConfig, System.getProperties());
         nettyPlatformDependent.setup();
+    }
+
+    private void registerGrpcProviders(GrpcTransportConfig grpcTransportConfig) {
+        LoadBalancerRegistry.getDefaultRegistry().register(new SubconnectionExpiringLoadBalancerProvider(grpcTransportConfig));
     }
 
     private void bindAgentDataSender() {

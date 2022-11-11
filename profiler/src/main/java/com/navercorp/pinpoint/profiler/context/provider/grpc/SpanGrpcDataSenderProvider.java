@@ -43,8 +43,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledRepor
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzReporter;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -106,7 +106,8 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
 
         final SpanGrpcDataSender spanGrpcDataSender = new SpanGrpcDataSender(collectorIp, collectorPort,
                 senderExecutorQueueSize, messageConverter,
-                reconnectExecutor, channelFactory, failState);
+                reconnectExecutor, channelFactory, failState, grpcTransportConfig.getSpanRpcMaxAgeMillis());
+
 
         registerChannelzReporter(spanGrpcDataSender);
 
