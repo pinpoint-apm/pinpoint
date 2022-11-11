@@ -16,6 +16,7 @@
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@pinpoint-fe/constants": "*",
+    "@pinpoint-fe/server-map": "*",
     "@pinpoint-fe/ui": "*",
     "@pinpoint-fe/utils": "*",
     "jotai": "^1.7.5",

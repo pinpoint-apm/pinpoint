@@ -1,5 +1,5 @@
 export type ApplicationType = {
-  code: number;
+  code?: number;
   serviceType: string;
   applicationName: string;
 }

@@ -1,42 +1,53 @@
-import React, { FC, memo, useState, useMemo, useEffect, useCallback } from 'react';
+import React, { FC } from 'react';
 import styled from '@emotion/styled';
-import { subDays } from 'date-fns';
+import { format, isValid, parse, subDays } from 'date-fns';
 
-import { useSkipFirstEffect } from '@pinpoint-fe/utils';
+import { DateRange, DateRangeTime, DATE_FORMAT } from '@pinpoint-fe/constants';
+import { useSkipFirstEffect, getParsedDateRange } from '@pinpoint-fe/utils';
 import { QuickButtons } from './QuickButtons';
 import { RangeDropdown } from './RangeDropdown';
-import DateRangeContext, { DateRange, DateRangeContextType, DateRangeTime, DateStateType } from './DateRangeContext';
+import DateRangeContext, { DateRangeContextType, DateStateType } from './DateRangeContext';
 
-type DateRangeStateType = Pick<DateRangeContextType, 'range' | 'dateState'>;
+type DateRangeStateType = Pick<DateRangeContextType, 'dateState'>;
+type onChangeHanlderType = (param: DateRangeStateType & {formattedDate: {from: string, to: string}}) => void;
 
 export interface DateRangePickerProps {
+  from?: Date | string,
+  to?: Date | string,
+  realtime?: boolean;
+  defaultRange?: DateRange,
+  dateFormat?: string,
   className?: string;
-  initRange?: DateRange,
-  initStartDate?: Date,
-  initEndDate?: Date, 
-  onChange?: ({ range, dateState }: DateRangeStateType) => void,
+  onChange?: onChangeHanlderType,
 }
 
-const min = 1000 * 60;
-
-export const DateRangePicker: FC<DateRangePickerProps> = memo(({
+export const DateRangePicker: FC<DateRangePickerProps> = React.memo(({
+  from,
+  to,
+  realtime,
+  defaultRange = DateRange.FIVE_MINUTES,
+  dateFormat = DATE_FORMAT,
   className,
-  initRange = DateRange.FIVE_MINUTES,
-  initStartDate = new Date(Date.now() - min * 5),
-  initEndDate = new Date(),
   onChange,
 }: DateRangePickerProps) => {
-  const [ range, setRange ] = useState(initRange);
-  const [ dateState, setDateState ] = useState<DateStateType>({
-    from: initStartDate,
-    to: initEndDate,
-  })
+  const [ range, setRange ] = React.useState(defaultRange);
+  const [ dateState, setDateState ] = React.useState<DateStateType>(getParsedDateRange({from, to}))
+
+  React.useEffect(() => {
+    setDateState(getParsedDateRange({from, to}));
+  }, [ from, to ])
 
   useSkipFirstEffect(() => {
-    onChange?.({ range, dateState });
+    onChange?.({ 
+      dateState, 
+      formattedDate: {
+        from: format(dateState.from, dateFormat),
+        to: format(dateState.to, dateFormat),
+      }
+    });
   }, [ range, dateState ])
 
-  const updateRange = useCallback((range: DateRange) => {
+  const updateRange = React.useCallback((range: DateRange) => {
     setRange(range);
     if (range !== DateRange.REAL_TIME) {
       updateDateState({
@@ -46,7 +57,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = memo(({
     }
   }, []);
 
-  const updateDateState = useCallback(({ from, to }: { from: Date, to: Date }) => {
+  const updateDateState = React.useCallback(({ from, to }: { from: Date, to: Date }) => {
     if (from >= to) {
       alert('시작 날짜가 끝 날짜보다 크거나 같을 수 없습니다.');
     } else if (subDays(to, 2) > from ) {
@@ -65,6 +76,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = memo(({
       updateRange,
       dateState,
       updateDateState,
+      dateFormat,
     }}>
       <StyledContainer className={className}>
         <RangeDropdown />
@@ -76,9 +88,6 @@ export const DateRangePicker: FC<DateRangePickerProps> = memo(({
 
 const StyledContainer = styled.div`
   display: flex;
-  gap: 7px;
+  gap: 5px;
 `
-
-
-
 

@@ -276,7 +276,6 @@ export const getServerMapData = (data: { nodes: Node[], edges: Edge[] }) => {
 
   return [
     ...finalData.nodes.map(node => {
-      console.log(node)
       return {
         data: {
           ...node,
