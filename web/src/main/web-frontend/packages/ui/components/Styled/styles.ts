@@ -14,7 +14,7 @@ export const StyleFlexVHCentered = css`
 export const StyleSpin = css`
   animation: spin 1s infinite linear;
 
-  @-webkit-keyframes spin {
+  @keyframes spin {
     0% {
       -webkit-transform: rotate(0deg);
               transform: rotate(0deg);

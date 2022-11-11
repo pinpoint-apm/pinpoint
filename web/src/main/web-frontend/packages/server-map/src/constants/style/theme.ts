@@ -1,4 +1,37 @@
-export const defaultTheme = {
+import { Css } from 'cytoscape'
+
+export type ServerMapTheme = {
+  transactionStatus?: {
+    default?: {
+      stroke?: string,
+      strokeWidth?: number,
+    }, 
+    good?: {
+      stroke?: string,
+      strokeWidth?: number,
+    },
+    slow?: {
+      stroke?: string,
+      strokeWidth?: number,
+    },
+    bad?: {
+      stroke?: string,
+      strokeWidth?: number,
+    },
+  },
+  node?: {
+    default?: Css.Node,
+    highlight?: Css.Node,
+    main?: Css.Node,
+  },
+  edge?: {
+    default?: Css.Edge,
+    highlight?: Css.Edge,
+    loop?: Css.Edge,
+  }
+} 
+
+export const defaultTheme: ServerMapTheme = {
   transactionStatus: {
     default: {
       stroke: 'transparent',
@@ -58,7 +91,6 @@ export const defaultTheme = {
       'text-background-padding': '5px',
       'text-background-shape': 'roundrectangle',
       'overlay-opacity': 0,
-      'color': 'inherit'
       // color: (ele: any) => ele.data('hasAlert') ? this.serverMapColor.textFail : this.serverMapColor.text,
     },
     highlight: {

@@ -15,6 +15,6 @@ const Template: ComponentStory<typeof NextLink> = (args) => <NextLink {...args} 
 
 export const Default = Template.bind({});
 Default.args = {
-  path: '',
+  href: '',
   children: 'default no path'
 };

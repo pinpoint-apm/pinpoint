@@ -12,7 +12,7 @@ export default {
     backgroundColor: { control: 'color' },
     onClickBackground: { action: 'clicked' },
     onClickNode: { action: 'clicked' },
-    onClickLink: { action: 'clicked' },
+    onClickEdge: { action: 'clicked' },
   },
 } as ComponentMeta<typeof ServerMap>;
 
@@ -40,13 +40,13 @@ const Template: ComponentStory<typeof ServerMap> = (args) => (
 
 export const Default = Template.bind({});
 Default.args = {
-  baseNodeKey: 'ACL-PORTAL-DEV^SPRING_BOOT',
+  baseNodeId: 'ACL-PORTAL-DEV^SPRING_BOOT',
   data: serverMapData,
 };
 
 export const RenderCustomLabel = Template.bind({});
 RenderCustomLabel.args = {
-  baseNodeKey: 'ACL-PORTAL-DEV^SPRING_BOOT',
+  baseNodeId: 'ACL-PORTAL-DEV^SPRING_BOOT',
   data: getServerMapData(),
   renderEdgeLabel: (edge) => {
     if (edge?.edges?.length) {

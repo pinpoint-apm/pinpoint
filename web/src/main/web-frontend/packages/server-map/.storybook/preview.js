@@ -1,6 +1,5 @@
 // .storybook/preview.js
 import { IconContext } from 'react-icons';
-// import { GlobalStyle } from '@pinpoint/ui/components/Styled/GlobalStyle';
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -15,7 +14,6 @@ export const parameters = {
 export const decorators = [
   (Story) => (
     <>
-      {/* {GlobalStyle} */}
       <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
         <Story />
       </IconContext.Provider>

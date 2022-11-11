@@ -33,4 +33,5 @@ export const DropdownContent = React.forwardRef<HTMLDivElement, DropdownContentP
 
 const StyledContainer = styled.div<{ open: boolean }>`
   display: ${({ open }) => open ? 'block' : 'none'};
+  background-color: var(--background-layer);
 `

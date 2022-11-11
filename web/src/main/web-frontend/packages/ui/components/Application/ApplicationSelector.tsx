@@ -6,6 +6,7 @@ import Dropdown from '../Dropdown/Dropdown';
 import { StyleFlexVCentered, StyleSpin } from '../Styled/styles';
 
 export interface ApplicationSelectorProps {
+  open?: boolean;
   children?: React.ReactNode;
   onClickReload?: () => void;
   onChangeInput?: ({ input }: { input: string}) => void;
@@ -14,6 +15,7 @@ export interface ApplicationSelectorProps {
 }
 
 const ApplicationSelector = ({
+  open = false,
   children,
   onClickReload,
   onChangeInput,
@@ -21,7 +23,7 @@ const ApplicationSelector = ({
   selectedApplication,
 }: ApplicationSelectorProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const [ isOpen, setOpen ] = React.useState(false);
+  const [ isOpen, setOpen ] = React.useState(open);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -39,12 +41,16 @@ const ApplicationSelector = ({
 
   return (
     <div>
-      <StyledDropdown onChange={handleChangeDropdown} open {...{isOpen}}>
+      <StyledDropdown 
+        onChange={handleChangeDropdown} 
+        open={!selectedApplication} 
+        {...{isOpen}}
+      >
         <StyledTrigger {...{isOpen}}>
           {selectedApplication || 'Select your application'}
           <StyledArrowIcon />
         </StyledTrigger>
-        <StyledContent {...{isOpen}}>
+        <StyledContent {...{isOpen, closeAfterClick: true}}>
           <StyledInputWrapper>
             <input
               type={'text'}

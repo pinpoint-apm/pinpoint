@@ -5,8 +5,9 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import { css } from '@emotion/react';
 import { format, isValid, parse } from 'date-fns';
 
+import { DateRange } from '@pinpoint-fe/constants';
 import { Dropdown, DropdownRef } from '../Dropdown';
-import DateRangeContext, { DateRange } from './DateRangeContext';
+import DateRangeContext from './DateRangeContext';
 import { StyleFlexVHCentered } from '../Styled/styles';
 import { DatePicker } from './DatePicker';
 
@@ -14,14 +15,13 @@ interface RangeDropdownProps {
 
 }
 
-const DATE_FORMAT = 'yyyy-MM-dd-HH-mm';
 const RANGES = Object.values(DateRange).map(value => value);
 
 export const RangeDropdown = ({
   
 }: RangeDropdownProps) => {
   const dropdownRef = useRef<DropdownRef>(null);
-  const { range, updateRange, dateState, updateDateState } = useContext(DateRangeContext);
+  const { range, updateRange, dateState, updateDateState, dateFormat } = useContext(DateRangeContext);
   const [ isTriggered, setTriggered ] = useState(false);
   const [ showCalendar, setShowCalendar ] = useState(false);
   const [ input, setInput ] = useState(getFormatedDate(dateState.from, dateState.to));
@@ -32,7 +32,7 @@ export const RangeDropdown = ({
   }, [ dateState ])
 
   function getFormatedDate(from: Date, to: Date) {
-    return `${format(from, DATE_FORMAT)} ~ ${format(to, DATE_FORMAT)}`
+    return `${format(from, dateFormat)} ~ ${format(to, dateFormat)}`
   }
 
   function renderDiscription(dateRange: DateRange) {
@@ -60,20 +60,20 @@ export const RangeDropdown = ({
       try {
         const from = dates[0].trim();
         const to = dates[1].trim();
-        const parsedFrom = parse(from,'yyyy-MM-dd-HH-mm', new Date());
-        const parsedTo = parse(to,'yyyy-MM-dd-HH-mm', new Date());
+        const parsedFrom = parse(from, dateFormat, new Date());
+        const parsedTo = parse(to, dateFormat, new Date());
         
         if (isValid(parsedFrom) && isValid(parsedTo)) {
           updateDateState({
-            from: parse(from,'yyyy-MM-dd-HH-mm', new Date()),
-            to: parse(to,'yyyy-MM-dd-HH-mm', new Date()),
+            from: parse(from, dateFormat, new Date()),
+            to: parse(to, dateFormat, new Date()),
           })
           dropdownRef?.current?.close();
         } else {
           throw new Error();
         }
       } catch(error) {
-        alert('정확한 형식이 아닙니다. yyyy-MM-dd-HH-mm ~ yyyy-MM-dd-HH-mm 형태로 입력해 주세요.');
+        alert(`정확한 형식이 아닙니다. ${dateFormat} ~ ${dateFormat} 형태로 입력해 주세요.`);
       }
     }
   }
@@ -91,7 +91,7 @@ export const RangeDropdown = ({
             value={input} 
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleEnterInput}
-            placeholder={`${DATE_FORMAT} ~ ${DATE_FORMAT}`}
+            placeholder={`${dateFormat} ~ ${dateFormat}`}
           />
         </>
       )}
@@ -129,6 +129,7 @@ const StyledDropdownContainer = styled(Dropdown)`
   font-size: 0.93rem;
 
   input {
+    font-size: 0.95em;
     height: 100%;
     width: 100%;
   }

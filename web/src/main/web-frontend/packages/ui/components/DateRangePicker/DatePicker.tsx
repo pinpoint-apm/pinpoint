@@ -14,8 +14,8 @@ export type DatePickerChangeEventHandler = (date: Date) => void;
 export const DatePicker: FC<DatePickerProps> = ({
 }: DatePickerProps) => {
   const { updateDateState } = useContext(DateRangeContext)
-  const [ dateRange, setDateRange ] = useState<[Date | null , Date | null]>([null, null]);
-  const [ startDate, endDate ] = dateRange;
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [startDate, endDate] = dateRange;
 
   React.useEffect(() => {
     if (startDate && endDate) {
@@ -24,9 +24,9 @@ export const DatePicker: FC<DatePickerProps> = ({
         to: endDate,
       })
     }
-  }, [ startDate, endDate ])
+  }, [startDate, endDate])
 
-  function handleChange(dates: [Date , Date | null], event: React.SyntheticEvent<any, Event> | undefined) {
+  function handleChange(dates: [Date, Date | null], event: React.SyntheticEvent<any, Event> | undefined) {
     event?.stopPropagation();
     if (dates[1] instanceof Date) {
       dates = [dates[0], endOfDay(dates[1])];
@@ -36,13 +36,13 @@ export const DatePicker: FC<DatePickerProps> = ({
 
   return (
     <StyledWrapper>
-      <ReactDatePicker 
-       selectsRange={true}
-       startDate={startDate}
-       endDate={endDate}
-       onChange={handleChange}
-       inline
-       maxDate={addDays(new Date(), 1)}
+      <ReactDatePicker
+        selectsRange={true}
+        startDate={startDate}
+        endDate={endDate}
+        onChange={handleChange}
+        inline
+        maxDate={addDays(new Date(), 1)}
       />
     </StyledWrapper>
   );

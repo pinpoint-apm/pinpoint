@@ -1,19 +1,18 @@
 import React, { ReactNode } from 'react';
-import Link from 'next/link';
+import Link, { LinkProps } from 'next/link';
 
-export interface NextLinkProps {
-  path: string,
+export interface NextLinkProps extends LinkProps {
   children?: ReactNode,
   className?: string;
 }
 
 export const NextLink = ({
-  path,
   children,
   className,
+  ...props
 }: NextLinkProps) => {
   return (
-    <Link href={path}>
+    <Link {...props}>
       <a className={className}>
         {children}
       </a>
