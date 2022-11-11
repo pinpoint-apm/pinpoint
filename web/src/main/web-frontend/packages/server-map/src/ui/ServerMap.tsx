@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import { Node, Edge, MergedNode, MergedEdge } from '../types';
 import { getServerMapData } from '../core/merge';
 import { getServerMapStyle, getTheme } from '../constants/style/theme-helper';
+import { ServerMapTheme } from '../constants/style/theme';
 
 type ClickEventHandler<T> = (param: {
   data?: T,
@@ -14,26 +15,25 @@ type ClickEventHandler<T> = (param: {
 }) => void;
 
 export interface ServerMapProps {
-  baseNodeKey?: string;
   data: {
     nodes: Node[],
     edges: Edge[],
   };
-  customTheme?: any;
+  baseNodeId: string;
+  customTheme?: ServerMapTheme;
   onClickNode?: ClickEventHandler<MergedNode>;
-  onClickLink?: ClickEventHandler<MergedEdge>;
+  onClickEdge?: ClickEventHandler<MergedEdge>;
   onClickBackground?: ClickEventHandler<{}>;
-  renderNodeLabel?: (node: MergedNode) => string;
-  renderEdgeLabel?: (edge: MergedEdge) => string;
-  renderNoData?: () => React.ReactNode;
+  renderNodeLabel?: (node: MergedNode) => string | undefined;
+  renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
 }
 
 export const ServerMap = ({
   data,
-  customTheme,
-  baseNodeKey = '',
+  customTheme = {},
+  baseNodeId,
   onClickNode,
-  onClickLink,
+  onClickEdge,
   onClickBackground,
   renderNodeLabel,
   renderEdgeLabel,
@@ -58,6 +58,7 @@ export const ServerMap = ({
       if (!graph.current) {
         cytoscape.use(dagre);
         graph.current = cytoscape({
+          zoom: 1,
           minZoom: 0.1,
           maxZoom: 3,
           wheelSensitivity: 0.2,
@@ -75,12 +76,32 @@ export const ServerMap = ({
     };
   }, []);
 
+  React.useEffect(() => {
+    if (graph.current && data?.nodes?.length > 0) {
+      if (layout.current) {
+        layout.current.stop();
+        graph.current.removeAllListeners();
+        graph.current.elements().remove();
+      }
+      graph.current.add(processedData);
+      addEventListener();
+
+      layout.current = graph.current.elements().makeLayout({
+        name: 'dagre',
+        fit: false,
+        rankDir: 'LR',
+        rankSep: 200,
+      } as DagreLayoutOptions);
+      layout.current.run();
+    }
+  }, [data]);
+
   const handleClickNode = (param: Parameters<ClickEventHandler<MergedNode>>[0]) => {
     onClickNode?.(param);
   }
 
   const handleClickLink = (param: Parameters<ClickEventHandler<MergedEdge>>[0]) => {
-    onClickLink?.(param);
+    onClickEdge?.(param);
   }
 
   const handleClickBackground = (param: Parameters<ClickEventHandler<any>>[0]) => {
@@ -90,14 +111,13 @@ export const ServerMap = ({
   const addEventListener = () => {
     const cy = graph?.current;
     if (cy) {
+      const mainNode = cy.getElementById(baseNodeId);
       cy
         .on('layoutready', () => {
-          const mainNode = cy.getElementById(baseNodeKey);
-          cy.zoom(1);
-          cy.center(mainNode);
-          mainNode.style(serverMapTheme.node.main);
-          mainNode.style(serverMapTheme.node.highlight);
-          mainNode.connectedEdges().style(serverMapTheme.edge.highlight);
+          mainNode.style(serverMapTheme.node?.main!);
+          mainNode.style(serverMapTheme.node?.highlight!);
+          mainNode.connectedEdges().style(serverMapTheme.edge?.highlight!);
+          cy.center(mainNode)
         })
         .on('tap', ({ target, originalEvent }) => {
           const eventType = 'left';
@@ -112,11 +132,11 @@ export const ServerMap = ({
               position,
             })
           } else if (target.isNode()) {
-            cy.nodes().style(serverMapTheme.node.default);
-            cy.edges().style(serverMapTheme.edge.default);
-            cy.getElementById(baseNodeKey).style(serverMapTheme.node.main);
-            target.style(serverMapTheme.node.highlight);
-            target.connectedEdges().style(serverMapTheme.edge.highlight);
+            cy.nodes().style(serverMapTheme.node?.default!);
+            cy.edges().style(serverMapTheme.edge?.default!);
+            cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
+            target.style(serverMapTheme.node?.highlight);
+            target.connectedEdges().style(serverMapTheme.edge?.highlight);
 
             handleClickNode({
               eventType,
@@ -124,11 +144,11 @@ export const ServerMap = ({
               data: target.data(),
             })
           } else if (target.isEdge()) {
-            cy.nodes().style(serverMapTheme.node.default);
-            cy.edges().style(serverMapTheme.edge.default);
-            cy.getElementById(baseNodeKey).style(serverMapTheme.node.main);
-            target.connectedNodes().style({ 'border-color': serverMapTheme.node.highlight['border-color'] });
-            target.style(serverMapTheme.edge.highlight);
+            cy.nodes().style(serverMapTheme.node?.default!);
+            cy.edges().style(serverMapTheme.edge?.default!);
+            cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
+            target.connectedNodes().style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
+            target.style(serverMapTheme.edge?.highlight);
 
             handleClickLink({
               eventType,
@@ -166,26 +186,6 @@ export const ServerMap = ({
     }
   }
 
-  React.useEffect(() => {
-    if (graph.current && data?.nodes?.length > 0) {
-      if (layout.current) {
-        layout.current.stop();
-        graph.current.removeAllListeners();
-        graph.current.elements().remove();
-      }
-      graph.current.add(processedData);
-      addEventListener();
-
-      layout.current = graph.current.elements().makeLayout({
-        name: 'dagre',
-        fit: false,
-        rankDir: 'LR',
-        rankSep: 200,
-      } as DagreLayoutOptions);
-      layout.current.run();
-    }
-  }, [data]);
-
   return (
     <StyledContainer>
       <StyledServerMapWrapper ref={container} />
@@ -194,10 +194,8 @@ export const ServerMap = ({
 };
 
 const StyledContainer = styled.div`
-  position: relative;
   width: 100%;
-  height: 100%; 
-  overflow: hidden;
+  height: 100%;
 `;
 
 const StyledServerMapWrapper = styled.div`

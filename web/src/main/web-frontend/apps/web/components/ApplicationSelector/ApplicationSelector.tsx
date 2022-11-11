@@ -1,11 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
 import { useSWRConfig } from 'swr';
-import { useAtom } from 'jotai';
 
 import { APPLICATION_LIST, APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import ErrorBoundary from '../Error/ErrorBoundary';
-import { applicationAtom } from '../../atoms/application';
 import { ApplicationIcon } from './ApplicationIcon';
 import { useLocalStorage } from '@pinpoint-fe/utils';
 import {
@@ -17,24 +15,25 @@ import {
 } from '@pinpoint-fe/ui';
 import { ApplicationFavoriteList } from './ApplicationFavoriteList';
 
-const ApplicationListFetcher = dynamic(() => 
-  import('./ApplicationListFetcher'), 
-  { 
+const ApplicationListFetcher = dynamic(() =>
+  import('./ApplicationListFetcher'),
+  {
     ssr: false,
   }
 );
 
 export interface ApplicationSelectorProps {
-
+  application?: ApplicationType | null;
+  onClick?: ItemClickHandlerType;
 }
 
 export const ApplicationSelector = ({
-
+  application,
+  onClick,
 }: ApplicationSelectorProps) => {
-  const [ filterKeyword, setFilterKeyword ] = React.useState('');
-  const [ application ] = useAtom(applicationAtom);
+  const [filterKeyword, setFilterKeyword] = React.useState('');
   const { mutate } = useSWRConfig();
-  const [ favoriteList, setFavoriteList ] 
+  const [favoriteList, setFavoriteList]
     = useLocalStorage<ApplicationType[]>(APP_SETTING_KEYS.FAVORLIITE_APPLICATION_LIST, []);
 
   function handleClickFavorite({ application }: Parameters<ItemClickHandlerType>[0]) {
@@ -44,7 +43,7 @@ export const ApplicationSelector = ({
 
     if (isExist) {
       setFavoriteList(
-        favoriteList.filter((favoriteApp: ApplicationType) => 
+        favoriteList.filter((favoriteApp: ApplicationType) =>
           favoriteApp.applicationName !== application.applicationName
         )
       );
@@ -52,8 +51,8 @@ export const ApplicationSelector = ({
       setFavoriteList([...favoriteList, application].sort((a, b) => a.applicationName.localeCompare(b.applicationName)));
     }
   }
-  
-  function handleReload () {
+
+  function handleReload() {
     mutate(APPLICATION_LIST);
   }
 
@@ -63,6 +62,7 @@ export const ApplicationSelector = ({
 
   return (
     <AppSelector
+      open={!application}
       selectedApplication={application && (
         <>
           <ApplicationIcon serviceType={application.serviceType} />
@@ -75,21 +75,23 @@ export const ApplicationSelector = ({
       <ApplicationList.Container title={'Favorite List'}>
         <ApplicationFavoriteList
           data={favoriteList}
-          filterKeyword={filterKeyword} 
+          filterKeyword={filterKeyword}
           onClickFavorite={handleClickFavorite}
+          onClick={onClick}
         />
       </ApplicationList.Container>
       <ApplicationList.Container title={'Application List'}>
-        <React.Suspense fallback={<ListItemSkeleton />}>
-          <ErrorBoundary fallback={'Something went wrong'}>
+        <ErrorBoundary fallback={'Something went wrong'}>
+          <React.Suspense fallback={<ListItemSkeleton />}>
             <ApplicationListFetcher
-              endPoint={APPLICATION_LIST} 
+              onClick={onClick}
+              endPoint={APPLICATION_LIST}
               filterKeyword={filterKeyword}
               favoriteList={favoriteList}
-              onClickFavorite={handleClickFavorite} 
+              onClickFavorite={handleClickFavorite}
             />
-          </ErrorBoundary>
-        </React.Suspense>
+          </React.Suspense>
+        </ErrorBoundary>
       </ApplicationList.Container>
     </AppSelector>
   );

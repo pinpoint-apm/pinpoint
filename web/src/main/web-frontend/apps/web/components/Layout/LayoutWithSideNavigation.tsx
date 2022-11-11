@@ -24,13 +24,13 @@ export const LayoutWithSideNavigation = ({
           onClickScaleButton={handleClickScaleButton}
         >
           <Nav.Item
-            path={'/main'}
+            href={'/serverMap'}
             icon={<FaNetworkWired />}
           >
             Servermap
           </Nav.Item>
           <Nav.Item
-            path={'/inspector'}
+            href={'/inspector'}
             icon={<FaChartLine />}
           >
             Inspector
@@ -40,29 +40,29 @@ export const LayoutWithSideNavigation = ({
               title='Configuration'
               icon={<FaCog />}
             >
-              <Nav.MenuItem path={'/config/userGroup'}>User Group</Nav.MenuItem>
-              <Nav.MenuItem path={'/config/alarm'}>Alarm</Nav.MenuItem>
-              <Nav.MenuItem path={'/config/webhook'}>Webhook</Nav.MenuItem>
-              <Nav.MenuItem path={'/config/installation'}>Installation</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/userGroup'}>User Group</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/alarm'}>Alarm</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/webhook'}>Webhook</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/installation'}>Installation</Nav.MenuItem>
               <Nav.Divider />
-              <Nav.MenuItem path={'/config/help'}>Help</Nav.MenuItem>
-              <Nav.MenuItem path={'http://github.com/naver/pinpoint'}>Github</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/help'}>Help</Nav.MenuItem>
+              <Nav.MenuItem href={'http://github.com/naver/pinpoint'}>Github</Nav.MenuItem>
               <Nav.Divider />
-              <Nav.MenuItem path={'/config/experimental'}>Experimental</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/experimental'}>Experimental</Nav.MenuItem>
             </Nav.Menu>
             <Nav.Menu
               title='Administration'
               icon={<FaUserCog />}
             >
-              <Nav.MenuItem path={'/config/agentStatistic'}>Agent Statistic</Nav.MenuItem>
-              <Nav.MenuItem path={'/config/agentManagement'}>Agent management</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/agentStatistic'}>Agent Statistic</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/agentManagement'}>Agent management</Nav.MenuItem>
             </Nav.Menu>
             <Nav.Menu
               title='User'
               icon={<FaUserCircle />}
             >
-              <Nav.MenuItem path={'/config/general'}>General</Nav.MenuItem>
-              <Nav.MenuItem path={'/config/favorite'}>Favorite List</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/general'}>General</Nav.MenuItem>
+              <Nav.MenuItem href={'/config/favorite'}>Favorite List</Nav.MenuItem>
               <Nav.Divider />
               <Nav.MenuItem>Theme</Nav.MenuItem>
             </Nav.Menu>
@@ -71,7 +71,7 @@ export const LayoutWithSideNavigation = ({
       </div>
       <div css={css`flex:1;`}>
         {children}
-      </div>    
+      </div>
     </StyledContainer>
   );
 };

@@ -3,8 +3,9 @@ import { css } from '@emotion/react';
 import { IoPlayBack, IoPlayForward, IoPlaySkipForward, IoPause, IoPlayCircleOutline } from 'react-icons/io5';
 import classNames from 'classnames';
 
+import { DateRange, DateRangeTime } from '@pinpoint-fe/constants';
 import { ButtonGroup } from '../ButtonGroup';
-import DateRangeContext, { DateRange, DateRangeTime } from './DateRangeContext';
+import DateRangeContext from './DateRangeContext';
 
 export interface QuickButtonsProps {
 

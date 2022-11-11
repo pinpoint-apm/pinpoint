@@ -2,20 +2,13 @@ import React from 'react';
 
 import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/constants';
 
-export const useLocalStorage = <T>(key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS, initialValue?: T) => {
-  const [ storedValue, setStoredValue ] = React.useState<T>();
-  
-  React.useEffect(() => {
-    try {
-      const item = window.localStorage.getItem(key);
+export const useLocalStorage = <T>(key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS, initialValue: T) => {
+  const [storedValue, setStoredValue] = React.useState<T>(initialValue);
 
-      item 
-        ? setStoredValue(JSON.parse(item)) 
-        : initialValue && setStoredValue(initialValue) 
-    } catch (error) {
-      console.log(error);
-      initialValue && setStoredValue(initialValue) ;
-    }
+  React.useEffect(() => {
+    const item = window.localStorage.getItem(key);
+
+    item && setStoredValue(JSON.parse(item))
   }, []);
 
   const setValue = (value: T) => {
@@ -25,14 +18,12 @@ export const useLocalStorage = <T>(key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_K
       // Save state
       setStoredValue(valueToStore);
       // Save to local storage
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
+      window?.localStorage?.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
       // A more advanced implementation would handle the error case
       console.log(error);
     }
   };
 
-  return [ storedValue, setValue ];
+  return [storedValue, setValue] as const;
 }
