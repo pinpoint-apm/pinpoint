@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.Value;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
+import io.grpc.internal.GrpcUtil;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +50,8 @@ public class ClientOption {
     public static final int DEFAULT_LIMIT_COUNT = 100;
     public static final int DEFAULT_LIMIT_TIME = 60 * 1000;
 
+    public static final String DEFAULT_LOAD_BALANCER = GrpcUtil.DEFAULT_LB_POLICY;
+
     @Value("${keepalive.time.millis}")
     private long keepAliveTime = DEFAULT_KEEPALIVE_TIME;
     @Value("${keepalive.timeout.millis}")
@@ -75,6 +78,9 @@ public class ClientOption {
     private int limitCount;
     @Value("${limittime}")
     private long limitTime;
+
+    @Value("${loadbalancer}")
+    private String defaultLoadBalancer = DEFAULT_LOAD_BALANCER;
 
     public ClientOption() {
     }
@@ -157,6 +163,10 @@ public class ClientOption {
 
     public long getLimitTime() {
         return limitTime;
+    }
+
+    public String getDefaultLoadBalancer() {
+        return defaultLoadBalancer;
     }
 
     @Value("${headers.size.max}")

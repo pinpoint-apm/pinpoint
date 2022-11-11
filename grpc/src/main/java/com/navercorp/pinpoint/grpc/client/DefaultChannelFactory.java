@@ -22,12 +22,10 @@ import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.security.SslClientConfig;
 import com.navercorp.pinpoint.grpc.security.SslContextFactory;
-
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.NameResolverProvider;
-import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -38,8 +36,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.util.ArrayList;
@@ -142,7 +140,6 @@ public class DefaultChannelFactory implements ChannelFactory {
         channelBuilder.eventLoopGroup(eventLoopGroup);
 
         setupInternal(channelBuilder);
-        channelBuilder.defaultLoadBalancingPolicy(GrpcUtil.DEFAULT_LB_POLICY);
 
         addHeader(channelBuilder);
         addClientInterceptor(channelBuilder);
@@ -207,6 +204,7 @@ public class DefaultChannelFactory implements ChannelFactory {
         channelBuilder.maxInboundMessageSize(clientOption.getMaxInboundMessageSize());
         channelBuilder.flowControlWindow(clientOption.getFlowControlWindow());
         channelBuilder.idleTimeout(clientOption.getIdleTimeoutMillis(), TimeUnit.MILLISECONDS);
+        channelBuilder.defaultLoadBalancingPolicy(clientOption.getDefaultLoadBalancer());
 
         // ChannelOption
         channelBuilder.withOption(ChannelOption.TCP_NODELAY, true);
