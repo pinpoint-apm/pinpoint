@@ -1,12 +1,12 @@
-// export const LOCAL_API_PATH = 'http://localhost:3000/api';
-export const LOCAL_API_PATH = '/api';
+export const LOCAL_API_PATH = 'http://localhost:3000/api';
+// export const LOCAL_API_PATH = '/api';
 
 // export const = '/configuration.pinpoint';
 // export const = '/serverTime.pinpoint';
 // export const = '/userConfiguration.pinpoint';
 export const APPLICATION_LIST = `${LOCAL_API_PATH}/applications.pinpoint`;
 // export const = '/getServerMapData.pinpoint';
-// export const = '/getServerMapDataV2.pinpoint';
+export const SERVER_MAP_DATA_V2 = `${LOCAL_API_PATH}/getServerMapDataV2.pinpoint`;
 // export const = '/getResponseTimeHistogramDataV2.pinpoint';
 // export const = '/getLinkTimeHistogramData.pinpoint';
 // export const = '/getFilteredServerMapDataMadeOfDotGroup.pinpoint';

@@ -18,7 +18,7 @@ export const SideNavigation = ({
   isSmall = false,
   onClickScaleButton,
 }: SideNavigationContainerProps) => {
-  const [ small, setSmall ] = React.useState(isSmall);
+  const [small, setSmall] = React.useState(isSmall);
 
   function handleClickScaleButton() {
     const changeScale = !small;
@@ -27,24 +27,24 @@ export const SideNavigation = ({
   }
 
   return (
-    <SideNavigationContext.Provider value={{ small, setSmall: React.useMemo(() => setSmall, [ setSmall ]) }}>
+    <SideNavigationContext.Provider value={{ small, setSmall: React.useMemo(() => setSmall, [setSmall]) }}>
       <StyledContainer {...{ small }}>
         <StyledHeaderContainer {...{ small }}>
-          <NextLink path='/main'>
-            <img 
-              src={small 
+          <NextLink href={'/serverMap'} replace>
+            <img
+              src={small
                 ? '/assets/img/mini-logo.png'
                 : '/assets/img/logo.png'
               }
               alt={'pinpoint-logo'}
             />
           </NextLink>
-          <StyledScaleButton 
+          <StyledScaleButton
             {...{ small }}
             className='scale-button-wrapper'
             onClick={handleClickScaleButton}
           >
-            {small 
+            {small
               ? <FaPlus />
               : <FaMinus />
             }
@@ -133,7 +133,7 @@ const StyledContainer = styled.nav<{ small?: boolean }>`
   display: flex;
   flex-direction: column;
   background: var(--snb-background);
-  width: ${({ small }) => small ? '50px' : '200px' };
+  width: ${({ small }) => small ? '50px' : '200px'};
   height: 100vh;
   padding: 0 0 50px;
   color: var(--snb-text);

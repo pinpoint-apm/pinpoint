@@ -1,7 +1,7 @@
 import React, { useImperativeHandle, useState, useRef, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
 
-import { useCaptureKeydown, useOutsideClick } from '@pinpoint-fe/utils';
+import { useCaptureKeydown, useOutsideClick, useSkipFirstEffect } from '@pinpoint-fe/utils';
 import { DropdownContent } from './DropdownContent';
 import { DropdownTrigger } from './DropdownTrigger';
 import DropdownContext from './DropdownContext';
@@ -14,18 +14,18 @@ export interface DropdownProps {
   open?: boolean;
   className?: string;
   children?: React.ReactNode[];
-  onChange?: ({ open }: { open: boolean }) => void;
   hoverable?: boolean;
+  onChange?: ({ open }: { open: boolean }) => void;
 }
 
 const DropdownRoot = React.forwardRef(({
   open: initOpen = false,
   className,
   children,
-  onChange,
   hoverable,
+  onChange,
 }: DropdownProps, ref) => {
-  const [ open, setOpen ] = useState(initOpen);
+  const [open, setOpen] = useState(initOpen);
   const dropdownRef = useRef(null);
 
   useOutsideClick(dropdownRef, () => {
@@ -33,16 +33,16 @@ const DropdownRoot = React.forwardRef(({
   })
 
   useCaptureKeydown(event => {
-    if(event.code === 'Escape') {
+    if (event.code === 'Escape') {
       open && setOpen(false);
     }
   })
 
-  useEffect(() => {
+  useSkipFirstEffect(() => {
     onChange?.({
       open,
     })
-  }, [ open, onChange ])
+  }, [open, onChange])
 
   useImperativeHandle(ref, () => ({
     close() {
@@ -63,10 +63,10 @@ const DropdownRoot = React.forwardRef(({
   }
 
   return (
-    <DropdownContext.Provider value={{ open, setOpen: useMemo(() => setOpen, [ setOpen ]) }}>
-      <StyledContainer 
-        ref={dropdownRef} 
-        className={className} 
+    <DropdownContext.Provider value={{ open, setOpen: useMemo(() => setOpen, [setOpen]) }}>
+      <StyledContainer
+        ref={dropdownRef}
+        className={className}
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
       >

@@ -9,22 +9,22 @@ import { NextLink } from '../NextLink/NextLink';
 export interface NavItemProps {
   children?: React.ReactNode | React.ReactNode[];
   icon?: React.ReactNode;
-  path?: string;
+  href?: string;
   onClick?: () => void;
 }
 
 const Item = ({
   icon,
   children,
-  path = '',
+  href = '',
   onClick,
 }: NavItemProps) => {
   const { small } = React.useContext(SideNavigationContext);
 
   return (
     <Dropdown hoverable={small}>
-      {path ? (
-        <StyledWrapLink path={path}>
+      {href ? (
+        <StyledWrapLink href={href}>
           <StyledTrigger disable>
             <StyledIconWrapper {...{ small }}>{icon}</StyledIconWrapper>
             {!small && children}
@@ -117,11 +117,11 @@ export interface NavMenuItemProps extends NavItemProps { }
 
 const MenuItem = ({
   children,
-  path,
+  href,
 }: NavMenuItemProps) => {
-  if (path) {
+  if (href) {
     return (
-      <StyledWrapLink path={path}>
+      <StyledWrapLink href={href}>
         <StyledMenuItem>
           {children}
         </StyledMenuItem>
