@@ -6,18 +6,20 @@ interface Props {
   fallback: ReactNode;
 }
 
-interface State {
+interface ErrorState {
   hasError: boolean;
+  error: Error | null;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
+class ErrorBoundary extends Component<Props, ErrorState> {
+  public state: ErrorState = {
     hasError: false,
+    error: null,
   };
 
-  public static getDerivedStateFromError(_: Error): State {
+  public static getDerivedStateFromError(error: Error): ErrorState {
     // Update state so the next render will show the fallback UI.
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
