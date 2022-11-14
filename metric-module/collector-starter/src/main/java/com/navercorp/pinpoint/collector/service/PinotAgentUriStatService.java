@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
 import com.navercorp.pinpoint.metric.collector.MetricAppPropertySources;
 import com.navercorp.pinpoint.metric.collector.dao.UriStatDao;
 import com.navercorp.pinpoint.metric.common.model.UriStat;
+import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
@@ -41,8 +42,11 @@ public class PinotAgentUriStatService implements AgentUriStatService {
     private final int[] EMPTY_BUCKETS = new int[BUCKET_SIZE];
     private final UriStatDao uriStatDao;
 
-    public PinotAgentUriStatService(UriStatDao uriStatDao) {
+    private final TenantProvider tenantProvider;
+
+    public PinotAgentUriStatService(UriStatDao uriStatDao, TenantProvider tenantProvider) {
         this.uriStatDao = Objects.requireNonNull(uriStatDao, "uriStatDao");
+        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     @Override
@@ -52,13 +56,14 @@ public class PinotAgentUriStatService implements AgentUriStatService {
         final String applicationName = agentUriStatBo.getApplicationName();
         final String agentId = agentUriStatBo.getAgentId();
         final int version = agentUriStatBo.getBucketVersion();
+        final String tenantId = tenantProvider.getTenantId();
 
         for (EachUriStatBo eachUriStatBo : agentUriStatBo.getEachUriStatBoList()) {
             final String uri = eachUriStatBo.getUri();
             final long timestamp = eachUriStatBo.getTimestamp();
             final UriStatHistogram totalHistogram = eachUriStatBo.getTotalHistogram();
             final UriStatHistogram failureHistogram = eachUriStatBo.getFailedHistogram();
-            data.add(new UriStat(timestamp, serviceName, applicationName, agentId, uri, totalHistogram.getMax(),
+            data.add(new UriStat(timestamp, tenantId, serviceName, applicationName, agentId, uri, totalHistogram.getMax(),
                     totalHistogram.getTotal(), getHistogramArray(totalHistogram), getHistogramArray(failureHistogram), version));
         }
         uriStatDao.insert(data);
