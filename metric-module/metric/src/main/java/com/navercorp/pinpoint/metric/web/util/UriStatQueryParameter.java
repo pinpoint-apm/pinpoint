@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.metric.web.util;
 import java.util.concurrent.TimeUnit;
 
 public class UriStatQueryParameter extends QueryParameter {
+    private final String tenantId;
     private final String serviceName;
     private final String applicationName;
     private final String agentId;
@@ -26,6 +27,7 @@ public class UriStatQueryParameter extends QueryParameter {
 
     protected UriStatQueryParameter(Builder builder) {
         super(builder.range, builder.timePrecision, builder.limit);
+        this.tenantId = builder.tenantId;
         this.serviceName = builder.serviceName;
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
@@ -33,11 +35,15 @@ public class UriStatQueryParameter extends QueryParameter {
     }
 
     public static class Builder extends QueryParameter.Builder {
+        private String tenantId;
         private String serviceName;
         private String applicationName;
         private String agentId;
         private String uri;
 
+        public void setTenantId(String tenantId) {
+            this.tenantId = tenantId;
+        }
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
         }

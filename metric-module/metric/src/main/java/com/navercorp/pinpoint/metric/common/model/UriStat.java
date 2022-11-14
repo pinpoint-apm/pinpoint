@@ -24,6 +24,7 @@ import java.util.Objects;
 
 public class UriStat {
     private static final long EMPTY_NUMBER = 0L;
+    private final String tenantId;
     private final String serviceName;
     private final String applicationName;
     private final String agentId;
@@ -37,8 +38,9 @@ public class UriStat {
     private final long timestamp;
     private final int version;
 
-    public UriStat(long timestamp, String serviceName, String applicationName, String agentId, String uri, long maxLatencyMs, long totalTimeMs, int[] totalHistogram, int[] failureHistogram, int version) {
+    public UriStat(long timestamp, String tenantId, String serviceName, String applicationName, String agentId, String uri, long maxLatencyMs, long totalTimeMs, int[] totalHistogram, int[] failureHistogram, int version) {
         this.timestamp = timestamp;
+        this.tenantId = tenantId;
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
@@ -57,6 +59,7 @@ public class UriStat {
                    double fail0, double fail1, double fail2, double fail3,
                    double fail4, double fail5, double fail6, double fail7, int version) {
         this.timestamp = timestamp;
+        this.tenantId = StringUtils.EMPTY;
         this.serviceName = StringUtils.EMPTY;
         this.applicationName = StringUtils.EMPTY;
         this.agentId = StringUtils.EMPTY;
@@ -68,6 +71,10 @@ public class UriStat {
         this.totalHistogram = new int[]{(int) tot0, (int) tot1, (int) tot2, (int) tot3, (int) tot4, (int) tot5, (int) tot6, (int) tot7};
         this.failureHistogram = new int[]{(int) fail0, (int) fail1, (int) fail2, (int) fail3, (int) fail4, (int) fail5, (int) fail6, (int) fail7};
         this.version = version;
+    }
+
+    public String getTenantId() {
+        return tenantId;
     }
 
     public String getServiceName() {
@@ -199,5 +206,4 @@ public class UriStat {
                 ", timestamp=" + timestamp +
                 '}';
     }
-
 }

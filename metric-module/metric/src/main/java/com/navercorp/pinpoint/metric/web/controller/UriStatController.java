@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.web.controller;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.common.model.UriStat;
+import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import com.navercorp.pinpoint.metric.web.model.UriStatSummary;
 import com.navercorp.pinpoint.metric.web.service.UriStatService;
 import com.navercorp.pinpoint.metric.web.util.Range;
@@ -41,9 +42,11 @@ import java.util.concurrent.TimeUnit;
 public class UriStatController {
     private final UriStatService uriStatService;
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
+    private final TenantProvider tenantProvider;
 
-    public UriStatController(UriStatService uriStatService) {
+    public UriStatController(UriStatService uriStatService, TenantProvider tenantProvider) {
         this.uriStatService = Objects.requireNonNull(uriStatService);
+        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
     @GetMapping("top50")
@@ -52,6 +55,7 @@ public class UriStatController {
                                             @RequestParam("from") long from,
                                             @RequestParam("to") long to) {
         UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
+        builder.setTenantId(tenantProvider.getTenantId());
         builder.setApplicationName(applicationName);
         builder.setRange(Range.newRange(from, to));
 
@@ -71,6 +75,7 @@ public class UriStatController {
                                            @RequestParam("to") long to) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
+        builder.setTenantId(tenantProvider.getTenantId());
         builder.setApplicationName(applicationName);
         builder.setUri(uri);
         builder.setRange(timeWindow.getWindowRange());

@@ -44,7 +44,8 @@
             sum(failureCount) as failureCount,
             version
         FROM uriStat
-        WHERE applicationName = #{applicationName}
+        WHERE tenantId = #{tenantId}
+         AND applicationName = #{applicationName}
           AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         GROUP BY uri, version
         ORDER BY totalCount desc
@@ -60,7 +61,8 @@
             sum(failureCount) as failureCount,
             version
         FROM uriStat
-        WHERE applicationName = #{applicationName}
+        WHERE tenantId = #{tenantId}
+          AND applicationName = #{applicationName}
           AND agentId = #{agentId}
           AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         GROUP BY uri, version
@@ -89,7 +91,8 @@
             sum(fail7) as fail7,
             version
         FROM uriStat
-        WHERE applicationName = #{applicationName}
+        WHERE tenantId = #{tenantId}
+            AND applicationName = #{applicationName}
             AND uri = #{uri}
             AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         GROUP BY "timestamp", version
@@ -117,7 +120,8 @@
             sum(fail7) as fail7,
             version
         FROM uriStat
-        WHERE applicationName = #{applicationName}
+        WHERE tenantId = #{tenantId}
+            AND applicationName = #{applicationName}
             AND agentId = #{agentId}
             AND uri = #{uri}
             AND "timestamp" BETWEEN #{range.from} AND #{range.to}
