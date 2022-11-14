@@ -32,14 +32,14 @@ public class AgentListController {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
-    @GetMapping()
+    @GetMapping(value = "/search-all")
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
         long timestamp = System.currentTimeMillis();
         AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
         return treeView(allAgentsList);
     }
 
-    @GetMapping(params = {"from", "to"})
+    @GetMapping(value = "/search-all", params = {"from", "to"})
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
@@ -55,7 +55,7 @@ public class AgentListController {
     }
 
 
-    @GetMapping(params = {"application", "sortBy"})
+    @GetMapping(value = "/search-application", params = {"application", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
@@ -67,7 +67,7 @@ public class AgentListController {
         return treeView(list);
     }
 
-    @GetMapping(params = {"application", "from", "to", "sortBy"})
+    @GetMapping(value = "/search-application", params = {"application", "from", "to", "sortBy"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
