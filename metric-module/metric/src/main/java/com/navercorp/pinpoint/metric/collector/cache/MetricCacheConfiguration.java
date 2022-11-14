@@ -24,6 +24,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @EnableCaching
+@Profile("metric")
 public class MetricCacheConfiguration extends CachingConfigurerSupport {
 
     public static final String METRIC_TAG_COLLECTION_CACHE_NAME = "metricTagCollection";
