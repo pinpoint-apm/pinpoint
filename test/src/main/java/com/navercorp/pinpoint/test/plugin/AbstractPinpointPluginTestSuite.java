@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.TestPluginVersion;
-
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runner.Runner;
@@ -35,11 +36,11 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -92,21 +93,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         Repository repository = testClass.getAnnotation(Repository.class);
         this.repositoryUrls = getRepository(repository);
 
-        List<ClassLoaderLib> classLoaderLibs = collectLib(getClass().getClassLoader());
-        if (logger.isDebugEnabled()) {
-            for (ClassLoaderLib classLoaderLib : classLoaderLibs) {
-                logger.debug("classLoader:{}", classLoaderLib.getClassLoader());
-                for (URL lib : classLoaderLib.getLibs()) {
-                    logger.debug("-> {}", classLoaderLib.getClassLoader(), lib);
-                }
-            }
-        }
+        List<String> libs = collectLibs(getClass().getClassLoader());
 
         final LibraryFilter requiredLibraryFilter = new LibraryFilter(
                 LibraryFilter.createContainsMatcher(PluginClassLoading.getContainsCheckClassPath()),
                 LibraryFilter.createGlobMatcher(PluginClassLoading.getGlobMatchesCheckClassPath()));
 
-        this.requiredLibraries = filterLib(classLoaderLibs, requiredLibraryFilter);
+        this.requiredLibraries = filterLibs(libs, requiredLibraryFilter);
         if (logger.isDebugEnabled()) {
             for (String requiredLibrary : requiredLibraries) {
                 logger.debug("requiredLibraries :{}", requiredLibrary);
@@ -116,10 +109,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         final LibraryFilter mavenDependencyLibraryFilter = new LibraryFilter(
                 LibraryFilter.createContainsMatcher(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
 
-        this.mavenDependencyLibraries = filterLib(classLoaderLibs, mavenDependencyLibraryFilter);
+        this.mavenDependencyLibraries = filterLibs(libs, mavenDependencyLibraryFilter);
         if (logger.isDebugEnabled()) {
             for (String mavenDependencyLibrary : mavenDependencyLibraries) {
-                logger.debug("mavenDependencyLibraries :{}", mavenDependencyLibrary);
+                logger.debug("mavenDependencyLibraries: {}", mavenDependencyLibrary);
             }
         }
         this.testClassLocation = resolveTestClassLocation(testClass);
@@ -187,54 +180,86 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         return toPathString(testClassLocation);
     }
 
-    private static class ClassLoaderLib {
-        private final ClassLoader cl;
-        private final List<URL> libs;
-
-        public ClassLoaderLib(ClassLoader cl, List<URL> libs) {
-            this.cl = cl;
-            this.libs = libs;
+    private List<String> filterLibs(List<String> classPaths, LibraryFilter classPathFilter) {
+        final Set<String> result = new LinkedHashSet<>();
+        for (String classPath: classPaths) {
+            if (classPathFilter.filter(classPath)) {
+                result.add(classPath);
+            }
         }
-
-        public ClassLoader getClassLoader() {
-            return cl;
-        }
-
-        public List<URL> getLibs() {
-            return libs;
-        }
+        return new ArrayList<>(result);
     }
 
-    private List<String> filterLib(List<ClassLoaderLib> classLoaderLibs, LibraryFilter classPathFilter) {
-        Set<String> result = new HashSet<>();
-        for (ClassLoaderLib classLoaderLib : classLoaderLibs) {
-            List<URL> libs = classLoaderLib.getLibs();
-            for (URL lib : libs) {
-                if (classPathFilter.filter(lib)) {
-                    final String filterLibs = toPathString(lib);
-                    if (filterLibs != null) {
-                        result.add(filterLibs);
+    private List<String> collectLibs(ClassLoader sourceCl) {
+        List<String> result = new ArrayList<>();
+        final ClassLoader termCl = ClassLoader.getSystemClassLoader().getParent();
+        for (ClassLoader cl : iterateClassLoaderChain(sourceCl, termCl)) {
+            final List<String> libs = extractLibrariesFromClassLoader(cl);
+            if (libs != null) {
+                result.addAll(libs);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("classLoader: {}", cl);
+                    for (String lib : libs) {
+                        logger.debug("  -> {}", lib);
                     }
                 }
             }
         }
-        List<String> libs = new ArrayList<>(result);
-        libs.sort(Comparator.naturalOrder());
-        return libs;
+        return result;
     }
 
-    private List<ClassLoaderLib> collectLib(ClassLoader cl) {
-        List<ClassLoaderLib> libs = new ArrayList<>();
-        while (cl != null) {
-            if (cl instanceof URLClassLoader) {
-                URLClassLoader ucl = ((URLClassLoader) cl);
-                URL[] urLs = ucl.getURLs();
-                libs.add(new ClassLoaderLib(cl, Arrays.asList(urLs)));
+    private static Iterable<ClassLoader> iterateClassLoaderChain(ClassLoader src, ClassLoader term) {
+        final List<ClassLoader> classLoaders = new ArrayList<>(8);
+        ClassLoader cl = src;
+        while (cl != term) {
+            classLoaders.add(cl);
+            if (cl == Object.class.getClassLoader()) {
+                break;
             }
-
             cl = cl.getParent();
         }
-        return libs;
+        return classLoaders;
+    }
+
+    private static List<String> extractLibrariesFromClassLoader(ClassLoader cl) {
+        if (cl instanceof URLClassLoader) {
+            return extractLibrariesFromURLClassLoader((URLClassLoader) cl);
+        }
+        if (cl == ClassLoader.getSystemClassLoader()) {
+            return extractLibrariesFromSystemClassLoader();
+        }
+        return null;
+    }
+
+    private static List<String> extractLibrariesFromURLClassLoader(URLClassLoader cl) {
+        final URL[] urls = cl.getURLs();
+        final List<String> paths = new ArrayList<>(urls.length);
+        for (URL url: urls) {
+            paths.add(normalizePath(toPathString(url)));
+        }
+        return paths;
+    }
+
+    private static List<String> extractLibrariesFromSystemClassLoader() {
+        final String classPath = SystemProperty.INSTANCE.getProperty("java.class.path");
+        if (StringUtils.isEmpty(classPath)) {
+            return Collections.emptyList();
+        }
+        final List<String> paths = Arrays.asList(classPath.split(":"));
+        return normalizePaths(paths);
+    }
+
+    @VisibleForTesting
+    static String normalizePath(String classPath) {
+        return Paths.get(classPath).toAbsolutePath().normalize().toString();
+    }
+
+    private static List<String> normalizePaths(List<String> classPaths) {
+        final List<String> result = new ArrayList<>(classPaths.size());
+        for (String cp: classPaths) {
+            result.add(normalizePath(cp));
+        }
+        return result;
     }
 
     private static String toPathString(URL url) {
