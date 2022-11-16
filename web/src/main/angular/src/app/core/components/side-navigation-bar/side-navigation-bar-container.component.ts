@@ -35,6 +35,7 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
 
     private showMetric: boolean;
     private showUrlStat: boolean;
+    private webhookEnable: boolean;
 
     enableRealTime: boolean;
     logoPath: string;
@@ -61,6 +62,10 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
 
         this.webAppSettingDataService.showUrlStat().subscribe((showUrlStat: boolean) => {
             this.showUrlStat = showUrlStat;
+        });
+
+        this.webAppSettingDataService.isWebhookEnable().subscribe((webhookEnable: boolean) => {
+            this.webhookEnable = webhookEnable;
         });
 
         this.webAppSettingDataService.getUserId().subscribe(userId => {
@@ -161,7 +166,7 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     childItems: [
                         { title: 'User Group', id: 'userGroup', path: '/config/userGroup', },
                         { title: 'Alarm', id: 'alarm', path: '/config/alarm', },
-                        { title: 'Webhook', id: 'webhook', path: '/config/webhook', },
+                        { title: 'Webhook', id: 'webhook', path: '/config/webhook', showItem: this.webhookEnable },
                         { title: 'Installation', id: 'installation', path: '/config/installation', },
                         // divider
                         { id: 'divider' },

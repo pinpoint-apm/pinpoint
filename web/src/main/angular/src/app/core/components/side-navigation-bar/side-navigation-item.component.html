@@ -32,24 +32,26 @@
                 class="child-link-title">
                 {{item.title}}
             </div>
-            <div 
-                *ngFor="let childItem of item.childItems" 
-                [ngClass]="{
-                'link-item': true, 
-                'divider': childItem.id === 'divider',
-                'theme': childItem.id === 'theme'
-                }">
-                <a
-                    *ngIf="childItem.id !== 'theme'" 
-                    routerLink="{{childItem.path}}"
-                    (click)="onClickItem($event, childItem)">
-                    <i class="{{childItem.iconClass}}"></i>
-                    <span
-                        [innerHTML]="childItem.title"
-                    ></span>
-                </a>
-                <pp-theme-widget *ngIf="childItem.id === 'theme'"></pp-theme-widget>
-            </div>
+            <ng-container *ngFor="let childItem of item.childItems">
+                <div 
+                    *ngIf="showItem(childItem)"
+                    [ngClass]="{
+                    'link-item': true, 
+                    'divider': childItem.id === 'divider',
+                    'theme': childItem.id === 'theme'
+                    }">
+                    <a
+                        *ngIf="childItem.id !== 'theme'" 
+                        routerLink="{{childItem.path}}"
+                        (click)="onClickItem($event, childItem)">
+                        <i class="{{childItem.iconClass}}"></i>
+                        <span
+                            [innerHTML]="childItem.title"
+                        ></span>
+                    </a>
+                    <pp-theme-widget *ngIf="childItem.id === 'theme'"></pp-theme-widget>
+                </div>
+            </ng-container>
         </div>
     </div>
 </ng-container>
