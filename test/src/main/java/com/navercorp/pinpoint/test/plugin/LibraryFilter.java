@@ -32,13 +32,17 @@ class LibraryFilter {
         this.matchers = Objects.requireNonNull(matchers, "matchers");
     }
 
-    public boolean filter(URL url) {
+    public boolean filter(String cp) {
         for (LibraryMatcher matcher : matchers) {
-            if (matcher.include(url.getFile())) {
+            if (matcher.include(cp)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean filter(URL url) {
+        return filter(url.getFile());
     }
 
     interface LibraryMatcher {
