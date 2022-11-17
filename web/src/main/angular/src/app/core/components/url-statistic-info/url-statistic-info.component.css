@@ -68,6 +68,8 @@
 
 .url-info-cell.url-cell {
     flex: 1.5;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .url-info-cell.total-count-cell {
@@ -107,7 +109,8 @@
 }
 
 .ratio-bar {
-    width: 150px;
+    /* width: 150px; */
+    width: calc(100% - 50px - 7px - 20px); /* countWidth + gap + extra-space*/
     height: 20px;
 }
 
