@@ -49,8 +49,16 @@ public final class SecurityContextUtils {
     }
 
     public static Authentication getAuthentication() {
+        return getAuthentication(Authentication.class);
+    }
+
+    public static <T extends Authentication> T getAuthentication(Class<T> clazz) {
         final SecurityContext context = getSecurityContext();
-        return context.getAuthentication();
+        final Authentication authentication = context.getAuthentication();
+        if (clazz.isInstance(authentication)) {
+            return cast(authentication);
+        }
+        return null;
     }
 
     private static String getThreadName() {
