@@ -1,5 +1,4 @@
 ## Reactor Netty
-* Version: 1.1
 * Since: Pinpoint 2.0.0
 * See: https://github.com/reactor/reactor-netty
 * See: [Project Reactor](https://projectreactor.io/)

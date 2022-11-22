@@ -1,5 +1,4 @@
-## Redis Client.
-* Version: 1.1
+## Redis Java Client Jedis.
 * Since: Pinpoint 1.0
 * See: https://github.com/xetorthio/jedis
 * Range: redis.clients/jedis [2.4.x, 2.9.0] (2.4.x <= x <= 2.9.0)

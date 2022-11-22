@@ -1,10 +1,7 @@
-## Pinpoint Kafka Client Plugin (beta)
-
-### Support Version 
-0.11 ~  
-1.x ~  
-2.x ~
-<br><br>
+## Apache Kafka
+* Since: Pinpoint 1.8.0
+* See: https://kafka.apache.org/
+* Range: org.apache.kafka/kafka-clients [0.11, 2.max]
 
 ### Kafka Configuration
 To enable Kafka Producer, set the following option in *pinpoint.config*:

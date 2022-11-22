@@ -1,8 +1,7 @@
-## Pinpoint RocketMQ Client Plugin
-
-### Support Version 
-- RocketMQ 4.x
- 
+## Apache RocketMQ
+* Since: Pinpoint 2.2.0
+* See: https://rocketmq.apache.org/
+* Range: org.apache.rocketmq/rocketmq-client [4.0, 5.0]
 
 ### RocketMQ Configuration
 To enable RocketMQ Producer, set the following option in *pinpoint.config*:
