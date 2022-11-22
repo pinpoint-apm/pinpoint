@@ -1,7 +1,12 @@
-### Pinpoint Hystrix Plugin (beta)
+## Hystrix
+* Since: Pinpoint 1.6.0
+* See: https://github.com/Netflix/Hystrix
+* Range: com.netflix.hystrix/hystrix-core [1.4, 1.5]
+
+### Notice
+Hystrix is no longer in active development, and is currently in maintenance mode.
 
 ### Hystrix Plugin Configuration
-Hystrix plugin is disabled by default and for [release](https://github.com/pinpoint-apm/pinpoint/blob/master/agent/src/main/resources-release/pinpoint.config) profile until the beta status is lifted. To enable, set the following options in *pinpoint.config* (**Note that you must also enable rxjava plugin**) :
 ```
 profiler.rxjava=true
 

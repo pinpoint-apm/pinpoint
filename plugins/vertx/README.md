@@ -1,6 +1,7 @@
-## Vertx HTTP Server/Client.
-
-Currently supports vertx.io 3.3.x, 3.4.1, 3.4.2, 3.5.0
+## Vertx Client/Server
+* Since: Pinpoint 1.6.0
+* See: https://vertx.io/
+* Range: [3.3, 4.max]
 
 ### Pinpoint Configuration
 pinpoint.config
