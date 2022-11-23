@@ -38,7 +38,6 @@ import com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestEx
 
 /**
  * @author jaehong.kim
- *
  */
 public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -47,8 +46,11 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClientPluginConfig config = new HttpClientPluginConfig(context.getConfig());
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
-
         logger.debug("[GoogleHttpClient] Add HttpRequest class.");
         addHttpRequestClass(config);
     }
@@ -59,6 +61,7 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
 
     public static class HttpRequestTransform implements TransformCallback {
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -86,6 +89,7 @@ public class HttpClientPlugin implements ProfilerPlugin, TransformTemplateAware 
 
     public static class NestedClassTransform implements TransformCallback {
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
