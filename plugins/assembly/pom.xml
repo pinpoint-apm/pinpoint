@@ -21,11 +21,11 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-common-servlet</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.navercorp.pinpoint</groupId>-->
+<!--            <artifactId>pinpoint-common-servlet</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-external-plugins</artifactId>
