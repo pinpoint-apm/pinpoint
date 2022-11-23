@@ -82,7 +82,7 @@
             </includes>
             <excludes>
                 <!--<exclude>com.navercorp.pinpoint:pinpoint-common-servlet</exclude>-->
-                <exclude>*:pom</exclude>
+<!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>plugin</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
