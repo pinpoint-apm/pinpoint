@@ -30,10 +30,19 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
 
             this.isEmpty = isEmpty(data);
             if (this.isEmpty) {
+                this.selectedUrl = '';
+                this.outSelectUrlInfo.emit(null);
                 return;
             }
 
-            this.selectedUrl = '';
+            const prevSelectedUrlInfo = data.find(({uri}: IUrlStatInfoData) => this.selectedUrl === uri);
+
+            if (!prevSelectedUrlInfo) {
+                this.selectedUrl = ''; 
+            }
+
+            this.outSelectUrlInfo.emit(this.selectedUrl);
+
             this.totalCount = data.reduce((acc: number, {totalCount}: any) => {
                 return acc + totalCount;
             }, 0);

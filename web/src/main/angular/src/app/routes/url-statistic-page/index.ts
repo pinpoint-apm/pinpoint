@@ -9,6 +9,7 @@ import { PeriodSelectorModule } from 'app/core/components/period-selector';
 import { ServerAndAgentListModule } from 'app/core/components/server-and-agent-list';
 import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
 import { UrlStatisticContentsModule } from 'app/core/components/url-statistic-contents';
+import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 
 @NgModule({
     declarations: [
@@ -20,6 +21,7 @@ import { UrlStatisticContentsModule } from 'app/core/components/url-statistic-co
         SideNavigationBarModule,
         ApplicationListModule,
         PeriodSelectorModule,
+        HelpViewerPopupModule,
         ServerAndAgentListModule,
         UrlStatisticContentsModule,
         UrlStatisticPageRoutingModule,

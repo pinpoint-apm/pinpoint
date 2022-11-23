@@ -1,5 +1,4 @@
-<!-- <ng-container *ngIf="isUriSelected && chartConfig; else guideText"> -->
-<ng-container *ngIf="isUriSelected; else guideText">
+<ng-container *ngIf="chartConfig">
     <div class="chart-area-wrapper">
         <!-- <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading> -->
         <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
