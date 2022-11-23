@@ -61,7 +61,7 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-tools</exclude>
-                <exclude>*:pom</exclude>
+<!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
