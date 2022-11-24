@@ -261,7 +261,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final String urlTemplate = ((VertxUrlTemplate)scope.getCurrentInvocation().getAttachment()).getUrlTemplate();
             String uri = StringUtils.isEmpty(urlTemplate)? request.uri() : urlTemplate;
             boolean status = isNotFailedStatus(request.response().getStatusCode());
-            uriStatRecorder.record(request, uri, status, trace.getStartTime(), trace.getEndTime());
+            uriStatRecorder.record(trace, request, uri, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 

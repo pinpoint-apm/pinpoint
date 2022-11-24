@@ -325,6 +325,16 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
+    public void setUriTemplate(String uriTemplate) {
+        getTraceRoot().getShared().setUriTemplate(uriTemplate);
+    }
+
+    @Override
+    public String getUriTemplate() {
+        return getTraceRoot().getShared().getUriTemplate();
+    }
+
+    @Override
     public String toString() {
         return "DefaultTrace{" +
                 ", traceRoot=" + getTraceRoot() +

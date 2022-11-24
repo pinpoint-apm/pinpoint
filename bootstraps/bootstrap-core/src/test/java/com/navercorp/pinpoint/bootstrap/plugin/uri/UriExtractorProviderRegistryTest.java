@@ -32,11 +32,11 @@ public class UriExtractorProviderRegistryTest {
     public void providerRegistryTest() {
         String[] parameterArray1 = {"hello"};
         UriMappingExtractorProvider provider1
-                = new UriMappingExtractorProvider(UriExtractorType.SERVLET_REQUEST_ATTRIBUTE, parameterArray1);
+                = new UriMappingExtractorProvider(UriExtractorType.SERVLET_REQUEST_ATTRIBUTE, parameterArray1, false);
 
         String[] parameterArray2 = {"hi"};
         UriMappingExtractorProvider provider2
-                = new UriMappingExtractorProvider(UriExtractorType.SERVLET_REQUEST_ATTRIBUTE, parameterArray2);
+                = new UriMappingExtractorProvider(UriExtractorType.SERVLET_REQUEST_ATTRIBUTE, parameterArray2, false);
 
         List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<>();
         uriExtractorProviderList.add(provider1);

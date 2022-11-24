@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
@@ -35,17 +37,26 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
     private final UriExtractor<T> uriExtractor;
     private final UriStatStorage uriStatStorage;
 
+    private final String NOT_FOUNDED = "/NOT_FOUND_URI";
+
     public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, UriStatStorage uriStatStorage) {
         this.uriExtractor = Objects.requireNonNull(uriExtractor, "uriExtractor");
         this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override
-    public void record(T request, String rawUri, boolean status, long startTime, long endTime) {
-        String uri = uriExtractor.getUri(request, rawUri);
-        if (uri == null) {
+    public void record(Trace trace, T request, String rawUri, boolean status, long startTime, long endTime) {
+        String uri;
+
+        String userAttributeUri = uriExtractor.getUri(request, rawUri);
+        String interceptedUri = trace.getUriTemplate();
+        if (userAttributeUri != null) {
+            uri = userAttributeUri;
+        } else if (interceptedUri != null) {
+            uri = interceptedUri;
+        } else {
+            uri = NOT_FOUNDED;
             logger.warn("can not extract uri. request:{}, rawUri:{}", request, rawUri);
-            return;
         }
 
         uriStatStorage.store(uri, status, startTime, endTime);

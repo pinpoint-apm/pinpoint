@@ -14,4 +14,9 @@ public class BypassingUriExtractor<T> implements UriExtractor<T> {
     public String getUri(T target, String rawUrl) {
         return rawUrl;
     }
+
+    @Override
+    public boolean usingUserInputAttribute() {
+        return false;
+    }
 }

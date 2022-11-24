@@ -153,4 +153,14 @@ public class DisableTrace implements Trace {
         }
         return scopePool.add(name);
     }
+
+    @Override
+    public void setUriTemplate(String uriTemplate) {
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+    }
+
+    @Override
+    public String getUriTemplate() {
+        return null;
+    }
 }

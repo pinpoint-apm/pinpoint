@@ -30,13 +30,16 @@ public class UriMappingExtractorProvider implements UriExtractorProvider {
     private final UriExtractorType uriExtractorType;
     private final String[] mappingKeyCandidates;
 
-    public UriMappingExtractorProvider(UriExtractorType uriExtractorType, String[] mappingKeyCandidates) {
+    private final boolean useUserInputAttribute;
+
+    public UriMappingExtractorProvider(UriExtractorType uriExtractorType, String[] mappingKeyCandidates, boolean useUserInputAttribute) {
         this.uriExtractorType = Objects.requireNonNull(uriExtractorType, "uriExtractorType");
 
         if (ArrayUtils.isEmpty(mappingKeyCandidates)) {
             throw new IllegalArgumentException("mappingKeyCandidates may not be empty");
         }
         this.mappingKeyCandidates = mappingKeyCandidates;
+        this.useUserInputAttribute = useUserInputAttribute;
     }
 
     @Override
@@ -48,6 +51,10 @@ public class UriMappingExtractorProvider implements UriExtractorProvider {
         return mappingKeyCandidates;
     }
 
+    public boolean isUseUserInputAttribute() {
+        return useUserInputAttribute;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("UriMappingExtractorProvider{");
@@ -56,4 +63,5 @@ public class UriMappingExtractorProvider implements UriExtractorProvider {
         sb.append('}');
         return sb.toString();
     }
+
 }

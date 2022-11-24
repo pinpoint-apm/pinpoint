@@ -159,10 +159,11 @@ public class ServletRequestListener<REQ> {
 
         // TODO STATDISABLE this logic was added to disable statistics tracing
         if (!trace.canSampled()) {
-            traceContext.removeTraceObject();
+            Trace copy = traceContext.removeTraceObject();
             trace.close();
             boolean status = isNotFailedStatus(statusCode);
-            uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), trace.getEndTime());
+            uriStatRecorder.record(copy, request, rpcName, status, trace.getStartTime(), trace.getEndTime());
+
             return;
         }
 
@@ -176,10 +177,10 @@ public class ServletRequestListener<REQ> {
             this.parameterRecorder.record(recorder, request, throwable);
         } finally {
             trace.traceBlockEnd();
-            this.traceContext.removeTraceObject();
+            Trace copy = this.traceContext.removeTraceObject();
             trace.close();
             boolean status = isNotFailedStatus(statusCode);
-            uriStatRecorder.record(request, rpcName, status, trace.getStartTime(), trace.getEndTime());
+            uriStatRecorder.record(copy, request, rpcName, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 

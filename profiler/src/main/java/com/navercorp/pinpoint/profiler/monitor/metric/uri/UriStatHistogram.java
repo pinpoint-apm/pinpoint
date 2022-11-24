@@ -28,9 +28,9 @@ public class UriStatHistogram {
 
     private final UriStatHistogramBucket.Layout layout;
 
-    private int count;
-    private long total;
-    private long max = 0;
+    private int count = 0;
+    private long total = 0L;
+    private long max = 0L;
 
     private final int[] timestampHistogram;
 
