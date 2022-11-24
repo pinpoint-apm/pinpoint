@@ -92,7 +92,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
     public void setup(ProfilerPluginSetupContext context) {
         SpringDataR2dbcConfiguration config = new SpringDataR2dbcConfiguration(context.getConfig());
         if (Boolean.FALSE == config.isEnabled()) {
-            logger.info("SpringDataR2dbcPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
