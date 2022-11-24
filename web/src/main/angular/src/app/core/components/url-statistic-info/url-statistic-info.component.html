@@ -18,8 +18,9 @@
             </ng-container>
             <ng-template #contents>
                 <div 
-                    *ngFor="let urlInfo of data; let i = index"
                     class="url-info-row"
+                    *ngFor="let urlInfo of data; let i = index"
+                    [id]="urlInfo.uri"
                     (click)="onSelectUrlInfo(urlInfo.uri)"
                     [class.active]="isSelectedUrl(urlInfo.uri)"
                 >

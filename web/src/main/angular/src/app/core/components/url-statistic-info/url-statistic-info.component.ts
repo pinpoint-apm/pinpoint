@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges, ElementRef, Renderer2, ViewChild, AfterViewChecked } from '@angular/core';
 
 import { isEmpty } from 'app/core/utils/util';
 
@@ -7,11 +7,13 @@ import { isEmpty } from 'app/core/utils/util';
     templateUrl: './url-statistic-info.component.html',
     styleUrls: ['./url-statistic-info.component.css']
 })
-export class UrlStatisticInfoComponent implements OnInit, OnChanges {
+export class UrlStatisticInfoComponent implements OnInit, OnChanges, AfterViewChecked {
     @ViewChild('urlInfoTableBody' , {static: true}) urlInfoTableBody: ElementRef;
     @Input() data: IUrlStatInfoData[];
     @Input() emptyMessage: string;
     @Output() outSelectUrlInfo = new EventEmitter<string>();
+
+    private dataUpdated: boolean;
 
     totalCount: number;
     selectedUrl: string;
@@ -19,7 +21,7 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
 
     constructor(
         private el: ElementRef,
-        private renderer: Renderer2
+        private renderer: Renderer2,
     ) {}
 
     ngOnChanges(changes: SimpleChanges) {
@@ -35,11 +37,12 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
                 return;
             }
 
+            this.dataUpdated = true;
             const prevSelectedUrlInfo = data.find(({uri}: IUrlStatInfoData) => this.selectedUrl === uri);
 
             if (!prevSelectedUrlInfo) {
                 this.selectedUrl = ''; 
-            }
+            } 
 
             this.outSelectUrlInfo.emit(this.selectedUrl);
 
@@ -51,6 +54,19 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.renderer.setStyle(this.urlInfoTableBody.nativeElement, 'max-height', `${this.el.nativeElement.offsetHeight - 40}px`);
+    }
+
+    ngAfterViewChecked() {
+        if (this.dataUpdated) {
+            const elementId = this.selectedUrl ? this.selectedUrl : this.data[0].uri;
+
+            document.getElementById(elementId).scrollIntoView({
+                behavior: 'auto',
+                block: 'center',
+            });
+
+            this.dataUpdated = false;
+        }
     }
 
     onSelectUrlInfo(url: string): void {
