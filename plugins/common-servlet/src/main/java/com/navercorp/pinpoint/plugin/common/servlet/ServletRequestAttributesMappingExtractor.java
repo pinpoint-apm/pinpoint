@@ -32,13 +32,15 @@ public class ServletRequestAttributesMappingExtractor implements UriExtractor<Ht
     static final UriExtractorType TYPE = UriExtractorType.SERVLET_REQUEST_ATTRIBUTE;
 
     private final String[] attributeNames;
+    private final boolean useUserInputAttribute;
 
-    public ServletRequestAttributesMappingExtractor(String[] attributeNames) {
+    public ServletRequestAttributesMappingExtractor(String[] attributeNames, boolean useUserInputAttribute) {
         if (ArrayUtils.isEmpty(attributeNames)) {
             throw new IllegalArgumentException("attributeNames must not be empty");
         }
 
         this.attributeNames = attributeNames;
+        this.useUserInputAttribute = useUserInputAttribute;
     }
 
     @Override
@@ -47,15 +49,22 @@ public class ServletRequestAttributesMappingExtractor implements UriExtractor<Ht
     }
 
     @Override
-    public String getUri(HttpServletRequest request, String rawUri) {
-        for (String attributeName : attributeNames) {
-            Object uriMapping = request.getAttribute(attributeName);
-            if (!(uriMapping instanceof String)) {
-                continue;
-            }
+    public boolean usingUserInputAttribute() {
+        return useUserInputAttribute;
+    }
 
-            if (StringUtils.hasLength((String) uriMapping)) {
-                return (String) uriMapping;
+    @Override
+    public String getUri(HttpServletRequest request, String rawUri) {
+        if (useUserInputAttribute) {
+            for (String attributeName : attributeNames) {
+                Object uriMapping = request.getAttribute(attributeName);
+                if (!(uriMapping instanceof String)) {
+                    continue;
+                }
+
+                if (StringUtils.hasLength((String) uriMapping)) {
+                    return (String) uriMapping;
+                }
             }
         }
 

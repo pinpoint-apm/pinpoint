@@ -26,22 +26,30 @@ import java.util.Objects;
 public class SpringWebMvcConfig {
 
     private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
 
     public SpringWebMvcConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
 
         this.uriStatEnable = config.readBoolean("profiler.spring.webmvc.uri.stat.enable", false);
+        this.uriStatUseUserInput = config.readBoolean("profiler.spring.webmvc.uri.stat.useuserinput", false);
     }
 
     public boolean isUriStatEnable() {
         return uriStatEnable;
     }
 
+    public boolean isUriStatUseUserInput() {
+        return uriStatUseUserInput;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpringWebMvcConfig{");
         sb.append("uriStatEnable=").append(uriStatEnable);
+        sb.append("uriStatUseUserInput=").append(uriStatUseUserInput);
         sb.append('}');
         return sb.toString();
     }
+
 }

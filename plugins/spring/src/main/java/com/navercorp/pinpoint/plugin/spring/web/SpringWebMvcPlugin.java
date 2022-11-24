@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriMappingExtractorProvider;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.InvocableHandlerMethodInvokeForRequestMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.LookupHandlerMethodInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -48,12 +49,30 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
         if (config.isUriStatEnable()) {
             UriMappingExtractorProvider uriMappingExtractorProvider = new UriMappingExtractorProvider(
                     SpringWebMvcConstants.SPRING_MVC_URI_EXTRACTOR_TYPE,
-                    SpringWebMvcConstants.SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS
+                    SpringWebMvcConstants.SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS,
+                    config.isUriStatUseUserInput()
             );
             context.addUriExtractor(uriMappingExtractorProvider);
         }
         // Async
         transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
+
+        transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
+
+    }
+    public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            // Add attribute listener.
+            final InstrumentMethod setAttribute = target.getDeclaredMethod("lookupHandlerMethod", "java.lang.String", "javax.servlet.http.HttpServletRequest");
+            if (setAttribute != null) {
+                setAttribute.addInterceptor(LookupHandlerMethodInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     public static class FrameworkServletTransform implements TransformCallback {

@@ -43,19 +43,31 @@ public class UriExtractorChain<T> implements UriExtractor<T> {
     @Override
     public String getUri(T target, String rawUrl) {
         for (UriExtractor<T> uriExtractor : uriExtractorList) {
-            final String uri = uriExtractor.getUri(target, rawUrl);
-            if (uri != null) {
-                return uri;
+            if (uriExtractor.usingUserInputAttribute()) {
+                final String uri = uriExtractor.getUri(target, rawUrl);
+                if (uri != null) {
+                    return uri;
+                }
             }
         }
-
         for (String oftenUsedUrl : DEFAULT_OFTEN_USED_URL) {
             if (oftenUsedUrl.equals(rawUrl)) {
                 return oftenUsedUrl;
             }
         }
 
-        return NOT_FOUNDED;
+        return null;
+    }
+
+    @Override
+    public boolean usingUserInputAttribute() {
+        for (UriExtractor<T> uriExtractor : uriExtractorList) {
+            boolean usingUserInputAttribute = uriExtractor.usingUserInputAttribute();
+            if (usingUserInputAttribute) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

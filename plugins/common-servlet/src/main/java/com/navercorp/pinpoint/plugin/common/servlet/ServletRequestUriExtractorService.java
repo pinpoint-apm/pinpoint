@@ -37,7 +37,7 @@ public class ServletRequestUriExtractorService implements UriExtractorService<Ht
 
         List<UriExtractor<HttpServletRequest>> result = new ArrayList<>();
         for (UriMappingExtractorProvider uriMappingExtractorProvider : uriMappingExtractorProviderList) {
-            ServletRequestAttributesMappingExtractor servletRequestAttributesMappingExtractor = new ServletRequestAttributesMappingExtractor(uriMappingExtractorProvider.getMappingKeyCandidates());
+            ServletRequestAttributesMappingExtractor servletRequestAttributesMappingExtractor = new ServletRequestAttributesMappingExtractor(uriMappingExtractorProvider.getMappingKeyCandidates(), uriMappingExtractorProvider.isUseUserInputAttribute());
             result.add(servletRequestAttributesMappingExtractor);
         }
 

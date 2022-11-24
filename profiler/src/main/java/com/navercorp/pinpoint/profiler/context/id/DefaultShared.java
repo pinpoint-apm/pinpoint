@@ -46,6 +46,8 @@ public class DefaultShared implements Shared {
 
     private volatile int statusCode;
 
+    private volatile String uriTemplate = null;
+
     @Override
     public void maskErrorCode(int errorCode) {
 //        synchronized (this) {
@@ -120,5 +122,17 @@ public class DefaultShared implements Shared {
     @Override
     public int getStatusCode() {
         return this.statusCode;
+    }
+
+    @Override
+    public void setUriTemplate(String uriTemplate) {
+        if (this.uriTemplate == null) {
+            this.uriTemplate = uriTemplate;
+        }
+    }
+
+    @Override
+    public String getUriTemplate() {
+        return uriTemplate;
     }
 }
