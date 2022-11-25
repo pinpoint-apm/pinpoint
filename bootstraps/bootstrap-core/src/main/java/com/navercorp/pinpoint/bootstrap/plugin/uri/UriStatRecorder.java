@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.uri;
 
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-
 /**
  * Class that store information that obtained from Request and URIExtractor inside Pinpoint
  *
@@ -25,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
  */
 public interface UriStatRecorder<T> {
 
-    void record(Trace trace, T request, String rawUri, boolean status, long startTime, long endTime);
+    void record(String uriTemplate, T request, String rawUri, boolean status, long startTime, long endTime);
 
 }
 
