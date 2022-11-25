@@ -47,7 +47,7 @@ public interface Shared {
 
     int getStatusCode();
 
-    void setUriTemplate(String uriTemplate);
+    boolean setUriTemplate(String uriTemplate);
 
     String getUriTemplate();
 }
