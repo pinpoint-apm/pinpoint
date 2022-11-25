@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.uri;
 
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 
 /**
  * @author Taejin Koo
@@ -30,7 +29,7 @@ public class DisabledUriStatRecorder<T> implements UriStatRecorder<T> {
     }
 
     @Override
-    public void record(Trace trace, T request, String rawUri, boolean status, long startTime, long endTime) {
+    public void record(String uriTemplate, T request, String rawUri, boolean status, long startTime, long endTime) {
         // do nothing
     }
 

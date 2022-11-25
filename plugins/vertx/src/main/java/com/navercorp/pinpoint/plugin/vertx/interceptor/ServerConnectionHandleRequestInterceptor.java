@@ -31,11 +31,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.BypassingUriExtractorService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
@@ -261,7 +261,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final String urlTemplate = ((VertxUrlTemplate)scope.getCurrentInvocation().getAttachment()).getUrlTemplate();
             String uri = StringUtils.isEmpty(urlTemplate)? request.uri() : urlTemplate;
             boolean status = isNotFailedStatus(request.response().getStatusCode());
-            uriStatRecorder.record(trace, request, uri, status, trace.getStartTime(), trace.getEndTime());
+            uriStatRecorder.record(urlTemplate, request, uri, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 
