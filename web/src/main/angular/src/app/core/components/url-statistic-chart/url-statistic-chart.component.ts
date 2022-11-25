@@ -42,33 +42,28 @@ export class UrlStatisticChartComponent implements OnInit, OnChanges {
     }
 
     private updateChart({previousValue, currentValue}: {previousValue: IChartConfig, currentValue: IChartConfig}): void {
-        const {columns: prevColumns} = previousValue.dataConfig;
-        const {columns: currColumns, colors} = currentValue.dataConfig;
-        const prevKeys = prevColumns.map(([key]: PrimitiveArray) => key);
+        const {columns: currColumns} = currentValue.dataConfig;
         const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
-        const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
         const {axis: {y}} = currentValue.elseConfig;
-        /**
-         * About determining "unload":
-         * 1. If there was no data before => nothing to unload
-         * 2. If something has changed in keys => unload all
-         * 3. If there is no change in keys => determine it with "getEmptyDataKeys" method
-         */
-        const unload = prevKeys.length === 0 ? false
-            : removedKeys.length !== 0 ? true
-            : this.getEmptyDataKeys(currColumns);
 
-        this.chartInstance.config('data.groups', [currKeys.slice(1)]);
-        // this.chartInstance.config('axis.y.max', y.max);
-        this.chartInstance.load({
-            columns: currColumns,
-            colors,
-            unload
-        });
-    }
+        const unload = currKeys.length === 0;
 
-    private getEmptyDataKeys(data: PrimitiveArray[]): string[] {
-        return data.slice(1).filter((d: PrimitiveArray) => d.length === 1).map(([key]: PrimitiveArray) => key as string);
+        this.chartInstance.config('data.empty.label.text', currentValue.dataConfig.empty.label.text);
+        if (unload) {
+            this.chartInstance.config('axis.y.padding', {top: 0, bottom: 0});
+            this.chartInstance.config('axis.y.max', y.default[1]);
+            this.chartInstance.config('axis.y.tick.count', y.tick.count);
+            this.chartInstance.unload();
+            this.chartInstance.flush();
+        } else {
+            this.chartInstance.config('axis.y.padding', {top: null, bottom: 0});
+            this.chartInstance.config('axis.y.max', null);
+            this.chartInstance.config('axis.y.tick.count', null);
+
+            this.chartInstance.load({
+                columns: currColumns,
+            });
+        }
     }
 
     private finishLoading(): void {

@@ -436,7 +436,7 @@ interface IChartLayoutInfoResponse {
 
 interface IChartConfig {
     dataConfig: any;
-    elseConfig: {[key: string]: any};
+    elseConfig?: {[key: string]: any};
 }
 
 interface IUserProfile {

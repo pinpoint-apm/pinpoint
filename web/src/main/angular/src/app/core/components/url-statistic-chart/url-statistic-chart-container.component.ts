@@ -1,7 +1,7 @@
-import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { EMPTY, forkJoin, iif, Observable, of, Subject } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Data, PrimitiveArray, bar, zoom, areaStep } from 'billboard.js';
+import { catchError, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Data, PrimitiveArray, bar, zoom } from 'billboard.js';
 import * as moment from 'moment-timezone';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -23,7 +23,7 @@ export enum Layer {
 })
 export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 	private unsubscribe = new Subject<void>();
-	private defaultYMax = 100;
+	private defaultYMax = 1;
     private chartColorList: string[];
     private timezone: string;
     private dateFormatMonth: string;
@@ -33,7 +33,7 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     private previousParams: IUrlStatChartDataParams;
     
     isUriSelected: boolean;
-    selectedUri: string;
+    selectedUri = '';
 	chartConfig: IChartConfig;
     showLoading: boolean;
     showRetry: boolean;
@@ -51,28 +51,43 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 		private urlStatisticChartDataService: UrlStatisticChartDataService,
         private translateService: TranslateService,
         private el: ElementRef,
+        private cd: ChangeDetectorRef
 	) { }
 
 	ngOnInit() {
         this.initFieldNameList();
 		this.initChartColorList();
         this.initI18nText();
+        // this.initDefaultChartConfig();
         this.listenToEmitter();
 
 		this.newUrlStateNotificationService.onUrlStateChange$.pipe(
 			takeUntil(this.unsubscribe)
 		).subscribe(() => {
 			this.cachedData = {};
-            this.isUriSelected = false;
+            // this.isUriSelected = false;
             this.selectedUri = null;
-            this.chartConfig = null;
+            // this.chartConfig = null;
+            // this.initDefaultChartConfig();
 		});
 
 		this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SELECT_URL_INFO).pipe(
-            tap((uri) => {
-                this.isUriSelected = true;
+            tap((uri: string) => {
                 this.selectedUri = uri;
             }),
+            filter((uri: string) => {
+                if (Boolean(uri)) {
+                    return true;
+                } else {
+                    this.initDefaultChartConfig();
+                    this.cd.detectChanges();
+                    return false;
+                }
+            }),
+            // tap((uri: string) => {
+            //     this.isUriSelected = true;
+            //     this.selectedUri = uri;
+            // }),
 			switchMap((uri: string) => {
 				if (Boolean(this.cachedData[uri])) {
 					return of(this.cachedData[uri]);
@@ -179,6 +194,27 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         });
     }
 
+    private initDefaultChartConfig(): void {
+        this.chartConfig = {
+            dataConfig: {
+                x: 'x',
+                columns: [],
+                empty: {
+                    label: {
+                        text: this.selectedUri === '' ? this.guideMessage : this.emptyMessage
+                    }
+                },
+                type: bar(),
+                colors: this.fieldNameList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
+                    return {...acc, [curr]: this.chartColorList[i]};
+                }, {}),
+                groups: [this.fieldNameList],
+                order: null
+            },
+            elseConfig: this.makeElseOption()
+        }
+    }
+
     private listenToEmitter(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
@@ -206,7 +242,8 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     private setChartConfig(data: PrimitiveArray[]): void {
         this.chartConfig =  {
             dataConfig: this.makeDataOption(data),
-            elseConfig: this.makeElseOption(getMaxTickValue(getStackedData(data), 1)),
+            // elseConfig: this.makeElseOption(getMaxTickValue(getStackedData(data), 1)),
+            elseConfig: this.makeElseOption(),
         };
     }
 
@@ -221,17 +258,17 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                     text: this.emptyMessage
                 }
             },
-            type: bar(),
+            // type: bar(),
             // type: areaStep(),
-            colors: keyList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
-                return { ...acc, [curr]: this.chartColorList[i] };
-            }, {}),
-            groups: [keyList],
-            order: null
+            // colors: keyList.reduce((acc: {[key: string]: string}, curr: string, i: number) => {
+            //     return {...acc, [curr]: this.chartColorList[i]};
+            // }, {}),
+            // groups: [keyList],
+            // order: null
         };
     }
 
-    private makeElseOption(yMax: number): {[key: string]: any} {
+    private makeElseOption(): {[key: string]: any} {
         return {
             bar: {
                 width: {
@@ -264,8 +301,8 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                         position: 'outer-middle'
                     },
                     tick: {
-                        // count: 3,
-                        format: (v: number): string => this.convertWithUnit(v)
+                        count: 2,
+                        format: (v: number): string => this.convertWithUnit(v),
                     },
                     padding: {
                         // top: 0,

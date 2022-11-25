@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,7 +10,8 @@ import { UrlPathId } from 'app/shared/models';
 @Component({
     selector: 'pp-url-statistic-info-container',
     templateUrl: './url-statistic-info-container.component.html',
-    styleUrls: ['./url-statistic-info-container.component.css']
+    styleUrls: ['./url-statistic-info-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
