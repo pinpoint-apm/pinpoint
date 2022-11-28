@@ -47,7 +47,7 @@ public class JedisPlugin implements ProfilerPlugin, TransformTemplateAware {
         final JedisPluginConfig config = new JedisPluginConfig(context.getConfig());
         if (!config.isEnable()) {
             if (logger.isInfoEnabled()) {
-                logger.info("Disable JedisPlugin. config={}", config);
+                logger.info("{} disabled", this.getClass().getSimpleName());
             }
             return;
         }

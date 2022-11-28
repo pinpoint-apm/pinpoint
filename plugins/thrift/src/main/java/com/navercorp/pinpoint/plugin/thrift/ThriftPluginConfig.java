@@ -22,14 +22,16 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  * @author HyunGil Jeong
  */
 public class ThriftPluginConfig {
+    private final boolean enable;
     private final boolean traceThriftClient;
     private final boolean traceThriftClientAsync;
     private final boolean traceThriftProcessor;
     private final boolean traceThriftProcessorAsync;
     private final boolean traceThriftServiceArgs;
     private final boolean traceThriftServiceResult;
-    
+
     public ThriftPluginConfig(ProfilerConfig src) {
+        this.enable = src.readBoolean("profiler.thrift.enable", true);
         this.traceThriftClient = src.readBoolean("profiler.thrift.client", true);
         this.traceThriftClientAsync = src.readBoolean("profiler.thrift.client.async", true);
         this.traceThriftProcessor = src.readBoolean("profiler.thrift.processor", true);
@@ -37,7 +39,11 @@ public class ThriftPluginConfig {
         this.traceThriftServiceArgs = src.readBoolean("profiler.thrift.service.args", false);
         this.traceThriftServiceResult = src.readBoolean("profiler.thrift.service.result", false);
     }
-    
+
+    public boolean isEnable() {
+        return enable;
+    }
+
     public boolean traceThriftClient() {
         return this.traceThriftClient;
     }
@@ -45,7 +51,7 @@ public class ThriftPluginConfig {
     public boolean traceThriftClientAsync() {
         return this.traceThriftClientAsync;
     }
-    
+
     public boolean traceThriftProcessor() {
         return this.traceThriftProcessor;
     }
@@ -53,26 +59,25 @@ public class ThriftPluginConfig {
     public boolean traceThriftProcessorAsync() {
         return this.traceThriftProcessorAsync;
     }
-    
+
     public boolean traceThriftServiceArgs() {
         return this.traceThriftServiceArgs;
     }
-    
+
     public boolean traceThriftServiceResult() {
         return this.traceThriftServiceResult;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ThriftPluginConfig={traceThriftClient=").append(this.traceThriftClient);
-        sb.append(", traceThriftClientAsync=").append(this.traceThriftClientAsync);
-        sb.append(", traceThriftProcessor=").append(this.traceThriftProcessor);
-        sb.append(", traceThriftProcessorAsync=").append(this.traceThriftProcessorAsync);
-        sb.append(", traceThriftServiceArgs=").append(this.traceThriftServiceArgs);
-        sb.append(", traceThriftServiceResult=").append(this.traceThriftServiceResult);
-        sb.append("}");
-        return sb.toString();
+        return "ThriftPluginConfig{" +
+                "enable=" + enable +
+                ", traceThriftClient=" + traceThriftClient +
+                ", traceThriftClientAsync=" + traceThriftClientAsync +
+                ", traceThriftProcessor=" + traceThriftProcessor +
+                ", traceThriftProcessorAsync=" + traceThriftProcessorAsync +
+                ", traceThriftServiceArgs=" + traceThriftServiceArgs +
+                ", traceThriftServiceResult=" + traceThriftServiceResult +
+                '}';
     }
-
 }

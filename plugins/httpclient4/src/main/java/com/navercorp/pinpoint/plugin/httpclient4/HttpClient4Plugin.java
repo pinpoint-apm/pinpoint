@@ -45,7 +45,6 @@ import com.navercorp.pinpoint.plugin.httpclient4.interceptor.ManagedClientConnec
  * @author emeroad
  * @author minwoo.jung
  * @author jaehong.kim
- *
  */
 public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -53,8 +52,12 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled '{}'", this.getClass().getSimpleName(), "profiler.apache.httpclient4.enable=false");
+            return;
+        }
         if (logger.isInfoEnabled()) {
-            HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
             logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         }
         // common
@@ -66,7 +69,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         addAbstractHttpClient4Class();
         addAbstractPooledConnAdapterClass();
         addManagedClientConnectionImplClass();
-        
+
         // Apache httpclient4 (version 4.3 ~ 4.4)
         logger.debug("Add CloseableHttpClient4(4.3 ~ ");
         addCloseableHttpClientClass();
@@ -109,7 +112,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
             return target.toBytecode();
         }
     }
-    
+
     private void addAbstractHttpClient4Class() {
         transformTemplate.transform("org.apache.http.impl.client.AbstractHttpClient", AbstractHttpClientTransform.class);
     }
@@ -165,7 +168,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, TransformTemplateAware
         transformTemplate.transform("org.apache.http.impl.client.DefaultHttpRequestRetryHandler", DefaultHttpRequestRetryHandlerTransformer.class);
     }
 
-    public static class DefaultHttpRequestRetryHandlerTransformer implements  TransformCallback {
+    public static class DefaultHttpRequestRetryHandlerTransformer implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {

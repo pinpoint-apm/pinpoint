@@ -52,27 +52,29 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         IBatisPluginConfig iBatisPluginConfig = new IBatisPluginConfig(context.getConfig());
+        if (Boolean.FALSE == iBatisPluginConfig.isIBatisEnabled()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
         if (logger.isInfoEnabled()) {
             logger.info("IBatisPlugin config:{}", iBatisPluginConfig);
         }
-        if (iBatisPluginConfig.isIBatisEnabled()) {
-            addInterceptorsForSqlMapExecutors();
-            addInterceptorsForSqlMapClientTemplate();
-        }
+        addInterceptorsForSqlMapExecutors();
+        addInterceptorsForSqlMapClientTemplate();
     }
 
     // SqlMapClient / SqlMapSession
     private void addInterceptorsForSqlMapExecutors() {
         final ServiceType serviceType = IBatisConstants.IBATIS;
-        final String[] sqlMapExecutorImplClasses = { "com.ibatis.sqlmap.engine.impl.SqlMapClientImpl",
-                "com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl" };
+        final String[] sqlMapExecutorImplClasses = {"com.ibatis.sqlmap.engine.impl.SqlMapClientImpl",
+                "com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl"};
         addInterceptorsForClasses(serviceType, sqlMapExecutorImplClasses);
     }
 
     // SqlMapClientTemplate
     private void addInterceptorsForSqlMapClientTemplate() {
         final ServiceType serviceType = IBatisConstants.IBATIS_SPRING;
-        final String[] sqlMapClientTemplateClasses = { "org.springframework.orm.ibatis.SqlMapClientTemplate" };
+        final String[] sqlMapClientTemplateClasses = {"org.springframework.orm.ibatis.SqlMapClientTemplate"};
         addInterceptorsForClasses(serviceType, sqlMapClientTemplateClasses);
     }
 
@@ -120,7 +122,7 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-                String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                    String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 

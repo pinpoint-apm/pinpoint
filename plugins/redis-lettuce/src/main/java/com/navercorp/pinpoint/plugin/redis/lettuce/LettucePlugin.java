@@ -62,7 +62,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
         if (logger.isInfoEnabled()) {
-            logger.info("{} version range=[5.0.0.RELEASE, 6.1.5.RELEASE], config={}", this.getClass().getSimpleName(), config);
+            logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         }
 
         // Set endpoint

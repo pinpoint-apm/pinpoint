@@ -66,6 +66,11 @@ public class ThriftPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         ThriftPluginConfig config = new ThriftPluginConfig(context.getConfig());
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
+
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         boolean traceClient = config.traceThriftClient();

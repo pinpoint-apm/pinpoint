@@ -56,10 +56,10 @@ public class PahoMqttPlugin implements ProfilerPlugin, TransformTemplateAware {
         PahoMqttPluginConfig config = new PahoMqttPluginConfig(context.getConfig());
 
         if(!config.isEnableTracePahoMqttClient()){
-            logger.debug("disable paho.mqtt plugin");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("Paho mqtt plugin config[{}]", config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         setUpMqttV3(config);
         setUpMqttV5(config);

@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,6 +55,10 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final ArcusPluginConfig config = new ArcusPluginConfig(context.getConfig());
+        if (Boolean.FALSE == config.isArcus() && Boolean.FALSE == config.isMemcached()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         final boolean arcus = config.isArcus();
@@ -94,6 +98,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     public static class ArcusClientTransform implements TransformCallback {
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -138,7 +143,6 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     private void addBaseOperationImplEditor() {
@@ -153,7 +157,6 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(ServiceCodeAccessor.class);
             return target.toBytecode();
         }
-
     }
 
     private void addFrontCacheGetFutureEditor() {
@@ -180,7 +183,6 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     private void addFrontCacheMemcachedClientEditor(final ArcusPluginConfig config) {
@@ -209,7 +211,6 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     private void addMemcachedClientEditor(final ArcusPluginConfig config) {
@@ -244,7 +245,6 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-
     }
 
     public static class FutureTransform implements TransformCallback {
@@ -269,7 +269,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     public static class FutureSetOperationTransform implements TransformCallback {
 
@@ -286,7 +286,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
+    }
 
     public static class InternalFutureTransform implements TransformCallback {
 
@@ -295,7 +295,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(AsyncContextAccessor.class);
-            
+
             // cancel, get, set
             for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
                 m.addScopedInterceptor(FutureInternalMethodInterceptor.class, ArcusConstants.ARCUS_FUTURE_SCOPE);
@@ -303,8 +303,7 @@ public class ArcusPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             return target.toBytecode();
         }
-    };
-
+    }
 
     private void addCollectionFutureEditor(boolean async) {
         if (async) {

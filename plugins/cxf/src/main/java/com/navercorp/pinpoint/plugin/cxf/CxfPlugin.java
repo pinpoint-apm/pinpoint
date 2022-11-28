@@ -49,6 +49,10 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         CxfPluginConfig config = new CxfPluginConfig(context.getConfig());
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         if (config.isServiceProfile()) {
@@ -78,8 +82,8 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
@@ -95,8 +99,8 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
@@ -121,8 +125,8 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
 
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
@@ -138,8 +142,8 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
 
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
@@ -166,8 +170,8 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
             // invokeSyncMethod
@@ -178,12 +182,12 @@ public class CxfPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class MessageSenderEndingInterceptorTransform implements  TransformCallback {
+    public static class MessageSenderEndingInterceptorTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                    throws InstrumentException {
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
             // handleMessageMethod

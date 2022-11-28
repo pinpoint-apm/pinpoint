@@ -46,22 +46,14 @@ public class JspPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final JspPluginConfig config = new JspPluginConfig(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("JspPlugin config={}", config);
-        }
-
         if (!config.isEnable()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("JspPlugin disabled");
-            }
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-
+        logger.info("{} config={}", this.getClass().getSimpleName(), config);
         // Tomcat, Jetty, JBoss
         // Jasper 2 JSP Engine.
-        if (logger.isInfoEnabled()) {
-            logger.info("Adding Jasper 2 JSP Engine(Tomcat, Jetty, JBoss).");
-        }
+        logger.info("Adding Jasper 2 JSP Engine(Tomcat, Jetty, JBoss).");
         addJasper2JspEngine();
     }
 

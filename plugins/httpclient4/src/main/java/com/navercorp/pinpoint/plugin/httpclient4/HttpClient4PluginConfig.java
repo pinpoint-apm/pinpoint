@@ -23,12 +23,15 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  * @author jaehong.kim
  */
 public class HttpClient4PluginConfig {
+
+    private boolean enable = true;
     private boolean param = true;
     private boolean statusCode = true;
     private boolean io;
     private HttpDumpConfig httpDumpConfig;
 
     public HttpClient4PluginConfig(ProfilerConfig src) {
+        this.enable = src.readBoolean("profiler.apache.httpclient4.enable", true);
         this.param = src.readBoolean("profiler.apache.httpclient4.param", true);
 
         boolean cookie = src.readBoolean("profiler.apache.httpclient4.cookie", false);
@@ -43,6 +46,10 @@ public class HttpClient4PluginConfig {
 
         this.statusCode = src.readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
         this.io = src.readBoolean("profiler.apache.httpclient4.io", true);
+    }
+
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isParam() {
@@ -63,12 +70,12 @@ public class HttpClient4PluginConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("HttpClient4PluginConfig{");
-        sb.append("param=").append(param);
-        sb.append(", statusCode=").append(statusCode);
-        sb.append(", io=").append(io);
-        sb.append(", httpDumpConfig=").append(httpDumpConfig);
-        sb.append('}');
-        return sb.toString();
+        return "HttpClient4PluginConfig{" +
+                "enable=" + enable +
+                ", param=" + param +
+                ", statusCode=" + statusCode +
+                ", io=" + io +
+                ", httpDumpConfig=" + httpDumpConfig +
+                '}';
     }
 }
