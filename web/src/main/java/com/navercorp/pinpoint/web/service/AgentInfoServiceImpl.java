@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
@@ -56,6 +58,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -105,13 +108,13 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, long timestamp) {
+    public AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         List<AgentAndStatus> agents = new ArrayList<>();
         for (Application application : applications) {
-            agents.addAll(getAgentsByApplicationName(application.getName(), timestamp));
+            agents.addAll(getAgentsByApplicationName(application.getName(), range.getTo()));
         }
 
         return AgentsMapByApplication.newAgentsMapByApplication(
@@ -121,27 +124,34 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp) {
-        return getAgentsListByApplicationName(filter, applicationName, timestamp, SortByAgentInfo.Rules.AGENT_ID_ASC);
+    public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, Range range) {
+        return getAgentsListByApplicationName(filter, applicationName, range, SortByAgentInfo.Rules.AGENT_ID_ASC);
     }
 
     @Override
     public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter,
                                                           String applicationName,
-                                                          long timestamp,
+                                                          Range range,
                                                           SortByAgentInfo.Rules sortBy) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, timestamp);
+        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
+        AgentInfoFilter activeAgentFilter = new AgentInfoFilterChain(
+                filter,
+                x -> isActiveAgent(x.getAgentInfo().getAgentId(), range)
+        );
+
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", applicationName);
         }
 
-        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(filter,
+        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(
+                activeAgentFilter,
                 SortByAgentInfo.agentIdAsc(AgentStatusAndLink::getAgentInfo),
                 hyperLinkFactory,
-                agentInfoAndStatuses);
+                agentInfoAndStatuses
+        );
 
         logger.debug("getAgentsMapByHostname={}", agentsMapByHost);
         return agentsMapByHost;
@@ -225,12 +235,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     private List<String> getApplicationNameList(List<Application> applications) {
-        List<String> applicationNameList = applications.stream()
+        return applications.stream()
                 .map(Application::getName)
                 .distinct()
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
-        return applicationNameList;
     }
 
     @Override
