@@ -41,11 +41,11 @@ public interface AgentInfoService {
 
     int NO_DURATION = -1;
 
-    AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, long timestamp);
+    AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, Range range);
 
-    AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp);
+    AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, Range range);
 
-    AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, long timestamp, SortByAgentInfo.Rules sortBy);
+    AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 
