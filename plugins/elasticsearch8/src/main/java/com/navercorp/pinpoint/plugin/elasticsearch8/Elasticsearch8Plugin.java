@@ -45,12 +45,13 @@ public class Elasticsearch8Plugin implements ProfilerPlugin, TransformTemplateAw
         }
 
         final Elasticsearch8PluginConfig elasticsearchPluginConfig = new Elasticsearch8PluginConfig(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("Elasticsearch8Plugin config:{}", elasticsearchPluginConfig);
+        if (Boolean.FALSE == elasticsearchPluginConfig.isEnabled()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
 
-        if (!elasticsearchPluginConfig.isEnabled()) {
-            return;
+        if (logger.isInfoEnabled()) {
+            logger.info("{} config:{}", this.getClass().getSimpleName(), elasticsearchPluginConfig);
         }
 
         addElasticsearchExecutorInterceptors();

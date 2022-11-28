@@ -25,14 +25,19 @@ import java.util.Objects;
  */
 public class SpringWebMvcConfig {
 
+    private final boolean enable;
     private final boolean uriStatEnable;
     private final boolean uriStatUseUserInput;
 
     public SpringWebMvcConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
-
+        this.enable = config.readBoolean("profiler.spring.webmvc.enable", true);
         this.uriStatEnable = config.readBoolean("profiler.spring.webmvc.uri.stat.enable", false);
         this.uriStatUseUserInput = config.readBoolean("profiler.spring.webmvc.uri.stat.useuserinput", false);
+    }
+
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isUriStatEnable() {
@@ -45,11 +50,10 @@ public class SpringWebMvcConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpringWebMvcConfig{");
-        sb.append("uriStatEnable=").append(uriStatEnable);
-        sb.append("uriStatUseUserInput=").append(uriStatUseUserInput);
-        sb.append('}');
-        return sb.toString();
+        return "SpringWebMvcConfig{" +
+                "enable=" + enable +
+                ", uriStatEnable=" + uriStatEnable +
+                ", uriStatUseUserInput=" + uriStatUseUserInput +
+                '}';
     }
-
 }

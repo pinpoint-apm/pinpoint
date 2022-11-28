@@ -59,6 +59,11 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final RocketMQConfig config = new RocketMQConfig(context.getConfig());
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled {}", this.getClass().getSimpleName(), "profiler.rocketmq.enable=false");
+            return;
+        }
+
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         final List<String> basePackageNames = new ArrayList<>();
@@ -74,31 +79,31 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
 
         if (config.isProducerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.MQClientAPIImpl",
-                                        MQClientAPIImplTransform.class);
+                    MQClientAPIImplTransform.class);
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
-                                                                    new InterfaceInternalNameMatcherOperand(
-                                                                            "org.apache.rocketmq.client.producer.SendCallback",
-                                                                            true));
+                    new InterfaceInternalNameMatcherOperand(
+                            "org.apache.rocketmq.client.producer.SendCallback",
+                            true));
             transformTemplate.transform(matcher, SendCallbackTransform.class);
         }
 
         if (config.isConsumerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.consumer.DefaultMQPushConsumerImpl",
-                                        ConsumerTransform.class);
+                    ConsumerTransform.class);
             transformTemplate.transform("org.apache.rocketmq.remoting.netty.NettyRemotingClient",
-                                        RemotingTransform.class);
+                    RemotingTransform.class);
             transformTemplate.transform("org.apache.rocketmq.remoting.netty.NettyRemotingClient$ChannelWrapper",
-                                        ChannelWrapperTransform.class);
+                    ChannelWrapperTransform.class);
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
-                                                                    new InterfaceInternalNameMatcherOperand(
-                                                                            "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
-                                                                            true));
+                    new InterfaceInternalNameMatcherOperand(
+                            "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently",
+                            true));
             transformTemplate.transform(matcher, MessageListenerConcurrentlyTransform.class);
 
             final Matcher orderlyMatcher = Matchers.newPackageBasedMatcher(basePackageNames,
-                                                                           new InterfaceInternalNameMatcherOperand(
-                                                                                   "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly",
-                                                                                   true));
+                    new InterfaceInternalNameMatcherOperand(
+                            "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly",
+                            true));
             transformTemplate.transform(orderlyMatcher, MessageListenerOrderlyTransform.class);
         }
     }
@@ -110,7 +115,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             target.addField(EndPointFieldAccessor.class);
 
             final List<InstrumentMethod> sendMessageMethods = target.getDeclaredMethods(
@@ -138,18 +143,18 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             target.addField(AsyncContextAccessor.class);
             final List<InstrumentMethod> constructors = target.getDeclaredConstructors();
             for (InstrumentMethod constructor : constructors) {
                 constructor.addInterceptor(ConstructInterceptor.class);
             }
             final InstrumentMethod onSuccessMethod = target.getDeclaredMethod("onSuccess",
-                                                                              "org.apache.rocketmq.client.producer.SendResult");
+                    "org.apache.rocketmq.client.producer.SendResult");
             onSuccessMethod.addScopedInterceptor(OnSuccessInterceptor.class, RocketMQConstants.SCOPE);
 
             final InstrumentMethod onExceptionsMethod = target.getDeclaredMethod("onException",
-                                                                                 "java.lang.Throwable");
+                    "java.lang.Throwable");
             onExceptionsMethod.addScopedInterceptor(OnExceptionInterceptor.class, RocketMQConstants.SCOPE);
             return target.toBytecode();
         }
@@ -162,10 +167,10 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             final InstrumentMethod consumeMessageMethod = target.getDeclaredMethod("consumeMessage",
-                                                                                   "java.util.List",
-                                                                                   "org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext");
+                    "java.util.List",
+                    "org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext");
             consumeMessageMethod.addInterceptor(ConsumerMessageListenerConcurrentlyInterceptor.class);
             target.addField(ChannelTablesAccessor.class);
             return target.toBytecode();
@@ -179,10 +184,10 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             final InstrumentMethod consumeMessageMethod = target.getDeclaredMethod("consumeMessage",
-                                                                                   "java.util.List",
-                                                                                   "org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext");
+                    "java.util.List",
+                    "org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext");
             consumeMessageMethod.addInterceptor(ConsumerMessageListenerOrderlyInterceptor.class);
             target.addField(ChannelTablesAccessor.class);
             return target.toBytecode();
@@ -195,7 +200,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             target.addGetter(MQClientInstanceGetter.class, "mQClientFactory");
 
             final InstrumentMethod consumeStartMethod = target.getDeclaredMethod("start");
@@ -211,7 +216,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             target.addGetter(ChannelTablesGetter.class, "channelTables");
             return target.toBytecode();
         }
@@ -223,7 +228,7 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
-                                                                           classfileBuffer);
+                    classfileBuffer);
             target.addGetter(ChannelFutureGetter.class, "channelFuture");
             return target.toBytecode();
         }

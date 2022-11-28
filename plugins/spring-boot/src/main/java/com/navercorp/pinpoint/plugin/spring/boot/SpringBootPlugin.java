@@ -45,7 +45,7 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
     public void setup(ProfilerPluginSetupContext context) {
         SpringBootConfiguration config = new SpringBootConfiguration(context.getConfig());
         if (!config.isSpringBootEnabled()) {
-            logger.info("SpringBootPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);

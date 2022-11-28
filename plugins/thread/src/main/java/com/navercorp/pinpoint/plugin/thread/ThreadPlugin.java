@@ -36,6 +36,10 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         ThreadConfig threadConfig = new ThreadConfig(context.getConfig());
+        if (Boolean.FALSE == threadConfig.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
 
         logger.info("init {},config:{}", this.getClass().getSimpleName(), threadConfig);
         final String threadMatchPackages = threadConfig.getThreadMatchPackage();

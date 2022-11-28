@@ -47,15 +47,14 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final Log4j2Config config = new Log4j2Config(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("Log4j2Plugin config:{}", config);
-        }
-
         if (!config.isLog4j2LoggingTransactionInfo()) {
-            logger.info("Log4j2 plugin is not executed because log4j2 transform enable config value is false.");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("Log4j2Plugin config:{}", config);
+        }
         //for case : use SyncAppdender, use AsyncAppender, use Mixing Synchronous and Asynchronous Loggers
         transformTemplate.transform("org.apache.logging.log4j.core.impl.DefaultLogEventFactory", DefaultLogEventFactoryTransform.class);
         transformTemplate.transform("org.apache.logging.log4j.core.impl.ReusableLogEventFactory", ReusableLogEventFactoryTransform.class);
