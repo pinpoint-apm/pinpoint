@@ -33,4 +33,13 @@ public class DetailedAgentInfo {
     public JvmInfoBo getJvmInfo() {
         return jvmInfo;
     }
+
+    @Override
+    public String toString() {
+        return "DetailedAgentInfo{" +
+                "agentInfo=" + agentInfo +
+                ", serverMetaData=" + serverMetaData +
+                ", jvmInfo=" + jvmInfo +
+                '}';
+    }
 }
