@@ -71,5 +71,13 @@ public class AgentStatusQuery {
         }
         return builder.build(timestamp);
     }
+
+    @Override
+    public String toString() {
+        return "AgentStatusQuery{" +
+                "agentKeyList=" + agentKeyList +
+                ", queryTimestamp=" + queryTimestamp +
+                '}';
+    }
 }
 
