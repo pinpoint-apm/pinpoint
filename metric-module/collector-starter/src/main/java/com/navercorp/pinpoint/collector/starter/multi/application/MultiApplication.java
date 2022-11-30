@@ -37,7 +37,7 @@ public class MultiApplication {
         SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 15200);
         metricAppBuilder.build().run(args);
 
-        if (ArrayUtils.isEmpty(args) == false) {
+        if (ArrayUtils.hasLength(args)) {
             List<String> argList = Arrays.asList(args);
             logger.info("args data : " + argList);
             if (argList.contains("onlyMetric")) {
@@ -50,7 +50,7 @@ public class MultiApplication {
         collectorAppBuilder.build().run(args);
     }
 
-    private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, Class appClass, int port) {
+    private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, Class<?> appClass, int port) {
         SpringApplicationBuilder collectorAppBuilder = builder.child(appClass)
                 .web(WebApplicationType.SERVLET)
                 .bannerMode(Banner.Mode.OFF)
