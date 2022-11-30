@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.metric.collector.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @EnableCaching
-public class MetricCacheConfiguration extends CachingConfigurerSupport {
+public class MetricCacheConfiguration {
 
     public static final String METRIC_TAG_COLLECTION_CACHE_NAME = "metricTagCollection";
     public static final String METRIC_DATA_TYPE_CACHE_NAME = "metricDataType";
