@@ -32,8 +32,8 @@ public class SpringWebMvcConfig {
     public SpringWebMvcConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
         this.enable = config.readBoolean("profiler.spring.webmvc.enable", true);
-        this.uriStatEnable = config.readBoolean("profiler.spring.webmvc.uri.stat.enable", false);
-        this.uriStatUseUserInput = config.readBoolean("profiler.spring.webmvc.uri.stat.useuserinput", false);
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.spring.webmvc.enable", false);
+        this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.spring.webmvc.useuserinput", false);
     }
 
     public boolean isEnable() {

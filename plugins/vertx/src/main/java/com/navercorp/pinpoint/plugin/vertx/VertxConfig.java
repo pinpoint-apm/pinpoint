@@ -41,7 +41,7 @@ public class VertxConfig {
         this.enableHttpClient = config.readBoolean("profiler.vertx.http.client.enable", true);
         this.bootstrapMains = config.readList("profiler.vertx.bootstrap.main");
         this.handlerBasePackageNames = config.readList("profiler.vertx.handler.base-packages");
-        this.uriStatEnable = config.readBoolean("profiler.vertx.uri.stat.enable", false);
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.vertx.enable", false);
     }
 
     public boolean isEnable() {
