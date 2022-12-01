@@ -1,12 +1,15 @@
 package com.navercorp.pinpoint.collector.starter.multi.application;
 
 import com.navercorp.pinpoint.common.server.banner.PinpointSpringBanner;
+import com.navercorp.pinpoint.common.server.env.AdditionalProfileListener;
 import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.metric.collector.CollectorType;
+import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
+import com.navercorp.pinpoint.metric.collector.TypeSet;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
@@ -16,7 +19,6 @@ import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfigu
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import java.util.Arrays;
-import java.util.List;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class})
@@ -27,31 +29,35 @@ public class MultiApplication {
     public static final String EXTERNAL_CONFIGURATION_KEY = "pinpoint.collector.config.location";
 
     public static void main(String[] args) {
+        logger.info("args:" + Arrays.toString(args));
+
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
-        builder.web(WebApplicationType.SERVLET);
-        builder.bannerMode(Banner.Mode.OFF);
 
         builder.sources(MultiApplication.class);
         builder.listeners(new ProfileResolveListener());
 
-        SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 15200);
-        metricAppBuilder.build().run(args);
 
-        if (ArrayUtils.hasLength(args)) {
-            List<String> argList = Arrays.asList(args);
-            logger.info("args data : " + argList);
-            if (argList.contains("onlyMetric")) {
-                logger.info("args has onlyMetric(string)." );
-                return;
-            }
+        CollectorTypeParser parser = new CollectorTypeParser();
+        TypeSet types = parser.parse(args);
+        logger.info(String.format("MultiApplication --%s=%s", CollectorTypeParser.COLLECTOR_TYPE_KEY, types));
+
+        if (types.hasType(CollectorType.BASIC)) {
+            logger.info(String.format("Start %s collector", CollectorType.BASIC));
+            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 1112);
+            collectorAppBuilder.build().run(args);
         }
 
-        SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 1111);
-        collectorAppBuilder.build().run(args);
+        if (types.hasType(CollectorType.METRIC)) {
+            logger.info(String.format("Start %s collector", CollectorType.METRIC));
+            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 15200);
+            metricAppBuilder.listeners(new AdditionalProfileListener("metric"));
+            metricAppBuilder.build().run(args);
+        }
     }
 
+
     private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, Class<?> appClass, int port) {
-        SpringApplicationBuilder collectorAppBuilder = builder.child(appClass)
+        SpringApplicationBuilder appBuilder = builder.child(appClass)
                 .web(WebApplicationType.SERVLET)
                 .bannerMode(Banner.Mode.OFF)
                 .listeners(new ProfileResolveListener())
@@ -60,6 +66,6 @@ public class MultiApplication {
                 .listeners(new PinpointSpringBanner())
                 .properties(String.format("server.port:%1s", port));
 
-        return collectorAppBuilder;
+        return appBuilder;
     }
 }
