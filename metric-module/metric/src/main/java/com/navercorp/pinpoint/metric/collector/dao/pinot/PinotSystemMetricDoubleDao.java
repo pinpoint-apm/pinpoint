@@ -50,7 +50,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
 
         for (DoubleMetric doubleMetric : systemMetrics) {
             String kafkaKey = generateKafkaKey(doubleMetric);
-            SystemMetricView systemMetricView = new SystemMetricView(hostGroupName, doubleMetric);
+            SystemMetricView systemMetricView = new SystemMetricView(tenantId, hostGroupName, doubleMetric);
             this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
         }
     }
