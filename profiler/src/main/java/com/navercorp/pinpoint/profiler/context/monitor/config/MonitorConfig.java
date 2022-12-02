@@ -30,5 +30,6 @@ public interface MonitorConfig {
     boolean isUriStatEnable();
 
     int getCompletedUriStatDataLimitSize();
+    String getOftenUsedResources();
 
 }

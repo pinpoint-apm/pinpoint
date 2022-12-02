@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultUriStatRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
@@ -32,16 +34,20 @@ public class UriStatRecorderFactoryProvider implements Provider<UriStatRecorderF
 
     private final Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider;
     private final Provider<UriStatStorage> uriStatStorageProvider;
+    private final MonitorConfig monitorConfig;
 
     @Inject
-    public UriStatRecorderFactoryProvider(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider, Provider<UriStatStorage> uriStatStorageProvider) {
+    public UriStatRecorderFactoryProvider(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider,
+                                          Provider<UriStatStorage> uriStatStorageProvider,
+                                          MonitorConfig monitorConfig){
         this.uriExtractorProviderLocatorProvider = Objects.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
         this.uriStatStorageProvider = Objects.requireNonNull(uriStatStorageProvider, "uriStatStorageProvider");
+        this.monitorConfig = Objects.requireNonNull(monitorConfig);
     }
 
     @Override
     public UriStatRecorderFactory get() {
-        return new DefaultUriStatRecorderFactory(uriExtractorProviderLocatorProvider, uriStatStorageProvider);
+        return new DefaultUriStatRecorderFactory(uriExtractorProviderLocatorProvider, uriStatStorageProvider, monitorConfig);
     }
 
 }

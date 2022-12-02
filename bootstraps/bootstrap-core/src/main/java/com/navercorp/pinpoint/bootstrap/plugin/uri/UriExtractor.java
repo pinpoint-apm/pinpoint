@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.common.trace.UriExtractorType;
  */
 public interface UriExtractor<T> {
 
-    String[] DEFAULT_OFTEN_USED_URL = {"/", "/index.html"};
-
     UriExtractorType getExtractorType();
 
     String getUri(T target, String rawUrl);

@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,15 +32,19 @@ import java.util.Objects;
 public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private static final String NOT_FOUNDED = "/NOT_FOUND_URI";
+    private final String NOT_FOUNDED = "/NOT_FOUND_URI";
+    private final String[] DEFAULT_OFTEN_USED_URL = {"/", "/index.html", "/main"};
+    private final List<String> defaultResourcePostfixes;
 
     private final UriExtractor<T> uriExtractor;
     private final UriStatStorage uriStatStorage;
 
 
-    public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, UriStatStorage uriStatStorage) {
+    public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, UriStatStorage uriStatStorage, String oftenUsedResources) {
         this.uriExtractor = Objects.requireNonNull(uriExtractor, "uriExtractor");
         this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
+        String resourcesPostfixes = Objects.requireNonNull(oftenUsedResources, "oftenUsedResources");
+        this.defaultResourcePostfixes = StringUtils.tokenizeToStringList(resourcesPostfixes, ",");
     }
 
     @Override
@@ -51,11 +57,28 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
         } else if (uriTemplate != null) {
             uri = uriTemplate;
         } else {
+            uri = checkOftenUsed(rawUri);
+        }
+
+        if (uri == null) {
             uri = NOT_FOUNDED;
             logger.debug("can not extract uri. request:{}, rawUri:{}", request, rawUri);
         }
-
         uriStatStorage.store(uri, status, startTime, endTime);
+    }
+
+    private String checkOftenUsed(String rawUri) {
+        for (String oftenUsedUrl : DEFAULT_OFTEN_USED_URL) {
+            if (oftenUsedUrl.equals(rawUri)) {
+                return oftenUsedUrl;
+            }
+        }
+        for (String oftenUsedResources : defaultResourcePostfixes) {
+            if (rawUri.endsWith(oftenUsedResources)) {
+                return "*" + oftenUsedResources;
+            }
+        }
+        return null;
     }
 
 }
