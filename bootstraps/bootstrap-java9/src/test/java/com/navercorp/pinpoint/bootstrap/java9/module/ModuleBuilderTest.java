@@ -37,21 +37,21 @@ import java.util.jar.JarFile;
 public class ModuleBuilderTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> clazz = org.apache.logging.log4j.LogManager.class;
 
     @Test
     public void defineModuleTest() throws IOException, URISyntaxException, ClassNotFoundException {
-        URL testClassJar = CodeSourceUtils.getCodeLocation(slf4jClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(clazz);
         URL[] urls = {testClassJar};
 
-        String moduleName = "slf4j.test";
+        String moduleName = "log4j.test";
 
 
         JarFile jarFile = new JarFile(testClassJar.getFile());
         PackageAnalyzer packageAnalyzer = new JarFileAnalyzer(jarFile);
         PackageInfo packageInfo = packageAnalyzer.analyze();
         Set<String> slf4j = packageInfo.getPackage();
-        logger.debug("slf4j packages:{}", slf4j);
+        logger.debug("log4j packages:{}", slf4j);
 
         Java9ClassLoader classLoader = new Java9ClassLoader(moduleName, urls, this.getClass().getClassLoader(), new ArrayList<>(slf4j));
 
@@ -63,7 +63,7 @@ public class ModuleBuilderTest {
         Module module = InternalModules.defineModule(classLoader, descriptor, testClassJar.toURI());
         logger.debug("module:{}", module);
 
-        Class<?> slf4jModule = classLoader.loadClass(slf4jClass.getName());
+        Class<?> slf4jModule = classLoader.loadClass(clazz.getName());
         logger.debug("slf4j:{}", slf4jModule);
 
         Assertions.assertSame(module, slf4jModule.getModule());
@@ -75,17 +75,17 @@ public class ModuleBuilderTest {
 
     @Test
     public void moduleBuilderTest() throws IOException {
-        URL testClassJar = CodeSourceUtils.getCodeLocation(slf4jClass);
+        URL testClassJar = CodeSourceUtils.getCodeLocation(clazz);
         URL[] urls = {testClassJar};
 
-        String moduleName = "slf4j.test";
+        String moduleName = "log4j.test";
 
 
         JarFile jarFile = new JarFile(testClassJar.getFile());
         PackageAnalyzer packageAnalyzer = new JarFileAnalyzer(jarFile);
         PackageInfo analyze = packageAnalyzer.analyze();
         Set<String> slf4j = analyze.getPackage();
-        logger.debug("slf4j packages:{}", slf4j);
+        logger.debug("log4j packages:{}", slf4j);
 
         Java9ClassLoader classLoader = new Java9ClassLoader(moduleName, urls, this.getClass().getClassLoader(), new ArrayList<>(slf4j));
 

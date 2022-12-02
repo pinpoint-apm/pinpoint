@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -29,15 +27,15 @@ import java.net.URL;
  */
 public class ParallelClassLoaderTest {
 
-    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> clazz = org.apache.logging.log4j.LogManager.class;
 
     @Test
     public void testOnLoadClass() throws Exception {
         Class<?> classLoaderType = ParallelClassLoader.class;
 
-        ClassLoader cl = onLoadTest(classLoaderType, slf4jClass);
+        ClassLoader cl = onLoadTest(classLoaderType, clazz);
 
-        close(cl);
+        ClassLoaderUtils.close(cl);
     }
 
     /**
@@ -63,16 +61,11 @@ public class ParallelClassLoaderTest {
     }
 
 
-    private void close(ClassLoader classLoader) throws IOException {
-        if (classLoader instanceof Closeable) {
-            ((Closeable) classLoader).close();
-        }
-    }
 
     @Test
     public void testBootstrapClassLoader() throws Exception {
         ClassLoader classLoader = new ParallelClassLoader(this.getClass().getName(), new URL[0], null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        close(classLoader);
+        ClassLoaderUtils.close(classLoader);
     }
 
 }

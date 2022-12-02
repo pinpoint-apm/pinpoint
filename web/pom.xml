@@ -118,7 +118,7 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
-        <!-- Spring depedencies -->
+        <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>

@@ -79,12 +79,12 @@ public class JarFileAnalyzerTest {
         URL url = CodeSourceUtils.getCodeLocation(Logger.class);
         logger.debug("url:{}", url);
 
+        try (JarFile jarFile = new JarFile(url.getFile())) {
+            logger.debug("jarFile:{}", jarFile.getName());
 
-        JarFile jarFile = new JarFile(url.getFile());
-        logger.debug("jarFile:{}", jarFile.getName());
-
-        Path file = Paths.get(jarFile.getName());
-        logger.debug("url1:{}", file.toUri());
+            Path file = Paths.get(jarFile.getName());
+            logger.debug("url1:{}", file.toUri());
+        }
     }
 
 
@@ -101,15 +101,15 @@ public class JarFileAnalyzerTest {
     @Test
     public void providers() throws IOException {
         // Jar
-        URL url = CodeSourceUtils.getCodeLocation(com.mysql.jdbc.Driver.class);
+        URL url = CodeSourceUtils.getCodeLocation(org.apache.logging.log4j.LogManager.class);
 
         JarFile jarFile = new JarFile(url.getFile());
         PackageAnalyzer analyzer = new JarFileAnalyzer(jarFile);
         PackageInfo analyze = analyzer.analyze();
         List<Providers> providers = analyze.getProviders();
         Providers first = providers.get(0);
-        Assertions.assertEquals("java.sql.Driver", first.getService());
-        Assertions.assertTrue(first.getProviders().contains("com.mysql.cj.jdbc.Driver"));
+        Assertions.assertEquals("org.apache.logging.log4j.util.PropertySource", first.getService());
+        Assertions.assertTrue(first.getProviders().contains("org.apache.logging.log4j.util.EnvironmentPropertySource"));
 
 
     }
