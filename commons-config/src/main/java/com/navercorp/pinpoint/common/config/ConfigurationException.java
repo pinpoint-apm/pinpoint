@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.common.config;
 
 public class ConfigurationException extends RuntimeException {
     public ConfigurationException(String message) {

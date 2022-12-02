@@ -93,6 +93,7 @@
         <module>collector</module>
         <module>commons</module>
         <module>commons-buffer</module>
+        <module>commons-config</module>
         <module>commons-profiler</module>
         <module>commons-hbase</module>
         <module>commons-server</module>
@@ -261,6 +262,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

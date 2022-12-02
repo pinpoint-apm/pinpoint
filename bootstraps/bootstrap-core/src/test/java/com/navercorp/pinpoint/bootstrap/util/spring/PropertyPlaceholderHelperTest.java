@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.util.spring;
 
+import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

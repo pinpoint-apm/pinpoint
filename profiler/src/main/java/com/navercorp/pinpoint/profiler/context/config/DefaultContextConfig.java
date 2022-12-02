@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.config;
 
-import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.common.config.Value;
 
 public class DefaultContextConfig implements ContextConfig {
 

@@ -18,16 +18,14 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.AgentDirGenerator;
 import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -44,6 +42,9 @@ public class AgentDirBaseClassPathResolverTest {
     private static final Path BOOTSTRAP_JAR = Paths.get("pinpoint-bootstrap-" + Version.VERSION + ".jar");
     private static final String TEST_AGENT_DIR = "testagent";
 
+    @TempDir
+    static Path TEMP_DIR;
+
     private static final AtomicInteger AGENT_ID_ALLOCATOR = new AtomicInteger();
 
     private static Path agentBuildDir;
@@ -54,11 +55,10 @@ public class AgentDirBaseClassPathResolverTest {
     @BeforeAll
     public static void beforeClass() throws Exception {
 
-        Path classLocation = getClassLocation(AgentDirBaseClassPathResolverTest.class);
-        logger.debug("buildDir:{}", classLocation);
+        logger.debug("buildDir:{}", TEMP_DIR);
 
         String testDir = TEST_AGENT_DIR + '_' + AGENT_ID_ALLOCATOR.incrementAndGet();
-        agentBuildDir = classLocation.resolve(testDir);
+        agentBuildDir = TEMP_DIR.resolve(testDir);
 
         logger.debug("agentBuildDir:{}", agentBuildDir);
 
@@ -72,19 +72,10 @@ public class AgentDirBaseClassPathResolverTest {
     }
 
     private static void createAgentDir(Path tempAgentDir) throws IOException {
-
-        agentDirGenerator = new AgentDirGenerator(tempAgentDir);
+        agentDirGenerator = new AgentDirGenerator(tempAgentDir, Version.VERSION);
         agentDirGenerator.create();
-
     }
 
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        if (agentDirGenerator != null) {
-            agentDirGenerator.remove();
-        }
-    }
 
     @Test
     public void testFindAgentJar() {
@@ -125,13 +116,6 @@ public class AgentDirBaseClassPathResolverTest {
             }
         }
     }
-
-    private static Path getClassLocation(Class<?> clazz) throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(clazz);
-        logger.debug("codeSource.getCodeLocation:{}", location);
-        return Paths.get(location.toURI());
-    }
-
 
     @Test
     public void findAgentJar() {

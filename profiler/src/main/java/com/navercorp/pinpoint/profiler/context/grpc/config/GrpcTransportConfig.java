@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.context.grpc.config;
 
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.bootstrap.config.Value;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.config.Value;
+import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.config.SslOption;
 

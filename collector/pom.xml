@@ -102,6 +102,10 @@
                     <groupId>com.navercorp.pinpoint</groupId>
                     <artifactId>pinpoint-bootstrap</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-bootstrap-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 

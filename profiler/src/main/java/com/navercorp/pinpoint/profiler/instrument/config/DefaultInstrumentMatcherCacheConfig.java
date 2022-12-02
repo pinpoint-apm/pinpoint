@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.config;
 
-import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.common.config.Value;
 
 /**
  * @author jaehong.kim

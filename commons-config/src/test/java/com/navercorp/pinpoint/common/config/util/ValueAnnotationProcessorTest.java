@@ -1,6 +1,6 @@
-package com.navercorp.pinpoint.bootstrap.config.util;
+package com.navercorp.pinpoint.common.config.util;
 
-import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.common.config.Value;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

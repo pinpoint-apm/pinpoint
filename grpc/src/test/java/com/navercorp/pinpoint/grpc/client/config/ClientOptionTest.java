@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client.config;
 
-import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
