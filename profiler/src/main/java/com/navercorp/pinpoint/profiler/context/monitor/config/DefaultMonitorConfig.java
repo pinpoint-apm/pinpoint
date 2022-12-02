@@ -32,6 +32,8 @@ public class DefaultMonitorConfig implements MonitorConfig {
     private boolean uriStatEnable = false;
     @Value("${profiler.uri.stat.completed.data.limit.size}")
     private int completedUriStatDataLimitSize = 1000;
+    @Value("${profiler.uri.stat.resources.postfix}")
+    private String oftenUsedResources;
 
     @Value("${profiler.jvm.stat.collect.interval}")
     private int profileJvmStatCollectIntervalMs = DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS;
@@ -76,6 +78,11 @@ public class DefaultMonitorConfig implements MonitorConfig {
     }
 
     @Override
+    public String getOftenUsedResources() {
+        return oftenUsedResources;
+    }
+
+    @Override
     public String toString() {
         return "DefaultMonitorConfig{" +
                 "customMetricEnable=" + customMetricEnable +
@@ -87,4 +94,5 @@ public class DefaultMonitorConfig implements MonitorConfig {
                 ", profilerJvmStatCollectDetailedMetrics=" + profilerJvmStatCollectDetailedMetrics +
                 '}';
     }
+
 }

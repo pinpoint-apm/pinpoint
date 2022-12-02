@@ -50,11 +50,6 @@ public class UriExtractorChain<T> implements UriExtractor<T> {
                 }
             }
         }
-        for (String oftenUsedUrl : DEFAULT_OFTEN_USED_URL) {
-            if (oftenUsedUrl.equals(rawUrl)) {
-                return oftenUsedUrl;
-            }
-        }
 
         return null;
     }

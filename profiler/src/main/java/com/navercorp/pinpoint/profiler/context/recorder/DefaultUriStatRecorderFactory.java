@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProviderLocator;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import java.util.Objects;
@@ -34,8 +35,11 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
 
     private final UriExtractorProviderLocator uriExtractorProviderLocator;
     private final UriStatStorage uriStatStorage;
+    private final MonitorConfig monitorConfig;
 
-    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider, Provider<UriStatStorage> uriStatStorageProvider) {
+    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider,
+                                         Provider<UriStatStorage> uriStatStorageProvider,
+                                         MonitorConfig monitorConfig) {
         Objects.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
 
         UriExtractorProviderLocator uriExtractorProviderLocator = uriExtractorProviderLocatorProvider.get();
@@ -43,6 +47,7 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
 
         Objects.requireNonNull(uriStatStorageProvider, "uriStatStorageProvider");
         this.uriStatStorage = uriStatStorageProvider.get();
+        this.monitorConfig = Objects.requireNonNull(monitorConfig);
     }
 
     @Override
@@ -53,7 +58,7 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
         if (uriExtractor == null) {
             return DisabledUriStatRecorder.create();
         } else {
-            return new DefaultUriStatRecorder<T>(uriExtractor, uriStatStorage);
+            return new DefaultUriStatRecorder<T>(uriExtractor, uriStatStorage, monitorConfig.getOftenUsedResources());
         }
     }
 

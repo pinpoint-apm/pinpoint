@@ -20,7 +20,9 @@ public class LookupHandlerMethodInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        String url = (String)((HttpServletRequest)args[1]).getAttribute(SpringWebMvcConstants.SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEY);
-        traceContext.currentTraceObject().setUriTemplate(url);
+        if (traceContext.currentTraceObject() != null) {
+            String url = (String)((HttpServletRequest)args[1]).getAttribute(SpringWebMvcConstants.SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEY);
+            traceContext.currentTraceObject().setUriTemplate(url);
+        }
     }
 }
