@@ -27,11 +27,11 @@ import java.net.URL;
  */
 public class PinpointClassLoaderTest {
 
-    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> clazz = org.apache.logging.log4j.LogManager.class;
 
     @Test
     public void testOnLoadClass() throws Exception {
-        ClassLoader classLoader = onLoadTest(ParallelClassLoader.class, slf4jClass);
+        ClassLoader classLoader = onLoadTest(ParallelClassLoader.class, clazz);
 
         ClassLoaderUtils.close(classLoader);
     }

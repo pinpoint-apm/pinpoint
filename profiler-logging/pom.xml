@@ -36,7 +36,7 @@
             <artifactId>pinpoint-bootstrap</artifactId>
         </dependency>
 
-        <!-- Logging depedencies -->
+        <!-- Logging dependencies -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
