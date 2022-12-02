@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.common.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

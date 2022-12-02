@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.bootstrap.config.util;
+package com.navercorp.pinpoint.common.config.util;
 
 public class PlaceHolder {
     public static final String START = "${";

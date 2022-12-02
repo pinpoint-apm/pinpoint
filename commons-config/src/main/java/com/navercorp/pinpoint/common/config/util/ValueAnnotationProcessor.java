@@ -1,8 +1,9 @@
-package com.navercorp.pinpoint.bootstrap.config.util;
+package com.navercorp.pinpoint.common.config.util;
 
-import com.navercorp.pinpoint.bootstrap.config.ConfigurationException;
-import com.navercorp.pinpoint.bootstrap.config.Value;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+
+import com.navercorp.pinpoint.common.config.ConfigurationException;
+import com.navercorp.pinpoint.common.config.Value;
+import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.ModifierUtils;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;

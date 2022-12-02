@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin.config;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Collections;

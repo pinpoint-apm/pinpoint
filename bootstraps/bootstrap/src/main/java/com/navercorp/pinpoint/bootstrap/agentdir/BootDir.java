@@ -86,7 +86,7 @@ public class BootDir {
         List<Path> findList = new ArrayList<>();
         for (Path jarFile : jarFiles) {
             final Path fileName = jarFile.getFileName();
-            if(fileName != null) {
+            if (fileName != null) {
                 Matcher matcher = pattern.matcher(fileName.toString());
                 if (matcher.matches()) {
                     findList.add(jarFile);

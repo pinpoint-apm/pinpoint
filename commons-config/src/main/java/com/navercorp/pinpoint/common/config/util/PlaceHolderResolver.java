@@ -1,6 +1,6 @@
-package com.navercorp.pinpoint.bootstrap.config.util;
+package com.navercorp.pinpoint.common.config.util;
 
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 
 import java.util.Objects;
 import java.util.Properties;

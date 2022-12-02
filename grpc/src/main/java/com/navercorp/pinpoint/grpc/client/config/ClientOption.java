@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client.config;
 
-import com.navercorp.pinpoint.bootstrap.config.Value;
-import com.navercorp.pinpoint.bootstrap.module.JavaModule;
+import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import io.grpc.internal.GrpcUtil;

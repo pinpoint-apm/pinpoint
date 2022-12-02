@@ -39,11 +39,15 @@ public class JarDescription {
         return prefix.concat(".jar");
     }
 
+    public String getJarName(String version) {
+        return String.format("%s-%s.jar", prefix, version);
+    }
+
     public Pattern getVersionPattern() {
         return Pattern.compile(prefix + VERSION_PATTERN + "\\.jar");
     }
 
-    public String getSimplePattern() {
+     public String getSimplePattern() {
         return prefix + SIMPLE_PATTERN + ".jar";
     }
 

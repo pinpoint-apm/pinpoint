@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilableClassFilter;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
-import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Collections;
