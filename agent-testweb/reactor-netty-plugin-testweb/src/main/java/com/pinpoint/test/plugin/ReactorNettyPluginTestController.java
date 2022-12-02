@@ -16,8 +16,13 @@
 
 package com.pinpoint.test.plugin;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -80,6 +85,24 @@ public class ReactorNettyPluginTestController {
         if (response != null) {
             return response;
         }
+        return "OK";
+    }
+
+    @GetMapping("/client/get/param")
+    @ResponseBody
+    public String clientGetParam(@RequestParam String id, @RequestParam(name = "password") String pwd) {
+        return "OK";
+    }
+
+    @PostMapping("/client/post/param")
+    @ResponseBody
+    public String clientPostParam(@RequestParam String id, @RequestParam(name = "password") String pwd) {
+        return "OK";
+    }
+
+    @PostMapping("/client/post/body")
+    @ResponseBody
+    public String clientPostParam(@RequestBody String body) {
         return "OK";
     }
 }

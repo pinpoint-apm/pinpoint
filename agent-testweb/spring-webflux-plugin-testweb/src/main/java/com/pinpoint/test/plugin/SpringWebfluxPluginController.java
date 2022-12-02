@@ -21,6 +21,8 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -73,5 +75,23 @@ public class SpringWebfluxPluginController {
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);
+    }
+
+    @GetMapping("/client/get/param")
+    public Mono<String> clientGetParam(@RequestParam String id, @RequestParam(name = "password") String pwd) {
+        final String param = "id=" + id + "&password=" + pwd;
+        return Mono.just(param);
+    }
+
+    @PostMapping("/client/post/param")
+    public Mono<String> clientPostParam(@RequestParam String id, @RequestParam(name = "password") String pwd) {
+        final String param = "id=" + id + "&password=" + pwd;
+        return Mono.just(param);
+    }
+
+    @PostMapping("/client/post/body")
+    @ResponseBody
+    public String clientPostParam(@RequestBody String body) {
+        return "OK";
     }
 }
