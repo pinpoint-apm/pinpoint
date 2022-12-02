@@ -39,6 +39,11 @@ public class HttpServerParameterExtractor implements ParameterExtractor<HttpServ
     public String extractParameter(HttpServerRequest request) {
         final Map<String, String> parameterMap = request.params();
         if (parameterMap == null) {
+            // If parametersResolver object is not specified.
+            final String params = UriUtils.params(request.uri());
+            if (params != null) {
+                return StringUtils.abbreviate(params, totalLimit);
+            }
             return null;
         }
 
