@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.plugin.cassandra;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.cql.Statement;
+import com.datastax.oss.driver.api.core.session.Request;
+import com.datastax.oss.driver.api.core.type.reflect.GenericType;
+import com.datastax.oss.driver.internal.core.session.DefaultSession;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
@@ -91,13 +94,13 @@ public abstract class CassandraDatastaxITBase {
 
         CqlSession session = CqlSession.builder().addContactPoint(new InetSocketAddress(HOST, PORT)).withLocalDatacenter(LOCAL_DATACENTER).withKeyspace(TEST_KEYSPACE).build();
         // ===============================================
-        com.datastax.oss.driver.api.core.cql.Statement statement = SimpleStatement.builder(CQL_INSERT).addPositionalValue("simple").addPositionalValue("statement").build();
+        Statement statement = SimpleStatement.builder(CQL_INSERT).addPositionalValue("simple").addPositionalValue("statement").build();
         session.execute(statement);
 
         verifier.printCache();
         // SessionManager#prepare(String) OR AbstractSession#prepare(String)
         Class<?> sessionClass = Class.forName("com.datastax.oss.driver.internal.core.session.DefaultSession");
-        Method execute = sessionClass.getDeclaredMethod("execute", Statement.class);
+        Method execute = sessionClass.getDeclaredMethod("execute", Request.class, GenericType.class);
         verifier.verifyTrace(event(CASSANDRA_EXECUTE_QUERY, execute, null, CASSANDRA_ADDRESS, TEST_KEYSPACE, sql(CQL_INSERT, null)));
 
         if (session != null) {
