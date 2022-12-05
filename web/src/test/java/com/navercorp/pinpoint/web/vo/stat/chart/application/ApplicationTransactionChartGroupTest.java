@@ -72,18 +72,10 @@ public class ApplicationTransactionChartGroupTest {
 
     private void testTranCount(ApplicationStatPoint<Double> transactionPoint, AggreJoinTransactionBo aggreJoinTransactionBo) {
         final JoinLongFieldBo totalCountJoinValue = aggreJoinTransactionBo.getTotalCountJoinValue();
-        assertEquals(transactionPoint.getYValForAvg(), calculateTPS(totalCountJoinValue.getAvg(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getYValForMin(), calculateTPS(totalCountJoinValue.getMin(), aggreJoinTransactionBo.getCollectInterval()), 0);
-        assertEquals(transactionPoint.getYValForMax(), calculateTPS(totalCountJoinValue.getMax(), aggreJoinTransactionBo.getCollectInterval()), 0);
+        assertEquals(transactionPoint.getYValForAvg(), totalCountJoinValue.getAvg(), 0);
+        assertEquals(transactionPoint.getYValForMin(), totalCountJoinValue.getMin(), 0);
+        assertEquals(transactionPoint.getYValForMax(), totalCountJoinValue.getMax(), 0);
         assertEquals(transactionPoint.getAgentIdForMin(), totalCountJoinValue.getMinAgentId());
         assertEquals(transactionPoint.getAgentIdForMax(), totalCountJoinValue.getMaxAgentId());
-    }
-
-    private double calculateTPS(double value, long timeMs) {
-        if (value <= 0) {
-            return value;
-        }
-
-        return Precision.round(value / (timeMs / 1000D), 1);
     }
 }
