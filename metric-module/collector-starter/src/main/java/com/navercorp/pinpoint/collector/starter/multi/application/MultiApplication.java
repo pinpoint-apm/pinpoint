@@ -43,7 +43,7 @@ public class MultiApplication {
 
         if (types.hasType(CollectorType.BASIC)) {
             logger.info(String.format("Start %s collector", CollectorType.BASIC));
-            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 1112);
+            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 15400);
             collectorAppBuilder.build().run(args);
         }
 
