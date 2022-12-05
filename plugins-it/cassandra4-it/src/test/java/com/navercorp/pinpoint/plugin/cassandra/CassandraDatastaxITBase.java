@@ -47,7 +47,7 @@ public abstract class CassandraDatastaxITBase {
     private static final Logger logger = LogManager.getLogger(CassandraDatastaxITBase.class);
     // com.navercorp.pinpoint.plugin.cassandra.CassandraConstants
     private static final String CASSANDRA = "CASSANDRA";
-    private static final String CASSANDRA_EXECUTE_QUERY = "CASSANDRA_EXECUTE_QUERY";
+    private static final String CASSANDRA_EXECUTE_QUERY = "CASSANDRA4_EXECUTE_QUERY";
     private static final String TEST_KEYSPACE = CassandraITConstants.TEST_KEYSPACE;
     private static final String TEST_TABLE = CassandraITConstants.TEST_TABLE;
     private static final String TEST_COL_ID = "id";
