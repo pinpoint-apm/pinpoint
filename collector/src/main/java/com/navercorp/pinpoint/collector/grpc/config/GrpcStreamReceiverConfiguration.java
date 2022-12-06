@@ -35,10 +35,11 @@ public class GrpcStreamReceiverConfiguration extends GrpcReceiverConfiguration {
     public GrpcStreamReceiverConfiguration(boolean enable,
                                            BindAddress bindAddress,
                                            ExecutorConfiguration serverExecutor,
+                                           ExecutorConfiguration serverCallExecutor,
                                            ExecutorConfiguration workerExecutor,
                                            ServerOption serverOption,
                                            GrpcStreamConfiguration streamConfiguration) {
-        super(enable, bindAddress, serverExecutor, workerExecutor, serverOption);
+        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
         this.streamConfiguration = streamConfiguration;
     }
 

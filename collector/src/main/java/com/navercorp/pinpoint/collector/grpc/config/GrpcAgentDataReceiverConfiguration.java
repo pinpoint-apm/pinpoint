@@ -31,9 +31,10 @@ public class GrpcAgentDataReceiverConfiguration extends GrpcReceiverConfiguratio
     public GrpcAgentDataReceiverConfiguration(boolean enable,
                                               BindAddress bindAddress,
                                               ExecutorConfiguration serverExecutor,
+                                              ExecutorConfiguration serverCallExecutor,
                                               ExecutorConfiguration workerExecutor,
                                               ServerOption serverOption) {
-        super(enable, bindAddress, serverExecutor, workerExecutor, serverOption);
+        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
     }
 
 }

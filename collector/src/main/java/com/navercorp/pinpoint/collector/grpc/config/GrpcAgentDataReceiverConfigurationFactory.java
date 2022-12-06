@@ -34,6 +34,8 @@ public class GrpcAgentDataReceiverConfigurationFactory {
 
     public static final String SERVER_EXECUTOR = "collector.receiver.grpc.agent.server.executor";
 
+    public static final String SERVER_CALL_EXECUTOR = "collector.receiver.grpc.agent.server-call.executor";
+
     public static final String WORKER_EXECUTOR = "collector.receiver.grpc.agent.worker.executor";
 
     public static final String SERVER_OPTION = "collector.receiver.grpc.agent";
@@ -52,6 +54,12 @@ public class GrpcAgentDataReceiverConfigurationFactory {
     @Bean(SERVER_EXECUTOR)
     @ConfigurationProperties(SERVER_EXECUTOR)
     public ExecutorConfiguration.Builder newServerExecutorBuilder() {
+        return ExecutorConfiguration.newBuilder();
+    }
+
+    @Bean(SERVER_CALL_EXECUTOR)
+    @ConfigurationProperties(SERVER_CALL_EXECUTOR)
+    public ExecutorConfiguration.Builder newServerCallExecutorBuilder() {
         return ExecutorConfiguration.newBuilder();
     }
 
@@ -75,9 +83,10 @@ public class GrpcAgentDataReceiverConfigurationFactory {
         ServerOption serverOption = newServerOption().build();
         BindAddress bindAddress = newBindAddressBuilder().build();
         ExecutorConfiguration serverExecutor = newServerExecutorBuilder().build();
+        ExecutorConfiguration serverCallExecutor = newServerCallExecutorBuilder().build();
         ExecutorConfiguration workerExecutor = newWorkerExecutorBuilder().build();
 
-        return new GrpcAgentDataReceiverConfiguration(enable, bindAddress, serverExecutor, workerExecutor, serverOption);
+        return new GrpcAgentDataReceiverConfiguration(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
     }
 
 }
