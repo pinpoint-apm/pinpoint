@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriMappingExtractorProvider;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.ExposePathWithinMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.InvocableHandlerMethodInvokeForRequestMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.LookupHandlerMethodInterceptor;
 
@@ -54,6 +55,10 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
 
         transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class);
 
+        // Async
+        transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
+
+        // uri stat
         if (config.isUriStatEnable()) {
             UriMappingExtractorProvider uriMappingExtractorProvider = new UriMappingExtractorProvider(
                     SpringWebMvcConstants.SPRING_MVC_URI_EXTRACTOR_TYPE,
@@ -61,11 +66,10 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
                     config.isUriStatUseUserInput()
             );
             context.addUriExtractor(uriMappingExtractorProvider);
-        }
-        // Async
-        transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
-        transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class);
+        }
 
     }
     public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
@@ -75,9 +79,23 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
             // Add attribute listener.
-            final InstrumentMethod setAttribute = target.getDeclaredMethod("lookupHandlerMethod", "java.lang.String", "javax.servlet.http.HttpServletRequest");
-            if (setAttribute != null) {
-                setAttribute.addInterceptor(LookupHandlerMethodInterceptor.class);
+            final InstrumentMethod lookupHandlerMethod = target.getDeclaredMethod("lookupHandlerMethod", "java.lang.String", "javax.servlet.http.HttpServletRequest");
+            if (lookupHandlerMethod != null) {
+                lookupHandlerMethod.addInterceptor(LookupHandlerMethodInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class AbstractUrlHandlerMappingTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            // Add attribute listener.
+            final InstrumentMethod exposePathWithinMapping = target.getDeclaredMethod("exposePathWithinMapping", "java.lang.String", "java.lang.String", "javax.servlet.http.HttpServletRequest");
+            if (exposePathWithinMapping != null) {
+                exposePathWithinMapping.addInterceptor(ExposePathWithinMappingInterceptor.class);
             }
             return target.toBytecode();
         }
