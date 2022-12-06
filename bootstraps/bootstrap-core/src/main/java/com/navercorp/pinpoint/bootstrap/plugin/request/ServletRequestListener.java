@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusUtils;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
@@ -161,10 +162,7 @@ public class ServletRequestListener<REQ> {
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
             trace.close();
-            boolean status = isNotFailedStatus(statusCode);
-            String uriTemplate = trace.getUriTemplate();
-            uriStatRecorder.record(uriTemplate, request, rpcName, status, trace.getStartTime(), trace.getEndTime());
-
+            recordUrlTemplate(trace, request, rpcName, statusCode);
             return;
         }
 
@@ -180,21 +178,14 @@ public class ServletRequestListener<REQ> {
             trace.traceBlockEnd();
             this.traceContext.removeTraceObject();
             trace.close();
-            boolean status = isNotFailedStatus(statusCode);
-            String uriTemplate = trace.getUriTemplate();
-            uriStatRecorder.record(uriTemplate, request, rpcName, status, trace.getStartTime(), trace.getEndTime());
+            recordUrlTemplate(trace, request, rpcName, statusCode);
         }
     }
 
-    public static boolean isNotFailedStatus(int statusCode) {
-        int statusPrefix = statusCode / 100;
-
-        // 2 : success. 3 : redirect, 1: information
-        if (statusPrefix == 2 || statusPrefix == 3 || statusPrefix == 1) {
-            return true;
-        }
-
-        return false;
+    private void recordUrlTemplate(Trace trace, REQ request, String rpcName, int statusCode) {
+        boolean status = HttpStatusUtils.isNonError(statusCode);
+        String uriTemplate = trace.getUriTemplate();
+        uriStatRecorder.record(uriTemplate, request, rpcName, status, trace.getStartTime(), trace.getEndTime());
     }
 
 }

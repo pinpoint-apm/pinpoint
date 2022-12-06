@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusUtils;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
@@ -260,21 +261,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final HttpServerRequest request = (HttpServerRequest) args[0];
             final String urlTemplate = ((VertxUrlTemplate)scope.getCurrentInvocation().getAttachment()).getUrlTemplate();
             String uri = StringUtils.isEmpty(urlTemplate)? request.uri() : urlTemplate;
-            boolean status = isNotFailedStatus(request.response().getStatusCode());
+            boolean status = HttpStatusUtils.isNonError(request.response().getStatusCode());
             uriStatRecorder.record(urlTemplate, request, uri, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 
-    private boolean isNotFailedStatus(int statusCode) {
-        int statusPrefix = statusCode / 100;
-
-        // 2 : success. 3 : redirect, 1: information
-        if (statusPrefix == 2 || statusPrefix == 3 || statusPrefix == 1) {
-            return true;
-        }
-
-        return false;
-    }
 
     private Trace createTrace(final HttpServerRequest request) {
         final String requestURI = request.path();
