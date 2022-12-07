@@ -27,11 +27,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor;
@@ -52,8 +52,8 @@ import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientResponseImplInt
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientStreamInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerRequestImplHandleEndInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.RouteStateInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.ServerConnectionHandleRequestInterceptor;
-import com.navercorp.pinpoint.plugin.vertx.interceptor.RoutingContextPutInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -140,7 +140,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
         if (config.isUriStatEnable()) {
             logger.info("Adding Uri Stat.");
-            transformTemplate.transform("io.vertx.ext.web.impl.RoutingContextImpl", RoutingContextTransform.class);
+            transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class);
         }
 
     }
@@ -532,15 +532,15 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
     }
 
-    public static class RoutingContextTransform implements TransformCallback {
+    public static class RoutingStateTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            final InstrumentMethod routingContextPut = target.getDeclaredMethod("put", "java.lang.String", "java.lang.Object");
+            final InstrumentMethod routingContextPut = target.getDeclaredMethod("handleContext", "io.vertx.ext.web.impl.RoutingContextImplBase");
             if (routingContextPut != null) {
-                routingContextPut.addScopedInterceptor(RoutingContextPutInterceptor.class, VertxConstants.VERTX_URL_STAT_SCOPE, ExecutionPolicy.ALWAYS);
+                routingContextPut.addScopedInterceptor(RouteStateInterceptor.class, VertxConstants.VERTX_URL_STAT_SCOPE, ExecutionPolicy.ALWAYS);
             }
 
             return target.toBytecode();

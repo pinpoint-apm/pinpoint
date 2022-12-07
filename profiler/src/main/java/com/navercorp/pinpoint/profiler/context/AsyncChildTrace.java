@@ -22,16 +22,16 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 public class AsyncChildTrace implements Trace {
 
@@ -311,8 +311,8 @@ public class AsyncChildTrace implements Trace {
     }
 
     @Override
-    public void setUriTemplate(String uriTemplate) {
-        getTraceRoot().getShared().setUriTemplate(uriTemplate);
+    public boolean recordUriTemplate(String uriTemplate) {
+        return getTraceRoot().getShared().setUriTemplate(uriTemplate);
     }
 
     @Override

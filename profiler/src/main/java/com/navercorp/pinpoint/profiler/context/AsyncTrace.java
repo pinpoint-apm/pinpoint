@@ -15,12 +15,17 @@
  */
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 public class AsyncTrace implements Trace {
 
@@ -150,8 +155,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public void setUriTemplate(String uriTemplate) {
-        traceRoot.getShared().setUriTemplate(uriTemplate);
+    public boolean recordUriTemplate(String uriTemplate) {
+        return traceRoot.getShared().setUriTemplate(uriTemplate);
     }
 
     @Override
