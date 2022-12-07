@@ -34,8 +34,8 @@ import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -159,15 +160,40 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         }
     }
 
+    private void shutdownServer() {
+        if (server == null || server.isTerminated()) {
+            return;
+        }
+
+        final long maxWaitTime = serverOption.getGrpcMaxTermWaitTimeMillis();
+
+        server.shutdown();
+        if (awaitServerTermination(maxWaitTime)) {
+            return;
+        }
+
+        server.shutdownNow();
+        awaitServerTermination(1000);
+    }
+
+    private boolean awaitServerTermination(long maxWaitTimeMillis) {
+        try {
+            return server.awaitTermination(maxWaitTimeMillis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("awaitServerTermination({}ms) was interrupted", maxWaitTimeMillis, e);
+            Thread.currentThread().interrupt();
+        }
+
+        return false;
+    }
+
     @Override
     public void destroy() throws Exception {
         if (logger.isInfoEnabled()) {
             logger.info("Destroy {} server {}", this.beanName, this.server);
         }
 
-        if (this.server != null) {
-            this.server.shutdown();
-        }
+        shutdownServer();
 
         for (Object bindableService : serviceList) {
             if (bindableService instanceof Closeable) {

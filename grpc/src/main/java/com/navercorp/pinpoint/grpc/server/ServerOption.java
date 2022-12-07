@@ -44,6 +44,8 @@ public class ServerOption {
     public static final long DEFAULT_HANDSHAKE_TIMEOUT = TimeUnit.SECONDS.toMillis(120);
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 64 * 1024;
 
+    public static final long DEFAULT_GRPC_MAX_TERM_WAIT_TIME_MILLIS = 3000;
+
     public static final String DEFAULT_CHANNEL_TYPE = ChannelTypeEnum.AUTO.name();
 
     // Sets a custom keepalive time, the delay time for sending next keepalive ping.
@@ -76,11 +78,13 @@ public class ServerOption {
     // ChannelOption
     private final int receiveBufferSize;
 
+    private final long grpcMaxTermWaitTimeMillis;
+
     public final ChannelTypeEnum channelTypeEnum;
 
     ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime, long maxConnectionIdle,
                  int maxConcurrentCallsPerConnection, int maxInboundMessageSize, int maxHeaderListSize,
-                 long handshakeTimeout, int flowControlWindow, int receiveBufferSize,
+                 long handshakeTimeout, int flowControlWindow, int receiveBufferSize, long grpcMaxTermWaitTimeMillis,
                  ChannelTypeEnum channelTypeEnum) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
@@ -92,6 +96,7 @@ public class ServerOption {
         this.handshakeTimeout = handshakeTimeout;
         this.flowControlWindow = flowControlWindow;
         this.receiveBufferSize = receiveBufferSize;
+        this.grpcMaxTermWaitTimeMillis = grpcMaxTermWaitTimeMillis;
         this.channelTypeEnum = Objects.requireNonNull(channelTypeEnum, "channelTypeEnum");
     }
 
@@ -147,6 +152,10 @@ public class ServerOption {
         return receiveBufferSize;
     }
 
+    public long getGrpcMaxTermWaitTimeMillis() {
+        return grpcMaxTermWaitTimeMillis;
+    }
+
     public ChannelTypeEnum getChannelTypeEnum() {
         return channelTypeEnum;
     }
@@ -157,23 +166,21 @@ public class ServerOption {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ServerOption{");
-        sb.append("keepAliveTime=").append(keepAliveTime);
-        sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
-        sb.append(", permitKeepAliveTime=").append(permitKeepAliveTime);
-        sb.append(", permitKeepAliveWithoutCalls=").append(permitKeepAliveWithoutCalls);
-        sb.append(", maxConnectionIdle=").append(maxConnectionIdle);
-        sb.append(", maxConnectionAge=").append(DEFAULT_MAX_CONNECTION_AGE);
-        sb.append(", maxConnectionAgeGrace=").append(DEFAULT_MAX_CONNECTION_AGE_GRACE);
-        sb.append(", maxConcurrentCallsPerConnection=").append(maxConcurrentCallsPerConnection);
-        sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
-        sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
-        sb.append(", handshakeTimeout=").append(handshakeTimeout);
-        sb.append(", flowControlWindow=").append(flowControlWindow);
-        sb.append(", receiveBufferSize=").append(receiveBufferSize);
-        sb.append(", channelTypeEnum=").append(channelTypeEnum);
-        sb.append('}');
-        return sb.toString();
+        return "ServerOption{" +
+                "keepAliveTime=" + keepAliveTime +
+                ", keepAliveTimeout=" + keepAliveTimeout +
+                ", permitKeepAliveTime=" + permitKeepAliveTime +
+                ", permitKeepAliveWithoutCalls=" + permitKeepAliveWithoutCalls +
+                ", maxConnectionIdle=" + maxConnectionIdle +
+                ", maxConcurrentCallsPerConnection=" + maxConcurrentCallsPerConnection +
+                ", maxInboundMessageSize=" + maxInboundMessageSize +
+                ", maxHeaderListSize=" + maxHeaderListSize +
+                ", handshakeTimeout=" + handshakeTimeout +
+                ", flowControlWindow=" + flowControlWindow +
+                ", receiveBufferSize=" + receiveBufferSize +
+                ", grpcMaxTermWaitTimeMillis=" + grpcMaxTermWaitTimeMillis +
+                ", channelTypeEnum=" + channelTypeEnum +
+                '}';
     }
 
     public static class Builder {
@@ -200,6 +207,8 @@ public class ServerOption {
 
         private int receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
 
+        private long grpcMaxTermWaitTimeMillis = DEFAULT_GRPC_MAX_TERM_WAIT_TIME_MILLIS;
+
         private ChannelTypeEnum channelTypeEnum = ChannelTypeEnum.valueOf(DEFAULT_CHANNEL_TYPE);
 
         private Builder() {
@@ -208,7 +217,7 @@ public class ServerOption {
         public ServerOption build() {
             final ServerOption serverOption = new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime,
                     maxConnectionIdle, maxConcurrentCallsPerConnection, maxInboundMessageSize,
-                    maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, channelTypeEnum);
+                    maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, grpcMaxTermWaitTimeMillis, channelTypeEnum);
             return serverOption;
         }
 
@@ -262,6 +271,11 @@ public class ServerOption {
             this.receiveBufferSize = receiveBufferSize;
         }
 
+        public void setGrpcMaxTermWaitTimeMillis(long grpcMaxTermWaitTimeMillis) {
+            Assert.isTrue(grpcMaxTermWaitTimeMillis > 0, "grpcMaxTermWaitTimeMillis " + grpcMaxTermWaitTimeMillis + " must be positive");
+            this.grpcMaxTermWaitTimeMillis = grpcMaxTermWaitTimeMillis;
+        }
+
         public void setChannelTypeEnum(String channelTypeEnum) {
             Objects.requireNonNull(channelTypeEnum, "channelTypeEnum");
             this.channelTypeEnum = ChannelTypeEnum.valueOf(channelTypeEnum);
@@ -269,20 +283,20 @@ public class ServerOption {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("Builder{");
-            sb.append("keepAliveTime=").append(keepAliveTime);
-            sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
-            sb.append(", permitKeepAliveTime=").append(permitKeepAliveTime);
-            sb.append(", maxConnectionIdle=").append(maxConnectionIdle);
-            sb.append(", maxConcurrentCallsPerConnection=").append(maxConcurrentCallsPerConnection);
-            sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
-            sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
-            sb.append(", handshakeTimeout=").append(handshakeTimeout);
-            sb.append(", flowControlWindow=").append(flowControlWindow);
-            sb.append(", receiveBufferSize=").append(receiveBufferSize);
-            sb.append(", channelTypeEnum=").append(channelTypeEnum);
-            sb.append('}');
-            return sb.toString();
+            return "Builder{" +
+                    "keepAliveTime=" + keepAliveTime +
+                    ", keepAliveTimeout=" + keepAliveTimeout +
+                    ", permitKeepAliveTime=" + permitKeepAliveTime +
+                    ", maxConnectionIdle=" + maxConnectionIdle +
+                    ", maxConcurrentCallsPerConnection=" + maxConcurrentCallsPerConnection +
+                    ", maxInboundMessageSize=" + maxInboundMessageSize +
+                    ", maxHeaderListSize=" + maxHeaderListSize +
+                    ", handshakeTimeout=" + handshakeTimeout +
+                    ", flowControlWindow=" + flowControlWindow +
+                    ", receiveBufferSize=" + receiveBufferSize +
+                    ", grpcMaxTermWaitTimeMillis=" + grpcMaxTermWaitTimeMillis +
+                    ", channelTypeEnum=" + channelTypeEnum +
+                    '}';
         }
     }
 }
