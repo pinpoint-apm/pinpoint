@@ -31,6 +31,6 @@ public final class SpringWebMvcConstants {
 
     public static final UriExtractorType SPRING_MVC_URI_EXTRACTOR_TYPE = UriExtractorType.SERVLET_REQUEST_ATTRIBUTE;
     public static final String SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEY = "org.springframework.web.servlet.HandlerMapping.bestMatchingPattern";
-    public static final String[] SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS = {"pinpoint.statistics.url"};
+    public static final String[] SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS = {"pinpoint.metric.uri-template"};
 
 }
