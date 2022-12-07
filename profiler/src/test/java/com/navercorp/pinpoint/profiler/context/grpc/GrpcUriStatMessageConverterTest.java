@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.common.profiler.clock.Clock;
+import com.navercorp.pinpoint.common.profiler.clock.TickClock;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
@@ -34,6 +36,7 @@ import java.util.Random;
  * @author Taejin Koo
  */
 public class GrpcUriStatMessageConverterTest {
+    private static final int DEFAULT_COLLECT_INTERVAL = 30000; // 30s
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
@@ -43,8 +46,10 @@ public class GrpcUriStatMessageConverterTest {
 
     @Test
     public void convertTest() {
+        TickClock clock = (TickClock) Clock.tick(DEFAULT_COLLECT_INTERVAL);
+
         long currentTimeMillis = System.currentTimeMillis();
-        AgentUriStatData agentUriStatData = new AgentUriStatData(currentTimeMillis, 10);
+        AgentUriStatData agentUriStatData = new AgentUriStatData(currentTimeMillis, 10, clock);
 
         List<UriStatInfo> uriStatInfoList = createRandomUriStatInfo(100);
         for (UriStatInfo uriStatInfo : uriStatInfoList) {

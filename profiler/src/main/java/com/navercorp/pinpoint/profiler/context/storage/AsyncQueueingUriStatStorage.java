@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.common.profiler.clock.Clock;
+import com.navercorp.pinpoint.common.profiler.clock.TickClock;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -83,7 +84,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
         private static final int SNAPSHOT_LIMIT = 4;
 
-        private final Clock clock;
+        private final TickClock clock;
         private final Queue<AgentUriStatData> snapshotQueue;
 
         private final Snapshot<AgentUriStatData> snapshotManager;
@@ -97,10 +98,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             Assert.isTrue(uriStatDataLimitSize > 0, "uriStatDataLimitSize must be ' > 0'");
 
             Assert.isTrue(collectInterval > 0, "collectInterval must be ' > 0'");
-            this.clock = Clock.tick(collectInterval);
+            this.clock = (TickClock) Clock.tick(collectInterval);
 
             this.snapshotQueue = new ConcurrentLinkedQueue<>();
-            this.snapshotManager = new Snapshot<>(value -> new AgentUriStatData(value, uriStatDataLimitSize), AgentUriStatData::getBaseTimestamp);
+            this.snapshotManager = new Snapshot<>(value -> new AgentUriStatData(value, uriStatDataLimitSize, clock), AgentUriStatData::getBaseTimestamp);
         }
 
         @Override
