@@ -74,12 +74,10 @@ public class VertxPluginTestStarter extends AbstractVerticle {
             runOnContextRequest(routingContext.request());
         });
         router.get("/test/:arg1/*").handler(routingContext -> {
-            routingContext.put("pinpoint.statistics.url", "/test/:arg1/*");
             String arg1 = routingContext.pathParam("arg1");
             routingContext.response().end(arg1);
         });
         router.get("/template/:arg1").handler(routingContext -> {
-            routingContext.put("pinpoint.statistics.url", "/template/:arg1");
             String arg1 = routingContext.pathParam("arg1");
             routingContext.response().end(arg1);
         });

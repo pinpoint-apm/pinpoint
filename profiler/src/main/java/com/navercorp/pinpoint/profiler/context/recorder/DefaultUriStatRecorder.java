@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +33,6 @@ import java.util.Objects;
 public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final String NOT_FOUNDED = "/NOT_FOUND_URI";
     private final String[] DEFAULT_OFTEN_USED_URL = {"/", "/index.html", "/main"};
     private final List<String> defaultResourcePostfixes;
 
@@ -61,7 +61,7 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
         }
 
         if (uri == null) {
-            uri = NOT_FOUNDED;
+            uri = URITemplate.NOT_FOUNDED;
             logger.debug("can not extract uri. request:{}, rawUri:{}", request, rawUri);
         }
         uriStatStorage.store(uri, status, startTime, endTime);

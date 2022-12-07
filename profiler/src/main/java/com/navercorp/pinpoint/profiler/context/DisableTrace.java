@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+
+import java.util.Objects;
 
 
 /**
@@ -155,7 +159,7 @@ public class DisableTrace implements Trace {
     }
 
     @Override
-    public void setUriTemplate(String uriTemplate) {
+    public boolean recordUriTemplate(String uriTemplate) {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 

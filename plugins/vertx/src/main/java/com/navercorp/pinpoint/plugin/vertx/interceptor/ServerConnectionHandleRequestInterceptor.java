@@ -25,12 +25,11 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
@@ -71,18 +70,10 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final RequestTraceReader<HttpServerRequest> requestTraceReader;
     private final ParameterRecorder<HttpServerRequest> parameterRecorder;
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
 
-    private final InterceptorScope scope;
-    private static final AttachmentFactory ATTACHMENT_FACTORY = new AttachmentFactory() {
-        @Override
-        public Object createAttachment() {
-            return new VertxUrlTemplate();
-        }
-    };
-
-    private final UriStatRecorder uriStatRecorder;
+    private final UriStatRecorder<HttpServerRequest> uriStatRecorder;
 
     private final Boolean urlStatEnable;
 
@@ -90,10 +81,9 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext,
                                                     final MethodDescriptor methodDescriptor,
                                                     final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
-                                                    final InterceptorScope scope,
                                                     final UriStatRecorderFactory uriStatRecorderFactory,
                                                     final Boolean urlStatEnable) {
-        this.traceContext = traceContext;
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.descriptor = methodDescriptor;
 
         final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
@@ -108,9 +98,8 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
         this.urlStatEnable = urlStatEnable;
-        this.scope = Objects.requireNonNull(scope);
         Objects.requireNonNull(uriStatRecorderFactory);
-        this.uriStatRecorder = uriStatRecorderFactory.create(new BypassingUriExtractorService());
+        this.uriStatRecorder = uriStatRecorderFactory.create(new BypassingUriExtractorService<>());
     }
 
 
@@ -164,9 +153,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
                 logger.debug("Set closeable-AsyncContext {}", asyncContext);
             }
 
-            if (urlStatEnable) {
-                scope.getCurrentInvocation().getOrCreateAttachment(ATTACHMENT_FACTORY);
-            }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
@@ -259,10 +245,10 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private void recordUriStat(Object[] args, Trace trace) {
         if (urlStatEnable && validate(args)) {
             final HttpServerRequest request = (HttpServerRequest) args[0];
-            final String urlTemplate = ((VertxUrlTemplate)scope.getCurrentInvocation().getAttachment()).getUrlTemplate();
-            String uri = StringUtils.isEmpty(urlTemplate)? request.uri() : urlTemplate;
+            String uriTemplate = trace.getUriTemplate();
+            String uri = StringUtils.defaultString(uriTemplate, URITemplate.NOT_FOUNDED);
             boolean status = HttpStatusUtils.isNonError(request.response().getStatusCode());
-            uriStatRecorder.record(urlTemplate, request, uri, status, trace.getStartTime(), trace.getEndTime());
+            uriStatRecorder.record(uriTemplate, request, uri, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 

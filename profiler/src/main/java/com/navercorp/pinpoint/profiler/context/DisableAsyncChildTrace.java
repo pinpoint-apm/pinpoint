@@ -151,8 +151,8 @@ public class DisableAsyncChildTrace implements Trace {
     }
 
     @Override
-    public void setUriTemplate(String uriTemplate) {
-        traceRoot.getShared().setUriTemplate(uriTemplate);
+    public boolean recordUriTemplate(String uriTemplate) {
+        return traceRoot.getShared().setUriTemplate(uriTemplate);
     }
 
     @Override
