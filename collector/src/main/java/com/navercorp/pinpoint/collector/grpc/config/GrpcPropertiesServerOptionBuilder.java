@@ -37,6 +37,7 @@ public class GrpcPropertiesServerOptionBuilder {
     private static final String HANDSHAKE_TIMEOUT = ".handshake_timeout_millis";
     private static final String MAX_INBOUND_MESSAGE_SIZE = ".inbound_message_size_max";
     private static final String RECEIVE_BUFFER_SIZE = ".receive_buffer_size";
+    private static final String GRPC_MAX_TERM_WAIT_TIME_MILLIS = ".grpc_max_term_wait_time_millis";
     private static final String CHANNEL_TYPE = ".channel-type";
 
     private final ServerOption.Builder builder = ServerOption.newBuilder();
@@ -81,9 +82,12 @@ public class GrpcPropertiesServerOptionBuilder {
         builder.setFlowControlWindow((int) flowControlWindowStr.toBytes());
     }
 
-
-    public  void setReceiveBufferSize(DataSize receiveBufferSize) {
+    public void setReceiveBufferSize(DataSize receiveBufferSize) {
         builder.setReceiveBufferSize((int) receiveBufferSize.toBytes());
+    }
+
+    public void setGrpcMaxTermWaitTimeMillis(long grpcMaxTermWaitTimeMillis) {
+        builder.setGrpcMaxTermWaitTimeMillis(grpcMaxTermWaitTimeMillis);
     }
 
     public void setChannelType(String channelTypeEnum) {
