@@ -38,9 +38,11 @@ public class DisableTrace implements Trace {
 
     private final long id;
     private final long startTime;
+    private long endTime = 0L;
     private DefaultTraceScopePool scopePool;
     private final ActiveTraceHandle handle;
     private boolean closed = false;
+    private String uriTemplate = null;
 
     public DisableTrace(long id, long startTime,  ActiveTraceHandle handle) {
         this.id = id;
@@ -60,7 +62,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public long getEndTime() {
-        return 0L;
+        return endTime;
     }
 
 
@@ -124,6 +126,7 @@ public class DisableTrace implements Trace {
         closed = true;
         final long purgeTime = System.currentTimeMillis();
         handle.purge(purgeTime);
+        this.endTime = purgeTime;
     }
 
 
@@ -160,11 +163,15 @@ public class DisableTrace implements Trace {
 
     @Override
     public boolean recordUriTemplate(String uriTemplate) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        if (this.uriTemplate == null) {
+            this.uriTemplate = uriTemplate;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public String getUriTemplate() {
-        return null;
+        return this.uriTemplate;
     }
 }
