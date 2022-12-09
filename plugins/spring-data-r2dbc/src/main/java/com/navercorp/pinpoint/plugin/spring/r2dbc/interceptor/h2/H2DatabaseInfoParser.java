@@ -22,6 +22,8 @@ import java.util.List;
 import static com.navercorp.pinpoint.plugin.spring.r2dbc.SpringDataR2dbcConstants.UNKNOWN_DATABASE;
 
 public class H2DatabaseInfoParser {
+    static final String START_URL = "jdbc:h2:";
+
     final ConnectInfo connectInfo;
 
     public H2DatabaseInfoParser() {
@@ -41,14 +43,15 @@ public class H2DatabaseInfoParser {
     public List<String> getHostList(String name, boolean remote) {
         final List<String> hostList = new ArrayList<>();
         if (remote) {
-            if (name.startsWith("//")) {
-                name = name.substring("//".length());
+            String info = name;
+            if (info.startsWith("//")) {
+                info = info.substring("//".length());
             }
-            int idx = name.indexOf('/');
+            int idx = info.indexOf('/');
             if (idx < 0) {
                 return hostList;
             }
-            final String server = name.substring(0, idx);
+            final String server = info.substring(0, idx);
             if (server.indexOf(',') >= 0) {
                 for (String host : server.split(",")) {
                     hostList.add(host);
@@ -71,18 +74,18 @@ public class H2DatabaseInfoParser {
 
     public String getDatabase(String name, boolean remote) {
         if (remote) {
-            if (name.startsWith("//")) {
-                name = name.substring("//".length());
+            String info = name;
+            if (info.startsWith("//")) {
+                info = info.substring("//".length());
             }
-            int idx = name.indexOf('/');
+            int idx = info.indexOf('/');
             if (idx < 0) {
                 return UNKNOWN_DATABASE;
             }
-            return name.substring(idx + 1);
+            return info.substring(idx + 1);
         }
         return name;
     }
-
 
     static class ConnectInfo {
         private String name;
@@ -102,11 +105,16 @@ public class H2DatabaseInfoParser {
             if (url == null) {
                 return "";
             }
-            int idx = url.indexOf(';');
-            if (idx >= 0) {
-                return url.substring(0, idx);
+
+            String parsed = url;
+            if (parsed.startsWith(START_URL)) {
+                parsed = parsed.substring(START_URL.length());
             }
-            return url;
+            int idx = parsed.indexOf(';');
+            if (idx >= 0) {
+                return parsed.substring(0, idx);
+            }
+            return parsed;
         }
 
         String parseName(String url) {
