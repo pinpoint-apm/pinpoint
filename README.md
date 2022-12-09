@@ -69,7 +69,7 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * [DBCP](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/dbcp), [DBCP2](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/dbcp2), [HIKARICP](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/hikaricp), [DRUID](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/druid)
 * [Gson](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/gson), [Jackson](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/jackson), [Json Lib](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/json-lib), [Fastjson](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/fastjson)
 * [log4j](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/log4j), [Logback](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/logback), [log4j2](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/log4j2)
-* [OpenWhisk](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/openwhisk)
+* [OpenWhisk](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/openwhisk), [Kotlin Coroutines](https://github.com/pinpoint-apm/pinpoint/tree/master/plugins/kotlin-coroutines)
 
 ## Compatibility
 
