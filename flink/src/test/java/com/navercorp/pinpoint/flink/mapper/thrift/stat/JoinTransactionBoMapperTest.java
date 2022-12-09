@@ -54,7 +54,7 @@ public class JoinTransactionBoMapperTest {
         assertEquals(joinTransactionBo.getId(), id);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274138454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(250L, 250L, id, 250L, id));
+        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(50L, 50L, id, 50L, id));
     }
 
     @Test

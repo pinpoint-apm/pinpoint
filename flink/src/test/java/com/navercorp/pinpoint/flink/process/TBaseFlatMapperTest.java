@@ -269,13 +269,13 @@ public class TBaseFlatMapperTest {
         assertEquals(joinTransactionBo.getId(), AGENT_ID);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274143454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(120L, 120L, AGENT_ID, 120L, AGENT_ID));
+        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(24L, 24L, AGENT_ID, 24L, AGENT_ID));
 
         JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
         assertEquals(joinTransactionBo2.getId(), AGENT_ID);
         assertEquals(joinTransactionBo2.getTimestamp(), 1491274148454L);
         assertEquals(joinTransactionBo2.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(124L, 124L, AGENT_ID, 124L, AGENT_ID));
+        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(24L, 24L, AGENT_ID, 24L, AGENT_ID));
     }
 
     private TFAgentStatBatch createTFAgentStatBatch3() {
