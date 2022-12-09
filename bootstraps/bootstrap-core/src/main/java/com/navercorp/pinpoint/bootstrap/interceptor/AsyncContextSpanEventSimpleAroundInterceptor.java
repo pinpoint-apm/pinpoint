@@ -30,6 +30,7 @@ import java.util.Objects;
 public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
+    protected final boolean isTrace = logger.isTraceEnabled();
     protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
@@ -47,7 +48,9 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
         final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
-            logger.trace("AsyncContext not found");
+            if (isTrace) {
+                logger.trace("AsyncContext not found");
+            }
             return;
         }
 
@@ -80,7 +83,9 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
         final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
         if (asyncContext == null) {
-            logger.trace("AsyncContext not found");
+            if (isTrace) {
+                logger.trace("AsyncContext not found");
+            }
             return;
         }
 

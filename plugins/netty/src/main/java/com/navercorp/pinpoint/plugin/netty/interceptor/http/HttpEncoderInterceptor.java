@@ -107,7 +107,9 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
         final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
         if (asyncContext == null) {
-            logger.debug("AsyncContext not found");
+            if (isDebug) {
+                logger.debug("AsyncContext not found");
+            }
             return;
         }
 
@@ -186,7 +188,9 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     private void afterAsync(Object target, Object[] args, Object result, Throwable throwable) {
         final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
         if (asyncContext == null) {
-            logger.debug("AsyncContext not found");
+            if (isDebug) {
+                logger.debug("AsyncContext not found");
+            }
             return;
         }
 
