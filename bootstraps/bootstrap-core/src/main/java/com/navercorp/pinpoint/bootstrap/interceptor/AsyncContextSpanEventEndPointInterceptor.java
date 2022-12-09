@@ -90,7 +90,9 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
 
         final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
-            logger.debug("Not found asynchronous invocation metadata");
+            if (isDebug) {
+                logger.debug("Not found asynchronous invocation metadata");
+            }
             return;
         }
         if (isDebug) {
