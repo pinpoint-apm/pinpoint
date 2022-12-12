@@ -68,7 +68,6 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         if (internalName == null) {
             return null;
         }
-
         if (!pinpointClassFilter.accept(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }

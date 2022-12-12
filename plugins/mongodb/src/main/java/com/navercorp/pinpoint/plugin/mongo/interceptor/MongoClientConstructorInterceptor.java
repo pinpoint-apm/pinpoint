@@ -49,9 +49,6 @@ public class MongoClientConstructorInterceptor implements AroundInterceptor {
         }
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
-            }
             return;
         }
 

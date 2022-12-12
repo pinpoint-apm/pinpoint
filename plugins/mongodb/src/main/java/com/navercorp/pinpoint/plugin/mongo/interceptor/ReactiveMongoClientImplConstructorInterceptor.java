@@ -48,9 +48,6 @@ public class ReactiveMongoClientImplConstructorInterceptor implements AroundInte
         }
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
-            }
             return;
         }
 
@@ -58,9 +55,6 @@ public class ReactiveMongoClientImplConstructorInterceptor implements AroundInte
             // 4.2 or later
             final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
             if (mongoClientSettings == null) {
-                if (isDebug) {
-                    logger.debug("Unexpected argument. arg0 is not a MongoClientSettings class. args={}", args);
-                }
                 return;
             }
 

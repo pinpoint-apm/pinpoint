@@ -53,18 +53,12 @@ public class MongoCollectionImplConstructorInterceptor implements AroundIntercep
         }
 
         if (Boolean.FALSE == (target instanceof DatabaseInfoAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a DatabaseInfoAccessor implementation. target={}", target);
-            }
             return;
         }
 
         try {
             final MongoNamespace mongoNamespace = ArrayArgumentUtils.getArgument(args, 0, MongoNamespace.class);
             if (mongoNamespace == null) {
-                if (isDebug) {
-                    logger.debug("Unexpected argument. The arg0 is not a MongoNamespace class. args={}", args);
-                }
                 return;
             }
             final String databaseId = mongoNamespace.getDatabaseName();

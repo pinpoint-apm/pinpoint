@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.plugin.mongo.HostListAccessor;
-import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
 
@@ -45,32 +43,16 @@ public class MongoCollectionImplReadOperationInterceptor extends SpanEventSimple
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordApi(methodDescriptor);
 
-        if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
-            }
-            return;
-        }
-
-        final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
-        if (hostList == null) {
-            if (isDebug) {
-                logger.debug("Invalid hostList.");
-            }
-            return;
-        }
-
         final DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
-        final MongoDatabaseInfo mongoDatabaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
-                null, null, hostList, databaseInfo.getDatabaseId(), ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getReadPreference(), ((MongoDatabaseInfo) databaseInfo).getWriteConcern());
-
-        recorder.recordServiceType(mongoDatabaseInfo.getExecuteQueryType());
-        recorder.recordEndPoint(mongoDatabaseInfo.getMultipleHost());
-        recorder.recordDestinationId(mongoDatabaseInfo.getDatabaseId());
-        MongoUtil.recordMongoCollection(recorder, mongoDatabaseInfo.getCollectionName(), mongoDatabaseInfo.getReadPreference());
+        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+        if (databaseInfo instanceof MongoDatabaseInfo) {
+            MongoUtil.recordMongoCollection(recorder, ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getReadPreference());
+        }
     }
 
     @Override
@@ -90,7 +72,7 @@ public class MongoCollectionImplReadOperationInterceptor extends SpanEventSimple
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set AsyncContext {}, result={}", asyncContext, result);
+                logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
             }
         }
     }

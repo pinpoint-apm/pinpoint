@@ -28,8 +28,6 @@ import com.mongodb.client.model.PushOptions;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.InsertManyResult;
-import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.BsonArray;
 import org.bson.BsonBinary;
@@ -87,16 +85,12 @@ public class MongoPluginController {
     private static final String DATABASE_NAME_2 = "myMongoDb2";
     private static final String COLLECTION_NAME = "customers";
 
-    private final MongoServer mongoServer;
     private MongoClient mongoClient;
-
-    public MongoPluginController(MongoServer mongoServer) {
-        this.mongoServer = Objects.requireNonNull(mongoServer, "mongoServer");
-    }
 
     @PostConstruct
     public void start() {
-        this.mongoClient = MongoClients.create(mongoServer.getUri());
+        final String connectionString = MongoServer.getUri();
+        this.mongoClient = MongoClients.create(connectionString);
     }
 
     @PreDestroy
@@ -110,8 +104,8 @@ public class MongoPluginController {
     public String insert() {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME).getCollection(COLLECTION_NAME);
         Document doc = new Document("name", "pinpoint").append("company", "Naver");
-        InsertOneResult result = collection.insertOne(doc);
-        return "Insert=" + result;
+        collection.insertOne(doc);
+        return "Insert";
     }
 
     @RequestMapping(value = "/mongodb/insertMany")
@@ -127,8 +121,8 @@ public class MongoPluginController {
             documentList.add(new Document("name", "manymanay" + i).append("company", "ManyCompany"));
         }
 
-        InsertManyResult result = collection.insertMany(documentList);
-        return "Insert=" + result;
+        collection.insertMany(documentList);
+        return "InsertMany";
     }
 
     @RequestMapping(value = "/mongodb/insertComplexBson")
@@ -165,9 +159,9 @@ public class MongoPluginController {
                 .append("dbPointer", new BsonDbPointer("db.coll", new ObjectId()))
                 .append("null", new BsonNull())
                 .append("decimal128", new BsonDecimal128(new Decimal128(55)));
-        InsertOneResult result = collection.insertOne(doc);
+        collection.insertOne(doc);
 
-        return "Insert=" + result;
+        return "InsertComplex";
     }
 
     @RequestMapping(value = "/mongodb/insertTo2ndserver")
@@ -183,8 +177,8 @@ public class MongoPluginController {
     public String insertNested() {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME_2).getCollection(COLLECTION_NAME);
         Document doc2 = new Document("name", "pinpoint2").append("company", new Document("nestedDoc", "1"));
-        InsertOneResult result = collection.insertOne(doc2);
-        return "Insert=" + result;
+        collection.insertOne(doc2);
+        return "InsertNested";
     }
 
     @RequestMapping(value = "/mongodb/insertArray")
@@ -197,16 +191,16 @@ public class MongoPluginController {
         bsonArray.add(b);
 
         Document doc = new Document("array", bsonArray);
-        InsertOneResult result = collection.insertOne(doc);
-        return "Insert=" + result;
+        collection.insertOne(doc);
+        return "InsertArray";
     }
 
     @RequestMapping(value = "/mongodb/insertCollection")
     public String insertCollection() {
         MongoCollection<Document> collection = getDatabase(DATABASE_NAME_2).getCollection(COLLECTION_NAME);
         Document doc = new Document("Java_Collection", Arrays.asList("naver", "apple"));
-        InsertOneResult result = collection.insertOne(doc);
-        return "Insert=" + result;
+        collection.insertOne(doc);
+        return "InsertCollection";
     }
 
     @RequestMapping(value = "/mongodb/find")

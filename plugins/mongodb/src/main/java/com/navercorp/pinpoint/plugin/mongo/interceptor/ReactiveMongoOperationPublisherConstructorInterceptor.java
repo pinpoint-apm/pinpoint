@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoNamespace;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.internal.MongoClientImpl;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -28,8 +31,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
+import com.navercorp.pinpoint.plugin.mongo.ReactiveMongoClientImplGetter;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class ReactiveMongoOperationPublisherConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -53,20 +59,15 @@ public class ReactiveMongoOperationPublisherConstructorInterceptor implements Ar
         }
 
         if (Boolean.FALSE == (target instanceof DatabaseInfoAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a DatabaseInfoAccessor implementation. target={}", target);
-            }
             return;
         }
 
         try {
             final MongoNamespace mongoNamespace = ArrayArgumentUtils.getArgument(args, 0, MongoNamespace.class);
             if (mongoNamespace == null) {
-                if (isDebug) {
-                    logger.debug("Unexpected argument. The arg0 is not a MongoNamespace class. args={}", args);
-                }
                 return;
             }
+
             final String databaseId = mongoNamespace.getDatabaseName();
             final String collectionName = mongoNamespace.getCollectionName();
 
@@ -82,8 +83,13 @@ public class ReactiveMongoOperationPublisherConstructorInterceptor implements Ar
                 writeConcernName = MongoUtil.getWriteConcern0(writeConcern);
             }
 
+            List<String> hostList = getHostList(args);
+            if (hostList.isEmpty()) {
+                hostList = Arrays.asList("UNKNOWN");
+            }
+
             final DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
-                    null, null, Collections.EMPTY_LIST, databaseId, collectionName, readPreferenceName, writeConcernName);
+                    null, null, hostList, databaseId, collectionName, readPreferenceName, writeConcernName);
             ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             if (isDebug) {
                 logger.debug("Set databaseInfo={}", databaseInfo);
@@ -93,5 +99,19 @@ public class ReactiveMongoOperationPublisherConstructorInterceptor implements Ar
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         }
+    }
+
+    List<String> getHostList(Object[] args) {
+        final ReactiveMongoClientImplGetter reactiveMongoClientImplGetter = ArrayArgumentUtils.getArgument(args, 9, ReactiveMongoClientImplGetter.class);
+        if (reactiveMongoClientImplGetter != null) {
+            final MongoClientImpl mongoClientImpl = reactiveMongoClientImplGetter._$PINPOINT$_getMongoClientImpl();
+            if (mongoClientImpl != null) {
+                final MongoClientSettings mongoClientSettings = mongoClientImpl.getSettings();
+                if (mongoClientSettings != null) {
+                    return MongoUtil.getHostList(mongoClientSettings);
+                }
+            }
+        }
+        return Collections.EMPTY_LIST;
     }
 }

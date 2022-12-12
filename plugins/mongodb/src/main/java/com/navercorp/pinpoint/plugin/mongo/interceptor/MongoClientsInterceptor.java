@@ -55,9 +55,6 @@ public class MongoClientsInterceptor implements AroundInterceptor {
         }
 
         if (Boolean.FALSE == (result instanceof HostListAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected result. The result is not a HostListAccessor implementation. result={}", result);
-            }
             return;
         }
 
@@ -69,9 +66,6 @@ public class MongoClientsInterceptor implements AroundInterceptor {
         try {
             final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
             if (mongoClientSettings == null) {
-                if (isDebug) {
-                    logger.debug("Unexpected argument. The arg0 is not a MongoClientSettings class. args={}", args);
-                }
                 return;
             }
 

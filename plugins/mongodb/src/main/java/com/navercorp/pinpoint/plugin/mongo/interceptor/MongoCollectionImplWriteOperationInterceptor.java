@@ -48,17 +48,11 @@ public class MongoCollectionImplWriteOperationInterceptor extends SpanEventSimpl
         recorder.recordApi(methodDescriptor);
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
-            }
             return;
         }
 
         final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
         if (hostList == null) {
-            if (isDebug) {
-                logger.debug("Invalid hostList. target={}", target);
-            }
             return;
         }
 
@@ -91,7 +85,7 @@ public class MongoCollectionImplWriteOperationInterceptor extends SpanEventSimpl
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set AsyncContext {}, result={}", asyncContext, result);
+                logger.debug("Set AsyncContext to result. asyncContext={}", asyncContext);
             }
         }
     }
