@@ -45,25 +45,16 @@ public class ReactiveMongoCollectionImplConstructorInterceptor implements Around
         }
 
         if (Boolean.FALSE == (target instanceof DatabaseInfoAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a DatabaseInfoAccessor implementation. target={}", target);
-            }
             return;
         }
 
         final DatabaseInfoAccessor databaseInfoAccessor = ArrayArgumentUtils.getArgument(args, 0, DatabaseInfoAccessor.class);
         if (databaseInfoAccessor == null) {
-            if (isDebug) {
-                logger.debug("Unexpected argument. The arg0 is not a DatabaseInfoAccessor class. args={}", args);
-            }
             return;
         }
 
         final DatabaseInfo databaseInfo = databaseInfoAccessor._$PINPOINT$_getDatabaseInfo();
         if (databaseInfo == null) {
-            if (isDebug) {
-                logger.debug("DatabaseInfo information is not set.");
-            }
             return;
         }
         ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);

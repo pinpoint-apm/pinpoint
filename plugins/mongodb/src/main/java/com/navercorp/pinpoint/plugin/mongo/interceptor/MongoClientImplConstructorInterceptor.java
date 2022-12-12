@@ -48,9 +48,6 @@ public class MongoClientImplConstructorInterceptor implements AroundInterceptor 
         }
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            if (isDebug) {
-                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
-            }
             return;
         }
 
@@ -62,9 +59,6 @@ public class MongoClientImplConstructorInterceptor implements AroundInterceptor 
                 mongoClientSettings = ArrayArgumentUtils.getArgument(args, 2, MongoClientSettings.class);
             }
             if (mongoClientSettings == null) {
-                if (isDebug) {
-                    logger.debug("Unexpected argument. arg1(3.7 version) or arg2(3.8 or later version) is not a MongoClientSettings class. args={}", args);
-                }
                 return;
             }
 

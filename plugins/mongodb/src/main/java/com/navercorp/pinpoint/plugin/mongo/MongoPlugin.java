@@ -21,9 +21,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -49,6 +52,7 @@ import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.SearchGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOptionsGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.AsyncOperationExecuteAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientGetDatabaseInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoClientImplConstructorInterceptor;
@@ -61,6 +65,8 @@ import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCollectionImplWriteO
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDatabaseImplGetCollectionInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDatabaseImplWithInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoInternalOperatorNameInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.OperationExecutorImplExecuteInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.OperationExecutorImplLambdaOnResultInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoClientImplConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoClientImplGetDatabaseInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.ReactiveMongoCollectionImplConstructorInterceptor;
@@ -80,12 +86,12 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 /**
  * @author Roy Kim
  */
-public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private static final String MONGO_SCOPE = MongoConstants.MONGO_SCOPE;
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -154,6 +160,16 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.SingleResultObservableToPublisher", ObservableToPublisherTransform.class);
         // 1.13
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ObservableToPublisher", ObservableToPublisherTransform.class);
+
+        // execute & onResult
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.OperationExecutorImpl", OperationExecutorImplTransform.class);
+        final Matcher operationExecutorImplLambdaMatcher = Matchers.newLambdaExpressionMatcher("com.mongodb.reactivestreams.client.internal.OperationExecutorImpl", "com.mongodb.internal.async.SingleResultCallback");
+        transformTemplate.transform(operationExecutorImplLambdaMatcher, OperationExecutorImplLambdaTransform.class);
+        // asyncOperation
+        final Matcher asyncReadOperationMatcher = Matchers.newPackageBasedMatcher("com.mongodb.internal.operation", new InterfaceInternalNameMatcherOperand("com.mongodb.internal.operation.AsyncReadOperation", true));
+        transformTemplate.transform(asyncReadOperationMatcher, AsyncReadOperationTransform.class);
+        final Matcher asyncWriteOperationMatcher = Matchers.newPackageBasedMatcher("com.mongodb.internal.operation", new InterfaceInternalNameMatcherOperand("com.mongodb.internal.operation.AsyncWriteOperation", true));
+        transformTemplate.transform(asyncWriteOperationMatcher, AsyncWriteOperationTransform.class);
     }
 
     public static class MongoClientTransform implements TransformCallback {
@@ -434,6 +450,65 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("withDocumentClass", "withCodecRegistry", "withReadPreference", "withWriteConcern", "withReadConcern"))) {
                 method.addInterceptor(ReactiveMongoCollectionImplWithInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class OperationExecutorImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addGetter(ReactiveMongoClientImplGetter.class, "mongoClient");
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute"))) {
+                method.addInterceptor(OperationExecutorImplExecuteInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class OperationExecutorImplLambdaTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod onResultMethod = target.getDeclaredMethod("onResult", "java.lang.Object", "java.lang.Throwable");
+            if (onResultMethod != null) {
+                onResultMethod.addInterceptor(OperationExecutorImplLambdaOnResultInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class AsyncReadOperationTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod executeAsyncMethod = target.getDeclaredMethod("executeAsync", "com.mongodb.internal.binding.AsyncReadBinding", "com.mongodb.internal.async.SingleResultCallback");
+            if (executeAsyncMethod != null) {
+                executeAsyncMethod.addInterceptor(AsyncOperationExecuteAsyncInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class AsyncWriteOperationTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod executeAsyncMethod = target.getDeclaredMethod("executeAsync", "com.mongodb.internal.binding.AsyncWriteBinding", "com.mongodb.internal.async.SingleResultCallback");
+            if (executeAsyncMethod != null) {
+                executeAsyncMethod.addInterceptor(AsyncOperationExecuteAsyncInterceptor.class);
             }
 
             return target.toBytecode();
@@ -829,17 +904,17 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private static String[] getReadOperationMethodList() {
-        final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes", "countDocuments"};
+        final String[] methodList = new String[]{"count", "estimatedDocumentCount", "countDocuments", "distinct", "find", "aggregate", "watch", "findOneAndDelete", "findOneAndReplace", "findOneAndUpdate", "listIndexes", "renameCollection"};
         return methodList;
     }
 
     private static String[] getWriteOperationMethodList() {
-        final String[] methodlist = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex", "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
+        final String[] methodlist = new String[]{"bulkWrite", "insertOne", "insertMany", "deleteOne", "deleteMany", "replaceOne", "updateOne", "updateMany", "drop", "createIndex", "createIndexes", "dropIndex", "dropIndexes"};
         return methodlist;
     }
 
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 }

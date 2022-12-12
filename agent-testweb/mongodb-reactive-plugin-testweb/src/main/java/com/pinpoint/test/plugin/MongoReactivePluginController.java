@@ -18,8 +18,6 @@ package com.pinpoint.test.plugin;
 
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.apache.logging.log4j.LogManager;
@@ -27,15 +25,25 @@ import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.reactive.result.method.RequestMappingInfo;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -43,29 +51,35 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 @RestController
 public class MongoReactivePluginController {
-    private final MongoServer mongoServer;
 
-    private MongoClient mongoClient;
+    @Autowired
+    MongoTemplate mongo;
+    @Autowired
+    ReactiveMongoTemplate reactiveMongo;
 
-    public MongoReactivePluginController(MongoServer mongoServer) {
-        this.mongoServer = Objects.requireNonNull(mongoServer, "mongoServer");
+    private final RequestMappingHandlerMapping handlerMapping;
+
+    @Autowired
+    public MongoReactivePluginController(RequestMappingHandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
     }
 
-    @PostConstruct
-    public void start() {
-        this.mongoClient = MongoClients.create(mongoServer.getUri());
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        if (mongoClient != null) {
-            mongoClient.close();
+    @GetMapping("/")
+    String welcome() {
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.handlerMapping.getHandlerMethods();
+        List<String> list = new ArrayList<>();
+        for (RequestMappingInfo info : handlerMethods.keySet()) {
+            for (String path : info.getDirectPaths()) {
+                list.add(path);
+            }
         }
+        list.sort(String::compareTo);
+        return new ApiLinkPage("mongodb-reactive-plugin-testweb").build(list);
     }
 
-    @GetMapping(value = "/mongodb/insertOne")
+    @GetMapping(value = "/insertOne")
     public String insertOn() throws Throwable {
-        MongoDatabase db = getDatabase();
+        MongoDatabase db = (MongoDatabase) mongo.getDb();
 
         MongoCollection<Document> collection = db.getCollection("test");
         Document canvas = new Document("item", "canvas")
@@ -84,9 +98,48 @@ public class MongoReactivePluginController {
         return "Insert=" + sub.getResults();
     }
 
-    private MongoDatabase getDatabase() {
-        MongoDatabase db = this.mongoClient.getDatabase("test");
-        return db;
+    @GetMapping("/save")
+    Demo save() {
+        Demo demo = new Demo();
+        demo.setName("foo");
+        return mongo.save(demo);
+    }
+
+    @GetMapping("/find")
+    Demo find() {
+        return mongo.findById(1L, Demo.class);
+    }
+
+    @GetMapping("/findOne")
+    Demo findOne() {
+        return mongo.findOne(Query.query(Criteria.where("name").is("foo")), Demo.class);
+    }
+
+    @GetMapping("/findAll")
+    List<Demo> findAll() {
+        return mongo.findAll(Demo.class);
+    }
+
+    @GetMapping("/aggregate")
+    List<Demo> aggregate() {
+        return mongo.aggregate(Aggregation.newAggregation(Aggregation.project("_id")), Demo.class, Demo.class)
+                .getMappedResults();
+    }
+
+    @GetMapping("/reactiveFindAll")
+    Mono<List<Demo>> reactiveFindAll() {
+        return reactiveMongo.findAll(Demo.class).collectList();
+    }
+
+    @GetMapping("/reactiveAggregate")
+    Mono<List<Demo>> reactiveAggregate() {
+        return reactiveMongo.aggregate(Aggregation.newAggregation(Aggregation.project("_id")), Demo.class, Demo.class)
+                .collectList();
+    }
+
+    @GetMapping("/reactiveFind")
+    Flux<Demo> reactiveFind() {
+        return reactiveMongo.find(Query.query(Criteria.where("name").is("foo")), Demo.class);
     }
 
     private static class ObservableSubscriber<T> implements Subscriber<T> {
