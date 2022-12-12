@@ -55,7 +55,9 @@ public class MongoClientsInterceptor implements AroundInterceptor {
         }
 
         if (Boolean.FALSE == (result instanceof HostListAccessor)) {
-            logger.info("Unexpected result. The result is not a HostListAccessor implementation. result={}", result);
+            if (isDebug) {
+                logger.debug("Unexpected result. The result is not a HostListAccessor implementation. result={}", result);
+            }
             return;
         }
 
@@ -64,16 +66,24 @@ public class MongoClientsInterceptor implements AroundInterceptor {
             return;
         }
 
-        final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
-        if (mongoClientSettings == null) {
-            logger.info("Unexpected argument. The arg0 is not a MongoClientSettings class. args={}", args);
-            return;
-        }
+        try {
+            final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
+            if (mongoClientSettings == null) {
+                if (isDebug) {
+                    logger.debug("Unexpected argument. The arg0 is not a MongoClientSettings class. args={}", args);
+                }
+                return;
+            }
 
-        final List<String> hostList = MongoUtil.getHostList(mongoClientSettings);
-        ((HostListAccessor) result)._$PINPOINT$_setHostList(hostList);
-        if (isDebug) {
-            logger.debug("Set hostList={}", hostList);
+            final List<String> hostList = MongoUtil.getHostList(mongoClientSettings);
+            ((HostListAccessor) result)._$PINPOINT$_setHostList(hostList);
+            if (isDebug) {
+                logger.debug("Set hostList={}", hostList);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 }

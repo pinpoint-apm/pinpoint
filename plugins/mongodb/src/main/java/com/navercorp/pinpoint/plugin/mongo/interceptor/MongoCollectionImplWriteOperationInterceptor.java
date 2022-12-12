@@ -44,17 +44,21 @@ public class MongoCollectionImplWriteOperationInterceptor extends SpanEventSimpl
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordApi(methodDescriptor);
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            logger.info("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            if (isDebug) {
+                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            }
             return;
         }
 
         final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
         if (hostList == null) {
-            logger.info("Invalid hostList. target={}", target);
+            if (isDebug) {
+                logger.debug("Invalid hostList. target={}", target);
+            }
             return;
         }
 

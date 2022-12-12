@@ -53,35 +53,45 @@ public class MongoCollectionImplConstructorInterceptor implements AroundIntercep
         }
 
         if (Boolean.FALSE == (target instanceof DatabaseInfoAccessor)) {
-            logger.info("Unexpected target. The target is not a DatabaseInfoAccessor implementation. target={}", target);
+            if (isDebug) {
+                logger.debug("Unexpected target. The target is not a DatabaseInfoAccessor implementation. target={}", target);
+            }
             return;
         }
 
-        final MongoNamespace mongoNamespace = ArrayArgumentUtils.getArgument(args, 0, MongoNamespace.class);
-        if (mongoNamespace == null) {
-            logger.info("Unexpected argument. The arg0 is not a MongoNamespace class. args={}", args);
-            return;
-        }
-        final String databaseId = mongoNamespace.getDatabaseName();
-        final String collectionName = mongoNamespace.getCollectionName();
+        try {
+            final MongoNamespace mongoNamespace = ArrayArgumentUtils.getArgument(args, 0, MongoNamespace.class);
+            if (mongoNamespace == null) {
+                if (isDebug) {
+                    logger.debug("Unexpected argument. The arg0 is not a MongoNamespace class. args={}", args);
+                }
+                return;
+            }
+            final String databaseId = mongoNamespace.getDatabaseName();
+            final String collectionName = mongoNamespace.getCollectionName();
 
-        String readPreferenceName = "";
-        final ReadPreference readPreference = ArrayArgumentUtils.getArgument(args, 3, ReadPreference.class);
-        if (readPreference != null) {
-            readPreferenceName = readPreference.getName();
-        }
+            String readPreferenceName = "";
+            final ReadPreference readPreference = ArrayArgumentUtils.getArgument(args, 3, ReadPreference.class);
+            if (readPreference != null) {
+                readPreferenceName = readPreference.getName();
+            }
 
-        String writeConcernName = "";
-        final WriteConcern writeConcern = ArrayArgumentUtils.getArgument(args, 4, WriteConcern.class);
-        if (writeConcern != null) {
-            writeConcernName = MongoUtil.getWriteConcern0(writeConcern);
-        }
+            String writeConcernName = "";
+            final WriteConcern writeConcern = ArrayArgumentUtils.getArgument(args, 4, WriteConcern.class);
+            if (writeConcern != null) {
+                writeConcernName = MongoUtil.getWriteConcern0(writeConcern);
+            }
 
-        final DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
-                null, null, Collections.EMPTY_LIST, databaseId, collectionName, readPreferenceName, writeConcernName);
-        ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
-        if (isDebug) {
-            logger.debug("Set databaseInfo={}", databaseId);
+            final DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
+                    null, null, Collections.EMPTY_LIST, databaseId, collectionName, readPreferenceName, writeConcernName);
+            ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+            if (isDebug) {
+                logger.debug("Set databaseInfo={}", databaseId);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 }
