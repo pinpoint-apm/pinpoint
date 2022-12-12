@@ -48,21 +48,31 @@ public class ReactiveMongoClientImplConstructorInterceptor implements AroundInte
         }
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            logger.info("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            if (isDebug) {
+                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            }
             return;
         }
 
-        // 4.2 or later
-        final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
-        if (mongoClientSettings == null) {
-            logger.info("Unexpected argument. arg0 is not a MongoClientSettings class. args={}", args);
-            return;
-        }
+        try {
+            // 4.2 or later
+            final MongoClientSettings mongoClientSettings = ArrayArgumentUtils.getArgument(args, 0, MongoClientSettings.class);
+            if (mongoClientSettings == null) {
+                if (isDebug) {
+                    logger.debug("Unexpected argument. arg0 is not a MongoClientSettings class. args={}", args);
+                }
+                return;
+            }
 
-        final List<String> hostList = MongoUtil.getHostList(mongoClientSettings);
-        ((HostListAccessor) target)._$PINPOINT$_setHostList(hostList);
-        if (isDebug) {
-            logger.debug("Set hostList={}", hostList);
+            final List<String> hostList = MongoUtil.getHostList(mongoClientSettings);
+            ((HostListAccessor) target)._$PINPOINT$_setHostList(hostList);
+            if (isDebug) {
+                logger.debug("Set hostList={}", hostList);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 }

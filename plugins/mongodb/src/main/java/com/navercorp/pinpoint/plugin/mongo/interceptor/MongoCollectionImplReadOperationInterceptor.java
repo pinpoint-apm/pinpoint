@@ -49,13 +49,17 @@ public class MongoCollectionImplReadOperationInterceptor extends SpanEventSimple
         recorder.recordApi(methodDescriptor);
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            logger.info("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            if (isDebug) {
+                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            }
             return;
         }
 
         final List<String> hostList = ((HostListAccessor) target)._$PINPOINT$_getHostList();
         if (hostList == null) {
-            logger.info("Invalid hostList.");
+            if (isDebug) {
+                logger.debug("Invalid hostList.");
+            }
             return;
         }
 
