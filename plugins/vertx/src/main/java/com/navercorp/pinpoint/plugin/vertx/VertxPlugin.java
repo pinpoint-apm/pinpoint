@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -255,7 +254,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             final InstrumentMethod handleRequestMethod = target.getDeclaredMethod(methodName, "io.vertx.core.http.HttpServerRequest");
             if (handleRequestMethod != null) {
                 // entry point & set asynchronous of req, res.
-                handleRequestMethod.addScopedInterceptor(ServerConnectionHandleRequestInterceptor.class, va(urlStatEnable), VertxConstants.VERTX_URL_STAT_SCOPE);
+                handleRequestMethod.addInterceptor(ServerConnectionHandleRequestInterceptor.class, va(urlStatEnable));
             }
 
             return target.toBytecode();
@@ -540,7 +539,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
             final InstrumentMethod routingContextPut = target.getDeclaredMethod("handleContext", "io.vertx.ext.web.impl.RoutingContextImplBase");
             if (routingContextPut != null) {
-                routingContextPut.addScopedInterceptor(RouteStateInterceptor.class, VertxConstants.VERTX_URL_STAT_SCOPE, ExecutionPolicy.ALWAYS);
+                routingContextPut.addInterceptor(RouteStateInterceptor.class);
             }
 
             return target.toBytecode();
