@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.trace.UriExtractorType;
 
 /**
  * @author jaehong.kim
@@ -35,6 +36,5 @@ public final class VertxConstants {
     public static final String HTTP_CLIENT_REQUEST_SCOPE = "HttpClientRequestScope";
     public static final String HTTP_CLIENT_CREATE_REQUEST_SCOPE = "HttpClientCreateRequestScope";
 
-    public static final String VERTX_URL_STAT_SCOPE = "VertxUrlTemplate";
-    public static final String VERTX_URL_STAT_TEMPLATE_KEY = "pinpoint.metric.uri-template";
+    public static final String[] VERTX_URI_MAPPING_CONTEXT_KEYS = {"pinpoint.metric.uri-template"};
 }
