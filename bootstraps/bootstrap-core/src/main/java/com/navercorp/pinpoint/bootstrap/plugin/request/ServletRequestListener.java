@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusUtils;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
@@ -162,7 +161,6 @@ public class ServletRequestListener<REQ> {
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
             trace.close();
-            recordUrlTemplate(trace, request, rpcName, statusCode);
             return;
         }
 
@@ -178,14 +176,7 @@ public class ServletRequestListener<REQ> {
             trace.traceBlockEnd();
             this.traceContext.removeTraceObject();
             trace.close();
-            recordUrlTemplate(trace, request, rpcName, statusCode);
         }
-    }
-
-    private void recordUrlTemplate(Trace trace, REQ request, String rpcName, int statusCode) {
-        boolean status = HttpStatusUtils.isNonError(statusCode);
-        String uriTemplate = trace.getUriTemplate();
-        uriStatRecorder.record(uriTemplate, request, rpcName, status, trace.getStartTime(), trace.getEndTime());
     }
 
 }

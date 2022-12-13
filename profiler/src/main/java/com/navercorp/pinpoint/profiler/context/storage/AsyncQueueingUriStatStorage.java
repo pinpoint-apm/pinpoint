@@ -29,7 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -58,7 +57,9 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     @Override
     public void store(String uri, boolean status, long startTime, long endTime) {
-        Objects.requireNonNull(uri, "uri");
+        if (uri == null) {
+            return;
+        }
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
         execute(uriStatInfo);
     }

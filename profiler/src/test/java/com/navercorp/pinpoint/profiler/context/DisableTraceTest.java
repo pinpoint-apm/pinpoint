@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +64,8 @@ public class DisableTraceTest {
 
     private Trace newTrace() {
         ActiveTraceHandle activeTraceHandle = mock(ActiveTraceHandle.class);
-        return new DisableTrace(1, 2, activeTraceHandle);
+        UriStatStorage uriStatStorage = mock(UriStatStorage.class);
+        return new DisableTrace(1, 2, activeTraceHandle, uriStatStorage);
     }
 
     private Trace newChildTrace() {

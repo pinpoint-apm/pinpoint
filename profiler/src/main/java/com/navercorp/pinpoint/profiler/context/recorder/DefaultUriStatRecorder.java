@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,34 +36,29 @@ public class DefaultUriStatRecorder<T> implements UriStatRecorder<T> {
     private final List<String> defaultResourcePostfixes;
 
     private final UriExtractor<T> uriExtractor;
-    private final UriStatStorage uriStatStorage;
 
 
-    public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, UriStatStorage uriStatStorage, String oftenUsedResources) {
+    public DefaultUriStatRecorder(UriExtractor<T> uriExtractor, String oftenUsedResources) {
         this.uriExtractor = Objects.requireNonNull(uriExtractor, "uriExtractor");
-        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
         String resourcesPostfixes = Objects.requireNonNull(oftenUsedResources, "oftenUsedResources");
         this.defaultResourcePostfixes = StringUtils.tokenizeToStringList(resourcesPostfixes, ",");
     }
 
     @Override
-    public void record(String uriTemplate, T request, String rawUri, boolean status, long startTime, long endTime) {
-        String uri;
+    public String record(String uriTemplate, T request, String rawUri) {
 
         String userAttributeUri = uriExtractor.getUri(request, rawUri);
         if (userAttributeUri != null) {
-            uri = userAttributeUri;
+            return userAttributeUri;
         } else if (uriTemplate != null) {
-            uri = uriTemplate;
-        } else {
-            uri = checkOftenUsed(rawUri);
+            return uriTemplate;
         }
 
+        String uri = checkOftenUsed(rawUri);
         if (uri == null) {
             uri = URITemplate.NOT_FOUNDED;
-            logger.debug("can not extract uri. request:{}, rawUri:{}", request, rawUri);
         }
-        uriStatStorage.store(uri, status, startTime, endTime);
+        return uri;
     }
 
     private String checkOftenUsed(String rawUri) {

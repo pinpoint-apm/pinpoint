@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
  * @author Taejin Koo
  */
 public class DisabledUriStatStorage implements UriStatStorage {
-
+    public static final UriStatStorage INSTANCE = new DisabledUriStatStorage();
     @Override
     public void store(String uri, boolean status, long startTime, long endTime) {
         // Do nothing

@@ -42,7 +42,6 @@ import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactor
 import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
-
 import org.apache.catalina.connector.Response;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,7 +63,9 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory, UriStatRecorderFactory uriStatRecorderFactory) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
+                                              RequestRecorderFactory<HttpServletRequest> requestRecorderFactory,
+                                              UriStatRecorderFactory uriStatRecorderFactory) {
         this.methodDescriptor = descriptor;
         this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());

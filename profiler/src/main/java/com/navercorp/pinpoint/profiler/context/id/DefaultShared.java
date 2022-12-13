@@ -133,6 +133,16 @@ public class DefaultShared implements Shared {
     }
 
     @Override
+    public boolean setUriTemplate(String uriTemplate, boolean force) {
+        if (force) {
+            URL_TEMPLATE_UPDATER.set(this, uriTemplate);
+            return true;
+        } else {
+            return setUriTemplate(uriTemplate);
+        }
+    }
+
+    @Override
     public String getUriTemplate() {
         return uriTemplate;
     }

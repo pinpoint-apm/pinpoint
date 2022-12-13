@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import java.util.Objects;
 
@@ -38,16 +39,17 @@ public class DisableTrace implements Trace {
 
     private final long id;
     private final long startTime;
-    private long endTime = 0L;
     private DefaultTraceScopePool scopePool;
     private final ActiveTraceHandle handle;
+    private final UriStatStorage uriStatStorage;
     private boolean closed = false;
     private String uriTemplate = null;
 
-    public DisableTrace(long id, long startTime,  ActiveTraceHandle handle) {
+    public DisableTrace(long id, long startTime, ActiveTraceHandle handle, UriStatStorage uriStatStorage) {
         this.id = id;
         this.startTime = startTime;
         this.handle = Objects.requireNonNull(handle, "handle");
+        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }
 
     @Override
@@ -58,11 +60,6 @@ public class DisableTrace implements Trace {
     @Override
     public long getStartTime() {
         return startTime;
-    }
-
-    @Override
-    public long getEndTime() {
-        return endTime;
     }
 
 
@@ -124,9 +121,11 @@ public class DisableTrace implements Trace {
             return;
         }
         closed = true;
+
+
         final long purgeTime = System.currentTimeMillis();
         handle.purge(purgeTime);
-        this.endTime = purgeTime;
+        uriStatStorage.store(this.uriTemplate, true, startTime, purgeTime);
     }
 
 
