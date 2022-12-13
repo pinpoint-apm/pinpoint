@@ -35,7 +35,6 @@ public class DisableAsyncChildTrace implements Trace {
 
     private final TraceRoot traceRoot;
     private final LocalAsyncId localAsyncId;
-    private long endTime = 0L;
 
     public DisableAsyncChildTrace(final TraceRoot traceRoot, final LocalAsyncId localAsyncId) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -87,11 +86,6 @@ public class DisableAsyncChildTrace implements Trace {
     }
 
     @Override
-    public long getEndTime() {
-        return endTime;
-    }
-
-    @Override
     public TraceId getTraceId() {
         return getTraceRoot().getTraceId();
     }
@@ -131,7 +125,6 @@ public class DisableAsyncChildTrace implements Trace {
         if (closed) {
             return;
         }
-        endTime = System.currentTimeMillis();
         closed = true;
     }
 

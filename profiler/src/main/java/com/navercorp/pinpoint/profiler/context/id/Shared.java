@@ -49,5 +49,7 @@ public interface Shared {
 
     boolean setUriTemplate(String uriTemplate);
 
+    boolean setUriTemplate(String uriTemplate, boolean force);
+
     String getUriTemplate();
 }

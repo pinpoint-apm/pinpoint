@@ -34,8 +34,6 @@ public interface Trace extends StackOperation {
     @InterfaceAudience.Private
     long getStartTime();
 
-    @InterfaceAudience.Private
-    long getEndTime();
     //------------------------------------------------
 
     TraceId getTraceId();

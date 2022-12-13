@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
@@ -80,8 +81,9 @@ public class TraceTest {
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
 
         Storage storage = mock(Storage.class);
+        UriStatStorage uriStatStorage = mock(UriStatStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
+        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
         trace.traceBlockBegin();
 
         // get data form db
@@ -114,8 +116,10 @@ public class TraceTest {
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
 
         Storage storage = mock(Storage.class);
+        UriStatStorage uriStatStorage = mock(UriStatStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
+        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder,
+                ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
 
         trace.close();
 

@@ -28,19 +28,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusUtils;
-import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.BypassingUriExtractorService;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpHeaderFilter;
@@ -73,16 +67,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
 
-    private final UriStatRecorder<HttpServerRequest> uriStatRecorder;
-
-    private final Boolean urlStatEnable;
 
 
     public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext,
                                                     final MethodDescriptor methodDescriptor,
-                                                    final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
-                                                    final UriStatRecorderFactory uriStatRecorderFactory,
-                                                    final Boolean urlStatEnable) {
+                                                    final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.descriptor = methodDescriptor;
 
@@ -97,9 +86,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
         this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
-        this.urlStatEnable = urlStatEnable;
-        Objects.requireNonNull(uriStatRecorderFactory);
-        this.uriStatRecorder = uriStatRecorderFactory.create(new BypassingUriExtractorService<>());
     }
 
 
@@ -219,7 +205,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
         if (!trace.canSampled()) {
             deleteTrace(trace);
-            recordUriStat(args, trace);
             return;
         }
 
@@ -238,17 +223,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         } finally {
             trace.traceBlockEnd();
             deleteTrace(trace);
-            recordUriStat(args, trace);
-        }
-    }
-
-    private void recordUriStat(Object[] args, Trace trace) {
-        if (urlStatEnable && validate(args)) {
-            final HttpServerRequest request = (HttpServerRequest) args[0];
-            String uriTemplate = trace.getUriTemplate();
-            String uri = StringUtils.defaultString(uriTemplate, URITemplate.NOT_FOUNDED);
-            boolean status = HttpStatusUtils.isNonError(request.response().getStatusCode());
-            uriStatRecorder.record(uriTemplate, request, uri, status, trace.getStartTime(), trace.getEndTime());
         }
     }
 

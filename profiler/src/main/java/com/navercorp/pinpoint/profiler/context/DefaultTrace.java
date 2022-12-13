@@ -25,10 +25,12 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,12 +59,13 @@ public final class DefaultTrace implements Trace {
 
     private final Span span;
     private final ActiveTraceHandle activeTraceHandle;
-
-    private long endTime = 0L;
+    private final UriStatStorage uriStatStorage;
 
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
-                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                        ActiveTraceHandle activeTraceHandle,
+                        UriStatStorage uriStatStorage) {
 
         this.span = Objects.requireNonNull(span, "span");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
@@ -73,6 +76,7 @@ public final class DefaultTrace implements Trace {
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
         this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
+        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
 
         setCurrentThread();
     }
@@ -193,10 +197,27 @@ public final class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-        this.storage.close();
-        endTime = afterTime;
 
+        this.storage.close();
         purgeActiveTrace(afterTime);
+        recordUriTemplate(afterTime);
+    }
+
+    private void recordUriTemplate(long afterTime) {
+        TraceRoot traceRoot = this.getTraceRoot();
+        Shared shared = traceRoot.getShared();
+        String uriTemplate = shared.getUriTemplate();
+        long traceStartTime = traceRoot.getTraceStartTime();
+
+        boolean status = getStatus(shared.getErrorCode());
+        uriStatStorage.store(uriTemplate, status, traceStartTime, afterTime);
+    }
+
+    private boolean getStatus(int errorCode) {
+        if (errorCode == 0) {
+            return true;
+        }
+        return false;
     }
 
     private void purgeActiveTrace(long currentTime) {
@@ -229,11 +250,6 @@ public final class DefaultTrace implements Trace {
     @Override
     public long getStartTime() {
         return getTraceRoot().getTraceStartTime();
-    }
-
-    @Override
-    public long getEndTime() {
-        return endTime;
     }
 
     @Override
@@ -330,6 +346,7 @@ public final class DefaultTrace implements Trace {
     public boolean recordUriTemplate(String uriTemplate) {
         return getTraceRoot().getShared().setUriTemplate(uriTemplate);
     }
+
 
     @Override
     public String getUriTemplate() {

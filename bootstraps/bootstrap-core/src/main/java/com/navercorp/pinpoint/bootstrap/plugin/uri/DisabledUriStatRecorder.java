@@ -29,8 +29,9 @@ public class DisabledUriStatRecorder<T> implements UriStatRecorder<T> {
     }
 
     @Override
-    public void record(String uriTemplate, T request, String rawUri, boolean status, long startTime, long endTime) {
+    public String record(String uriTemplate, T request, String rawUri) {
         // do nothing
+        return null;
     }
 
 }

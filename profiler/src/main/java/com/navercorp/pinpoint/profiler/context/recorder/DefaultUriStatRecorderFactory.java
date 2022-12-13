@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorService;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
-import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import java.util.Objects;
 
@@ -34,19 +33,15 @@ import java.util.Objects;
 public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
 
     private final UriExtractorProviderLocator uriExtractorProviderLocator;
-    private final UriStatStorage uriStatStorage;
     private final MonitorConfig monitorConfig;
 
     public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider,
-                                         Provider<UriStatStorage> uriStatStorageProvider,
                                          MonitorConfig monitorConfig) {
         Objects.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
 
         UriExtractorProviderLocator uriExtractorProviderLocator = uriExtractorProviderLocatorProvider.get();
         this.uriExtractorProviderLocator = Objects.requireNonNull(uriExtractorProviderLocator, "uriExtractorProviderLocator");
 
-        Objects.requireNonNull(uriStatStorageProvider, "uriStatStorageProvider");
-        this.uriStatStorage = uriStatStorageProvider.get();
         this.monitorConfig = Objects.requireNonNull(monitorConfig);
     }
 
@@ -58,7 +53,7 @@ public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
         if (uriExtractor == null) {
             return DisabledUriStatRecorder.create();
         } else {
-            return new DefaultUriStatRecorder<T>(uriExtractor, uriStatStorage, monitorConfig.getOftenUsedResources());
+            return new DefaultUriStatRecorder<>(uriExtractor, monitorConfig.getOftenUsedResources());
         }
     }
 
