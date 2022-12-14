@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
@@ -82,11 +81,9 @@ public class ASMClassTest {
 
     private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
     private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
-    private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider = Providers.of(mock(UriStatRecorderFactory.class));
 
     private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
-            customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory,
-            requestRecorderFactory, uriStatRecorderFactoryProvider);
+            customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory, requestRecorderFactory);
     private final ScopeFactory scopeFactory = new ScopeFactory();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 

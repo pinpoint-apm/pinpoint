@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
@@ -88,14 +87,4 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
         return result;
     }
 
-    @Override
-    public List<UriExtractorProvider> getUriExtractorProviderList() {
-        final List<UriExtractorProvider> result = new ArrayList<>();
-        PluginsSetupResult pluginsSetupResult = getPluginsSetupResult();
-        for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
-            List<UriExtractorProvider> uriExtractorProviderList = context.getUriExtractorProviderList();
-            result.addAll(uriExtractorProviderList);
-        }
-        return result;
-    }
 }

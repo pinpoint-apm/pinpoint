@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -44,8 +43,6 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
 
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
-    private final Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider;
-
 
     @Inject
     public ObjectBinderFactoryProvider(ProfilerConfig profilerConfig,
@@ -54,8 +51,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
                                        DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
                                        Provider<ApiMetaDataService> apiMetaDataServiceProvider,
                                        ExceptionHandlerFactory exceptionHandlerFactory,
-                                       RequestRecorderFactory requestRecorderFactory,
-                                       Provider<UriStatRecorderFactory> uriStatRecorderFactoryProvider) {
+                                       RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.traceContextProvider = Objects.requireNonNull(traceContextProvider, "traceContextProvider");
         this.dataSourceMonitorRegistryService = Objects.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
@@ -64,14 +60,13 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
 
         this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
-        this.uriStatRecorderFactoryProvider = Objects.requireNonNull(uriStatRecorderFactoryProvider, "uriStatRecorderFactoryProvider");
     }
 
     @Override
     public ObjectBinderFactory get() {
         return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
                 customMetricRegistryService, apiMetaDataServiceProvider,
-                exceptionHandlerFactory, requestRecorderFactory, uriStatRecorderFactoryProvider);
+                exceptionHandlerFactory, requestRecorderFactory);
     }
 
 }

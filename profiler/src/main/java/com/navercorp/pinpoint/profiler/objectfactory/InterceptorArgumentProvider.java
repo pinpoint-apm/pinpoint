@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
@@ -42,22 +41,19 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
     private final InstrumentClass targetClass;
     private final InstrumentMethod targetMethod;
     private final RequestRecorderFactory requestRecorderFactory;
-    private final UriStatRecorderFactory uriStatRecorderFactory;
 
     public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry,
                                        CustomMetricRegistry customMetricRegistry,
                                        ApiMetaDataService apiMetaDataService,
                                        RequestRecorderFactory requestRecorderFactory,
-                                       UriStatRecorderFactory uriStatRecorderFactory,
                                        InstrumentClass targetClass) {
-        this(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, uriStatRecorderFactory, null, targetClass, null);
+        this(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, null, targetClass, null);
     }
 
     public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry,
                                        CustomMetricRegistry customMetricRegistry,
                                        ApiMetaDataService apiMetaDataService,
                                        RequestRecorderFactory requestRecorderFactory,
-                                       UriStatRecorderFactory uriStatRecorderFactory,
                                        InterceptorScope interceptorScope, InstrumentClass targetClass,
                                        InstrumentMethod targetMethod) {
         this.dataSourceMonitorRegistry = Objects.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
@@ -65,7 +61,6 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
         this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
 
         this.requestRecorderFactory = requestRecorderFactory;
-        this.uriStatRecorderFactory = uriStatRecorderFactory;
         this.interceptorScope = interceptorScope;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
@@ -101,8 +96,6 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
             return Option.withValue(requestRecorderFactory);
         } else if (type == CustomMetricRegistry.class) {
             return Option.withValue(customMetricRegistry);
-        } else if (type == UriStatRecorderFactory.class) {
-            return Option.withValue(uriStatRecorderFactory);
         }
 
         return Option.empty();
