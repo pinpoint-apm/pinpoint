@@ -7,5 +7,5 @@ public final class URITemplate {
     private URITemplate() {
     }
 
-    public static final String NOT_FOUNDED = "/NOT_FOUND_URI";
+    public static final String NOT_FOUND = "/NOT_FOUND_URI";
 }
