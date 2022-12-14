@@ -66,6 +66,4 @@ public interface ProfilerPluginSetupContext {
 
     void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParserV2);
 
-    void addUriExtractor(UriExtractorProvider uriExtractorProvider);
-
 }

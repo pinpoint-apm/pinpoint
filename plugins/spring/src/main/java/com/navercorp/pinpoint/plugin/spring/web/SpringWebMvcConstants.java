@@ -30,7 +30,7 @@ public final class SpringWebMvcConstants {
     public static final ServiceType SPRING_MVC = ServiceTypeFactory.of(5051, "SPRING_MVC", "SPRING");
 
     public static final UriExtractorType SPRING_MVC_URI_EXTRACTOR_TYPE = UriExtractorType.SERVLET_REQUEST_ATTRIBUTE;
-    public static final String SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEY = "org.springframework.web.servlet.HandlerMapping.bestMatchingPattern";
-    public static final String[] SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS = {"pinpoint.metric.uri-template"};
+    public static final String[] SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEYS = {"org.springframework.web.servlet.HandlerMapping.bestMatchingPattern"};
+    public static final String[] SPRING_MVC_URI_USER_INPUT_ATTRIBUTE_KEYS = {"pinpoint.metric.uri-template"};
 
 }

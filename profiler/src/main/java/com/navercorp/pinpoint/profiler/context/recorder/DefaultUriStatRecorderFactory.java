@@ -33,27 +33,23 @@ import java.util.Objects;
 public class DefaultUriStatRecorderFactory implements UriStatRecorderFactory {
 
     private final UriExtractorProviderLocator uriExtractorProviderLocator;
-    private final MonitorConfig monitorConfig;
 
-    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider,
-                                         MonitorConfig monitorConfig) {
+    public DefaultUriStatRecorderFactory(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider) {
         Objects.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
 
         UriExtractorProviderLocator uriExtractorProviderLocator = uriExtractorProviderLocatorProvider.get();
         this.uriExtractorProviderLocator = Objects.requireNonNull(uriExtractorProviderLocator, "uriExtractorProviderLocator");
-
-        this.monitorConfig = Objects.requireNonNull(monitorConfig);
     }
 
     @Override
     public <T> UriStatRecorder<T> create(UriExtractorService<T> uriExtractorService) {
         Objects.requireNonNull(uriExtractorService, "uriExtractorService");
-        UriExtractor<T> uriExtractor = uriExtractorService.getUriExtractor(uriExtractorProviderLocator);
+        UriExtractor<T> uriExtractor = uriExtractorService.get(uriExtractorProviderLocator);
 
         if (uriExtractor == null) {
             return DisabledUriStatRecorder.create();
         } else {
-            return new DefaultUriStatRecorder<>(uriExtractor, monitorConfig.getOftenUsedResources());
+            return new DefaultUriStatRecorder<>(uriExtractor);
         }
     }
 

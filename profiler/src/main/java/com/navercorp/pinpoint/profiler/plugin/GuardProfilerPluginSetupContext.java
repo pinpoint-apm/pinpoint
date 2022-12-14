@@ -64,12 +64,6 @@ public class GuardProfilerPluginSetupContext implements ProfilerPluginSetupConte
         this.delegate.addJdbcUrlParser(jdbcUrlParser);
     }
 
-    @Override
-    public void addUriExtractor(UriExtractorProvider uriExtractorProvider) {
-        checkOpen();
-        this.delegate.addUriExtractor(uriExtractorProvider);
-    }
-
     private void checkOpen() {
         if (close) {
             throw new IllegalStateException("ProfilerPluginSetupContext already initialized");

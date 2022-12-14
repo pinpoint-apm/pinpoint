@@ -27,10 +27,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriMappingExtractorProvider;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.ExposePathWithinMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.InvocableHandlerMethodInvokeForRequestMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.LookupHandlerMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.ProcessRequestInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -42,7 +42,6 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-
     private TransformTemplate transformTemplate;
 
     @Override
@@ -53,27 +52,19 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             return;
         }
 
-        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class);
+        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class, new Object[]{config.isUriStatEnable(), config.isUriStatUseUserInput()}, new Class[]{Boolean.class, Boolean.class});
 
         // Async
         transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
         // uri stat
         if (config.isUriStatEnable()) {
-            UriMappingExtractorProvider uriMappingExtractorProvider = new UriMappingExtractorProvider(
-                    SpringWebMvcConstants.SPRING_MVC_URI_EXTRACTOR_TYPE,
-                    SpringWebMvcConstants.SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS,
-                    config.isUriStatUseUserInput()
-            );
-            context.addUriExtractor(uriMappingExtractorProvider);
-
             transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
             transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class);
         }
 
     }
     public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
-
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -103,6 +94,14 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
 
     public static class FrameworkServletTransform implements TransformCallback {
 
+        private final Boolean uriStatEnable;
+        private final Boolean uriStatUseUserInput;
+
+        public FrameworkServletTransform(Boolean uriStatEnable, Boolean uriStatUseUserInput) {
+            this.uriStatEnable = uriStatEnable;
+            this.uriStatUseUserInput = uriStatUseUserInput;
+        }
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
@@ -110,6 +109,10 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             doGet.addInterceptor(BasicMethodInterceptor.class, va(SpringWebMvcConstants.SPRING_MVC));
             InstrumentMethod doPost = target.getDeclaredMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
             doPost.addInterceptor(BasicMethodInterceptor.class, va(SpringWebMvcConstants.SPRING_MVC));
+            if (this.uriStatEnable) {
+                InstrumentMethod processRequest = target.getDeclaredMethod("processRequest", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
+                processRequest.addInterceptor(ProcessRequestInterceptor.class, va(this.uriStatUseUserInput));
+            }
             return target.toBytecode();
         }
     }

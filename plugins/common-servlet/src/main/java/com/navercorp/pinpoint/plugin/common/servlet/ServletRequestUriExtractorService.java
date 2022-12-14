@@ -32,8 +32,8 @@ import java.util.List;
 public class ServletRequestUriExtractorService implements UriExtractorService<HttpServletRequest> {
 
     @Override
-    public UriExtractor<HttpServletRequest> getUriExtractor(UriExtractorProviderLocator locator) {
-        List<UriMappingExtractorProvider> uriMappingExtractorProviderList = locator.getUriExtractorProvider(UriMappingExtractorProvider.class, ServletRequestAttributesMappingExtractor.TYPE);
+    public UriExtractor<HttpServletRequest> get(UriExtractorProviderLocator locator) {
+        List<UriMappingExtractorProvider> uriMappingExtractorProviderList = locator.get(UriMappingExtractorProvider.class, ServletRequestAttributesMappingExtractor.TYPE);
 
         List<UriExtractor<HttpServletRequest>> result = new ArrayList<>();
         for (UriMappingExtractorProvider uriMappingExtractorProvider : uriMappingExtractorProviderList) {
@@ -46,12 +46,6 @@ public class ServletRequestUriExtractorService implements UriExtractorService<Ht
         } else {
             return new UriExtractorChain<>(result);
         }
-    }
-
-    @Override
-    @Deprecated
-    public UriExtractor<HttpServletRequest> get(UriExtractorProviderLocator uriExtractorProviderLocator) {
-        return getUriExtractor(uriExtractorProviderLocator);
     }
 
 }

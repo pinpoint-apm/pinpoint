@@ -31,18 +31,15 @@ import java.util.Objects;
 public class UriStatRecorderFactoryProvider implements Provider<UriStatRecorderFactory> {
 
     private final Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider;
-    private final MonitorConfig monitorConfig;
 
     @Inject
-    public UriStatRecorderFactoryProvider(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider,
-                                          MonitorConfig monitorConfig){
+    public UriStatRecorderFactoryProvider(Provider<UriExtractorProviderLocator> uriExtractorProviderLocatorProvider){
         this.uriExtractorProviderLocatorProvider = Objects.requireNonNull(uriExtractorProviderLocatorProvider, "uriExtractorProviderLocatorProvider");
-        this.monitorConfig = Objects.requireNonNull(monitorConfig);
     }
 
     @Override
     public UriStatRecorderFactory get() {
-        return new DefaultUriStatRecorderFactory(uriExtractorProviderLocatorProvider, monitorConfig);
+        return new DefaultUriStatRecorderFactory(uriExtractorProviderLocatorProvider);
     }
 
 }

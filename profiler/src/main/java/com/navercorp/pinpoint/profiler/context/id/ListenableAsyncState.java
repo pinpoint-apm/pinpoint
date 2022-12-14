@@ -62,14 +62,15 @@ public class ListenableAsyncState implements AsyncState {
             this.asyncStateListener.finish();
             final long purgeTime = System.currentTimeMillis();
             this.activeTraceHandle.purge(purgeTime);
-            recordUriTemplate(purgeTime);
+            storeUriTemplate(purgeTime);
         }
     }
 
-    private void recordUriTemplate(long purgeTime) {
+    private void storeUriTemplate(long purgeTime) {
         if (uriStatStorage == DisabledUriStatStorage.INSTANCE) {
             return;
         }
+
         Shared shared = this.traceRoot.getShared();
         long traceStartTime = this.traceRoot.getTraceStartTime();
         boolean status = getStatus(shared.getErrorCode());
@@ -96,7 +97,7 @@ public class ListenableAsyncState implements AsyncState {
         if (await == false) {
             final long purgeTime = System.currentTimeMillis();
             activeTraceHandle.purge(purgeTime);
-            recordUriTemplate(purgeTime);
+            storeUriTemplate(purgeTime);
         }
         return await;
     }
