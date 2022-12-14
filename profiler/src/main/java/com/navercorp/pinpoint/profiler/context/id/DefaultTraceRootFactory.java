@@ -40,7 +40,14 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
     public TraceRoot newTraceRoot(long transactionId) {
         final TraceId traceId = traceIdFactory.newTraceId(transactionId);
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
+        return TraceRoot.remote(traceId, this.agentId, startTime, transactionId);
+    }
+
+
+    @Override
+    public TraceRoot newDisableTraceRoot(long transactionId) {
+        final long startTime = traceStartTime();
+        return TraceRoot.local(agentId, startTime, transactionId);
     }
 
     private long traceStartTime() {
@@ -53,6 +60,6 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
         Objects.requireNonNull(traceId, "traceId");
 
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
+        return TraceRoot.remote(traceId, this.agentId, startTime, transactionId);
     }
 }

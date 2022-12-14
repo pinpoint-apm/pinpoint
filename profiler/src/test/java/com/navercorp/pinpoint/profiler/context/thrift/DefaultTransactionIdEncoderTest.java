@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,17 +97,17 @@ public class DefaultTransactionIdEncoderTest {
 
     private TraceRoot getRootTraceId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, transactionId);
     }
 
     private TraceRoot getExternalTraceId() {
         TraceId traceId = new DefaultTraceId(agentId2, agentStartTime2, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, transactionId);
     }
 
     private TraceRoot getDuplicateAgentId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime2, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, transactionId);
     }
 
 

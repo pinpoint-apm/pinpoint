@@ -20,13 +20,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -55,6 +56,11 @@ public class DefaultRecorderFactory implements RecorderFactory {
     @Override
     public SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
         return new TraceRootSpanRecorder(traceRoot, sampling);
+    }
+
+    @Override
+    public SpanRecorder newDisableSpanRecorder(TraceRoot traceRoot) {
+        return new DisableSpanRecorder(traceRoot, errorHandler);
     }
 
     @Override

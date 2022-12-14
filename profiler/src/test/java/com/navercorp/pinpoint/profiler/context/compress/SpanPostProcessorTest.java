@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -88,6 +87,6 @@ public class SpanPostProcessorTest {
 
     private TraceRoot newInternalTraceId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, 0);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, 0);
     }
 }

@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -58,9 +59,15 @@ public final class DefaultTrace implements Trace {
     private DefaultTraceScopePool scopePool;
 
     private final Span span;
+    @Nullable
     private final ActiveTraceHandle activeTraceHandle;
+    @Nullable
     private final UriStatStorage uriStatStorage;
 
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
+        this(span, callStack, storage, sampling, spanRecorder, wrappedSpanEventRecorder, null, null);
+    }
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
@@ -75,8 +82,8 @@ public final class DefaultTrace implements Trace {
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
-        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
+        this.activeTraceHandle = activeTraceHandle;
+        this.uriStatStorage = uriStatStorage;
 
         setCurrentThread();
     }
@@ -204,6 +211,10 @@ public final class DefaultTrace implements Trace {
     }
 
     private void recordUriTemplate(long afterTime) {
+        if (uriStatStorage == null) {
+            return;
+        }
+
         TraceRoot traceRoot = this.getTraceRoot();
         Shared shared = traceRoot.getShared();
         String uriTemplate = shared.getUriTemplate();
