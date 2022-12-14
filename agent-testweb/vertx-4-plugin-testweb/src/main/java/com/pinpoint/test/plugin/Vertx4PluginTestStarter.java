@@ -22,10 +22,11 @@ import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SelfSignedCertificate;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Vertx4PluginTestStarter extends AbstractVerticle {
@@ -41,13 +42,18 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
 
         Router router = Router.router(vertx);
 
-        router.get("/").handler(new Handler<RoutingContext>() {
-            @Override
-            public void handle(RoutingContext routingContext) {
-                System.out.println("## WELCOME");
-                routingContext.response().end("Welcome pinpoint vert.x HTTP server test.");
-            }
+        router.get("/").handler(routingContext -> {
+            routingContext.redirect("/main");
         });
+        router.get("/reroute").handler(routingContext -> {
+            routingContext.reroute("/main");
+        });
+        router.get("/main").handler(routingContext -> {
+            List<Route> routes = router.getRoutes();
+            routingContext.response().end(buildMain("Welcome pinpoint vert.x HTTP server test", routes));
+        });
+
+
         router.get("/request").handler(routingContext -> {
             request(80, "naver.com", "/");
             routingContext.response().end("Request http://naver.com:80/");
@@ -107,6 +113,11 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
                 startPromise.fail(http.cause());
             }
         });
+    }
+
+    private String buildMain(String title, List<Route> routes) {
+        return new ApiLinkPage(title)
+                .buildRoute(routes);
     }
 
     private void executeBlocking(HttpServerRequest request, final int waitSeconds) {
