@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,7 +64,7 @@ public class GrpcSpanProcessorV2Test {
 
     private Span newSpan() {
         TraceId traceId = new DefaultTraceId("agent", 1, 0);
-        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agent", 0, 3);
+        TraceRoot traceRoot = TraceRoot.remote(traceId, "agent", 0, 3);
         return new Span(traceRoot);
     }
 

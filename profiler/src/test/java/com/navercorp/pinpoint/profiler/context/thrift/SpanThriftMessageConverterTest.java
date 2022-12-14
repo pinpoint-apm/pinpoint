@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
@@ -40,7 +39,6 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,7 +67,7 @@ public class SpanThriftMessageConverterTest {
 
     private Span newSpan() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
+        final TraceRoot traceRoot = TraceRoot.remote(traceId, AGENT_ID, AGENT_START_TIME, 100L);
         return new Span(traceRoot);
     }
 
@@ -128,8 +126,8 @@ public class SpanThriftMessageConverterTest {
 
     private SpanChunk newSpanChunk() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
-        return new DefaultSpanChunk(traceRoot, Arrays.asList(new SpanEvent()));
+        final TraceRoot traceRoot = TraceRoot.remote(traceId, AGENT_ID, AGENT_START_TIME, 100L);
+        return new DefaultSpanChunk(traceRoot, Collections.singletonList(new SpanEvent()));
     }
 
 

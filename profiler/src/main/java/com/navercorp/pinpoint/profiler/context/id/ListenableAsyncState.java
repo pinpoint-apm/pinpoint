@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.id;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import java.util.Objects;
@@ -66,6 +67,9 @@ public class ListenableAsyncState implements AsyncState {
     }
 
     private void recordUriTemplate(long purgeTime) {
+        if (uriStatStorage == DisabledUriStatStorage.INSTANCE) {
+            return;
+        }
         Shared shared = this.traceRoot.getShared();
         long traceStartTime = this.traceRoot.getTraceStartTime();
         boolean status = getStatus(shared.getErrorCode());

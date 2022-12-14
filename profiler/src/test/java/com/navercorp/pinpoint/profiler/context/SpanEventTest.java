@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -41,7 +40,7 @@ public class SpanEventTest {
     @Test
     public void testMarkStartTime() {
         final DefaultTraceId traceId = new DefaultTraceId("agentId", 0, 0);
-        TraceRoot traceRoot = new DefaultTraceRoot(traceId, "agentId", System.currentTimeMillis(), 0);
+        TraceRoot traceRoot = TraceRoot.remote(traceId, "agentId", System.currentTimeMillis(), 0);
 
         Span span = new Span(traceRoot);
         span.markBeforeTime();

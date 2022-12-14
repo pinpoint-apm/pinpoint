@@ -149,7 +149,11 @@ public class ServletRequestListener<REQ> {
             return;
         }
 
-        final String rpcName = requestAdaptor.getRpcName(request);
+//        final String rpcName = requestAdaptor.getRpcName(request);
+
+        if (this.recordStatusCode) {
+            this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
+        }
 
         // TODO STATDISABLE this logic was added to disable statistics tracing
         if (!trace.canSampled()) {
@@ -161,9 +165,6 @@ public class ServletRequestListener<REQ> {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordException(throwable);
-            if (this.recordStatusCode) {
-                this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), statusCode);
-            }
             // Must be executed in destroyed()
             this.parameterRecorder.record(recorder, request, throwable);
         } finally {

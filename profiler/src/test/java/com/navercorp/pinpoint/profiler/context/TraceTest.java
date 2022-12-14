@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
@@ -69,7 +68,7 @@ public class TraceTest {
     public void trace() {
 
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
+        final TraceRoot traceRoot = TraceRoot.remote(traceId, agentId, traceStartTime, 0);
 
         final CallStack<SpanEvent> callStack = newCallStack();
         final Span span = newSpan(traceRoot);
@@ -102,7 +101,7 @@ public class TraceTest {
     public void popEventTest() {
 
         final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, agentId, traceStartTime, 0);
+        final TraceRoot traceRoot = TraceRoot.remote(traceId, agentId, traceStartTime, 0);
 
         final CallStack<SpanEvent> callStack = newCallStack();
 

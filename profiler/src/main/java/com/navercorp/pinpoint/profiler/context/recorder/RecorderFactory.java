@@ -30,6 +30,8 @@ public interface RecorderFactory {
 
     SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling);
 
+    SpanRecorder newDisableSpanRecorder(TraceRoot traceRoot);
+
     WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot);
 
     WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot, AsyncState asyncState);

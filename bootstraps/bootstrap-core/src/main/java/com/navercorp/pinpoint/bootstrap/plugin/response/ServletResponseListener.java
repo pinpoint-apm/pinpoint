@@ -70,9 +70,9 @@ public class ServletResponseListener<RESP> {
             return;
         }
 
+        final SpanRecorder spanRecorder = trace.getSpanRecorder();
+        this.httpStatusCodeRecorder.record(spanRecorder, statusCode);
         if (trace.canSampled()) {
-            final SpanRecorder spanRecorder = trace.getSpanRecorder();
-            this.httpStatusCodeRecorder.record(spanRecorder, statusCode);
             this.serverResponseHeaderRecorder.recordHeader(spanRecorder, response);
         }
     }
