@@ -10,29 +10,35 @@ import com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcConstants;
 
 import javax.servlet.ServletRequest;
 
-public class LookupHandlerMethodInterceptor implements AroundInterceptor {
-    private final TraceContext traceContext;
+public class ProcessRequestInterceptor implements AroundInterceptor {
 
-    public LookupHandlerMethodInterceptor(final TraceContext traceContext) {
+    private TraceContext traceContext;
+    private final Boolean uriStatUseUserInput;
+
+    public ProcessRequestInterceptor(final TraceContext traceContext, Boolean uriStatUseUserInput) {
         this.traceContext = traceContext;
+        this.uriStatUseUserInput = uriStatUseUserInput;
     }
 
     @Override
     public void before(Object target, Object[] args) {
+
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace != null) {
-            ServletRequest request = ArrayArgumentUtils.getArgument(args, 1, ServletRequest.class);
-            String uri = extractAttribute(request, SpringWebMvcConstants.SPRING_MVC_DEFAULT_URI_ATTRIBUTE_KEYS);
+        Trace trace = traceContext.currentRawTraceObject();
+        ServletRequest request = ArrayArgumentUtils.getArgument(args, 0, ServletRequest.class);
+
+        if (uriStatUseUserInput && (trace != null)) {
+            String uri = extractAttribute(request, SpringWebMvcConstants.SPRING_MVC_URI_USER_INPUT_ATTRIBUTE_KEYS);
             if (uri != null) {
                 SpanRecorder spanRecorder = trace.getSpanRecorder();
-                spanRecorder.recordUriTemplate(uri, false);
+                spanRecorder.recordUriTemplate(uri, true);
             }
         }
     }
+
     private String extractAttribute(ServletRequest request, String[] keys) {
         for (String attributeName : keys) {
             Object uriMapping = request.getAttribute(attributeName);

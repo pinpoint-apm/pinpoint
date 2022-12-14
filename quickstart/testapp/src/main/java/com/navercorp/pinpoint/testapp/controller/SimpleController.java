@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.testapp.util.Description;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,14 @@ public class SimpleController {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("getCurrentTimestamp", System.currentTimeMillis());
 
+        return map;
+    }
+
+    @RequestMapping("/testUserInputRequestAttribute")
+    public Map<String, Object> testUserInputAttribute(HttpServletRequest request) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("message", "test user input attribute");
+        request.setAttribute("pinpoint.metric.uri-template", "/userInput");
         return map;
     }
 

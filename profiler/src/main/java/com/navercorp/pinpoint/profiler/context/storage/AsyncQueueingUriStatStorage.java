@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.common.profiler.clock.Clock;
 import com.navercorp.pinpoint.common.profiler.clock.TickClock;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
@@ -39,7 +40,6 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     private static final Logger LOGGER = LogManager.getLogger(AsyncQueueingUriStatStorage.class);
     private static final ThrottledLogger TLogger = ThrottledLogger.getLogger(LOGGER, 100);
-
     private final ExecutorListener executorListener;
 
     public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName) {
@@ -58,7 +58,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
     @Override
     public void store(String uri, boolean status, long startTime, long endTime) {
         if (uri == null) {
-            return;
+            uri = URITemplate.NOT_FOUNDED;
         }
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
         execute(uriStatInfo);

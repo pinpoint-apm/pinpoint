@@ -36,7 +36,6 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
     private final ProfilerPluginGlobalContext globalContext;
 
     private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<>();
-    private final List<UriExtractorProvider> uriExtractorProviderList = new ArrayList<>();
 
     public DefaultProfilerPluginSetupContext(ProfilerPluginGlobalContext globalContext) {
         this.globalContext = Objects.requireNonNull(globalContext, "globalContext");
@@ -71,20 +70,8 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
         this.jdbcUrlParserList.add(jdbcUrlParser);
     }
 
-    @Override
-    public void addUriExtractor(UriExtractorProvider uriExtractorProvider) {
-        if (uriExtractorProvider == null) {
-            return;
-        }
-
-        this.uriExtractorProviderList.add(uriExtractorProvider);
-    }
-
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {
         return jdbcUrlParserList;
     }
 
-    public List<UriExtractorProvider> getUriExtractorProviderList() {
-        return uriExtractorProviderList;
-    }
 }

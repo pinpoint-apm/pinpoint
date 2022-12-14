@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
 import com.navercorp.pinpoint.common.profiler.clock.TickClock;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.storage.AsyncQueueingUriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -44,13 +44,13 @@ public class UriExtractorProviderRegistryTest {
 
 
         UriExtractorProviderRegistry registry = new UriExtractorProviderRegistry(uriExtractorProviderList);
-        List<UriMappingExtractorProvider> result = registry.getUriExtractorProvider(UriMappingExtractorProvider.class, UriExtractorType.SERVLET_REQUEST_ATTRIBUTE);
+        List<UriMappingExtractorProvider> result = registry.get(UriMappingExtractorProvider.class, UriExtractorType.SERVLET_REQUEST_ATTRIBUTE);
         Assertions.assertEquals(2, result.size());
 
-        result = registry.getUriExtractorProvider(UriMappingExtractorProvider.class, UriExtractorType.NONE);
+        result = registry.get(UriMappingExtractorProvider.class, UriExtractorType.NONE);
         Assertions.assertEquals(0, result.size());
 
-        List<MockUriExtractorProvider> result2 = registry.getUriExtractorProvider(MockUriExtractorProvider.class, UriExtractorType.SERVLET_REQUEST_ATTRIBUTE);
+        List<MockUriExtractorProvider> result2 = registry.get(MockUriExtractorProvider.class, UriExtractorType.SERVLET_REQUEST_ATTRIBUTE);
         Assertions.assertEquals(0, result2.size());
     }
 
