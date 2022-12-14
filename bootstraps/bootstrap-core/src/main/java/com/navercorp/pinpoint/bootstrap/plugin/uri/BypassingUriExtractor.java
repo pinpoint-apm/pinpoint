@@ -12,7 +12,7 @@ public class BypassingUriExtractor<T> implements UriExtractor<T> {
 
     @Override
     public String getUri(T target, String rawUrl) {
-        return rawUrl;
+        return null;
     }
 
     @Override

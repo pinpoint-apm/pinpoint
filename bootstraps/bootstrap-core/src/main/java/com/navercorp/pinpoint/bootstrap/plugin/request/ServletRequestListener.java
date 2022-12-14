@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
@@ -56,8 +55,6 @@ public class ServletRequestListener<REQ> {
 
     private final ProxyRequestRecorder<REQ> proxyRequestRecorder;
 
-    private final UriStatRecorder<REQ> uriStatRecorder;
-
     private final boolean recordStatusCode;
 
     public ServletRequestListener(final ServiceType serviceType,
@@ -69,7 +66,6 @@ public class ServletRequestListener<REQ> {
                                   final ProxyRequestRecorder<REQ> proxyRequestRecorder,
                                   final ServerRequestRecorder<REQ> serverRequestRecorder,
                                   final HttpStatusCodeRecorder httpStatusCodeRecorder,
-                                  final UriStatRecorder<REQ> uriStatRecorder,
                                   final boolean  recordStatusCode) {
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
@@ -86,8 +82,6 @@ public class ServletRequestListener<REQ> {
         this.serverRequestRecorder = Objects.requireNonNull(serverRequestRecorder, "serverRequestRecorder");
 
         this.httpStatusCodeRecorder = Objects.requireNonNull(httpStatusCodeRecorder, "httpStatusCodeRecorder");
-
-        this.uriStatRecorder = Objects.requireNonNull(uriStatRecorder, "uriStatRecorder");
 
         this.recordStatusCode = recordStatusCode;
 

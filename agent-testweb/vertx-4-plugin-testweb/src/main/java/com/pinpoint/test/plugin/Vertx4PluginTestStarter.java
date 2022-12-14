@@ -94,6 +94,10 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
             String arg1 = routingContext.pathParam("arg1");
             routingContext.response().end(arg1);
         });
+        router.get("/routinContextAttributeAdded").handler(routingContext -> {
+            routingContext.put("pinpoint.metric.uri-template", "/test");
+            routingContext.response().end("pinpoint.metric.uri-tempate = /test");
+        });
 
         vertx.createHttpServer().requestHandler(router).listen(18080, http -> {
             if (http.succeeded()) {
