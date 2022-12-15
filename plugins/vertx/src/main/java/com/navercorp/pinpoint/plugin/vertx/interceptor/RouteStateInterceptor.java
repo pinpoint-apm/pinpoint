@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -32,32 +33,32 @@ public class RouteStateInterceptor implements AroundInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final RoutingContext routingContext = ArrayArgumentUtils.getArgument(args, 0, RoutingContext.class);
         if (routingContext != null) {
-            Trace trace = context.currentRawTraceObject();
-
+            final Trace trace = context.currentRawTraceObject();
+            if (trace == null) {
+                return;
+            }
             if (uriStatUseUserInput) {
                 if (recordWithUserInput(routingContext, trace)) {
                     return;
                 }
             }
-            Route route = routingContext.currentRoute();
-
+            final Route route = routingContext.currentRoute();
             if (route != null) {
                 String path = route.getPath();
                 logger.debug("vertx uriTemplate:{}", path);
-
-                if (trace != null) {
-                    trace.recordUriTemplate(path);
-                }
+                SpanRecorder spanRecorder = trace.getSpanRecorder();
+                spanRecorder.recordUriTemplate(path);
             }
 
         }
     }
 
     private boolean recordWithUserInput(RoutingContext routingContext, Trace trace) {
-        for(String key : VertxConstants.VERTX_URI_MAPPING_CONTEXT_KEYS) {
-            String value = routingContext.get(key);
-            if ((value != null) && (trace != null)) {
-                trace.recordUriTemplate(value);
+        for (String key : VertxConstants.VERTX_URI_MAPPING_CONTEXT_KEYS) {
+            String userUriTemplate = routingContext.get(key);
+            if (userUriTemplate != null) {
+                SpanRecorder spanRecorder = trace.getSpanRecorder();
+                spanRecorder.recordUriTemplate(userUriTemplate);
                 return true;
             }
         }

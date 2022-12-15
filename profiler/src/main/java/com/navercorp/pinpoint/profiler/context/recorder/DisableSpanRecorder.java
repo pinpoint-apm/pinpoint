@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class DisableSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordError() {
-        traceRoot.getShared().maskErrorCode(1);
+        getShared().maskErrorCode(1);
     }
 
     @Override
@@ -192,6 +193,22 @@ public class DisableSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordStatusCode(int statusCode) {
+        getShared().setStatusCode(statusCode);
+    }
+
+    @Override
+    public boolean recordUriTemplate(String uriTemplate) {
+        return recordUriTemplate(uriTemplate, false);
+    }
+
+
+    @Override
+    public boolean recordUriTemplate(String uriTemplate, boolean force) {
+        return getShared().setUriTemplate(uriTemplate, force);
+    }
+
+    private Shared getShared() {
+        return traceRoot.getShared();
     }
 
     @Override

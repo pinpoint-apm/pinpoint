@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
@@ -128,12 +129,16 @@ public class DisableTrace implements Trace {
         final long purgeTime = System.currentTimeMillis();
         handle.purge(purgeTime);
         boolean status = getStatus();
-        String uriTemplate = traceRoot.getShared().getUriTemplate();
+        String uriTemplate = getShared().getUriTemplate();
         uriStatStorage.store(uriTemplate, status, traceRoot.getTraceStartTime(), purgeTime);
     }
 
     private boolean getStatus() {
-        return traceRoot.getShared().getErrorCode() == 0;
+        return getShared().getErrorCode() == 0;
+    }
+
+    private Shared getShared() {
+        return traceRoot.getShared();
     }
 
 
@@ -168,13 +173,4 @@ public class DisableTrace implements Trace {
         return scopePool.add(name);
     }
 
-    @Override
-    public boolean recordUriTemplate(String uriTemplate) {
-        return this.traceRoot.getShared().setUriTemplate(uriTemplate);
-    }
-
-    @Override
-    public String getUriTemplate() {
-        return this.traceRoot.getShared().getUriTemplate();
-    }
 }

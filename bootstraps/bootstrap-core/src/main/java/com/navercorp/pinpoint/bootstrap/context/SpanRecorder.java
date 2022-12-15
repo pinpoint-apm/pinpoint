@@ -46,4 +46,8 @@ public interface SpanRecorder extends FrameAttachment, AttributeRecorder {
     void recordLogging(LoggingInfo loggingInfo);
 
     void recordStatusCode(int statusCode);
+
+    boolean recordUriTemplate(String uriTemplate);
+
+    boolean recordUriTemplate(String uriTemplate, boolean force);
 }

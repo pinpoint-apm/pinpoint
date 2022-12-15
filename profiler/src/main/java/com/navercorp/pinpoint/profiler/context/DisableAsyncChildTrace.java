@@ -144,15 +144,6 @@ public class DisableAsyncChildTrace implements Trace {
         return scopePool.add(name);
     }
 
-    @Override
-    public boolean recordUriTemplate(String uriTemplate) {
-        return traceRoot.getShared().setUriTemplate(uriTemplate);
-    }
-
-    @Override
-    public String getUriTemplate() {
-        return getTraceRoot().getShared().getUriTemplate();
-    }
 
     @Override
     public String toString() {
