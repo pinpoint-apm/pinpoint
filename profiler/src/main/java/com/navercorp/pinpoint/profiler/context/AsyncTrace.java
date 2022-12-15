@@ -150,16 +150,6 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public boolean recordUriTemplate(String uriTemplate) {
-        return traceRoot.getShared().setUriTemplate(uriTemplate);
-    }
-
-    @Override
-    public String getUriTemplate() {
-        return traceRoot.getShared().getUriTemplate();
-    }
-
-    @Override
     public String toString() {
         return "AsyncTrace{" +
                 "traceRoot=" + traceRoot +

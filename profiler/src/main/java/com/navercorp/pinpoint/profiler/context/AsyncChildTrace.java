@@ -304,16 +304,6 @@ public class AsyncChildTrace implements Trace {
     }
 
     @Override
-    public boolean recordUriTemplate(String uriTemplate) {
-        return getTraceRoot().getShared().setUriTemplate(uriTemplate);
-    }
-
-    @Override
-    public String getUriTemplate() {
-        return getTraceRoot().getShared().getUriTemplate();
-    }
-
-    @Override
     public String toString() {
         return "AsyncChildTrace{" +
                 "traceRoot=" + getTraceRoot() +

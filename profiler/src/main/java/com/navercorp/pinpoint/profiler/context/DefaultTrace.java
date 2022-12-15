@@ -353,16 +353,6 @@ public final class DefaultTrace implements Trace {
         return scopePool.add(name);
     }
 
-    @Override
-    public boolean recordUriTemplate(String uriTemplate) {
-        return getTraceRoot().getShared().setUriTemplate(uriTemplate);
-    }
-
-
-    @Override
-    public String getUriTemplate() {
-        return getTraceRoot().getShared().getUriTemplate();
-    }
 
     @Override
     public String toString() {

@@ -57,7 +57,4 @@ public interface Trace extends StackOperation {
 
     TraceScope addScope(String name);
 
-    boolean recordUriTemplate(String uriTemplate);
-
-    String getUriTemplate();
 }
