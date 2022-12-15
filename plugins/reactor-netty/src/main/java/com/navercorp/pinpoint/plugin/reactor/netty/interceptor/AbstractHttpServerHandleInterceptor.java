@@ -20,8 +20,7 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -40,7 +39,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
-
+import io.netty.handler.codec.http.HttpResponseStatus;
 import reactor.netty.http.server.HttpServerRequest;
 import reactor.netty.http.server.HttpServerResponse;
 
@@ -94,10 +93,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
             if (isDisconnecting(args)) {
                 final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
                 if (asyncContext != null) {
-                    if (asyncContext instanceof AsyncStateSupport) {
-                        final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncContext;
-                        AsyncState asyncState = asyncStateSupport.getAsyncState();
-                        asyncState.finish();
+                    if (AsyncContextUtils.asyncStateFinish(asyncContext)) {
                         if (isDebug) {
                             logger.debug("Finished asyncState. asyncTraceId={}", asyncContext);
                         }
@@ -175,8 +171,9 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
 
     private int getStatusCode(final HttpServerResponse response) {
         try {
-            if (response.status() != null) {
-                return response.status().code();
+            HttpResponseStatus status = response.status();
+            if (status != null) {
+                return status.code();
             }
         } catch (Exception ignored) {
         }

@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -135,10 +134,6 @@ public class AsyncListenerInterceptorHelper implements AsyncListenerInterceptor 
     }
 
     private void finish() {
-        if (this.asyncContext instanceof AsyncStateSupport) {
-            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) this.asyncContext;
-            AsyncState asyncState = asyncStateSupport.getAsyncState();
-            asyncState.finish();
-        }
+        AsyncContextUtils.asyncStateFinish(this.asyncContext);
     }
 }
