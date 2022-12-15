@@ -19,7 +19,7 @@ public class SortByAgentInfo<T> {
 
         AGENT_ID_DESC(AGENT_ID_ASC.getRule().reversed()),
 
-        LAST_STARTED_TIME(Comparator.comparingLong(AgentInfo::getStartTimestamp)
+        RECENT(Comparator.comparingLong(AgentInfo::getStartTimestamp)
                 .reversed()
                 .thenComparing(AgentInfo::getAgentId));
 
