@@ -5,17 +5,16 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class RemovableAgentDataService {
-    private listUrl = 'getAgentList.pinpoint';
+    private listUrl = 'agents/search-application.pinpoint';
     private removeApplicationUrl = 'admin/removeApplicationName.pinpoint';
     private removeAgentUrl = 'admin/removeAgentId.pinpoint';
-    // private removeInactiveUrl = 'admin/removeInactiveAgents.pinpoint';
 
     constructor(
         private http: HttpClient
     ) {}
 
-    getAgentList(appName: string): Observable<IAgentList> {
-        return this.http.get<IAgentList>(this.listUrl, {
+    getAgentList(appName: string): Observable<IServerAndAgentDataV2[]> {
+        return this.http.get<IServerAndAgentDataV2[]>(this.listUrl, {
             params: new HttpParams().set('application', appName)
         });
     }
