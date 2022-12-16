@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+
+import { SortOption } from './server-and-agent-list-container.component';
 @Component({
     selector: 'pp-server-and-agent-list',
     templateUrl: './server-and-agent-list.component.html',
@@ -46,8 +48,9 @@ export class ServerAndAgentListComponent implements OnInit {
         return this._serverKeyList;
     }
 
-    @Input() serverList: {[key: string]: IServerAndAgentData[]};
+    @Input() serverList: IServerAndAgentDataV2[];
     @Input() agentId: string;
+    @Input() selectedSortOptionKey: SortOption
     @Output() outSelectAgent = new EventEmitter<string>();
 
     private _serverKeyList: string[];
@@ -90,5 +93,16 @@ export class ServerAndAgentListComponent implements OnInit {
         return Array.from(element.nextElementSibling.querySelectorAll('.l-agent-name-wrapper')).some((el: HTMLElement) => {
             return el.classList.contains('active');
         });
+    }
+
+    getAgentLabel({agentId, agentName}: IServerAndAgentData): string {
+        switch (this.selectedSortOptionKey) {
+            case SortOption.ID:
+            case SortOption.RECENT:
+            default:
+                return agentName ? `${agentId} (${agentName})` : `${agentId} (N/A)`; 
+            case SortOption.NAME:
+                return agentName ? agentName : `N/A (${agentId})`;
+        }
     }
 }

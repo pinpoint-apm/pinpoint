@@ -10,6 +10,14 @@
     </div>
     <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
 </div>
+<div class="sort-option-wrapper">
+    <div class="sort-label">Sort by: </div>
+    <div class="sort-option-list-wrapper">
+        <ng-container *ngFor="let sortOption of sortOptionList">
+            <div class="sort-option" [class.active]="isActiveSortOption(sortOption.key)" (click)="onSelectSortOption(sortOption.key)">{{sortOption.display}}</div>
+        </ng-container>
+    </div>
+</div>
 <ng-container *ngIf="errorMessage || isEmpty; then guideText; else contents"></ng-container>
 <ng-template #guideText>
     <p class="guide-text" [class.error-text]="errorMessage">{{errorMessage ? errorMessage : emptyText$ | async}}</p>
@@ -20,6 +28,7 @@
         [serverKeyList]="filteredServerKeyList"
         [serverList]="filteredServerList"
         [agentId]="agentId"
+        [selectedSortOptionKey]="selectedSortOptionKey"
         (outSelectAgent)="onSelectAgent($event)">
     </pp-server-and-agent-list>
 </ng-template>

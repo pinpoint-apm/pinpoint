@@ -35,6 +35,7 @@ export class WebAppSettingDataService {
         LANGUAGE: 'language',
         THEME: 'theme',
         SIDE_NAV_BAR_SCALE: 'sideNavigationBarScale',
+        AGENT_LIST_SORT_OPTION: 'agentListSortOption'
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -307,5 +308,11 @@ export class WebAppSettingDataService {
     }
     getUrlStatFieldNameList(): string[] {
         return this.componentDefaultSettingDataService.getUrlStatFieldNameList();
+    }
+    setAgentListSortOption(sortOption: string): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.AGENT_LIST_SORT_OPTION, sortOption);
+    }
+    getAgentListSortOption(): string {
+       return this.localStorageService.get(WebAppSettingDataService.KEYS.AGENT_LIST_SORT_OPTION);
     }
 }

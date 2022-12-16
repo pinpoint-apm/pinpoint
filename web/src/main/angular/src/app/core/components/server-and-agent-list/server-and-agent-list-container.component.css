@@ -1,6 +1,6 @@
 :host {
     display: block;
-    height: calc(100% - 41px); /* 41px: title height */
+    height: calc(100% - 40px); /* 40px: title height */
 }
 
 .guide-text {
@@ -19,6 +19,55 @@
     width: 100%;
     padding: 10px 11px 8px 11px;
     gap: 7px;
+}
+
+.sort-option-wrapper {
+    display: flex;
+    align-items: center;;
+    width: 100%;
+    height: 32px;
+    padding:0px 15px 8px;
+    border-bottom: 1px solid var(--border-primary);
+    gap: 2px;
+}
+
+.sort-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.sort-option-list-wrapper {
+    flex: 1;
+    display: flex;
+    /* gap: 5px; */
+}
+
+.sort-option {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 3px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.sort-option:hover {
+    /* background: var(--background-hover-default); */
+    /* font-weight: bold; */
+    color: var(--primary);
+}
+
+.sort-option.active {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.display-option-wrapper {
+    display: flex;
+    /* flex-direction: column; */
+    gap: 5px;
+    width: 100%;
+    padding:0px 17px 8px;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .search-input-wrapper {
@@ -56,7 +105,37 @@
     font-size: 12px;
 }
 
-.fa-question-circle {
+.fas {
     color: var(--icon-default);
     font-size: 18px;
+}
+
+.display-option-select-wrapper,
+.sort-option-select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 0;
+}
+
+.option-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.option-label .fas {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.option-select {
+    cursor: pointer;
+    /* padding: 6px 0; */
+    outline: 0;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-primary-lightest);
+    appearance: none;
+    display: inline-block;
+    height: 100%;
 }

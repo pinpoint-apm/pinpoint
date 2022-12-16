@@ -20,6 +20,11 @@ import { ServerAndAgentListDataService } from './server-and-agent-list-data.serv
 import { isEmpty, isThatType } from 'app/core/utils/util';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
+export const enum SortOption {
+    ID = 'id',
+    NAME = 'name',
+    RECENT = 'recent'
+}
 @Component({
     selector: 'pp-server-and-agent-list-container',
     templateUrl: './server-and-agent-list-container.component.html',
@@ -28,10 +33,12 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private _query = '';
+    private previousParams: {[key: string]: any};
+    private cachedData: {[key in SortOption]: IServerAndAgentDataV2[]};
 
     agentId: string;
-    serverList: {[key: string]: IServerAndAgentData[]};
-    filteredServerList: {[key: string]: IServerAndAgentData[]} = {};
+    serverList: IServerAndAgentDataV2[];
+    filteredServerList: IServerAndAgentDataV2[] = [];
     filteredServerKeyList: string[] = [];
     funcImagePath: Function;
     isEmpty: boolean;
@@ -40,6 +47,12 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     inputPlaceholder$: Observable<string>;
     searchUseEnter = false;
     SEARCH_MIN_LENGTH = 2;
+    sortOptionList = [
+        {display: 'ID', key: SortOption.ID},
+        {display: 'Name', key: SortOption.NAME},
+        {display: 'Recent', key: SortOption.RECENT}
+    ];
+    selectedSortOptionKey: SortOption;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -58,6 +71,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.initI18nText();
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
+        this.selectedSortOptionKey = this.webAppSettingDataService.getAgentListSortOption() as SortOption || SortOption.ID;
 
         merge(
             this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -92,11 +106,23 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
             )
         ).pipe(
             concatMap((range: number[]) => {
-                const appName = (this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
+                const app = (this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
                 const requestStartAt = Date.now();
 
-                return this.serverAndAgentListDataService.getData(appName, range).pipe(
-                    filter((res: {[key: string]: IServerAndAgentData[]} | IServerErrorShortFormat) => {
+                return this.serverAndAgentListDataService.getData(app, range, this.selectedSortOptionKey).pipe(
+                    tap(() => {
+                        this.previousParams = {app, range};
+                    }),
+                    tap(() => {
+                        const urlService = this.newUrlStateNotificationService;
+                        const isAppChanged = urlService.isValueChanged(UrlPathId.APPLICATION);
+                        const isPeriodChanged = urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
+
+                        if (isAppChanged || isPeriodChanged) {
+                            this.cachedData = {} as {[key in SortOption]: IServerAndAgentDataV2[]};
+                        }
+                    }),
+                    filter((res: IServerAndAgentDataV2[] | IServerErrorShortFormat) => {
                         // TODO: 민우님께 에러구분 여쭤보기. 401이면 AuthService 활용한다? 근데이럼 IS_ACCESS_DENYED 출처 불분명같은 문제가 있지않을까..
                         if (isThatType<IServerErrorShortFormat>(res, 'errorCode', 'errorMessage')) {
                             this.errorMessage = res.errorMessage;
@@ -108,10 +134,10 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                             return true;
                         }
                     }),
-                    filter((res: {[key: string]: IServerAndAgentData[]}) => {
+                    filter((res: IServerAndAgentDataV2[]) => {
                         if (this.agentId) {
-                            const filteredList = this.filterServerList(res, this.agentId, ({agentId}: IServerAndAgentData) => this.agentId.toLowerCase() === agentId.toLowerCase());
-                            const isAgentIdValid = Object.keys(filteredList).length !== 0;
+                            const filteredList = this.filterServerList(res, this.agentId, ({agentId}: IAgentDataV2) => this.agentId.toLowerCase() === agentId.toLowerCase());
+                            const isAgentIdValid = !isEmpty(filteredList);
 
                             if (isAgentIdValid) {
                                 return true;
@@ -163,10 +189,10 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                     })
                 );
             }),
-        ).subscribe((data: {[key: string]: IServerAndAgentData[]}) => {
-            this.serverList = data;
-            this.filteredServerList = this.filterServerList(data, this.query);
-            this.filteredServerKeyList = Object.keys(this.filteredServerList).sort();
+        ).subscribe((data: IServerAndAgentDataV2[]) => {
+            this.serverList = this.cachedData[this.selectedSortOptionKey] = data;
+            this.filteredServerList = this.filterServerList(this.serverList, this.query);
+            this.filteredServerKeyList = this.filteredServerList.map(({groupName}: IServerAndAgentDataV2) => groupName).sort();
             this.isEmpty = isEmpty(this.filteredServerList);
         });
     }
@@ -203,17 +229,17 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT_ON_THE_LIST);
     }
 
-    private filterServerList(serverList: {[key: string]: IServerAndAgentData[]}, query: string, predi?: (data: IServerAndAgentData) => boolean): {[key: string]: IServerAndAgentData[]} {
-        const filterCallback = predi ? predi : ({agentId, agentName}: IServerAndAgentData) => {
+    private filterServerList(serverList: IServerAndAgentDataV2[], query: string, predi?: (data: IAgentDataV2) => boolean): IServerAndAgentDataV2[] {
+        const filterCallback = predi ? predi : ({agentId, agentName}: IAgentDataV2) => {
             return agentId.toLowerCase().includes(query.toLowerCase()) || (agentName && agentName.toLowerCase().includes(query.toLowerCase()));
         };
 
         return query === '' ? serverList
-            : Object.entries(serverList).reduce((acc: {[key: string]: IServerAndAgentData[]}, [key, serverAndAgentDataList]: [string, IServerAndAgentData[]]) => {
-                const matchedList = serverAndAgentDataList.filter(filterCallback);
-                
-                return isEmpty(matchedList) ? acc : {...acc, [key]: matchedList};
-            }, {} as {[key: string]: IServerAndAgentData[]});
+            : serverList.reduce((acc: IServerAndAgentDataV2[], {groupName, instancesList}: IServerAndAgentDataV2) => {
+                const matchedList = instancesList.filter(filterCallback);
+
+                return isEmpty(matchedList) ? acc : [...acc, {groupName, instancesList: matchedList}]
+            }, []);
     }
 
     private set query(query: string) {
@@ -254,5 +280,47 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
             resolver: this.componentFactoryResolver,
             injector: this.injector
         });
+    }
+
+    isActiveSortOption(optionKey: SortOption): boolean {
+        return optionKey === this.selectedSortOptionKey;
+    }
+
+    onSelectSortOption(optionKey: SortOption): void {
+        if (optionKey === this.selectedSortOptionKey) {
+            return;
+        }
+
+        const {app, range} = this.previousParams;
+
+        if (this.cachedData[optionKey]) {
+            this.filteredServerList = this.filterServerList(this.cachedData[optionKey], this.query);
+            this.filteredServerKeyList = this.filteredServerList.map(({groupName}: IServerAndAgentDataV2) => groupName).sort();
+        } else {
+            this.serverAndAgentListDataService.getData(app, range, optionKey).pipe(
+                catchError((error: IServerError) => {
+                    this.dynamicPopupService.openPopup({
+                        data: {
+                            title: 'Error',
+                            contents: error
+                        },
+                        component: ServerErrorPopupContainerComponent
+                    }, {
+                        resolver: this.componentFactoryResolver,
+                        injector: this.injector
+                    });
+    
+                    return EMPTY;
+                })
+            ).subscribe((data: IServerAndAgentDataV2[]) => {
+                this.serverList = this.cachedData[optionKey] = data;
+                this.filteredServerList = this.filterServerList(this.serverList, this.query);
+                this.filteredServerKeyList = this.filteredServerList.map(({groupName}: IServerAndAgentDataV2) => groupName).sort();
+            });
+        }
+        
+        this.isEmpty = isEmpty(this.filteredServerList);
+        this.selectedSortOptionKey = optionKey;
+        this.webAppSettingDataService.setAgentListSortOption(optionKey);
     }
 }
