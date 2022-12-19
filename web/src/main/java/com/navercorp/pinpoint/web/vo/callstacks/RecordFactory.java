@@ -92,7 +92,9 @@ public class RecordFactory {
                 align.getSpanId(),
                 align.getExecutionMilliseconds(),
                 api.getMethodTypeEnum(),
-                true);
+                true,
+                api.getLineNumber(),
+                api.getLocation());
         record.setSimpleClassName(api.getClassName());
         record.setFullApiDescription(api.getDescription());
 
@@ -165,7 +167,9 @@ public class RecordFactory {
                 align.getSpanId(),
                 align.getExecutionMilliseconds(),
                 MethodTypeEnum.DEFAULT,
-                false);
+                false,
+                0,
+                "");
 
         return record;
     }
@@ -220,11 +224,14 @@ public class RecordFactory {
                 return parser.parse(apiMetaData);
             }
             // parse error
-            return new Api(apiInfo, "", apiInfo, apiMetaData.getMethodTypeEnum());
+            return new Api.Builder(apiInfo, "", apiInfo, apiMetaData.getMethodTypeEnum())
+                    .setLineNumber(apiMetaData.getLineNumber())
+                    .setLocation(apiMetaData.getLocation())
+                    .build();
         } else {
             AnnotationKey apiMetaDataError = getApiMetaDataError(align.getAnnotationBoList());
 
-            return new Api(apiMetaDataError.getName(), "", "", MethodTypeEnum.DEFAULT);
+            return new Api.Builder(apiMetaDataError.getName(), "", "", MethodTypeEnum.DEFAULT).build();
         }
     }
 

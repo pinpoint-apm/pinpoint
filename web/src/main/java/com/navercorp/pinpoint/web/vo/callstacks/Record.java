@@ -82,4 +82,8 @@ public interface Record {
     MethodTypeEnum getMethodTypeEnum();
 
     boolean isAuthorized();
+
+    int getLineNumber();
+
+    String getLocation();
 }

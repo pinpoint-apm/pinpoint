@@ -63,7 +63,7 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
     }
 
-    private GeneratedMessageV3 handleApiMetaData(final PApiMetaData apiMetaData) {
+    GeneratedMessageV3 handleApiMetaData(final PApiMetaData apiMetaData) {
         if (isDebug) {
             logger.debug("Handle PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
         }
@@ -76,8 +76,10 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
 
             final MethodTypeEnum type = MethodTypeEnum.defaultValueOf(apiMetaData.getType());
 
-            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, agentStartTime, apiMetaData.getApiId(),
-                    line, type, apiMetaData.getApiInfo());
+            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo.Builder(agentId, agentStartTime, apiMetaData.getApiId(),
+                    line, type, apiMetaData.getApiInfo())
+                    .setLocation(apiMetaData.getLocation())
+                    .build();
 
             this.apiMetaDataService.insert(apiMetaDataBo);
             return PResult.newBuilder().setSuccess(true).build();

@@ -26,7 +26,7 @@ public class DefaultRecord extends BaseRecord {
     public DefaultRecord(int tab, int id, int parentId, boolean method, String title, String arguments,
                          long begin, long elapsed, long gap, String agentId, String agentName, String applicationName, ServiceType serviceType,
                          String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId,
-                         long executionMilliseconds, MethodTypeEnum methodTypeEnum, boolean isAuthorized) {
+                         long executionMilliseconds, MethodTypeEnum methodTypeEnum, boolean isAuthorized, int lineNumber, String location) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -54,6 +54,9 @@ public class DefaultRecord extends BaseRecord {
         this.executionMilliseconds = executionMilliseconds;
         this.methodTypeEnum = methodTypeEnum;
         this.isAuthorized = isAuthorized;
+
+        this.lineNumber = lineNumber;
+        this.location = location;
     }
 
     public int getId() {
@@ -183,58 +186,68 @@ public class DefaultRecord extends BaseRecord {
         return this.isAuthorized;
     }
 
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{tab=");
-        builder.append(tab);
-        builder.append(", id=");
-        builder.append(id);
-        builder.append(", parentId=");
-        builder.append(parentId);
-        builder.append(", method=");
-        builder.append(method);
-        builder.append(", title=");
-        builder.append(title);
-        builder.append(", simpleClassName=");
-        builder.append(simpleClassName);
-        builder.append(", fullApiDescription=");
-        builder.append(fullApiDescription);
-        builder.append(", arguments=");
-        builder.append(arguments);
-        builder.append(", begin=");
-        builder.append(begin);
-        builder.append(", elapsed=");
-        builder.append(elapsed);
-        builder.append(", gap=");
-        builder.append(gap);
-        builder.append(", executionMilliseconds=");
-        builder.append(executionMilliseconds);
-        builder.append(", agentId=");
-        builder.append(agentId);
-        builder.append(", applicationName=");
-        builder.append(applicationName);
-        builder.append(", serviceType=");
-        builder.append(serviceType);
-        builder.append(", destinationId=");
-        builder.append(destinationId);
-        builder.append(", excludeFromTimeline=");
-        builder.append(excludeFromTimeline);
-        builder.append(", transactionId=");
-        builder.append(transactionId);
-        builder.append(", spanId=");
-        builder.append(spanId);
-        builder.append(", focused=");
-        builder.append(focused);
-        builder.append(", hasChild=");
-        builder.append(hasChild);
-        builder.append(", hasException=");
-        builder.append(hasException);
-        builder.append(", methodTypeEnum=");
-        builder.append(methodTypeEnum);
-        builder.append(", isAuthorized=");
-        builder.append(isAuthorized);
-        builder.append("}");
-        return builder.toString();
+        return "{tab=" +
+                tab +
+                ", id=" +
+                id +
+                ", parentId=" +
+                parentId +
+                ", method=" +
+                method +
+                ", title=" +
+                title +
+                ", simpleClassName=" +
+                simpleClassName +
+                ", fullApiDescription=" +
+                fullApiDescription +
+                ", arguments=" +
+                arguments +
+                ", begin=" +
+                begin +
+                ", elapsed=" +
+                elapsed +
+                ", gap=" +
+                gap +
+                ", executionMilliseconds=" +
+                executionMilliseconds +
+                ", agentId=" +
+                agentId +
+                ", applicationName=" +
+                applicationName +
+                ", serviceType=" +
+                serviceType +
+                ", destinationId=" +
+                destinationId +
+                ", excludeFromTimeline=" +
+                excludeFromTimeline +
+                ", transactionId=" +
+                transactionId +
+                ", spanId=" +
+                spanId +
+                ", focused=" +
+                focused +
+                ", hasChild=" +
+                hasChild +
+                ", hasException=" +
+                hasException +
+                ", methodTypeEnum=" +
+                methodTypeEnum +
+                ", isAuthorized=" +
+                isAuthorized +
+                ", lineNumber=" +
+                lineNumber +
+                ", location=" +
+                location +
+                "}";
     }
 }

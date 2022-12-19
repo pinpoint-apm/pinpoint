@@ -113,4 +113,53 @@ public class CallTreeNode {
         builder.append("}");
         return builder.toString();
     }
+
+    public static class Builder {
+        private CallTreeNode.Builder parent;
+        private CallTreeNode.Builder child;
+        private CallTreeNode.Builder sibling;
+        private final Align align;
+        private CallTreeNode node;
+
+        public Builder(Align align) {
+            this.align = align;
+        }
+
+        public Builder setParent(CallTreeNode.Builder parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        public Builder setChild(CallTreeNode.Builder child) {
+            this.child = child;
+            return this;
+        }
+
+        public Builder setSibling(CallTreeNode.Builder sibling) {
+            this.sibling = sibling;
+            return this;
+        }
+
+        public CallTreeNode build() {
+            if (this.node != null) {
+                return this.node;
+            }
+
+            this.node = new CallTreeNode(getCallTreeNode(this.parent), this.align);
+            this.node.child = getCallTreeNode(this.child);
+            this.node.sibling = getCallTreeNode(this.sibling);
+            return this.node;
+        }
+
+        private CallTreeNode getCallTreeNode(CallTreeNode.Builder builder) {
+            if (builder == null) {
+                return null;
+            }
+
+            if (builder.node == null) {
+                builder.node = builder.build();
+            }
+            return builder.node;
+        }
+    }
 }

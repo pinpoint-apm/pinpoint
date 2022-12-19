@@ -80,8 +80,16 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             if (buffer.hasRemaining()) {
                 methodTypeEnum = MethodTypeEnum.valueOf(buffer.readInt());
             }
+            String location = null;
+            if (buffer.hasRemaining()) {
+                location = buffer.readPrefixedString();
+            }
 
-            ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(key.getAgentId(), key.getAgentStartTime(), key.getId(), lineNumber, methodTypeEnum, apiInfo);
+            ApiMetaDataBo.Builder builder = new ApiMetaDataBo.Builder(key.getAgentId(), key.getAgentStartTime(), key.getId(), lineNumber, methodTypeEnum, apiInfo);
+            if (location != null) {
+                builder.setLocation(location);
+            }
+            ApiMetaDataBo apiMetaDataBo = builder.build();
 
             apiMetaDataList.add(apiMetaDataBo);
             if (logger.isDebugEnabled()) {
