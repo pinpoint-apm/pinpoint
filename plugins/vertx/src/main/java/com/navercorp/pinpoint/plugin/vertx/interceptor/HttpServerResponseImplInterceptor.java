@@ -43,22 +43,22 @@ public class HttpServerResponseImplInterceptor extends AsyncContextSpanEventEndP
     }
 
     @Override
+    protected void prepareAfter(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+        if (target instanceof HttpServerResponse) {
+//            Trace trace = traceContext.currentRawTraceObject();
+            if (trace == null) {
+                return;
+            }
+            final HttpServerResponse response = (HttpServerResponse) target;
+            final SpanRecorder spanRecorder = trace.getSpanRecorder();
+            this.httpStatusCodeRecorder.record(spanRecorder, response.getStatusCode());
+        }
+    }
+
+    @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
         recorder.recordException(throwable);
-
-        if (target instanceof HttpServerResponse) {
-            final HttpServerResponse response = (HttpServerResponse) target;
-            // TODO more simple.
-            final AsyncContext asyncContext = getAsyncContext(target);
-            if (asyncContext != null) {
-                final Trace trace = asyncContext.currentAsyncTraceObject();
-                if (trace != null) {
-                    final SpanRecorder spanRecorder = trace.getSpanRecorder();
-                    this.httpStatusCodeRecorder.record(spanRecorder, response.getStatusCode());
-                }
-            }
-        }
     }
 }

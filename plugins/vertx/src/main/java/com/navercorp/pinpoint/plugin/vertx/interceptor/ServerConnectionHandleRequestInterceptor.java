@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
@@ -67,7 +68,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
 
-
+    private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext,
                                                     final MethodDescriptor methodDescriptor,
@@ -86,6 +87,8 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
         this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
+
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
 
@@ -203,6 +206,13 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return;
         }
 
+        final boolean validate = validate(args);
+        if (validate) {
+            final HttpServerRequest request = (HttpServerRequest) args[0];
+            HttpServerResponse response = request.response();
+            this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatusCode());
+        }
+
         if (!trace.canSampled()) {
             deleteTrace(trace);
             return;
@@ -212,7 +222,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            if (validate(args)) {
+            if (validate) {
                 final HttpServerRequest request = (HttpServerRequest) args[0];
                 parameterRecorder.record(recorder, request, throwable);
             }

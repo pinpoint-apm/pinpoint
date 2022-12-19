@@ -58,7 +58,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
     @Override
     public void store(String uri, boolean status, long startTime, long endTime) {
         if (uri == null) {
-            uri = URITemplate.NOT_FOUND;
+            uri = URITemplate.NULL_URI;
         }
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
         execute(uriStatInfo);
