@@ -117,6 +117,11 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
             return;
         }
 
+        prepareAfter(trace, target, args, result, throwable);
+        if (!trace.canSampled()) {
+            return;
+        }
+
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             doInAfterTrace(recorder, target, args, result, throwable);
@@ -134,6 +139,9 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
             }
             finishAsyncState(asyncContext);
         }
+    }
+
+    protected void prepareAfter(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);

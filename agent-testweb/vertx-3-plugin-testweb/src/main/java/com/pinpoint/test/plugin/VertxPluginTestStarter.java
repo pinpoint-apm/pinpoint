@@ -86,9 +86,14 @@ public class VertxPluginTestStarter extends AbstractVerticle {
         router.get("/runOnContext/request").handler(routingContext -> {
             runOnContextRequest(routingContext.request());
         });
-        router.get("/runOnContext/error").handler(routingContext -> {
+        router.get("/runOnContext/throwException").handler(routingContext -> {
             vertx.runOnContext(aVoid -> {
-                throw new RuntimeException("/runOnContext/error");
+                throw new RuntimeException("FAIL");
+            });
+        });
+        router.get("/runOnContext/statusCode500").handler(routingContext -> {
+            vertx.runOnContext(aVoid -> {
+                routingContext.response().setStatusCode(500).end("StatusCode:500");
             });
         });
 
@@ -99,6 +104,13 @@ public class VertxPluginTestStarter extends AbstractVerticle {
         router.get("/template/:arg1").handler(routingContext -> {
             String arg1 = routingContext.pathParam("arg1");
             routingContext.response().end(arg1);
+        });
+
+        router.get("/throwException").handler(routingContext ->  {
+            throw new RuntimeException("FAIL");
+        });
+        router.get("/statusCode500").handler(routingContext -> {
+            routingContext.response().setStatusCode(500).end("StatusCode:500");
         });
 
 

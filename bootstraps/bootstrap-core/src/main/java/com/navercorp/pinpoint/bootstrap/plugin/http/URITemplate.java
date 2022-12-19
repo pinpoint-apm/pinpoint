@@ -8,4 +8,5 @@ public final class URITemplate {
     }
 
     public static final String NOT_FOUND = "/NOT_FOUND_URI";
+    public static final String NULL_URI = "/NULL";
 }
