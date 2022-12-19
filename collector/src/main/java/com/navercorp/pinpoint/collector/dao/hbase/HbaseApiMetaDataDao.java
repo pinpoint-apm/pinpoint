@@ -82,6 +82,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         buffer.putPrefixedString(api);
         buffer.putInt(apiMetaData.getLineNumber());
         buffer.putInt(apiMetaData.getMethodTypeEnum().getCode());
+        buffer.putPrefixedString(apiMetaData.getLocation());
 
         final byte[] apiMetaDataBytes = buffer.getBuffer();
         put.addColumn(description.getName(), description.QUALIFIER_SIGNATURE, apiMetaDataBytes);

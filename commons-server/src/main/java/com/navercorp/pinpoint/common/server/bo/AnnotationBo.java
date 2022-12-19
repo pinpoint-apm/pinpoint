@@ -69,4 +69,26 @@ public class AnnotationBo {
                 ", isAuthorized=" + isAuthorized +
                 '}';
     }
+
+    public static class Builder {
+        private final int key;
+        private final Object value;
+        private boolean isAuthorized;
+
+        public Builder(int key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public Builder isAuthorized(boolean isAuthorized) {
+            this.isAuthorized = isAuthorized;
+            return this;
+        }
+
+        public AnnotationBo build() {
+            AnnotationBo result = new AnnotationBo(this.key, this.value);
+            result.setAuthorized(this.isAuthorized);
+            return result;
+        }
+    }
 }

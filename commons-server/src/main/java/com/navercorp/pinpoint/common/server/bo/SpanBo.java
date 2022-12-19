@@ -413,4 +413,224 @@ public class SpanBo implements Event, BasicSpan {
         sb.append('}');
         return sb.toString();
     }
+
+    public static class Builder {
+
+        private int version = 0;
+
+        private String agentId;
+        private String agentName;
+        private String applicationId;
+        private long agentStartTime;
+
+        private TransactionId transactionId;
+
+        private final long spanId;
+
+        private long parentSpanId;
+
+        private String parentApplicationId;
+        private short parentApplicationServiceType;
+
+        private long startTime;
+        private int elapsed;
+
+        private String rpc;
+        private short serviceType;
+        private String endPoint;
+        private int apiId;
+
+        private final List<AnnotationBo> annotationBoList = new ArrayList<>();
+        private short flag; // optional
+        private int errCode;
+
+        private final List<SpanEventBo> spanEventBoList = new ArrayList<>();
+        private List<SpanChunkBo> spanChunkBoList;
+
+        private long collectorAcceptTime;
+
+        private int exceptionId;
+        private String exceptionMessage;
+        private String exceptionClass;
+
+        private Short applicationServiceType;
+
+        private String acceptorHost;
+        private String remoteAddr; // optional
+
+        private byte loggingTransactionInfo; //optional
+
+        public Builder(long spanId) {
+            this.spanId = spanId;
+        }
+
+        public Builder setVersion(int version) {
+            this.version = version;
+            return this;
+        }
+
+        public Builder setAgentId(String agentId) {
+            this.agentId = agentId;
+            return this;
+        }
+
+        public Builder setAgentName(String agentName) {
+            this.agentName = agentName;
+            return this;
+        }
+
+        public Builder setApplicationId(String applicationId) {
+            this.applicationId = applicationId;
+            return this;
+        }
+
+        public Builder setAgentStartTime(long agentStartTime) {
+            this.agentStartTime = agentStartTime;
+            return this;
+        }
+
+        public Builder setTransactionId(TransactionId transactionId) {
+            this.transactionId = transactionId;
+            return this;
+        }
+
+        public Builder setParentSpanId(long parentSpanId) {
+            this.parentSpanId = parentSpanId;
+            return this;
+        }
+
+        public Builder setParentApplicationId(String parentApplicationId) {
+            this.parentApplicationId = parentApplicationId;
+            return this;
+        }
+
+        public Builder setParentApplicationServiceType(short parentApplicationServiceType) {
+            this.parentApplicationServiceType = parentApplicationServiceType;
+            return this;
+        }
+
+        public Builder setStartTime(long startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public Builder setElapsed(int elapsed) {
+            this.elapsed = elapsed;
+            return this;
+        }
+
+        public Builder setRpc(String rpc) {
+            this.rpc = rpc;
+            return this;
+        }
+
+        public Builder setServiceType(short serviceType) {
+            this.serviceType = serviceType;
+            return this;
+        }
+
+        public Builder setEndPoint(String endPoint) {
+            this.endPoint = endPoint;
+            return this;
+        }
+
+        public Builder setApiId(int apiId) {
+            this.apiId = apiId;
+            return this;
+        }
+
+        public Builder setFlag(short flag) {
+            this.flag = flag;
+            return this;
+        }
+
+        public Builder setErrCode(int errCode) {
+            this.errCode = errCode;
+            return this;
+        }
+
+        public Builder setCollectorAcceptTime(long collectorAcceptTime) {
+            this.collectorAcceptTime = collectorAcceptTime;
+            return this;
+        }
+
+        public Builder setExceptionId(int exceptionId) {
+            this.exceptionId = exceptionId;
+            return this;
+        }
+
+        public Builder setExceptionMessage(String exceptionMessage) {
+            this.exceptionMessage = exceptionMessage;
+            return this;
+        }
+
+        public Builder setExceptionClass(String exceptionClass) {
+            this.exceptionClass = exceptionClass;
+            return this;
+        }
+
+        public Builder setApplicationServiceType(Short applicationServiceType) {
+            this.applicationServiceType = applicationServiceType;
+            return this;
+        }
+
+        public Builder setAcceptorHost(String acceptorHost) {
+            this.acceptorHost = acceptorHost;
+            return this;
+        }
+
+        public Builder setRemoteAddr(String remoteAddr) {
+            this.remoteAddr = remoteAddr;
+            return this;
+        }
+
+        public Builder setLoggingTransactionInfo(byte loggingTransactionInfo) {
+            this.loggingTransactionInfo = loggingTransactionInfo;
+            return this;
+        }
+
+        public Builder addAnnotationBo(AnnotationBo e) {
+            this.annotationBoList.add(e);
+            return this;
+        }
+
+        public Builder addSpanEventBo(SpanEventBo e) {
+            this.spanEventBoList.add(e);
+            return this;
+        }
+
+        public SpanBo build() {
+            SpanBo result = new SpanBo();
+            result.setVersion(this.version);
+            result.setAgentId(this.agentId);
+            result.setAgentName(this.agentName);
+            result.setApplicationId(this.applicationId);
+            result.setAgentStartTime(this.agentStartTime);
+            result.setTransactionId(this.transactionId);
+            result.setSpanId(this.spanId);
+            result.setParentSpanId(this.parentSpanId);
+            result.setParentApplicationId(this.parentApplicationId);
+            result.setParentApplicationServiceType(this.parentApplicationServiceType);
+            result.setStartTime(this.startTime);
+            result.setElapsed(this.elapsed);
+            result.setRpc(this.rpc);
+            result.setServiceType(this.serviceType);
+            result.setEndPoint(this.endPoint);
+            result.setApiId(this.apiId);
+            result.setFlag(this.flag);
+            result.setErrCode(this.errCode);
+            result.setCollectorAcceptTime(this.collectorAcceptTime);
+            result.setExceptionClass(this.exceptionClass);
+            if (this.exceptionMessage != null) {
+                result.setExceptionInfo(this.exceptionId, this.exceptionMessage);
+            }
+            result.setApplicationServiceType(this.applicationServiceType);
+            result.setAcceptorHost(this.acceptorHost);
+            result.setRemoteAddr(this.remoteAddr);
+            result.setLoggingTransactionInfo(this.loggingTransactionInfo);
+            result.setAnnotationBoList(this.annotationBoList);
+            result.addSpanEventBoList(this.spanEventBoList);
+            return result;
+        }
+    }
 }
