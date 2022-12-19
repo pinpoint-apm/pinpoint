@@ -7,12 +7,12 @@
     "schemaName": "uriStat",
     "replicasPerPartition": "1",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "21"
+    "retentionTimeValue": "56"
   },
   "tenants": {},
   "tableIndexConfig": {
     "sortedColumn": ["tenantId", "serviceName", "applicationName", "agentId", "uri"],
-    "invertedIndexColumns": ["tenantId", "serviceName", "applicationName", "agentId", "uri"],
+    "bloomFilterColumns": ["tenantId", "serviceName", "applicationName", "agentId"],
     "noDictionaryColumns": ["tot0", "tot1", "tot2", "tot3", "tot4", "tot5", "tot6", "tot7", "fail0", "fail1", "fail2", "fail3", "fail4", "fail5", "fail6", "fail7"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
