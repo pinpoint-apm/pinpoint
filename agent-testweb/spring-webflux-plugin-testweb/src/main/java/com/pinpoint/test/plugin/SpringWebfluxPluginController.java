@@ -26,12 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RestController
 public class SpringWebfluxPluginController {
-    @GetMapping("/server/welcome")
-    public Mono<String> welcome() {
+    @GetMapping("/server/welcome/**")
+    public Mono<String> welcome(ServerWebExchange exchange) {
+        exchange.getAttributes().put("pinpoint.metric.uri-template", "/test");
         return Mono.just("Welcome Home");
     }
 
@@ -50,7 +52,8 @@ public class SpringWebfluxPluginController {
     }
 
     @GetMapping("/client/get")
-    public Mono<String> clientGet() {
+    public Mono<String> clientGet(ServerWebExchange exchange) {
+        exchange.getAttributes().put("pinpoint.metric.uri-template", "/test");
         WebClient client = WebClient.create("http://www.google.com");
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                 .uri("").retrieve();

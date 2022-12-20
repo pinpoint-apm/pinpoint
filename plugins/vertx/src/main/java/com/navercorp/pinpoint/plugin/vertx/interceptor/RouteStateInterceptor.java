@@ -47,7 +47,7 @@ public class RouteStateInterceptor implements AroundInterceptor {
                 String path = route.getPath();
                 logger.debug("vertx uriTemplate:{}", path);
                 SpanRecorder spanRecorder = trace.getSpanRecorder();
-                spanRecorder.recordUriTemplate(path);
+                spanRecorder.recordUriTemplate(path, false);
             }
         }
     }
@@ -61,7 +61,7 @@ public class RouteStateInterceptor implements AroundInterceptor {
             String userUriTemplate = (String) value;
             if (StringUtils.hasLength(userUriTemplate)) {
                 SpanRecorder spanRecorder = trace.getSpanRecorder();
-                spanRecorder.recordUriTemplate(userUriTemplate);
+                spanRecorder.recordUriTemplate(userUriTemplate, true);
                 return true;
             }
         }
