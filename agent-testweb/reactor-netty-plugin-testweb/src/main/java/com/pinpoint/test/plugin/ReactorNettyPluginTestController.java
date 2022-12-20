@@ -40,7 +40,8 @@ public class ReactorNettyPluginTestController {
 
     @RequestMapping(value = "/client/echo", method = RequestMethod.GET)
     @ResponseBody
-    public String clientEcho() {
+    public String clientEcho(HttpServletRequest request) {
+        request.setAttribute("pinpoint.metric.uri-template", "/test");
         return "Welcome";
     }
 

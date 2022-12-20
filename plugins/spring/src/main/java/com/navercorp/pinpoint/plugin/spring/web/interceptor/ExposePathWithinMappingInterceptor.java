@@ -25,7 +25,7 @@ public class ExposePathWithinMappingInterceptor implements AroundInterceptor {
         if (trace != null) {
             String url = ArrayArgumentUtils.getArgument(args, 0, String.class);
             SpanRecorder spanRecorder = trace.getSpanRecorder();
-            spanRecorder.recordUriTemplate(url);
+            spanRecorder.recordUriTemplate(url, false);
         }
     }
 }
