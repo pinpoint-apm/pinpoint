@@ -58,26 +58,26 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         if (uriStatEnable && uriStatUseUserInput) {
-            Trace trace = traceContext.currentRawTraceObject();
+            final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
                 return;
             }
 
-            ServerWebExchange exchange = ArrayArgumentUtils.getArgument(args, 0, ServerWebExchange.class);
-            for (String attributeName : SpringWebFluxConstants.SPRING_WEBFLUX_URI_USER_INPUT_ATTRIBUTE_KEYS) {
-                Object uriMapping = exchange.getAttribute(attributeName);
-                if (!(uriMapping instanceof String)) {
-                    continue;
-                }
+            final ServerWebExchange exchange = ArrayArgumentUtils.getArgument(args, 0, ServerWebExchange.class);
+            if (exchange != null) {
+                for (String attributeName : SpringWebFluxConstants.SPRING_WEBFLUX_URI_USER_INPUT_ATTRIBUTE_KEYS) {
+                    final Object uriMapping = exchange.getAttribute(attributeName);
+                    if (!(uriMapping instanceof String)) {
+                        continue;
+                    }
 
-                String uriTemplate = (String) uriMapping;
-
-                if (StringUtils.hasLength(uriTemplate)) {
-                    SpanRecorder spanRecorder = trace.getSpanRecorder();
-                    spanRecorder.recordUriTemplate(uriTemplate, true);
+                    final String uriTemplate = (String) uriMapping;
+                    if (StringUtils.hasLength(uriTemplate)) {
+                        final SpanRecorder spanRecorder = trace.getSpanRecorder();
+                        spanRecorder.recordUriTemplate(uriTemplate, true);
+                    }
                 }
             }
-
         }
     }
 
@@ -106,7 +106,7 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
             if (result instanceof AsyncContextAccessor) {
                 ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
                 if (isDebug) {
-                    logger.debug("Set AsyncContext result={}", result);
+                    logger.debug("Set AsyncContext to result. asyncContext={}", publisherAsyncContext);
                 }
             }
         }
@@ -114,9 +114,6 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
 
     private boolean validate(final Object[] args) {
         if (ArrayUtils.isEmpty(args)) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
             return false;
         }
         return true;
