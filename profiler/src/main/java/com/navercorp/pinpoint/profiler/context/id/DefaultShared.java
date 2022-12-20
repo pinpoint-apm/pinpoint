@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  */
 public class DefaultShared implements Shared {
     private static final Logger logger = LogManager.getLogger(DefaultShared.class);
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> END_POINT_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "endPoint");
@@ -129,13 +130,22 @@ public class DefaultShared implements Shared {
 
     @Override
     public boolean setUriTemplate(String uriTemplate) {
-        return URL_TEMPLATE_UPDATER.compareAndSet(this, null, uriTemplate);
+        final boolean successful = URL_TEMPLATE_UPDATER.compareAndSet(this, null, uriTemplate);
+        if (successful) {
+            if (isDebug) {
+                logger.debug("Record uriTemplate={}", uriTemplate);
+            }
+        }
+        return successful;
     }
 
     @Override
     public boolean setUriTemplate(String uriTemplate, boolean force) {
         if (force) {
             URL_TEMPLATE_UPDATER.set(this, uriTemplate);
+            if (isDebug) {
+                logger.debug("Record uriTemplate={}", uriTemplate);
+            }
             return true;
         } else {
             return setUriTemplate(uriTemplate);

@@ -19,6 +19,7 @@ public class RouteStateInterceptor implements AroundInterceptor {
 
     private final TraceContext context;
     private final Boolean uriStatUseUserInput;
+
     public RouteStateInterceptor(TraceContext context, Boolean uriStatUseUserInput) {
         this.context = Objects.requireNonNull(context, "context");
         this.uriStatUseUserInput = uriStatUseUserInput;
@@ -26,41 +27,48 @@ public class RouteStateInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        final RoutingContext routingContext = ArrayArgumentUtils.getArgument(args, 0, RoutingContext.class);
-        if (routingContext != null) {
-            final Trace trace = context.currentRawTraceObject();
-            if (trace == null) {
-                return;
-            }
-            if (uriStatUseUserInput) {
-                if (recordWithUserInput(routingContext, trace)) {
-                    return;
+        final Trace trace = context.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        try {
+            final RoutingContext routingContext = ArrayArgumentUtils.getArgument(args, 0, RoutingContext.class);
+            if (routingContext != null) {
+                if (uriStatUseUserInput) {
+                    if (recordWithUserInput(routingContext, trace)) {
+                        return;
+                    }
+                }
+                final Route route = routingContext.currentRoute();
+                if (route != null) {
+                    final String path = route.getPath();
+                    if (StringUtils.hasLength(path)) {
+                        final SpanRecorder spanRecorder = trace.getSpanRecorder();
+                        spanRecorder.recordUriTemplate(path, false);
+                    }
                 }
             }
-            final Route route = routingContext.currentRoute();
-            if (route != null) {
-                String path = route.getPath();
-                logger.debug("vertx uriTemplate:{}", path);
-                SpanRecorder spanRecorder = trace.getSpanRecorder();
-                spanRecorder.recordUriTemplate(path, false);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         }
     }
 
     private boolean recordWithUserInput(RoutingContext routingContext, Trace trace) {
         for (String key : VertxConstants.VERTX_URI_MAPPING_CONTEXT_KEYS) {
-            Object value = routingContext.get(key);
+            final Object value = routingContext.get(key);
             if (!(value instanceof String)) {
                 continue;
             }
-            String userUriTemplate = (String) value;
+            final String userUriTemplate = (String) value;
             if (StringUtils.hasLength(userUriTemplate)) {
-                SpanRecorder spanRecorder = trace.getSpanRecorder();
+                final SpanRecorder spanRecorder = trace.getSpanRecorder();
                 spanRecorder.recordUriTemplate(userUriTemplate, true);
                 return true;
             }
