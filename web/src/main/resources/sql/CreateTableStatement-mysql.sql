@@ -65,8 +65,8 @@ CREATE TABLE `agent_statistics` (
 
 CREATE TABLE `webhook` (
   `webhook_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `alias` VARCHAR(45) NULL,
-  `url` VARCHAR(45) NOT NULL,
+  `alias` VARCHAR(256) NULL,
+  `url` VARCHAR(256) NOT NULL,
   `application_id` VARCHAR(45) NULL,
   `service_name` VARCHAR(45) NULL,
   PRIMARY KEY (`webhook_id`)
