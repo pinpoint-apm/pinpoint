@@ -114,9 +114,7 @@
     </util:list>
 
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="corePoolSize" value="0" />
-        <property name="maxPoolSize" value="#{grpcAgentReceiverConfig.serverExecutor.threadSize}" />
-        <property name="queueCapacity" value="#{grpcAgentReceiverConfig.serverExecutor.queueSize}" />
+        <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverExecutor}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
     </bean>
 
