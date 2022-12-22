@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -90,7 +90,7 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler<GeneratedMessageV3>
             if (collectorConfiguration.isUriStatEnable()) {
                 handleAgentUriStat((PAgentUriStat) data);
             } else {
-                logger.info("Failed to handle PAgentUriStat. Cause : uriStatEnable is false.");
+                logger.debug("Failed to handle PAgentUriStat. Cause : uriStatEnable is false.");
             }
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
