@@ -26,7 +26,7 @@
       "realtime.segment.flush.threshold.rows": "0",
       "realtime.segment.flush.threshold.time": "24h",
       "realtime.segment.flush.threshold.segment.size": "64M",
-      "stream.kafka.consumer.prop.auto.offset.reset": "largest"
+      "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
     }
   },
   "metadata": {
