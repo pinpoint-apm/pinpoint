@@ -154,25 +154,19 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.pinot</groupId>
-            <artifactId>pinot-java-client</artifactId>
-            <version>0.9.3</version>
+            <artifactId>pinot-jdbc-client</artifactId>
+            <version>0.11.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-netty-shaded</artifactId>
+                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pinot</groupId>
-            <artifactId>pinot-jdbc-client</artifactId>
-            <version>0.9.3</version>
         </dependency>
 
         <dependency>
