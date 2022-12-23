@@ -29,10 +29,6 @@ import java.util.List;
 public class UserRequestParser implements ProxyRequestParser {
     private List<String> headerNameList = Collections.emptyList();
 
-    @Override
-    public String getHttpHeaderName() {
-        return "";
-    }
 
     @Override
     public List<String> getHttpHeaderNameList() {
@@ -52,11 +48,6 @@ public class UserRequestParser implements ProxyRequestParser {
         this.headerNameList = profilerConfig.readList(UserRequestConstants.USER_PROXY_HEADER_NAME_LIST);
     }
 
-    @Override
-    @Deprecated
-    public ProxyRequestHeader parse(String value) {
-        return parseHeader("UNKNOWN", value);
-    }
 
     @Override
     public ProxyRequestHeader parseHeader(String name, String value) {

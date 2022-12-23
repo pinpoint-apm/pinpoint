@@ -16,14 +16,20 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaClientUtils;
@@ -77,7 +83,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-        ConsumerRecord consumerRecord = getConsumerRecord(args);
+        ConsumerRecord<?, ?> consumerRecord = ArrayArgumentUtils.getArgument(args, parameterIndex, ConsumerRecord.class);
 
         if (consumerRecord == null) {
             return null;
@@ -87,25 +93,8 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
         return newTrace;
     }
 
-    private ConsumerRecord getConsumerRecord(Object[] args) {
-        Object consumerRecord = getTargetParameter(args);
-        if (consumerRecord instanceof ConsumerRecord) {
-            return (ConsumerRecord) consumerRecord;
-        }
 
-        return null;
-    }
-
-    protected Object getTargetParameter(Object[] args) {
-        int length = ArrayUtils.getLength(args);
-        if (length <= parameterIndex) {
-            return null;
-        }
-
-        return args[parameterIndex];
-    }
-
-    private Trace createTrace(ConsumerRecord consumerRecord) {
+    private Trace createTrace(ConsumerRecord<?, ?> consumerRecord) {
         TraceFactoryProvider.TraceFactory traceFactory = traceFactoryReference.get();
         if (traceFactory == null) {
             traceFactory = traceFactoryProvider.get(consumerRecord);
@@ -132,7 +121,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
         private interface TraceFactory {
 
-            Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord);
+            Trace createTrace(TraceContext traceContext, ConsumerRecord<?, ?> consumerRecord);
 
         }
 
@@ -142,11 +131,11 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
             final boolean isDebug = logger.isDebugEnabled();
 
             @Override
-            public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
+            public Trace createTrace(TraceContext traceContext, ConsumerRecord<?, ?> consumerRecord) {
                 return createTrace0(traceContext, consumerRecord);
             }
 
-            Trace createTrace0(TraceContext traceContext, ConsumerRecord consumerRecord) {
+            Trace createTrace0(TraceContext traceContext, ConsumerRecord<?, ?> consumerRecord) {
                 final Trace trace = traceContext.newTraceObject();
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
@@ -163,11 +152,11 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 }
             }
 
-            void recordRootSpan(SpanRecorder recorder, ConsumerRecord consumerRecord) {
+            void recordRootSpan(SpanRecorder recorder, ConsumerRecord<?, ?> consumerRecord) {
                 recordRootSpan(recorder, consumerRecord, null, null);
             }
 
-            void recordRootSpan(SpanRecorder recorder, ConsumerRecord consumerRecord, String parentApplicationName, String parentApplicationType) {
+            void recordRootSpan(SpanRecorder recorder, ConsumerRecord<?, ?> consumerRecord, String parentApplicationName, String parentApplicationType) {
                 recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
                 recorder.recordApi(ConsumerRecordEntryPointInterceptor.ENTRY_POINT_METHOD_DESCRIPTOR);
 
@@ -209,7 +198,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 return StringUtils.defaultIfEmpty(remoteAddress, KafkaConstants.UNKNOWN);
             }
 
-            private String createRpcName(ConsumerRecord consumerRecord) {
+            private String createRpcName(ConsumerRecord<?, ?> consumerRecord) {
                 StringBuilder rpcName = new StringBuilder("kafka://");
                 rpcName.append("topic=").append(consumerRecord.topic());
                 rpcName.append("?partition=").append(consumerRecord.partition());
@@ -231,7 +220,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
             }
 
             @Override
-            public Trace createTrace(TraceContext traceContext, ConsumerRecord consumerRecord) {
+            public Trace createTrace(TraceContext traceContext, ConsumerRecord<?, ?> consumerRecord) {
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
                 if (headers == null) {
                     return createTrace0(traceContext, consumerRecord);
@@ -295,7 +284,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                 return traceId;
             }
 
-            private Trace createContinueTrace(TraceContext traceContext, ConsumerRecord consumerRecord, TraceId traceId) {
+            private Trace createContinueTrace(TraceContext traceContext, ConsumerRecord<?, ?> consumerRecord, TraceId traceId) {
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}", traceId);
                 }

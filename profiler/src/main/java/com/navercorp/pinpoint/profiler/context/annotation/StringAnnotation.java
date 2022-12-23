@@ -41,11 +41,6 @@ public class StringAnnotation implements Annotation<String>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

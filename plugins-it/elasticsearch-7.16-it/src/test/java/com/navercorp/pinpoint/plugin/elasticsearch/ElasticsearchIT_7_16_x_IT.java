@@ -48,6 +48,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
         TestcontainersOption.ELASTICSEARCH})
 @JvmVersion(8)
 @SharedTestLifeCycleClass(ESServer.class)
+@SuppressWarnings("deprecation")
 public class ElasticsearchIT_7_16_x_IT extends ElasticsearchITBase {
 
     private RestHighLevelClient restHighLevelClient;

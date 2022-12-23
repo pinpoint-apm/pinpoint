@@ -56,11 +56,6 @@ public class DataTypeAnnotation implements Annotation<DataType>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

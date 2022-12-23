@@ -29,11 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AppRequestParserTest {
 
     @Test
-    public void parseApp() throws Exception {
+    public void parseApp() {
         AppRequestParser parser = new AppRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
         String value = "t=" + currentTimeMillis;
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
@@ -46,7 +46,7 @@ public class AppRequestParserTest {
         AppRequestParser parser = new AppRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
         String value = "t=" + currentTimeMillis + "app=jndi:xxx";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
     }
 }

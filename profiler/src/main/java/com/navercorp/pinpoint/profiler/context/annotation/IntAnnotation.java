@@ -38,11 +38,6 @@ public class IntAnnotation implements Annotation<Integer>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

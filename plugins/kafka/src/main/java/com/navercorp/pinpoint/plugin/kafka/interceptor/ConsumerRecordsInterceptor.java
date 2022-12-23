@@ -55,9 +55,9 @@ public class ConsumerRecordsInterceptor implements AroundInterceptor {
             return;
         }
 
-        Map consumerRecordsMap = (Map) args[0];
-        Set<Map.Entry> entrySet = consumerRecordsMap.entrySet();
-        for (Map.Entry entry : entrySet) {
+        Map<?, ?> consumerRecordsMap = (Map<?, ?>) args[0];
+        Set<? extends Map.Entry<?, ?>> entrySet = consumerRecordsMap.entrySet();
+        for (Map.Entry<?, ?> entry : entrySet) {
             if (entry == null) {
                 continue;
             }
@@ -66,7 +66,7 @@ public class ConsumerRecordsInterceptor implements AroundInterceptor {
             if (StringUtils.hasText(endPoint)) {
                 Object value = entry.getValue();
                 if (value instanceof List) {
-                    List consumerRecordList = (List) value;
+                    List<?> consumerRecordList = (List<?>) value;
                     for (Object endPointFieldAccessor : consumerRecordList) {
                         if (endPointFieldAccessor instanceof EndPointFieldAccessor) {
                             ((EndPointFieldAccessor) endPointFieldAccessor)._$PINPOINT$_setEndPoint(endPoint);

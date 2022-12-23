@@ -37,11 +37,6 @@ public class NullAnnotation<T> implements Annotation<T>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

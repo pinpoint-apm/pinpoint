@@ -55,7 +55,7 @@ public class DefaultSimpleStatementConstructorInterceptor implements AroundInter
         int bindIndex = 1;
 
         try {
-            final List<Object> positionalValues = ArrayArgumentUtils.getArgument(args, 1, List.class);
+            final List<?> positionalValues = ArrayArgumentUtils.getArgument(args, 1, List.class);
             if (positionalValues != null) {
                 for (Object value : positionalValues) {
                     final String bind = traceContext.getJdbcContext().getBindVariableService().formatBindVariable(value);
@@ -64,7 +64,7 @@ public class DefaultSimpleStatementConstructorInterceptor implements AroundInter
                     }
                 }
             }
-            final Map namedValues = ArrayArgumentUtils.getArgument(args, 2, Map.class);
+            final Map<?, ?> namedValues = ArrayArgumentUtils.getArgument(args, 2, Map.class);
             if (namedValues != null) {
                 for (Object value : namedValues.values()) {
                     final String bind = traceContext.getJdbcContext().getBindVariableService().formatBindVariable(value);

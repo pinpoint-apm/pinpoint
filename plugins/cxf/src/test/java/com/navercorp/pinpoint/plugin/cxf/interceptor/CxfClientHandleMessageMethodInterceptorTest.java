@@ -44,7 +44,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     private SpanEventRecorder recorder;
 
     @Test
-    public void test1() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void test1() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
@@ -52,7 +53,7 @@ public class CxfClientHandleMessageMethodInterceptorTest {
         doReturn(recorder).when(trace).traceBlockBegin();
 
         Object target = new Object();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<>();
         map.put("org.apache.cxf.message.Message.ENDPOINT_ADDRESS", "http://foo.com/getFoo");
         map.put("org.apache.cxf.request.uri", "http://foo.com/getFoo");
         map.put("org.apache.cxf.request.method", "POST");
@@ -70,7 +71,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     }
 
     @Test
-    public void test2() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void test2() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentTraceObject();
 
@@ -84,7 +86,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     }
 
     @Test
-    public void test3() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void test3() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
@@ -92,7 +95,7 @@ public class CxfClientHandleMessageMethodInterceptorTest {
         doReturn(recorder).when(trace).traceBlockBegin();
 
         Object target = new Object();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<>();
         map.put("org.apache.cxf.message.Message.ENDPOINT_ADDRESS", "http://foo.com/getFoo");
         Object[] args = new Object[]{map};
 

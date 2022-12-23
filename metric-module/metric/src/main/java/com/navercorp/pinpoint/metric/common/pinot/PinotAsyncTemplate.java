@@ -14,7 +14,6 @@ import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.apache.pinot.client.Connection;
 import org.apache.pinot.client.PinotResultSet;
 import org.apache.pinot.client.PreparedStatement;
-import org.apache.pinot.client.Request;
 import org.apache.pinot.client.ResultSetGroup;
 import org.apache.pinot.client.utils.DriverUtils;
 import org.mybatis.spring.MyBatisExceptionTranslator;
@@ -40,7 +39,6 @@ public class PinotAsyncTemplate {
     private final PersistenceExceptionTranslator exceptionTranslator;
 
     private static final String LIMIT_STATEMENT = "LIMIT";
-    private static final String QUERY_FORMAT = "sql";
 
 
     public PinotAsyncTemplate(SqlSessionFactory sqlSessionFactory) {
@@ -88,8 +86,7 @@ public class PinotAsyncTemplate {
         int fetchSize = getFetchSize(mappedStatement.getFetchSize());
         sql = checkLimitStatement(sql, fetchSize);
 
-        Request request = new Request(QUERY_FORMAT, sql);
-        return session.prepareStatement(request);
+        return session.prepareStatement(sql);
     }
 
     /**
