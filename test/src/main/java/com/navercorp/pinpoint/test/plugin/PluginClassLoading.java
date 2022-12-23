@@ -36,6 +36,11 @@ public final class PluginClassLoading {
 
     public static final String[] MAVEN_DEPENDENCY_CLASS_PATHS = new String[]{
             "maven-resolver",
+            "maven-model",
+            "maven-artifact",
+            "maven-model-builder",
+            "maven-builder-support",
+            "maven-repository-metadata",
             "commons-lang3",
             "apache/maven",
             "commons-logging",
