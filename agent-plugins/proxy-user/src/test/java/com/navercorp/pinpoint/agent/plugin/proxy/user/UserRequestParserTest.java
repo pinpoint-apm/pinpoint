@@ -57,7 +57,7 @@ public class UserRequestParserTest {
     public void parseNotFoundReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "D=123";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
         logger.info(proxyHttpHeader);
     }
@@ -66,7 +66,7 @@ public class UserRequestParserTest {
     public void parseInvalidReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448.369";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
         logger.info(proxyHttpHeader);
     }

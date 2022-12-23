@@ -38,11 +38,6 @@ public class DoubleAnnotation implements Annotation<Double>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

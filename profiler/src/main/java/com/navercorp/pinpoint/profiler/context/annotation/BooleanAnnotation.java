@@ -38,11 +38,6 @@ public class BooleanAnnotation implements Annotation<Boolean>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

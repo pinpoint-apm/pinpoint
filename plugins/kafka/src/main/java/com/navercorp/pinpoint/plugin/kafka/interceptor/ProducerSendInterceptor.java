@@ -23,12 +23,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
-
 import com.navercorp.pinpoint.plugin.kafka.recorder.DefaultHeaderRecorder;
 import com.navercorp.pinpoint.plugin.kafka.recorder.HeaderRecorder;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -60,7 +59,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        ProducerRecord record = getProducerRecord(args);
+        ProducerRecord<?, ?> record = ArrayArgumentUtils.getArgument(args, 0, ProducerRecord.class);
         if (record == null) {
             return;
         }
@@ -76,17 +75,6 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
     }
 
-    private ProducerRecord getProducerRecord(Object args[]) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof ProducerRecord) {
-            return (ProducerRecord) args[0];
-        }
-
-        return null;
-    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -94,7 +82,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        ProducerRecord record = getProducerRecord(args);
+        ProducerRecord<?, ?> record = ArrayArgumentUtils.getArgument(args, 0, ProducerRecord.class);
         if (record == null) {
             return;
         }

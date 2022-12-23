@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 
-import java.util.Iterator;
-
 /**
  * @author Taejin Koo
  */
@@ -59,9 +57,7 @@ public class ConsumerPollInterceptor implements AroundInterceptor {
         remoteAddress = StringUtils.defaultIfEmpty(remoteAddress, KafkaConstants.UNKNOWN);
 
         if (result instanceof ConsumerRecords) {
-            Iterator consumerRecordIterator = ((ConsumerRecords) result).iterator();
-            while (consumerRecordIterator.hasNext()) {
-                Object consumerRecord = consumerRecordIterator.next();
+            for (Object consumerRecord : (ConsumerRecords<?, ?>) result) {
                 if (consumerRecord instanceof RemoteAddressFieldAccessor) {
                     ((RemoteAddressFieldAccessor) consumerRecord)._$PINPOINT$_setRemoteAddress(remoteAddress);
                 }

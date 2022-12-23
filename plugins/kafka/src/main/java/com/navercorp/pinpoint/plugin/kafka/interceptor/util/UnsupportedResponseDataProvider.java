@@ -4,5 +4,7 @@ import java.util.Map;
 
 public final class UnsupportedResponseDataProvider implements KafkaResponseDataProvider {
     @Override
-    public Map getResponseData(Object fetchResponse) { return null; }
+    public Map<?, ?> getResponseData(Object fetchResponse) {
+        return null;
+    }
 }

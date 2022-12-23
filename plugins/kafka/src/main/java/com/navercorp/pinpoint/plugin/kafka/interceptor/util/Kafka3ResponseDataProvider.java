@@ -6,7 +6,7 @@ import java.util.Map;
 
 public final class Kafka3ResponseDataProvider implements KafkaResponseDataProvider {
     @Override
-    public Map getResponseData(Object fetchResponse) {
+    public Map<?, ?> getResponseData(Object fetchResponse) {
         return ((FetchResponse)fetchResponse).responseData(null, (short)11);
     }
 }

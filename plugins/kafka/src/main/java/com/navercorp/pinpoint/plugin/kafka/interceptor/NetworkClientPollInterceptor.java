@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
-
 import com.navercorp.pinpoint.plugin.kafka.interceptor.util.KafkaResponseDataProvider;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.util.KafkaResponseDataProviderFactory;
 import org.apache.kafka.clients.ClientResponse;
@@ -73,13 +72,13 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (!(result instanceof List) || CollectionUtils.isEmpty((List) result)) {
+        if (!(result instanceof List<?>) || CollectionUtils.isEmpty((List<?>) result)) {
             return;
         }
 
         final String endPointAddress = getEndPointAddressString((SocketChannelListFieldAccessor) selector);
 
-        for (Object object : (List) result) {
+        for (Object object : (List<?>) result) {
 
             if (!(object instanceof ClientResponse)) {
                 continue;
@@ -90,13 +89,13 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
                 continue;
             }
 
-            final Map responseData = responseDataProvider.getResponseData(responseBody);
+            final Map<?, ?> responseData = responseDataProvider.getResponseData(responseBody);
 
             if (responseData == null) {
                 continue;
             }
 
-            Set keySet = responseData.keySet();
+            Set<?> keySet = responseData.keySet();
             for (Object key : keySet) {
                 if (key instanceof EndPointFieldAccessor) {
                     EndPointFieldAccessor endPointFieldAccessor = (EndPointFieldAccessor) key;

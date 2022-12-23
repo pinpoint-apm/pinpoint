@@ -30,15 +30,7 @@ public class BindVariableServiceProvider implements Provider<BindVariableService
             bindVariable.setRawBytesConverter();
         }
 
-        BindVariableService bindVariableService = new DefaultBindVariableService(bindVariable);
-
-        oldVersionCompatibility(bindVariableService);
-
-        return bindVariableService;
+        return new DefaultBindVariableService(bindVariable);
     }
 
-    private void oldVersionCompatibility(BindVariableService bindVariableService) {
-        com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueConverter.setBindVariableService(bindVariableService);
-        com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils.setBindVariableService(bindVariableService);
-    }
 }

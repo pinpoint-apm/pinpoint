@@ -173,9 +173,11 @@ public class VertxPluginTestStarter extends AbstractVerticle {
     }
 
     private void sleep(int waiteSeconds) {
+
         try {
             Thread.sleep(TimeUnit.SECONDS.toMillis(waiteSeconds));
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

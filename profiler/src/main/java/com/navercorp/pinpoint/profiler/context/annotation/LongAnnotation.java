@@ -38,11 +38,6 @@ public class LongAnnotation implements Annotation<Long>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }
