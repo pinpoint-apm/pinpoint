@@ -154,6 +154,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+            <version>1.5.2-5</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.pinot</groupId>
             <artifactId>pinot-jdbc-client</artifactId>
             <version>0.11.0</version>
