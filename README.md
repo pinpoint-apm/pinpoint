@@ -2,7 +2,7 @@
 
 ![Pinpoint](web/psd/logo.png)
 
-[![Maven](https://img.shields.io/github/workflow/status/pinpoint-apm/pinpoint/Maven/master?label=build&logo=github)](https://github.com/pinpoint-apm/pinpoint/actions?query=workflow%3AMaven)
+[![Maven](https://img.shields.io/github/actions/workflow/status/pinpoint-apm/pinpoint/maven.yml?branch=master&label=build&logo=github)](https://github.com/pinpoint-apm/pinpoint/actions?query=workflow%3AMaven)
 [![codecov](https://codecov.io/gh/pinpoint-apm/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/pinpoint-apm/pinpoint)
 
 ## Latest Release (2022/12/27)
