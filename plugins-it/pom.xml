@@ -82,9 +82,6 @@
     </modules>
 
     <properties>
-        <maven.install.skip>true</maven.install.skip>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.jar.skipifempty>true</maven.jar.skipifempty>
     </properties>
 
     <dependencyManagement>
@@ -163,13 +160,6 @@
 
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <configuration>
-                        <skipIfEmpty>${maven.jar.skipifempty}</skipIfEmpty>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
