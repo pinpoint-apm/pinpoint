@@ -29,6 +29,9 @@
     <packaging>jar</packaging>
 
     <properties>
+        <maven.install.skip>false</maven.install.skip>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <maven.jar.skipifempty>false</maven.jar.skipifempty>
     </properties>
 
     <dependencies>
