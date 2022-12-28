@@ -720,7 +720,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            final InstrumentMethod lambdaMethod = target.getLambdaMethod("oracle.r2dbc.impl.OracleConnectionFactoryImpl", "oracle.r2dbc.impl.ReactiveJdbcAdapter");
+            final InstrumentMethod lambdaMethod = target.getConstructor("oracle.r2dbc.impl.OracleConnectionFactoryImpl", "oracle.r2dbc.impl.ReactiveJdbcAdapter");
             if (lambdaMethod != null) {
                 lambdaMethod.addInterceptor(OracleConnectionFactoryImplLambdaCreateInterceptor.class);
             }
@@ -932,7 +932,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            final InstrumentMethod resultFunctionGetLambdaMethod = target.getLambdaMethod("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec", "java.util.function.Function", "java.lang.String");
+            final InstrumentMethod resultFunctionGetLambdaMethod = target.getConstructor("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec", "java.util.function.Function", "java.lang.String");
             if (resultFunctionGetLambdaMethod != null) {
                 // resultFunction
                 target.addField(DatabaseInfoAccessor.class);
