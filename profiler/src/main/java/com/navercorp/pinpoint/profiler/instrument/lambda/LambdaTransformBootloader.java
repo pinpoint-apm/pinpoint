@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -37,13 +38,10 @@ import java.lang.reflect.Method;
 public class LambdaTransformBootloader {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-
-    public void transformLambdaFactory(Instrumentation instrumentation, final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory)  {
+    public void transformLambdaFactory(Instrumentation instrumentation, final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory) {
         logger.info("LambdaTransformBootloader.transformLambdaFactory");
         retransform(instrumentation);
-
         registerLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
-
     }
 
     private void retransform(Instrumentation instrumentation) {
@@ -63,20 +61,12 @@ public class LambdaTransformBootloader {
         }
     }
 
-    private void registerLambdaBytecodeHandler(final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory)  {
+    private void registerLambdaBytecodeHandler(final ClassFileTransformModuleAdaptor classFileTransformer, final JavaModuleFactory javaModuleFactory) {
         try {
             logger.info("register LambdaBytecodeHandler");
-            // for java9 handler
             final LambdaBytecodeHandler lambdaBytecodeHandler = newLambdaBytecodeHandler(classFileTransformer, javaModuleFactory);
-
-            final Class<?> unsafeDelegator = getUnsafeDelegator();
-            final Method register = unsafeDelegator.getMethod("register", LambdaBytecodeHandler.class);
-            final boolean success = (Boolean) register.invoke(unsafeDelegator, lambdaBytecodeHandler);
-            if (success) {
-                logger.info("LambdaBytecodeHandler registration success");
-            } else {
-                logger.warn("LambdaBytecodeHandler registration fail");
-            }
+            final Class<?> unsafeDelegator = getDelegator();
+            invoke(lambdaBytecodeHandler, unsafeDelegator);
         } catch (Exception e) {
             logger.error("LambdaBytecodeHandler registration fail Caused by:" + e.getMessage(), e);
         }
@@ -91,16 +81,30 @@ public class LambdaTransformBootloader {
         return lambdaBytecodeHandler;
     }
 
-    private Class<?> getUnsafeDelegator() throws ClassNotFoundException {
+    private Class<?> getDelegator() throws ClassNotFoundException {
         String delegatorName = getDelegatorName();
         return Class.forName(delegatorName, false, null);
     }
 
     private String getDelegatorName() {
-        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
+        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_16)) {
+            return JavaAssistUtils.jvmNameToJavaName(LambdaClassJava16.DELEGATE_CLASS);
+        } else if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_15)) {
+            return JavaAssistUtils.jvmNameToJavaName(LambdaClassJava15.DELEGATE_CLASS);
+        } else if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
             return JavaAssistUtils.jvmNameToJavaName(LambdaClassJava9.DELEGATE_CLASS);
         } else {
             return JavaAssistUtils.jvmNameToJavaName(LambdaClassJava8.DELEGATE_CLASS);
+        }
+    }
+
+    private void invoke(final LambdaBytecodeHandler lambdaBytecodeHandler, Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        final Method register = clazz.getMethod("register", LambdaBytecodeHandler.class);
+        final boolean success = (Boolean) register.invoke(clazz, lambdaBytecodeHandler);
+        if (success) {
+            logger.info("LambdaBytecodeHandler registration success");
+        } else {
+            logger.warn("LambdaBytecodeHandler registration fail");
         }
     }
 }
