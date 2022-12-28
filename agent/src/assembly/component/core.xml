@@ -48,6 +48,8 @@
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-core</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9-internal</include>
+                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java15</include>
+                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java16</include>
             </includes>
             <outputDirectory>boot</outputDirectory>
         </dependencySet>
@@ -60,6 +62,8 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java9</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java9-internal</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java15</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java16</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-tools</exclude>

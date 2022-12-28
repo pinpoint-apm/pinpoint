@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
+import java.util.List;
 import java.util.Objects;
+
 import com.navercorp.pinpoint.profiler.instrument.ASMVersion;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -31,24 +33,12 @@ public class MethodInstReplacer extends ClassVisitor {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private String className;
-    private final String methodName;
-    private final String targetClassName;
-    private final String targetMethodName;
-    private final String delegateClassName;
-    private final String delegateMethodName;
     private int transformCount = 0;
+    private final List<MethodInsn> methodInsnList;
 
-    public MethodInstReplacer(ClassVisitor classVisitor, String methodName,
-                              String targetClassName, String targetMethodName,
-                              String delegateClassName, String delegateMethodName) {
+    public MethodInstReplacer(ClassVisitor classVisitor, List<MethodInsn> methodInsnList) {
         super(ASMVersion.VERSION, classVisitor);
-        this.methodName = Objects.requireNonNull(methodName, "methodName");
-
-        this.targetClassName = Objects.requireNonNull(targetClassName, "targetClassName");
-        this.targetMethodName = Objects.requireNonNull(targetMethodName, "targetMethodName");
-
-        this.delegateClassName = Objects.requireNonNull(delegateClassName, "delegateClassName");
-        this.delegateMethodName = Objects.requireNonNull(delegateMethodName, "delegateMethodName");
+        this.methodInsnList = Objects.requireNonNull(methodInsnList, "methodInsnList");
     }
 
     @Override
@@ -59,24 +49,30 @@ public class MethodInstReplacer extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        if (methodName.equals(name)) {
-            logger.info("visitMethod {} desc:{} {}", name, descriptor);
+        for (MethodInsn methodInsn : methodInsnList) {
+            if (methodInsn.getMethodName().equals(name)) {
+                logger.info("visitMethod {} desc:{} {}", name, descriptor);
 
-            final MethodVisitor superMethodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
-            return new MethodVisitor(ASMVersion.VERSION, superMethodVisitor) {
-                @Override
-                public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-                    if (targetClassName.equals(owner) && targetMethodName.equals(name)) {
-                        if (logger.isInfoEnabled()) {
-                            logger.info("replace MethodInsn {}.{}() -> {}.{}()", owner, name, delegateClassName, delegateMethodName);
+                final MethodVisitor superMethodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
+                return new MethodVisitor(ASMVersion.VERSION, superMethodVisitor) {
+                    @Override
+                    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+                        if (methodInsn.getTargetClassName().equals(owner) && methodInsn.getTargetMethodName().equals(name)) {
+                            if (logger.isInfoEnabled()) {
+                                logger.info("replace MethodInsn {}.{}() -> {}.{}()", owner, name, methodInsn.getDelegateClassName(), methodInsn.getDelegateMethodName());
+                            }
+                            transformCount++;
+                            if (methodInsn.getDelegateDescriptor() != null) {
+                                super.visitMethodInsn(Opcodes.INVOKESTATIC, methodInsn.getDelegateClassName(), methodInsn.getDelegateMethodName(), methodInsn.getDelegateDescriptor(), isInterface);
+                            } else {
+                                super.visitMethodInsn(Opcodes.INVOKESTATIC, methodInsn.getDelegateClassName(), methodInsn.getDelegateMethodName(), descriptor, isInterface);
+                            }
+                        } else {
+                            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                         }
-                        transformCount++;
-                        super.visitMethodInsn(Opcodes.INVOKESTATIC, delegateClassName, delegateMethodName, descriptor, isInterface);
-                    } else {
-                        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                     }
-                }
-            };
+                };
+            }
         }
         return super.visitMethod(access, name, descriptor, signature, exceptions);
     }
@@ -88,5 +84,4 @@ public class MethodInstReplacer extends ClassVisitor {
     public int getTransformCount() {
         return transformCount;
     }
-
 }
