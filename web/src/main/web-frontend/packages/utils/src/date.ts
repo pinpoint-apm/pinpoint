@@ -1,14 +1,14 @@
 import { parse, isValid, differenceInDays } from 'date-fns';
-import { DateRange, DateRangeTime, DATE_FORMAT } from '@pinpoint-fe/constants';
+import { DATE_FORMAT } from '@pinpoint-fe/constants';
 
 type DateRangeType = { from: Date, to: Date };
 
 export const getParsedDateRange = (dates: {
   from?: Date | string;
   to?: Date | string;
-}, range = DateRange.FIVE_MINUTES) => {
+}, gap = 5 * 60 * 1000) => {
   const currentDate = new Date();
-  let parsedFrom = dates?.from || new Date(currentDate.getTime() - DateRangeTime[range]);
+  let parsedFrom = dates?.from || new Date(currentDate.getTime() - gap);
   let parsedTo = dates?.to || currentDate;
 
   if (typeof parsedFrom === 'string') {
@@ -18,7 +18,7 @@ export const getParsedDateRange = (dates: {
     parsedTo = parse(parsedTo, DATE_FORMAT, currentDate);
   }
   if (!isValidDateRangeInTwoDays({ from: parsedFrom, to: parsedTo})) {
-    parsedFrom = new Date(currentDate.getTime() - DateRangeTime[range]);
+    parsedFrom = new Date(currentDate.getTime() - gap);
     parsedTo = currentDate;
   }
 
