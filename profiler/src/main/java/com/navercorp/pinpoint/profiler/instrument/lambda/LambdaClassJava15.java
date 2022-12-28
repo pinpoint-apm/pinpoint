@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2022 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,26 @@ package com.navercorp.pinpoint.profiler.instrument.lambda;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public class LambdaClassJava9 implements LambdaClass {
+public class LambdaClassJava15 implements LambdaClass {
 
-    public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/java9/lambda/UnsafeDelegatorJava9";
+    public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/java15/lambda/MethodHandlesLookupDelegatorJava15";
 
     private final List<MethodInsn> methodInsnList;
 
-    public LambdaClassJava9() {
-        this.methodInsnList = Arrays.asList(new MethodInsn("spinInnerClass", "jdk/internal/misc/Unsafe", "defineAnonymousClass", DELEGATE_CLASS, "defineAnonymousClass", null));
+    public LambdaClassJava15() {
+        this.methodInsnList = Arrays.asList(
+                new MethodInsn("generateInnerClass", "java/lang/invoke/MethodHandles$Lookup", "defineHiddenClass", DELEGATE_CLASS, "defineHiddenClass", "(Ljava/lang/invoke/MethodHandles$Lookup;[BZ[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;"));
     }
 
     @Override
     public List<MethodInsn> getMethodInsnList() {
         return methodInsnList;
+    }
+
+    @Override
+    public String toString() {
+        return "LambdaClassJava15{" +
+                "methodInsnList=" + methodInsnList +
+                '}';
     }
 }
