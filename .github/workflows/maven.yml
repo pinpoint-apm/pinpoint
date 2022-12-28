@@ -40,6 +40,7 @@ jobs:
       run: |
         echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
         echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
+        echo "JAVA_17_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
         echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
     - name: Java Environment
       run: env | grep '^JAVA'

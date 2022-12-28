@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -62,7 +64,6 @@ public class LambdaFactoryTest {
     }
 
 
-
     @Test
     public void transformTest() throws IOException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
@@ -77,10 +78,9 @@ public class LambdaFactoryTest {
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         String delegateClassName = "com/navercorp/pinpoint/profiler/instrument/lambda/mock/DefineAnonymousClassDelegator";
         String delegateMethod = "delegate";
-        MethodInstReplacer replacer = new MethodInstReplacer(writer, "test",
-                "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeMock", "defineAnonymousClass",
-                delegateClassName, delegateMethod
-        );
+
+        List<MethodInsn> methodInsnList = Arrays.asList(new MethodInsn("test", "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeMock", "defineAnonymousClass", delegateClassName, delegateMethod, null));
+        MethodInstReplacer replacer = new MethodInstReplacer(writer, methodInsnList);
 
         renameClass(reader, replacer);
 
@@ -105,7 +105,7 @@ public class LambdaFactoryTest {
 
     private void renameClass(ClassReader reader, ClassVisitor classVisitor) {
         String className = "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeClassMock";
-        Remapper remapper = new SimpleRemapper(className,className + "2");
+        Remapper remapper = new SimpleRemapper(className, className + "2");
         ClassRemapper classRemapper = new ClassRemapper(classVisitor, remapper);
         reader.accept(classRemapper, 0);
     }

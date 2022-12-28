@@ -63,8 +63,9 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
         logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config:{}", this.getClass().getSimpleName(), config);
         // Server
+
         transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class, new Object[]{config.isUriStatEnable(), config.isUriStatUseUserInput()}, new Class[]{Boolean.class, Boolean.class});
-        final Matcher invokeMatcher = Matchers.newPackageBasedMatcher("org.springframework.web.reactive.DispatcherHandler$$Lambda$");
+        final Matcher invokeMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.web.reactive.DispatcherHandler", "java.util.function.Function");
         transformTemplate.transform(invokeMatcher, DispatchHandlerInvokeHandlerTransform.class);
 
         transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
@@ -102,6 +103,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
             // Dispatch
             final InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "org.springframework.web.server.ServerWebExchange");
             if (handleMethod != null) {
@@ -131,7 +133,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
 
             // flatMap(handler -> invokeHandler(exchange, handler))
             // flatMap(result -> handleResult(exchange, result))
-            InstrumentMethod handlerAndResultGetLambdaMethod = target.getDeclaredMethod("get$Lambda", "org.springframework.web.reactive.DispatcherHandler", "org.springframework.web.server.ServerWebExchange");
+            InstrumentMethod handlerAndResultGetLambdaMethod = target.getConstructor("org.springframework.web.reactive.DispatcherHandler", "org.springframework.web.server.ServerWebExchange");
             if (handlerAndResultGetLambdaMethod != null) {
                 handlerAndResultGetLambdaMethod.addInterceptor(DispatchHandlerGetLambdaInterceptor.class);
             }

@@ -41,7 +41,7 @@ public class DispatchHandlerGetLambdaInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        if (Boolean.FALSE == (result instanceof AsyncContextAccessor)) {
+        if (Boolean.FALSE == (target instanceof AsyncContextAccessor)) {
             return;
         }
 
@@ -50,17 +50,20 @@ public class DispatchHandlerGetLambdaInterceptor implements AroundInterceptor {
         }
 
         if (args.length == 1) {
-            setAsyncContextToResult(result, args[0]);
+            setAsyncContextToTarget(args[0], target);
         } else if (args.length == 2) {
-            setAsyncContextToResult(result, args[1]);
+            setAsyncContextToTarget(args[1], target);
         }
     }
 
-    private void setAsyncContextToResult(final Object result, final Object arg) {
+    private void setAsyncContextToTarget(final Object arg, final Object target) {
         // org.springframework.web.server.ServerWebExchange
         final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(arg);
         if (asyncContext != null) {
-            ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to target. asyncContext={}", asyncContext);
+            }
         }
     }
 }
