@@ -9,10 +9,10 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --external react",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "clean": "rm -rf dist",
-    "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
-    "devBuild": "tsup src/index.ts --format esm,cjs --dts --external react",
+    "dev": "tsup src/index.ts --format esm,cjs --watch --dts",
+    "devBuild": "tsup src/index.ts --format esm,cjs --dts",
     "lint": "eslint",
     "test": "jest"
   },

@@ -5,9 +5,8 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import { css } from '@emotion/react';
 import { format, isValid, parse } from 'date-fns';
 
-import { DateRange } from '@pinpoint-fe/constants';
 import { Dropdown, DropdownRef } from '../Dropdown';
-import DateRangeContext from './DateRangeContext';
+import DateRangeContext, { DateRange } from './DateRangeContext';
 import { StyleFlexVHCentered } from '../Styled/styles';
 import { DatePicker } from './DatePicker';
 
@@ -101,7 +100,7 @@ export const RangeDropdown = ({
         {RANGES.map((dateRange, i) => (
           <StyledList 
             key={i}
-            onClick={() => updateRange(dateRange)}
+            onClick={() => updateRange(i)}
           >
             <StyledLabel wide={dateRange === DateRange.REAL_TIME}>{dateRange}</StyledLabel>
             {renderDiscription(dateRange)}
