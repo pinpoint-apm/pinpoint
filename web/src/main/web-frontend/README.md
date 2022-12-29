@@ -2,4 +2,4 @@
 
 ## 📦 Components & Pcakages
 - [`@pinpoint-fe/server-map`](packages/server-map/readme.md)
-- `@pinpoint-fe/scatter-chart`
+- [`@pinpoint-fe/scatter-chart`](packages/scatter-chart/readme.md)
