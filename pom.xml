@@ -157,7 +157,7 @@
         <spring.batch.version>4.3.7</spring.batch.version>
 
         <spring.security.version>5.8.1</spring.security.version>
-        <spring.boot.version>2.5.12</spring.boot.version>
+        <spring.boot.version>2.7.7</spring.boot.version>
 
         <slf4j.version>1.7.30</slf4j.version>
         <log4j2.version>2.17.2</log4j2.version>
