@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.batch.common;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +52,8 @@ public class BatchConfiguration {
     @Value("${batch.flink.server}")
     private String[] flinkServerList = new String[0];
 
+    @Value("${batch.flink.rest.port:8081}")
+    private int flinkRestPort;
 
     @Value("${job.cleanup.inactive.agents:false}")
     private boolean enableCleanupInactiveAgents;
@@ -75,7 +77,7 @@ public class BatchConfiguration {
     public void setup() {
         beforeLog();
 
-        if (enableCleanupInactiveAgents == false) {
+        if (!enableCleanupInactiveAgents) {
             cleanupInactiveAgentsDurationDays = DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS;
             cleanupInactiveAgentsCron = DISABLED_CLEANUP_INACTIVE_AGENTS_CRON;
         } else {
@@ -108,6 +110,10 @@ public class BatchConfiguration {
         return Arrays.asList(flinkServerList);
     }
 
+    public int getFlinkRestPort() {
+        return flinkRestPort;
+    }
+
     public String getEmailServerUrl() {
         return emailServerUrl;
     }
@@ -135,21 +141,20 @@ public class BatchConfiguration {
     public boolean isWebhookEnable() {
         return webhookEnable;
     }
-    
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("BatchConfiguration{");
-        sb.append("emailServerUrl='").append(emailServerUrl).append('\'');
-        sb.append(", senderEmailAddress='").append(senderEmailAddress).append('\'');
-        sb.append(", enableWebhook='").append(webhookEnable).append('\'');
-        sb.append(", pinpointUrl='").append(pinpointUrl).append('\'');
-        sb.append(", batchEnv='").append(batchEnv).append('\'');
-        sb.append(", flinkServerList=").append(Arrays.toString(flinkServerList));
-        sb.append(", enableCleanupInactiveAgents=").append(enableCleanupInactiveAgents);
-        sb.append(", cleanupInactiveAgentsDurationDays=").append(cleanupInactiveAgentsDurationDays);
-        sb.append(", cleanupInactiveAgentsCron='").append(cleanupInactiveAgentsCron).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "BatchConfiguration{" +
+                "emailServerUrl='" + emailServerUrl + '\'' +
+                ", senderEmailAddress='" + senderEmailAddress + '\'' +
+                ", pinpointUrl='" + pinpointUrl + '\'' +
+                ", webhookEnable=" + webhookEnable +
+                ", batchEnv='" + batchEnv + '\'' +
+                ", flinkServerList=" + Arrays.toString(flinkServerList) +
+                ", flinkRestPort=" + flinkRestPort +
+                ", enableCleanupInactiveAgents=" + enableCleanupInactiveAgents +
+                ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
+                ", cleanupInactiveAgentsCron='" + cleanupInactiveAgentsCron + '\'' +
+                '}';
     }
-
 }
