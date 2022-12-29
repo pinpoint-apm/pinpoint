@@ -314,8 +314,6 @@ export const data: {
         ],
         "instanceCount": 0,
         "instanceErrorCount": 0,
-        "agentIds": [],
-        "agentIdNameMap": {}
       },
       {
         "key": "ACL-PORTAL-DEV^SPRING_BOOT",
@@ -614,14 +612,6 @@ export const data: {
         ],
         "instanceCount": 2,
         "instanceErrorCount": 0,
-        "agentIds": [
-          "dev-aclportal01.ncl",
-          "dev-aclportal02.ncl"
-        ],
-        "agentIdNameMap": {
-          "dev-aclportal01.ncl": "",
-          "dev-aclportal02.ncl": ""
-        }
       },
       {
         "key": "spt.dev-cerberus-admin^SPRING_BOOT",
@@ -920,14 +910,6 @@ export const data: {
         ],
         "instanceCount": 2,
         "instanceErrorCount": 0,
-        "agentIds": [
-          "t-220811-192514-7dl87cx",
-          "t-220926-145401-68ph5kv"
-        ],
-        "agentIdNameMap": {
-          "t-220811-192514-7dl87cx": "",
-          "t-220926-145401-68ph5kv": ""
-        }
       },
       {
         "key": "acl^MYSQL",
@@ -1226,12 +1208,6 @@ export const data: {
         ],
         "instanceCount": 1,
         "instanceErrorCount": 0,
-        "agentIds": [
-          "10.113.130.122:13306"
-        ],
-        "agentIdNameMap": {
-          "10.113.130.122:13306": null
-        }
       },
       {
         "key": "STOREP_MEMBER_API_ENVOY^ENVOY",
@@ -1530,28 +1506,6 @@ export const data: {
         ],
         "instanceCount": 9,
         "instanceErrorCount": 0,
-        "agentIds": [
-          "dev-member-api-iss-747qe",
-          "dev-member-api-iss-kmjpu",
-          "dev-member-api-iss-xzzzz",
-          "dev-member-api-iss-gbgzh",
-          "dev-member-api-iss-lasy6",
-          "dev-member-api-iss-wryca",
-          "dev-member-api-iss-e7am1",
-          "dev-member-api-iss-68f52",
-          "dev-member-api-iss-u3sm0"
-        ],
-        "agentIdNameMap": {
-          "dev-member-api-iss-747qe": "",
-          "dev-member-api-iss-kmjpu": "",
-          "dev-member-api-iss-xzzzz": "",
-          "dev-member-api-iss-gbgzh": "",
-          "dev-member-api-iss-lasy6": "",
-          "dev-member-api-iss-wryca": "",
-          "dev-member-api-iss-e7am1": "",
-          "dev-member-api-iss-68f52": "",
-          "dev-member-api-iss-u3sm0": ""
-        }
       },
       {
         "key": "cvkafaka^KAFKA_CLIENT",
@@ -1625,12 +1579,10 @@ export const data: {
         ],
         "instanceCount": 0,
         "instanceErrorCount": 0,
-        "agentIds": [],
-        "agentIdNameMap": {}
       },
       {
-        "key": "api.nconsole.com:3000^UNKNOWN",
-        "applicationName": "api.nconsole.com:3000",
+        "key": "api.dummy.com:3000^UNKNOWN",
+        "applicationName": "api.dummy.com:3000",
         "category": "UNKNOWN",
         "serviceType": "UNKNOWN",
         "serviceTypeCode": "1",
@@ -1925,8 +1877,6 @@ export const data: {
         ],
         "instanceCount": 0,
         "instanceErrorCount": 0,
-        "agentIds": [],
-        "agentIdNameMap": {}
       },
       {
         "key": "esfarm-cluster.svc.com:10200^UNKNOWN",
@@ -2225,15 +2175,13 @@ export const data: {
         ],
         "instanceCount": 0,
         "instanceErrorCount": 0,
-        "agentIds": [],
-        "agentIdNameMap": {}
       }
     ],
     "linkDataArray": [
       {
-        "key": "ACL-PORTAL-DEV^SPRING_BOOT~api.nconsole.com:3000^UNKNOWN",
+        "key": "ACL-PORTAL-DEV^SPRING_BOOT~api.dummy.com:3000^UNKNOWN",
         "from": "ACL-PORTAL-DEV^SPRING_BOOT",
-        "to": "api.nconsole.com:3000^UNKNOWN",
+        "to": "api.dummy.com:3000^UNKNOWN",
         "fromAgent": [
           "dev-aclportal01.ncl",
           "dev-aclportal02.ncl"
@@ -2249,7 +2197,7 @@ export const data: {
           "isWas": true
         },
         "targetInfo": {
-          "applicationName": "api.nconsole.com:3000",
+          "applicationName": "api.dummy.com:3000",
           "serviceType": "UNKNOWN",
           "serviceTypeCode": 1,
           "isWas": false
