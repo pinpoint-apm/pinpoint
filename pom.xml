@@ -144,8 +144,7 @@
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
 
-        <fastxml.jackson.version>2.13.4</fastxml.jackson.version>
-        <fastxml.jackson.databind.version>2.13.4.2</fastxml.jackson.databind.version>
+        <fastxml.jackson.version>2.14.1</fastxml.jackson.version>
         <snakeyaml.version>1.33</snakeyaml.version>
 
         <httpcomponents.version>4.5.13</httpcomponents.version>
@@ -573,7 +572,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${fastxml.jackson.databind.version}</version>
+                <version>${fastxml.jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
