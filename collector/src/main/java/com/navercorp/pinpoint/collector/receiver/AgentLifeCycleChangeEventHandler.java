@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.Objects;
@@ -43,11 +43,11 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
+    private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
-    private AgentEventAsyncTaskService agentEventAsyncTaskService;
+    private final AgentEventAsyncTaskService agentEventAsyncTaskService;
 
-    private ChannelPropertiesFactory channelPropertiesFactory;
+    private final ChannelPropertiesFactory channelPropertiesFactory;
 
     public AgentLifeCycleChangeEventHandler(AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService,
                                             AgentEventAsyncTaskService agentEventAsyncTaskService,

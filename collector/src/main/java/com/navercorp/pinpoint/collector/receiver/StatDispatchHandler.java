@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleDualHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -46,7 +46,7 @@ public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         final short type = header.getType();
         if (type == DefaultTBaseLocator.AGENT_STAT || type == DefaultTBaseLocator.AGENT_STAT_BATCH || type == DefaultTBaseLocator.AGENT_URI_STAT) {
-            return new SimpleDualHandler<REQ>(agentStatHandler, agentEventHandler);
+            return new SimpleDualHandler<>(agentStatHandler, agentEventHandler);
         }
 
         throw new UnsupportedOperationException("unsupported header:" + header);
