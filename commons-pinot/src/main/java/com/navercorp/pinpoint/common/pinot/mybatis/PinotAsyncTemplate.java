@@ -1,5 +1,10 @@
-package com.navercorp.pinpoint.metric.common.pinot;
+package com.navercorp.pinpoint.common.pinot.mybatis;
 
+import com.navercorp.pinpoint.common.pinot.datasource.ParameterRecorder;
+import com.navercorp.pinpoint.common.pinot.datasource.PinotDataSource;
+import com.navercorp.pinpoint.common.pinot.datasource.StatementWrapper;
+import com.navercorp.pinpoint.common.pinot.datasource.WrappedPinotConnection;
+import com.navercorp.pinpoint.common.pinot.util.JdbcUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
@@ -11,6 +16,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pinot.client.Connection;
 import org.apache.pinot.client.PinotResultSet;
 import org.apache.pinot.client.PreparedStatement;
@@ -19,7 +26,6 @@ import org.apache.pinot.client.utils.DriverUtils;
 import org.mybatis.spring.MyBatisExceptionTranslator;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
-import org.springframework.jdbc.support.JdbcUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +37,9 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 public class PinotAsyncTemplate {
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final SqlSessionFactory sqlSessionFactory;
     private final Configuration configuration;
     private final PinotDataSource dataSource;
@@ -80,6 +89,7 @@ public class PinotAsyncTemplate {
             JdbcUtils.closeConnection(connection);
         }
     }
+
 
     private PreparedStatement preparedStatement(Connection session, MappedStatement mappedStatement, BoundSql boundSql) {
         String sql = boundSql.getSql();

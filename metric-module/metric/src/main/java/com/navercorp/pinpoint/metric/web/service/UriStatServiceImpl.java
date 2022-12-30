@@ -28,7 +28,7 @@ import java.util.Objects;
 @Service
 public class UriStatServiceImpl implements UriStatService {
 
-    private UriStatDao uriStatDao;
+    private final UriStatDao uriStatDao;
 
     public UriStatServiceImpl(UriStatDao uriStatDao) {
         this.uriStatDao = Objects.requireNonNull(uriStatDao);

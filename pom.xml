@@ -96,6 +96,7 @@
         <module>commons-config</module>
         <module>commons-profiler</module>
         <module>commons-hbase</module>
+        <module>commons-pinot</module>
         <module>commons-server</module>
         <module>commons-server-cluster</module>
         <module>tools</module>
@@ -136,6 +137,8 @@
         <!-- for shaded hbase client 1.5.0+ version -->
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <hbase2.client.version>2.4.11</hbase2.client.version>
+
+        <pinot.client.version>0.11.0</pinot.client.version>
 
         <plugin.jacoco.skip>true</plugin.jacoco.skip>
 
@@ -291,6 +294,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-hbase</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-pinot</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.common.pinot;
+package com.navercorp.pinpoint.common.pinot.mybatis;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
