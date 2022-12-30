@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.common.pinot;
+package com.navercorp.pinpoint.common.server.tenant;
 
 /**
  * @author minwoo.jung
  */
-public class PinotTenantProvider implements TenantProvider {
+public interface TenantProvider {
 
-    private final String defaultTenantId;
-
-    public PinotTenantProvider(String defaultTenantId) {
-        this.defaultTenantId = defaultTenantId;
-    }
-
-    @Override
-    public String getTenantId() {
-        return defaultTenantId;
-    }
+    String getTenantId();
 }

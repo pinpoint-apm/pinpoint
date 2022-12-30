@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.controller;
 
+import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
@@ -53,7 +53,10 @@ public class SystemMetricController {
 
     private final TagParser tagParser = new TagParser();
 
-    public SystemMetricController(SystemMetricDataService systemMetricDataService, SystemMetricHostInfoService systemMetricHostInfoService, YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager, TenantProvider tenantProvider) {
+    public SystemMetricController(SystemMetricDataService systemMetricDataService,
+                                  SystemMetricHostInfoService systemMetricHostInfoService,
+                                  YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
+                                  TenantProvider tenantProvider) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");

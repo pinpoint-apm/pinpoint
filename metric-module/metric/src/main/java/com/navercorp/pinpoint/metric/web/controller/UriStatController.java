@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.metric.web.controller;
 
+import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.common.model.UriStat;
-import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import com.navercorp.pinpoint.metric.web.model.UriStatSummary;
 import com.navercorp.pinpoint.metric.web.service.UriStatService;
 import com.navercorp.pinpoint.metric.web.util.Range;

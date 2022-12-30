@@ -39,7 +39,7 @@
         <constructor-arg index="0" ref="sqlPinotSessionFactory"/>
     </bean>
 
-    <bean id="pinotAsyncTemplate" class="com.navercorp.pinpoint.metric.common.pinot.PinotAsyncTemplate">
+    <bean id="pinotAsyncTemplate" class="com.navercorp.pinpoint.common.pinot.mybatis.PinotAsyncTemplate">
         <constructor-arg index="0" ref="sqlPinotSessionFactory"/>
     </bean>
 </beans>

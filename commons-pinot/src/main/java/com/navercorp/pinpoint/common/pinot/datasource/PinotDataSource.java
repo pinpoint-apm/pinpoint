@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.common.pinot;
+package com.navercorp.pinpoint.common.pinot.datasource;
 
 import org.apache.pinot.client.PinotConnection;
 import org.apache.pinot.client.PinotDriver;

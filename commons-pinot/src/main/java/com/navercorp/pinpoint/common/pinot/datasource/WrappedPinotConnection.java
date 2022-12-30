@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.common.pinot;
+package com.navercorp.pinpoint.common.pinot.datasource;
 
 import org.apache.pinot.client.PinotConnection;
 
@@ -43,7 +43,6 @@ import java.util.concurrent.Executor;
  */
 public class WrappedPinotConnection implements Connection {
 
-    private static final String QUERY_FORMAT = "sql";
     private static final String LIMIT_STATEMENT = "LIMIT";
 
     private final PinotConnection connection;

@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="pinotDataSource"
-          class="com.navercorp.pinpoint.metric.common.pinot.PinotDataSource" destroy-method="close">
+          class="com.navercorp.pinpoint.common.pinot.datasource.PinotDataSource" destroy-method="close">
         <property name="url" value="${pinpoint.pinot.jdbc.url}" />
         <property name="username" value="${pinpoint.pinot.jdbc.username}" />
         <property name="password" value="${pinpoint.pinot.jdbc.password}" />

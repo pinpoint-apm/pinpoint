@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
-
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
+import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.metric.collector.MetricAppPropertySources;
 import com.navercorp.pinpoint.metric.collector.dao.UriStatDao;
 import com.navercorp.pinpoint.metric.common.model.UriStat;
-import com.navercorp.pinpoint.metric.common.pinot.TenantProvider;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;

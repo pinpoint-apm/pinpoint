@@ -1,6 +1,7 @@
-package com.navercorp.pinpoint.metric.common.pinot;
+package com.navercorp.pinpoint.common.pinot.datasource;
 
-import org.apache.hadoop.hbase.shaded.org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.pinot.client.PreparedStatement;
 import org.apache.pinot.client.base.AbstractBasePreparedStatement;
 import org.apache.pinot.client.utils.DateTimeUtils;
 
@@ -15,9 +16,9 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 public class ParameterRecorder extends AbstractBasePreparedStatement {
-    private org.apache.pinot.client.PreparedStatement preparedStatement;
+    private PreparedStatement preparedStatement;
 
-    public ParameterRecorder(org.apache.pinot.client.PreparedStatement preparedStatement) {
+    public ParameterRecorder(PreparedStatement preparedStatement) {
         this.preparedStatement = Objects.requireNonNull(preparedStatement, "preparedStatement");
     }
 

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
+import com.navercorp.pinpoint.common.pinot.mybatis.PinotAsyncTemplate;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
-import com.navercorp.pinpoint.metric.common.pinot.PinotAsyncTemplate;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
@@ -26,7 +26,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
-
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
