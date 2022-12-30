@@ -686,7 +686,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>4.0.3</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -839,8 +839,6 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <!-- 2.7 (requires Java 8 -->
-                <!-- 2.6 (requires Java 7 -->
                 <version>2.11.0</version>
             </dependency>
             <dependency>
