@@ -9,14 +9,11 @@
         <entry key="value.serializer" value="${pinpoint.metric.kafka.value.serializer}"/>
         <entry key="partitioner.class" value="org.apache.kafka.clients.producer.internals.DefaultPartitioner"/>
         <entry key="acks" value="${pinpoint.metric.kafka.acks}"/>
+        <entry key="compression.type" value="zstd"/>
     </util:map>
 
     <bean id="kafkaProducerFactory" class="org.springframework.kafka.core.DefaultKafkaProducerFactory">
         <constructor-arg index="0" ref="kafkaProducerFactoryProperties" />
-    </bean>
-
-    <bean id="kafkaLongTemplate" class="org.springframework.kafka.core.KafkaTemplate">
-        <constructor-arg index="0" ref="kafkaProducerFactory"/>
     </bean>
 
     <bean id="kafkaDoubleTemplate" class="org.springframework.kafka.core.KafkaTemplate">

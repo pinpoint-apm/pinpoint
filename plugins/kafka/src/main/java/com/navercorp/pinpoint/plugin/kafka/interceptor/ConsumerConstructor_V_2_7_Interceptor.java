@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.kafka.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
@@ -56,7 +56,7 @@ public class ConsumerConstructor_V_2_7_Interceptor implements AroundInterceptor 
             return;
         }
 
-        Map consumerConfig = getMap(args);
+        Map<?, ?> consumerConfig = ArrayArgumentUtils.getArgument(args, 0, Map.class);
         if (consumerConfig == null) {
             return;
         }
@@ -65,19 +65,7 @@ public class ConsumerConstructor_V_2_7_Interceptor implements AroundInterceptor 
         ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
     }
 
-    private Map getMap(Object args[]) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof Map) {
-            return (Map)args[0];
-        }
-
-        return null;
-    }
-
-    private String getRemoteAddress(Map map) {
+    private String getRemoteAddress(Map<?, ?> map) {
         Object bootstrapServersValue = map.get(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
 
         if (bootstrapServersValue instanceof String) {
@@ -85,7 +73,7 @@ public class ConsumerConstructor_V_2_7_Interceptor implements AroundInterceptor 
         }
 
         if (bootstrapServersValue instanceof List) {
-            List bootstrapServerList = (List) bootstrapServersValue;
+            List<?> bootstrapServerList = (List<?>) bootstrapServersValue;
 
             if (CollectionUtils.nullSafeSize(bootstrapServerList) == 1 && (bootstrapServerList.get(0) instanceof String)) {
                 return (String) bootstrapServerList.get(0);

@@ -24,11 +24,13 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class HttpClient3PluginConfig {
 
+    private final boolean enable;
     private final boolean param;
     private final boolean io;
     private final HttpDumpConfig httpDumpConfig;
 
     public HttpClient3PluginConfig(ProfilerConfig src) {
+        this.enable = src.readBoolean("profiler.apache.httpclient3.enable", true);
         this.param = src.readBoolean("profiler.apache.httpclient3.param", true);
 
         boolean cookie = src.readBoolean("profiler.apache.httpclient3.cookie", false);
@@ -45,6 +47,10 @@ public class HttpClient3PluginConfig {
         this.io = src.readBoolean("profiler.apache.httpclient3.io", true);
     }
 
+    public boolean isEnable() {
+        return enable;
+    }
+
     public boolean isParam() {
         return param;
     }
@@ -59,11 +65,11 @@ public class HttpClient3PluginConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("HttpClient3PluginConfig{");
-        sb.append("param=").append(param);
-        sb.append(", io=").append(io);
-        sb.append(", httpDumpConfig=").append(httpDumpConfig);
-        sb.append('}');
-        return sb.toString();
+        return "HttpClient3PluginConfig{" +
+                "enable=" + enable +
+                ", param=" + param +
+                ", io=" + io +
+                ", httpDumpConfig=" + httpDumpConfig +
+                '}';
     }
 }

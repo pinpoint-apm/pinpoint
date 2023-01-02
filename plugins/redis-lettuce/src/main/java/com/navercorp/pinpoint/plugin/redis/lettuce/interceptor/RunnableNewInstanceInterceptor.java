@@ -44,26 +44,32 @@ public class RunnableNewInstanceInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        Subscriber subscriber = ArrayArgumentUtils.getArgument(args, 1, Subscriber.class);
-        if (subscriber == null) {
-            subscriber = ArrayArgumentUtils.getArgument(args, 0, Subscriber.class);
-        }
+        try {
+            Subscriber subscriber = ArrayArgumentUtils.getArgument(args, 1, Subscriber.class);
+            if (subscriber == null) {
+                subscriber = ArrayArgumentUtils.getArgument(args, 0, Subscriber.class);
+            }
 
-        if (subscriber == null) {
-            return;
-        }
+            if (subscriber == null) {
+                return;
+            }
 
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(subscriber);
-        if (asyncContext == null) {
-            asyncContext = ReactorContextAccessorUtils.getAsyncContext(subscriber);
-        }
-        if (asyncContext == null) {
-            return;
-        }
+            AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(subscriber);
+            if (asyncContext == null) {
+                asyncContext = ReactorContextAccessorUtils.getAsyncContext(subscriber);
+            }
+            if (asyncContext == null) {
+                return;
+            }
 
-        // Set result to asyncContext
-        if (throwable != null) {
-            AsyncContextAccessorUtils.setAsyncContext(asyncContext, result);
+            // Set result to asyncContext
+            if (throwable != null) {
+                AsyncContextAccessorUtils.setAsyncContext(asyncContext, result);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 }

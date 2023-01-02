@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -31,4 +33,12 @@ public interface TraceRoot {
 
     Shared getShared();
 
+    static TraceRoot remote(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
+        return new RemoteTraceRoot(traceId, agentId, traceStartTime, localTransactionId);
+    }
+
+    static TraceRoot local(String agentId, long traceStartTime, long localTransactionId) {
+        Objects.requireNonNull(agentId, "agentId");
+        return new LocalTraceRoot(agentId, traceStartTime, localTransactionId);
+    }
 }

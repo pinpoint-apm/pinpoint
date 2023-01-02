@@ -41,11 +41,6 @@ public class BytesAnnotation implements Annotation<byte[]>,
     }
 
     @Override
-    public int getAnnotationKey() {
-        return getKey();
-    }
-
-    @Override
     public int getKey() {
         return key;
     }

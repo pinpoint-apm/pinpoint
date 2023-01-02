@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,14 +32,8 @@ import java.util.List;
 public class NginxRequestParser implements ProxyRequestParser {
 
     @Override
-    @Deprecated
-    public String getHttpHeaderName() {
-        return NginxRequestConstants.NGINX_REQUEST_TYPE.getHttpHeaderName();
-    }
-
-    @Override
     public List<String> getHttpHeaderNameList() {
-        return Arrays.asList(NginxRequestConstants.NGINX_REQUEST_TYPE.getHttpHeaderName());
+        return Collections.singletonList(NginxRequestConstants.NGINX_REQUEST_TYPE.getHttpHeaderName());
     }
 
     @Override
@@ -49,12 +43,6 @@ public class NginxRequestParser implements ProxyRequestParser {
 
     @Override
     public void init(ProfilerConfig profilerConfig) {
-    }
-
-    @Override
-    @Deprecated
-    public ProxyRequestHeader parse(String value) {
-        return parseHeader("UNKNOWN", value);
     }
 
     @Override

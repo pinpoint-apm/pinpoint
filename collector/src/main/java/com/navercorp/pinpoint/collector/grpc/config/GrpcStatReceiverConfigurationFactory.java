@@ -35,6 +35,8 @@ public class GrpcStatReceiverConfigurationFactory {
 
     public static final String SERVER_EXECUTOR = "collector.receiver.grpc.stat.server.executor";
 
+    public static final String SERVER_CALL_EXECUTOR = "collector.receiver.grpc.stat.server-call.executor";
+
     public static final String WORKER_EXECUTOR = "collector.receiver.grpc.stat.worker.executor";
 
     public static final String STREAM = "collector.receiver.grpc.stat.stream";
@@ -55,6 +57,12 @@ public class GrpcStatReceiverConfigurationFactory {
     @Bean(SERVER_EXECUTOR)
     @ConfigurationProperties(SERVER_EXECUTOR)
     public ExecutorConfiguration.Builder newServerExecutorBuilder() {
+        return ExecutorConfiguration.newBuilder();
+    }
+
+    @Bean(SERVER_CALL_EXECUTOR)
+    @ConfigurationProperties(SERVER_CALL_EXECUTOR)
+    public ExecutorConfiguration.Builder newServerCallExecutorBuilder() {
         return ExecutorConfiguration.newBuilder();
     }
 
@@ -79,7 +87,7 @@ public class GrpcStatReceiverConfigurationFactory {
 
 
     @Bean("grpcStatReceiverConfig")
-    public GrpcStatReceiverConfiguration newAgentReceiverConfig(
+    public GrpcStatReceiverConfiguration newStatReceiverConfig(
             Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.stat.enable", boolean.class, false);
@@ -88,10 +96,11 @@ public class GrpcStatReceiverConfigurationFactory {
 
         BindAddress bindAddress = newBindAddressBuilder().build();
         ExecutorConfiguration serverExecutor = newServerExecutorBuilder().build();
+        ExecutorConfiguration serverCallExecutor = newServerCallExecutorBuilder().build();
         ExecutorConfiguration workerExecutor = newWorkerExecutorBuilder().build();
 
         GrpcStreamConfiguration streamConfiguration = newStreamConfigurationBuilder().build();
-        return new GrpcStatReceiverConfiguration(enable, bindAddress, serverExecutor, workerExecutor, serverOption, streamConfiguration);
+        return new GrpcStatReceiverConfiguration(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
     }
 
 }

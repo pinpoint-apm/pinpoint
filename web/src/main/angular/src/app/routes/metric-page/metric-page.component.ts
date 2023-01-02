@@ -15,7 +15,6 @@ export class MetricPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
 
     showSideMenu: boolean;
-    sideNavigationUI: boolean;
 
     showMetric$: Observable<boolean>;
     mainSectionStyle = {};
@@ -36,7 +35,6 @@ export class MetricPageComponent implements OnInit, OnDestroy {
             })
         );
 
-        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),

@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
+import com.navercorp.pinpoint.common.profiler.clock.Clock;
+import com.navercorp.pinpoint.common.profiler.clock.TickClock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -10,11 +12,14 @@ import java.util.Optional;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentUriStatDataTest {
+    private static final int DEFAULT_COLLECT_INTERVAL = 30000; // 30s
 
     @Test
     public void add_capacity() {
+        TickClock clock = (TickClock) Clock.tick(DEFAULT_COLLECT_INTERVAL);
+
         long baseTimestamp = System.currentTimeMillis();
-        AgentUriStatData metric = new AgentUriStatData(baseTimestamp, 1);
+        AgentUriStatData metric = new AgentUriStatData(baseTimestamp, 1, clock);
 
         UriStatInfo test = new UriStatInfo("test", true, 10, baseTimestamp);
 
@@ -24,8 +29,10 @@ public class AgentUriStatDataTest {
 
     @Test
     public void add_pattern() {
+        TickClock clock = (TickClock) Clock.tick(DEFAULT_COLLECT_INTERVAL);
+
         long baseTimestamp = System.currentTimeMillis();
-        AgentUriStatData metric = new AgentUriStatData(baseTimestamp, 10);
+        AgentUriStatData metric = new AgentUriStatData(baseTimestamp, 10, clock);
 
         UriStatInfo pattern1 = new UriStatInfo("pattern1", true, 10, baseTimestamp);
         metric.add(pattern1);

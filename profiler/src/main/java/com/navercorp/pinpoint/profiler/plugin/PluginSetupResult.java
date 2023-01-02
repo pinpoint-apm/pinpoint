@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.List;
@@ -41,10 +40,6 @@ public class PluginSetupResult {
 
     public List<ClassFileTransformer> getClassTransformerList() {
         return transformerRegistry.getClassTransformerList();
-    }
-
-    public List<UriExtractorProvider> getUriExtractorProviderList() {
-        return this.setupContext.getUriExtractorProviderList();
     }
 
 }

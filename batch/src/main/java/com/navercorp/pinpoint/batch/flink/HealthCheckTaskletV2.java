@@ -16,17 +16,19 @@
 package com.navercorp.pinpoint.batch.flink;
 
 import com.navercorp.pinpoint.batch.common.BatchConfiguration;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +41,7 @@ import java.util.Objects;
 public class HealthCheckTaskletV2 implements Tasklet {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final static String URL_FORMAT = "http://%s:8081/jobs/overview";
+    private final static String URL_FORMAT = "http://%s:%d/jobs/overview";
     private final static String NAME = "name";
     private final static String STATE = "state";
     private final static String RUNNING = "RUNNING";
@@ -58,7 +60,7 @@ public class HealthCheckTaskletV2 implements Tasklet {
     }
 
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public RepeatStatus execute(@Nonnull StepContribution contribution, @Nonnull ChunkContext chunkContext) throws Exception {
         List<String> urlList = generatedFlinkManagerServerApi();
 
         if (urlList.isEmpty()) {
@@ -69,7 +71,8 @@ public class HealthCheckTaskletV2 implements Tasklet {
 
         for (String url : urlList) {
             try {
-                ResponseEntity<Map> responseEntity = this.restTemplate.exchange(url, HttpMethod.GET, null, Map.class);
+                ParameterizedTypeReference<Map<?, ?>> type = new ParameterizedTypeReference<>() {};
+                ResponseEntity<Map<?, ?>> responseEntity = this.restTemplate.exchange(url, HttpMethod.GET, null, type);
 
                 if (responseEntity.getStatusCode() != HttpStatus.OK) {
                     continue;
@@ -96,7 +99,7 @@ public class HealthCheckTaskletV2 implements Tasklet {
         return RepeatStatus.FINISHED;
     }
 
-    private void checkJobExecuteStatus(ResponseEntity<Map> responseEntity, Map<String, Boolean> jobExecuteStatus) {
+    private void checkJobExecuteStatus(ResponseEntity<Map<?, ?>> responseEntity, Map<String, Boolean> jobExecuteStatus) {
         Map<?, ?> responseData = responseEntity.getBody();
         if(responseData != null) {
             List<?> jobs = (List<?>)responseData.get("jobs");
@@ -115,13 +118,14 @@ public class HealthCheckTaskletV2 implements Tasklet {
         }
     }
 
-
-    private List<String> generatedFlinkManagerServerApi() {
+    // @VisibleForTesting
+    List<String> generatedFlinkManagerServerApi() {
         List<String> flinkServerList = batchConfiguration.getFlinkServerList();
+        int flinkRestPort = batchConfiguration.getFlinkRestPort();
         List<String> urlList = new ArrayList<>(flinkServerList.size());
 
         for (String flinkServerIp : flinkServerList) {
-            urlList.add(String.format(URL_FORMAT, flinkServerIp));
+            urlList.add(String.format(URL_FORMAT, flinkServerIp, flinkRestPort));
         }
 
         return urlList;

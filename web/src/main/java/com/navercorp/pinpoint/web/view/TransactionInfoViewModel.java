@@ -227,7 +227,9 @@ public class TransactionInfoViewModel {
                 "isFocused",
                 "hasException",
                 "isAuthorized",
-                "agentName"
+                "agentName",
+                "lineNumber",
+                "location"
         };
 
         private String depth = "";
@@ -255,6 +257,8 @@ public class TransactionInfoViewModel {
         private boolean isFocused;
         private boolean hasException;
         private boolean isAuthorized;
+        private int lineNumber;
+        private String location = "";
 
         public CallStack(final Record record, long barRatio) {
             begin = record.getBegin();
@@ -285,6 +289,8 @@ public class TransactionInfoViewModel {
             isFocused = record.isFocused();
             hasException = record.getHasException();
             isAuthorized = record.isAuthorized();
+            lineNumber = record.getLineNumber();
+            location = record.getLocation();
         }
 
         public String getDepth() {
@@ -385,6 +391,14 @@ public class TransactionInfoViewModel {
 
         public boolean isAuthorized() {
             return isAuthorized;
+        }
+
+        public int getLineNumber() {
+            return lineNumber;
+        }
+
+        public String getLocation() {
+            return location;
         }
     }
 }

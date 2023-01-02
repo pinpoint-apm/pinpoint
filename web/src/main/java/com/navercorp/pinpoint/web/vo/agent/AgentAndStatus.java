@@ -41,4 +41,12 @@ public class AgentAndStatus {
     public int hashCode() {
         return agentInfo != null ? agentInfo.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "AgentAndStatus{" +
+                "agentInfo=" + agentInfo +
+                ", status=" + status +
+                '}';
+    }
 }

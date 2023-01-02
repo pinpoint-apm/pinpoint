@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-metric-module</artifactId>
-        <version>2.5.0-SNAPSHOT</version>
+        <version>2.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-metric</artifactId>
@@ -48,7 +48,7 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-        <!-- Spring depedencies -->
+        <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -154,25 +154,25 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+            <version>1.5.2-5</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.pinot</groupId>
-            <artifactId>pinot-java-client</artifactId>
-            <version>0.9.3</version>
+            <artifactId>pinot-jdbc-client</artifactId>
+            <version>0.11.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-netty-shaded</artifactId>
+                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pinot</groupId>
-            <artifactId>pinot-jdbc-client</artifactId>
-            <version>0.9.3</version>
         </dependency>
 
         <dependency>

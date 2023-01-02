@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
+import org.apache.commons.math3.util.Precision;
 
 /**
  * @author minwoo.jung
@@ -33,7 +34,7 @@ public class JoinTransactionBoMapper implements ThriftStatMapper<JoinTransaction
         }
 
         TFTransaction tFtransaction = tFAgentStat.getTransaction();
-        final long totalCount = calculateTotalCount(tFtransaction);
+        final long totalCount = calculateTotalCount(tFtransaction, tFAgentStat.getCollectInterval());
         final String agentId = tFAgentStat.getAgentId();
 
         JoinTransactionBo joinTransactionBo = new JoinTransactionBo();
@@ -45,7 +46,7 @@ public class JoinTransactionBoMapper implements ThriftStatMapper<JoinTransaction
         return joinTransactionBo;
     }
 
-    private long calculateTotalCount(TFTransaction tFtransaction) {
+    private long calculateTotalCount(TFTransaction tFtransaction, long collectInterval) {
         long totalCount = 0;
         totalCount += tFtransaction.getSampledNewCount();
         totalCount += tFtransaction.getSampledContinuationCount();
@@ -53,7 +54,17 @@ public class JoinTransactionBoMapper implements ThriftStatMapper<JoinTransaction
         totalCount += tFtransaction.getUnsampledContinuationCount();
         totalCount += tFtransaction.getSkippedNewCount();
         totalCount += tFtransaction.getSkippedContinuationCount();
+
+        totalCount = calculateAvgTotalCount(totalCount, collectInterval);
         return totalCount;
+    }
+
+    private static long calculateAvgTotalCount(long totalCount, long timeMs) {
+        if (totalCount <= 0) {
+            return totalCount;
+        }
+
+        return (long) Precision.round(totalCount / (timeMs / 1000D), 1);
     }
 
     @Override

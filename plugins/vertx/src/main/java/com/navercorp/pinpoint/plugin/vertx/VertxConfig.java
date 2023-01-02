@@ -31,6 +31,7 @@ public class VertxConfig {
     private final List<String> bootstrapMains;
     private final List<String> handlerBasePackageNames;
     private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
 
     public VertxConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -41,7 +42,8 @@ public class VertxConfig {
         this.enableHttpClient = config.readBoolean("profiler.vertx.http.client.enable", true);
         this.bootstrapMains = config.readList("profiler.vertx.bootstrap.main");
         this.handlerBasePackageNames = config.readList("profiler.vertx.handler.base-packages");
-        this.uriStatEnable = config.readBoolean("profiler.vertx.uri.stat.enable", false);
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.vertx.enable", false);
+        this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.vertx.useuserinput", false);
     }
 
     public boolean isEnable() {
@@ -68,6 +70,10 @@ public class VertxConfig {
         return uriStatEnable;
     }
 
+    public boolean isUriStatUseUserInput() {
+        return uriStatUseUserInput;
+    }
+
     @Override
     public String toString() {
         return "VertxConfig{" +
@@ -76,6 +82,8 @@ public class VertxConfig {
                 ", enableHttpClient=" + enableHttpClient +
                 ", bootstrapMains=" + bootstrapMains +
                 ", handlerBasePackageNames=" + handlerBasePackageNames +
+                ", uriStatEnable=" + uriStatEnable +
+                ", uriStatUseUserInput=" + uriStatUseUserInput +
                 '}';
     }
 }

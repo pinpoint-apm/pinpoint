@@ -16,17 +16,18 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.common.Version;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.agentdir.JarDescription;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -38,19 +39,19 @@ public class AgentDirGenerator {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-
-    private static final Path bootStrapJar = Paths.get("pinpoint-bootstrap-" + Version.VERSION + ".jar");
-
-    private static final Path commons = Paths.get("pinpoint-commons-" + Version.VERSION + ".jar");
-    private static final Path bootStrapCoreJar = Paths.get("pinpoint-bootstrap-core-" + Version.VERSION + ".jar");
-    private static final Path bootStrapJava9Jar = Paths.get("pinpoint-bootstrap-java9-" + Version.VERSION + ".jar");
-    private static final Path bootStrapCoreOptionalJar = Paths.get("pinpoint-java7-" + Version.VERSION + ".jar");
-    private static final Path annotations = Paths.get("pinpoint-annotations-" + Version.VERSION + ".jar");
-
+    private final Path bootStrapJar;
     private final Path agentDirPath;
+    private final String version;
 
-    public AgentDirGenerator(Path agentDirPath) {
+    public AgentDirGenerator(Path agentDirPath, String version) {
         this.agentDirPath = Objects.requireNonNull(agentDirPath, "agentDirPath");
+        this.version = Objects.requireNonNull(version, "version");
+
+        this.bootStrapJar = libPath("pinpoint-bootstrap", version);
+    }
+
+    private static Path libPath(String name, String version) {
+        return Paths.get(name + "-" + version + ".jar");
     }
 
     public void create() throws IOException {
@@ -62,11 +63,11 @@ public class AgentDirGenerator {
 
         Path boot = createChildDir(agentDirPath, "boot");
 
-        createJarFile(boot, commons);
-        createJarFile(boot, bootStrapCoreJar);
-        createJarFile(boot, bootStrapJava9Jar);
-        createJarFile(boot, bootStrapCoreOptionalJar);
-        createJarFile(boot, annotations);
+        AgentDirBaseClassPathResolver bootDir = new AgentDirBaseClassPathResolver(boot);
+        List<JarDescription> bootJarDescriptions = bootDir.getBootJarDescriptions();
+        for (JarDescription description : bootJarDescriptions) {
+            createJarFile(boot, Paths.get(description.getJarName(version)));
+        }
     }
 
     private Path createChildDir(Path agentDir, String childDir) {
@@ -93,17 +94,9 @@ public class AgentDirGenerator {
     }
 
 
-    private void createFile(Path parentDir, Path filepath) throws IOException {
-        logger.debug("create file : {}/{}",  parentDir, filepath);
-
-        final Path file = parentDir.resolve(filepath);
-        Files.createFile(file);
-
-    }
-
     private void createJarFile(Path parentDir, Path filepath) throws IOException {
         final Path jarPath = parentDir.resolve(filepath);
-        logger.debug("create jar:{}", jarPath);
+        logger.info("create jar:{}", jarPath);
 
         Manifest manifest = new Manifest();
         try (OutputStream out = Files.newOutputStream(jarPath);
@@ -112,19 +105,4 @@ public class AgentDirGenerator {
 
     }
 
-    public void remove() throws IOException {
-        File file = agentDirPath.toFile();
-        deleteDirectory(file);
-    }
-
-    // https://www.baeldung.com/java-delete-directory
-    private boolean deleteDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                deleteDirectory(file);
-            }
-        }
-        return directoryToBeDeleted.delete();
-    }
 }

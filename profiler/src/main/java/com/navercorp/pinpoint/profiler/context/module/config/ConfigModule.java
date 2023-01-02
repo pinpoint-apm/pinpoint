@@ -22,7 +22,7 @@ import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.TransportModule;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
@@ -53,8 +53,8 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;

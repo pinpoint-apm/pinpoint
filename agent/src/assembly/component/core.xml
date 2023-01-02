@@ -44,6 +44,7 @@
             <includes>
                 <include>com.navercorp.pinpoint:pinpoint-annotations</include>
                 <include>com.navercorp.pinpoint:pinpoint-commons</include>
+                <include>com.navercorp.pinpoint:pinpoint-commons-config</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-core</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9-internal</include>
@@ -54,6 +55,7 @@
             <excludes>
                 <exclude>com.navercorp.pinpoint:pinpoint-annotations</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-commons</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-commons-config</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java9</exclude>

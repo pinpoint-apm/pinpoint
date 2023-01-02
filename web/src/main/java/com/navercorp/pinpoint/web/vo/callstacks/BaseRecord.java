@@ -50,6 +50,9 @@ public abstract class BaseRecord implements Record {
     protected String simpleClassName = "";
     protected String fullApiDescription = "";
 
+    protected int lineNumber = 0;
+    protected String location = "";
+
     public int getId() {
         return id;
     }
@@ -179,6 +182,14 @@ public abstract class BaseRecord implements Record {
 
     public boolean isAuthorized() {
         return this.isAuthorized;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public String getLocation() {
+        return location;
     }
 
     @Override

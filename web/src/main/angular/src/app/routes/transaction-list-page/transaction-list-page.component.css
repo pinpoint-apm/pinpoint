@@ -1,5 +1,10 @@
-.container.sideNavigationUI {
+.container {
     display: flex;
+}
+.l-main-section {
+    background: var(--background-primary);
+    width: 100%;
+    height: 100%;
 }
 .l-widget-group {
     display: flex;
@@ -10,14 +15,11 @@
     align-items: center;
 }
 .l-main-container {
-    display: flex;
-    flex-flow: row wrap;
+    /* display: flex;
+    flex-flow: row wrap; */
     width: 100%;
     height: calc(100vh - 50px);
     overflow-y: hidden;
-}
-.l-main-container.sideNavigationUI {
-    height: 100vh;
 }
 split-area:first-child {
     overflow: hidden !important;

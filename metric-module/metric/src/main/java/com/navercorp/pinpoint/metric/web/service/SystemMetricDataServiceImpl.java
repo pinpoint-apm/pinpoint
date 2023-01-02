@@ -185,14 +185,8 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         for (MetricValue<?> metricValue : metricValueList) {
             TagGroup tagGroup = findTagGroup(uniqueTagGroupList, new TagGroup(metricValue.getTagList()));
 
-            if (metricValueGroupMap.containsKey(tagGroup)) {
-                List<MetricValue<?>> metricValues = metricValueGroupMap.get(tagGroup);
-                metricValues.add(metricValue);
-            } else {
-                List<MetricValue<?>> metricValues = new ArrayList<>(1);
-                metricValues.add(metricValue);
-                metricValueGroupMap.put(tagGroup, metricValues);
-            }
+            List<MetricValue<?>> metricValues = metricValueGroupMap.computeIfAbsent(tagGroup, v -> new ArrayList<>(1));
+            metricValues.add(metricValue);
         }
 
         Collection<List<MetricValue<?>>> valueList = metricValueGroupMap.values();
@@ -209,12 +203,11 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     private TagGroup findTagGroup(List<TagGroup> uniqueTagGroupList, TagGroup tagGroup) {
-        for(TagGroup tg : uniqueTagGroupList) {
+        for (TagGroup tg : uniqueTagGroupList) {
             if (equalsTagGroup(tg, tagGroup)) {
                 return tg;
             }
         }
-
         throw new RuntimeException("cann't find tagGroup");
     }
 

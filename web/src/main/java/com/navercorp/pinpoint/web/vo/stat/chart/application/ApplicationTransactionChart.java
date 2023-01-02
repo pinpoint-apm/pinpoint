@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.apache.commons.math3.util.Precision;
 
 import java.util.List;
 
@@ -53,18 +52,7 @@ public class ApplicationTransactionChart extends DefaultApplicationChart<AggreJo
 
     private static ApplicationStatPoint<Double> newTransactionPoint(AggreJoinTransactionBo transaction) {
         final JoinLongFieldBo totalCountJoinValue = transaction.getTotalCountJoinValue();
-        double minTotalCount = calculateTPS(totalCountJoinValue.getMin(), transaction.getCollectInterval());
-        double maxTotalCount = calculateTPS(totalCountJoinValue.getMax(), transaction.getCollectInterval());
-        double totalCount = calculateTPS(totalCountJoinValue.getAvg(), transaction.getCollectInterval());
-        return new DoubleApplicationStatPoint(transaction.getTimestamp(), minTotalCount, totalCountJoinValue.getMinAgentId(), maxTotalCount, totalCountJoinValue.getMaxAgentId(), totalCount);
-    }
-
-    private static double calculateTPS(double value, long timeMs) {
-        if (value <= 0) {
-            return value;
-        }
-
-        return Precision.round(value / (timeMs / 1000D), 1);
+        return new DoubleApplicationStatPoint(transaction.getTimestamp(), (double)totalCountJoinValue.getMin(), totalCountJoinValue.getMinAgentId(), (double)totalCountJoinValue.getMax(), totalCountJoinValue.getMaxAgentId(), (double)totalCountJoinValue.getAvg());
     }
 
 }

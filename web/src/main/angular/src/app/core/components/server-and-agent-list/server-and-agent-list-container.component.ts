@@ -65,9 +65,10 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                 tap((urlService: NewUrlStateNotificationService) => {
                     this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
                 }),
-                filter((urlService: NewUrlStateNotificationService) => {
-                    return urlService.isValueChanged(UrlPathId.APPLICATION) || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
-                }),
+                // TODO: Check valid filter for url
+                // filter((urlService: NewUrlStateNotificationService) => {
+                //     return urlService.isValueChanged(UrlPathId.APPLICATION) || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
+                // }),
                 map((urlService: NewUrlStateNotificationService) => {
                     if (urlService.isRealTimeMode()) {
                         const to = urlService.getUrlServerTimeData();
@@ -90,6 +91,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                 pluck('range'),
             )
         ).pipe(
+            filter(() => this.newUrlStateNotificationService.hasValue(UrlPathId.APPLICATION)), // prevent getting event after the component has been destroyed
             concatMap((range: number[]) => {
                 const appName = (this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
                 const requestStartAt = Date.now();

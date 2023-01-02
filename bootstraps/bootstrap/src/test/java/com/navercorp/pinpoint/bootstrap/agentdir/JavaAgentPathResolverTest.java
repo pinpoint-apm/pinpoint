@@ -42,6 +42,7 @@ public class JavaAgentPathResolverTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testInputArgument() {
         Path agentPath = Paths.get("/pinpoint/agent/target/pinpoint-agent-" + Version.VERSION + "/pinpoint-bootstrap-" + Version.VERSION + ".jar");
         final List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.InputArgumentAgentPathFinder.JAVA_AGENT_OPTION + agentPath);
@@ -57,6 +58,7 @@ public class JavaAgentPathResolverTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testInputArgument2() {
         Path agentPath = Paths.get("C:/pinpoint/agent/target/pinpoint-agent-" + Version.VERSION + "/pinpoint-bootstrap-" + Version.VERSION + ".jar");
         final List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.InputArgumentAgentPathFinder.JAVA_AGENT_OPTION + agentPath);

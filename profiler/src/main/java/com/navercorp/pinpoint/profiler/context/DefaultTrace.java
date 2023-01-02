@@ -16,21 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * @author netspider
@@ -54,13 +59,20 @@ public final class DefaultTrace implements Trace {
     private DefaultTraceScopePool scopePool;
 
     private final Span span;
+    @Nullable
     private final ActiveTraceHandle activeTraceHandle;
-
-    private long endTime = 0L;
-
+    @Nullable
+    private final UriStatStorage uriStatStorage;
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
-                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
+        this(span, callStack, storage, sampling, spanRecorder, wrappedSpanEventRecorder, null, null);
+    }
+
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                        ActiveTraceHandle activeTraceHandle,
+                        UriStatStorage uriStatStorage) {
 
         this.span = Objects.requireNonNull(span, "span");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
@@ -70,7 +82,8 @@ public final class DefaultTrace implements Trace {
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
+        this.activeTraceHandle = activeTraceHandle;
+        this.uriStatStorage = uriStatStorage;
 
         setCurrentThread();
     }
@@ -191,10 +204,31 @@ public final class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-        this.storage.close();
-        endTime = afterTime;
 
+        this.storage.close();
         purgeActiveTrace(afterTime);
+        recordUriTemplate(afterTime);
+    }
+
+    private void recordUriTemplate(long afterTime) {
+        if (uriStatStorage == null) {
+            return;
+        }
+
+        TraceRoot traceRoot = this.getTraceRoot();
+        Shared shared = traceRoot.getShared();
+        String uriTemplate = shared.getUriTemplate();
+        long traceStartTime = traceRoot.getTraceStartTime();
+
+        boolean status = getStatus(shared.getErrorCode());
+        uriStatStorage.store(uriTemplate, status, traceStartTime, afterTime);
+    }
+
+    private boolean getStatus(int errorCode) {
+        if (errorCode == 0) {
+            return true;
+        }
+        return false;
     }
 
     private void purgeActiveTrace(long currentTime) {
@@ -227,11 +261,6 @@ public final class DefaultTrace implements Trace {
     @Override
     public long getStartTime() {
         return getTraceRoot().getTraceStartTime();
-    }
-
-    @Override
-    public long getEndTime() {
-        return endTime;
     }
 
     @Override
@@ -323,6 +352,7 @@ public final class DefaultTrace implements Trace {
         }
         return scopePool.add(name);
     }
+
 
     @Override
     public String toString() {

@@ -23,10 +23,14 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriMappingExtractorProvider;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.ExposePathWithinMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.web.interceptor.InvocableHandlerMethodInvokeForRequestMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.LookupHandlerMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.ProcessRequestInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -37,26 +41,66 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author jaehong.kim
  */
 public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAware {
-
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class);
-
         SpringWebMvcConfig config = new SpringWebMvcConfig(context.getConfig());
-        if (config.isUriStatEnable()) {
-            UriMappingExtractorProvider uriMappingExtractorProvider = new UriMappingExtractorProvider(
-                    SpringWebMvcConstants.SPRING_MVC_URI_EXTRACTOR_TYPE,
-                    SpringWebMvcConstants.SPRING_MVC_URI_MAPPING_ATTRIBUTE_KEYS
-            );
-            context.addUriExtractor(uriMappingExtractorProvider);
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
+
+        transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class, new Object[]{config.isUriStatEnable(), config.isUriStatUseUserInput()}, new Class[]{Boolean.class, Boolean.class});
+
         // Async
         transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
+
+        // uri stat
+        if (config.isUriStatEnable()) {
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractHandlerMethodMapping", AbstractHandlerMethodMappingTransform.class);
+            transformTemplate.transform("org.springframework.web.servlet.handler.AbstractUrlHandlerMapping", AbstractUrlHandlerMappingTransform.class);
+        }
+
+    }
+    public static class AbstractHandlerMethodMappingTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            // Add attribute listener.
+            final InstrumentMethod lookupHandlerMethod = target.getDeclaredMethod("lookupHandlerMethod", "java.lang.String", "javax.servlet.http.HttpServletRequest");
+            if (lookupHandlerMethod != null) {
+                lookupHandlerMethod.addInterceptor(LookupHandlerMethodInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class AbstractUrlHandlerMappingTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            // Add attribute listener.
+            final InstrumentMethod exposePathWithinMapping = target.getDeclaredMethod("exposePathWithinMapping", "java.lang.String", "java.lang.String", "javax.servlet.http.HttpServletRequest");
+            if (exposePathWithinMapping != null) {
+                exposePathWithinMapping.addInterceptor(ExposePathWithinMappingInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     public static class FrameworkServletTransform implements TransformCallback {
+
+        private final Boolean uriStatEnable;
+        private final Boolean uriStatUseUserInput;
+
+        public FrameworkServletTransform(Boolean uriStatEnable, Boolean uriStatUseUserInput) {
+            this.uriStatEnable = uriStatEnable;
+            this.uriStatUseUserInput = uriStatUseUserInput;
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -65,6 +109,10 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             doGet.addInterceptor(BasicMethodInterceptor.class, va(SpringWebMvcConstants.SPRING_MVC));
             InstrumentMethod doPost = target.getDeclaredMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
             doPost.addInterceptor(BasicMethodInterceptor.class, va(SpringWebMvcConstants.SPRING_MVC));
+            if (this.uriStatEnable) {
+                InstrumentMethod processRequest = target.getDeclaredMethod("processRequest", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
+                processRequest.addInterceptor(ProcessRequestInterceptor.class, va(this.uriStatUseUserInput));
+            }
             return target.toBytecode();
         }
     }

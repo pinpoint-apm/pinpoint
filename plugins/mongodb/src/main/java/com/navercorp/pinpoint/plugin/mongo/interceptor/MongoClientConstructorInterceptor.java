@@ -49,34 +49,42 @@ public class MongoClientConstructorInterceptor implements AroundInterceptor {
         }
 
         if (Boolean.FALSE == (target instanceof HostListAccessor)) {
-            logger.info("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            if (isDebug) {
+                logger.debug("Unexpected target. The target is not a HostListAccessor implementation. target={}", target);
+            }
             return;
         }
 
-        final List<String> hostList = new ArrayList<>();
-        // arg0 is ServerAddress
-        final ServerAddress serverAddress = ArrayArgumentUtils.getArgument(args, 0, ServerAddress.class);
-        if (serverAddress != null) {
-            final String hostAddress = HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort());
-            hostList.add(hostAddress);
-        } else {
-            // arg0 is List<ServerAddress>
-            final List list = ArrayArgumentUtils.getArgument(args, 0, List.class);
-            if (list != null) {
-                for (Object o : list) {
-                    if (o instanceof ServerAddress) {
-                        // Set multi address.
-                        final ServerAddress address = (ServerAddress) o;
-                        final String hostAddress = HostAndPort.toHostAndPortString(address.getHost(), address.getPort());
-                        hostList.add(hostAddress);
+        try {
+            final List<String> hostList = new ArrayList<>();
+            // arg0 is ServerAddress
+            final ServerAddress serverAddress = ArrayArgumentUtils.getArgument(args, 0, ServerAddress.class);
+            if (serverAddress != null) {
+                final String hostAddress = HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort());
+                hostList.add(hostAddress);
+            } else {
+                // arg0 is List<ServerAddress>
+                final List list = ArrayArgumentUtils.getArgument(args, 0, List.class);
+                if (list != null) {
+                    for (Object o : list) {
+                        if (o instanceof ServerAddress) {
+                            // Set multi address.
+                            final ServerAddress address = (ServerAddress) o;
+                            final String hostAddress = HostAndPort.toHostAndPortString(address.getHost(), address.getPort());
+                            hostList.add(hostAddress);
+                        }
                     }
                 }
             }
-        }
 
-        ((HostListAccessor) target)._$PINPOINT$_setHostList(hostList);
-        if (isDebug) {
-            logger.debug("Set hostList={}", hostList);
+            ((HostListAccessor) target)._$PINPOINT$_setHostList(hostList);
+            if (isDebug) {
+                logger.debug("Set hostList={}", hostList);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 }

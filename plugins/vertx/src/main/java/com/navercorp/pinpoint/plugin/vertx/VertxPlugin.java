@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor;
@@ -52,8 +51,8 @@ import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientResponseImplInt
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientStreamInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerRequestImplHandleEndInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.RouteStateInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.interceptor.ServerConnectionHandleRequestInterceptor;
-import com.navercorp.pinpoint.plugin.vertx.interceptor.RoutingContextPutInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -121,7 +120,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     final String className = toClassName(requestHandlerMethodName);
                     final String methodName = toMethodName(requestHandlerMethodName);
                     logger.info("Add request handler method for Vertx HTTP Server. class={}, method={}", className, methodName);
-                    addRequestHandlerMethod(className, methodName, config.isUriStatEnable());
+                    addRequestHandlerMethod(className, methodName);
                 } catch (IllegalArgumentException e) {
                     logger.warn("Invalid 'profiler.vertx.http.server.request-handler.method.name' value={}", requestHandlerMethodName);
                 }
@@ -140,7 +139,8 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
 
         if (config.isUriStatEnable()) {
             logger.info("Adding Uri Stat.");
-            transformTemplate.transform("io.vertx.ext.web.impl.RoutingContextImpl", RoutingContextTransform.class);
+            transformTemplate.transform("io.vertx.ext.web.impl.RouteState", RoutingStateTransform.class, new Object[]{config.isUriStatUseUserInput()}, new Class[]{Boolean.class});
+
         }
 
     }
@@ -235,18 +235,16 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
     }
 
-    private void addRequestHandlerMethod(final String className, final String methodName, final boolean urlStatEnable) {
-        transformTemplate.transform(className, RequestHandlerMethodTransform.class, new Object[]{methodName, urlStatEnable}, new Class[]{String.class, Boolean.class});
+    private void addRequestHandlerMethod(final String className, final String methodName) {
+        transformTemplate.transform(className, RequestHandlerMethodTransform.class, new Object[]{methodName}, new Class[]{String.class});
     }
 
     public static class RequestHandlerMethodTransform implements TransformCallback {
         private final String methodName;
-        private final Boolean urlStatEnable;
 
-        public RequestHandlerMethodTransform(String methodName, Boolean urlStatEnable)
+        public RequestHandlerMethodTransform(String methodName)
         {
             this.methodName = methodName;
-            this.urlStatEnable = urlStatEnable;
         }
 
         @Override
@@ -255,7 +253,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             final InstrumentMethod handleRequestMethod = target.getDeclaredMethod(methodName, "io.vertx.core.http.HttpServerRequest");
             if (handleRequestMethod != null) {
                 // entry point & set asynchronous of req, res.
-                handleRequestMethod.addScopedInterceptor(ServerConnectionHandleRequestInterceptor.class, va(urlStatEnable), VertxConstants.VERTX_URL_STAT_SCOPE);
+                handleRequestMethod.addInterceptor(ServerConnectionHandleRequestInterceptor.class);
             }
 
             return target.toBytecode();
@@ -532,15 +530,20 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
     }
 
-    public static class RoutingContextTransform implements TransformCallback {
+    public static class RoutingStateTransform implements TransformCallback {
+        private final Boolean uriStatUseUserInput;
+
+        public RoutingStateTransform(Boolean uriStatUseUserInput) {
+            this.uriStatUseUserInput = uriStatUseUserInput;
+        }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            final InstrumentMethod routingContextPut = target.getDeclaredMethod("put", "java.lang.String", "java.lang.Object");
+            final InstrumentMethod routingContextPut = target.getDeclaredMethod("handleContext", "io.vertx.ext.web.impl.RoutingContextImplBase");
             if (routingContextPut != null) {
-                routingContextPut.addScopedInterceptor(RoutingContextPutInterceptor.class, VertxConstants.VERTX_URL_STAT_SCOPE, ExecutionPolicy.ALWAYS);
+                routingContextPut.addInterceptor(RouteStateInterceptor.class, va(uriStatUseUserInput));
             }
 
             return target.toBytecode();

@@ -46,7 +46,7 @@ public class AgentSdkAsyncPlugin implements ProfilerPlugin, TransformTemplateAwa
     public void setup(ProfilerPluginSetupContext context) {
         AgentSdkAsyncConfig agentSdkAsyncConfig = new AgentSdkAsyncConfig(context.getConfig());
         if (!agentSdkAsyncConfig.isEnable()) {
-            logger.info("AgentSdkAsyncConfig is disable");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
 

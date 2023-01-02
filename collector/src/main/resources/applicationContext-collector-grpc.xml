@@ -10,8 +10,7 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:component-scan base-package="com.navercorp.pinpoint.collector.grpc.config,
-                                          com.navercorp.pinpoint.collector.receiver.grpc
-                                          "/>
+                                          com.navercorp.pinpoint.collector.receiver.grpc"/>
 
     <!-- gRPC -->
     <bean id="channelzRegistry" class="com.navercorp.pinpoint.collector.receiver.grpc.channelz.DefaultChannelzRegistry">
@@ -115,14 +114,12 @@
     </util:list>
 
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="corePoolSize" value="0"/>
-        <property name="maxPoolSize" value="#{grpcAgentReceiverConfig.serverExecutor.threadSize}"/>
-        <property name="queueCapacity" value="0"/>
+        <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverExecutor}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
     </bean>
 
     <bean id="grpcAgentServerCallExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverExecutor}"/>
+        <property name="executorConfiguration" value="#{grpcAgentReceiverConfig.serverCallExecutor}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Call-"/>
         <property name="registry" ref="metricRegistry"/>
         <property name="logRate" value="1"/>

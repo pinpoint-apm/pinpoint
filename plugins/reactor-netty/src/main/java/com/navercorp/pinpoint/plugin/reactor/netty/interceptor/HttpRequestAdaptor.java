@@ -53,7 +53,8 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpServerRequest> {
     @Override
     public String getRpcName(HttpServerRequest request) {
         try {
-            return request.uri();
+            final String path = UriUtils.path(request.uri());
+            return path;
         } catch (Exception ignored) {
         }
         return null;

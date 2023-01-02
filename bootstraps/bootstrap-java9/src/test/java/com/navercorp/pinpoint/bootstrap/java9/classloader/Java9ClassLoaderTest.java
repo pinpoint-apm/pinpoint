@@ -35,7 +35,7 @@ public class Java9ClassLoaderTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Class<?> slf4jClass = org.slf4j.LoggerFactory.class;
+    private final Class<?> clazz = org.apache.logging.log4j.LogManager.class;
 
     @Test
     public void newClassLoader_bootstrap() throws ClassNotFoundException, IOException {
@@ -47,7 +47,7 @@ public class Java9ClassLoaderTest {
     @Test
     public void testOnLoadClass() throws Exception {
 
-        ClassLoader cl = onLoadTest(Java9ClassLoader.class, slf4jClass);
+        ClassLoader cl = onLoadTest(Java9ClassLoader.class, clazz);
         close(cl);
     }
 

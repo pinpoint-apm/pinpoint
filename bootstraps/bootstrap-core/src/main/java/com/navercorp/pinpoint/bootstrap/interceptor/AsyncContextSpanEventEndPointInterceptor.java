@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.AsyncState;
-import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -90,7 +89,9 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
 
         final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
-            logger.debug("Not found asynchronous invocation metadata");
+            if (isDebug) {
+                logger.debug("Not found asynchronous invocation metadata");
+            }
             return;
         }
         if (isDebug) {
@@ -192,10 +193,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
     }
 
     private void finishAsyncState(final AsyncContext asyncContext) {
-        if (asyncContext instanceof AsyncStateSupport) {
-            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncContext;
-            AsyncState asyncState = asyncStateSupport.getAsyncState();
-            asyncState.finish();
+        if (AsyncContextUtils.asyncStateFinish(asyncContext)) {
             if (isDebug) {
                 logger.debug("finished asyncState. asyncTraceId={}", asyncContext);
             }

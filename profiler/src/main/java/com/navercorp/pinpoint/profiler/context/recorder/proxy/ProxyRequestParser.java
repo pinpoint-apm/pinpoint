@@ -25,13 +25,7 @@ import java.util.List;
  */
 public interface ProxyRequestParser {
 
-    @Deprecated
-    ProxyRequestHeader parse(String value);
-
     ProxyRequestHeader parseHeader(String name, String value);
-
-    @Deprecated
-    String getHttpHeaderName();
 
     List<String> getHttpHeaderNameList();
 

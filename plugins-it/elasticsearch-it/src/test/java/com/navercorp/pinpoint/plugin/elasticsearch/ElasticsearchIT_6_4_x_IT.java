@@ -73,6 +73,7 @@ public class ElasticsearchIT_6_4_x_IT extends ElasticsearchITBase  {
         testIndexV64UP(verifier);
     }
 
+    @SuppressWarnings("deprecation")
     private void testIndexV64UP(PluginTestVerifier verifier) throws IOException {
 
         IndexRequest indexRequest = new IndexRequest("postv6", "doc", "3");

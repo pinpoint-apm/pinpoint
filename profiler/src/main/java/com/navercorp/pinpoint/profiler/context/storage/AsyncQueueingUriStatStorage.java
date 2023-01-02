@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.bootstrap.plugin.http.URITemplate;
 import com.navercorp.pinpoint.common.profiler.clock.Clock;
+import com.navercorp.pinpoint.common.profiler.clock.TickClock;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -28,7 +30,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -39,7 +40,6 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     private static final Logger LOGGER = LogManager.getLogger(AsyncQueueingUriStatStorage.class);
     private static final ThrottledLogger TLogger = ThrottledLogger.getLogger(LOGGER, 100);
-
     private final ExecutorListener executorListener;
 
     public AsyncQueueingUriStatStorage(int queueSize, int uriStatDataLimitSize, String executorName) {
@@ -57,7 +57,9 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     @Override
     public void store(String uri, boolean status, long startTime, long endTime) {
-        Objects.requireNonNull(uri, "uri");
+        if (uri == null) {
+            uri = URITemplate.NULL_URI;
+        }
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
         execute(uriStatInfo);
     }
@@ -83,7 +85,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
         private static final int SNAPSHOT_LIMIT = 4;
 
-        private final Clock clock;
+        private final TickClock clock;
         private final Queue<AgentUriStatData> snapshotQueue;
 
         private final Snapshot<AgentUriStatData> snapshotManager;
@@ -97,10 +99,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             Assert.isTrue(uriStatDataLimitSize > 0, "uriStatDataLimitSize must be ' > 0'");
 
             Assert.isTrue(collectInterval > 0, "collectInterval must be ' > 0'");
-            this.clock = Clock.tick(collectInterval);
+            this.clock = (TickClock) Clock.tick(collectInterval);
 
             this.snapshotQueue = new ConcurrentLinkedQueue<>();
-            this.snapshotManager = new Snapshot<>(value -> new AgentUriStatData(value, uriStatDataLimitSize), AgentUriStatData::getBaseTimestamp);
+            this.snapshotManager = new Snapshot<>(value -> new AgentUriStatData(value, uriStatDataLimitSize, clock), AgentUriStatData::getBaseTimestamp);
         }
 
         @Override

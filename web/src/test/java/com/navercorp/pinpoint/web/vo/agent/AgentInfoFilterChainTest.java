@@ -12,7 +12,7 @@ public class AgentInfoFilterChainTest {
 
         AgentInfoFilter chain = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning,
-                AgentInfoFilter::reject
+                AgentInfoFilter::accept
         );
 
         AgentStatus status = new AgentStatus("testAgent", AgentLifeCycleState.RUNNING, current);

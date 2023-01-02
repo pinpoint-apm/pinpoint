@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterce
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor;
-import com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestSetAttributeInterceptor;
 
 /**
  * @author Jongho Moon
@@ -176,12 +175,6 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
             if (startAsyncMethodEditor != null) {
                 startAsyncMethodEditor.addInterceptor(RequestStartAsyncInterceptor.class);
-            }
-
-            // Add attribute listener.
-            final InstrumentMethod setAttribute = target.getDeclaredMethod("setAttribute", "java.lang.String", "java.lang.Object");
-            if (setAttribute != null) {
-                setAttribute.addInterceptor(RequestSetAttributeInterceptor.class);
             }
             return target.toBytecode();
         }

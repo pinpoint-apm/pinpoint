@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>2.5.0-SNAPSHOT</version>
+        <version>2.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-collector</artifactId>
@@ -101,6 +101,10 @@
                 <exclusion>
                     <groupId>com.navercorp.pinpoint</groupId>
                     <artifactId>pinpoint-bootstrap</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-bootstrap-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

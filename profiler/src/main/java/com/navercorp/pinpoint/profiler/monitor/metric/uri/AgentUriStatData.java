@@ -16,23 +16,29 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.uri;
 
+import com.navercorp.pinpoint.common.profiler.clock.TickClock;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
 public class AgentUriStatData implements MetricType {
+    private static final Logger LOGGER = LogManager.getLogger(AgentUriStatData.class);
     private final int capacity;
     private final long baseTimestamp;
-
+    private final TickClock clock;
     private final Map<URIKey, EachUriStatData> eachUriStatDataMap = new HashMap<>();
 
-    public AgentUriStatData(long baseTimestamp, int capacity) {
+    public AgentUriStatData(long baseTimestamp, int capacity, TickClock clock) {
+        this.clock = Objects.requireNonNull(clock, "clock");
         Assert.isTrue(capacity > 0, "capacity must be  ` > 0`");
         this.capacity = capacity;
         Assert.isTrue(baseTimestamp > 0, "baseTimestamp must be  ` > 0`");
@@ -52,6 +58,11 @@ public class AgentUriStatData implements MetricType {
             return false;
         }
 
+        if (uriStatInfo.getEndTime() == 0L) {
+            LOGGER.info("Cannot add collected uri stat info: endTime is 0 for {}", uriStatInfo.getUri());
+            return true;
+        }
+
         URIKey key = newURIKey(uriStatInfo);
 
         EachUriStatData eachUriStatData = eachUriStatDataMap.get(key);
@@ -66,8 +77,8 @@ public class AgentUriStatData implements MetricType {
 
     private URIKey newURIKey(UriStatInfo uriStatInfo) {
         String uri = uriStatInfo.getUri();
-        long endTime = uriStatInfo.getEndTime();
-        return new URIKey(uri, endTime);
+        long tickTime = clock.tick(uriStatInfo.getEndTime());
+        return new URIKey(uri, tickTime);
     }
 
     public Set<Map.Entry<URIKey, EachUriStatData>> getAllUriStatData() {

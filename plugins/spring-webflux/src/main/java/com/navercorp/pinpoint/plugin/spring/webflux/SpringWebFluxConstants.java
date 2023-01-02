@@ -25,4 +25,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 public class SpringWebFluxConstants {
     public static final ServiceType SPRING_WEBFLUX = ServiceTypeProvider.getByName("SPRING_WEBFLUX");
     public static final ServiceType SPRING_WEBFLUX_CLIENT = ServiceTypeProvider.getByName("SPRING_WEBFLUX_CLIENT");
+    public static final String SPRING_WEBFLUX_DEFAULT_URI_ATTRIBUTE_KEYS[] = {"org.springframework.web.reactive.HandlerMapping.bestMatchingPattern"};
+    public static final String[] SPRING_WEBFLUX_URI_USER_INPUT_ATTRIBUTE_KEYS = {"pinpoint.metric.uri-template"};
+
 }

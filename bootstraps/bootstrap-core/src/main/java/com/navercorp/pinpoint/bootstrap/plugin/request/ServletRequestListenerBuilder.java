@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.DisableParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.DisabledUriStatRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
@@ -56,7 +54,6 @@ public class ServletRequestListenerBuilder<REQ> {
 
     private List<String> recordRequestHeaders;
     private List<String> recordRequestCookies;
-    private UriStatRecorder<REQ> uriStatRecorder = DisabledUriStatRecorder.create();
     private boolean recordStatusCode = true;
 
     public ServletRequestListenerBuilder(final ServiceType serviceType,
@@ -100,11 +97,6 @@ public class ServletRequestListenerBuilder<REQ> {
         this.recordRequestCookies = recordRequestCookies;
     }
 
-    public void setReqUriStatRecorder(UriStatRecorder<REQ> reqUriStatRecorder) {
-        Objects.requireNonNull(reqUriStatRecorder, "reqUriStatRecorder");
-        this.uriStatRecorder = reqUriStatRecorder;
-    }
-
     public void setRecordStatusCode(boolean recordStatusCode) {
         this.recordStatusCode = recordStatusCode;
     }
@@ -141,7 +133,7 @@ public class ServletRequestListenerBuilder<REQ> {
         // not general api : http??
         HttpStatusCodeRecorder httpStatusCodeRecorder;
         if (httpStatusCodeErrors == null) {
-            HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors(Collections.<String>emptyList());
+            HttpStatusCodeErrors httpStatusCodeErrors = new HttpStatusCodeErrors(Collections.emptyList());
             httpStatusCodeRecorder = new HttpStatusCodeRecorder(httpStatusCodeErrors);
         } else {
             httpStatusCodeRecorder = new HttpStatusCodeRecorder(httpStatusCodeErrors);
@@ -149,8 +141,7 @@ public class ServletRequestListenerBuilder<REQ> {
 
 
         return new ServletRequestListener<>(serviceType, traceContext, requestAdaptor, requestTraceReader,
-                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder,
-                uriStatRecorder, recordStatusCode);
+                excludeUrlFilter, parameterRecorder, proxyRequestRecorder, serverRequestRecorder, httpStatusCodeRecorder, recordStatusCode);
     }
 
 

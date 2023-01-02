@@ -22,9 +22,11 @@ import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SelfSignedCertificate;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Vertx4PluginTestStarter extends AbstractVerticle {
@@ -41,9 +43,17 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         Router router = Router.router(vertx);
 
         router.get("/").handler(routingContext -> {
-            System.out.println("## WELCOME");
-            routingContext.response().end("Welcome pinpoint vert.x HTTP server test.");
+            routingContext.redirect("/main");
         });
+        router.get("/reroute").handler(routingContext -> {
+            routingContext.reroute("/main");
+        });
+        router.get("/main").handler(routingContext -> {
+            List<Route> routes = router.getRoutes();
+            routingContext.response().end(buildMain("Welcome pinpoint vert.x HTTP server test", routes));
+        });
+
+
         router.get("/request").handler(routingContext -> {
             request(80, "naver.com", "/");
             routingContext.response().end("Request http://naver.com:80/");
@@ -82,14 +92,17 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         router.get("/runOnContext/request").handler(routingContext -> {
             runOnContextRequest(routingContext.request());
         });
-        router.get("/test/:arg1/*").putMetadata("pinpoint.statistics.url", "/test/:arg/*").handler(routingContext -> {
-            routingContext.put("pinpoint.statistics.url", "/test/:arg/*");
+        router.get("/test/:arg1/*").handler(routingContext -> {
             String arg1 = routingContext.pathParam("arg1");
             routingContext.response().end(arg1);
         });
-        router.get("/template/:arg1").putMetadata("pinpoint.statistics.url", "/template/:arg1").handler(routingContext -> {
+        router.get("/template/:arg1").handler(routingContext -> {
             String arg1 = routingContext.pathParam("arg1");
             routingContext.response().end(arg1);
+        });
+        router.get("/routinContextAttributeAdded").handler(routingContext -> {
+            routingContext.put("pinpoint.metric.uri-template", "/test");
+            routingContext.response().end("pinpoint.metric.uri-tempate = /test");
         });
 
         vertx.createHttpServer().requestHandler(router).listen(18080, http -> {
@@ -100,6 +113,11 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
                 startPromise.fail(http.cause());
             }
         });
+    }
+
+    private String buildMain(String title, List<Route> routes) {
+        return new ApiLinkPage(title)
+                .buildRoute(routes);
     }
 
     private void executeBlocking(HttpServerRequest request, final int waitSeconds) {
@@ -141,6 +159,7 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
         try {
             Thread.sleep(TimeUnit.SECONDS.toMillis(waiteSeconds));
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

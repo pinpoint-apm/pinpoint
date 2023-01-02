@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context.id;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import java.util.Objects;
 
@@ -27,16 +29,24 @@ import java.util.Objects;
 @InterfaceAudience.LimitedPrivate("vert.x")
 public class ListenableAsyncState implements AsyncState {
 
+    private final TraceRoot traceRoot;
     private final AsyncStateListener asyncStateListener;
     private final ActiveTraceHandle activeTraceHandle;
+    private final UriStatStorage uriStatStorage;
 
     private boolean setup = false;
     private boolean await = false;
     private boolean finish = false;
 
-    public ListenableAsyncState(AsyncStateListener asyncStateListener, ActiveTraceHandle activeTraceHandle) {
+    public ListenableAsyncState(TraceRoot traceRoot,
+                                AsyncStateListener asyncStateListener,
+                                ActiveTraceHandle activeTraceHandle,
+                                UriStatStorage uriStatStorage) {
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.asyncStateListener = Objects.requireNonNull(asyncStateListener, "asyncStateListener");
         this.activeTraceHandle = Objects.requireNonNull(activeTraceHandle, "activeTraceHandle");
+        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
+
     }
 
     @Override
@@ -52,7 +62,26 @@ public class ListenableAsyncState implements AsyncState {
             this.asyncStateListener.finish();
             final long purgeTime = System.currentTimeMillis();
             this.activeTraceHandle.purge(purgeTime);
+            storeUriTemplate(purgeTime);
         }
+    }
+
+    private void storeUriTemplate(long purgeTime) {
+        if (uriStatStorage == DisabledUriStatStorage.INSTANCE) {
+            return;
+        }
+
+        Shared shared = this.traceRoot.getShared();
+        long traceStartTime = this.traceRoot.getTraceStartTime();
+        boolean status = getStatus(shared.getErrorCode());
+        this.uriStatStorage.store(shared.getUriTemplate(), status, traceStartTime, purgeTime);
+    }
+
+    private boolean getStatus(int errorCode) {
+        if (errorCode == 0) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -68,6 +97,7 @@ public class ListenableAsyncState implements AsyncState {
         if (await == false) {
             final long purgeTime = System.currentTimeMillis();
             activeTraceHandle.purge(purgeTime);
+            storeUriTemplate(purgeTime);
         }
         return await;
     }

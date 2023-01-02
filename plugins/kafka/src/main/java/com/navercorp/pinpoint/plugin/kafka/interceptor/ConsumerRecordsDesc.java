@@ -76,13 +76,13 @@ public class ConsumerRecordsDesc {
 
     static ConsumerRecordsDesc create(Object object) {
         if (object instanceof Iterable) {
-            return create(((Iterable) object).iterator());
+            return create(((Iterable<?>) object).iterator());
         }
 
         return null;
     }
 
-    static ConsumerRecordsDesc create(Iterator consumerRecordIterator) {
+    static ConsumerRecordsDesc create(Iterator<?> consumerRecordIterator) {
         Set<String> topicSet = new HashSet<>(1);
         String remoteAddress = null;
         String endPointAddress  = null;
@@ -98,7 +98,7 @@ public class ConsumerRecordsDesc {
                     endPointAddress = getEndPointAddress(consumerRecord);
                 }
 
-                String topic = ((ConsumerRecord) consumerRecord).topic();
+                String topic = ((ConsumerRecord<?, ?>) consumerRecord).topic();
                 topicSet.add(topic);
                 count++;
             }

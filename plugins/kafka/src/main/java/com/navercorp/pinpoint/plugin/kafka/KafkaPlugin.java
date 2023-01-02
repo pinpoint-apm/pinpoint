@@ -68,6 +68,10 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final KafkaConfig config = new KafkaConfig(context.getConfig());
+        if (Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         if (config.isProducerEnable()) {
@@ -206,7 +210,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.consumer.ConsumerConfig",
                     "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
-            if(constructor != null) {
+            if (constructor != null) {
                 constructor.addInterceptor(ConsumerConstructorInterceptor.class);
             }
 

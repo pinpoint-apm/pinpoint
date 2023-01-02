@@ -35,6 +35,8 @@ public class GrpcSpanReceiverConfigurationFactory {
 
     public static final String SERVER_EXECUTOR = "collector.receiver.grpc.span.server.executor";
 
+    public static final String SERVER_CALL_EXECUTOR = "collector.receiver.grpc.span.server-call.executor";
+
     public static final String WORKER_EXECUTOR = "collector.receiver.grpc.span.worker.executor";
 
     public static final String STREAM = "collector.receiver.grpc.span.stream";
@@ -58,6 +60,12 @@ public class GrpcSpanReceiverConfigurationFactory {
         return ExecutorConfiguration.newBuilder();
     }
 
+    @Bean(SERVER_CALL_EXECUTOR)
+    @ConfigurationProperties(SERVER_CALL_EXECUTOR)
+    public ExecutorConfiguration.Builder newServerCallExecutorBuilder() {
+        return ExecutorConfiguration.newBuilder();
+    }
+
     @Bean(WORKER_EXECUTOR)
     @ConfigurationProperties(WORKER_EXECUTOR)
     public ExecutorConfiguration.Builder newWorkerExecutorBuilder() {
@@ -78,7 +86,7 @@ public class GrpcSpanReceiverConfigurationFactory {
     }
 
     @Bean("grpcSpanReceiverConfig")
-    public GrpcSpanReceiverConfiguration newAgentReceiverConfig(Environment environment) {
+    public GrpcSpanReceiverConfiguration newSpanReceiverConfig(Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.span.enable", boolean.class, false);
 
@@ -86,10 +94,11 @@ public class GrpcSpanReceiverConfigurationFactory {
 
         BindAddress bindAddress = newBindAddressBuilder().build();
         ExecutorConfiguration serverExecutor = newServerExecutorBuilder().build();
+        ExecutorConfiguration serverCallExecutor = newServerCallExecutorBuilder().build();
         ExecutorConfiguration workerExecutor = newWorkerExecutorBuilder().build();
 
         GrpcStreamConfiguration streamConfiguration = newStreamConfigurationBuilder().build();
-        return new GrpcSpanReceiverConfiguration(enable, bindAddress, serverExecutor, workerExecutor, serverOption, streamConfiguration);
+        return new GrpcSpanReceiverConfiguration(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
     }
 
 }

@@ -24,4 +24,12 @@ public class DetailedAgentAndStatus {
     public AgentStatus getStatus() {
         return status;
     }
+
+    @Override
+    public String toString() {
+        return "DetailedAgentAndStatus{" +
+                "detailedAgentInfo=" + detailedAgentInfo +
+                ", status=" + status +
+                '}';
+    }
 }

@@ -23,6 +23,7 @@ public class KafkaConfig {
     // whether this plugin intercepts org.apache.kafka.common.header.Headers
     public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
 
+    static final String ENABLE = "profiler.kafka.enable";
     // whether this plugin records kafka headers contents to Pinpoint
     static final String HEADER_RECORD = "profiler.kafka.header.record";
 
@@ -33,6 +34,7 @@ public class KafkaConfig {
 
     static final String SPRING_CONSUMER_ENABLE = "profiler.springkafka.consumer.enable";
 
+    private final boolean enable;
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
@@ -41,12 +43,17 @@ public class KafkaConfig {
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
+        this.enable = config.readBoolean(ENABLE, true);
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
         this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+    }
+
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isProducerEnable() {
@@ -76,10 +83,12 @@ public class KafkaConfig {
     @Override
     public String toString() {
         return "KafkaConfig{" +
-                "producerEnable=" + producerEnable +
+                "enable=" + enable +
+                ", producerEnable=" + producerEnable +
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", headerEnable=" + headerEnable +
+                ", headerRecorded=" + headerRecorded +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 '}';
     }

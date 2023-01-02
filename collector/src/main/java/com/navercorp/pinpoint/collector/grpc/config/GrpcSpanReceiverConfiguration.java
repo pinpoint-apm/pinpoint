@@ -29,10 +29,11 @@ public class GrpcSpanReceiverConfiguration extends GrpcStreamReceiverConfigurati
 
     public GrpcSpanReceiverConfiguration(boolean enable, BindAddress bindAddress,
                                          ExecutorConfiguration serverExecutor,
+                                         ExecutorConfiguration serverCallExecutor,
                                          ExecutorConfiguration workerExecutor,
                                          ServerOption serverOption,
                                          GrpcStreamConfiguration streamConfiguration) {
-        super(enable, bindAddress, serverExecutor, workerExecutor, serverOption, streamConfiguration);
+        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
     }
 
 }

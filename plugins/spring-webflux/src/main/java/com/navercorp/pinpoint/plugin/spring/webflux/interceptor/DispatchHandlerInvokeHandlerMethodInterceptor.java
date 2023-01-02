@@ -22,17 +22,28 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * @author jaehong.kim
  */
 public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+    private TraceContext traceContext;
+    private final Boolean uriStatEnable;
+    private final Boolean uriStatUseUserInput;
 
-    public DispatchHandlerInvokeHandlerMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public DispatchHandlerInvokeHandlerMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, Boolean uriStatEnable, Boolean uriStatUseUserInput) {
         super(traceContext, methodDescriptor);
+        this.traceContext = traceContext;
+        this.uriStatEnable = uriStatEnable;
+        this.uriStatUseUserInput = uriStatUseUserInput;
     }
 
     // BEFORE
@@ -46,6 +57,28 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        if (uriStatEnable && uriStatUseUserInput) {
+            Trace trace = traceContext.currentRawTraceObject();
+            if (trace == null) {
+                return;
+            }
+
+            ServerWebExchange exchange = ArrayArgumentUtils.getArgument(args, 0, ServerWebExchange.class);
+            for (String attributeName : SpringWebFluxConstants.SPRING_WEBFLUX_URI_USER_INPUT_ATTRIBUTE_KEYS) {
+                Object uriMapping = exchange.getAttribute(attributeName);
+                if (!(uriMapping instanceof String)) {
+                    continue;
+                }
+
+                String uriTemplate = (String) uriMapping;
+
+                if (StringUtils.hasLength(uriTemplate)) {
+                    SpanRecorder spanRecorder = trace.getSpanRecorder();
+                    spanRecorder.recordUriTemplate(uriTemplate, true);
+                }
+            }
+
+        }
     }
 
     // AFTER

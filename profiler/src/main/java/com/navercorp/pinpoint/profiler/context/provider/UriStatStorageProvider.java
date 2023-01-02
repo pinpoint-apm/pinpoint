@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
-import java.util.Objects;
-
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncQueueingUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -45,7 +44,7 @@ public class UriStatStorageProvider implements Provider<UriStatStorage> {
         if (monitorConfig.isUriStatEnable()) {
             return new AsyncQueueingUriStatStorage(5192, monitorConfig.getCompletedUriStatDataLimitSize(), URI_STAT_STORAGE_EXECUTOR_NAME);
         } else {
-            return new DisabledUriStatStorage();
+            return DisabledUriStatStorage.INSTANCE;
         }
     }
 }

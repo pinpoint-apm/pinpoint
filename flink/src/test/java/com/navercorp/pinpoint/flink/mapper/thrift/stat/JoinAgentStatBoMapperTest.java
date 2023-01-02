@@ -220,13 +220,13 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinTransactionBo.getId(), agentId);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274148454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId));
+        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(24L, 24L, agentId, 24L, agentId));
 
         JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
         assertEquals(joinTransactionBo2.getId(), agentId);
         assertEquals(joinTransactionBo2.getTimestamp(), 1491275148454L);
         assertEquals(joinTransactionBo2.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(124L, 124L, agentId, 124L, agentId));
+        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(24L, 24L, agentId, 24L, agentId));
     }
 
     @Test

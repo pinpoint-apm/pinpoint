@@ -133,6 +133,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>2503</td><td>R2DBC_POSTGRESQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2600</td><td>CASSANDRA</td></tr>
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
+ * <tr><td>2602</td><td>CASSANDRA4</td></tr>
+ * <tr><td>2603</td><td>CASSANDRA4_EXECUTE_QUERY</td></tr>
  * <tr><td>2650</td><td>MONGO</td></tr>
  * <tr><td>2651</td><td>MONGO_EXECUTE_QUERY</td></tr>
  * <tr><td>2652</td><td>MONGO_REACTIVE</td></tr>

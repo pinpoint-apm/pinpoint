@@ -28,12 +28,15 @@ public class DefaultApiParser implements ApiParser {
             String className = apiDescription.getSimpleClassName();
             String apiInfo = apiDescription.getApiDescription();
 
-            return new Api(method, className, apiInfo, MethodTypeEnum.DEFAULT);
+            return new Api.Builder(method, className, apiInfo, MethodTypeEnum.DEFAULT)
+                    .setLineNumber(apiMetadata.getLineNumber())
+                    .setLocation(apiMetadata.getLocation())
+                    .build();
         } catch (Exception ignored) {
             // ignore
         }
 
         String description = apiMetadata.getDescription();
-        return new Api(description, "", description, apiMetadata.getMethodTypeEnum());
+        return new Api.Builder(description, "", description, apiMetadata.getMethodTypeEnum()).build();
     }
 }

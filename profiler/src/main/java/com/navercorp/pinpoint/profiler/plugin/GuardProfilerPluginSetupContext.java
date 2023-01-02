@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.plugin;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
@@ -62,12 +61,6 @@ public class GuardProfilerPluginSetupContext implements ProfilerPluginSetupConte
     public void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParser) {
         checkOpen();
         this.delegate.addJdbcUrlParser(jdbcUrlParser);
-    }
-
-    @Override
-    public void addUriExtractor(UriExtractorProvider uriExtractorProvider) {
-        checkOpen();
-        this.delegate.addUriExtractor(uriExtractorProvider);
     }
 
     private void checkOpen() {

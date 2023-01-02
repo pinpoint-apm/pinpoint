@@ -286,4 +286,56 @@ public class SpanAlign implements Align {
                 ", executionMilliseconds=" + executionMilliseconds +
                 '}';
     }
+
+    public static class Builder {
+        private final SpanBo spanBo;
+        private boolean meta;
+        private int id;
+        private long gap;
+        private int depth;
+        private long executionMilliseconds;
+
+        public Builder(SpanBo spanBo) {
+            this.spanBo = spanBo;
+        }
+
+        public Builder enableMeta() {
+            this.meta = true;
+            return this;
+        }
+
+        public Builder disableMeta() {
+            this.meta = false;
+            return this;
+        }
+
+        public Builder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setGap(long gap) {
+            this.gap = gap;
+            return this;
+        }
+
+        public Builder setDepth(int depth) {
+            this.depth = depth;
+            return this;
+        }
+
+        public Builder setExecutionMilliseconds(long executionMilliseconds) {
+            this.executionMilliseconds = executionMilliseconds;
+            return this;
+        }
+
+        public SpanAlign build() {
+            SpanAlign align = new SpanAlign(this.spanBo, meta);
+            align.setId(this.id);
+            align.setGap(this.gap);
+            align.setDepth(this.depth);
+            align.setExecutionMilliseconds(this.executionMilliseconds);
+            return align;
+        }
+    }
 }

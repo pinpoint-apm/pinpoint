@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.view.tree.StaticTreeView;
 import com.navercorp.pinpoint.web.view.tree.TreeView;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author intr3p1d
@@ -28,6 +30,8 @@ import java.util.Objects;
 public class AgentListController {
     private final AgentInfoService agentInfoService;
 
+    private SortByAgentInfo.Rules DEFAULT_SORTBY = SortByAgentInfo.Rules.AGENT_ID_ASC;
+
     public AgentListController(AgentInfoService agentInfoService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
@@ -35,7 +39,10 @@ public class AgentListController {
     @GetMapping(value = "/search-all")
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
         long timestamp = System.currentTimeMillis();
-        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(AgentInfoFilter::accept, timestamp);
+        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(
+                AgentInfoFilter::accept,
+                Range.between(timestamp, timestamp)
+        );
         return treeView(allAgentsList);
     }
 
@@ -44,8 +51,10 @@ public class AgentListController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentInfoFilter filter = new DefaultAgentInfoFilter(from);
-        long timestamp = to;
-        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(filter, timestamp);
+        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(
+                filter,
+                Range.between(from, to)
+        );
         return treeView(allAgentsList);
     }
 
@@ -55,29 +64,40 @@ public class AgentListController {
     }
 
 
-    @GetMapping(value = "/search-application", params = {"application", "sortBy"})
+    @GetMapping(value = "/search-application", params = {"application"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
-            @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
+            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
+        SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORTBY);
         long timestamp = System.currentTimeMillis();
         AgentInfoFilter runningAgentFilter = new AgentInfoFilterChain(
                 AgentInfoFilter::filterRunning
         );
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(runningAgentFilter, applicationName, timestamp, sortBy);
+        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
+                runningAgentFilter,
+                applicationName,
+                Range.between(timestamp, timestamp),
+                paramSortBy
+        );
         return treeView(list);
     }
 
-    @GetMapping(value = "/search-application", params = {"application", "from", "to", "sortBy"})
+    @GetMapping(value = "/search-application", params = {"application", "from", "to"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam("sortBy") SortByAgentInfo.Rules sortBy) {
+            @RequestParam(value = "sortBy") Optional<SortByAgentInfo.Rules> sortBy) {
+        SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORTBY);
         AgentInfoFilter currentRunFilter = new AgentInfoFilterChain(
                 new DefaultAgentInfoFilter(from)
         );
-        long timestamp = to;
-        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(currentRunFilter, applicationName, timestamp, sortBy);
+        AgentsMapByHost list = this.agentInfoService.getAgentsListByApplicationName(
+                currentRunFilter,
+                applicationName,
+                Range.between(from, to),
+                paramSortBy
+        );
         return treeView(list);
     }
 

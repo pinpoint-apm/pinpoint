@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
@@ -32,15 +34,12 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-
-import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -61,7 +60,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
     @Override
     public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseObserver) {
-        StreamObserver<PSpanMessage> observer = new StreamObserver<PSpanMessage>() {
+        StreamObserver<PSpanMessage> observer = new StreamObserver<>() {
             @Override
             public void onNext(PSpanMessage spanMessage) {
                 if (isDebug) {

@@ -35,18 +35,22 @@ public class MongoInternalOperatorNameInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        Object argument = ArrayArgumentUtils.getArgument(args, 0, Object.class);
-        if (argument != null) {
-            if (target instanceof InternalOperatorNameAccessor) {
-                ((InternalOperatorNameAccessor) target)._$PINPOINT$_setInternalOperatorName(argument.toString());
+
+        try {
+            Object argument = ArrayArgumentUtils.getArgument(args, 0, Object.class);
+            if (argument != null) {
+                if (target instanceof InternalOperatorNameAccessor) {
+                    ((InternalOperatorNameAccessor) target)._$PINPOINT$_setInternalOperatorName(argument.toString());
+                }
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
     }
 }

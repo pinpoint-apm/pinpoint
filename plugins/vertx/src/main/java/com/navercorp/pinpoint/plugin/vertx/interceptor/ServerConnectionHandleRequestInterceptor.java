@@ -25,22 +25,17 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.BypassingUriExtractorService;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.uri.UriStatRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpHeaderFilter;
@@ -70,29 +65,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final RequestTraceReader<HttpServerRequest> requestTraceReader;
     private final ParameterRecorder<HttpServerRequest> parameterRecorder;
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
 
-    private final InterceptorScope scope;
-    private static final AttachmentFactory ATTACHMENT_FACTORY = new AttachmentFactory() {
-        @Override
-        public Object createAttachment() {
-            return new VertxUrlTemplate();
-        }
-    };
-
-    private final UriStatRecorder uriStatRecorder;
-
-    private final Boolean urlStatEnable;
-
+    private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext,
                                                     final MethodDescriptor methodDescriptor,
-                                                    final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
-                                                    final InterceptorScope scope,
-                                                    final UriStatRecorderFactory uriStatRecorderFactory,
-                                                    final Boolean urlStatEnable) {
-        this.traceContext = traceContext;
+                                                    final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.descriptor = methodDescriptor;
 
         final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
@@ -106,10 +87,8 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
         this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
-        this.urlStatEnable = urlStatEnable;
-        this.scope = Objects.requireNonNull(scope);
-        Objects.requireNonNull(uriStatRecorderFactory);
-        this.uriStatRecorder = uriStatRecorderFactory.create(new BypassingUriExtractorService());
+
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
 
@@ -163,9 +142,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
                 logger.debug("Set closeable-AsyncContext {}", asyncContext);
             }
 
-            if (urlStatEnable) {
-                scope.getCurrentInvocation().getOrCreateAttachment(ATTACHMENT_FACTORY);
-            }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
@@ -230,9 +206,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return;
         }
 
+        final boolean validate = validate(args);
+        if (validate) {
+            final HttpServerRequest request = (HttpServerRequest) args[0];
+            HttpServerResponse response = request.response();
+            this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatusCode());
+        }
+
         if (!trace.canSampled()) {
             deleteTrace(trace);
-            recordUriStat(args, trace);
             return;
         }
 
@@ -240,7 +222,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            if (validate(args)) {
+            if (validate) {
                 final HttpServerRequest request = (HttpServerRequest) args[0];
                 parameterRecorder.record(recorder, request, throwable);
             }
@@ -251,30 +233,9 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         } finally {
             trace.traceBlockEnd();
             deleteTrace(trace);
-            recordUriStat(args, trace);
         }
     }
 
-    private void recordUriStat(Object[] args, Trace trace) {
-        if (urlStatEnable && validate(args)) {
-            final HttpServerRequest request = (HttpServerRequest) args[0];
-            final String urlTemplate = ((VertxUrlTemplate)scope.getCurrentInvocation().getAttachment()).getUrlTemplate();
-            String uri = StringUtils.isEmpty(urlTemplate)? request.uri() : urlTemplate;
-            boolean status = isNotFailedStatus(request.response().getStatusCode());
-            uriStatRecorder.record(request, uri, status, trace.getStartTime(), trace.getEndTime());
-        }
-    }
-
-    private boolean isNotFailedStatus(int statusCode) {
-        int statusPrefix = statusCode / 100;
-
-        // 2 : success. 3 : redirect, 1: information
-        if (statusPrefix == 2 || statusPrefix == 3 || statusPrefix == 1) {
-            return true;
-        }
-
-        return false;
-    }
 
     private Trace createTrace(final HttpServerRequest request) {
         final String requestURI = request.path();

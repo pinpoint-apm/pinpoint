@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 
@@ -59,7 +60,8 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
     }
 
     private ConsumerRecordsDesc getConsumerRecordsDesc(Object[] args) {
-        return ConsumerRecordsDesc.create(getTargetParameter(args));
+        Iterable<?> iter = ArrayArgumentUtils.getArgument(args, parameterIndex, Iterable.class);
+        return ConsumerRecordsDesc.create(iter);
     }
 
     private Trace createTrace(ConsumerRecordsDesc consumerRecordsDesc) {

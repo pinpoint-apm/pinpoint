@@ -300,6 +300,7 @@ interface ISelectedRowInfo {
     agentId?: string;
 }
 // @store
+
 interface IServerAndAgentData {
     agentId: string;
     agentName?: string;
@@ -317,6 +318,36 @@ interface IServerAndAgentData {
     ports: string;
     serverMetaData: any;
     serviceType: string;
+    startTimestamp: number;
+    status: {
+        agentId: string;
+        eventTimestamp: number;
+        state: {
+            code: number;
+            desc: string;
+        }
+    };
+    vmVersion: string;
+}
+
+interface IServerAndAgentDataV2 {
+    groupName: string;
+    instancesList: IAgentDataV2[];
+}
+
+interface IAgentDataV2 {
+    agentId: string;
+    agentName: string;
+    agentVersion: string;
+    applicationName: string;
+    container: boolean;
+    hostName: string;
+    ip: string;
+    linkList: any[];
+    pid: number;
+    ports: string;
+    serviceType: string;
+    serviceTypeCode: number;
     startTimestamp: number;
     status: {
         agentId: string;

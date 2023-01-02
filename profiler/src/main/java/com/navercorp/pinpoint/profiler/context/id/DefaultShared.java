@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -33,6 +33,9 @@ public class DefaultShared implements Shared {
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> RPC_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "rpc");
 
+    private static final AtomicReferenceFieldUpdater<DefaultShared, String> URL_TEMPLATE_UPDATER
+            = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "uriTemplate");
+
     private volatile int errorCode;
     private volatile byte loggingInfo;
 
@@ -45,6 +48,8 @@ public class DefaultShared implements Shared {
     private volatile long threadId;
 
     private volatile int statusCode;
+
+    private volatile String uriTemplate = null;
 
     @Override
     public void maskErrorCode(int errorCode) {
@@ -120,5 +125,25 @@ public class DefaultShared implements Shared {
     @Override
     public int getStatusCode() {
         return this.statusCode;
+    }
+
+    @Override
+    public boolean setUriTemplate(String uriTemplate) {
+        return URL_TEMPLATE_UPDATER.compareAndSet(this, null, uriTemplate);
+    }
+
+    @Override
+    public boolean setUriTemplate(String uriTemplate, boolean force) {
+        if (force) {
+            URL_TEMPLATE_UPDATER.set(this, uriTemplate);
+            return true;
+        } else {
+            return setUriTemplate(uriTemplate);
+        }
+    }
+
+    @Override
+    public String getUriTemplate() {
+        return uriTemplate;
     }
 }

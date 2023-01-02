@@ -42,7 +42,7 @@ public class SystemMetricSerializerTest {
         Tag pathTag = new Tag("path", "/");
         DoubleMetric longMetric = new DoubleMetric("disk", "localhost", "free", 250685575168L,
                 Arrays.asList(deviceTag, fstypeTag, modeTag, pathTag), System.currentTimeMillis());
-        SystemMetricView systemMetricView = new SystemMetricView("applicationName", longMetric);
+        SystemMetricView systemMetricView = new SystemMetricView("tenandId", "applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
     }
@@ -51,7 +51,7 @@ public class SystemMetricSerializerTest {
     public void testLongCounterWithoutTags() throws JsonProcessingException {
         DoubleMetric longMetric = new DoubleMetric("mem", "localhost", "free", 103714816L,
                 Collections.emptyList(), System.currentTimeMillis());
-        SystemMetricView systemMetricView = new SystemMetricView("applicationName", longMetric);
+        SystemMetricView systemMetricView = new SystemMetricView("tenantId", "applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
     }
@@ -61,7 +61,7 @@ public class SystemMetricSerializerTest {
         Tag cpuTag = new Tag("cpu", "cpu0");
         DoubleMetric doubleMetric = new DoubleMetric("cpu", "localhost", "usage_user", 16.200000000001854,
                 Arrays.asList(cpuTag), System.currentTimeMillis());
-        SystemMetricView systemMetricView = new SystemMetricView("applicationName", doubleMetric);
+        SystemMetricView systemMetricView = new SystemMetricView("tenantId", "applicationName", doubleMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
     }

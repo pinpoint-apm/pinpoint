@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.tools.network.grpc;
 
-import com.navercorp.pinpoint.bootstrap.config.Value;
-import com.navercorp.pinpoint.bootstrap.config.util.ValueAnnotationProcessor;
+import com.navercorp.pinpoint.common.config.Value;
+import com.navercorp.pinpoint.common.config.util.ValueAnnotationProcessor;
 
 import java.util.Properties;
 

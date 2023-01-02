@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor.config;
 
-import com.navercorp.pinpoint.bootstrap.config.Value;
+import com.navercorp.pinpoint.common.config.Value;
 
 public class DefaultMonitorConfig implements MonitorConfig {
 
@@ -87,4 +87,5 @@ public class DefaultMonitorConfig implements MonitorConfig {
                 ", profilerJvmStatCollectDetailedMetrics=" + profilerJvmStatCollectDetailedMetrics +
                 '}';
     }
+
 }

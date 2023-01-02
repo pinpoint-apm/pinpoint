@@ -29,7 +29,6 @@ import java.util.Objects;
 public class DisableAsyncChildTrace implements Trace {
     // private static final int ASYNC_BEGIN_STACK_ID = 1001;
     public static final String UNSUPPORTED_OPERATION = "disable async child trace";
-
     private boolean closed = false;
 
     private DefaultTraceScopePool scopePool;
@@ -84,11 +83,6 @@ public class DisableAsyncChildTrace implements Trace {
     @Override
     public long getStartTime() {
         return getTraceRoot().getTraceStartTime();
-    }
-
-    @Override
-    public long getEndTime() {
-        return 0L;
     }
 
     @Override
@@ -149,6 +143,7 @@ public class DisableAsyncChildTrace implements Trace {
         }
         return scopePool.add(name);
     }
+
 
     @Override
     public String toString() {

@@ -12,9 +12,9 @@ public final class Kafka2ResponseDataProvider implements KafkaResponseDataProvid
         this.responseDataMethod = Objects.requireNonNull(responseDataMethod, "responseDataMethod");
     }
     @Override
-    public Map getResponseData(Object fetchResponse) {
+    public Map<?, ?> getResponseData(Object fetchResponse) {
         try {
-            return (Map)responseDataMethod.invoke(fetchResponse);
+            return (Map<?, ?>)responseDataMethod.invoke(fetchResponse);
         } catch (IllegalAccessException | InvocationTargetException e) {
             return null;
         }
