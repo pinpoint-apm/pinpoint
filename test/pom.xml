@@ -13,8 +13,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven-resolver>1.6.1</maven-resolver>
-        <maven-core>3.6.3</maven-core>
+        <maven-resolver>1.6.3</maven-resolver>
+        <maven-core>3.8.6</maven-core>
     </properties>
 
     <dependencies>
