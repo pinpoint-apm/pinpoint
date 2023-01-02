@@ -29,8 +29,13 @@
             class="child-link-wrapper">
             <div
                 [hidden]="!minimize"
-                class="child-link-title">
-                {{item.title}}
+                class="child-link-title"
+
+            >
+                <a *ngIf="item.path" routerLink="{{item.path}}">
+                    {{item.title}}
+                </a>
+                <span *ngIf="!item.path">{{item.title}}</span>
             </div>
             <ng-container *ngFor="let childItem of item.childItems">
                 <div 
