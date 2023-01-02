@@ -45,7 +45,7 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
 
     @Override
-    public TraceRoot newDisableTraceRoot(long transactionId) {
+    public LocalTraceRoot newDisableTraceRoot(long transactionId) {
         final long startTime = traceStartTime();
         return TraceRoot.local(agentId, startTime, transactionId);
     }

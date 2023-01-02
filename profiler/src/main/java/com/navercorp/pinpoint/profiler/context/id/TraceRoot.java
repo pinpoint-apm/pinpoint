@@ -23,22 +23,25 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface TraceRoot {
+public interface TraceRoot extends LocalTraceRoot {
 
     TraceId getTraceId();
 
+    @Override
     long getLocalTransactionId();
 
+    @Override
     long getTraceStartTime();
 
+    @Override
     Shared getShared();
 
     static TraceRoot remote(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
-        return new RemoteTraceRoot(traceId, agentId, traceStartTime, localTransactionId);
+        return new RemoteTraceRootImpl(traceId, agentId, traceStartTime, localTransactionId);
     }
 
-    static TraceRoot local(String agentId, long traceStartTime, long localTransactionId) {
+    static LocalTraceRoot local(String agentId, long traceStartTime, long localTransactionId) {
         Objects.requireNonNull(agentId, "agentId");
-        return new LocalTraceRoot(agentId, traceStartTime, localTransactionId);
+        return new LocalTraceRootImpl(agentId, traceStartTime, localTransactionId);
     }
 }

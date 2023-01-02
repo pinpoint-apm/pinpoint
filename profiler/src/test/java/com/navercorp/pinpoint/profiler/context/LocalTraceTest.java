@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +15,7 @@ import static org.mockito.Mockito.mock;
 public class LocalTraceTest {
     @Test
     public void testGetScope() {
-        TraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
         Assertions.assertNull(trace.addScope("empty"));
@@ -23,7 +24,7 @@ public class LocalTraceTest {
 
     @Test
     public void testAddScope() {
-        TraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
 
@@ -35,7 +36,7 @@ public class LocalTraceTest {
 
     @Test
     public void testSampled() {
-        TraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
 
@@ -45,7 +46,7 @@ public class LocalTraceTest {
 
     @Test
     public void testSpanRecorder() {
-        TraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
         SpanRecorder spanRecorder = trace.getSpanRecorder();
@@ -57,7 +58,7 @@ public class LocalTraceTest {
 
     @Test
     public void testCurrentSpanEventRecorder() {
-        TraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
+        LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);
         Trace trace = newTrace(traceRoot);
         Trace childTrace = newChildTrace(traceRoot);
         SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
@@ -67,14 +68,14 @@ public class LocalTraceTest {
         Assertions.assertNull(childSpanEventRecorder);
     }
 
-    private Trace newTrace(TraceRoot traceRoot) {
+    private Trace newTrace(LocalTraceRoot traceRoot) {
         ActiveTraceHandle activeTraceHandle = mock(ActiveTraceHandle.class);
         UriStatStorage uriStatStorage = mock(UriStatStorage.class);
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
         return new DisableTrace(traceRoot, spanRecorder, activeTraceHandle, uriStatStorage);
     }
 
-    private Trace newChildTrace(TraceRoot traceRoot) {
+    private Trace newChildTrace(LocalTraceRoot traceRoot) {
         LocalAsyncId localAsyncId = mock(LocalAsyncId.class);
         return new DisableAsyncChildTrace(traceRoot, localAsyncId);
     }

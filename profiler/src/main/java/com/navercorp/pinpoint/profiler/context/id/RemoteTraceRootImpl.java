@@ -23,21 +23,13 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RemoteTraceRoot implements TraceRoot {
+public class RemoteTraceRootImpl extends LocalTraceRootImpl implements TraceRoot {
 
     private final TraceId traceId;
-    private final String agentId;
-    private final long localTransactionId;
 
-    private final long traceStartTime;
-
-    private final Shared shared = new DefaultShared();
-
-    RemoteTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
+    RemoteTraceRootImpl(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
+        super(agentId, traceStartTime, localTransactionId);
         this.traceId = Objects.requireNonNull(traceId, "traceId");
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.traceStartTime = traceStartTime;
-        this.localTransactionId = localTransactionId;
     }
 
     @Override
@@ -46,33 +38,12 @@ public class RemoteTraceRoot implements TraceRoot {
     }
 
     @Override
-    public long getLocalTransactionId() {
-        return localTransactionId;
-    }
-
-
-    @Override
-    public long getTraceStartTime() {
-        return traceStartTime;
-    }
-
-
-
-
-    @Override
-    public Shared getShared() {
-        return shared;
-    }
-
-
-
-
-    @Override
     public String toString() {
-        return "DefaultTraceRoot{" +
+        return "DefaultRemoteTraceRoot{" +
                 "traceId=" + traceId +
                 ", agentId='" + agentId + '\'' +
                 ", traceStartTime=" + traceStartTime +
                 '}';
     }
+
 }

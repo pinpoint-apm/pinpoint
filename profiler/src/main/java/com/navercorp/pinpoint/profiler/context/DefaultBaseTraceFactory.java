@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
@@ -244,7 +245,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     }
 
     private Trace newLocalTrace(long nextDisabledId) {
-        final TraceRoot traceRoot = traceRootFactory.newDisableTraceRoot(nextDisabledId);
+        final LocalTraceRoot traceRoot = traceRootFactory.newDisableTraceRoot(nextDisabledId);
         final SpanRecorder spanRecorder = recorderFactory.newDisableSpanRecorder(traceRoot);
         final long traceStartTime = traceRoot.getTraceStartTime();
         final long threadId = Thread.currentThread().getId();

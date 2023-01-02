@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
@@ -39,7 +39,7 @@ public class DisableTrace implements Trace {
     public static final String UNSUPPORTED_OPERATION  = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;
 
-    private final TraceRoot traceRoot;
+    private final LocalTraceRoot traceRoot;
     private final SpanRecorder spanRecorder;
     private DefaultTraceScopePool scopePool;
     private final ActiveTraceHandle handle;
@@ -47,7 +47,7 @@ public class DisableTrace implements Trace {
 
     private boolean closed = false;
 
-    public DisableTrace(TraceRoot traceRoot, SpanRecorder spanRecorder, ActiveTraceHandle handle, UriStatStorage uriStatStorage) {
+    public DisableTrace(LocalTraceRoot traceRoot, SpanRecorder spanRecorder, ActiveTraceHandle handle, UriStatStorage uriStatStorage) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
 

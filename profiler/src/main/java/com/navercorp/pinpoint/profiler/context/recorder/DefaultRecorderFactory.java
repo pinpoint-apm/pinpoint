@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -59,7 +60,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     }
 
     @Override
-    public SpanRecorder newDisableSpanRecorder(TraceRoot traceRoot) {
+    public SpanRecorder newDisableSpanRecorder(LocalTraceRoot traceRoot) {
         return new DisableSpanRecorder(traceRoot, errorHandler);
     }
 
