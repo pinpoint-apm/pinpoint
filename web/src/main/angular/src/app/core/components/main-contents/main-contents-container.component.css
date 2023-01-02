@@ -2,6 +2,7 @@
     display: flex;
     flex-flow: row wrap;
     width: 100%;
+    height: 100%;
 }
 
 section {

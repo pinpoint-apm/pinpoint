@@ -43,6 +43,7 @@
 }
 
 .l-alarm-rules-th {
+    overflow-y: scroll;
     display: flex;
     height: 30px;
     position: relative;
