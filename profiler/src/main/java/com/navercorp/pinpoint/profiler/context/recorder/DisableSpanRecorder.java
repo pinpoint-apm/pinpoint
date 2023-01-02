@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.Objects;
 
@@ -32,10 +32,10 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class DisableSpanRecorder implements SpanRecorder {
-    private final TraceRoot traceRoot;
+    private final LocalTraceRoot traceRoot;
     private final IgnoreErrorHandler ignoreErrorHandler;
 
-    public DisableSpanRecorder(TraceRoot traceRoot, IgnoreErrorHandler ignoreErrorHandler) {
+    public DisableSpanRecorder(LocalTraceRoot traceRoot, IgnoreErrorHandler ignoreErrorHandler) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.ignoreErrorHandler = Objects.requireNonNull(ignoreErrorHandler, "ignoreErrorHandler");
     }

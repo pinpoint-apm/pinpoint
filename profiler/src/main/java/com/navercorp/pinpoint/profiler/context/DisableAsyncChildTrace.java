@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 
 import java.util.Objects;
@@ -33,10 +33,10 @@ public class DisableAsyncChildTrace implements Trace {
 
     private DefaultTraceScopePool scopePool;
 
-    private final TraceRoot traceRoot;
+    private final LocalTraceRoot traceRoot;
     private final LocalAsyncId localAsyncId;
 
-    public DisableAsyncChildTrace(final TraceRoot traceRoot, final LocalAsyncId localAsyncId) {
+    public DisableAsyncChildTrace(final LocalTraceRoot traceRoot, final LocalAsyncId localAsyncId) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.localAsyncId = Objects.requireNonNull(localAsyncId, "localAsyncId");
     }
@@ -71,7 +71,7 @@ public class DisableAsyncChildTrace implements Trace {
         return 0;
     }
 
-    private TraceRoot getTraceRoot() {
+    private LocalTraceRoot getTraceRoot() {
         return this.traceRoot;
     }
 
@@ -87,7 +87,7 @@ public class DisableAsyncChildTrace implements Trace {
 
     @Override
     public TraceId getTraceId() {
-        return getTraceRoot().getTraceId();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
