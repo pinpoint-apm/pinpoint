@@ -22,7 +22,7 @@ yarn add @pinpoint-fe/scatter-chart
 
 ## 🚀 Quick Start
 
-### Create your first ServerMap
+### Create your first Scatter Chart
 
 ```typescript
 import { ScatterChart } from '@pinpoint-fe/scatter-chart';
