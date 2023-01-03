@@ -39,11 +39,10 @@
 .l-alarm-rules-tr-wrap { 
     height: 100%;
     position: relative;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .l-alarm-rules-th {
-    overflow-y: scroll;
     display: flex;
     height: 30px;
     position: relative;
