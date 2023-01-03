@@ -411,6 +411,10 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         this.outCellDoubleClicked.emit(params.data[params.colDef.field]);
     }
 
+    onGridSizeChanged(_: GridOptions): void {
+        this.gridOptions.api.sizeColumnsToFit();
+    }
+
     onRendered(): void {
         this.isRendered = true;
         this.gridOptions.api.sizeColumnsToFit();
