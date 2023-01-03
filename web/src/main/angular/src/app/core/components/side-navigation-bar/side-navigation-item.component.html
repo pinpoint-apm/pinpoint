@@ -32,7 +32,7 @@
                 class="child-link-title"
 
             >
-                <a *ngIf="item.path" routerLink="{{item.path}}">
+                <a *ngIf="item.path" (click)="onClickItem($event, item)" style="cursor: pointer;">
                     {{item.title}}
                 </a>
                 <span *ngIf="!item.path">{{item.title}}</span>
