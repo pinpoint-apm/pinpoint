@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
 import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
-import com.navercorp.pinpoint.metric.web.util.TagParser;
+import com.navercorp.pinpoint.metric.web.util.TagUtils;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -65,7 +65,7 @@ public class PinotSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
         List<String> jsonStrings = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricTags", new MetricTagsSearchKey(tenantId, hostGroupName, hostName, metricName));
 
         return jsonStrings.stream()
-                .map(TagParser::toTagStrings)
+                .map(TagUtils::toTagString)
                 .collect(Collectors.toList());
     }
 
