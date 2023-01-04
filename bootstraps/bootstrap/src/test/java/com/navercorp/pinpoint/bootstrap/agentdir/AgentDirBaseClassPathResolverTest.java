@@ -55,6 +55,7 @@ public class AgentDirBaseClassPathResolverTest {
     @BeforeAll
     public static void beforeClass() throws Exception {
 
+        TEMP_DIR = TEMP_DIR.toRealPath().normalize();
         logger.debug("buildDir:{}", TEMP_DIR);
 
         String testDir = TEST_AGENT_DIR + '_' + AGENT_ID_ALLOCATOR.incrementAndGet();

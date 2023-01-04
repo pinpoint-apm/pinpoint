@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.util.TestSocketUtils;
 import org.springframework.util.SocketUtils;
 
 import java.util.List;
@@ -76,8 +77,8 @@ public class ZookeeperClusterTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        int acceptorPort = SocketUtils.findAvailableTcpPort();
-        zookeeperPort = SocketUtils.findAvailableTcpPort(acceptorPort + 1);
+        int acceptorPort = TestSocketUtils.findAvailableTcpPort();
+        zookeeperPort = TestSocketUtils.findAvailableTcpPort();
 
         CLUSTER_NODE_PATH
                 = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.WEB_LEAF_PATH, DEFAULT_IP + ":" + acceptorPort);

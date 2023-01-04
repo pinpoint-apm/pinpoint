@@ -79,6 +79,7 @@
         <module>jtds-it</module>
         <module>mysql-jdbc-driver-plugin-it</module>
         <module>spring-data-r2dbc-it</module>
+        <module>google-grpc-it2</module>
     </modules>
 
     <properties>

@@ -32,7 +32,7 @@ public class R2dbcMssqlTest {
     public static void beforeClass() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        container = new MSSQLServerContainer();
+        container = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2017-CU12");
         container.withInitScript("mssql-init.sql");
         container.start();
 

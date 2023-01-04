@@ -29,11 +29,11 @@ class CoroutinesLaunch {
     fun executeWithRunBlocking(context: CoroutineContext = EmptyCoroutineContext) {
         runBlocking(context) {
             val job1 = async(CoroutineName("first")) {
-                delay(10L)
+                delay(100L)
                 println("Hello World 1")
             }
             val job2 = launch(CoroutineName("second")) {
-                delay(5L)
+                delay(10L)
                 println("Hello World 2")
             }
             joinAll(job1, job2)

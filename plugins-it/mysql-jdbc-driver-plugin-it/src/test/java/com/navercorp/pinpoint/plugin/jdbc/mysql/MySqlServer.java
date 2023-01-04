@@ -9,6 +9,7 @@ import org.junit.Assume;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.output.OutputFrame;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -20,19 +21,20 @@ public class MySqlServer implements SharedTestLifeCycle {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
-    private MySQLContainer mysqlDB = new MySQLContainer();
+    private MySQLContainer mysqlDB = new MySQLContainer("mysql:5.7.34");
 
     @Override
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        mysqlDB = new MySQLContainer();
+        mysqlDB = new MySQLContainer("mysql:5.7.34");
         mysqlDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {
                 logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
+        mysqlDB.waitingFor(Wait.forListeningPort());
         mysqlDB.withDatabaseName(DATABASE_NAME);
         mysqlDB.withUsername(USERNAME);
         mysqlDB.withPassword(PASSWORD);

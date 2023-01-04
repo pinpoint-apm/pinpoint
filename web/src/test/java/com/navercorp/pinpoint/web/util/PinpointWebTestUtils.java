@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
+import java.net.InetAddress;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -41,12 +42,25 @@ public class PinpointWebTestUtils {
         }
 
         // local ip addresses with all LOOPBACK addresses removed
-        List<String> ipList = NetUtils.getLocalV4IpList();
-        if (!ipList.isEmpty()) {
-            return ipList.get(0);
-        }
+        final List<String> ipList = NetUtils.getLocalV4IpList();
+        return findReachableIp(ipList);
+    }
 
+    private static String findReachableIp(List<String> ips) {
+        for (final String ip: ips) {
+            if (isReachable(ip)) {
+                return ip;
+            }
+        }
         return NetUtils.LOOPBACK_ADDRESS_V4;
+    }
+
+    private static boolean isReachable(String ip) {
+        try {
+            return InetAddress.getByName(ip).isReachable(3);
+        } catch (Throwable ignored) {
+            return false;
+        }
     }
     
 }

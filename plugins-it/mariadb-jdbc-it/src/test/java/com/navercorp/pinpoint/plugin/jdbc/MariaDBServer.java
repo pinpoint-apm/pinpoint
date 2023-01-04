@@ -9,6 +9,7 @@ import org.junit.Assume;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.output.OutputFrame;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -25,13 +26,14 @@ public class MariaDBServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        mariaDB = new MariaDBContainer();
+        mariaDB = new MariaDBContainer("mariadb:10.3.6");
         mariaDB.withLogConsumer(new Consumer<OutputFrame>() {
             @Override
             public void accept(OutputFrame outputFrame) {
                 logger.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
             }
         });
+        mariaDB.waitingFor(Wait.forListeningPort());
         mariaDB.withDatabaseName(DATABASE_NAME);
         mariaDB.withUsername(USERNAME);
         mariaDB.withPassword(PASSWORD);
