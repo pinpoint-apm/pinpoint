@@ -46,7 +46,6 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <version>${testcontainers.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

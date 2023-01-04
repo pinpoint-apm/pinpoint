@@ -200,7 +200,7 @@
         <mockito.version>4.8.1</mockito.version>
         <bytebuddy.version>	1.12.18</bytebuddy.version>
 
-        <testcontainers.version>1.17.2</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>

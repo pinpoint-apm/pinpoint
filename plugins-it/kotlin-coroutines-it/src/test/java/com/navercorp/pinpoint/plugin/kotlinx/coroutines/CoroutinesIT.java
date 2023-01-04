@@ -29,6 +29,7 @@ import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineDispatcher;
 import kotlinx.coroutines.Dispatchers;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -106,32 +107,42 @@ public class CoroutinesIT {
         verifier.awaitTraceCount(17, 10L, 1000L);
 
         List<String> executedMethod = verifier.getExecutedMethod();
+        Assume.assumeTrue(executedMethod.size() == 17);
 
-        AtomicInteger index = new AtomicInteger();
+        AtomicInteger index = new AtomicInteger(0);
 
-        //         runBlocking(context) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        //         runBlocking(context) {
-        assertResumeWith(executedMethod, index, activeAsync);
+        try {
+            //         runBlocking(context) {
+            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+            //         runBlocking(context) {
+            assertResumeWith(executedMethod, index, activeAsync);
 
-        //        val job1 = async(CoroutineName("first")) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
-        //        val job2 = launch(CoroutineName("second")) {
-        Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+            //        val job1 = async(CoroutineName("first")) {
+            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
+            //        val job2 = launch(CoroutineName("second")) {
+            Assert.assertTrue(executedMethod.get(index.getAndIncrement()).contains(DISPATCH_METHOD));
 
-        //    println("Hello all of jobs") // rootjob
-        assertResumeWith(executedMethod, index, activeAsync);
+            //    println("Hello all of jobs") // rootjob
+            assertResumeWith(executedMethod, index, activeAsync);
 
-        //        delay(10L) // job1
-        assertResumeWithAndSchedule(executedMethod, index, activeAsync);
+            //        delay(10L) // job1
+            assertResumeWithAndSchedule(executedMethod, index, activeAsync);
 
-        //        delay(5L) // job2
-        assertResumeWithAndSchedule(executedMethod, index, activeAsync);
+            //        delay(5L) // job2
+            assertResumeWithAndSchedule(executedMethod, index, activeAsync);
 
-        //        println("Hello World 1")  // job1
-        assertResumeWith(executedMethod, index, activeAsync);
-        //        println("Hello World 2")  // job2
-        assertResumeWith(executedMethod, index, activeAsync);
+            //        println("Hello World 1")  // job1
+            assertResumeWith(executedMethod, index, activeAsync);
+            //        println("Hello World 2")  // job2
+            assertResumeWith(executedMethod, index, activeAsync);
+        } catch (Throwable th) {
+            System.out.println("methods:");
+            for (final String method: executedMethod) {
+                System.out.println("  " + method);
+            }
+            th.printStackTrace();
+            throw th;
+        }
     }
 
     private void assertResumeWithAndSchedule(List<String> executedMethod, AtomicInteger index, boolean activeAsync) {

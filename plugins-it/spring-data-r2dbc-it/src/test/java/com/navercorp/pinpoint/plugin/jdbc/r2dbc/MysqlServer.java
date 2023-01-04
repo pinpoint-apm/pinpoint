@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assume;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.util.Properties;
 
@@ -36,7 +37,8 @@ public class MysqlServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        container = new MySQLContainer();
+        container = new MySQLContainer("mysql:5.7.34");
+        container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mysql-init.sql");
         container.start();
 

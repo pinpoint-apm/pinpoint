@@ -35,7 +35,7 @@ public class PostgreSqlServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
-        postgreSql = new PostgreSQLContainer();
+        postgreSql = new PostgreSQLContainer("postgres:9.6.12");
         postgreSql.withInitScript("postgresql-init.sql");
         postgreSql.start();
 

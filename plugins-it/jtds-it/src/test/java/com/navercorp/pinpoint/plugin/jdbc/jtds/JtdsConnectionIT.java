@@ -22,7 +22,9 @@ import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.DockerTestUtils;
 import com.navercorp.pinpoint.pluginit.utils.LogUtils;
+import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
@@ -58,6 +60,7 @@ import java.util.function.Consumer;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-jtds-plugin")
 @Dependency({"net.sourceforge.jtds:jtds:[1.2.8]", "com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
+        PluginITConstants.VERSION,
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
 public class JtdsConnectionIT {
 
@@ -87,6 +90,7 @@ public class JtdsConnectionIT {
     @BeforeClass
     public static void beforeClass() throws Exception {
         Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+        Assume.assumeFalse(DockerTestUtils.isArmDockerServer());
         mssqlserver.start();
 
         String address = mssqlserver.getJdbcUrl().substring(JtdsITConstants.JDBC_URL_PREFIX.length());
