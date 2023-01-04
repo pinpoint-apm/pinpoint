@@ -42,14 +42,11 @@ public final class NetworkUtils {
     private static final String LOOPBACK_ADDRESS_V4_2 = "127.0.1.1";
     private static final String LOOPBACK_ADDRESS_V6 = "0:0:0:0:0:0:0:1";
 
-    private static final List<String> LOOP_BACK_ADDRESS_LIST;
-
-    static {
-        LOOP_BACK_ADDRESS_LIST = new ArrayList<>(3);
-        LOOP_BACK_ADDRESS_LIST.add(LOOPBACK_ADDRESS_V4_1);
-        LOOP_BACK_ADDRESS_LIST.add(LOOPBACK_ADDRESS_V4_2);
-        LOOP_BACK_ADDRESS_LIST.add(LOOPBACK_ADDRESS_V6);
-    }
+    private static final String[] LOOP_BACK_ADDRESS_LIST = new String[]{
+            LOOPBACK_ADDRESS_V4_1,
+            LOOPBACK_ADDRESS_V4_2,
+            LOOPBACK_ADDRESS_V6
+    };
 
     private NetworkUtils() {
     }
@@ -164,7 +161,12 @@ public final class NetworkUtils {
         if (ip == null) {
             return true;
         }
-        return LOOP_BACK_ADDRESS_LIST.contains(ip);
+        for (String address : LOOP_BACK_ADDRESS_LIST) {
+            if (address.equals(ip)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean validationIpV4FormatAddress(String address) {
@@ -172,7 +174,7 @@ public final class NetworkUtils {
     }
 
     private static CommonLogger getLogger() {
-        return StdoutCommonLoggerFactory.INSTANCE.getLogger(NetworkUtils.class.getClass().getName());
+        return StdoutCommonLoggerFactory.INSTANCE.getLogger(NetworkUtils.class.getName());
     }
 
     @Deprecated
