@@ -62,6 +62,18 @@ public abstract class QueryParameter {
             return (range.getRange() / timePrecision.getInterval() + 1) * TAG_SET_COUNT;
         }
 
+        public Range getRange() {
+            return this.range;
+        }
+
+        public TimePrecision getTimePrecision() {
+            return this.timePrecision;
+        }
+
+        public long getLimit() {
+            return this.limit;
+        }
+
         abstract public QueryParameter build();
     }
 }

@@ -118,6 +118,9 @@
 
         <module>hbase2-module</module>
         <module>metric-module</module>
+        <module>uristat-common</module>
+        <module>uristat-web</module>
+        <module>uristat-collector</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
@@ -409,6 +412,21 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-uristat-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-uristat-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-uristat-collector</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

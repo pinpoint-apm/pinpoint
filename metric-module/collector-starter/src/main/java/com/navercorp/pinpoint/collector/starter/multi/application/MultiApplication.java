@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.metric.collector.CollectorType;
 import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.metric.collector.TypeSet;
+import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
@@ -43,20 +44,20 @@ public class MultiApplication {
 
         if (types.hasType(CollectorType.BASIC)) {
             logger.info(String.format("Start %s collector", CollectorType.BASIC));
-            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, BasicCollectorApp.class, 15400);
+            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400, BasicCollectorApp.class, UriStatCollectorConfig.class);
             collectorAppBuilder.build().run(args);
         }
 
         if (types.hasType(CollectorType.METRIC)) {
             logger.info(String.format("Start %s collector", CollectorType.METRIC));
-            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, MetricCollectorApp.class, 15200);
+            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 15200, MetricCollectorApp.class);
             metricAppBuilder.listeners(new AdditionalProfileListener("metric"));
             metricAppBuilder.build().run(args);
         }
     }
 
 
-    private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, Class<?> appClass, int port) {
+    private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, int port, Class<?>... appClass) {
         SpringApplicationBuilder appBuilder = builder.child(appClass)
                 .web(WebApplicationType.SERVLET)
                 .bannerMode(Banner.Mode.OFF)
