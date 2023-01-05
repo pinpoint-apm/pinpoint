@@ -16,15 +16,7 @@
         <constructor-arg index="0" ref="kafkaProducerFactoryProperties" />
     </bean>
 
-    <bean id="kafkaDoubleTemplate" class="org.springframework.kafka.core.KafkaTemplate">
-        <constructor-arg index="0" ref="kafkaProducerFactory"/>
-    </bean>
-
-    <bean id="kafkaTagTemplate" class="org.springframework.kafka.core.KafkaTemplate">
-        <constructor-arg index="0" ref="kafkaProducerFactory"/>
-    </bean>
-
-    <bean id="kafkaDataTypeTemplate" class="org.springframework.kafka.core.KafkaTemplate">
+    <bean id="kafkaUriStatTemplate" class="org.springframework.kafka.core.KafkaTemplate">
         <constructor-arg index="0" ref="kafkaProducerFactory"/>
     </bean>
 

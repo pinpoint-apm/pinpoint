@@ -30,6 +30,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-metric</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-uristat-collector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

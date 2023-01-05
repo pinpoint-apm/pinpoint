@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- default setting-->
+    <settings>
+        <setting name="cacheEnabled" value="true" />
+        <!-- lazy loading-->
+        <setting name="lazyLoadingEnabled" value="true" />
+        <setting name="aggressiveLazyLoading" value="true" />
+        <!-- don't need "REUSE" because preparedStatements are cached  at dbcp  -->
+        <setting name="defaultExecutorType" value="SIMPLE" />
+    </settings>
+
+    <typeAliases>
+        <typeAlias type="com.navercorp.pinpoint.uristat.common.model.UriStat" alias="UriStat" />
+        <typeAlias type="com.navercorp.pinpoint.uristat.web.model.UriStatSummary" alias="UriStatSummary" />
+        <typeAlias type="com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter" alias="UriStatQueryParameter" />
+    </typeAliases>
+</configuration>

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.starter.multi;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.metric.web.MetricWebApp;
+import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
 import com.navercorp.pinpoint.web.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.web.WebApp;
 import com.navercorp.pinpoint.web.WebAppPropertySources;
@@ -46,7 +47,7 @@ public class MetricAndWebApp {
 
     public static void main(String[] args) {
         try {
-            WebStarter starter = new WebStarter(MetricAndWebApp.class, PinpointBasicLoginConfig.class, AuthorizationConfig.class, MetricWebApp.class);
+            WebStarter starter = new WebStarter(MetricAndWebApp.class, PinpointBasicLoginConfig.class, AuthorizationConfig.class, MetricWebApp.class, UriStatWebConfig.class);
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);

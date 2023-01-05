@@ -52,11 +52,6 @@
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataName" alias="MetricDataName"/>
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.MetricDataType" alias="MetricDataType"/>
         <typeAlias type="com.navercorp.pinpoint.metric.common.model.mybatis.MetricDataTypeHandler" alias="MetricDataTypeHandler"/>
-
-        <typeAlias type="com.navercorp.pinpoint.metric.common.model.UriStat" alias="UriStat" />
-        <typeAlias type="com.navercorp.pinpoint.metric.web.model.UriStatSummary" alias="UriStatSummary" />
-        <typeAlias type="com.navercorp.pinpoint.metric.web.util.UriStatQueryParameter" alias="UriStatQueryParameter" />
-
     </typeAliases>
 
     <typeHandlers>
