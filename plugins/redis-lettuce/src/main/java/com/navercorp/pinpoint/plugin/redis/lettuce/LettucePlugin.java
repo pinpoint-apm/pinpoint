@@ -56,7 +56,6 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final LettucePluginConfig config = new LettucePluginConfig(context.getConfig());
-
         if (!config.isEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -67,14 +66,11 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
 
         // Set endpoint
         addRedisClient();
-
         // Attach endpoint
         addDefaultConnectionFuture();
         addStatefulRedisConnection();
-
         // Commands
         addRedisCommands(config);
-
         addReactive();
     }
 
@@ -221,7 +217,7 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoOperatorSubscribeInterceptor.class, va(LettuceConstants.REDIS_LETTUCE));
+                subscribeMethod.addInterceptor(FluxAndMonoOperatorSubscribeInterceptor.class, va(LettuceConstants.REDIS_LETTUCE_INTERNAL));
             }
 
             return target.toBytecode();

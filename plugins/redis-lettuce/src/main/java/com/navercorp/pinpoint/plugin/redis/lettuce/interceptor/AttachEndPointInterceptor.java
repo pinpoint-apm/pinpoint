@@ -76,16 +76,10 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
 
     private boolean validate(final Object target, final Object result) {
         if (!(target instanceof EndPointAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor={}, target={}", EndPointAccessor.class.getName(), target);
-            }
             return false;
         }
 
         if (!(result instanceof EndPointAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid result object. Need field accessor={}, result={}", EndPointAccessor.class.getName(), result);
-            }
             return false;
         }
         return true;
