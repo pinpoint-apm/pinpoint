@@ -48,7 +48,7 @@ public class RedisSubscriberInterceptor extends AsyncContextSpanEventSimpleAroun
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
+        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE_INTERNAL);
         recorder.recordException(throwable);
     }
 

@@ -201,6 +201,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>8202</td><td>IOREDIS</td></tr>
  * <tr><td>8203</td><td>REDIS_REDISSON</td></tr>
  * <tr><td>8204</td><td>REDIS_REDISSON_INTERNAL</td></tr>
+ * <tr><td>8205</td><td>REDIS_REDISSON_REACTIVE</td></tr>
+ * <tr><td>8206</td><td>REDIS_LETTUCE_INTERNAL</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>

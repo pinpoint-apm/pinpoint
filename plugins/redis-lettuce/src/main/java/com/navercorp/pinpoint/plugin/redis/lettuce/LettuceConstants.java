@@ -28,6 +28,7 @@ public final class LettuceConstants {
     }
 
     public static final ServiceType REDIS_LETTUCE = ServiceTypeProvider.getByName("REDIS_LETTUCE");
+    public static final ServiceType REDIS_LETTUCE_INTERNAL = ServiceTypeProvider.getByName("REDIS_LETTUCE_INTERNAL");
     public static final String REDIS_SCOPE = "redisLettuceScope";
 
 }

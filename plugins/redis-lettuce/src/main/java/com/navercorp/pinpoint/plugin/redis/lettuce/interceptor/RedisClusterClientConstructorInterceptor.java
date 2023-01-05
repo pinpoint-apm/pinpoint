@@ -64,24 +64,14 @@ public class RedisClusterClientConstructorInterceptor implements AroundIntercept
 
     private boolean validate(final Object target, final Object[] args) {
         if (ArrayUtils.getLength(args) < 2 || args[1] == null) {
-            if (isDebug) {
-                logger.debug("Invalid arguments. Null or not found args({}).", args);
-            }
             return false;
         }
 
         if (!(target instanceof EndPointAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).",
-                             EndPointAccessor.class.getName());
-            }
             return false;
         }
 
         if (!(args[1] instanceof Iterable)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object. args[1]={}", args[1]);
-            }
             return false;
         }
         return true;
