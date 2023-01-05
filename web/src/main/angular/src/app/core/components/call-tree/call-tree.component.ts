@@ -24,6 +24,8 @@ export interface IGridData {
     methodType: string;
     hasException: boolean;
     isAuthorized: boolean;
+    lineNumber: number;
+    location: string;
     folder?: boolean;
     open?: boolean;
     children?: any[];
@@ -54,7 +56,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() dateFormat: string;
     @Output() outSelectFormatting = new EventEmitter<any>();
     @Output() outRowSelected = new EventEmitter<IGridData>();
-    @Output() outCellDoubleClicked = new EventEmitter<string>();
+    @Output() outCellDoubleClicked = new EventEmitter<{type: string, contents: string}>();
 
     private originalData: ITransactionDetailData;
     private ratio: number;
@@ -408,7 +410,36 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     onCellDoubleClicked(params: any): void {
-        this.outCellDoubleClicked.emit(params.data[params.colDef.field]);
+        const field = params.colDef.field;
+        let contents = params.data[field];
+        let type = 'plain';
+
+        if (!contents) {
+            return;
+        }
+
+        switch (field) {
+            case 'method':
+                const location = params.data.location;
+                const lineNumber = params.data.lineNumber;
+                const metaInfo = lineNumber ? `${location}:${lineNumber}` : '';
+                
+                type = 'html';
+                contents = `${contents} <span style="text-decoration:underline !important; color:var(--text-secondary); font-size:12px; margin-left:3px;">${metaInfo}</span>`;
+
+                break;
+            case 'startTime':
+                contents = moment(params.value).tz(this.timezone).format(this.dateFormat);
+
+                break;
+            default:
+                break;
+        }
+
+        this.outCellDoubleClicked.emit({
+            type,
+            contents
+        });
     }
 
     onGridSizeChanged(_: GridOptions): void {
@@ -493,6 +524,9 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         oRow['methodType'] = callTree[oIndex.methodType];
         oRow['hasException'] = callTree[oIndex.hasException];
         oRow['isAuthorized'] = callTree[oIndex.isAuthorized];
+        oRow['lineNumber'] = callTree[oIndex.lineNumber];
+        oRow['location'] = callTree[oIndex.location];
+
         if (callTree[oIndex.hasChild]) {
             oRow['folder'] = true;
             oRow['open'] = true;

@@ -109,12 +109,12 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    onCellDoubleClicked(contents: string): void {
+    onCellDoubleClicked({type, contents}: {type: string, contents: string}): void {
         this.dynamicPopupService.openPopup({
             data: {
                 title: 'Contents',
                 contents,
-                type: 'plain'
+                type
             },
             component: MessagePopupContainerComponent
         }, {
