@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,14 +26,20 @@ public class LambdaClassJava8 implements LambdaClass {
 
     public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/lambda/UnsafeDelegatorJava8";
 
-    private final List<MethodInsn> methodInsnList;
+    private final MethodInsn methodInsn;
 
     public LambdaClassJava8() {
-        this.methodInsnList = Arrays.asList(new MethodInsn("spinInnerClass", "sun/misc/Unsafe", "defineAnonymousClass", DELEGATE_CLASS, "defineAnonymousClass", null));
+        this.methodInsn = new MethodInsn("spinInnerClass",
+                "sun/misc/Unsafe",
+                "defineAnonymousClass",
+                DELEGATE_CLASS,
+                "defineAnonymousClass",
+                null);
+
     }
 
     @Override
     public List<MethodInsn> getMethodInsnList() {
-        return methodInsnList;
+        return Collections.singletonList(methodInsn);
     }
 }

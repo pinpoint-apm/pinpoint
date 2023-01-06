@@ -30,11 +30,11 @@ public class TableConfiguration {
         }
     };
 
-    private Long maxFileSize;
-    private Boolean readOnly;
-    private Boolean compactionEnabled;
-    private Long memstoreFlushSize;
-    private Durability durability;
+    private final Long maxFileSize;
+    private final Boolean readOnly;
+    private final Boolean compactionEnabled;
+    private final Long memstoreFlushSize;
+    private final Durability durability;
 
     public enum Durability {
         ASYNC_WAL,

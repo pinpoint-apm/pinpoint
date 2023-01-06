@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
-import java.util.Objects;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
@@ -34,6 +33,8 @@ import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
 import io.grpc.stub.ClientCallStreamObserver;
+
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
@@ -101,7 +102,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
-        final Runnable reconnectJob = new NamedRunnable(this.ID) {
+        final Runnable reconnectJob = new NamedRunnable(ID) {
             @Override
             public void run() {
                 startStream();

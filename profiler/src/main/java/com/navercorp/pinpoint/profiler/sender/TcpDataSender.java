@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
@@ -36,15 +34,16 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -81,7 +80,7 @@ public class TcpDataSender<T> implements EnhancedDataSender<T> {
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
         this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory),
-                (MessageSerializer<T, byte[]>) newDefaultMessageSerializer(), DEFAULT_QUEUE_SIZE);
+                newDefaultMessageSerializer(), DEFAULT_QUEUE_SIZE);
     }
 
 

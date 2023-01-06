@@ -166,49 +166,47 @@ public class BindValueConverter {
             return "null";
         }
 
-        if (Byte.class.isInstance(value)) {
+        if (value instanceof Byte) {
             return simpleTypeConverter.convert(value);
-        } else if (Boolean.class.isInstance(value)) {
+        } else if (value instanceof Boolean) {
             return simpleTypeConverter.convert(value);
-        } else if (Short.class.isInstance(value)) {
+        } else if (value instanceof Short) {
             return simpleTypeConverter.convert(value);
-        } else if (Integer.class.isInstance(value)) {
+        } else if (value instanceof Integer) {
             return simpleTypeConverter.convert(value);
-        } else if (Long.class.isInstance(value)) {
+        } else if (value instanceof Long) {
             return simpleTypeConverter.convert(value);
-        } else if (Float.class.isInstance(value)) {
+        } else if (value instanceof Float) {
             return simpleTypeConverter.convert(value);
-        } else if (Double.class.isInstance(value)) {
+        } else if (value instanceof Double) {
             return simpleTypeConverter.convert(value);
-        } else if (BigDecimal.class.isInstance(value)) {
+        } else if (value instanceof BigDecimal) {
             return simpleTypeConverter.convert(value);
-        } else if (String.class.isInstance(value)) {
+        } else if (value instanceof String) {
             // String/NString
             return simpleTypeConverter.convert(value);
-        } else if (Date.class.isInstance(value)) {
+        } else if (value instanceof Date) {
             return simpleTypeConverter.convert(value);
-        } else if (Time.class.isInstance(value)) {
+        } else if (value instanceof Time) {
             return simpleTypeConverter.convert(value);
-        } else if (Timestamp.class.isInstance(value)) {
+        } else if (value instanceof Timestamp) {
             return simpleTypeConverter.convert(value);
-        } else if (URL.class.isInstance(value)) {
+        } else if (value instanceof URL) {
             return simpleTypeConverter.convert(value);
-        } else if (Ref.class.isInstance(value)) {
+        } else if (value instanceof Ref) {
             return simpleTypeConverter.convert(value);
-        } else if (InputStream.class.isInstance(value)) {
+        } else if (value instanceof InputStream) {
             return classNameConverter.convert(value);
-        } else if (Reader.class.isInstance(value)) {
+        } else if (value instanceof Reader) {
             return classNameConverter.convert(value);
-        } else if (Array.class.isInstance(value)) {
+        } else if (value instanceof Array) {
             return classNameConverter.convert(value);
-        } else if (SQLXML.class.isInstance(value)) {
+        } else if (value instanceof SQLXML) {
             return classNameConverter.convert(value);
-        } else if (byte[].class.isInstance(value)) {
+        } else if (value instanceof byte[]) {
             return hexBytesConverter.convert(value);
-        } else if (Object.class.isInstance(value)) {
-            return objectConverter.convert(value);
         }
-        return "";
+        return objectConverter.convert(value);
     }
 
 }
