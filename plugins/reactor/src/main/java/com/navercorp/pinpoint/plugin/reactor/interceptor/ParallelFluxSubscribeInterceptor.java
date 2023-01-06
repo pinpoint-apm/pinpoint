@@ -52,7 +52,7 @@ public class ParallelFluxSubscribeInterceptor extends FluxAndMonoOperatorSubscri
         if (object instanceof ReactorContextAccessor) {
             ReactorContextAccessorUtils.setAsyncContext(asyncContext, object);
             if (isDebug) {
-                logger.debug("Set reactorContext={} to arg", asyncContext);
+                logger.debug("Set reactorContext to args. reactorContext={}", asyncContext);
             }
         }
     }

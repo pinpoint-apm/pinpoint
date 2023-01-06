@@ -50,6 +50,9 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
         // Set HttpClientOptions
         if (args[0] instanceof AsyncContextAccessor) {
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
+            }
         }
         // Set hostname
         if (args[0] instanceof ChannelOperations) {

@@ -76,10 +76,16 @@ public class FluxAndMonoOperatorSubscribeInterceptor extends AsyncContextSpanEve
 
     protected void setReactorContextToTarget(AsyncContext asyncContext, Object target) {
         ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
+        if (isDebug) {
+            logger.debug("Set reactorContext to target. reactorContext={}", asyncContext);
+        }
     }
 
     protected void setReactorContextToSubscriber(AsyncContext asyncContext, Object[] args) {
         ReactorContextAccessorUtils.setAsyncContext(asyncContext, args, 0);
+        if (isDebug) {
+            logger.debug("Set reactorContext to args[0]. reactorContext={}", asyncContext);
+        }
     }
 
     @Override

@@ -55,6 +55,9 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
                 // Avoid duplicate async context
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
                 ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+                if (isDebug) {
+                    logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
+                }
             }
         }
     }

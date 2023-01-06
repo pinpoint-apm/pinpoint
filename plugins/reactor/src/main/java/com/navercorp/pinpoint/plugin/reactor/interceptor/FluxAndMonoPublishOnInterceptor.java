@@ -46,7 +46,7 @@ public class FluxAndMonoPublishOnInterceptor extends SpanEventSimpleAroundInterc
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set asyncContext={} to result", asyncContext);
+                logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
             }
         }
     }
