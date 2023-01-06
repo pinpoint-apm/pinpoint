@@ -16,7 +16,7 @@ public class AsyncDefaultTrace extends DefaultTrace {
                              SpanRecorder spanRecorder,
                              WrappedSpanEventRecorder wrappedSpanEventRecorder,
                              AsyncState asyncState) {
-        super(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, null, null);
+        super(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
         this.asyncState = Objects.requireNonNull(asyncState, "asyncState");
     }
 
