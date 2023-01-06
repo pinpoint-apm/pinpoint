@@ -87,5 +87,8 @@ public class FluxAndMonoSubscribeOrReturnInterceptor implements AroundIntercepto
 
     protected void setReactorContextToResult(AsyncContext asyncContext, Object result) {
         ReactorContextAccessorUtils.setAsyncContext(asyncContext, result);
+        if (isDebug) {
+            logger.debug("Set reactorContext to result. reactorContext={}", asyncContext);
+        }
     }
 }

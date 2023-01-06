@@ -47,6 +47,9 @@ public class HttpTcpClientConnectInterceptor extends SpanEventSimpleAroundInterc
             // Set MonoHttpConnect
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
+            }
         }
     }
 }

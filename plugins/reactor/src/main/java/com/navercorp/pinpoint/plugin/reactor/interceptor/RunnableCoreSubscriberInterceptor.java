@@ -35,6 +35,9 @@ public class RunnableCoreSubscriberInterceptor extends AsyncContextSpanEventSimp
         final AsyncContext publisherAsyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
         if (publisherAsyncContext != null) {
             AsyncContextAccessorUtils.setAsyncContext(publisherAsyncContext, args, 0);
+            if (isDebug) {
+                logger.debug("Set asyncContext to target. asyncContext={}", publisherAsyncContext);
+            }
         }
     }
 

@@ -35,6 +35,9 @@ public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncCo
         if (((ChannelOperations) target).receiveObject() instanceof AsyncContextAccessor) {
             AsyncContextAccessor asyncContextAccessor = (AsyncContextAccessor) ((ChannelOperations) target).receiveObject();
             asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to receiveObject. asyncContext={}", asyncContext);
+            }
         }
     }
 

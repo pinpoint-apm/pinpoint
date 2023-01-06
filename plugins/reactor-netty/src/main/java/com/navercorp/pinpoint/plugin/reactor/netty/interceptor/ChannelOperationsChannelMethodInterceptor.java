@@ -21,12 +21,17 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+
 import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 public class ChannelOperationsChannelMethodInterceptor implements AroundInterceptor {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
 
@@ -48,6 +53,9 @@ public class ChannelOperationsChannelMethodInterceptor implements AroundIntercep
             final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
             if (asyncContext != null) {
                 ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+                if (isDebug) {
+                    logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
+                }
             }
         }
     }

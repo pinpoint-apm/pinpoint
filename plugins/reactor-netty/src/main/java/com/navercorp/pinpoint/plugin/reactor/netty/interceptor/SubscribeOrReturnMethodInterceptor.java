@@ -51,6 +51,9 @@ public class SubscribeOrReturnMethodInterceptor implements AroundInterceptor {
             // Set AsyncContext to CoreSubscriber
             if (result instanceof AsyncContextAccessor) {
                 ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
+                if (isDebug) {
+                    logger.debug("Set asyncContext to result. asyncContext={}", publisherAsyncContext);
+                }
             }
         }
     }

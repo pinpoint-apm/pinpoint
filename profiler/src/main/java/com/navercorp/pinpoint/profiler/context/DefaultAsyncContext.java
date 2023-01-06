@@ -140,9 +140,8 @@ public class DefaultAsyncContext implements AsyncContext {
     @Override
     public String toString() {
         return "DefaultAsyncContext{" +
-                "traceRoot=" + traceRoot +
-                ", asyncId=" + asyncId +
+                "asyncId=" + asyncId +
+                ", traceRoot=" + traceRoot +
                 '}';
     }
-
 }

@@ -65,6 +65,9 @@ public class RunnableNewInstanceInterceptor implements AroundInterceptor {
             // Set result to asyncContext
             if (throwable != null) {
                 AsyncContextAccessorUtils.setAsyncContext(asyncContext, result);
+                if (isDebug) {
+                    logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
+                }
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {

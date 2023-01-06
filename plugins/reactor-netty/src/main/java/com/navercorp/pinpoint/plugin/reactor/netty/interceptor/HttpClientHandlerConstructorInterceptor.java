@@ -45,6 +45,9 @@ public class HttpClientHandlerConstructorInterceptor extends SpanEventSimpleArou
         if (throwable == null && target instanceof AsyncContextAccessor) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to target. asyncContext={}", asyncContext);
+            }
         }
     }
 }

@@ -128,11 +128,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext(asyncStateSupport);
                 ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    if (enableAsyncEndPoint) {
-                        logger.debug("Set closeable-AsyncContext {}", asyncContext);
-                    } else {
-                        logger.debug("Set AsyncContext {}", asyncContext);
-                    }
+                    logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
                 }
             }
         } catch (Throwable t) {

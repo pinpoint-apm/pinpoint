@@ -57,10 +57,16 @@ public class FluxAndMonoConstructorInterceptor implements AroundInterceptor {
     // Trace reactor
     protected void setReactorContextToTarget(final AsyncContext asyncContext, final Object target) {
         ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
+        if (isDebug) {
+            logger.debug("Set reactorContext to target. reactorContext={}", asyncContext);
+        }
     }
 
     // Trace subscribe() method
     protected void setAsyncContextToTarget(AsyncContext asyncContext, Object target) {
         AsyncContextAccessorUtils.setAsyncContext(asyncContext, target);
+        if (isDebug) {
+            logger.debug("Set asyncContext to target. asyncContext={}", asyncContext);
+        }
     }
 }
