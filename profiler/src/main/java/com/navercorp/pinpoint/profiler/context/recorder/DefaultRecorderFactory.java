@@ -50,13 +50,13 @@ public class DefaultRecorderFactory implements RecorderFactory {
     }
 
     @Override
-    public SpanRecorder newSpanRecorder(Span span, boolean isRoot, boolean sampling) {
-        return new DefaultSpanRecorder(span, isRoot, sampling, stringMetaDataService, sqlMetaDataService, errorHandler);
+    public SpanRecorder newSpanRecorder(Span span) {
+        return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
 
     @Override
-    public SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
-        return new TraceRootSpanRecorder(traceRoot, sampling);
+    public SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot) {
+        return new TraceRootSpanRecorder(traceRoot);
     }
 
     @Override

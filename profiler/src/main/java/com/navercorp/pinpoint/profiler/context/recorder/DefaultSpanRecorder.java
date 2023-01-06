@@ -29,30 +29,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * 
+ *
  * @author jaehong.kim
  *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
     private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
-    
+
     private final Span span;
-    private final boolean isRoot;
-    private final boolean sampling;
-    
-    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling,
-                               final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService,
+
+    public DefaultSpanRecorder(final Span span,
+                               final StringMetaDataService stringMetaDataService,
+                               final SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler) {
         super(stringMetaDataService, sqlMetaDataService, errorHandler);
         this.span = span;
-        this.isRoot = isRoot;
-        this.sampling = sampling;
     }
 
-    public Span getSpan() {
-        return span;
-    }
 
     @Override
     public void recordStartTime(long startTime) {
@@ -124,12 +118,12 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
 
     @Override
     public boolean canSampled() {
-        return sampling;
+        return true;
     }
 
     @Override
     public boolean isRoot() {
-        return isRoot;
+        return span.getTraceRoot().getTraceId().isRoot();
     }
     
     @Override

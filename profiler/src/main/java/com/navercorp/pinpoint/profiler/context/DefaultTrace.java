@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -42,10 +41,10 @@ import java.util.Objects;
  * @author emeroad
  * @author jaehong.kim
  */
-public final class DefaultTrace implements Trace {
+public class DefaultTrace implements Trace {
 
-    private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
-    private static final boolean isDebug = logger.isDebugEnabled();
+    static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
+    static final boolean isDebug = logger.isDebugEnabled();
 
     private final CallStack<SpanEvent> callStack;
 
@@ -64,12 +63,12 @@ public final class DefaultTrace implements Trace {
     @Nullable
     private final UriStatStorage uriStatStorage;
 
-    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
-        this(span, callStack, storage, sampling, spanRecorder, wrappedSpanEventRecorder, null, null);
+        this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, null, null);
     }
 
-    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
                         ActiveTraceHandle activeTraceHandle,
                         UriStatStorage uriStatStorage) {
@@ -77,7 +76,6 @@ public final class DefaultTrace implements Trace {
         this.span = Objects.requireNonNull(span, "span");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
         this.storage = Objects.requireNonNull(storage, "storage");
-        Assert.isTrue(sampling, "sampling must be true");
 
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
