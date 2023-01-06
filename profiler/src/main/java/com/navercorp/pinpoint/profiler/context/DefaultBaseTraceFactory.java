@@ -94,9 +94,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span);
             final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
             final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
-
-            return new DefaultTrace(span, callStack, storage, spanRecorder,
-                    wrappedSpanEventRecorder, handle, uriStatStorage);
+            final CloseListener closeListener = new DefaultCloseListener(handle, uriStatStorage);
+            return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, closeListener);
         } else {
             return newLocalTrace(state.nextId());
         }
@@ -135,9 +134,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
 
             final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
-
-            return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder,
-                    handle, uriStatStorage);
+            final CloseListener closeListener = new DefaultCloseListener(handle, uriStatStorage);
+            return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, closeListener);
         } else {
             return newLocalTrace(state.nextId());
         }

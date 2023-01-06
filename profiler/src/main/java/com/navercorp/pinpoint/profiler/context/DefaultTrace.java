@@ -23,17 +23,13 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
-import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -58,20 +54,17 @@ public class DefaultTrace implements Trace {
     private DefaultTraceScopePool scopePool;
 
     private final Span span;
-    @Nullable
-    private final ActiveTraceHandle activeTraceHandle;
-    @Nullable
-    private final UriStatStorage uriStatStorage;
 
+    private final CloseListener closeListener;
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
-        this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, null, null);
+        this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
     }
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
-                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
-                        ActiveTraceHandle activeTraceHandle,
-                        UriStatStorage uriStatStorage) {
+                        SpanRecorder spanRecorder,
+                        WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                        CloseListener closeListener) {
 
         this.span = Objects.requireNonNull(span, "span");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
@@ -80,8 +73,7 @@ public class DefaultTrace implements Trace {
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.activeTraceHandle = activeTraceHandle;
-        this.uriStatStorage = uriStatStorage;
+        this.closeListener = closeListener;
 
         setCurrentThread();
     }
@@ -202,39 +194,10 @@ public class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-
         this.storage.close();
-        purgeActiveTrace(afterTime);
-        recordUriTemplate(afterTime);
+        this.closeListener.close(span);
     }
 
-    private void recordUriTemplate(long afterTime) {
-        if (uriStatStorage == null) {
-            return;
-        }
-
-        TraceRoot traceRoot = this.getTraceRoot();
-        Shared shared = traceRoot.getShared();
-        String uriTemplate = shared.getUriTemplate();
-        long traceStartTime = traceRoot.getTraceStartTime();
-
-        boolean status = getStatus(shared.getErrorCode());
-        uriStatStorage.store(uriTemplate, status, traceStartTime, afterTime);
-    }
-
-    private boolean getStatus(int errorCode) {
-        if (errorCode == 0) {
-            return true;
-        }
-        return false;
-    }
-
-    private void purgeActiveTrace(long currentTime) {
-        final ActiveTraceHandle copy = this.activeTraceHandle;
-        if (copy != null) {
-            copy.purge(currentTime);
-        }
-    }
 
     void flush() {
         this.storage.flush();
