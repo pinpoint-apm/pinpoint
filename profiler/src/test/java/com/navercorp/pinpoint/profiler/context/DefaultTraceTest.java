@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
@@ -152,9 +150,6 @@ public class DefaultTraceTest {
     private Trace newTrace(final int maxCallStackDepth) {
         when(traceRoot.getShared()).thenReturn(shared);
 
-        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 0);
-        when(traceRoot.getTraceId()).thenReturn(traceId);
-
         CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth, -1, 1000);
         CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
@@ -164,10 +159,9 @@ public class DefaultTraceTest {
         UriStatStorage uriStatStorage = mock(UriStatStorage.class);
 
         final Span span = spanFactory.newSpan(traceRoot);
-        final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
 
-        return new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
+        return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
     }
 }

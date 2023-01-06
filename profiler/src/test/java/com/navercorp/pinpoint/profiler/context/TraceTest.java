@@ -73,8 +73,7 @@ public class TraceTest {
         final CallStack<SpanEvent> callStack = newCallStack();
         final Span span = newSpan(traceRoot);
 
-        boolean root = span.getTraceRoot().getTraceId().isRoot();
-        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, errorHandler);
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
         WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
 
         AsyncContextFactory asyncContextFactory = mock(AsyncContextFactory.class);
@@ -82,7 +81,7 @@ public class TraceTest {
         Storage storage = mock(Storage.class);
         UriStatStorage uriStatStorage = mock(UriStatStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
+        Trace trace = new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
         trace.traceBlockBegin();
 
         // get data form db
@@ -107,8 +106,7 @@ public class TraceTest {
 
         final Span span = newSpan(traceRoot);
 
-        final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, errorHandler);
+        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
         WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
 
 
@@ -117,7 +115,7 @@ public class TraceTest {
         Storage storage = mock(Storage.class);
         UriStatStorage uriStatStorage = mock(UriStatStorage.class);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder,
+        Trace trace = new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder,
                 ActiveTraceHandle.EMPTY_HANDLE, uriStatStorage);
 
         trace.close();

@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  */
 public interface RecorderFactory {
 
-    SpanRecorder newSpanRecorder(final Span span, final boolean isRoot, final boolean sampling);
+    SpanRecorder newSpanRecorder(final Span span);
 
-    SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling);
+    SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot);
 
     SpanRecorder newDisableSpanRecorder(LocalTraceRoot traceRoot);
 

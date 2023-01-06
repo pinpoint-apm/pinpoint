@@ -33,17 +33,14 @@ import java.util.Objects;
 public class TraceRootSpanRecorder implements SpanRecorder {
 
     private final TraceRoot traceRoot;
-    private final boolean sampling;
 
-    public TraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
+    public TraceRootSpanRecorder(TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
-
-        this.sampling = sampling;
     }
 
     @Override
     public boolean canSampled() {
-        return sampling;
+        return true;
     }
 
     @Override

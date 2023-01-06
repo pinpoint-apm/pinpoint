@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
@@ -53,13 +52,12 @@ public class AsyncChildTrace implements Trace {
     private final TraceRoot traceRoot;
     private final LocalAsyncId localAsyncId;
 
-    public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
-                             SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
+    public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage,
+                           SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
         this.storage = Objects.requireNonNull(storage, "storage");
-        Assert.isTrue(sampling, "sampling must be true");
 
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
