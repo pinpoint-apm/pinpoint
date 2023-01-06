@@ -8,7 +8,7 @@ public interface IdAllocator {
     int allocate();
 
     enum ID_TYPE {
-        BYPASS, ZIGZAG;
+        BYPASS, ZIGZAG
     }
 
     class ZigZagAllocator implements IdAllocator {

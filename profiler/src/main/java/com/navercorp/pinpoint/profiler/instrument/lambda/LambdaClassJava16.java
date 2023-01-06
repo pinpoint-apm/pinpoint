@@ -23,24 +23,33 @@ public class LambdaClassJava16 implements LambdaClass {
 
     public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/java16/lambda/MethodHandlesLookupDelegatorJava16";
 
-    private final List<MethodInsn> methodInsnList;
+    private final MethodInsn[] methodInsnList;
 
     public LambdaClassJava16() {
-        this.methodInsnList = Arrays.asList(
-                new MethodInsn("generateInnerClass", "java/lang/invoke/MethodHandles$Lookup", "defineHiddenClass", DELEGATE_CLASS, "defineHiddenClass", "(Ljava/lang/invoke/MethodHandles$Lookup;[BZ[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;"),
-                new MethodInsn("generateInnerClass", "java/lang/invoke/MethodHandles$Lookup", "defineHiddenClassWithClassData", DELEGATE_CLASS, "defineHiddenClassWithClassData", "(Ljava/lang/invoke/MethodHandles$Lookup;[BLjava/lang/Object;Z[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;")
-        );
+        final MethodInsn insn1 = new MethodInsn("generateInnerClass",
+                "java/lang/invoke/MethodHandles$Lookup",
+                "defineHiddenClass",
+                DELEGATE_CLASS,
+                "defineHiddenClass",
+                "(Ljava/lang/invoke/MethodHandles$Lookup;[BZ[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;");
+        final MethodInsn insn2 = new MethodInsn("generateInnerClass",
+                "java/lang/invoke/MethodHandles$Lookup",
+                "defineHiddenClassWithClassData",
+                DELEGATE_CLASS,
+                "defineHiddenClassWithClassData",
+                "(Ljava/lang/invoke/MethodHandles$Lookup;[BLjava/lang/Object;Z[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;");
+        this.methodInsnList = new MethodInsn[]{insn1, insn2};
     }
 
     @Override
     public List<MethodInsn> getMethodInsnList() {
-        return methodInsnList;
+        return Arrays.asList(methodInsnList);
     }
 
     @Override
     public String toString() {
         return "LambdaClassJava16{" +
-                "methodInsnList=" + methodInsnList +
+                "methodInsnList=" + Arrays.toString(methodInsnList) +
                 '}';
     }
 }

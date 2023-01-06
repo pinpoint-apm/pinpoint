@@ -16,29 +16,33 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class LambdaClassJava15 implements LambdaClass {
 
     public static final String DELEGATE_CLASS = "com/navercorp/pinpoint/bootstrap/java15/lambda/MethodHandlesLookupDelegatorJava15";
 
-    private final List<MethodInsn> methodInsnList;
+    private final MethodInsn methodInsn;
 
     public LambdaClassJava15() {
-        this.methodInsnList = Arrays.asList(
-                new MethodInsn("generateInnerClass", "java/lang/invoke/MethodHandles$Lookup", "defineHiddenClass", DELEGATE_CLASS, "defineHiddenClass", "(Ljava/lang/invoke/MethodHandles$Lookup;[BZ[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;"));
+        this.methodInsn = new MethodInsn("generateInnerClass",
+                "java/lang/invoke/MethodHandles$Lookup",
+                "defineHiddenClass",
+                DELEGATE_CLASS,
+                "defineHiddenClass",
+                "(Ljava/lang/invoke/MethodHandles$Lookup;[BZ[Ljava/lang/invoke/MethodHandles$Lookup$ClassOption;)Ljava/lang/invoke/MethodHandles$Lookup;");
     }
 
     @Override
     public List<MethodInsn> getMethodInsnList() {
-        return methodInsnList;
+        return Collections.singletonList(methodInsn);
     }
 
     @Override
     public String toString() {
         return "LambdaClassJava15{" +
-                "methodInsnList=" + methodInsnList +
+                "methodInsn=" + methodInsn +
                 '}';
     }
 }

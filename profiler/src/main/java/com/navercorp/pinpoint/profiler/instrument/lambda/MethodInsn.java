@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.instrument.lambda;
 import java.util.Objects;
 
 public class MethodInsn {
-    private String methodName;
-    private String targetClassName;
-    private String targetMethodName;
-    private String delegateClassName;
-    private String delegateMethodName;
-    private String delegateDescriptor;
+    private final String methodName;
+    private final String targetClassName;
+    private final String targetMethodName;
+    private final String delegateClassName;
+    private final String delegateMethodName;
+    private final String delegateDescriptor;
 
     public MethodInsn(String methodName, String targetClassName, String targetMethodName, String delegateClassName, String delegateMethodName, String delegateDescriptor) {
         this.methodName = Objects.requireNonNull(methodName);
