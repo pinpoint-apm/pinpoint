@@ -1,11 +1,12 @@
-import { ScatterChart } from "../ui";
+import { ScatterChart } from "../../ui";
+import data1 from '../mock/data1.json';
 
-const newScatterChart = (wrapper: HTMLElement) => {
-  return new ScatterChart(wrapper, {
+export const newScatterChart = (wrapper: HTMLElement) => {
+  const SC = new ScatterChart(wrapper, {
     axis: {
       x: {
-        min: 1671684304000,
-        max: 1671687904000,
+        min: 1669103462000,
+        max: 1669103509335,
         tick: {
           count: 5,
           format: (value) => {
@@ -40,38 +41,14 @@ const newScatterChart = (wrapper: HTMLElement) => {
       formatValue: (value) => value.toLocaleString(),
     },
   });
+  SC.render(data1.data);
+  return SC
 }
 
-export const createScatterChart = () => {
+export const createDefault = () => {
   const wrapper = document.createElement('div');
   setTimeout(() => {
     newScatterChart(wrapper);
-  }, 500);
-  return wrapper;
-}
-
-
-export const createScatterChartResizable = () => {
-  const wrapper = document.createElement('div');
-  const btnElement1 = document.createElement('button');
-  btnElement1.innerHTML = 'resize';
-  const btnElement2 = document.createElement('button');
-  btnElement2.innerHTML = 'resize 500 by 500';
-  
-  setTimeout(() => {
-    
-    const SC = newScatterChart(wrapper);
-    wrapper.append(btnElement1);
-    wrapper.append(btnElement2);
-
-    btnElement1.addEventListener('click', () => {
-      SC.resize();
-    });
-
-    btnElement2.addEventListener('click', () => {
-      SC.resize(500, 500);
-    });
-
   }, 500);
   return wrapper;
 }

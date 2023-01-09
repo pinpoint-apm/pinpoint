@@ -1,3 +1,4 @@
+import { drawRect } from "../utils/draw";
 import { Layer } from "./Layer";
 
 export interface ViewportOption {
@@ -92,6 +93,7 @@ export class Viewport {
       } else 
         return 1;
     })
+    
     return this;
   }
 

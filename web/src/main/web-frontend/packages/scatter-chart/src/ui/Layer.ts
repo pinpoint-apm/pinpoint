@@ -39,8 +39,13 @@ export class Layer {
     this.ctx.scale(this.dpr, this.dpr);
   }
 
+  private resetDpr() {
+    this.displayPixcelRatio = getDevicePicelRatio();
+  }
+
   public setSize(width: number, height: number) {
     this.clear();
+    this.resetDpr();
     this.cvs.style.width = `${width}px`;
     this.cvs.style.height = `${height}px`;
     this.cvs.width = width * this.dpr;
@@ -119,8 +124,7 @@ export class Layer {
   public getTextHeight(text: string | number) {
     const metrics = this.context.measureText(`${text}`);
     let fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
-    let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-
+    // let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
     return fontHeight;
   }
 }

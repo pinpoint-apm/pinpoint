@@ -1,21 +1,11 @@
 import { AXIS_DEFAULT_FORMAT } from "../constants/options";
-import { AXIS_DEFAULT_TICK_COUNT } from "../constants/ui";
-import { TickOption, FormatType } from "../types";
+import { AXIS_DEFAULT_TICK_COUNT, CONTAINER_PADDING } from "../constants/ui";
+import { TickOption, FormatType, Padding, AxisOption } from "../types";
 import { Layer, LayerProps } from "./Layer";
 
 export interface AxisProps extends LayerProps {
-  min?: number;
-  max?: number;
-  padding?: {
-    top?: number;
-    bottom?: number;
-    left?: number;
-    right?: number;
-  };
-  innerPadding?: number;
-  tickCount?: number;
-  format?: FormatType<number>
-  tickOption?: TickOption;
+  axisOption?: AxisOption;
+  padding?: Padding;
 };
 
 export class Axis extends Layer {
@@ -25,35 +15,31 @@ export class Axis extends Layer {
   tickOption;
 
   constructor({
-    min = 0,
-    max = 1,
+    axisOption,
     padding,
-    tickCount,
-    format,
-    tickOption,
     ...props
-  }: AxisProps = {}) {
+  }: AxisProps) {
     super(props);
-
-    this.min = min;
-    this.max = max;
-    this.padding = { top: 0, bottom:0, left: 0, right: 0, ...padding };
-    this.tickOption = { ...{ count: AXIS_DEFAULT_TICK_COUNT, format: AXIS_DEFAULT_FORMAT }, ...tickOption }
+    this.min = axisOption?.min || 0;
+    this.max = axisOption?.max || 1;
+    this.padding = { ...CONTAINER_PADDING, ...padding };
+    this.tickOption = { ...{ count: AXIS_DEFAULT_TICK_COUNT, format: AXIS_DEFAULT_FORMAT }, ...axisOption?.tick }
   }
 
-  setMinMax(min: number, max: number) {
-    this.min = min;
-    this.max = max;
+  setOptions(options: {
+    min?: number,
+    max?: number,
+    padding?: Padding,
+  }) {
+    const { min, max, padding } = options;
+    this.min = min || this.min;
+    this.max = max || this.max;
+    this.padding = { ...CONTAINER_PADDING, ...padding };
     return this;
   }
 
   setSize(...args: Parameters<Layer['setSize']>) {
     super.setSize(...args);
-    return this;
-  }
-
-  setTickCount(count: number) {
-    this.tickOption = { ...this.tickOption, count };
     return this;
   }
 }
