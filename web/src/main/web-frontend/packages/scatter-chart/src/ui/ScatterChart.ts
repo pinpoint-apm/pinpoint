@@ -1,5 +1,5 @@
 import merge from 'lodash.merge';
-import clonedeep from 'lodash.clonedeep';
+import html2canvas from 'html2canvas';
 
 import { AxisOption, DataOption, LegendOption, Padding, ScatterDataType } from "../types";
 import { Layer } from "./Layer";
@@ -7,7 +7,7 @@ import { Viewport } from "./Viewport";
 import { drawCircle, drawRect, drawText } from "../utils/draw";
 import { YAxis } from "./YAxis";
 import { XAxis } from "./XAxis";
-import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_HEIGHT, CONTAINER_PADDING, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
+import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_HEIGHT, CONTAINER_PADDING, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
 import { GridAxis } from "./GridAxis";
 import { Legend } from "./Legend";
 import { Guide } from "./Guide";
@@ -21,6 +21,7 @@ export interface ScatterChartOption {
 }
 
 export class ScatterChart {
+  static SCATTER_CHART_CONTAINER_CLASS = `${SCATTER_CHART_IDENTIFIER}container`;
   private wrapper;
   private canvasWrapper;
   private options!: ScatterChartOption;
@@ -49,6 +50,7 @@ export class ScatterChart {
   constructor(wrapper: HTMLElement, options: ScatterChartOption) {
     this.wrapper = wrapper;
     this.canvasWrapper = document.createElement('div');
+    this.canvasWrapper.className = ScatterChart.SCATTER_CHART_CONTAINER_CLASS;
     this.canvasWrapper.style.position = 'relative';
     this.wrapper.append(this.canvasWrapper);
 
@@ -257,6 +259,7 @@ export class ScatterChart {
 
   public render(data: ScatterDataType[], { append = false } = {}) {
     const { styleWidth, styleHeight } = this.viewport;
+    const { x: xAxisOptoin, y: yAxisOption } = this.options.axis
     const padding = this.padding;
 
     if (append) {
@@ -273,7 +276,7 @@ export class ScatterChart {
       if (!this.dataLayers[legend]) {
         this.setLayer(legend, styleWidth, styleHeight, LAYER_DEFAULT_PRIORITY);
       }
-
+      
       if (this.datas[legend]) {
         this.datas[legend].push(x);
       } else {
@@ -282,7 +285,7 @@ export class ScatterChart {
 
       !hidden && drawCircle(
         this.dataLayers[legend].context,
-        this.xRatio * x + padding.left + AXIS_INNER_PADDING,
+        this.xRatio * (x - this.xAxis.min) + padding.left + AXIS_INNER_PADDING,
         this.viewport.canvas.height / this.viewport.viewLayer.dpr - this.yRatio * y - padding.bottom - AXIS_INNER_PADDING,
         {
           fillColor: this.dataColorMap[legend],
@@ -316,8 +319,8 @@ export class ScatterChart {
   }
 
   public setAxisOption(axisOption: {
-    x?: Pick<AxisOption, 'min' | 'max'>,
-    y?: Pick<AxisOption, 'min' | 'max'>,
+    x?: Partial<AxisOption>,
+    y?: Partial<AxisOption>,
   }) {
     this.setOptions(merge(this.options, { axis: axisOption }));
     this.setPadding();
@@ -328,15 +331,13 @@ export class ScatterChart {
     });
     this.xAxis
       .setOptions({
-        min: this.options.axis.x.min,
-        max: this.options.axis.x.max,
+        ...this.options.axis.x,
         padding: this.padding,
       })
       .render();
     this.yAxis
       .setOptions({
-        min: this.options.axis.y.min,
-        max: this.options.axis.y.max,
+        ...this.options.axis.y,
         padding: this.padding,
       })
       .render();
@@ -346,29 +347,20 @@ export class ScatterChart {
     this.render(this.data);
   }
 
-  public toBase64Image() {
+  public async toBase64Image() {
     const layer = new Layer({ width: this.width , height: this.height});
-    const clonedViewPort = clonedeep(this.viewport)
-    clonedViewPort.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
-    // [...Array.from(clonedLegend.getElementsByTagName('input'))].forEach((node) => {
-    //   console.log(node)
-    //   clonedLegend.removeChild(node);
-    // })
+    const containerCanvas = await html2canvas(document.querySelector(`.${ScatterChart.SCATTER_CHART_CONTAINER_CLASS}`)!).then(canvas => canvas);
+    const legendCanvas = await html2canvas(document.querySelector(`.${Legend.LEGEND_CONTAINER_CLASS}`)!).then(canvas => canvas);
 
-    layer.setSize(this.width, this.height);
-    // drawRect(layer.context, 0, 0, this.width, this.height, { color: 'white' });
-    layer.context.putImageData(this.viewport.context.getImageData(0, 0, this.viewport.canvas.width, this.viewport.canvas.height), 0, 0);
+    layer.setSize(containerCanvas.width, containerCanvas.height + legendCanvas.height);
+    layer.context.drawImage(containerCanvas, 0, 0);
+    layer.context.drawImage(legendCanvas, 0, containerCanvas.height);
 
-
-    const downloadElement = document.createElement('a');
     const image = layer.canvas
       .toDataURL("image/png")
       .replace("image/png", "image/octet-stream");
-    downloadElement.setAttribute("href", image);
-    downloadElement.setAttribute('download', `${1}.png`);
-    this.wrapper.appendChild(downloadElement);
-    downloadElement.click();
-    this.wrapper.removeChild(downloadElement);
+
+    return image;
   }
 
   // public startRealtime(duration: number) {
