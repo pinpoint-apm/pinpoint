@@ -1,6 +1,6 @@
 .__scatter_chart__legend_container {
   display: flex;
-  margin-top: 10px;
+  padding-top: 10px;
   padding-bottom: 5px;
   justify-content: space-around;
 }

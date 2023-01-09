@@ -10,8 +10,16 @@ export const createCaptureIamge = () => {
     const SC = newScatterChart(wrapper);
     wrapper.append(btnElement);
 
-    btnElement.addEventListener('click', () => {
-      SC.toBase64Image();
+    btnElement.addEventListener('click', async () => {
+      
+      const image = await SC.toBase64Image();
+
+      const downloadElement = document.createElement('a');
+      downloadElement.setAttribute("href", image);
+      downloadElement.setAttribute('download', `${1}.png`);
+      wrapper.appendChild(downloadElement);
+      downloadElement.click();
+      wrapper.removeChild(downloadElement);
     });
   }, 500);
   return wrapper;

@@ -1,6 +1,6 @@
 import { AXIS_DEFAULT_FORMAT } from "../constants/options";
 import { AXIS_DEFAULT_TICK_COUNT, CONTAINER_PADDING } from "../constants/ui";
-import { TickOption, FormatType, Padding, AxisOption } from "../types";
+import { TickOption, Padding, AxisOption } from "../types";
 import { Layer, LayerProps } from "./Layer";
 
 export interface AxisProps extends LayerProps {
@@ -30,11 +30,13 @@ export class Axis extends Layer {
     min?: number,
     max?: number,
     padding?: Padding,
+    tick?: TickOption,
   }) {
-    const { min, max, padding } = options;
+    const { min, max, padding, tick } = options;
     this.min = min || this.min;
     this.max = max || this.max;
-    this.padding = { ...CONTAINER_PADDING, ...padding };
+    this.padding = { ...this.padding, ...padding };
+    this.tickOption = { ...this.tickOption, ...tick }; 
     return this;
   }
 
