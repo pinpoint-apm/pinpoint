@@ -1,6 +1,6 @@
 {
   "name": "@pinpoint-fe/scatter-chart",
-  "version": "0.1.0-alpha",
+  "version": "0.2.0-alpha",
   "description": "Open-source scatter-chart library written in pure JS based on canvas api, Specifically designed for visualizing request and response patterns over time",
   "repository": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web/src/main/web-frontend/packages/scatter-chart/README.md",
   "author": "NAVER",
@@ -19,12 +19,11 @@
     "build-storybook": "build-storybook",
     "build": "tsup --entry.index src/index.ts --entry.scatter-chart src/style/index.css --format esm,cjs",
     "clean": "rm -rf dist",
-    "dev": "tsup src/index.tsx --format esm,cjs --dts --external --watch",
-    "devBuild": "tsup src/index.tsx --format esm,cjs --dts"
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "devBuild": "tsup src/index.ts --format esm,cjs --dts"
   },
   "dependencies": {
     "html2canvas": "^1.4.1",
-    "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2"
   },
   "devDependencies": {
@@ -43,7 +42,6 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.2.1",
     "@types/jest": "^28.1.4",
-    "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.merge": "^4.6.7",
     "babel-loader": "^8.2.5",
     "chromatic": "^6.5.4",
