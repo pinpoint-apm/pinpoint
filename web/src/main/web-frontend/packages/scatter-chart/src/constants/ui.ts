@@ -4,6 +4,12 @@ export const PIXEL_RATIO = window && window.devicePixelRatio || 1;
 // container 
 export const CONTAINER_WIDTH = 518;
 export const CONTAINER_HEIGHT = 320;
+export const CONTAINER_PADDING = {
+  top: 15,
+  bottom: 20,
+  left: 0,
+  right: 0,
+};
 
 // axis
 export const AXIS_INNER_PADDING = 5;

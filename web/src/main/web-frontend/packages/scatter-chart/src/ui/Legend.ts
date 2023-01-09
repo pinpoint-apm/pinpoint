@@ -9,6 +9,7 @@ export type LegendProps = {
 }
 export class Legend {
   static LEGEND_CLASS = `${SCATTER_CHART_IDENTIFIER}legend`;
+  static LEGEND_WARPPER_CLASS = `${Legend.LEGEND_CLASS}_container`;
   static MARK_CLASS = `${Legend.LEGEND_CLASS}_mark`;
   static COUNT_CLASS = `${Legend.LEGEND_CLASS}_count`;
   private rootWrapper;
@@ -24,8 +25,12 @@ export class Legend {
     this.options = legendOptions;
     this.dataColorMap = dataColorMap;
     this.containerElement = document.createElement('div');
-    this.containerElement.className = `${SCATTER_CHART_IDENTIFIER}legend_container`;
+    this.containerElement.className = Legend.LEGEND_WARPPER_CLASS;
     this.setSize(width);
+  }
+
+  get container() {
+    return this.containerElement;
   }
   
   public setSize(width?: number) {

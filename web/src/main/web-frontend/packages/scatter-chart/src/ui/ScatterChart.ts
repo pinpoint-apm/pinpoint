@@ -1,17 +1,18 @@
 import merge from 'lodash.merge';
+import clonedeep from 'lodash.clonedeep';
 
-import { AxisOption, DataOption, LegendOption, ScatterDataType } from "../types";
+import { AxisOption, DataOption, LegendOption, Padding, ScatterDataType } from "../types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
-import { drawCircle } from "../utils/draw";
+import { drawCircle, drawRect, drawText } from "../utils/draw";
 import { YAxis } from "./YAxis";
 import { XAxis } from "./XAxis";
-import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_HEIGHT, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
+import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_HEIGHT, CONTAINER_PADDING, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
 import { GridAxis } from "./GridAxis";
 import { Legend } from "./Legend";
 import { Guide } from "./Guide";
 import { defaultAxisOption, defaultDataOption, defaultLegendOption } from "../constants/options";
-import { isThisWeek } from 'date-fns';
+import { getLongestTextWidth, getTickTexts } from '../utils/helper';
 
 export interface ScatterChartOption {
   axis: { x: AxisOption, y: AxisOption };
@@ -30,7 +31,8 @@ export class ScatterChart {
   private dataColorMap!: { [key: string]: string };
   private viewport!: Viewport;
   private guide!: Guide;
-  private layers: { [key: string]: Layer } = {};
+  private dataLayers: { [key: string]: Layer } = {};
+  private data: ScatterDataType[] = [];
   private datas: {[key: string]: number[]} = {};
   private xRatio = 1;
   private yRatio = 1;
@@ -40,12 +42,7 @@ export class ScatterChart {
   private realtimeAxisMaxX = 0;
   private width = 0;
   private height = 0;
-  private padding = {
-    top: 15,
-    bottom: 20,
-    left: 0,
-    right: 0,
-  }
+  private padding = CONTAINER_PADDING;
   private t0: number = 0;
   private reqAnimation = 0;
 
@@ -92,15 +89,15 @@ export class ScatterChart {
 
   private setPadding() {
     const xformatter = this.options.axis.x.tick?.format;
-    const yformatter = this.options.axis.y.tick?.format;
-    const formattedMaxX = xformatter ? xformatter(this.options.axis.x.max) : this.options.axis.x.max;
-    const formattedMaxY = yformatter ? yformatter(this.options.axis.y.max) : this.options.axis.y.max;
-    const maxXWidth = this.viewport.viewLayer.getTextWidth(formattedMaxX);
-    const maxYWidth = this.viewport.viewLayer.getTextWidth(formattedMaxY);
+    const xTicks = getTickTexts(this.options.axis.x);
+    const yTicks = getTickTexts(this.options.axis.y);
+    const maxXTickTextWidth = getLongestTextWidth(xTicks, (t) => this.viewport.viewLayer.getTextWidth(t));
+    const maxYTickTextWidth = getLongestTextWidth(yTicks, (t) => this.viewport.viewLayer.getTextWidth(t));
+    const formattedXSample = xformatter ? xformatter(this.options.axis.x.max) : this.options.axis.x.max;
 
-    this.padding.left = (maxXWidth / 2 > maxYWidth ? maxXWidth / 2 : maxYWidth) + TEXT_MARGIN_LEFT + TEXT_MARGIN_RIGHT + AXIS_TICK_LENGTH;
-    this.padding.right = maxXWidth / 2 + TEXT_MARGIN_RIGHT;
-    this.padding.bottom = this.viewport.viewLayer.getTextHeight(formattedMaxX) + TEXT_MARGIN_TOP + TEXT_MARGIN_BOTTOM + AXIS_TICK_LENGTH;
+    this.padding.left = (maxXTickTextWidth / 2 > maxYTickTextWidth ? maxXTickTextWidth / 2 : maxYTickTextWidth) + TEXT_MARGIN_LEFT + TEXT_MARGIN_RIGHT + AXIS_TICK_LENGTH;
+    this.padding.right = maxXTickTextWidth / 2 + TEXT_MARGIN_RIGHT;
+    this.padding.bottom = this.viewport.viewLayer.getTextHeight(formattedXSample) + TEXT_MARGIN_TOP + TEXT_MARGIN_BOTTOM + AXIS_TICK_LENGTH;
   }
 
   private setViewPort() {
@@ -130,29 +127,23 @@ export class ScatterChart {
     const options = this.options;
 
     this.yAxis = new YAxis({
-      min: options.axis.y.min,
-      max: options.axis.y.max,
+      axisOption: options.axis.y,
       width: this.width, 
       height: this.height, 
       padding: this.padding,
       priority: -2,
       fixed: true,
-      tickOption: options.axis.y.tick,
     });
 
     this.xAxis = new XAxis({
-      min: options.axis.x.min,
-      max: options.axis.x.max,
+      axisOption: options.axis.x,
       width: this.width, 
       height: this.height, 
       padding: this.padding,
       priority: -1,
-      tickOption: options.axis.x.tick,
     });
 
     this.gridAxis = new GridAxis({
-      min: options.axis.x.min,
-      max: options.axis.x.max,
       width: this.width, 
       height: this.height, 
       padding: this.padding,
@@ -180,13 +171,13 @@ export class ScatterChart {
     const layer = new Layer({ width, height });
     layer.id = legend;
     layer.priority = priority;
-    this.layers[legend] = layer;
+    this.dataLayers[legend] = layer;
     this.viewport.addLayer(layer);
   }
 
   private setLegends() {
     this.legend = new Legend(this.wrapper, { 
-      types: Object.keys(this.layers), 
+      types: Object.keys(this.dataLayers), 
       dataColorMap: this.dataColorMap,
       legendOptions: this.options?.legend!
     });
@@ -218,10 +209,10 @@ export class ScatterChart {
 
   private shoot() {
     this.viewport.clear();
+    drawRect(this.viewport.context, 0, 0, this.width, this.height);
     this.viewport.render(this.coordX, this.coordY);
     
     Object.keys(this.datas).forEach(key => {
-      // this.datas[key].sort((a,b) => a - b);
       this.legend.setLegendCount(key, this.datas[key].length);
     })
   }
@@ -259,21 +250,27 @@ export class ScatterChart {
       this.xAxis
         .setMinMax(this.realtimeAxisMinX, this.realtimeAxisMaxX)
         .render();
-      Object.values(this.layers).filter(layer => !layer.isFixed).forEach(layer =>  layer.swapCanvasImage());
+      Object.values(this.dataLayers).filter(layer => !layer.isFixed).forEach(layer =>  layer.swapCanvasImage());
       this.reqAnimation = requestAnimationFrame((t) => this.animate(duration, t))
     }
   }
 
   public render(data: ScatterDataType[], { append = false } = {}) {
-    this.setRatio();
     const { styleWidth, styleHeight } = this.viewport;
     const padding = this.padding;
 
-    !append && this.viewport.clear();
-    data.forEach(({ x, y, type, hidden }, i) => {
+    if (append) {
+      this.data = [...this.data, ...data];
+    } else {
+      this.data = data;
+      this.datas = {};
+      Object.values(this.dataLayers).forEach(layer => layer.clear());
+    }
+
+    data.forEach(({ x, y, type, hidden }) => {
       const legend = type ? type : 'unknown';
-      
-      if (!this.layers[legend]) {
+
+      if (!this.dataLayers[legend]) {
         this.setLayer(legend, styleWidth, styleHeight, LAYER_DEFAULT_PRIORITY);
       }
 
@@ -284,7 +281,7 @@ export class ScatterChart {
       }
 
       !hidden && drawCircle(
-        this.layers[legend].context,
+        this.dataLayers[legend].context,
         this.xRatio * x + padding.left + AXIS_INNER_PADDING,
         this.viewport.canvas.height / this.viewport.viewLayer.dpr - this.yRatio * y - padding.bottom - AXIS_INNER_PADDING,
         {
@@ -308,10 +305,70 @@ export class ScatterChart {
     this.xAxis.setSize(w, h);
     this.yAxis.setSize(w, h);
     this.gridAxis.setSize(w, h);
-    this.guide.setSizeAndRatio(w, h, { x: this.xRatio, y: this.yRatio });
-    Object.values(this.layers).forEach(layer => layer.setSize(w, h));
+    this.guide.setOptions({
+      width: w,
+      height: h,
+      ratio: { x: this.xRatio, y: this.yRatio }
+    });
+    Object.values(this.dataLayers).forEach(layer => layer.setSize(w, h));
     this.legend.setSize(w);
-    this.shoot();
+    this.render(this.data);
+  }
+
+  public setAxisOption(axisOption: {
+    x?: Pick<AxisOption, 'min' | 'max'>,
+    y?: Pick<AxisOption, 'min' | 'max'>,
+  }) {
+    this.setOptions(merge(this.options, { axis: axisOption }));
+    this.setPadding();
+    this.setRatio();
+    this.guide.setOptions({
+      padding: this.padding,
+      ratio: {x: this.xRatio, y: this.yRatio},
+    });
+    this.xAxis
+      .setOptions({
+        min: this.options.axis.x.min,
+        max: this.options.axis.x.max,
+        padding: this.padding,
+      })
+      .render();
+    this.yAxis
+      .setOptions({
+        min: this.options.axis.y.min,
+        max: this.options.axis.y.max,
+        padding: this.padding,
+      })
+      .render();
+    this.gridAxis
+      .setOptions({ padding: this.padding })
+      .render();
+    this.render(this.data);
+  }
+
+  public toBase64Image() {
+    const layer = new Layer({ width: this.width , height: this.height});
+    const clonedViewPort = clonedeep(this.viewport)
+    clonedViewPort.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
+    // [...Array.from(clonedLegend.getElementsByTagName('input'))].forEach((node) => {
+    //   console.log(node)
+    //   clonedLegend.removeChild(node);
+    // })
+
+    layer.setSize(this.width, this.height);
+    // drawRect(layer.context, 0, 0, this.width, this.height, { color: 'white' });
+    layer.context.putImageData(this.viewport.context.getImageData(0, 0, this.viewport.canvas.width, this.viewport.canvas.height), 0, 0);
+
+
+    const downloadElement = document.createElement('a');
+    const image = layer.canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    downloadElement.setAttribute("href", image);
+    downloadElement.setAttribute('download', `${1}.png`);
+    this.wrapper.appendChild(downloadElement);
+    downloadElement.click();
+    this.wrapper.removeChild(downloadElement);
   }
 
   // public startRealtime(duration: number) {
