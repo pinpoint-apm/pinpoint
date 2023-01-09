@@ -23,6 +23,8 @@
     "devBuild": "tsup src/index.tsx --format esm,cjs --dts"
   },
   "dependencies": {
+    "html2canvas": "^1.4.1",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2"
   },
   "devDependencies": {
@@ -41,6 +43,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.2.1",
     "@types/jest": "^28.1.4",
+    "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.merge": "^4.6.7",
     "babel-loader": "^8.2.5",
     "chromatic": "^6.5.4",
