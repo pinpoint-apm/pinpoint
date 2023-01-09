@@ -118,9 +118,7 @@
 
         <module>hbase2-module</module>
         <module>metric-module</module>
-        <module>uristat-common</module>
-        <module>uristat-web</module>
-        <module>uristat-collector</module>
+        <module>uristat</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
