@@ -36,7 +36,7 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
     // Temporary variables for fillStatementWithParameters(). TODO: remove these when Pinot driver is fixed.
     private String query;
     private final String[] parameters;
-    private final int maxRows = Integer.MAX_VALUE;
+    private int maxRows = Integer.MAX_VALUE;
 
     public WrappedPinotPreparedStatement(PinotConnection connection, String query) {
         super(connection, query);
@@ -94,7 +94,8 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
         return sb.toString();
     }
 
-    /* temporary setter functions to redirect mybatis parameter setting to temporary variables this.query and this.parameters TODO: remove these when Pinot driver is fixed */
+    /* temporary setter + getter functions to redirect mybatis parameter setting to temporary variables this.query, this.parameters, and this.maxRows
+     TODO: remove these when Pinot driver is fixed */
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         this.validateState();
         this.parameters[parameterIndex - 1] = "'NULL'";
@@ -164,5 +165,21 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
         for (int i = 0; i < this.parameters.length; i++) {
             this.parameters[i] = null;
         }
+    }
+
+    public int getFetchSize() throws SQLException {
+        return this.maxRows;
+    }
+
+    public void setFetchSize(int rows) throws SQLException {
+        this.maxRows = rows;
+    }
+
+    public int getMaxRows() throws SQLException {
+        return this.maxRows;
+    }
+
+    public void setMaxRows(int max) throws SQLException {
+        this.maxRows = max;
     }
 }
