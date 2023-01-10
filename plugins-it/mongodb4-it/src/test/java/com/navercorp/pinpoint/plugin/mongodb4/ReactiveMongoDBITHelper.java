@@ -75,6 +75,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ReactiveMongoDBITHelper {
+    protected static final String MONGO_REACTIVE = "MONGO_REACTIVE";
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
 
     public void testConnection(String address, final MongoDatabase database, Class<?> mongoDatabaseImplClass, String secondCollectionDefaultOption) throws Exception {
@@ -162,6 +163,9 @@ public class ReactiveMongoDBITHelper {
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(document);
 
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE));
+
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
@@ -180,6 +184,9 @@ public class ReactiveMongoDBITHelper {
 
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(doc);
+
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE));
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
@@ -200,6 +207,9 @@ public class ReactiveMongoDBITHelper {
 
         Method updateOne = getMethod(mongoDatabaseImpl, "updateOne", Bson.class, Bson.class);
         NormalizedBson parsedBson = parseBson(doc, doc2);
+
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE));
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
@@ -243,6 +253,9 @@ public class ReactiveMongoDBITHelper {
         Method deleteMany = getMethod(mongoDatabaseImpl, "deleteMany", Bson.class);
         NormalizedBson parsedBson = parseBson(doc);
 
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE));
+
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
@@ -263,6 +276,9 @@ public class ReactiveMongoDBITHelper {
         } catch (Throwable throwable) {
         }
 
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE));
+
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
@@ -282,6 +298,9 @@ public class ReactiveMongoDBITHelper {
             sub.waitForThenCancel(1);
         } catch (Throwable throwable) {
         }
+
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE));
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
@@ -316,7 +335,6 @@ public class ReactiveMongoDBITHelper {
         @Override
         public void onNext(T t) {
             results.add(t);
-            System.out.println("## Subscriber.onNext=" + t);
 
             final int i = COUNT_UPDATER.incrementAndGet(this);
             if (i >= minimumNumberOfResults) {
