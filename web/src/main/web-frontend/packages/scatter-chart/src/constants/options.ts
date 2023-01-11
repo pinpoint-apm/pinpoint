@@ -1,4 +1,4 @@
-import { DataOption, LegendOption, PointOption } from "../types";
+import { DataOption, LegendOption, PointOption } from "../types/types";
 import { AXIS_DEFAULT_TICK_COUNT, POINT_RADIUS } from "./ui";
 
 export const AXIS_DEFAULT_FORMAT = ((value: number) => value);

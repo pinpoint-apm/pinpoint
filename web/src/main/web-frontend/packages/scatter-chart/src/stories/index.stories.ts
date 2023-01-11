@@ -1,6 +1,7 @@
 import { createAppendDatas } from './templates/createAppendDatas';
 import { createCaptureIamge } from './templates/createCaptureImage';
 import { createDefault } from './templates/createDefault';
+import { createRealtime } from './templates/createRealtime';
 import { createResizable } from './templates/createResizable';
 import { createSetAxis } from './templates/createSetAxis';
 
@@ -35,3 +36,6 @@ export const SetAxis = TemplateSetAxis.bind({});
 
 const TemplateCaptureImage = () => createCaptureIamge();
 export const CaptureImage = TemplateCaptureImage.bind({});
+
+const TemplateRealtime = () => createRealtime();
+export const Realtime = TemplateRealtime.bind({});
