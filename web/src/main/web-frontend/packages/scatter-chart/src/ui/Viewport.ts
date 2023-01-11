@@ -99,15 +99,11 @@ export class Viewport {
 
   public setSize(width: number, height: number) {
     this.view.setSize(width, height);
-    return this;
-  } 
-
-  public setLayersSize(width: number, height: number) {
     this.layers.forEach(layer => {
       layer.setSize(width, height);
     });
     return this;
-  }
+  } 
 
   public clear() {
     this.view.context.clearRect(0, 0, this.view.canvas.width, this.view.canvas.height);

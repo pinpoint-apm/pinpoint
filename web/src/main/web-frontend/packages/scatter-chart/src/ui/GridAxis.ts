@@ -1,5 +1,5 @@
 import { AXIS_DEFAULT_TICK_COUNT, AXIS_INNER_PADDING, AXIS_TICK_LENGTH } from "../constants/ui";
-import { drawLine, drawText } from "../utils/draw";
+import { drawLine } from "../utils/draw";
 import { Axis, AxisProps } from "./Axis";
 
 export interface GridAxisProps extends AxisProps {
