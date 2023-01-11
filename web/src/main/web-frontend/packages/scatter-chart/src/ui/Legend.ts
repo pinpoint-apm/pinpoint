@@ -1,5 +1,5 @@
 import { SCATTER_CHART_IDENTIFIER } from "../constants/ui";
-import { LegendOption } from "../types";
+import { LegendOption } from "../types/types";
 
 export type LegendProps = { 
   types: string[], 
@@ -37,14 +37,17 @@ export class Legend {
     this.containerElement.style.width = `${width}px` || `${this.rootWrapper.clientWidth}px`;
   }
 
-  public addEvents(callback?: ({ type, checked }: { type: string, checked: boolean}) => void) {
+  public addEvents(callback?: ({ type, checked }: { type?: string, checked?: boolean}) => void) {
     this.containerElement.addEventListener('click', (event) => {
-      const isInputNode = event.target.nodeName === 'INPUT';
-      const wrapper = event.target.closest('div');
-      const checkbox = wrapper.querySelector('input');
+      const { target } = event;
+      if (target instanceof HTMLElement) {
+        const isInputNode = target.nodeName === 'INPUT';
+        const wrapper = target.closest('div');
+        const checkbox = wrapper?.querySelector('input');
 
-      if (isInputNode) {
-        callback?.({ type: wrapper.dataset.name, checked: checkbox.checked });
+        if (isInputNode) {
+          callback?.({ type: wrapper?.dataset.name, checked: checkbox?.checked });
+        }
       }
     });
     return this;
@@ -94,7 +97,7 @@ export class Legend {
   public setLegendCount(type: string, value: number) {
     const legendElement = this.legendElements[type];
     const countElement = legendElement.getElementsByClassName(Legend.COUNT_CLASS)[0];
-
+    
     countElement.innerHTML = `${this.options.formatValue?.(value)}`;
   }
 }

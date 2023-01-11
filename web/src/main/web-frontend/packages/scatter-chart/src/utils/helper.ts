@@ -1,6 +1,5 @@
 import { AXIS_DEFAULT_TICK_COUNT } from "../constants/ui";
-import { AxisOption } from "../types";
-import { Layer } from "../ui/Layer";
+import { AxisOption } from "../types/types";
 
 export const getDevicePicelRatio = () => {
   const dpr = window?.devicePixelRatio || 2;
