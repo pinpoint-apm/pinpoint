@@ -1,5 +1,5 @@
 import { LAYER_DEFAULT_PRIORITY } from "../constants/ui";
-import { Coord } from "../types";
+import { Padding } from "../types/types";
 import { getDevicePicelRatio } from "../utils/helper";
 
 export interface LayerProps {
@@ -105,16 +105,24 @@ export class Layer {
     return this.display;
   }
 
-  public swapCanvasImage() {
-    const width = this.canvas.width / this.dpr;
-    const height = this.canvas.height / this.dpr;
-    const rightImage = this.getCroppedImage(this.ctx, { x: width, y: 0 }, { x: width * 2, y: height });
-    this.ctx.clearRect(0, 0, width, height);
-    this.ctx.putImageData(rightImage, 0, 0)
-  }
-
-  public getCroppedImage(ctx: CanvasRenderingContext2D, lCoord: Coord, rCoord: Coord) {
-    return ctx.getImageData(lCoord.x, lCoord.y, rCoord.x, rCoord.y);
+  public swapCanvasImage(padding: DeepNonNullable<Padding>) {   
+    // console.log(this.canvas) 
+    // const rightImage = this.ctx.getImageData(
+    //   this.canvas.width / 2, 0, 
+    //   this.canvas.width / 2, this.canvas.height
+    // );
+    // this.clear();
+    // drawRect(this.context, 0, 0, this.canvas.width, this.canvas.height, {color: 'red'})
+    // this.context.putImageData(rightImage, (padding.left + 40) * this.dpr, 0);
+    // const newCanvas = document.createElement('canvas');
+    // const newContext = newCanvas.getContext('2d');
+    // this.ctx.scale(this.dpr, this.dpr);
+    // newCanvas.width = this.canvas.width
+    // newCanvas.height = this.canvas.height
+    // newCanvas.style.width = this.canvas.style.width;
+    // newCanvas.style.height = this.canvas.style.height;
+    // newContext?.putImageData(rightImage, 0, 0);
+    // document.body.append(newCanvas);
   }
 
   public getTextWidth(text: string | number) {

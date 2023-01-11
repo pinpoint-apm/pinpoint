@@ -1,6 +1,6 @@
 import merge from "lodash.merge";
 import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_PADDING, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
-import { AxisOption, FormatType, LegendOption, Padding } from "../types";
+import { AxisOption, Padding } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
 import { Layer } from "./Layer";
 

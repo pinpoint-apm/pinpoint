@@ -1,13 +1,16 @@
 import merge from 'lodash.merge';
 import html2canvas from 'html2canvas';
 
-import { AxisOption, DataOption, LegendOption, Padding, ScatterDataType } from "../types";
+import { AxisOption, DataOption, LegendOption, ScatterDataType } from "../types/types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
-import { drawCircle, drawRect, drawText } from "../utils/draw";
+import { drawCircle, drawRect } from "../utils/draw";
 import { YAxis } from "./YAxis";
 import { XAxis } from "./XAxis";
-import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_HEIGHT, CONTAINER_PADDING, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
+import { AXIS_TICK_LENGTH, CONTAINER_HEIGHT, CONTAINER_PADDING, 
+  CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER, TEXT_MARGIN_BOTTOM, 
+  TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP 
+} from "../constants/ui";
 import { GridAxis } from "./GridAxis";
 import { Legend } from "./Legend";
 import { Guide } from "./Guide";
@@ -58,8 +61,8 @@ export class ScatterChart {
     this.setWidthAndHeight();
     this.setViewPort();
     this.setPadding();
-    this.setRatio();
     this.setAxis();
+    this.setRatio();
     this.setGuide();
     this.setLayers();
     this.setLegends();
@@ -127,7 +130,6 @@ export class ScatterChart {
 
   private setAxis() {
     const options = this.options;
-
     this.yAxis = new YAxis({
       axisOption: options.axis.y,
       width: this.width, 
@@ -196,17 +198,19 @@ export class ScatterChart {
   }
 
   private setRatio() {
-    const axis = this.options?.axis;
+    const axisOption = this.options?.axis;
     const padding = this.padding;
     const width = this.viewport.canvas.width / this.viewport.viewLayer.dpr;
     const height = this.viewport.canvas.height / this.viewport.viewLayer.dpr;
-    const minX = axis.x.min;
-    const maxX = axis.x.max;
-    const minY = axis.y.min;
-    const maxY = axis.y.max;
+    const minX = axisOption.x.min;
+    const maxX = axisOption.x.max;
+    const minY = axisOption.y.min;
+    const maxY = axisOption.y.max;
+    const innerPaddingX = axisOption.x.padding || this.xAxis.innerPadding;
+    const innerPaddingY = axisOption.y.padding || this.yAxis?.innerPadding;
 
-    this.xRatio = (width - padding.left - padding.right - AXIS_INNER_PADDING * 2) / (maxX - minX);
-    this.yRatio = (height - padding.bottom - padding.top - AXIS_INNER_PADDING * 2) / (maxY - minY);
+    this.xRatio = (width - padding.left - padding.right - innerPaddingX * 2) / (maxX - minX);
+    this.yRatio = (height - padding.bottom - padding.top - innerPaddingY * 2) / (maxY - minY);
   }
 
   private shoot() {
@@ -223,43 +227,44 @@ export class ScatterChart {
     this.shoot();
     if (!this.t0) this.t0 = now;
     const dt = now - this.t0;
-    const pixcelPerFrame = (this.viewport.styleWidth - this.padding.left - this.padding.right - AXIS_INNER_PADDING * 2) / duration * dt;
+    const pixcelPerFrame = (this.viewport.styleWidth - this.padding.left - this.padding.right - this.xAxis.innerPadding * 2) / duration * dt;
     const pixcelPerSecond = pixcelPerFrame * 60;
-
     this.t0 = now;
     this.coordX = this.coordX - pixcelPerFrame;
 
-    // 특정 주기마다 시행
-    if (Math.abs(Math.floor(this.coordX)) % (Math.floor(pixcelPerSecond / 5)) === 0) {
-      const x = Math.abs(this.coordX) / this.xRatio;
+    if (Math.abs(Math.floor(this.coordX)) % (Math.floor(pixcelPerSecond / 6)) === 0) {
+      const x = Math.abs(this.coordX) / this.xRatio + this.realtimeAxisMinX;
       Object.keys(this.datas).forEach(key => {
         this.datas[key] = this.datas[key].filter(d => d > x);
+        this.legend.setLegendCount(key, this.datas[key].length);
       })
-
-      this.guide.updateXAxis({ min: x + this.xAxis.min});
+      this.guide.updateXAxis({ min: x });
     }
 
-    if (this.coordX > -(this.viewport.styleWidth - this.padding.left - this.padding.right - AXIS_INNER_PADDING * 2)) {
-      this.reqAnimation = requestAnimationFrame((t) => this.animate(duration, t))
-    } else {
-      // swap
+    if (this.coordX + this.xAxis.innerPadding < -(this.viewport.styleWidth - this.padding.left - this.padding.right - this.xAxis.innerPadding * 2)) {
       const nextAxisMinX = this.realtimeAxisMinX + (this.realtimeAxisMaxX - this.realtimeAxisMinX) / 2;
       const nextAxisMaxX = this.realtimeAxisMaxX + (this.realtimeAxisMaxX - this.realtimeAxisMinX) / 2;
       this.realtimeAxisMinX = nextAxisMinX;
       this.realtimeAxisMaxX = nextAxisMaxX;
-      this.coordX = 0;
-
+      this.coordX = -this.xAxis.innerPadding;
       this.xAxis
-        .setMinMax(this.realtimeAxisMinX, this.realtimeAxisMaxX)
+        .setAxisOption({
+          min: this.realtimeAxisMinX, 
+          max: this.realtimeAxisMaxX,
+        })
         .render();
-      Object.values(this.dataLayers).filter(layer => !layer.isFixed).forEach(layer =>  layer.swapCanvasImage());
-      this.reqAnimation = requestAnimationFrame((t) => this.animate(duration, t))
+      Object.values(this.dataLayers)
+        .forEach(layer => {
+          if (!layer.isFixed){
+            layer.swapCanvasImage(this.padding)
+          }
+        });
     }
+    this.reqAnimation = requestAnimationFrame((t) => this.animate(duration, t))
   }
 
   public render(data: ScatterDataType[], { append = false } = {}) {
     const { styleWidth, styleHeight } = this.viewport;
-    const { x: xAxisOptoin, y: yAxisOption } = this.options.axis
     const padding = this.padding;
 
     if (append) {
@@ -285,8 +290,8 @@ export class ScatterChart {
 
       !hidden && drawCircle(
         this.dataLayers[legend].context,
-        this.xRatio * (x - this.xAxis.min) + padding.left + AXIS_INNER_PADDING,
-        this.viewport.canvas.height / this.viewport.viewLayer.dpr - this.yRatio * y - padding.bottom - AXIS_INNER_PADDING,
+        this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding,
+        this.viewport.canvas.height / this.viewport.viewLayer.dpr - this.yRatio * y - padding.bottom - this.xAxis.innerPadding,
         {
           fillColor: this.dataColorMap[legend],
         }
@@ -330,19 +335,15 @@ export class ScatterChart {
       ratio: {x: this.xRatio, y: this.yRatio},
     });
     this.xAxis
-      .setOptions({
-        ...this.options.axis.x,
-        padding: this.padding,
-      })
+      .setAxisOption(this.options.axis.x)
+      .setPadding(this.padding)
       .render();
     this.yAxis
-      .setOptions({
-        ...this.options.axis.y,
-        padding: this.padding,
-      })
+      .setAxisOption(this.options.axis.y)
+      .setPadding(this.padding)
       .render();
     this.gridAxis
-      .setOptions({ padding: this.padding })
+      .setPadding(this.padding)
       .render();
     this.render(this.data);
   }
@@ -363,45 +364,52 @@ export class ScatterChart {
     return image;
   }
 
-  // public startRealtime(duration: number) {
-  //   if (this.reqAnimation) return;
-  //   const axisOptions = this.options.axis;
-  //   this.xAxis
-  //     .setTickCount(axisOptions.x.tick?.count! * 2 - 1)
-  //     .setSize(this.width * 2 - this.padding.left - AXIS_INNER_PADDING * 2 - this.padding.right, this.height)
-  //     .setMinMax(axisOptions.x.min, axisOptions.x.max * 2 - axisOptions.x.min)
-  //     .render();
-  //   this.realtimeAxisMinX = axisOptions.x.min;
-  //   this.realtimeAxisMaxX = axisOptions.x.max * 2 - axisOptions.x.min;
+  public startRealtime(duration: number) {
+    if (this.reqAnimation) return;
+    const axisOptions = this.options.axis;
+    this.realtimeAxisMinX = axisOptions.x.min;
+    this.realtimeAxisMaxX = axisOptions.x.max * 2 - axisOptions.x.min;
+    this.coordX = -(this.xAxis.innerPadding);
+    this.xAxis
+      .setAxisOption({
+        min: axisOptions.x.min, 
+        max: axisOptions.x.max * 2 - axisOptions.x.min,
+        tick: { count: axisOptions.x.tick?.count! * 2 - 1}
+      })
+      .setSize(this.width * 2 - this.padding.left - this.xAxis.innerPadding * 2 - this.padding.right, this.height)
+      .render();
+    
+    this.gridAxis
+      .setXTickCount(axisOptions.x.tick?.count! * 2 - 1)
+      .setSize(this.width * 2 - this.padding.left - this.xAxis.innerPadding * 2 - this.padding.right, this.height)
+      .render();
+    this.animate(duration, this.t0);
+    Object.values(this.dataLayers).forEach(layer => {
+      layer.setSize(this.width * 2 - this.padding.left - this.xAxis.innerPadding * 2 - this.padding.right, this.height);
+    });
+    this.render(this.data);
+  }
 
-  //   this.gridAxis
-  //     .setXTickCount(axisOptions.x.tick?.count! * 2 - 1)
-  //     .setSize(this.width * 2 - this.padding.left - AXIS_INNER_PADDING * 2 - this.padding.right, this.height)
-  //     .render();
-  //   this.animate(duration, this.t0);
-  // }
+  public stopRealtime() {
+    cancelAnimationFrame(this.reqAnimation);
+    const axisOptions = this.options.axis;
+    this.reqAnimation = 0;
+    this.coordX = 0;
+    this.t0 = 0;
 
-  // public stopRealtime() {
-  //   cancelAnimationFrame(this.reqAnimation);
-  //   const axisOptions = this.options.axis;
-  //   this.reqAnimation = 0;
-  //   this.coordX = 0;
-  //   this.t0 = 0;
+    this.xAxis
+      .setAxisOption(axisOptions.x)
+      .setSize(this.width, this.height)
+      .render();
+    this.realtimeAxisMinX = axisOptions.x.min;
+    this.realtimeAxisMaxX = axisOptions.x.max;
 
-  //   this.xAxis
-  //     .setTickCount(axisOptions.x.tick?.count!)
-  //     .setSize(this.width, this.height)
-  //     .setMinMax(axisOptions.x.min, axisOptions.x.max)
-  //     .render();
-  //   this.realtimeAxisMinX = axisOptions.x.min;
-  //   this.realtimeAxisMaxX = axisOptions.x.max;
+    this.guide.updateXAxis({ min: axisOptions.x.min });
 
-  //   this.guide.updateXAxis({ min: axisOptions.x.min });
-
-  //   this.gridAxis
-  //     .setXTickCount(axisOptions.x.tick?.count!)
-  //     .setSize(this.width, this.height)
-  //     .render();
-  //   this.shoot();
-  // }
+    this.gridAxis
+      .setXTickCount(axisOptions.x.tick?.count!)
+      .setSize(this.width, this.height)
+      .render();
+    this.shoot();
+  }
 }
