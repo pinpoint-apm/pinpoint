@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.uristat.collector.dao;
 
 import com.navercorp.pinpoint.uristat.common.util.StringPrecondition;
 import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,7 @@ public class PinotUriStatDao implements UriStatDao {
 
     private final String topic;
 
-    public PinotUriStatDao(KafkaTemplate<String, UriStat> kafkaUriStatTemplate,
+    public PinotUriStatDao(@Qualifier("kafkaUriStatTemplate") KafkaTemplate<String, UriStat> kafkaUriStatTemplate,
                            @Value("${kafka.uri.topic}") String topic) {
         this.kafkaUriStatTemplate = Objects.requireNonNull(kafkaUriStatTemplate, "kafkaUriStatTemplate");
         this.topic = StringPrecondition.requireHasLength(topic, "topic");

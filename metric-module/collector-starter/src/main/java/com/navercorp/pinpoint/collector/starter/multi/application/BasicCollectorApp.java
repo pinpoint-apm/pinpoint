@@ -15,6 +15,6 @@ import org.springframework.context.annotation.ImportResource;
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class, SqlInitializationAutoConfiguration.class})
 @ImportResource({"classpath:applicationContext-collector.xml", "classpath:servlet-context-collector.xml"})
 @Import({CollectorAppPropertySources.class, FlinkContextConfiguration.class})
-@ComponentScan({"com.navercorp.pinpoint.uristat.collector.service", })
+@ComponentScan({})
 public class BasicCollectorApp {
 }
