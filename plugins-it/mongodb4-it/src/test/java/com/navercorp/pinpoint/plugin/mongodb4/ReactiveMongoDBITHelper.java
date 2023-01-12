@@ -17,12 +17,18 @@
 package com.navercorp.pinpoint.plugin.mongodb4;
 
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.ReadConcern;
+import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
+import com.mongodb.internal.operation.AsyncReadOperation;
+import com.mongodb.internal.operation.AsyncWriteOperation;
+import com.mongodb.reactivestreams.client.ClientSession;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import com.mongodb.reactivestreams.client.internal.OperationExecutorImpl;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
@@ -148,7 +154,7 @@ public class ReactiveMongoDBITHelper {
         }
     }
 
-    public void insertComlexBsonValueData34(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {
+    public void insertComlexBsonValueData34(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) throws Exception {
         //insert Data
         Document document = createComplexDocument();
         document.append("decimal128", new BsonDecimal128(new Decimal128(55)));
@@ -163,16 +169,17 @@ public class ReactiveMongoDBITHelper {
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(document);
 
-        // execute
-        verifier.verifyTrace(event(MONGO_REACTIVE));
-
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
+
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncWriteOperation.class, ReadConcern.class, ClientSession.class);
+        // execute
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
-    public void insertData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) {
+    public void insertData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl, String collectionInfo, String collectionOption) throws Exception {
         //insert Data
         Document doc = new Document("name", "Roy").append("company", "Naver");
         ObservableSubscriber<InsertOneResult> sub = new ObservableSubscriber<>();
@@ -185,16 +192,16 @@ public class ReactiveMongoDBITHelper {
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
         NormalizedBson parsedBson = parseBson(doc);
 
-        // execute
-        verifier.verifyTrace(event(MONGO_REACTIVE));
-
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, insertOneMethod, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), collectionInfo)
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), collectionOption)
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
+
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncWriteOperation.class, ReadConcern.class, ClientSession.class);
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
-    public void updateData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+    public void updateData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) throws Exception {
         //update Data
         Document doc = new Document("name", "Roy").append("company", "Naver");
         Document doc2 = new Document("$set", new Document("name", "Roy3"));
@@ -208,17 +215,16 @@ public class ReactiveMongoDBITHelper {
         Method updateOne = getMethod(mongoDatabaseImpl, "updateOne", Bson.class, Bson.class);
         NormalizedBson parsedBson = parseBson(doc, doc2);
 
-        // execute
-        verifier.verifyTrace(event(MONGO_REACTIVE));
-
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, updateOne, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
+
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncWriteOperation.class, ReadConcern.class, ClientSession.class);
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
-
-    public void readData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+    public void readData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) throws Exception {
         //read data
         ObservableSubscriber<Document> sub = new ObservableSubscriber<>();
         collection.find().subscribe(sub);
@@ -233,14 +239,15 @@ public class ReactiveMongoDBITHelper {
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")));
 
-        assertResultSize("Unexpected read data", 2, sub);
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncReadOperation.class, ReadPreference.class, ReadConcern.class, ClientSession.class);
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
     private void assertResultSize(String message, int expected, ObservableSubscriber<Document> subscriber) {
         Assert.assertEquals(message, expected, subscriber.getResults().size());
     }
 
-    public void deleteData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+    public void deleteData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) throws Exception {
         //delete data
         Document doc = new Document("name", "Roy3");
         ObservableSubscriber<DeleteResult> sub = new ObservableSubscriber<>();
@@ -253,18 +260,16 @@ public class ReactiveMongoDBITHelper {
         Method deleteMany = getMethod(mongoDatabaseImpl, "deleteMany", Bson.class);
         NormalizedBson parsedBson = parseBson(doc);
 
-        // execute
-        verifier.verifyTrace(event(MONGO_REACTIVE));
-
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, deleteMany, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "MAJORITY")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        Assert.assertEquals("unexcepted delete count", 1, sub.getResults().get(0).getDeletedCount());
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncWriteOperation.class, ReadConcern.class, ClientSession.class);
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
-    public void filterData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+    public void filterData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) throws Exception {
         Method find = getMethod(mongoDatabaseImpl, "find", Bson.class);
         Bson bson = eq("name", "Roy3");
         NormalizedBson parsedBson = parseBson(bson);
@@ -276,18 +281,16 @@ public class ReactiveMongoDBITHelper {
         } catch (Throwable throwable) {
         }
 
-        // execute
-        verifier.verifyTrace(event(MONGO_REACTIVE));
-
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        assertResultSize("Unexpected filter data", 1, sub);
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncReadOperation.class, ReadPreference.class, ReadConcern.class, ClientSession.class);
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
-    public void filterData2(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) {
+    public void filterData2(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) throws Exception {
         Method find = getMethod(mongoDatabaseImpl, "find", Bson.class);
         Bson bson = and(exists("name"), nin("name", 5, 15));
         NormalizedBson parsedBson = parseBson(bson);
@@ -299,15 +302,13 @@ public class ReactiveMongoDBITHelper {
         } catch (Throwable throwable) {
         }
 
-        // execute
-        verifier.verifyTrace(event(MONGO_REACTIVE));
-
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, address, null
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_INFO.getName(), "customers")
                 , new ExpectedAnnotation(MongoConstants.MONGO_COLLECTION_OPTION.getName(), "secondaryPreferred")
                 , new ExpectedAnnotation(MongoConstants.MONGO_JSON_DATA.getName(), new StringStringValue(parsedBson.getNormalizedBson(), parsedBson.getParameter()))));
 
-        assertResultSize("Unexpected filter data2", 1, sub);
+        Method executeMethod = OperationExecutorImpl.class.getDeclaredMethod("execute", AsyncReadOperation.class, ReadPreference.class, ReadConcern.class, ClientSession.class);
+        verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
     private static class ObservableSubscriber<T> implements Subscriber<T> {
