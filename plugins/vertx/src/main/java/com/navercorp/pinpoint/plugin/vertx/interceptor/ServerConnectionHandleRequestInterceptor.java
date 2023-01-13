@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
@@ -288,38 +289,29 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
     private void entryScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            scope.tryEnter();
+        if (ScopeUtils.entryScope(trace, SCOPE_NAME)) {
             if (isDebug) {
-                logger.debug("Try enter trace scope={}", scope.getName());
+                logger.debug("Try enter trace scope={}", SCOPE_NAME);
             }
         }
     }
 
     private boolean leaveScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-                if (isDebug) {
-                    logger.debug("Leave trace scope={}", scope.getName());
-                }
-            } else {
-                return false;
+        if (ScopeUtils.leaveScope(trace, SCOPE_NAME)) {
+            if (isDebug) {
+                logger.debug("Leave trace scope={}", SCOPE_NAME);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean hasScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null;
+        return ScopeUtils.hasScope(trace, SCOPE_NAME);
     }
 
     private boolean isEndScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null && !scope.isActive();
+        return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
 
 

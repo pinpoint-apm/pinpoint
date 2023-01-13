@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
 
@@ -60,7 +60,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
         }
 
         // entry scope.
-        entryAsyncTraceScope(trace);
+        ScopeUtils.entryAsyncTraceScope(trace);
 
         try {
             // trace event for default & async.
@@ -95,7 +95,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
         }
 
         // leave scope.
-        if (!leaveAsyncTraceScope(trace)) {
+        if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Failed to leave scope of async trace {}.", trace);
             }
@@ -113,7 +113,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
             }
         } finally {
             trace.traceBlockEnd();
-            if (isAsyncTraceDestination(trace)) {
+            if (ScopeUtils.isAsyncTraceEndScope(trace)) {
                 deleteAsyncContext(trace, asyncContext);
             }
         }
@@ -151,34 +151,6 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
         trace.close();
         asyncContext.close();
-    }
-
-    private void entryAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            scope.tryEnter();
-        }
-    }
-
-    private boolean leaveAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isAsyncTraceDestination(final Trace trace) {
-        if (!trace.isAsync()) {
-            return false;
-        }
-
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        return scope != null && !scope.isActive();
     }
 
 }

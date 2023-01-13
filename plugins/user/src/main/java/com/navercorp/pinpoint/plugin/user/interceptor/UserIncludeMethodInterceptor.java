@@ -16,11 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.user.UserIncludeMethodDescriptor;
@@ -176,37 +181,25 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
     }
 
     private void entryUserIncludeTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            scope.tryEnter();
+        if (ScopeUtils.entryScope(trace, SCOPE_NAME)) {
             if (isDebug) {
-                logger.debug("Try enter trace scope={}", scope.getName());
+                logger.debug("Try enter trace scope={}", SCOPE_NAME);
             }
         }
     }
 
     private boolean leaveUserIncludeTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-                if (isDebug) {
-                    logger.debug("Leave trace scope={}", scope.getName());
-                }
-            } else {
-                return false;
+        if (ScopeUtils.leaveScope(trace, SCOPE_NAME)) {
+            if (isDebug) {
+                logger.debug("Leave trace scope={}", SCOPE_NAME);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
-    private boolean isUserIncludeTrace(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null;
-    }
 
     private boolean isUserIncludeTraceDestination(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null && !scope.isActive();
+        return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
 }

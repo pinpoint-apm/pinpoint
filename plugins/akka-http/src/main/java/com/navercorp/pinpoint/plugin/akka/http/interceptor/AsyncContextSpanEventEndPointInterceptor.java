@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
 
@@ -37,7 +37,6 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
 
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
@@ -68,7 +67,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
             logger.debug("Asynchronous invocation. asyncTraceId={}, trace={}", asyncContext, trace);
         }
         // entry scope.
-        entryAsyncTraceScope(trace);
+        ScopeUtils.entryAsyncTraceScope(trace);
 
         try {
             // trace event for default & async.
@@ -107,7 +106,7 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
         }
 
         // leave scope.
-        if (!leaveAsyncTraceScope(trace)) {
+        if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Failed to leave scope of async trace {}.", trace);
             }
@@ -125,8 +124,8 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
             }
         } finally {
             trace.traceBlockEnd();
-            if (isAsyncTraceDestination(trace)) {
-                if(isDebug) {
+            if (ScopeUtils.isAsyncTraceEndScope(trace)) {
+                if (isDebug) {
                     logger.debug("Arrived at async trace destination. asyncTraceId={}", asyncContext);
                 }
                 deleteAsyncTrace(trace);
@@ -164,33 +163,6 @@ public abstract class AsyncContextSpanEventEndPointInterceptor implements Around
         trace.close();
     }
 
-    private void entryAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            scope.tryEnter();
-        }
-    }
-
-    private boolean leaveAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isAsyncTraceDestination(final Trace trace) {
-        if (!trace.isAsync()) {
-            return false;
-        }
-
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        return scope != null && !scope.isActive();
-    }
 
     private void finishAsyncState(final AsyncContext asyncContext) {
         if (AsyncContextUtils.asyncStateFinish(asyncContext)) {
