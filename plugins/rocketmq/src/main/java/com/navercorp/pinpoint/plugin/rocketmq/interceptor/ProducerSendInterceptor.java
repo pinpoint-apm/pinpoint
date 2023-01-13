@@ -16,16 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.rocketmq.interceptor;
 
-import static com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils.SAMPLING_RATE_FALSE;
-import static org.apache.rocketmq.common.message.MessageDecoder.NAME_VALUE_SEPARATOR;
-import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARATOR;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
-import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
-
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -38,8 +28,18 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
+import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils.SAMPLING_RATE_FALSE;
+import static org.apache.rocketmq.common.message.MessageDecoder.NAME_VALUE_SEPARATOR;
+import static org.apache.rocketmq.common.message.MessageDecoder.PROPERTY_SEPARATOR;
 
 /**
  * @author messi-gao
@@ -130,7 +130,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 return;
             }
 
-            if (!leaveScope(trace)) {
+            if (!ScopeUtils.leaveScope(trace, SCOPE_NAME)) {
                 // Defense code
                 deleteTrace(trace);
                 return;
@@ -156,7 +156,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             }
         } finally {
             trace.traceBlockEnd();
-            if (isAsyncTraceDestination(trace)) {
+            if (ScopeUtils.isAsyncTraceEndScope(trace, SCOPE_NAME)) {
                 deleteTrace(trace);
             }
         }
@@ -221,7 +221,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
         if (hasScope(trace)) {
             // Entry Scope
-            entryScope(trace);
+            ScopeUtils.entryScope(trace, SCOPE_NAME);
             if (isDebug) {
                 logger.debug("Skip recursive invoked");
             }
@@ -248,50 +248,20 @@ public class ProducerSendInterceptor implements AroundInterceptor {
     }
 
     private void entryScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            scope.tryEnter();
+        if (ScopeUtils.entryScope(trace, SCOPE_NAME)) {
             if (isDebug) {
-                logger.debug("Try enter trace scope={}", scope.getName());
+                logger.debug("Try enter trace scope={}", SCOPE_NAME);
             }
         }
     }
 
-    private boolean leaveScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-                if (isDebug) {
-                    logger.debug("Leave trace scope={}", scope.getName());
-                }
-            } else {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Failed to leave scope. trace={}", trace);
-                }
-                return false;
-            }
-        }
-        return true;
-    }
 
     private boolean hasScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null;
+        return ScopeUtils.hasScope(trace, SCOPE_NAME);
     }
 
     private boolean isEndScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null && !scope.isActive();
-    }
-
-    private boolean isAsyncTraceDestination(final Trace trace) {
-        if (!trace.isAsync()) {
-            return false;
-        }
-
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null && !scope.isActive();
+        return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
 
     private void deleteTrace(final Trace trace) {

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -35,13 +34,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.netty.NettyClientRequestWrapper;
 import com.navercorp.pinpoint.plugin.netty.NettyConfig;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
 import com.navercorp.pinpoint.plugin.netty.NettyUtils;
 import com.navercorp.pinpoint.plugin.netty.field.accessor.AsyncStartFlagFieldAccessor;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMessage;
@@ -55,7 +54,6 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     private final TraceContext traceContext;
     protected final MethodDescriptor methodDescriptor;
@@ -119,7 +117,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         }
 
         // entry scope.
-        entryAsyncTraceScope(trace);
+        ScopeUtils.entryAsyncTraceScope(trace);
 
         try {
             // trace event for default & async.
@@ -200,7 +198,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         }
 
         // leave scope.
-        if (!leaveAsyncTraceScope(trace)) {
+        if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Failed to leave scope of async trace {}.", trace);
             }
@@ -218,7 +216,7 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
             }
         } finally {
             trace.traceBlockEnd();
-            if (isAsyncTraceDestination(trace)) {
+            if (ScopeUtils.isAsyncTraceEndScope(trace)) {
                 deleteAsyncContext(trace, asyncContext);
             }
         }
@@ -257,33 +255,6 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
         asyncContext.close();
     }
 
-    private void entryAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            scope.tryEnter();
-        }
-    }
-
-    private boolean leaveAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isAsyncTraceDestination(final Trace trace) {
-        if (!trace.isAsync()) {
-            return false;
-        }
-
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        return scope != null && !scope.isActive();
-    }
 
     private boolean validate(Object[] args) {
         if (ArrayUtils.getLength(args) != 3) {

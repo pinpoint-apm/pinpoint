@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
 
@@ -175,41 +176,32 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
     }
 
     private void entryScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(this.scopeName);
-        if (scope != null) {
-            scope.tryEnter();
+        if (ScopeUtils.entryScope(trace, this.scopeName)) {
             if (isDebug) {
-                logger.debug("Try enter trace scope={}", scope.getName());
+                logger.debug("Try enter trace scope={}", scopeName);
             }
         }
     }
 
     private boolean leaveScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(this.scopeName);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-                if (isDebug) {
-                    logger.debug("Leave trace scope={}", scope.getName());
-                }
-            } else {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Failed to leave scope. trace={}", trace);
-                }
-                return false;
+        if (ScopeUtils.leaveScope(trace, this.scopeName)) {
+            if (isDebug) {
+                logger.debug("Leave trace scope={}", scopeName);
             }
+            return true;
         }
-        return true;
+        if (logger.isInfoEnabled()) {
+            logger.info("Failed to leave scope. trace={}", trace);
+        }
+        return false;
     }
 
     private boolean hasScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(this.scopeName);
-        return scope != null;
+        return ScopeUtils.hasScope(trace, this.scopeName);
     }
 
     private boolean isEndScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(this.scopeName);
-        return scope != null && !scope.isActive();
+        return ScopeUtils.isEndScope(trace, this.scopeName);
     }
 
     private void deleteTrace(final Trace trace) {

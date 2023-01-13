@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
@@ -38,7 +38,6 @@ import java.util.Objects;
 public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
-    protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
 
@@ -64,7 +63,7 @@ public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
         }
 
         // entry scope.
-        entryAsyncTraceScope(trace);
+        ScopeUtils.entryAsyncTraceScope(trace);
 
         try {
             // trace event for default & async.
@@ -95,7 +94,7 @@ public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
         }
 
         // leave scope.
-        if (!leaveAsyncTraceScope(trace)) {
+        if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Failed to leave scope of async trace {}.", trace);
             }
@@ -115,7 +114,7 @@ public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
             }
         } finally {
             trace.traceBlockEnd();
-            if (isAsyncTraceDestination(trace)) {
+            if (ScopeUtils.isAsyncTraceEndScope(trace)) {
                 deleteAsyncContext(trace, asyncContext);
             }
         }
@@ -157,31 +156,4 @@ public class MQExternalClientHandlerInterceptor implements AroundInterceptor {
         asyncContext.close();
     }
 
-    private void entryAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            scope.tryEnter();
-        }
-    }
-
-    private boolean leaveAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isAsyncTraceDestination(final Trace trace) {
-        if (!trace.isAsync()) {
-            return false;
-        }
-
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        return scope != null && !scope.isActive();
-    }
 }

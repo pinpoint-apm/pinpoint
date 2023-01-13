@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.Objects;
 
@@ -62,7 +62,7 @@ public abstract class GrpcAsyncContextSpanEventEndPointInterceptor extends Async
         }
 
         // leave scope.
-        if (!leaveAsyncTraceScope(trace)) {
+        if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Failed to leave scope of async trace {}.", trace);
             }
@@ -80,7 +80,7 @@ public abstract class GrpcAsyncContextSpanEventEndPointInterceptor extends Async
             }
         } finally {
             trace.traceBlockEnd();
-            if (isAsyncTraceDestination(trace)) {
+            if (ScopeUtils.isAsyncTraceEndScope(trace)) {
                 if (isDebug) {
                     logger.debug("Arrived at async trace destination. asyncTraceId={}", asyncContext);
                 }
@@ -98,26 +98,6 @@ public abstract class GrpcAsyncContextSpanEventEndPointInterceptor extends Async
         trace.close();
     }
 
-    private boolean leaveAsyncTraceScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isAsyncTraceDestination(final Trace trace) {
-        if (!trace.isAsync()) {
-            return false;
-        }
-
-        final TraceScope scope = trace.getScope(ASYNC_TRACE_SCOPE);
-        return scope != null && !scope.isActive();
-    }
 
     protected void finishAsyncState(final AsyncContext asyncContext) {
     }

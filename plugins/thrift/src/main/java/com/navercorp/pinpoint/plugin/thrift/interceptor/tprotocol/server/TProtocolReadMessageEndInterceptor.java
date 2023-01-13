@@ -16,24 +16,20 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
-import java.net.Socket;
-
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TTransport;
-
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
@@ -42,6 +38,10 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
 import com.navercorp.pinpoint.plugin.thrift.descriptor.ThriftServerEntryMethodDescriptor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
+
+import java.net.Socket;
 
 /**
  * This interceptor intercepts the point in which the client message is read, and creates a new trace object to indicate the starting point of a new span.
@@ -379,37 +379,28 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
     }
 
     private void entryScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            scope.tryEnter();
+        if (ScopeUtils.entryScope(trace, SCOPE_NAME)) {
             if (isDebug) {
-                logger.debug("Try enter trace scope={}", scope.getName());
+                logger.debug("Try enter trace scope={}", SCOPE_NAME);
             }
         }
     }
 
     private boolean leaveScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-                if (isDebug) {
-                    logger.debug("Leave trace scope={}", scope.getName());
-                }
-            } else {
-                return false;
+        if (ScopeUtils.leaveScope(trace, SCOPE_NAME)) {
+            if (isDebug) {
+                logger.debug("Leave trace scope={}", SCOPE_NAME);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean hasScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null;
+        return ScopeUtils.hasScope(trace, SCOPE_NAME);
     }
 
     private boolean isEndScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null && !scope.isActive();
+        return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
 }
