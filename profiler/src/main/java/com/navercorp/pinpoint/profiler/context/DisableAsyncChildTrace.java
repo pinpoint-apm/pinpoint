@@ -34,11 +34,9 @@ public class DisableAsyncChildTrace implements Trace {
     private DefaultTraceScopePool scopePool;
 
     private final LocalTraceRoot traceRoot;
-    private final LocalAsyncId localAsyncId;
 
-    public DisableAsyncChildTrace(final LocalTraceRoot traceRoot, final LocalAsyncId localAsyncId) {
+    public DisableAsyncChildTrace(final LocalTraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
-        this.localAsyncId = Objects.requireNonNull(localAsyncId, "localAsyncId");
     }
 
     @Override
@@ -148,8 +146,7 @@ public class DisableAsyncChildTrace implements Trace {
     @Override
     public String toString() {
         return "DisableAsyncChildTrace{" +
-            "traceRoot=" + getTraceRoot() +
-            ", localAsyncId=" + localAsyncId +
-            '}';
+                "traceRoot=" + traceRoot +
+                '}';
     }
 }

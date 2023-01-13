@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.DisableAsyncChildTrace;
 import com.navercorp.pinpoint.profiler.context.DisableTrace;
-import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.junit.jupiter.api.Assertions;
@@ -77,7 +76,6 @@ public class LocalTraceTest {
     }
 
     private Trace newChildTrace(LocalTraceRoot traceRoot) {
-        LocalAsyncId localAsyncId = mock(LocalAsyncId.class);
-        return new DisableAsyncChildTrace(traceRoot, localAsyncId);
+        return new DisableAsyncChildTrace(traceRoot);
     }
 }

@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -15,8 +16,13 @@ public class StatefulAsyncContextTest extends AsyncContextTest {
 
     @Override
     AsyncContext newAsyncContext(boolean canSampled) {
+        Binder<Trace> binder = new ThreadLocalBinder<>();
         AsyncTraceContext asyncTraceContext = newAsyncTraceContext();
-        return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, 0, asyncState, canSampled);
+        if (canSampled) {
+            return new StatefulAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, 0, asyncState);
+        } else {
+            return new DisableAsyncContext(asyncTraceContext, binder, traceRoot);
+        }
     }
 
     @Test

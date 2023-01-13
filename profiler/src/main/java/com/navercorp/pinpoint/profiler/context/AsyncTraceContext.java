@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 
@@ -25,17 +26,8 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  */
 public interface AsyncTraceContext {
 
-//    Reference<Trace> continueAsyncTraceObject(TraceRoot traceRoot, int asyncId, short asyncSequence);
+    Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId);
 
-    Reference<Trace> continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled);
-
-    Trace newAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean canSampled);
-
-    Reference<Trace> currentRawTraceObject();
-
-    Reference<Trace> currentTraceObject();
-
-    void removeTraceObject();
-
+    Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot);
 
 }

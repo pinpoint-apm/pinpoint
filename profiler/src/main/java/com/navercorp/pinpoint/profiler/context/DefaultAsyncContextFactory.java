@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 
@@ -31,13 +33,18 @@ import java.util.Objects;
 public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
     private final AsyncTraceContext asyncTraceContext;
+    private final Binder<Trace> binder;
     private final AsyncIdGenerator asyncIdGenerator;
     private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
     private final int asyncMethodApiId;
 
-    public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+    public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext,
+                                      Binder<Trace> binder,
+                                      AsyncIdGenerator asyncIdGenerator,
+                                      PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
         this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "traceFactoryProvider");
         this.asyncIdGenerator = Objects.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
+        this.binder = Objects.requireNonNull(binder, "binder");
 
         this.predefinedMethodDescriptorRegistry = Objects.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
 
@@ -59,7 +66,11 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncId, "asyncId");
 
-        return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId, canSampled);
+        if (canSampled) {
+            return new DefaultAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, this.asyncMethodApiId);
+        } else {
+            return newDisableAsyncContext(traceRoot);
+        }
     }
 
     @Override
@@ -68,8 +79,18 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         Objects.requireNonNull(asyncId, "asyncId");
         Objects.requireNonNull(asyncState, "asyncState");
 
-        return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState, canSampled);
+        if (canSampled) {
+            return new StatefulAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, asyncMethodApiId, asyncState);
+        } else {
+            // TODO
+            return new StatefulDisableAsyncContext(asyncTraceContext, binder, traceRoot, asyncState);
+        }
+
     }
 
+    @Override
+    public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot) {
+        return new DisableAsyncContext(asyncTraceContext, binder, traceRoot);
+    }
 
 }
