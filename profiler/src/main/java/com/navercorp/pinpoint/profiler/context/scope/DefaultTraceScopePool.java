@@ -16,33 +16,31 @@
 package com.navercorp.pinpoint.profiler.context.scope;
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.profiler.util.NameValueList;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 public class DefaultTraceScopePool {
 
-    private final NameValueList<TraceScope> list = new NameValueList<>();
+    private final Map<String, TraceScope> map = new HashMap<>();
 
     public TraceScope get(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("name");
-        }
+        Objects.requireNonNull(name, "name");
 
-        return list.get(name);
+        return map.get(name);
     }
 
     public TraceScope add(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("name");
-        }
+        Objects.requireNonNull(name, "name");
 
-        final TraceScope oldScope = list.add(name, new DefaultTraceScope(name));
-        return oldScope;
+        return map.put(name, new DefaultTraceScope(name));
     }
 
     public void clear() {
-        list.clear();
+        map.clear();
     }
 }
