@@ -58,4 +58,15 @@ public final class ScopeUtils {
         final TraceScope scope = trace.getScope(scopeName);
         return scope != null;
     }
+
+    public static boolean addScope(Trace trace, String scopeName) {
+        // add async scope.
+        final TraceScope oldScope = trace.addScope(scopeName);
+        if (oldScope != null) {
+            // delete corrupted trace.
+//            deleteAsyncTrace(trace);
+            return false;
+        }
+        return true;
+    }
 }

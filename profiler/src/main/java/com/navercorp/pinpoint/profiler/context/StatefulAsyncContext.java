@@ -18,20 +18,24 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
-import java.util.Objects;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class StatefulAsyncContext extends DefaultAsyncContext implements AsyncStateSupport {
 
-
     private final AsyncState asyncState;
 
-
-    public StatefulAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, AsyncId asyncId, int asyncMethodApiId, AsyncState asyncState, boolean canSampled) {
-        super(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, canSampled);
+    public StatefulAsyncContext(AsyncTraceContext asyncTraceContext,
+                                Binder<Trace> binder,
+                                TraceRoot traceRoot,
+                                AsyncId asyncId, int asyncMethodApiId,
+                                AsyncState asyncState) {
+        super(asyncTraceContext, binder, traceRoot, asyncId, asyncMethodApiId);
         this.asyncState = Objects.requireNonNull(asyncState, "asyncState");
     }
 
