@@ -28,6 +28,7 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+        this.inspectorPageService.reset('timelineCommand');
     }
 
     private connectStore(): void {
@@ -37,7 +38,8 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
             // this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(filter((time: number) => time !== 0))
             this.inspectorPageService.sourceForTimelineCommand$.pipe(
                 takeUntil(this.unsubscribe),
-                pluck('selectedTime')
+                filter(Boolean),
+                pluck('selectedTime'),
             )
         ).pipe(
             map(([dateFormat, timezone, pointingTime]: [string, string, number]) => {

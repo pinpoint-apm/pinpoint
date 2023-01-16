@@ -70,7 +70,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
             filter((urlService: NewUrlStateNotificationService) => {
                 return !this.chartConfig || (urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME));
             }),
-            tap(() => this.activeLayer = Layer.LOADING),
+            // tap(() => this.activeLayer = Layer.LOADING),
             switchMap((urlService: NewUrlStateNotificationService) => {
                 const hostGroupName = urlService.getPathValue(UrlPathId.HOST_GROUP);
                 const hostName = urlService.getPathValue(UrlPathId.HOST);

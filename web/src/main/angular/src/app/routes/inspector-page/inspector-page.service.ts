@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, Subject, ReplaySubject } from 'rxjs';
 
 import {
     NewUrlStateNotificationService,
@@ -30,10 +30,14 @@ export interface ISourceForTimelineCommand {
 
 @Injectable()
 export class InspectorPageService {
-    private sourceForTimeline = new Subject<ISourceForTimeline>();
-    private sourceForAgentInfo = new Subject<ISourceForAgentInfo>();
-    private sourceForChart = new Subject<ISourceForChart>();
-    private sourceForTimelineCommand = new Subject<ISourceForTimelineCommand>();
+    // private sourceForTimeline = new Subject<ISourceForTimeline>();
+    // private sourceForAgentInfo = new Subject<ISourceForAgentInfo>();
+    // private sourceForChart = new Subject<ISourceForChart>();
+    // private sourceForTimelineCommand = new Subject<ISourceForTimelineCommand>();
+    private sourceForTimeline = new ReplaySubject<ISourceForTimeline>(1);
+    private sourceForAgentInfo = new ReplaySubject<ISourceForAgentInfo>(1);
+    private sourceForChart = new ReplaySubject<ISourceForChart>(1);
+    private sourceForTimelineCommand = new ReplaySubject<ISourceForTimelineCommand>(1);
 
     private timelineInfo: ITimelineInfo;
     private agentId: string;
@@ -52,6 +56,23 @@ export class InspectorPageService {
         this.sourceForAgentInfo$ = this.sourceForAgentInfo.asObservable();
         this.sourceForChart$ = this.sourceForChart.asObservable();
         this.sourceForTimelineCommand$ = this.sourceForTimelineCommand.asObservable();
+    }
+
+    reset(id: string): void {
+        switch(id) {
+            case 'timelineCommand':
+                this.sourceForTimelineCommand.next(null);
+                break;
+            case 'timeline':
+                this.sourceForTimeline.next(null);
+                break;
+            case 'chart':
+                this.sourceForChart.next(null);
+                break;
+            case 'agentInfo':
+                this.sourceForAgentInfo.next(null);
+                break;
+        }
     }
 
     activate(unsubscribe: Subject<void>): void {

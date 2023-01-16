@@ -46,7 +46,8 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
         this.connectStore();
         this.inspectorPageService.sourceForAgentInfo$.pipe(
             takeUntil(this.unsubscribe),
-            tap(() => this.showLoading = true),
+            filter(Boolean),
+            // tap(() => this.showLoading = true),
             switchMap(({agentId, selectedTime}: ISourceForAgentInfo) => {
                 this.lastRequestParam = [agentId, selectedTime];
                 return this.agentInfoDataService.getData(agentId, selectedTime).pipe(
@@ -70,6 +71,7 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+        this.inspectorPageService.reset('agentInfo');
     }
 
     private connectStore(): void {
