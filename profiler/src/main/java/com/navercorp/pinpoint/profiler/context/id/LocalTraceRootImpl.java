@@ -44,9 +44,11 @@ public class LocalTraceRootImpl implements LocalTraceRoot {
 
     @Override
     public String toString() {
-        return "DefaultLocalTraceRoot{" +
-                ", agentId='" + agentId + '\'' +
+        return "LocalTraceRootImpl{" +
+                "agentId='" + agentId + '\'' +
+                ", localTransactionId=" + localTransactionId +
                 ", traceStartTime=" + traceStartTime +
+                ", shared=" + shared +
                 '}';
     }
 }

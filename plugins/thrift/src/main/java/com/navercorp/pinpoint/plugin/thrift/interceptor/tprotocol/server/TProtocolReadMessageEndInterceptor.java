@@ -379,10 +379,9 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
     }
 
     private void entryScope(final Trace trace) {
-        if (ScopeUtils.entryScope(trace, SCOPE_NAME)) {
-            if (isDebug) {
-                logger.debug("Try enter trace scope={}", SCOPE_NAME);
-            }
+        ScopeUtils.entryScope(trace, SCOPE_NAME);
+        if (isDebug) {
+            logger.debug("Try enter trace scope={}", SCOPE_NAME);
         }
     }
 

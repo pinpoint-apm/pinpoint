@@ -11,17 +11,15 @@ public final class ScopeUtils {
     private ScopeUtils() {
     }
 
-    public static boolean entryAsyncTraceScope(final Trace trace) {
-        return entryScope(trace, ASYNC_TRACE_SCOPE);
+    public static void entryAsyncTraceScope(final Trace trace) {
+        entryScope(trace, ASYNC_TRACE_SCOPE);
     }
 
-    public static boolean entryScope(final Trace trace, final String scopeName) {
+    public static void entryScope(final Trace trace, final String scopeName) {
         final TraceScope scope = trace.getScope(scopeName);
         if (scope != null) {
             scope.tryEnter();
-            return true;
         }
-        return false;
     }
 
     public static boolean leaveAsyncTraceScope(final Trace trace) {

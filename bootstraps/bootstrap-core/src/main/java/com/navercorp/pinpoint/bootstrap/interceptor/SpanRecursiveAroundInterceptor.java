@@ -176,10 +176,9 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
     }
 
     private void entryScope(final Trace trace) {
-        if (ScopeUtils.entryScope(trace, this.scopeName)) {
-            if (isDebug) {
-                logger.debug("Try enter trace scope={}", scopeName);
-            }
+        ScopeUtils.entryScope(trace, this.scopeName);
+        if (isDebug) {
+            logger.debug("Try enter trace scope={}", scopeName);
         }
     }
 

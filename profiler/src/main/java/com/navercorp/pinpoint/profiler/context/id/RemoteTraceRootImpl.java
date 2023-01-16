@@ -39,10 +39,12 @@ public class RemoteTraceRootImpl extends LocalTraceRootImpl implements TraceRoot
 
     @Override
     public String toString() {
-        return "DefaultRemoteTraceRoot{" +
+        return "RemoteTraceRootImpl{" +
                 "traceId=" + traceId +
                 ", agentId='" + agentId + '\'' +
+                ", localTransactionId=" + localTransactionId +
                 ", traceStartTime=" + traceStartTime +
+                ", shared=" + shared +
                 '}';
     }
 
