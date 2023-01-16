@@ -181,10 +181,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
     }
 
     private void entryUserIncludeTraceScope(final Trace trace) {
-        if (ScopeUtils.entryScope(trace, SCOPE_NAME)) {
-            if (isDebug) {
-                logger.debug("Try enter trace scope={}", SCOPE_NAME);
-            }
+        ScopeUtils.entryScope(trace, SCOPE_NAME);
+        if (isDebug) {
+            logger.debug("Try enter trace scope={}", SCOPE_NAME);
         }
     }
 
