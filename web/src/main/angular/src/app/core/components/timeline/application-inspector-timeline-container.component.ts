@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 
 import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ITimelineEventSegment, TimelineUIEvent } from './class';
@@ -61,6 +61,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
 
         this.inspectorPageService.sourceForTimeline$.pipe(
             takeUntil(this.unsubscribe),
+            filter(Boolean),
         ).subscribe(({timelineInfo: {range, selectionRange, selectedTime}}: ISourceForTimeline) => {
             this.timelineStartTime = range[0];
             this.timelineEndTime = range[1];
@@ -87,6 +88,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+        this.inspectorPageService.reset('timeline');
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);

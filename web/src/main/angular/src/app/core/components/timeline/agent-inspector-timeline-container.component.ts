@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable, EMPTY } from 'rxjs';
-import { map, switchMap, takeUntil, catchError } from 'rxjs/operators';
+import { map, switchMap, takeUntil, catchError, filter } from 'rxjs/operators';
 
 import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ITimelineEventSegment, TimelineUIEvent } from './class';
@@ -71,6 +71,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
 
         this.inspectorPageService.sourceForTimeline$.pipe(
             takeUntil(this.unsubscribe),
+            filter(Boolean),
             map(({timelineInfo, agentId}: ISourceForTimeline) => {
                 const {range, selectionRange, selectedTime} = timelineInfo;
 
@@ -107,6 +108,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+        this.inspectorPageService.reset('timeline');
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);

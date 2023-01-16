@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin, Observable } from 'rxjs';
 import * as moment from 'moment-timezone';
-import { map, tap } from 'rxjs/operators';
+import { map, takeUntil, tap } from 'rxjs/operators';
 
 import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { AgentStatisticDataService } from './agent-statistic-data.service';
@@ -78,7 +78,9 @@ export class ConfigurationAgentStatisticContainerComponent implements OnInit, On
         }
 
         this.showProcessing();
-        this.agentStatisticDataService.getData().subscribe((agentList: IAgentList) => {
+        this.agentStatisticDataService.getData().pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((agentList: IAgentList) => {
             this.storeHelperService.dispatch(new Actions.UpdateAdminAgentList(agentList));
             this.hideProcessing();
         }, (error: IServerError) => {

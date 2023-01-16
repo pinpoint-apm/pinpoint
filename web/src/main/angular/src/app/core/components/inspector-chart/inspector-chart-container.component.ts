@@ -88,6 +88,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+        this.inspectorPageService.reset('chart');
     }
 
     private initI18nText(): void {
@@ -136,7 +137,8 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     private initChartData(): void {
         this.inspectorPageService.sourceForChart$.pipe(
             takeUntil(this.unsubscribe),
-            tap(() => this.activeLayer = Layer.LOADING),
+            filter(Boolean),
+            // tap(() => this.activeLayer = Layer.LOADING),
             tap(({range}: ISourceForChart) => this.previousRange = range),
             switchMap(({range}: ISourceForChart) => {
                 return this.chartContainer.getData(range).pipe(
