@@ -131,14 +131,6 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     onClick: () => this.onClickInspector(),
                 },
                 {
-                    id: 'infrastructure',
-                    title: 'Infrastructure',
-                    path: '/metric',
-                    iconClass: 'fas fa-server',
-                    showItem: this.showMetric,
-                    onClick: () => this.onClickMetric(),
-                },
-                {
                     id: 'url-stat',
                     title: 'URL Statistic',
                     path: '/urlStatistic',
@@ -146,6 +138,14 @@ export class SideNavigationBarContainerComponent implements OnInit, OnDestroy {
                     showItem: this.showUrlStat,
                     onClick: () => this.onClickUrlStat(),
                 },
+                {
+                    id: 'infrastructure',
+                    title: 'Infrastructure',
+                    path: '/metric',
+                    iconClass: 'fas fa-server',
+                    showItem: this.showMetric,
+                    onClick: () => this.onClickMetric(),
+                }
             ],
             bottomItems: [
                 {
