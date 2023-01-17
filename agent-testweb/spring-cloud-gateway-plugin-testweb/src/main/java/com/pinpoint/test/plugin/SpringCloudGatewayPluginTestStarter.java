@@ -18,9 +18,12 @@ package com.pinpoint.test.plugin;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -35,13 +38,26 @@ public class SpringCloudGatewayPluginTestStarter {
 
     // tag::route-locator[]
     @Bean
-    public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+    public RouteLocator myRoutes(RouteLocatorBuilder builder, RedisRateLimiter redisRateLimiter) {
+        KeyResolver keyResolver = exchange -> Mono.just("test-user");
         final String httpUri = "http://www.naver.com";
         return builder.routes()
                 .route(p -> p
                         .path("/get")
                         .filters(f -> f.addRequestHeader("Hello", "World"))
                         .uri(httpUri))
+                .route("simple", r -> r.method(HttpMethod.GET).and().path("/simple")
+                        .filters(f -> f
+                                .addRequestHeader("foo", "bar")
+                                .setPath("/headers")
+                                // RequestRateLimiter 를 적용한 부분
+                                .requestRateLimiter().configure(config -> {
+                                    config.setKeyResolver(keyResolver);
+                                    config.setRateLimiter(redisRateLimiter);
+                                })
+                        )
+                        .uri("https://httpbin.org")
+                )
                 .build();
     }
     // end::route-locator[]
