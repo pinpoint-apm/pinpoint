@@ -32,11 +32,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validation;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletResponseAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import org.apache.catalina.connector.Response;
@@ -54,7 +54,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
-    private final ArgumentValidator argumentValidator;
+    private final Validator validator;
 
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
@@ -63,7 +63,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor,
                                               RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
-        this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
+
+        this.validator = buildValidator();
         final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
 
 
@@ -87,13 +88,20 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpServletResponseAdaptor()).build();
     }
 
+    private Validator buildValidator() {
+        Validation validation = new Validation(logger);
+        validation.addArgument(HttpServletRequest.class, 0);
+        validation.addArgument(HttpServletResponse.class, 1);
+        return validation.build();
+    }
+
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 
@@ -123,7 +131,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 

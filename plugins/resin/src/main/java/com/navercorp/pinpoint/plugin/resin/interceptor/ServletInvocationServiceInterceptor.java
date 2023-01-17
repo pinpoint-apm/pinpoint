@@ -26,16 +26,16 @@ import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListener;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validation;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletResponseAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.resin.ResinConfig;
 import com.navercorp.pinpoint.plugin.resin.ResinConstants;
 
@@ -52,13 +52,14 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
-    private final ArgumentValidator argumentValidator;
+    private final Validator validator;
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
     public ServletInvocationServiceInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         this.methodDescriptor = methodDescriptor;
-        this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
+
+        this.validator = buildValidator();
         final ResinConfig config = new ResinConfig(traceContext.getProfilerConfig());
 
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
@@ -80,13 +81,20 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
         this.servletResponseListener = new ServletResponseListenerBuilder<HttpServletResponse>(traceContext, new HttpServletResponseAdaptor()).build();
     }
 
+    private Validator buildValidator() {
+        Validation validation = new Validation(logger);
+        validation.addArgument(HttpServletRequest.class, 0);
+        validation.addArgument(HttpServletResponse.class, 1);
+        return validation.build();
+    }
+
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 
@@ -115,7 +123,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 

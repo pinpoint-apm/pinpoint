@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.common.servlet.util;
+package com.navercorp.pinpoint.bootstrap.util.argument;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ArgumentValidator {
+public interface Validator {
     boolean validate(Object[] args);
 }
