@@ -10,3 +10,11 @@ logging:
 springdoc:
   swagger-ui:
     path: /
+
+spring:
+  redis:
+    cluster:
+      nodes:
+        - 10.168.240.229:18001
+        - 10.168.240.229:18002
+        - 10.168.240.229:18003
