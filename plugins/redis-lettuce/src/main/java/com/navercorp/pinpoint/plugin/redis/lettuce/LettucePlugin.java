@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClientConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisCluserClientConnectStatefulInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClusterClientConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RunnableNewInstanceInterceptor;
@@ -67,7 +68,6 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
         // Set endpoint
         addRedisClient();
         // Attach endpoint
-        addDefaultConnectionFuture();
         addStatefulRedisConnection();
         // Commands
         addRedisCommands(config);
@@ -97,28 +97,45 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
                 clusterConstructor.addInterceptor(RedisClusterClientConstructorInterceptor.class);
             }
 
-            // Attach endpoint
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("connect", "connectAsync", "connectPubSub", "connectPubSubAsync", "connectSentinel", "connectSentinelAsync"))) {
-                method.addScopedInterceptor(AttachEndPointInterceptor.class, LettuceConstants.REDIS_SCOPE);
+            // 5.0
+            InstrumentMethod newStatefulRedisConnectionMethod = target.getDeclaredMethod("newStatefulRedisConnection", "io.lettuce.core.RedisChannelWriter", "io.lettuce.core.codec.RedisCodec", "java.time.Duration");
+            if (newStatefulRedisConnectionMethod == null) {
+                // 6.x
+                newStatefulRedisConnectionMethod = target.getDeclaredMethod("newStatefulRedisConnection", "io.lettuce.core.RedisChannelWriter", "io.lettuce.core.protocol.PushHandler", "io.lettuce.core.codec.RedisCodec", "java.time.Duration");
+            }
+            if (newStatefulRedisConnectionMethod != null) {
+                newStatefulRedisConnectionMethod.addInterceptor(AttachEndPointInterceptor.class);
+            }
+            final InstrumentMethod newStatefulRedisPubSubConnectionMethod = target.getDeclaredMethod("newStatefulRedisPubSubConnection", "io.lettuce.core.pubsub.PubSubEndpoint", "io.lettuce.core.RedisChannelWriter", "io.lettuce.core.codec.RedisCodec", "java.time.Duration");
+            if (newStatefulRedisPubSubConnectionMethod != null) {
+                newStatefulRedisPubSubConnectionMethod.addInterceptor(AttachEndPointInterceptor.class);
+            }
+            final InstrumentMethod newStatefulRedisSentinelConnectionMethod = target.getDeclaredMethod("newStatefulRedisSentinelConnection", "io.lettuce.core.RedisChannelWriter", "io.lettuce.core.codec.RedisCodec", "java.time.Duration");
+            if (newStatefulRedisSentinelConnectionMethod != null) {
+                newStatefulRedisSentinelConnectionMethod.addInterceptor(AttachEndPointInterceptor.class);
             }
 
-            return target.toBytecode();
-        }
-    }
-
-    private void addDefaultConnectionFuture() {
-        transformTemplate.transform("io.lettuce.core.DefaultConnectionFuture", DefaultConnectionFutureTransform.class);
-    }
-
-    public static class DefaultConnectionFutureTransform implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            target.addField(EndPointAccessor.class);
-
-            // Attach endpoint
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("get", "join"))) {
-                method.addScopedInterceptor(AttachEndPointInterceptor.class, LettuceConstants.REDIS_SCOPE);
+            // Cluster
+            // 5.0
+            // private <K, V, T extends RedisChannelHandler<K, V>, S> ConnectionFuture<S> connectStatefulAsync(T connection, DefaultEndpoint endpoint, RedisURI connectionSettings, Supplier<SocketAddress> socketAddressSupplier, Supplier<CommandHandler> commandHandlerSupplier)
+            InstrumentMethod connectStatefulAsyncMethod = target.getDeclaredMethod("connectStatefulAsync", "io.lettuce.core.RedisChannelHandler", "io.lettuce.core.protocol.DefaultEndpoint", "io.lettuce.core.RedisURI", "java.util.function.Supplier", "java.util.function.Supplier");
+            if (connectStatefulAsyncMethod == null) {
+                // 5.1
+                // private <K, V, T extends RedisChannelHandler<K, V>, S> ConnectionFuture<S> connectStatefulAsync(T connection, RedisCodec<K, V> codec, DefaultEndpoint endpoint, RedisURI connectionSettings, Mono<SocketAddress> socketAddressSupplier, Supplier<CommandHandler> commandHandlerSupplier)
+                connectStatefulAsyncMethod = target.getDeclaredMethod("connectStatefulAsync", "io.lettuce.core.RedisChannelHandler", "io.lettuce.core.codec.RedisCodec", "io.lettuce.core.protocol.DefaultEndpoint", "io.lettuce.core.RedisURI", "reactor.core.publisher.Mono", "java.util.function.Supplier");
+            }
+            if (connectStatefulAsyncMethod == null) {
+                // 6.0, StatefulRedisConnectionImpl
+                // private <K, V, T extends StatefulRedisConnectionImpl<K, V>, S> ConnectionFuture<S> connectStatefulAsync(T connection, DefaultEndpoint endpoint, RedisURI connectionSettings, Mono<SocketAddress> socketAddressSupplier, Supplier<CommandHandler> commandHandlerSupplier)
+                connectStatefulAsyncMethod = target.getDeclaredMethod("connectStatefulAsync", "io.lettuce.core.StatefulRedisConnectionImpl", "io.lettuce.core.protocol.DefaultEndpoint", "io.lettuce.core.RedisURI", "reactor.core.publisher.Mono", "java.util.function.Supplier");
+            }
+            if (connectStatefulAsyncMethod == null) {
+                // 6.0, StatefulRedisClusterConnectionImpl
+                // private <K, V, T extends StatefulRedisClusterConnectionImpl<K, V>, S> ConnectionFuture<S> connectStatefulAsync(T connection, DefaultEndpoint endpoint, RedisURI connectionSettings, Mono<SocketAddress> socketAddressSupplier, Supplier<CommandHandler> commandHandlerSupplier)
+                connectStatefulAsyncMethod = target.getDeclaredMethod("connectStatefulAsync", "io.lettuce.core.cluster.StatefulRedisClusterConnectionImpl", "io.lettuce.core.protocol.DefaultEndpoint", "io.lettuce.core.RedisURI", "reactor.core.publisher.Mono", "java.util.function.Supplier");
+            }
+            if (connectStatefulAsyncMethod != null) {
+                connectStatefulAsyncMethod.addInterceptor(RedisCluserClientConnectStatefulInterceptor.class);
             }
 
             return target.toBytecode();
