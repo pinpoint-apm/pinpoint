@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat.interceptor;
+package com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import org.apache.catalina.util.ServerInfo;
-
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import org.apache.catalina.util.ServerInfo;
 
 /**
  * @author emeroad

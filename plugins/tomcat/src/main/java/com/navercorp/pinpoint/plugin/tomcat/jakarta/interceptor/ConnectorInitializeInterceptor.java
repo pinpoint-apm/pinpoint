@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat.interceptor;
+package com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import org.apache.catalina.connector.Connector;
-
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import org.apache.catalina.connector.Connector;
 
 /**
  * @author emeroad
@@ -33,7 +32,7 @@ public class ConnectorInitializeInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
-    
+
     public ConnectorInitializeInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
     }

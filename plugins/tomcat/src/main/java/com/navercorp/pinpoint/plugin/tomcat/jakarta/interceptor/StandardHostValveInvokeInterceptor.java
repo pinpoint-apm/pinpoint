@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat.interceptor;
+package com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -32,17 +32,16 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
-import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
-import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletResponseAdaptor;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.ArgumentValidator;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.HttpServletRequestAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.HttpServletResponseAdaptor;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.ParameterRecorderFactory;
+import com.navercorp.pinpoint.plugin.common.servlet.jakarta.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConfig;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.Response;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author emeroad
@@ -131,7 +130,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final HttpServletResponse response = (HttpServletResponse) args[1];
             int statusCode = getStatusCode(response);
-            final Throwable t = (Throwable) request.getAttribute(TomcatConstants.ERROR_EXCEPTION);
+            final Throwable t = (Throwable) request.getAttribute(TomcatConstants.JAKARTA_ERROR_EXCEPTION);
             if (t != null) {
                 final AsyncListenerInterceptor asyncListenerInterceptor = (AsyncListenerInterceptor) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
                 if (asyncListenerInterceptor != null) {

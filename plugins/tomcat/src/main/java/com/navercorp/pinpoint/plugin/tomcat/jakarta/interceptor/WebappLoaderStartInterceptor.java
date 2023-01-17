@@ -14,7 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat.interceptor;
+package com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor;
+
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.catalina.Container;
+import org.apache.catalina.Context;
+import org.apache.catalina.Engine;
+import org.apache.catalina.Host;
+import org.apache.catalina.loader.WebappLoader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,26 +38,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.catalina.Container;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Host;
-import org.apache.catalina.loader.WebappLoader;
-
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-
 /**
  * @author hyungil.jeong
  */
 public class WebappLoaderStartInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    
+
     private final TraceContext traceContext;
 
     public WebappLoaderStartInterceptor(TraceContext traceContext) {
@@ -61,7 +60,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         // target should be an instance of WebappLoader.
         if (target instanceof WebappLoader) {
-            WebappLoader webappLoader = (WebappLoader)target;
+            WebappLoader webappLoader = (WebappLoader) target;
             try {
                 String contextKey = extractContextKey(webappLoader);
                 List<String> loadedJarNames = extractLibJars(webappLoader);
@@ -75,17 +74,17 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
             logger.warn("Webapp loader is not an instance of org.apache.catalina.loader.WebappLoader. Found [{}]", target.getClass());
         }
     }
-    
+
     private String extractContextKey(WebappLoader webappLoader) {
         final String defaultContextName = "";
         try {
             Container container = extractContext(webappLoader);
             // WebappLoader's associated Container should be a Context.
             if (container instanceof Context) {
-                Context context = (Context)container;
+                Context context = (Context) container;
                 String contextName = context.getName();
-                Host host = (Host)container.getParent();
-                Engine engine = (Engine)host.getParent();
+                Host host = (Host) container.getParent();
+                Engine engine = (Engine) host.getParent();
                 StringBuilder sb = new StringBuilder();
                 sb.append(engine.getName()).append("/").append(host.getName());
                 if (!contextName.startsWith("/")) {
@@ -120,23 +119,23 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
         }
         Object container = m.invoke(webappLoader);
         if (container instanceof Container) {
-            return (Container)container;
+            return (Container) container;
         }
         return null;
     }
-    
+
     private List<String> extractLibJars(WebappLoader webappLoader) {
         ClassLoader classLoader = webappLoader.getClassLoader();
         if (classLoader instanceof URLClassLoader) {
-            URLClassLoader webappClassLoader = (URLClassLoader)classLoader;
+            URLClassLoader webappClassLoader = (URLClassLoader) classLoader;
             URL[] urls = webappClassLoader.getURLs();
             return extractLibJarNamesFromURLs(urls);
         } else {
             logger.warn("Webapp class loader is not an instance of URLClassLoader. Found [{}]", classLoader.getClass());
             return Collections.emptyList();
-        } 
+        }
     }
-    
+
     private List<String> extractLibJarNamesFromURLs(URL[] urls) {
         if (urls == null) {
             return Collections.emptyList();
@@ -144,7 +143,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
         List<String> libJarNames = new ArrayList<>(urls.length);
         for (URL url : urls) {
             try {
-                URI uri =  url.toURI();
+                URI uri = url.toURI();
                 String libJarName = extractLibJarName(uri);
                 if (libJarName.length() > 0) {
                     libJarNames.add(libJarName);
@@ -158,7 +157,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
         }
         return libJarNames;
     }
-    
+
     private String extractLibJarName(URI uri) {
         String jarName = uri.toString();
         if (StringUtils.isEmpty(jarName)) {
@@ -171,7 +170,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
             return jarName.substring(lastIndexOfSeparator + 1);
         }
     }
-    
+
     private void dispatchLibJars(String contextKey, List<String> libJars) {
         ServerMetaDataHolder holder = this.traceContext.getServerMetaDataHolder();
         holder.addServiceInfo(contextKey, libJars);
