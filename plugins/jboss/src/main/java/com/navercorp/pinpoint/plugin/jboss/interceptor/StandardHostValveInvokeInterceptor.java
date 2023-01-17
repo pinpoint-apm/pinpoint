@@ -31,11 +31,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validation;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletResponseAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.util.Servlet2ApiHelper;
@@ -59,7 +59,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
-    private final ArgumentValidator argumentValidator;
+    private final Validator validator;
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
     private final ServletApiHelper servletApiHelper;
@@ -72,7 +72,8 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
      */
     public StandardHostValveInvokeInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor, final RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
-        this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
+
+        this.validator = buildValidator();
         final JbossConfig config = new JbossConfig(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -91,9 +92,16 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         this.servletRequestListener = reqBuilder.build();
 
-        this.servletResponseListener = new ServletResponseListenerBuilder(traceContext, new HttpServletResponseAdaptor()).build();
+        this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpServletResponseAdaptor()).build();
 
         this.servletApiHelper = newServletApi();
+    }
+
+    private Validator buildValidator() {
+        Validation validation = new Validation(logger);
+        validation.addArgument(HttpServletRequest.class, 0);
+        validation.addArgument(HttpServletResponse.class, 1);
+        return validation.build();
     }
 
     private ServletApiHelper newServletApi() {
@@ -111,7 +119,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 
@@ -139,7 +147,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 
