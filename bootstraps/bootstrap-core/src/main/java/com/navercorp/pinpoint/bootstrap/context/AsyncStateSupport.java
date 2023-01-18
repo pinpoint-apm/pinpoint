@@ -23,5 +23,9 @@ import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
  */
 @InterfaceAudience.LimitedPrivate("vert.x")
 public interface AsyncStateSupport {
+    @Deprecated
     AsyncState getAsyncState();
+
+    void finish();
+
 }

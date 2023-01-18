@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -38,6 +39,7 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -49,18 +51,34 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
 
-    protected final TraceRoot traceRoot;
-    protected final AsyncContextFactory asyncContextFactory;
+    private final TraceRoot traceRoot;
+    private final AsyncContextFactory asyncContextFactory;
+    @Nullable
+    private final AsyncState asyncState;
 
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory,
-                                    final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService,
+    public WrappedSpanEventRecorder(TraceRoot traceRoot,
+                                    AsyncContextFactory asyncContextFactory,
+                                    StringMetaDataService stringMetaDataService,
+                                    SqlMetaDataService sqlMetaDataService,
+                                    IgnoreErrorHandler ignoreErrorHandler) {
+
+        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler);
+    }
+
+    public WrappedSpanEventRecorder(TraceRoot traceRoot,
+                                    AsyncContextFactory asyncContextFactory,
+                                    @Nullable
+                                    final AsyncState asyncState,
+                                    final StringMetaDataService stringMetaDataService,
+                                    final SqlMetaDataService sqlMetaCacheService,
                                     final IgnoreErrorHandler errorHandler) {
         super(stringMetaDataService, sqlMetaCacheService, errorHandler);
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
+        this.asyncState = asyncState;
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -137,6 +155,15 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     public AsyncContext recordNextAsyncContext(boolean asyncStateSupport) {
+        if (asyncStateSupport && asyncState != null) {
+            final TraceRoot traceRoot = this.traceRoot;
+            final AsyncId asyncIdObject = getNextAsyncId();
+            final boolean isDisabled = isOverflowState();
+
+            final AsyncState asyncState = this.asyncState;
+            asyncState.setup();
+            return asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, isDisabled, asyncState);
+        }
         return recordNextAsyncContext();
     }
 
