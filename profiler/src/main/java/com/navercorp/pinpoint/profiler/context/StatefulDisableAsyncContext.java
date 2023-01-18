@@ -23,6 +23,11 @@ public class StatefulDisableAsyncContext extends DisableAsyncContext implements 
     }
 
     @Override
+    public void finish() {
+        this.asyncState.finish();
+    }
+
+    @Override
     public String toString() {
         return "StatefulDisableAsyncContext{" +
                 "asyncState=" + asyncState +

@@ -45,6 +45,11 @@ public class StatefulAsyncContext extends DefaultAsyncContext implements AsyncSt
     }
 
     @Override
+    public void finish() {
+        this.asyncState.finish();
+    }
+
+    @Override
     public String toString() {
         return "StatefulAsyncContext{" +
                 "asyncState=" + asyncState +

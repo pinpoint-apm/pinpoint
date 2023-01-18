@@ -51,30 +51,39 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     @Override
     public SpanRecorder newSpanRecorder(Span span) {
+        Objects.requireNonNull(span, "span");
+
         return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
 
     @Override
     public SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+
         return new TraceRootSpanRecorder(traceRoot);
     }
 
     @Override
     public SpanRecorder newDisableSpanRecorder(LocalTraceRoot traceRoot) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+
         return new DisableSpanRecorder(traceRoot, errorHandler);
     }
 
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
 
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot, AsyncState asyncState) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncState, "asyncState");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, asyncState);
+        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, asyncState, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
 }
