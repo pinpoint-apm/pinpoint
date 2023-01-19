@@ -27,8 +27,12 @@ export interface AxisOption {
 }
 
 export interface TickOption {
+  font?: string;
+  color?: string;
+  strokeColor?: string;
+  width?: number;
   count?: number;
-  format?: FormatType<number>;
+  format?: FormatType<number | string>;
 }
 
 export interface DataOption {
@@ -45,4 +49,25 @@ export interface LegendOption {
 
 export interface PointOption {
   radius?: number;
+}
+
+export interface GuideOption {
+  color?: string;
+  strokeColor?: string;
+  backgroundColor?: string;
+  drag?: DragOption;
+}
+
+export interface DragOption {
+  strokeColor?: string;
+  backgroundColor?: string;
+}
+
+export interface BackgroundOption {
+  color?: string;
+}
+
+export interface GridOption {
+  hidden?: boolean;
+  strokeColor?: string;
 }

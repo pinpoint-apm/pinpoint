@@ -18,7 +18,7 @@ export const getTickTexts = ({ min, max, tick }: AxisOption) => {
   });
 }
 
-export const getLongestTextWidth = (texts: string[], measurer: (t: string) => number) => {
+export const getLongestText = (texts: string[], measurer: (t: string) => number) => {
   const text = texts.reduce((prev: string, curr: string) => {
     const prevWidth = measurer(prev);
     const currWidth = measurer(curr);
