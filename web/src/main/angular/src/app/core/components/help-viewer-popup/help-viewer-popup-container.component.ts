@@ -71,6 +71,7 @@ const enum HELP_VIEWER_HEIGHT_STATE {
 export class HelpViewerPopupContainerComponent implements OnInit, AfterViewInit, DynamicPopup {
     @Input() data: HELP_VIEWER_LIST;
     @Input() coord: ICoordinate;
+    @Input() template: any;
     @Output() outCreated = new EventEmitter<ICoordinate>();
     @Output() outClose = new EventEmitter<void>();
     @Output() outReInit = new EventEmitter<{[key: string]: any}>();
@@ -101,12 +102,12 @@ export class HelpViewerPopupContainerComponent implements OnInit, AfterViewInit,
         this.outCreated.emit(this.getPosition(this.coord));
     }
 
-    onInputChange({data, coord}: {data: HELP_VIEWER_LIST, coord: ICoordinate}): void {
+    onInputChange({data, coord, template}: {data: HELP_VIEWER_LIST, coord: ICoordinate, template: any}): void {
         if (this.coord) {
             const { coordX: x1, coordY: y1 } = this.coord;
             const { coordX: x2, coordY: y2 } = coord;
 
-            x1 === x2 && y1 === y2 ? this.outClose.emit() : this.outReInit.emit({ data, coord });
+            x1 === x2 && y1 === y2 ? this.outClose.emit() : this.outReInit.emit({data, coord, template});
         }
     }
 

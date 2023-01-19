@@ -16,6 +16,7 @@ import {
 export interface DynamicPopup {
     data?: any;
     coord?: ICoordinate;
+    template?: any;
     outCreated?: EventEmitter<ICoordinate>;
     outClose?: EventEmitter<void>;
     outReInit?: EventEmitter<{[key: string]: any}>; // HelpViewer처럼 컴포넌트를 아예 destroy하고 새로 init해야 하는 경우
@@ -28,9 +29,10 @@ export interface IContext {
 }
 
 interface IPopupParam {
+    component: any;
     data?: any;
     coord?: ICoordinate;
-    component: any;
+    template?: any;
     onCloseCallback?: Function;
 }
 
@@ -64,14 +66,14 @@ export class DynamicPopupService {
         this.injector = injector;
         this.resolver = resolver;
 
-        const {data, coord, component} = $param;
+        const {component, data, coord, template} = $param;
 
         if (!this.componentRef) {
             // The very first
             this.initPopup($param);
         } else if (this.componentRef && this.componentRef.instance instanceof component) {
             // Update input binding
-            this.bindInputProps(this.componentRef.instance, data, coord);
+            this.bindInputProps(this.componentRef.instance, data, coord, template);
         } else {
             // Close the current popup and create a new one
             this.closePopup();
@@ -85,27 +87,30 @@ export class DynamicPopupService {
         this.componentRef = null;
     }
 
-    private initPopup({data, coord, component, onCloseCallback}: IPopupParam): void {
+    private initPopup({data, coord, component, template, onCloseCallback}: IPopupParam): void {
         this.componentRef = this.resolver.resolveComponentFactory<DynamicPopup>(component).create(this.injector);
         const popupComponent = this.componentRef.instance;
         const domElem = (this.componentRef.hostView as EmbeddedViewRef<DynamicPopup>).rootNodes[0] as HTMLElement;
 
-        this.bindInputProps(popupComponent, data, coord);
+        this.bindInputProps(popupComponent, data, coord, template);
         this.bindOutputProps(popupComponent, domElem, onCloseCallback);
         this.renderer.addClass(domElem, 'popup');
         this.renderer.appendChild((this.appRef.components[0].location).nativeElement, domElem);
         this.appRef.attachView(this.componentRef.hostView);
     }
 
-    private bindInputProps(popupComponent: DynamicPopup, data: any, coord: ICoordinate): void {
+    private bindInputProps(popupComponent: DynamicPopup, data: any, coord: ICoordinate, template: any): void {
         if (popupComponent.onInputChange) {
-            popupComponent.onInputChange({data, coord});
+            popupComponent.onInputChange({data, coord, template});
         }
         if (data) {
             popupComponent.data = data;
         }
         if (coord) {
             popupComponent.coord = coord;
+        }
+        if (template) {
+            popupComponent.template = template;
         }
     }
 
@@ -126,14 +131,15 @@ export class DynamicPopupService {
             });
         }
         if (popupComponent.outReInit) {
-            popupComponent.outReInit.subscribe(({data, coord}: {data: any, coord: ICoordinate}) => {
+            popupComponent.outReInit.subscribe(({data, coord, template}: {data: any, coord: ICoordinate, template: any}) => {
                 const component = this.componentRef.componentType;
 
                 this.closePopup();
                 this.openPopup({
                     data,
                     coord,
-                    component
+                    component,
+                    template
                 }, {
                     resolver: this.resolver,
                     injector: this.injector

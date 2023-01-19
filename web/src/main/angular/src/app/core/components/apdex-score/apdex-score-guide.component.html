@@ -1,0 +1,31 @@
+<div class="desc-wrapper">
+    <div class="title-group">
+        <div class="title-text">Apdex Score</div>
+        <div class="title-desc">
+            <div class="apdex-formula-wrapper">
+                <div class="upper">
+                    <div class="formula-elem" title="Satisfied Count">{{apdexFormulaData.satisfiedCount}}</div>
+                    <div class="sign">+ [</div>
+                    <div class="formula-elem" title="Tolerating Count">{{apdexFormulaData.toleratingCount}}</div>
+                    <div class="sign">/</div>
+                    <div class="formula-elem">2</div>
+                    <div class="sign">]</div>
+                </div>
+                <hr class="divider"/>
+                <div class="lower">
+                    <div class="formula-elem" title="Total Samples">{{apdexFormulaData.totalSamples}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="contents-group">
+        <div class="category-title">Score</div>
+        <div *ngFor="let score of apdexScoreGuide" class="category-item-list">
+            <span class="apdex-score-range">{{score.range}}</span>
+            <span class="apdex-score-rank">
+                <span class="fas" [ngClass]="getIconClass(score.rank)"></span>
+                <span>{{score.rank | titlecase}}</span>
+            </span>
+        </div>
+    </div>
+</div>
