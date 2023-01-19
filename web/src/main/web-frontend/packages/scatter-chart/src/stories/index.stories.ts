@@ -1,5 +1,6 @@
 import { createAppendDatas } from './templates/createAppendDatas';
 import { createCaptureIamge } from './templates/createCaptureImage';
+import { createCustomizeTheme } from './templates/createCustomizeTheme';
 import { createDefault } from './templates/createDefault';
 import { createRealtime } from './templates/createRealtime';
 import { createResizable } from './templates/createResizable';
@@ -39,3 +40,6 @@ export const CaptureImage = TemplateCaptureImage.bind({});
 
 const TemplateRealtime = () => createRealtime();
 export const Realtime = TemplateRealtime.bind({});
+
+const TemplateCustomizeTheme = () => createCustomizeTheme();
+export const CustomizeTheme = TemplateCustomizeTheme.bind({});

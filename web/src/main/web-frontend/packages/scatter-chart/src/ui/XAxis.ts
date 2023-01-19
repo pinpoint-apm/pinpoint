@@ -1,5 +1,5 @@
-import { AXIS_TICK_LENGTH, TEXT_MARGIN_BOTTOM } from "../constants/ui";
-import { TickOption } from "../types/types";
+import { TEXT_MARGIN_TOP } from "../constants/ui";
+import { Padding, TickOption } from "../types/types";
 import { drawLine, drawText } from "../utils/draw";
 import { Axis, AxisProps } from "./Axis";
 
@@ -8,9 +8,15 @@ export interface XAxisProps extends AxisProps {};
 export class XAxis extends Axis {
   constructor({
     ...props
-  }: XAxisProps = {}) {
+  }: XAxisProps) {
     super(props);
+    this.priority = -1;
+  }
+
+  public setPadding(padding: Padding) {
+    super.setPadding(padding)
     this.render();
+    return this;
   }
 
   public setSize(width: number, height: number){
@@ -22,11 +28,10 @@ export class XAxis extends Axis {
   public render() {
     this.clear();
     const { min, max, tick, innerPadding } = this;
-    const { format, count } = tick as DeepNonNullable<TickOption>;
+    const { format, count, color, width: tickWidth, strokeColor } = tick as DeepNonNullable<TickOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
     const height = this.canvas.height / this.dpr;
-
     const startX = padding.left + innerPadding;
     const endX = width - padding.right - innerPadding;
     const endY = height - padding.bottom; 
@@ -36,8 +41,14 @@ export class XAxis extends Axis {
     [...Array(count)].forEach((_ , i) => {
       const x = wGap * i + startX;
       const label = format(xTickGap * i + min);
-      drawText(this.context, `${label}`, x, height - TEXT_MARGIN_BOTTOM, { textAlign: 'center', textBaseline: 'bottom' });
-      drawLine(this.context, x, endY, x, endY + AXIS_TICK_LENGTH);
+      const textHeight = this.getTextHeight(label);
+      drawText(
+        this.context, `${label}`, 
+        x, 
+        height - padding.bottom + tick?.width! + textHeight + TEXT_MARGIN_TOP, 
+        { textAlign: 'center', textBaseline: 'bottom', color }
+      );
+      drawLine(this.context, x, endY, x, endY + tickWidth, {color: strokeColor});
     })
     drawLine(this.context, startX - innerPadding, endY, endX  + innerPadding, endY);
   }

@@ -1,16 +1,29 @@
-import { AXIS_TICK_LENGTH, TEXT_MARGIN_RIGHT } from "../constants/ui";
-import { TickOption } from "../types/types";
+import { TEXT_MARGIN_RIGHT } from "../constants/ui";
+import { Padding, TickOption } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
 import { Axis, AxisProps } from "./Axis";
 
-export interface YAxisProps extends AxisProps {};
+export interface YAxisProps extends AxisProps {
+  backgroundColor?: string;
+};
 
 export class YAxis extends Axis {
+  private backgroundColor;
+  
   constructor({
+    backgroundColor,
     ...props
-  }: YAxisProps = {}) {
+  }: YAxisProps) {
     super(props);
+    this.priority = -2;
+    this.isFixed = true;
+    this.backgroundColor = backgroundColor;
+  }
+
+  public setPadding(padding: Padding) {
+    super.setPadding(padding)
     this.render();
+    return this;
   }
 
   public setSize(width: number, height: number){
@@ -21,8 +34,9 @@ export class YAxis extends Axis {
 
   public render() {
     this.clear();
-    const { min, max, tick, innerPadding } = this;
-    const { format, count } = tick as DeepNonNullable<TickOption>;
+    
+    const { min, max, tick, innerPadding, backgroundColor } = this;
+    const { format, count, color, width: tickWidth, strokeColor } = tick as DeepNonNullable<TickOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
     const height = this.canvas.height / this.dpr;
@@ -33,16 +47,19 @@ export class YAxis extends Axis {
     const hGap = (endY - startY) / (count - 1);
     const yTickGap = (max - min) / (count - 1);
 
-    drawRect(this.context, 0, 0, padding.left, endY + innerPadding + AXIS_TICK_LENGTH);
-    drawRect(this.context, width - padding.right, 0, width, endY + innerPadding + AXIS_TICK_LENGTH);
-    drawRect(this.context, 0, 0, width, padding.top);
-    
+    drawRect(this.context, 0, 0, padding.left, endY + innerPadding + tick?.width!, { color: backgroundColor });
+    drawRect(this.context, width - padding.right, 0, width, endY + innerPadding + tick?.width!, { color: backgroundColor });
+    drawRect(this.context, 0, 0, width, padding.top, { color: backgroundColor });
     [...Array(count)].forEach((_, i) => {
       const y = hGap * i + startY;
       const label = format(yTickGap * (count - 1 - i) + min);
-      
-      drawLine(this.context, startX - AXIS_TICK_LENGTH, y, startX, y);
-      drawText(this.context, `${label}`, startX - TEXT_MARGIN_RIGHT - AXIS_TICK_LENGTH, y + 3, { textAlign: 'end' });
+      drawText(
+        this.context, `${label}`, 
+        startX - TEXT_MARGIN_RIGHT - tickWidth, 
+        y + this.getTextHeight(label) / 4, 
+        { textAlign: 'end', color }
+      );
+      drawLine(this.context, startX - tickWidth, y, startX, y, {color: strokeColor});
     })
     drawLine(this.context, startX, startY - innerPadding, startX, endY + innerPadding);
   }

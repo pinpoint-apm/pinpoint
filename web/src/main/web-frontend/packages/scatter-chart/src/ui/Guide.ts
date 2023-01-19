@@ -1,33 +1,39 @@
-import merge from "lodash.merge";
-import { AXIS_INNER_PADDING, AXIS_TICK_LENGTH, CONTAINER_PADDING, TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
-import { AxisOption, Padding } from "../types/types";
+import { TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
+import { AxisOption, GuideOption, Padding } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
+import { Axis } from "./Axis";
 import { Layer } from "./Layer";
 
 export interface GuideOptions {
   width: number;
   height: number;
-  padding: Padding;
+  xAxis: Axis,
+  yAxis: Axis,
   ratio: {
     x: number;
     y: number;
   };
-  axisOption: { x: AxisOption, y: AxisOption };
+  option: GuideOption
+  padding: DeepNonNullable<Padding>;
 }
 
 export class Guide extends Layer {
   private wrapper;
   private padding;
   private ratio;
-  private axisOption;
   private isMouseDown = false;
   private isDragging = false;
   private dragStartX = 0;
   private dragStartY = 0;
   private eventHandlers: {[key: string]: Function} = {};
+  private xAxis;
+  private yAxis;
+  private minX;
+  private maxY;
+  private option;
 
   constructor(wrapper: HTMLElement, {
-    width, height, padding, ratio, axisOption,
+    width, height, padding, ratio, xAxis, yAxis, option,
   }: GuideOptions) {
     super({ width, height });
     this.canvas.style.position = 'absolute';
@@ -35,9 +41,13 @@ export class Guide extends Layer {
     this.canvas.style.top = '0px';
     this.canvas.style.left = '0px';
     this.canvas.style.background = 'transparent';
-    this.padding = {...CONTAINER_PADDING, ...padding};
+    this.padding = padding;
     this.ratio = ratio;
-    this.axisOption = axisOption;
+    this.xAxis = xAxis;
+    this.yAxis = yAxis;
+    this.minX = this.xAxis.min;
+    this.maxY = this.yAxis.max;
+    this.option = option;
     this.wrapper = wrapper;
     this.wrapper.append(this.canvas);
     this.addEventListener();
@@ -49,14 +59,15 @@ export class Guide extends Layer {
     const padding = this.padding
 
     return (
-      x >= padding.left + AXIS_INNER_PADDING &&
-      x <= width - padding.right - AXIS_INNER_PADDING && 
-      y >= padding.top + AXIS_INNER_PADDING && 
-      y <= height - padding.bottom - AXIS_INNER_PADDING
+      x >= padding.left + this.xAxis.innerPadding &&
+      x <= width - padding.right - this.xAxis.innerPadding && 
+      y >= padding.top + this.yAxis.innerPadding && 
+      y <= height - padding.bottom - this.yAxis.innerPadding
     )
   }
 
   private addEventListener() {
+    const { drag } = this.option
     const width = this.canvas.width / this.dpr;
     const height = this.canvas.height / this.dpr;
 
@@ -83,8 +94,8 @@ export class Guide extends Layer {
         drawRect(this.context, 
           this.dragStartX, this.dragStartY, offsetX - this.dragStartX, offsetY - this.dragStartY,
           {
-            color: 'rgba(225,225,225,0.5)',
-            strokeColor: 'blue',
+            color: drag?.backgroundColor,
+            strokeColor: drag?.strokeColor,
           }
         )
       }
@@ -103,10 +114,10 @@ export class Guide extends Layer {
       if (this.isDragging) {
         this.isMouseInValidArea(offsetX, offsetY) && this.drawGuideText(offsetX, offsetY)
         this.eventHandlers['dragEnd']?.({ 
-          x1: this.dragStartX / this.ratio.x + this.axisOption.x.min,
-          y1: this.axisOption.y.max - (this.dragStartY - this.padding.top - AXIS_INNER_PADDING) / this.ratio.y,
-          x2: this.axisOption.y.max - (offsetX - this.padding.top - AXIS_INNER_PADDING) / this.ratio.x + this.axisOption.x.min,
-          y2: this.axisOption.y.max - (offsetY - this.padding.top - AXIS_INNER_PADDING) / this.ratio.y,
+          x1: this.dragStartX / this.ratio.x + this.minX,
+          y1: this.maxY - (this.dragStartY - this.padding.top - this.xAxis.innerPadding) / this.ratio.y,
+          x2: this.maxY - (offsetX - this.padding.top - this.yAxis.innerPadding) / this.ratio.x + this.minX,
+          y2: this.maxY - (offsetY - this.padding.top - this.yAxis.innerPadding) / this.ratio.y,
         });
       }
       this.isMouseDown = false;
@@ -116,8 +127,8 @@ export class Guide extends Layer {
       const { offsetX, offsetY } = event;
       if (!this.isDragging) {
         this.eventHandlers['click']?.({ 
-          x: offsetX / this.ratio.x + this.axisOption.x.min,
-          y: this.axisOption.y.max - (offsetY - this.padding.top - AXIS_INNER_PADDING) / this.ratio.y,
+          x: offsetX / this.ratio.x + this.minX,
+          y: this.maxY - (offsetY - this.padding.top - this.yAxis.innerPadding) / this.ratio.y,
         })
       }
       this.isDragging = false;
@@ -128,26 +139,28 @@ export class Guide extends Layer {
   }
 
   private drawGuideText(x: number, y: number) {
-    const { padding, context, canvas, ratio, axisOption } = this;
+    const { padding, context, canvas, ratio, xAxis, yAxis } = this;
+    const { color, backgroundColor, strokeColor } = this.option;
+
     const height = canvas.height / this.dpr;
-    const xText = `${axisOption.x.tick?.format!((x - padding.left - AXIS_INNER_PADDING) / ratio.x + axisOption.x.min)}`;
-    const yText = `${axisOption.y.tick?.format!(Math.floor(Math.abs((height - padding.bottom - AXIS_INNER_PADDING - y) / ratio.y + axisOption.y.min)))}`;
+    const xText = `${xAxis.tick?.format!((x - padding.left - xAxis.innerPadding) / ratio.x + this.minX)}`;
+    const yText = `${yAxis.tick?.format!(Math.floor(Math.abs((height - padding.bottom - yAxis.innerPadding - y) / ratio.y + yAxis.min)))}`;
     
     // x1
     const xTextWidth = this.getTextWidth(xText) + TEXT_MARGIN_LEFT + TEXT_MARGIN_RIGHT;
-    const xTextHeight = this.getTextHeight(xText) + TEXT_MARGIN_TOP + TEXT_MARGIN_BOTTOM;
+    const xTextHeight = this.getTextHeight(xText);
     // y
     const yTextWidth = this.getTextWidth(yText) + TEXT_MARGIN_LEFT + TEXT_MARGIN_RIGHT;
     const yTextHeight = this.getTextHeight(yText) + TEXT_MARGIN_TOP + TEXT_MARGIN_BOTTOM;
 
     // x
-    drawRect(context, x - xTextWidth / 2, height - padding.bottom + AXIS_TICK_LENGTH, xTextWidth, xTextHeight, { color: 'black' });
-    drawLine(context, padding.left - AXIS_TICK_LENGTH, y, padding.left, y);
-    drawText(context, xText, x, height - TEXT_MARGIN_BOTTOM, { color: 'white', textAlign: 'center', textBaseline: 'bottom' });
+    drawRect(context, x - xTextWidth / 2, height - padding.bottom + xAxis.tick?.width!, xTextWidth, xTextHeight + TEXT_MARGIN_TOP + TEXT_MARGIN_BOTTOM, { color: backgroundColor });
+    drawLine(context, padding.left - xAxis.tick?.width!, y, padding.left, y, { color: strokeColor });
+    drawText(context, xText, x, height - padding.bottom + xAxis.tick?.width! + xTextHeight + TEXT_MARGIN_TOP, { color, textAlign: 'center', textBaseline: 'bottom' });
     // y
-    drawRect(context, padding.left - AXIS_TICK_LENGTH - yTextWidth, y - yTextHeight / 2, yTextWidth, yTextHeight, { color: 'black' });
-    drawLine(context, x, height - padding.bottom, x, height - padding.bottom + AXIS_TICK_LENGTH);
-    drawText(context, yText, padding.left - AXIS_TICK_LENGTH - TEXT_MARGIN_RIGHT, y + 3, { color: 'white', textAlign: 'end' });
+    drawRect(context, padding.left - yAxis.tick?.width! - yTextWidth, y - yTextHeight / 2, yTextWidth, yTextHeight, { color: backgroundColor });
+    drawLine(context, x, height - padding.bottom, x, height - padding.bottom + yAxis.tick?.width!, { color: strokeColor });
+    drawText(context, yText, padding.left - yAxis.tick?.width! - TEXT_MARGIN_RIGHT, y + 3, { color, textAlign: 'end' });
     
   }
 
@@ -156,12 +169,10 @@ export class Guide extends Layer {
     height = this.canvas.height / this.dpr,
     ratio = this.ratio,
     padding = this.padding,
-    axisOption = this.axisOption,
   }) {
     this.removeEventListener();
     super.setSize(width, height);
-    this.axisOption = merge(this.axisOption, axisOption);
-    this.padding = {...CONTAINER_PADDING, ...padding};
+    this.padding = {...this.padding, ...padding};
     this.ratio = ratio;
     this.addEventListener();
   }
@@ -185,8 +196,12 @@ export class Guide extends Layer {
   //   return this;
   // }
 
-  public updateXAxis(x: Partial<AxisOption>) {
-    this.axisOption = {...this.axisOption, ...{ x: {...this.axisOption.x, ...x}}}
+  // public updateXAxis(x: Partial<AxisOption>) {
+  //   this.axisOption = {...this.axisOption, ...{ x: {...this.xAxis, ...x}}}
+  // }
+  public updateMinX(minX: number) {
+    this.minX = minX;
+    return this;
   }
 
   public on(evetntType: string, callback: (data: any) => void) {

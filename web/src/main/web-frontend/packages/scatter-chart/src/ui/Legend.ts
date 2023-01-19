@@ -50,7 +50,6 @@ export class Legend {
         }
       }
     });
-    return this;
   }
 
   public render() {
