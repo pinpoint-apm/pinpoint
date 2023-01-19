@@ -2,12 +2,7 @@
     font-size: 16px;
 }
 
-div {
-    cursor: pointer;
-}
-
 .title {
-    position: relative;
     margin-right: 15px;
     color: var(--text-primary);
 }
@@ -16,12 +11,9 @@ div {
     font-weight: bold;
 }
 
-button {
-    position: absolute;
-    top: 1px;
-    right: -6.5px;
-    font-size: 0.6em;
-    color: var(--icon-default);
+.empty-text {
+    font-weight: bold;
+    color: var(--text-primary-lightest);
 }
 
 .excellent {

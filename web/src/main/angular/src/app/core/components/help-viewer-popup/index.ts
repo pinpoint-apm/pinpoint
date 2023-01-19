@@ -10,11 +10,12 @@ import { HelpViewerPopupComponent } from './help-viewer-popup.component';
         HelpViewerPopupComponent
     ],
     imports: [
-        SharedModule
+        SharedModule,
     ],
     exports: [],
     entryComponents: [
-        HelpViewerPopupContainerComponent
+        HelpViewerPopupContainerComponent,
+        HelpViewerPopupComponent,
     ],
     providers: []
 })

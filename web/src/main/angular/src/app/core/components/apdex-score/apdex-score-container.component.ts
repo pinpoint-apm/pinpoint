@@ -1,10 +1,13 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ComponentFactoryResolver, Injector, OnDestroy, OnInit } from '@angular/core';
 import { Subject, merge } from 'rxjs';
 import { filter, switchMap, tap, map, takeUntil } from 'rxjs/operators';
 
-import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
-import { ApdexScoreDataService } from './apdex-score-data.service';
+import { AnalyticsService, DynamicPopupService, MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { IApdexFormulaData, ApdexScoreDataService } from './apdex-score-data.service';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
+import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
+import { ApdexScoreGuideComponent } from './apdex-score-guide.component';
+import { ApdexScoreInteractionService } from './apdex-score-interaction.service';
 
 @Component({
     selector: 'pp-apdex-score-container',
@@ -19,12 +22,18 @@ export class ApdexScoreContainerComponent implements OnInit, OnDestroy {
     private previousRange: number[];
 
     apdexScore: number;
+    isEmpty: boolean;
 
     constructor(
         private apdexScoreDataService: ApdexScoreDataService,
         private messageQueueService: MessageQueueService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private cd: ChangeDetectorRef,
+        private injector: Injector,
+        private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private apdexScoreInteractionService: ApdexScoreInteractionService
     ) { }
 
     ngOnInit() {
@@ -52,8 +61,10 @@ export class ApdexScoreContainerComponent implements OnInit, OnDestroy {
             switchMap(({applicationName, serviceTypeCode}: INodeInfo) => {
                 return this.apdexScoreDataService.getApdexScore({applicationName, serviceTypeCode, from: this.previousRange[0], to: this.previousRange[1]});
             })
-        ).subscribe(({apdexScore}: {apdexScore: number}) => {
+        ).subscribe(({apdexScore, apdexFormula: apdexFormulaData}: {apdexScore: number, apdexFormula: IApdexFormulaData}) => {
             this.apdexScore = apdexScore;
+            this.isEmpty = apdexFormulaData.totalSamples === 0;
+            this.apdexScoreInteractionService.setApdexFormulaData(apdexFormulaData);
             this.cd.detectChanges();
         });
     }
@@ -61,5 +72,23 @@ export class ApdexScoreContainerComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    onShowHelp($event: MouseEvent): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_APDEX_SCORE, HELP_VIEWER_LIST.APDEX_SCORE);
+        const {left, top, height} = ($event.target as HTMLElement).getBoundingClientRect();
+
+        this.dynamicPopupService.openPopup({
+            data: HELP_VIEWER_LIST.APDEX_SCORE,
+            template: ApdexScoreGuideComponent,
+            coord: {
+                coordX: left,
+                coordY: top + height / 2
+            },
+            component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
+        });
     }
 }

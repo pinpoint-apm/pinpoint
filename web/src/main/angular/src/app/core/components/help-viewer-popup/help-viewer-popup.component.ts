@@ -7,6 +7,8 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class HelpViewerPopupComponent implements OnInit {
     @Input() data: {[key: string]: any}[];
+    @Input() template: any;
+
 
     constructor() {}
     ngOnInit() {}
