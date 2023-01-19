@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class UrlTraceSampler implements TraceSampler {
-    private final List<UrlPathMatcher> urlPathMatcherList;
+    private final UrlPathMatcher[] urlPathMatcherList;
     private final TraceSampler defaultTraceSampler;
 
     public UrlTraceSampler(Map<String, TraceSampler> urlMap, TraceSampler defaultTraceSampler) {
@@ -44,7 +44,7 @@ public class UrlTraceSampler implements TraceSampler {
             }
             list.add(new UrlPathMatcher(urlPath, traceSampler));
         }
-        this.urlPathMatcherList = list;
+        this.urlPathMatcherList = list.toArray(new UrlPathMatcher[0]);
     }
 
     @Override
@@ -84,9 +84,9 @@ public class UrlTraceSampler implements TraceSampler {
         return this.defaultTraceSampler;
     }
 
-    private class UrlPathMatcher implements PathMatcher {
-        private PathMatcher pathMatcher;
-        private TraceSampler traceSampler;
+    private static class UrlPathMatcher implements PathMatcher {
+        private final PathMatcher pathMatcher;
+        private final TraceSampler traceSampler;
 
         public UrlPathMatcher(String urlPath, TraceSampler traceSampler) {
             if (AntPathMatcher.isAntStylePattern(urlPath)) {
