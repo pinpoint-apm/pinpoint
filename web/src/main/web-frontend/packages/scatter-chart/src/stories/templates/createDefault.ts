@@ -1,7 +1,8 @@
 import { ScatterChart } from "../../ui";
+import { ScatterChartOption } from "../../ui/ScatterChart";
 import data1 from '../mock/data1.json';
 
-export const newScatterChart = (wrapper: HTMLElement) => {
+export const newScatterChart = (wrapper: HTMLElement, option?: Partial<ScatterChartOption>) => {
   const SC = new ScatterChart(wrapper, {
     axis: {
       x: {
@@ -40,6 +41,7 @@ export const newScatterChart = (wrapper: HTMLElement) => {
       formatLabel: (label) => label.toUpperCase(),
       formatValue: (value) => value.toLocaleString(),
     },
+    ...option,
   });
   SC.render(data1.data);
   return SC

@@ -1,5 +1,4 @@
 import { LAYER_DEFAULT_PRIORITY } from "../constants/ui";
-import { Padding } from "../types/types";
 import { getDevicePicelRatio } from "../utils/helper";
 
 export interface LayerProps {
@@ -105,24 +104,13 @@ export class Layer {
     return this.display;
   }
 
-  public swapCanvasImage(padding: DeepNonNullable<Padding>) {   
-    // console.log(this.canvas) 
-    // const rightImage = this.ctx.getImageData(
-    //   this.canvas.width / 2, 0, 
-    //   this.canvas.width / 2, this.canvas.height
-    // );
-    // this.clear();
-    // drawRect(this.context, 0, 0, this.canvas.width, this.canvas.height, {color: 'red'})
-    // this.context.putImageData(rightImage, (padding.left + 40) * this.dpr, 0);
-    // const newCanvas = document.createElement('canvas');
-    // const newContext = newCanvas.getContext('2d');
-    // this.ctx.scale(this.dpr, this.dpr);
-    // newCanvas.width = this.canvas.width
-    // newCanvas.height = this.canvas.height
-    // newCanvas.style.width = this.canvas.style.width;
-    // newCanvas.style.height = this.canvas.style.height;
-    // newContext?.putImageData(rightImage, 0, 0);
-    // document.body.append(newCanvas);
+  public swapCanvasImage({width, startAt}: {width: number, startAt: number}) {   
+    const rightImage = this.context.getImageData(
+      (startAt + width) * this.dpr, 0, 
+      this.canvas.width - (startAt + width) * this.dpr, this.canvas.height
+    );
+    this.clear();
+    this.context.putImageData(rightImage, startAt * this.dpr, 0);
   }
 
   public getTextWidth(text: string | number) {
