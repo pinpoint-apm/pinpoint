@@ -46,12 +46,15 @@ export const drawText = (
     color = 'black',
     textAlign = 'center',
     textBaseline = 'alphabetic',
+    font,
   }: { 
     color?: string,
     textAlign?: CanvasTextAlign,
     textBaseline?: CanvasTextBaseline,
+    font?: CanvasTextDrawingStyles['font']
   } = {}
 ) => {
+  font && (ctx.font = font);
   ctx.textAlign = textAlign; 
   ctx.textBaseline = textBaseline; 
   ctx.fillStyle = color;

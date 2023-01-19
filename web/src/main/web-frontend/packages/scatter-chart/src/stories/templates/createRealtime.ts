@@ -7,18 +7,14 @@ export const createRealtime = () => {
   btnStart.innerText = 'start realtime';
   const btnStop = document.createElement('button');
   btnStop.innerText = 'stop realtime';
-
-  console.log(data1);
-  console.log(data1.to - data1.from);
   
-  setTimeout(() => {
-    
+  setTimeout(() => {  
     const SC = newScatterChart(wrapper);
     wrapper.append(btnStart);
     wrapper.append(btnStop);
 
     btnStart.addEventListener('click', () => {
-      SC.startRealtime(5000);
+      SC.startRealtime(data1.to - data1.from);
       const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
       SC.render(newData, {append: true});
     });
