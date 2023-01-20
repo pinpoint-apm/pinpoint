@@ -105,8 +105,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         return activeTraceRepository.register(traceRoot);
     }
 
-    private ActiveTraceHandle registerActiveTrace(long localTransactionId, long startTime, long threadId) {
-        return activeTraceRepository.register(localTransactionId, startTime, threadId);
+    private ActiveTraceHandle registerActiveTrace(LocalTraceRoot localTraceRoot) {
+        return activeTraceRepository.register(localTraceRoot);
     }
 
     @Override
@@ -232,9 +232,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     private Trace newLocalTrace(long nextDisabledId) {
         final LocalTraceRoot traceRoot = traceRootFactory.newDisableTraceRoot(nextDisabledId);
         final SpanRecorder spanRecorder = recorderFactory.newDisableSpanRecorder(traceRoot);
-        final long traceStartTime = traceRoot.getTraceStartTime();
-        final long threadId = Thread.currentThread().getId();
-        final ActiveTraceHandle activeTraceHandle = registerActiveTrace(nextDisabledId, traceStartTime, threadId);
+        final ActiveTraceHandle activeTraceHandle = registerActiveTrace(traceRoot);
         return new DisableTrace(traceRoot, spanRecorder, activeTraceHandle, uriStatStorage);
     }
 }

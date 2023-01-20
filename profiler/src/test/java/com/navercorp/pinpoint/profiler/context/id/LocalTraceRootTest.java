@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 
-public class LocalTraceTest {
+public class LocalTraceRootTest {
     @Test
     public void testGetScope() {
         LocalTraceRoot traceRoot = TraceRoot.local("testAgent", 2, 1);

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.Objects;
@@ -23,13 +24,16 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class SampledActiveTraceSnapshot implements ActiveTraceSnapshot {
+public class DefaultActiveTraceSnapshot implements ActiveTraceSnapshot {
 
-    private final TraceRoot traceRoot;
+    private final LocalTraceRoot traceRoot;
 
-    public SampledActiveTraceSnapshot(TraceRoot traceRoot) {
+    public static ActiveTraceSnapshot of(LocalTraceRoot localTraceRoot) {
+        return new DefaultActiveTraceSnapshot(localTraceRoot);
+    }
+
+    DefaultActiveTraceSnapshot(LocalTraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
-
     }
 
     @Override
@@ -49,17 +53,30 @@ public class SampledActiveTraceSnapshot implements ActiveTraceSnapshot {
 
     @Override
     public boolean isSampled() {
-        return true;
+        if (isRemote()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
     public String getTransactionId() {
-        return traceRoot.getTraceId().getTransactionId();
+        if (isRemote()) {
+            return ((TraceRoot) traceRoot).getTraceId().getTransactionId();
+        }
+        return null;
     }
 
     @Override
     public String getEntryPoint() {
-        return traceRoot.getShared().getRpcName();
+        if (isRemote()) {
+            return traceRoot.getShared().getRpcName();
+        }
+        return null;
+    }
+
+    private boolean isRemote() {
+        return traceRoot instanceof TraceRoot;
     }
 
     @Override
