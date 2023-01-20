@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 
@@ -59,10 +60,9 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
     }
 
     @Override
-    public ActiveTraceHandle register(long localTransactionId, long startTime, long threadId) {
-        return new EmptyActiveTraceHandle(startTime);
+    public ActiveTraceHandle register(LocalTraceRoot traceRoot) {
+        return new EmptyActiveTraceHandle(traceRoot.getTraceStartTime());
     }
-
 
     private void remove(long startTime, long purgeTime) {
         final long responseTime = purgeTime - startTime;

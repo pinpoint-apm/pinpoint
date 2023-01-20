@@ -53,6 +53,13 @@ public class DisableTrace implements Trace {
 
         this.handle = Objects.requireNonNull(handle, "handle");
         this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
+
+        setCurrentThread();
+    }
+
+    private void setCurrentThread() {
+        final long threadId = Thread.currentThread().getId();
+        getShared().setThreadId(threadId);
     }
 
     @Override

@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
-import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -88,10 +90,12 @@ public class LimitedListTest {
 
     private List<ThreadDump> newTestData(int localTransactionId, long startTime, long threadId, int size) {
 
-        List<ThreadDump> result = new ArrayList<ThreadDump>();
+        List<ThreadDump> result = new ArrayList<>();
         for (int i = 0; i < size; i++) {
+            LocalTraceRoot traceRoot = TraceRoot.local("agent-" + localTransactionId, startTime, localTransactionId);
+            traceRoot.getShared().setThreadId(threadId);
 
-            ActiveTraceSnapshot activeTraceSnapshot = new UnsampledActiveTraceSnapshot(localTransactionId, startTime, threadId);
+            ActiveTraceSnapshot activeTraceSnapshot = DefaultActiveTraceSnapshot.of(traceRoot);
             ThreadInfo threadInfo = mock(ThreadInfo.class);
             ThreadDump threadDump = new ThreadDump(activeTraceSnapshot, threadInfo);
 

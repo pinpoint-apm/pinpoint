@@ -17,44 +17,41 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
+
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
-public class UnsampledActiveTrace implements ActiveTrace {
+public class DefaultActiveTrace implements ActiveTrace {
 
-    private final long id;
-    private final long startTime;
-    private final long threadId;
+    private final LocalTraceRoot traceRoot;
 
-    UnsampledActiveTrace(long id, long startTime, long threadId) {
-        this.id = id;
-        this.startTime = startTime;
-        // @Nullable
-        this.threadId = threadId;
+    public DefaultActiveTrace(LocalTraceRoot traceRoot) {
+        this.traceRoot = Objects.requireNonNull(traceRoot, "trace");
     }
 
     @Override
     public long getStartTime() {
-        return startTime;
+        return this.traceRoot.getTraceStartTime();
     }
 
     @Override
     public long getId() {
-        return id;
+        return this.traceRoot.getLocalTransactionId();
     }
 
 
     @Override
     public ActiveTraceSnapshot snapshot() {
-        return new UnsampledActiveTraceSnapshot(id, startTime, threadId);
+        return DefaultActiveTraceSnapshot.of(traceRoot);
     }
 
     @Override
     public String toString() {
-        return "UnsampledActiveTrace{" +
-                "id=" + id +
-                ", startTime=" + startTime +
-                ", threadId=" + threadId +
+        return "SampledActiveTrace{" +
+                "traceRoot=" + traceRoot +
                 '}';
     }
 }
