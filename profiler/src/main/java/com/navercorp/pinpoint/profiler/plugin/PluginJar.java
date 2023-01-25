@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Objects;
-
-import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarFile;
 
 /**
@@ -34,6 +33,7 @@ public class PluginJar {
     public static final String PINPOINT_PLUGIN_PACKAGE = "Pinpoint-Plugin-Package";
     public static final String PINPOINT_PLUGIN_COMPILER_VERSION = "Pinpoint-Plugin-Compiler-Version";
     public static final String DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = "com.navercorp.pinpoint.plugin";
+    public static final String PINPOINT_PLUGIN_PACKAGE_CLASS_REQUIREMENTS = "Pinpoint-Plugin-Package-Class-Requirements";
 
     private final URL url;
     private final JarFile jarFile;
@@ -100,6 +100,10 @@ public class PluginJar {
 
     public List<String> getPluginPackages() {
         return manifest.getPluginPackages();
+    }
+
+    public List<String> getPluginPackageRequirements() {
+        return manifest.getPluginPackageRequirements();
     }
 
     @Override

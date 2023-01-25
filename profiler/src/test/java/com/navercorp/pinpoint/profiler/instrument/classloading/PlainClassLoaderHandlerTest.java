@@ -62,7 +62,7 @@ public class PlainClassLoaderHandlerTest {
                 return ClassNameFilter.ACCEPT;
             }
         };
-        PluginConfig pluginConfig = new PluginConfig(plugin, filter);
+        PluginConfig pluginConfig = new PluginConfig(plugin, filter, filter);
         return pluginConfig;
     }
 }

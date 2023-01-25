@@ -31,11 +31,13 @@ public class PluginManifest {
     private final String pluginId;
     private final String pluginCompilerVersion;
     private final List<String> pluginPackages;
+    private final List<String> pluginPackageRequirements;
 
-    public PluginManifest(String pluginId, String pluginCompilerVersion, List<String> pluginPackages) {
+    public PluginManifest(String pluginId, String pluginCompilerVersion, List<String> pluginPackages, List<String> pluginPackageRequirements) {
         this.pluginId = pluginId;
         this.pluginCompilerVersion = pluginCompilerVersion;
         this.pluginPackages = pluginPackages;
+        this.pluginPackageRequirements = pluginPackageRequirements;
     }
 
     public static PluginManifest of(JarFile jarFile) {
@@ -45,13 +47,16 @@ public class PluginManifest {
         final Attributes mainAttributes = manifest.getMainAttributes();
 
         String pluginId = JarFileUtils.getValue(mainAttributes, PluginJar.PINPOINT_PLUGIN_ID, null);
-        String  pluginCompilerVersion = JarFileUtils.getValue(mainAttributes, PluginJar.PINPOINT_PLUGIN_COMPILER_VERSION, null);
+        String pluginCompilerVersion = JarFileUtils.getValue(mainAttributes, PluginJar.PINPOINT_PLUGIN_COMPILER_VERSION, null);
 
         String pluginPackages = JarFileUtils.getValue(mainAttributes, PluginJar.PINPOINT_PLUGIN_PACKAGE, PluginJar.DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
 
         List<String> pluginPackageList = StringUtils.tokenizeToStringList(pluginPackages, ",");
 
-        return new PluginManifest(pluginId, pluginCompilerVersion, pluginPackageList);
+        String pluginPackageRequirements = JarFileUtils.getValue(mainAttributes, PluginJar.PINPOINT_PLUGIN_PACKAGE_CLASS_REQUIREMENTS, null);
+        List<String> pluginPackageRequirementList = StringUtils.tokenizeToStringList(pluginPackageRequirements, ",");
+
+        return new PluginManifest(pluginId, pluginCompilerVersion, pluginPackageList, pluginPackageRequirementList);
     }
 
     private static Manifest getManifest(JarFile jarFile) {
@@ -72,6 +77,10 @@ public class PluginManifest {
 
     public List<String> getPluginPackages() {
         return pluginPackages;
+    }
+
+    public List<String> getPluginPackageRequirements() {
+        return pluginPackageRequirements;
     }
 
     @Override

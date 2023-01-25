@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.net.URL;
-import java.util.Objects;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarFile;
 
 /**
@@ -31,11 +30,13 @@ public class JarPlugin<T> implements Plugin<T> {
 
     private final List<T> instanceList;
     private final List<String> packageList;
+    private final List<String> packageRequirementList;
 
-    public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList) {
+    public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList, List<String> packageRequirementList) {
         this.pluginJar = Objects.requireNonNull(pluginJar, "pluginJar");
         this.instanceList = Objects.requireNonNull(instanceList, "instanceList");
         this.packageList = Objects.requireNonNull(packageList, "packageList");
+        this.packageRequirementList = Objects.requireNonNull(packageRequirementList, "packageRequirementList");
     }
 
     @Override
@@ -51,6 +52,11 @@ public class JarPlugin<T> implements Plugin<T> {
     @Override
     public List<String> getPackageList() {
         return packageList;
+    }
+
+    @Override
+    public List<String> getPackageRequirementList() {
+        return packageRequirementList;
     }
 
     public JarFile getJarFile() {
