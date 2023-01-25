@@ -19,13 +19,12 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,10 +33,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
- *
  */
 public class DefaultProfilerPluginContextLoader implements ProfilerPluginContextLoader {
     private final Logger logger = LogManager.getLogger(getClass());
@@ -85,7 +84,9 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
 
     private List<PluginSetupResult> setupPlugin(ProfilerPluginGlobalContext globalContext, JarPlugin<ProfilerPlugin> plugin) {
         List<String> pluginPackageList = plugin.getPackageList();
+        List<String> pluginPackageRequirementList = plugin.getPackageRequirementList();
         final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
+        final ClassNameFilter pluginPackageRequirementFilter = createPluginRequirementFilterChain(pluginPackageRequirementList);
 
         List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), pluginLoadingConfig.getDisabledPlugins());
 
@@ -93,10 +94,11 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {
             if (logger.isInfoEnabled()) {
                 logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginJar.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
+                logger.info("{} Requirements {}:{}", profilerPlugin.getClass(), PluginJar.PINPOINT_PLUGIN_PACKAGE_CLASS_REQUIREMENTS, pluginPackageRequirementList);
                 logger.info("Loading plugin:{} pluginPackage:{}", profilerPlugin.getClass().getName(), profilerPlugin);
             }
 
-            PluginConfig pluginConfig = new PluginConfig(plugin, pluginFilterChain);
+            PluginConfig pluginConfig = new PluginConfig(plugin, pluginFilterChain, pluginPackageRequirementFilter);
             final ClassInjector classInjector = classInjectorFactory.newClassInjector(pluginConfig);
             final PluginSetupResult setupResult = pluginSetup.setupPlugin(globalContext, profilerPlugin, classInjector);
             result.add(setupResult);
@@ -127,6 +129,10 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         final ClassNameFilter filterChain = new ClassNameFilterChain(chain);
 
         return filterChain;
+    }
+
+    private ClassNameFilter createPluginRequirementFilterChain(List<String> packageRequirementList) {
+        return new PluginPackageClassRequirementFilter(packageRequirementList);
     }
 
     private static class JarPluginComponents {
@@ -186,7 +192,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
             }
 
             private JarPlugin<ProfilerPlugin> toJarPlugin() {
-                return new JarPlugin<>(pluginJar, profilerPlugins, pluginJar.getPluginPackages());
+                return new JarPlugin<>(pluginJar, profilerPlugins, pluginJar.getPluginPackages(), pluginJar.getPluginPackageRequirements());
             }
         }
     }

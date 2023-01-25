@@ -171,6 +171,7 @@
 
         <javax.servlet4.version>4.0.1</javax.servlet4.version>
         <javax.servlet.version>3.0.1</javax.servlet.version>
+        <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
 
 
         <asm.version>9.4</asm.version>
@@ -1023,6 +1024,12 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta.servlet.version}</version>
                 <scope>provided</scope>
             </dependency>
 

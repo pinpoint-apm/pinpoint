@@ -28,4 +28,6 @@ public interface Plugin<T> {
     List<T> getInstanceList();
 
     List<String> getPackageList();
+
+    List<String> getPackageRequirementList();
 }

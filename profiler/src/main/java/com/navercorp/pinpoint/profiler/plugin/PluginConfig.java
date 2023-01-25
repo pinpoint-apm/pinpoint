@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import java.net.URL;
 import java.util.Objects;
-
-
 import java.util.jar.JarFile;
 
 /**
@@ -29,12 +27,14 @@ public class PluginConfig {
 
     private final JarPlugin<?> plugin;
     private final ClassNameFilter pluginPackageFilter;
+    private final ClassNameFilter pluginPackageRequirementFilter;
 
     private String pluginJarURLExternalForm;
 
-    public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter) {
+    public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter, ClassNameFilter pluginPackageRequirementFilter) {
         this.plugin = cast(plugin);
         this.pluginPackageFilter = pluginPackageFilter;
+        this.pluginPackageRequirementFilter = pluginPackageRequirementFilter;
     }
 
     private JarPlugin<?> cast(Plugin<?> plugin) {
@@ -63,6 +63,10 @@ public class PluginConfig {
 
     public ClassNameFilter getPluginPackageFilter() {
         return pluginPackageFilter;
+    }
+
+    public ClassNameFilter getPluginPackageRequirementFilter() {
+        return pluginPackageRequirementFilter;
     }
 
     @Override

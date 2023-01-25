@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.jsr166.ConcurrentWeakHashMap;
-import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
@@ -27,14 +26,15 @@ import com.navercorp.pinpoint.profiler.util.ExtensionFilter;
 import com.navercorp.pinpoint.profiler.util.FileBinary;
 import com.navercorp.pinpoint.profiler.util.JarReader;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -107,6 +107,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
         return pluginConfig.getPluginPackageFilter().accept(className);
     }
 
+    private boolean meetsRequirement(String className) {
+        return pluginConfig.getPluginPackageRequirementFilter().accept(className);
+    }
 
     private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException {
         if (isDebug) {
@@ -133,7 +136,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
         try {
             return pluginJarReader.getInputStream(classPath);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             if (isDebug) {
                 logger.debug("Failed to read plugin jar: {}", pluginConfig.getPluginJarURLExternalForm(), ex);
             }
@@ -207,11 +210,12 @@ public class PlainClassLoaderHandler implements ClassInjector {
         Map<String, SimpleClassMetadata> classEntryMap = parse(fileBinaryList);
 
         for (Map.Entry<String, SimpleClassMetadata> entry : classEntryMap.entrySet()) {
-
             final SimpleClassMetadata classMetadata = entry.getValue();
-            ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
-            classLoadingChecker.isFirstLoad(classMetadata.getClassName());
-            define0(classLoader, attachment, classMetadata, classEntryMap, classLoadingChecker);
+            if (meetsRequirement(classMetadata.getClassName())) {
+                ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
+                classLoadingChecker.isFirstLoad(classMetadata.getClassName());
+                define0(classLoader, attachment, classMetadata, classEntryMap, classLoadingChecker);
+            }
         }
     }
 
