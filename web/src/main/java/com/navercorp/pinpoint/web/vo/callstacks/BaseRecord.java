@@ -64,15 +64,12 @@ public abstract class BaseRecord implements Record {
     public int getTab() {
         return tab;
     }
+
     public String getTabspace() {
-        if(tab == 0) {
+        if (tab == 0) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i< tab; i++) {
-            sb.append("&nbsp");
-        }
-        return sb.toString();
+        return "&nbsp".repeat(Math.max(0, tab));
     }
 
     public boolean isMethod() {
@@ -194,58 +191,56 @@ public abstract class BaseRecord implements Record {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{tab=");
-        builder.append(tab);
-        builder.append(", id=");
-        builder.append(id);
-        builder.append(", parentId=");
-        builder.append(parentId);
-        builder.append(", method=");
-        builder.append(method);
-        builder.append(", title=");
-        builder.append(title);
-        builder.append(", simpleClassName=");
-        builder.append(simpleClassName);
-        builder.append(", fullApiDescription=");
-        builder.append(fullApiDescription);
-        builder.append(", arguments=");
-        builder.append(arguments);
-        builder.append(", begin=");
-        builder.append(begin);
-        builder.append(", elapsed=");
-        builder.append(elapsed);
-        builder.append(", gap=");
-        builder.append(gap);
-        builder.append(", executionMilliseconds=");
-        builder.append(executionMilliseconds);
-        builder.append(", agentId=");
-        builder.append(agentId);
-        builder.append(", agentName=");
-        builder.append(agentName);
-        builder.append(", applicationName=");
-        builder.append(applicationName);
-        builder.append(", serviceType=");
-        builder.append(serviceType);
-        builder.append(", destinationId=");
-        builder.append(destinationId);
-        builder.append(", excludeFromTimeline=");
-        builder.append(excludeFromTimeline);
-        builder.append(", transactionId=");
-        builder.append(transactionId);
-        builder.append(", spanId=");
-        builder.append(spanId);
-        builder.append(", focused=");
-        builder.append(focused);
-        builder.append(", hasChild=");
-        builder.append(hasChild);
-        builder.append(", hasException=");
-        builder.append(hasException);
-        builder.append(", methodTypeEnum=");
-        builder.append(methodTypeEnum);
-        builder.append(", isAuthorized=");
-        builder.append(isAuthorized);
-        builder.append("}");
-        return builder.toString();
+        return "{tab=" +
+                tab +
+                ", id=" +
+                id +
+                ", parentId=" +
+                parentId +
+                ", method=" +
+                method +
+                ", title=" +
+                title +
+                ", simpleClassName=" +
+                simpleClassName +
+                ", fullApiDescription=" +
+                fullApiDescription +
+                ", arguments=" +
+                arguments +
+                ", begin=" +
+                begin +
+                ", elapsed=" +
+                elapsed +
+                ", gap=" +
+                gap +
+                ", executionMilliseconds=" +
+                executionMilliseconds +
+                ", agentId=" +
+                agentId +
+                ", agentName=" +
+                agentName +
+                ", applicationName=" +
+                applicationName +
+                ", serviceType=" +
+                serviceType +
+                ", destinationId=" +
+                destinationId +
+                ", excludeFromTimeline=" +
+                excludeFromTimeline +
+                ", transactionId=" +
+                transactionId +
+                ", spanId=" +
+                spanId +
+                ", focused=" +
+                focused +
+                ", hasChild=" +
+                hasChild +
+                ", hasException=" +
+                hasException +
+                ", methodTypeEnum=" +
+                methodTypeEnum +
+                ", isAuthorized=" +
+                isAuthorized +
+                "}";
     }
 }
