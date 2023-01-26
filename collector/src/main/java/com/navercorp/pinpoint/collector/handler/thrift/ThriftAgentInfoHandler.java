@@ -38,7 +38,7 @@ import java.util.Objects;
 @Service
 public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
-    private final Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
 

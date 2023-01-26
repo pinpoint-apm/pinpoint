@@ -30,7 +30,7 @@ import java.util.StringJoiner;
  */
 public class ArrayUtilsTest {
 
-    private final Logger logger = LogManager.getLogger(ArrayUtilsTest.class.getName());
+    private final Logger logger = LogManager.getLogger(ArrayUtilsTest.class);
 
     @Test
     public void abbreviateSmall() {

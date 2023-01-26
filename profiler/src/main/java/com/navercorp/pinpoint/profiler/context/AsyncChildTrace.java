@@ -36,7 +36,7 @@ public class AsyncChildTrace implements Trace {
 
     private static final int ASYNC_BEGIN_STACK_ID = 1001;
 
-    private static final Logger logger = LogManager.getLogger(AsyncChildTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(AsyncChildTrace.class);
     private static final boolean isDebug = logger.isDebugEnabled();
     private final CallStack<SpanEvent> callStack;
 
@@ -93,8 +93,7 @@ public class AsyncChildTrace implements Trace {
             if (logger.isWarnEnabled()) {
                 stackDump("already closed trace");
             }
-            final SpanEvent dummy = dummySpanEvent();
-            return dummy;
+            return dummySpanEvent();
         }
         // Set properties for the case when stackFrame is not used as part of Span.
         final SpanEvent spanEvent = newSpanEvent(stackId);

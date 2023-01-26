@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.profiler.interceptor.bci.TestInterceptors;
  * @author emeroad
  */
 public class TestAfterInterceptor implements StaticAroundInterceptor {
-    private Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public int call = 0;
     public Object target;

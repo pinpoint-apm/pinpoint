@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 @Service
 public class GrpcAgentStatHandlerV2 implements SimpleHandler<GeneratedMessageV3> {
-    private final Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final GrpcMetricHandler[] metricHandlers;
 
 

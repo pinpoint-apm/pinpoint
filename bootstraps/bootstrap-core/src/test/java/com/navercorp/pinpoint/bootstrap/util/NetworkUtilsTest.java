@@ -29,7 +29,7 @@ import java.util.List;
  * @author emeroad
  */
 public class NetworkUtilsTest {
-    private final Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void hostNameCheck() throws UnknownHostException {

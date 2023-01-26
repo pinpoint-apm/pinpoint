@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEventFactory;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
@@ -48,7 +47,7 @@ import java.util.Objects;
  *
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
-    private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(WrappedSpanEventRecorder.class);
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceRoot traceRoot;

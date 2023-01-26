@@ -72,7 +72,7 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     }
 
     public boolean isTraceLogEnabled() {
-        final Logger logger = LogManager.getLogger(TraceLogDelegateStorage.class.getName());
+        final Logger logger = LogManager.getLogger(TraceLogDelegateStorage.class);
         return logger.isTraceEnabled();
     }
 }

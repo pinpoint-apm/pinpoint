@@ -41,7 +41,7 @@ import java.util.Objects;
  */
 @Service
 public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
-    private final Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AgentInfoService agentInfoService;

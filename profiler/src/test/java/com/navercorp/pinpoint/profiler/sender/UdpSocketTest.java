@@ -38,7 +38,7 @@ import java.net.SocketException;
 @Disabled
 public class UdpSocketTest {
 
-    private final Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     // port conflict against base port. so increased 5
     private int PORT = SocketUtils.findAvailableUdpPort(61112);
