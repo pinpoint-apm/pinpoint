@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +22,7 @@ public class AgentsMapByApplicationTest {
         AgentAndStatus app2Agent2 = createAgentInfo("APP_2", "app2-agent2", "Host22", true);
         List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2);
 
-        AgentsMapByApplication agentsMapByApplication = AgentsMapByApplication.newAgentsMapByApplication(AgentInfoFilter::accept, agentAndStatusList);
+        AgentsMapByApplication agentsMapByApplication = AgentsMapByApplication.newAgentsMapByApplication(AgentStatusFilter::accept, agentAndStatusList);
         List<InstancesList<AgentAndStatus>> instancesLists = agentsMapByApplication.getAgentsListsList();
 
         Assertions.assertEquals(2, instancesLists.size());

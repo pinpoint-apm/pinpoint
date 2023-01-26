@@ -32,8 +32,8 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilterChain;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
@@ -106,7 +106,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, Range range) {
+    public AgentsMapByApplication getAllAgentsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
@@ -122,12 +122,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, Range range) {
+    public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter filter, String applicationName, Range range) {
         return getAgentsListByApplicationName(filter, applicationName, range, SortByAgentInfo.Rules.AGENT_ID_ASC);
     }
 
     @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter,
+    public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter filter,
                                                           String applicationName,
                                                           Range range,
                                                           SortByAgentInfo.Rules sortBy) {
@@ -135,9 +135,9 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Objects.requireNonNull(applicationName, "applicationName");
 
         Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
-        AgentInfoFilter activeAgentFilter = new AgentInfoFilterChain(
+        AgentStatusFilter activeAgentFilter = new AgentStatusFilterChain(
                 filter,
-                x -> isActiveAgent(x.getAgentInfo().getAgentId(), range)
+                x -> isActiveAgent(x.getAgentId(), range)
         );
 
         if (agentInfoAndStatuses.isEmpty()) {

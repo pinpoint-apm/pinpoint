@@ -2,16 +2,15 @@ package com.navercorp.pinpoint.web.vo.agent;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 
-public class DefaultAgentInfoFilter implements AgentInfoFilter {
+public class DefaultAgentStatusFilter implements AgentStatusFilter {
     private final long from;
 
-    public DefaultAgentInfoFilter(long from) {
+    public DefaultAgentStatusFilter(long from) {
         this.from = from;
     }
 
     @Override
-    public boolean filter(AgentAndStatus agentAndStatus) {
-        final AgentStatus agentStatus = agentAndStatus.getStatus();
+    public boolean filter(AgentStatus agentStatus) {
         if (agentStatus == null) {
             return REJECT;
         }
