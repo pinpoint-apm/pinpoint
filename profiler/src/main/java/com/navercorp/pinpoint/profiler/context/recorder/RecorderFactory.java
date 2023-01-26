@@ -36,4 +36,8 @@ public interface RecorderFactory {
     WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot);
 
     WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot, AsyncState asyncState);
+
+    DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot);
+
+    DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot, AsyncState asyncState);
 }

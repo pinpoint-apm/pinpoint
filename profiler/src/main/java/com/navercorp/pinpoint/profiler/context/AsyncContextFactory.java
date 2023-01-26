@@ -33,4 +33,6 @@ public interface AsyncContextFactory {
     AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled, AsyncState asyncState);
 
     AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot);
+
+    AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot, AsyncState asyncState);
 }

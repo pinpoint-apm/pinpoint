@@ -32,6 +32,9 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class DisableSpanRecorder implements SpanRecorder {
+
+    public static final String UNSUPPORTED_OPERATION = "DisableSpanRecorder";
+
     private final LocalTraceRoot traceRoot;
     private final IgnoreErrorHandler ignoreErrorHandler;
 
@@ -213,16 +216,16 @@ public class DisableSpanRecorder implements SpanRecorder {
 
     @Override
     public Object attachFrameObject(Object frameObject) {
-        return null;
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public Object getFrameObject() {
-        return null;
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public Object detachFrameObject() {
-        return null;
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 }

@@ -83,7 +83,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
             return new StatefulAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, asyncMethodApiId, asyncState);
         } else {
             // TODO
-            return new StatefulDisableAsyncContext(asyncTraceContext, binder, traceRoot, asyncState);
+            return newDisableAsyncContext(traceRoot, asyncState);
         }
 
     }
@@ -91,6 +91,11 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     @Override
     public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot) {
         return new DisableAsyncContext(asyncTraceContext, binder, traceRoot);
+    }
+
+    @Override
+    public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot, AsyncState asyncState) {
+        return new StatefulDisableAsyncContext(asyncTraceContext, binder, traceRoot, asyncState);
     }
 
 }

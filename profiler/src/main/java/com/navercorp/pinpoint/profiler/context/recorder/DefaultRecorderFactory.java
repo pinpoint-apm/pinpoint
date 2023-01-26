@@ -86,4 +86,24 @@ public class DefaultRecorderFactory implements RecorderFactory {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, asyncState, stringMetaDataService, sqlMetaDataService, errorHandler);
     }
+
+    @Override
+    public DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot, AsyncState asyncState) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+        Objects.requireNonNull(asyncState, "asyncState");
+
+        return newDisableSpanEventRecorder0(traceRoot, asyncState);
+    }
+
+    @Override
+    public DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+
+        return newDisableSpanEventRecorder0(traceRoot, null);
+    }
+
+    private DisableSpanEventRecorder newDisableSpanEventRecorder0(LocalTraceRoot traceRoot, AsyncState asyncState) {
+        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        return new DisableSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
+    }
 }

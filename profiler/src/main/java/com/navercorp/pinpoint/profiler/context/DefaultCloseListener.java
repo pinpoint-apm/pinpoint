@@ -1,44 +1,46 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class DefaultCloseListener implements CloseListener {
 
+    private final LocalTraceRoot traceRoot;
     @Nullable
     private final ActiveTraceHandle activeTraceHandle;
     @Nullable
     private final UriStatStorage uriStatStorage;
 
-    public DefaultCloseListener(ActiveTraceHandle activeTraceHandle, UriStatStorage uriStatStorage) {
+    public DefaultCloseListener(LocalTraceRoot traceRoot, ActiveTraceHandle activeTraceHandle, UriStatStorage uriStatStorage) {
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.activeTraceHandle = activeTraceHandle;
         this.uriStatStorage = uriStatStorage;
     }
 
     @Override
-    public void close(Span span) {
-        final long end = span.getStartTime() + span.getElapsedTime();
-        recordUriTemplate(span, end);
-        purgeActiveTrace(end);
+    public void close(long endTime) {
+        recordUriTemplate(endTime);
+        purgeActiveTrace(endTime);
     }
 
 
-    private void recordUriTemplate(Span span, long afterTime) {
-        if (uriStatStorage == null) {
+    private void recordUriTemplate(long afterTime) {
+        final UriStatStorage copy = uriStatStorage;
+        if (copy == null) {
             return;
         }
 
-        TraceRoot traceRoot = span.getTraceRoot();
         Shared shared = traceRoot.getShared();
         String uriTemplate = shared.getUriTemplate();
         long traceStartTime = traceRoot.getTraceStartTime();
 
         boolean status = getStatus(shared.getErrorCode());
-        uriStatStorage.store(uriTemplate, status, traceStartTime, afterTime);
+        copy.store(uriTemplate, status, traceStartTime, afterTime);
     }
 
     private boolean getStatus(int errorCode) {

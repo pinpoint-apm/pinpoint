@@ -34,39 +34,59 @@ public class DisableAsyncChildTrace implements Trace {
     private DefaultTraceScopePool scopePool;
 
     private final LocalTraceRoot traceRoot;
+    private int depth;
 
-    public DisableAsyncChildTrace(final LocalTraceRoot traceRoot) {
+    private final SpanRecorder spanRecorder;
+    private final SpanEventRecorder spanEventRecorder;
+
+    public DisableAsyncChildTrace(final LocalTraceRoot traceRoot, SpanRecorder spanRecorder, SpanEventRecorder spanEventRecorder) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
+        this.spanEventRecorder = Objects.requireNonNull(spanEventRecorder, "spanEventRecorder");
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        push();
+        return getSpanEventRecorder();
     }
 
     @Override
     public void traceBlockEnd() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        traceBlockBegin(DEFAULT_STACKID);
     }
+
 
     @Override
     public void traceBlockEnd(int stackId) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        pop();
+    }
+
+    private SpanEventRecorder getSpanEventRecorder() {
+        return spanEventRecorder;
+    }
+
+    private int push() {
+        return this.depth++;
+    }
+
+    private void pop() {
+        this.depth--;
     }
 
     @Override
     public boolean isRootStack() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return depth == 0;
     }
 
     @Override
     public int getCallStackFrameId() {
-        return 0;
+        return DEFAULT_STACKID;
     }
 
     private LocalTraceRoot getTraceRoot() {
@@ -80,7 +100,7 @@ public class DisableAsyncChildTrace implements Trace {
 
     @Override
     public long getStartTime() {
-        return getTraceRoot().getTraceStartTime();
+        return traceRoot.getTraceStartTime();
     }
 
     @Override
@@ -95,7 +115,7 @@ public class DisableAsyncChildTrace implements Trace {
 
     @Override
     public boolean isRoot() {
-        return this.getTraceId().isRoot();
+        return false;
     }
 
     @Override
@@ -105,12 +125,12 @@ public class DisableAsyncChildTrace implements Trace {
 
     @Override
     public SpanRecorder getSpanRecorder() {
-        return null;
+        return spanRecorder;
     }
 
     @Override
     public SpanEventRecorder currentSpanEventRecorder() {
-        return null;
+        return spanEventRecorder;
     }
 
     @Override

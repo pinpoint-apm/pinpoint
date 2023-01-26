@@ -29,7 +29,7 @@ import java.util.Objects;
 @InterfaceAudience.LimitedPrivate("vert.x")
 public class ListenableAsyncState implements AsyncState {
 
-    private final TraceRoot traceRoot;
+    private final LocalTraceRoot traceRoot;
     private final AsyncStateListener asyncStateListener;
     private final ActiveTraceHandle activeTraceHandle;
     private final UriStatStorage uriStatStorage;
@@ -38,7 +38,7 @@ public class ListenableAsyncState implements AsyncState {
     private boolean await = false;
     private boolean finish = false;
 
-    public ListenableAsyncState(TraceRoot traceRoot,
+    public ListenableAsyncState(LocalTraceRoot traceRoot,
                                 AsyncStateListener asyncStateListener,
                                 ActiveTraceHandle activeTraceHandle,
                                 UriStatStorage uriStatStorage) {
@@ -114,6 +114,8 @@ public class ListenableAsyncState implements AsyncState {
 
     @InterfaceAudience.LimitedPrivate("LocalTraceContext")
     public interface AsyncStateListener {
+        AsyncStateListener EMPTY = () -> {
+        };
         void finish();
     }
 

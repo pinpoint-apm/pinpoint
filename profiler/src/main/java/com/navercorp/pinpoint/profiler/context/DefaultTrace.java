@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 public class DefaultTrace implements Trace {
 
-    static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
+    static final Logger logger = LogManager.getLogger(DefaultTrace.class);
     static final boolean isDebug = logger.isDebugEnabled();
 
     private final CallStack<SpanEvent> callStack;
@@ -195,7 +195,7 @@ public class DefaultTrace implements Trace {
         }
 
         this.storage.close();
-        this.closeListener.close(span);
+        this.closeListener.close(afterTime);
     }
 
 
