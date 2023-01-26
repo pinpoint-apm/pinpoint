@@ -31,7 +31,7 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class HeaderTBaseSerializerTest {
-    private final Logger logger = LogManager.getLogger(HeaderTBaseSerializerTest.class.getName());
+    private final Logger logger = LogManager.getLogger(HeaderTBaseSerializerTest.class);
 
 
     @Test

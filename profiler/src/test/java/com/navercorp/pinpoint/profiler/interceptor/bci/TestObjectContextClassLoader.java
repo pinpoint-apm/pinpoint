@@ -23,7 +23,7 @@ import org.apache.logging.log4j.LogManager;
  * @author emeroad
  */
 public class TestObjectContextClassLoader {
-    private Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private int callA;
 

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public final class ManagedChannelUtils {
     public static final long DEFAULT_SHUTDOWN_TIMEOUT = 3000;
 
-    private static final Logger logger = LogManager.getLogger(ExecutorUtils.class.getName());
+    private static final Logger logger = LogManager.getLogger(ManagedChannelUtils.class);
 
     private ManagedChannelUtils() {
     }

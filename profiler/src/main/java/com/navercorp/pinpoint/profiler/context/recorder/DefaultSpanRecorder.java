@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -34,7 +33,7 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
-    private static final Logger logger = LogManager.getLogger(DefaultTrace.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultSpanRecorder.class);
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private final Span span;

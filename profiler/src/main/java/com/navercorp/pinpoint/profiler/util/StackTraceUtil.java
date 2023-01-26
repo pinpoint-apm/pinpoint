@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 
 public class StackTraceUtil {
 
-    private static final Logger logger = LogManager.getLogger(StackTraceUtil.class.getName());
+    private static final Logger logger = LogManager.getLogger(StackTraceUtil.class);
 
     public static void printCurrentStackTrace() {
         printCurrentStackTrace(logger);

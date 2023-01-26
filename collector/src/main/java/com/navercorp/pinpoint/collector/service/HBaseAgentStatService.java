@@ -29,7 +29,7 @@ import java.util.Objects;
 @Service("hBaseAgentStatService")
 public class HBaseAgentStatService implements AgentStatService {
 
-    private final Logger logger = LogManager.getLogger(HBaseAgentStatService.class.getName());
+    private final Logger logger = LogManager.getLogger(HBaseAgentStatService.class);
 
     private final AgentStatDao<?>[] agentStatDaoList;
 

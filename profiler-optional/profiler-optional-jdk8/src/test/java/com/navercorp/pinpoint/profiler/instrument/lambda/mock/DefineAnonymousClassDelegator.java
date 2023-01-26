@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
  */
 public class DefineAnonymousClassDelegator {
 
-    private static final Logger logger = LogManager.getLogger(DefineAnonymousClassDelegator.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefineAnonymousClassDelegator.class);
     public static int count;
 
     public static Class<?> delegate(Class<?> hostClass, byte[] data, Object[] cpPatches) {

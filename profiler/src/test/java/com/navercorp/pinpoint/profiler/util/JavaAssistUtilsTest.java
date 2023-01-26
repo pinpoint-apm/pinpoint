@@ -32,7 +32,7 @@ public class JavaAssistUtilsTest {
 
     private static final String TEST_CLASS_NAME = "com.navercorp.pinpoint.profiler.util.JavaAssistUtilsTest";
 
-    private final Logger logger = LogManager.getLogger(JavaAssistUtilsTest.class.getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test
@@ -163,7 +163,7 @@ public class JavaAssistUtilsTest {
 
 
     @Test
-    public void testParseParameterDescriptor() throws Exception {
+    public void testParseParameterDescriptor() {
         Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
 
         Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(I)I"), new String[]{"int"});
@@ -180,7 +180,7 @@ public class JavaAssistUtilsTest {
     }
 
     @Test
-    public void testParseParameterDescriptor_array() throws Exception {
+    public void testParseParameterDescriptor_array() {
 
         Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([I)I"), new String[]{"int[]"});
         Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([IJ)I"), new String[]{"int[]", "long"});
@@ -198,19 +198,19 @@ public class JavaAssistUtilsTest {
 
 
     @Test
-    public void testGetParameterDescription2() throws Exception {
+    public void testGetParameterDescription2() {
         @SuppressWarnings("deprecation")
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
         Assertions.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
     }
 
     @Test
-    public void testJavaClassNameToJvmResourceName1() throws Exception {
+    public void testJavaClassNameToJvmResourceName1() {
         Assertions.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java.lang.String"));
     }
 
     @Test
-    public void testJavaClassNameToJvmResourceName2() throws Exception {
+    public void testJavaClassNameToJvmResourceName2() {
         Assertions.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java/lang/String"));
     }
 

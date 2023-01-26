@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
  */
 public class TestLog {
 
-    private final Logger logger = LogManager.getLogger(TestLog.class.getName());
+    private final Logger logger = LogManager.getLogger(TestLog.class);
 
     public String constructor;
 

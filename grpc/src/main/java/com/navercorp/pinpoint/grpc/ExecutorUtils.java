@@ -29,7 +29,7 @@ public final class ExecutorUtils {
 
     public static final long DEFAULT_SHUTDOWN_TIMEOUT = 3000;
 
-    private static final Logger logger = LogManager.getLogger(ExecutorUtils.class.getName());
+    private static final Logger logger = LogManager.getLogger(ExecutorUtils.class);
 
     private ExecutorUtils() {
     }

@@ -32,7 +32,7 @@ public class TestBeforeInterceptor implements StaticAroundInterceptor {
         System.out.println("load TestBeforeInterceptor cl:" + TestBeforeInterceptor.class.getClassLoader());
     }
     
-    private Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public int call = 0;
     public Object target;

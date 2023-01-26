@@ -38,7 +38,7 @@ import java.util.Date;
  */
 public class AnnotationTranscoderTest {
 
-    private Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testDecode() {

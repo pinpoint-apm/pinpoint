@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
  */
 public class HeaderUtilsTest {
 
-    private final Logger logger = LogManager.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void validateSignature() throws TException {
