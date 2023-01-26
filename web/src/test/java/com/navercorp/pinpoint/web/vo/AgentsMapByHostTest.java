@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.vo;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
@@ -29,7 +29,7 @@ public class AgentsMapByHostTest {
 
 
         SortByAgentInfo<AgentStatusAndLink> sortBy = SortByAgentInfo.agentIdAsc(AgentStatusAndLink::getAgentInfo);
-        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentInfoFilter::accept, sortBy, hyperLinkFactory, agentAndStatusList);
+        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentStatusFilter::accept, sortBy, hyperLinkFactory, agentAndStatusList);
         List<InstancesList<AgentStatusAndLink>> instancesLists = agentsMapByHost.getAgentsListsList();
 
         Assertions.assertEquals(3, instancesLists.size());

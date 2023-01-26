@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
@@ -30,7 +30,7 @@ public class AgentsMapByHost {
         return new ArrayList<>(instancesListMap.getListMap());
     }
 
-    public static AgentsMapByHost newAgentsMapByHost(AgentInfoFilter filter,
+    public static AgentsMapByHost newAgentsMapByHost(AgentStatusFilter filter,
                                                      SortByAgentInfo<AgentStatusAndLink> sortByAgentInfo,
                                                      HyperLinkFactory hyperLinkFactory,
                                                      Collection<AgentAndStatus> agentCollection) {
@@ -45,7 +45,7 @@ public class AgentsMapByHost {
                         sortByAgentInfo.getComparator(),
                         agentCollection
                 );
-        instancesListMapBuilder.withFilter(filter::filter)
+        instancesListMapBuilder.withFilter((AgentAndStatus a) -> filter.filter(a.getStatus()))
                 .withFinisher(x -> newAgentStatusAndLink(x, hyperLinkFactory));
 
         return new AgentsMapByHost(instancesListMapBuilder.build());

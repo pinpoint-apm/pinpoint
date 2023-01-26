@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
@@ -41,11 +41,11 @@ public interface AgentInfoService {
 
     int NO_DURATION = -1;
 
-    AgentsMapByApplication getAllAgentsList(AgentInfoFilter filter, Range range);
+    AgentsMapByApplication getAllAgentsList(AgentStatusFilter filter, Range range);
 
-    AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, Range range);
+    AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter filter, String applicationName, Range range);
 
-    AgentsMapByHost getAgentsListByApplicationName(AgentInfoFilter filter, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
+    AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter filter, String applicationName, Range range, SortByAgentInfo.Rules sortBy);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays);
 

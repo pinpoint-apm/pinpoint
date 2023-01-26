@@ -2,22 +2,21 @@ package com.navercorp.pinpoint.web.vo.agent;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 
-public interface AgentInfoFilter {
+public interface AgentStatusFilter {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
-    boolean filter(AgentAndStatus agentInfo);
+    boolean filter(AgentStatus agentStatus);
 
-    static boolean accept(AgentAndStatus agentAndStatus) {
+    static boolean accept(AgentStatus agentStatus) {
         return ACCEPT;
     }
 
-    static boolean reject(AgentAndStatus agentAndStatus) {
+    static boolean reject(AgentStatus agentStatus) {
         return REJECT;
     }
 
-    static boolean filterRunning(AgentAndStatus agentAndStatus) {
-        final AgentStatus agentStatus = agentAndStatus.getStatus();
+    static boolean filterRunning(AgentStatus agentStatus) {
         if (agentStatus == null) {
             return REJECT;
         }

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.vo.tree;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +21,7 @@ public class AgentsMapByApplication {
         return new ArrayList<>(instancesListMap.getListMap());
     }
 
-    public static AgentsMapByApplication newAgentsMapByApplication(AgentInfoFilter filter,
+    public static AgentsMapByApplication newAgentsMapByApplication(AgentStatusFilter filter,
                                                                    Collection<AgentAndStatus> agentCollection) {
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(agentCollection, "agentCollection");
@@ -34,7 +34,7 @@ public class AgentsMapByApplication {
                         agentCollection
                 );
 
-        instancesListMapBuilder.withFilter(filter::filter);
+        instancesListMapBuilder.withFilter((AgentAndStatus a) -> filter.filter(a.getStatus()));
         return new AgentsMapByApplication(instancesListMapBuilder.build());
     }
 
