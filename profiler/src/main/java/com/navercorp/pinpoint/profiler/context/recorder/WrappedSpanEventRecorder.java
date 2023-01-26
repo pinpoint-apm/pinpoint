@@ -155,13 +155,12 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     public AsyncContext recordNextAsyncContext(boolean asyncStateSupport) {
         if (asyncStateSupport && asyncState != null) {
-            final TraceRoot traceRoot = this.traceRoot;
             final AsyncId asyncIdObject = getNextAsyncId();
             final boolean isDisabled = isOverflowState();
 
             final AsyncState asyncState = this.asyncState;
             asyncState.setup();
-            return asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, isDisabled, asyncState);
+            return asyncContextFactory.newAsyncContext(this.traceRoot, asyncIdObject, isDisabled, asyncState);
         }
         return recordNextAsyncContext();
     }

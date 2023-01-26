@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
-import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -35,24 +35,31 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class DisableTrace implements Trace {
+    static final Logger logger = LogManager.getLogger(DisableTrace.class);
+    static final boolean isDebug = logger.isDebugEnabled();
 
-    public static final String UNSUPPORTED_OPERATION  = "disable trace";
+    public static final String UNSUPPORTED_OPERATION = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;
 
     private final LocalTraceRoot traceRoot;
     private final SpanRecorder spanRecorder;
     private DefaultTraceScopePool scopePool;
-    private final ActiveTraceHandle handle;
-    private final UriStatStorage uriStatStorage;
+    private final CloseListener closeListener;
+
+    private int depth;
+
+    private SpanEventRecorder spanEventRecorder;
 
     private boolean closed = false;
 
-    public DisableTrace(LocalTraceRoot traceRoot, SpanRecorder spanRecorder, ActiveTraceHandle handle, UriStatStorage uriStatStorage) {
+    public DisableTrace(LocalTraceRoot traceRoot,
+                        SpanRecorder spanRecorder, SpanEventRecorder spanEventRecorder,
+                        CloseListener closeListener) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
+        this.spanEventRecorder = Objects.requireNonNull(spanEventRecorder, "spanEventRecorder");
 
-        this.handle = Objects.requireNonNull(handle, "handle");
-        this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
+        this.closeListener = Objects.requireNonNull(closeListener, "closeListener");
 
         setCurrentThread();
     }
@@ -75,23 +82,33 @@ public class DisableTrace implements Trace {
 
     @Override
     public SpanEventRecorder traceBlockBegin() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        push();
+        return this.spanEventRecorder;
     }
 
     @Override
     public void traceBlockEnd() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
     public void traceBlockEnd(int stackId) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        pop();
     }
+
+    private int push() {
+        return this.depth++;
+    }
+
+    private void pop() {
+        this.depth--;
+    }
+
 
     @Override
     public TraceId getTraceId() {
@@ -116,7 +133,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public boolean isRootStack() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return depth == 0;
     }
 
 
@@ -132,12 +149,8 @@ public class DisableTrace implements Trace {
         }
         closed = true;
 
-
         final long purgeTime = System.currentTimeMillis();
-        handle.purge(purgeTime);
-        boolean status = getStatus();
-        String uriTemplate = getShared().getUriTemplate();
-        uriStatStorage.store(uriTemplate, status, traceRoot.getTraceStartTime(), purgeTime);
+        this.closeListener.close(purgeTime);
     }
 
     private boolean getStatus() {
@@ -151,7 +164,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public int getCallStackFrameId() {
-        return 0;
+        return DEFAULT_STACKID;
     }
 
     @Override
@@ -161,8 +174,9 @@ public class DisableTrace implements Trace {
 
     @Override
     public SpanEventRecorder currentSpanEventRecorder() {
-       return null;
+        return spanEventRecorder;
     }
+
 
     @Override
     public TraceScope getScope(String name) {

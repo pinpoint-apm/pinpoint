@@ -3,10 +3,9 @@ package com.navercorp.pinpoint.profiler.context.id;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.profiler.context.CloseListener;
 import com.navercorp.pinpoint.profiler.context.DisableAsyncChildTrace;
 import com.navercorp.pinpoint.profiler.context.DisableTrace;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
-import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +52,7 @@ public class LocalTraceRootTest {
         SpanRecorder childSpanRecorder = childTrace.getSpanRecorder();
 
         Assertions.assertNotNull(spanRecorder);
-        Assertions.assertNull(childSpanRecorder);
+        Assertions.assertNotNull(childSpanRecorder);
     }
 
     @Test
@@ -64,18 +63,20 @@ public class LocalTraceRootTest {
         SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
         SpanEventRecorder childSpanEventRecorder = childTrace.currentSpanEventRecorder();
 
-        Assertions.assertNull(spanEventRecorder);
-        Assertions.assertNull(childSpanEventRecorder);
+        Assertions.assertNotNull(spanEventRecorder);
+        Assertions.assertNotNull(childSpanEventRecorder);
     }
 
     private Trace newTrace(LocalTraceRoot traceRoot) {
-        ActiveTraceHandle activeTraceHandle = mock(ActiveTraceHandle.class);
-        UriStatStorage uriStatStorage = mock(UriStatStorage.class);
         SpanRecorder spanRecorder = mock(SpanRecorder.class);
-        return new DisableTrace(traceRoot, spanRecorder, activeTraceHandle, uriStatStorage);
+        SpanEventRecorder spanEventRecorder = mock(SpanEventRecorder.class);
+
+        return new DisableTrace(traceRoot, spanRecorder, spanEventRecorder, CloseListener.EMPTY);
     }
 
     private Trace newChildTrace(LocalTraceRoot traceRoot) {
-        return new DisableAsyncChildTrace(traceRoot);
+        SpanRecorder spanRecorder = mock(SpanRecorder.class);
+        SpanEventRecorder spanEventRecorder = mock(SpanEventRecorder.class);
+        return new DisableAsyncChildTrace(traceRoot, spanRecorder, spanEventRecorder);
     }
 }

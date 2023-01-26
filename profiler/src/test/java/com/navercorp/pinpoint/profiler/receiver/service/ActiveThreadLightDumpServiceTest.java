@@ -68,7 +68,7 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
         List<ActiveTraceSnapshot> activeTraceInfoList = createMockActiveTraceInfoList(CREATE_SIZE, DEFAULT_TIME_MILLIS, TIME_DIFF_INTERVAL, waitingJobList);
@@ -81,7 +81,7 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
 
@@ -97,7 +97,7 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest3() throws Exception {
+    public void basicFunctionTest3() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
         int targetThreadNameSize = 3;
@@ -115,7 +115,7 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest4() throws Exception {
+    public void basicFunctionTest4() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
 
@@ -137,7 +137,7 @@ public class ActiveThreadLightDumpServiceTest {
     }
 
     @Test
-    public void basicFunctionTest5() throws Exception {
+    public void basicFunctionTest5() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
 
