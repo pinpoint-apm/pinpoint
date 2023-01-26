@@ -72,14 +72,10 @@ public class DefaultRecord extends BaseRecord {
     }
 
     public String getTabspace() {
-        if(tab == 0) {
+        if (tab == 0) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i< tab; i++) {
-            sb.append("&nbsp");
-        }
-        return sb.toString();
+        return "&nbsp".repeat(Math.max(0, tab));
     }
 
     public boolean isMethod() {
