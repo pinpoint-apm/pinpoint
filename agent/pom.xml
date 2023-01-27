@@ -140,7 +140,7 @@
                 <!-- https://github.com/git-commit-id/maven-git-commit-id-plugin -->
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.0</version>
+                <version>4.0.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
