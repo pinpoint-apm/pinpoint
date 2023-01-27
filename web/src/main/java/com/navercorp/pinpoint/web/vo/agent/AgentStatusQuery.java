@@ -56,6 +56,10 @@ public class AgentStatusQuery {
         return buildQuery(agentInfos, AgentStatusQuery::apply, timestamp);
     }
 
+    public static <T> AgentStatusQuery buildGenericQuery(Collection<T> agentInfos, Function<T, AgentInfo> agentInfoFunction, Instant timestamp) {
+        return buildQuery(agentInfos, agentInfoFunction.andThen(AgentStatusQuery::apply), timestamp);
+    }
+
     private static SimpleAgentKey apply(AgentInfo agentInfo) {
         if (agentInfo == null) {
             return null;

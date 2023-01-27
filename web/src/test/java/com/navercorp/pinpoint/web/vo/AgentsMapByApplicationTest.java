@@ -22,7 +22,7 @@ public class AgentsMapByApplicationTest {
         AgentAndStatus app2Agent2 = createAgentInfo("APP_2", "app2-agent2", "Host22", true);
         List<AgentAndStatus> agentAndStatusList = shuffleAgentInfos(app1Agent1, app1Agent2, app2Agent1, app2Agent2);
 
-        AgentsMapByApplication agentsMapByApplication = AgentsMapByApplication.newAgentsMapByApplication(AgentStatusFilter::accept, agentAndStatusList);
+        AgentsMapByApplication<AgentAndStatus> agentsMapByApplication = AgentsMapByApplication.newAgentAndStatusMap(AgentStatusFilter::accept, agentAndStatusList);
         List<InstancesList<AgentAndStatus>> instancesLists = agentsMapByApplication.getAgentsListsList();
 
         Assertions.assertEquals(2, instancesLists.size());

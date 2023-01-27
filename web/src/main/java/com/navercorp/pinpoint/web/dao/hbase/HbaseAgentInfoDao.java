@@ -125,6 +125,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return getAgentInfos0(agentIds, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
     }
 
+    @Override
+    public List<DetailedAgentInfo> getDetailedAgentInfos(List<String> agentIds, long timestamp, boolean withServerMetadata, boolean withJVM) {
+        return getAgentInfos0(agentIds, timestamp, detailedAgentInfoResultsExtractor, new AgentInfoColumn(true, withServerMetadata, withJVM));
+    }
+
+    @Override
     public List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp) {
         return getAgentInfos0(agentIds, timestamp, agentInfoResultsExtractor, AgentInfoColumn.simple());
     }
