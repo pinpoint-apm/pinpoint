@@ -106,7 +106,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByApplication getAllAgentsList(AgentStatusFilter filter, Range range) {
+    public AgentsMapByApplication<AgentAndStatus> getAllAgentsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
@@ -115,15 +115,26 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             agents.addAll(getAgentsByApplicationName(application.getName(), range.getTo()));
         }
 
-        return AgentsMapByApplication.newAgentsMapByApplication(
+        return AgentsMapByApplication.newAgentAndStatusMap(
                 filter,
                 agents
         );
     }
 
     @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter filter, String applicationName, Range range) {
-        return getAgentsListByApplicationName(filter, applicationName, range, SortByAgentInfo.Rules.AGENT_ID_ASC);
+    public AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
+        Objects.requireNonNull(filter, "filter");
+
+        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<DetailedAgentAndStatus> agents = new ArrayList<>();
+        for (Application application : applications) {
+            agents.addAll(getDetailedAgentsByApplicationName(application.getName(), range.getTo()));
+        }
+
+        return AgentsMapByApplication.newDetailedAgentInfoMap(
+                filter,
+                agents
+        );
     }
 
     @Override
@@ -277,6 +288,37 @@ public class AgentInfoServiceImpl implements AgentInfoService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
+    }
+
+    public Set<DetailedAgentAndStatus> getDetailedAgentsByApplicationName(String applicationName, long timestamp) {
+        List<DetailedAgentInfo> agentInfos = this.getDetailedAgentsByApplicationNameWithoutStatus0(applicationName, timestamp);
+
+        List<DetailedAgentAndStatus> result = new ArrayList<>(agentInfos.size());
+
+        AgentStatusQuery query = AgentStatusQuery.buildGenericQuery(agentInfos, DetailedAgentInfo::getAgentInfo, Instant.ofEpochMilli(timestamp));
+        List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
+
+        for (int i = 0; i < agentStatus.size(); i++) {
+            Optional<AgentStatus> status = agentStatus.get(i);
+            DetailedAgentInfo agentInfo = agentInfos.get(i);
+            result.add(new DetailedAgentAndStatus(agentInfo, status.orElse(null)));
+        }
+
+        return new HashSet<>(result);
+    }
+
+    public List<DetailedAgentInfo> getDetailedAgentsByApplicationNameWithoutStatus0(String applicationName, long timestamp) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        if (timestamp < 0) {
+            throw new IllegalArgumentException("timestamp must not be less than 0");
+        }
+
+        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
+        List<DetailedAgentInfo> agentInfos = this.agentInfoDao.getDetailedAgentInfos(agentIds, timestamp, false, true);
+
+        return agentInfos.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override

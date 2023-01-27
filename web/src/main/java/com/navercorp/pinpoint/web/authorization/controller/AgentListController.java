@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilterChain;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.DefaultAgentStatusFilter;
+import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
@@ -51,18 +52,17 @@ public class AgentListController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         AgentStatusFilter filter = new DefaultAgentStatusFilter(from);
-        AgentsMapByApplication allAgentsList = this.agentInfoService.getAllAgentsList(
+        AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(
                 filter,
                 Range.between(from, to)
         );
         return treeView(allAgentsList);
     }
 
-    private static TreeView<InstancesList<AgentAndStatus>> treeView(AgentsMapByApplication agentsListsList) {
-        List<InstancesList<AgentAndStatus>> list = agentsListsList.getAgentsListsList();
+    private static <T> TreeView<InstancesList<T>> treeView(AgentsMapByApplication<T> agentsListsList) {
+        List<InstancesList<T>> list = agentsListsList.getAgentsListsList();
         return new StaticTreeView<>(list);
     }
-
 
     @GetMapping(value = "/search-application", params = {"application"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
@@ -106,4 +106,26 @@ public class AgentListController {
         return new StaticTreeView<>(list);
     }
 
+    @GetMapping(value = "/statistics")
+    public TreeView<InstancesList<DetailedAgentInfo>> getAllAgentStatistics(
+    ) {
+        long timestamp = System.currentTimeMillis();
+        AgentsMapByApplication<DetailedAgentInfo> allAgentsList = this.agentInfoService.getAllAgentsStatisticsList(
+                AgentStatusFilter::accept,
+                Range.between(timestamp, timestamp)
+        );
+        return treeView(allAgentsList);
+    }
+
+    @GetMapping(value = "/statistics", params = {"from", "to"})
+    public TreeView<InstancesList<DetailedAgentInfo>> getAllAgentStatistics(
+            @RequestParam("from") long from,
+            @RequestParam("to") long to
+    ) {
+        AgentsMapByApplication<DetailedAgentInfo> allAgentsList = this.agentInfoService.getAllAgentsStatisticsList(
+                AgentStatusFilter::accept,
+                Range.between(from, to)
+        );
+        return treeView(allAgentsList);
+    }
 }
