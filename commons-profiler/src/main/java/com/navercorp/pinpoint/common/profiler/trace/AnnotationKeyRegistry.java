@@ -39,7 +39,7 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
 
     private final IntHashMap<AnnotationKey> apiErrorLookupTable;
 
-    private AnnotationKeyRegistry(HashMap<Integer, AnnotationKey> buildMap) {
+    private AnnotationKeyRegistry(Map<Integer, AnnotationKey> buildMap) {
         Objects.requireNonNull(buildMap, "buildMap");
 
         this.codeLookupTable = IntHashMapUtils.copy(buildMap);
@@ -48,7 +48,7 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
     }
 
     private Map<String, AnnotationKey> buildNameTable(Collection<AnnotationKey> buildMap) {
-        final HashMap<String, AnnotationKey> nameLookupTable = new HashMap<>();
+        final Map<String, AnnotationKey> nameLookupTable = new HashMap<>();
         for (AnnotationKey annotationKey : buildMap) {
             final AnnotationKey exist = nameLookupTable.put(annotationKey.getName(), annotationKey);
             if (exist != null) {
@@ -98,7 +98,7 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
 
     static class Builder {
 
-        private final HashMap<Integer, AnnotationKey> buildMap = new HashMap<>();
+        private final Map<Integer, AnnotationKey> buildMap = new HashMap<>();
 
         void addAnnotationKey(AnnotationKey annotationKey) {
             Objects.requireNonNull(annotationKey, "annotationKey");

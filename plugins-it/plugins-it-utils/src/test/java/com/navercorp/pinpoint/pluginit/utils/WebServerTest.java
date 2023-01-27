@@ -66,7 +66,7 @@ public class WebServerTest {
 
     @Test
     public void testServe() {
-        HashMap<String, List<String>> params = new HashMap<>();
+        Map<String, List<String>> params = new HashMap<>();
         NanoHTTPD.Response response = serve(params);
         assertResponse(response, "{}");
 

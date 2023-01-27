@@ -139,7 +139,7 @@ public class ByteSizeUnitTest {
         try {
             ByteSizeUnit.getByteSize(value);
             Assertions.fail(value);
-        } catch (Exception e) {
+        } catch (Exception ignore) {
         }
     }
 
