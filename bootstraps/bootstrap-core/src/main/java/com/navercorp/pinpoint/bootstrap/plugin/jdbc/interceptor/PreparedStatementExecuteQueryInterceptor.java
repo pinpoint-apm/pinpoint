@@ -93,7 +93,7 @@ public class PreparedStatementExecuteQueryInterceptor extends SpanEventSimpleAro
 
     private void clean(Object target) {
         if (target instanceof BindValueAccessor) {
-            ((BindValueAccessor)target)._$PINPOINT$_setBindValue(new HashMap<Integer, String>());
+            ((BindValueAccessor) target)._$PINPOINT$_setBindValue(new HashMap<>());
         }
     }
 

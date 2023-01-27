@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -43,7 +44,7 @@ public class AnnotationKeyMatcherRegistry implements AnnotationKeyMatcherLocator
 
     static class Builder {
 
-        private final HashMap<Integer, AnnotationKeyMatcher> buildMap = new HashMap<>();
+        private final Map<Integer, AnnotationKeyMatcher> buildMap = new HashMap<>();
 
         AnnotationKeyMatcher addAnnotationKeyMatcher(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
             Objects.requireNonNull(serviceType, "serviceType");

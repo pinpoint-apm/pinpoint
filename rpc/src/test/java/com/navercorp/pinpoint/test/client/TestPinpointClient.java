@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.client;
 
-import java.util.Objects;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
@@ -30,6 +29,7 @@ import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -40,7 +40,7 @@ public class TestPinpointClient {
     private PinpointClient pinpointClient;
 
     public TestPinpointClient() {
-        this(Collections.<String, Object>emptyMap());
+        this(Collections.emptyMap());
     }
 
     public TestPinpointClient(Map<String, Object> param) {
@@ -52,7 +52,7 @@ public class TestPinpointClient {
     }
 
     public TestPinpointClient(MessageListener messageListener, ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this(messageListener, serverStreamChannelMessageHandler, Collections.<String, Object>emptyMap());
+        this(messageListener, serverStreamChannelMessageHandler, Collections.emptyMap());
     }
 
     public TestPinpointClient(MessageListener messageListener, Map<String, Object> param) {
