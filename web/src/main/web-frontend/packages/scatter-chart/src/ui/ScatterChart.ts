@@ -45,12 +45,12 @@ export class ScatterChart {
   private wrapper;
   private canvasWrapper;
   private options!: ScatterChartSettedOption;
-  private xAxis!: XAxis;
+  public xAxis!: XAxis;
   private yAxis!: YAxis;
   private gridAxis!: GridAxis;
   private legend!: Legend;
   private dataColorMap!: { [key: string]: string };
-  private viewport!: Viewport;
+  public viewport!: Viewport;
   private guide!: Guide;
   private dataLayers: { [key: string]: Layer } = {};
   private data: ScatterDataType[] = [];
@@ -147,11 +147,10 @@ export class ScatterChart {
 
   private setPadding() {
     const { x: xAxisOption, y: yAxisOptoin } = this.options.axis;
-    const xformatter = xAxisOption.tick?.format;
     const xTicks = getTickTexts(xAxisOption);
     const yTicks = getTickTexts(yAxisOptoin);
     const maxXTickTextWidth = getLongestText(xTicks, (t) => this.xAxis.getTextWidth(t));
-    const maxXTickTextHeight = getLongestText(xTicks, (t) => this.xAxis.getTextHeight(xformatter ? xformatter((t)) : t));
+    const maxXTickTextHeight = getLongestText(xTicks, (t) => this.xAxis.getTextHeight(t));
     const maxYTickTextWidth = getLongestText(yTicks, (t) => this.yAxis.getTextWidth(t));
     
     this.options.padding = {
