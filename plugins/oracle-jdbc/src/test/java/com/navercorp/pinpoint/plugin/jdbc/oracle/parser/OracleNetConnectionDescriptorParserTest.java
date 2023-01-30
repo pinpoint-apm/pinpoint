@@ -173,14 +173,9 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SID = sid ) ) ";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        try {
-            KeyValue<?> keyValue = parser.parse();
-            Assertions.fail();
-        } catch (OracleConnectionStringException e) {
-            logger.info("Expected error", e);
-        }
-
-
+        Assertions.assertThrowsExactly(OracleConnectionStringException.class, () -> {
+            parser.parse();
+        });
     }
 
 
@@ -191,12 +186,9 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SID = sid ) ) )";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        try {
-            KeyValue<?> keyValue = parser.parse();
-            Assertions.fail();
-        } catch (OracleConnectionStringException e) {
-            logger.info("Expected error", e);
-        }
+        Assertions.assertThrowsExactly(OracleConnectionStringException.class, () -> {
+            parser.parse();
+        });
     }
 
     @Test
@@ -207,12 +199,9 @@ public class OracleNetConnectionDescriptorParserTest {
         // removed port
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        try {
-            KeyValue<?> keyValue = parser.parse();
-            Assertions.fail();
-        } catch (OracleConnectionStringException e) {
-            logger.info("Expected error", e);
-        }
+        Assertions.assertThrowsExactly(OracleConnectionStringException.class, () -> {
+            parser.parse();
+        });
     }
 
 }

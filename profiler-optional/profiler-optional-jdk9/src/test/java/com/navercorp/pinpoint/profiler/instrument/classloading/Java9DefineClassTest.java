@@ -45,11 +45,9 @@ public class Java9DefineClassTest {
 
         URL[] empty = {};
         URLClassLoader classLoader = new URLClassLoader(empty, null);
-        try {
+        Assertions.assertThrowsExactly(ClassNotFoundException.class, () -> {
             classLoader.loadClass(Logger.class.getName());
-            Assertions.fail();
-        } catch (ClassNotFoundException ignored) {
-        }
+        });
 
         String className = JavaAssistUtils.javaClassNameToJvmResourceName(Logger.class.getName());
         InputStream classStream = Logger.class.getClassLoader().getResourceAsStream(className);

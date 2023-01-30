@@ -55,33 +55,26 @@ public class DateLimiterTest {
     @Test
     public void checkFail() {
         Limiter limiter = new DateLimiter(Duration.ofDays(2));
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             limiter.limit(Instant.EPOCH, ofDays(2).plusMillis(1));
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
+        });
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             limiter.limit(ofDays(2), Instant.EPOCH);
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
+        });
     }
 
     @Test
     public void checkRangeFail() {
         Limiter limiter = new DateLimiter(Duration.ofDays(2));
-        try {
-            limiter.limit(Range.between(Instant.EPOCH, ofDays(2).plusMillis(1)));
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
+            limiter.limit(Range.between(Instant.EPOCH, ofDays(2).plusMillis(1)));
+        });
+
+        Assertions.assertThrows(Exception.class, () -> {
             limiter.limit(Range.between(ofDays(2), Instant.EPOCH));
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
+        });
     }
 
     private Instant ofDays(long days) {

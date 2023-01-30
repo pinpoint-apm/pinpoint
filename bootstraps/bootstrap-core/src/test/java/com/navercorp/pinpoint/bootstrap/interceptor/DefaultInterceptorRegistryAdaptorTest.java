@@ -12,34 +12,29 @@ public class DefaultInterceptorRegistryAdaptorTest {
     @Test
     public void indexSize_0() {
 
-        try {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             new DefaultInterceptorRegistryAdaptor(-1);
-            Assertions.fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-
+        });
     }
 
     @Test
     public void indexSize_1() {
-        try {
-            InterceptorRegistryAdaptor interceptorRegistry = new DefaultInterceptorRegistryAdaptor(0);
-            StaticAroundInterceptor mock = mock(StaticAroundInterceptor.class);
+        InterceptorRegistryAdaptor interceptorRegistry = new DefaultInterceptorRegistryAdaptor(0);
+        StaticAroundInterceptor mock = mock(StaticAroundInterceptor.class);
+
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             interceptorRegistry.addInterceptor(mock);
-            Assertions.fail();
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
     }
 
     @Test
     public void indexSize_2() {
         InterceptorRegistryAdaptor interceptorRegistry = new DefaultInterceptorRegistryAdaptor(1);
         interceptorRegistry.addInterceptor(mock(StaticAroundInterceptor.class));
-        try {
+
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             interceptorRegistry.addInterceptor(mock(StaticAroundInterceptor.class));
-            Assertions.fail();
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
     }
 
     @Test

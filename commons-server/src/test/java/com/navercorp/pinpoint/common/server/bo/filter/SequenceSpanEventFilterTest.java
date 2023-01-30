@@ -52,12 +52,9 @@ public class SequenceSpanEventFilterTest {
     public void testFilter_max() {
         new SequenceSpanEventFilter(Short.MAX_VALUE);
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             new SequenceSpanEventFilter(Short.MAX_VALUE + 1);
-            Assertions.fail();
-        } catch (Exception e) {
-        }
-
+        });
     }
 
 }

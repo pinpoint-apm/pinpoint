@@ -62,12 +62,7 @@ public class HbaseTableNameCacheTest {
     @Test
     public void nullQualifierShouldThrowException() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            // Given
-            final String nullQualifier = null;
-            // When
-            cache.get(nullQualifier);
-            // Then
-            Assertions.fail();
+            cache.get(null);
         });
     }
 }

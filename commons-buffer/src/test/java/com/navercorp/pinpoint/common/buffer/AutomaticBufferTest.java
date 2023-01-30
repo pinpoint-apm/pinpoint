@@ -69,18 +69,14 @@ public class AutomaticBufferTest {
     public void testPadBytes_Error() {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_1.putPadBytes(new byte[11], 10);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_2.putPadBytes(new byte[20], 10);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
         Buffer buffer2 = new AutomaticBuffer(32);
         buffer2.putPadBytes(new byte[10], 10);
@@ -118,18 +114,14 @@ public class AutomaticBufferTest {
     public void testPadString_Error() {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
-            Assertions.fail("error");
-        } catch (Exception ignored) {
-        }
+        });
 
         Buffer buffer2 = new AutomaticBuffer(32);
         buffer2.putPadString(StringUtils.repeat("a", 10), 10);
@@ -151,12 +143,10 @@ public class AutomaticBufferTest {
 
         checkPut2PrefixedBytes(null);
 
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             byte[] bytes4 = new byte[Short.MAX_VALUE + 1];
             checkPut2PrefixedBytes(bytes4);
-            Assertions.fail("too large bytes");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
     }
 
     private void checkPut2PrefixedBytes(byte[] bytes) {

@@ -31,12 +31,8 @@ public class DumpTypeTest {
     public void find() {
         DumpType none = DumpType.valueOf("ALWAYS");
         logger.debug("type:{}", none);
-
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             DumpType.valueOf("error");
-            Assertions.fail("not found");
-        } catch (IllegalArgumentException ignored) {
-
-        }
+        });
     }
 }

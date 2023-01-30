@@ -24,6 +24,7 @@ import org.mockito.stubbing.Answer;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.time.Instant;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
@@ -53,11 +54,10 @@ public class DynamicTransformServiceTest {
 
         DynamicTransformService dynamicTransformService = new DynamicTransformService(instrumentation, listener);
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             dynamicTransformService.retransform(String.class, classFileTransformer);
-            Assertions.fail("expected retransform fail");
-        } catch (Exception e) {
-        }
+        });
+
         Assertions.assertEquals(listener.size(), 0);
     }
 

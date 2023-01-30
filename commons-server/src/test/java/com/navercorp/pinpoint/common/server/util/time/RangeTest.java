@@ -35,11 +35,9 @@ public class RangeTest {
         Range range1 = Range.between(0, 0);
         Range range2 = Range.between(0, 1);
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             Range range3 = Range.between(0, -1);
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
+        });
     }
 
     @Test

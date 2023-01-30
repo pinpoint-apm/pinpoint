@@ -12,12 +12,6 @@ import java.util.Arrays;
 public class ApplicationNameRowKeyEncoderTest {
 
     @Test
-    public void app() {
-
-    }
-
-
-    @Test
     public void testGetTraceIndexRowKeyWhiteSpace() {
         String applicationName = "test test";
         long time = System.currentTimeMillis();
@@ -33,10 +27,7 @@ public class ApplicationNameRowKeyEncoderTest {
 
     @Test
     public void testGetTraceIndexRowKey2() {
-        String applicationName = "";
-        for (int i = 0; i < PinpointConstants.APPLICATION_NAME_MAX_LEN; i++) {
-            applicationName += "1";
-        }
+        final String applicationName = "1".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN);
 
         long time = System.currentTimeMillis();
         check(applicationName, time);
@@ -44,17 +35,12 @@ public class ApplicationNameRowKeyEncoderTest {
 
     @Test
     public void testGetTraceIndexRowKey3() {
-        String applicationName = "";
-        for (int i = 0; i < PinpointConstants.APPLICATION_NAME_MAX_LEN + 1; i++) {
-            applicationName += "1";
-        }
+        final String applicationName = "1".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN + 1);
 
-        long time = System.currentTimeMillis();
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            long time = System.currentTimeMillis();
             check(applicationName, time);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
     }
 
     private void check(String applicationName, long l1) {

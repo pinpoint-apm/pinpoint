@@ -32,25 +32,20 @@ public class OffsetFixedBufferTest {
     @Test
     public void testFixedBuffer() {
         new OffsetFixedBuffer(new byte[10], 10, 0);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             new OffsetFixedBuffer(new byte[10], 11, 0);
-            Assertions.fail();
-        } catch (IndexOutOfBoundsException ignored) {
-        }
-        try {
+        });
+
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             new OffsetFixedBuffer(new byte[10], -1, 0);
-            Assertions.fail();
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
     }
 
     @Test
     public void testFixedBuffer_length() {
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             new OffsetFixedBuffer(new byte[10], 0, 11);
-            Assertions.fail();
-        } catch (IndexOutOfBoundsException e) {
-        }
+        });
 
         new OffsetFixedBuffer(new byte[10], 0, 10);
 

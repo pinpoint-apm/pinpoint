@@ -72,13 +72,9 @@ public class PipelineFactoryTest {
             socket.getOutputStream().write(('@' + "Test").getBytes());
             socket.getOutputStream().flush();
 
-            try {
+            Assertions.assertThrowsExactly(ConditionTimeoutException.class, () -> {
                 assertMessageReceivedCount(2, discardServerHandler);
-                Assertions.fail();
-            } catch (ConditionTimeoutException e) {
-                // ignore
-            }
-
+            });
         } finally {
             IOUtils.closeQuietly(socket);
 

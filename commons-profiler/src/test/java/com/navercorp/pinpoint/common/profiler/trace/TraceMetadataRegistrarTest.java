@@ -42,16 +42,13 @@ public class TraceMetadataRegistrarTest {
         when(serviceTypeRegistry.findServiceTypeByName(unknownServiceType.getName())).thenReturn(unknownServiceType);
 
         TraceMetadataRegistrar.registerServiceTypes(serviceTypeRegistry);
-        try {
+
+        Assertions.assertThrowsExactly(IllegalStateException.class, () -> {
             ServiceTypeProvider.getByCode(unknownServiceType.getCode());
-            Assertions.fail("Retrieving UNDEFINED ServiceType by code should throw IllegalStateException");
-        } catch (IllegalStateException expected1) {
-            try {
-                ServiceTypeProvider.getByName(unknownServiceType.getName());
-                Assertions.fail("Retrieving UNDEFINED ServiceType by name should throw IllegalStateException");
-            } catch (IllegalStateException expected2) {
-            }
-        }
+        }, "Retrieving UNDEFINED ServiceType by code should throw IllegalStateException");
+        Assertions.assertThrowsExactly(IllegalStateException.class, () -> {
+            ServiceTypeProvider.getByName(unknownServiceType.getName());
+        }, "Retrieving UNDEFINED ServiceType by name should throw IllegalStateException");
     }
 
     @Test
@@ -78,11 +75,10 @@ public class TraceMetadataRegistrarTest {
         when(annotationKeyRegistry.findAnnotationKey(unknownAnnotationKey.getCode())).thenReturn(unknownAnnotationKey);
 
         TraceMetadataRegistrar.registerAnnotationKeys(annotationKeyRegistry);
-        try {
+
+        Assertions.assertThrowsExactly(IllegalStateException.class, () -> {
             AnnotationKeyProvider.getByCode(unknownAnnotationKey.getCode());
-            Assertions.fail("Retrieving UNKNOWN AnnotationKey should throw IllegalStateException");
-        } catch (IllegalStateException expected) {
-        }
+        }, "Retrieving UNKNOWN AnnotationKey should throw IllegalStateException");
     }
 
     @Test
