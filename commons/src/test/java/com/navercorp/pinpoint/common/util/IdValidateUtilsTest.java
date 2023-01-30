@@ -57,11 +57,9 @@ public class IdValidateUtilsTest {
         Assertions.assertFalse(IdValidateUtils.validateId("0123", 2), "check max length");
 
 
-        try {
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> {
             IdValidateUtils.validateId("0123", -1);
-            Assertions.fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+        });
     }
 
     @Test

@@ -120,11 +120,9 @@ public class TraceMetadataLoaderTest {
         verifyAnnotationKey(annotationKeyRegistry, registeredAnnotationKey);
 
         Assertions.assertSame(AnnotationKey.UNKNOWN, annotationKeyRegistry.findAnnotationKey(unregisteredAnnotationKey.getCode()));
-        try {
+        Assertions.assertThrowsExactly(NoSuchElementException.class, () -> {
             annotationKeyRegistry.findAnnotationKeyByName(unregisteredAnnotationKey.getName());
-            Assertions.fail();
-        } catch (NoSuchElementException expected) {
-        }
+        });
     }
 
     @Test
@@ -156,11 +154,9 @@ public class TraceMetadataLoaderTest {
                 }
             }
             Assertions.assertTrue(found);
-            try {
+            Assertions.assertThrows(Exception.class, () -> {
                 descMatchedServiceTypes.add(serviceType);
-                Assertions.fail("Adding to unmodifiable list should have failed");
-            } catch (Exception expected) {
-            }
+            }, "Adding to unmodifiable list should have failed");
         }
     }
 

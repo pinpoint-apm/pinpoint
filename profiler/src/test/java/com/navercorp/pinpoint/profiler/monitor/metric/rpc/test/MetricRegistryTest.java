@@ -38,20 +38,14 @@ public class MetricRegistryTest {
 
     @Test
     public void testFalse() {
-        MetricRegistry metricRegistry = null;
-        try {
-            metricRegistry = new MetricRegistry(ServiceType.UNKNOWN_DB);
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
+        Assertions.assertThrows(Exception.class, () -> {
+            new MetricRegistry(ServiceType.UNKNOWN_DB);
+        });
 
-        metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
+            MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
             metricRegistry.getRpcMetric(ServiceType.ASYNC);
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
-
+        });
     }
 
 }

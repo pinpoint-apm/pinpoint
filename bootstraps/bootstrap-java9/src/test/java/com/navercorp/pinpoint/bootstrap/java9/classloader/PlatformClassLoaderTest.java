@@ -42,13 +42,10 @@ public class PlatformClassLoaderTest {
         logger.debug("sqlDate classLoader:{}", java.sql.Date.class.getClassLoader());
         Class.forName("java.sql.Date", false, ClassLoader.getPlatformClassLoader());
 
-        try {
+        Assertions.assertThrowsExactly(ClassNotFoundException.class, () -> {
             ClassLoader bootStrap = Object.class.getClassLoader();
             Class.forName("java.sql.Date", false, bootStrap);
-            Assertions.fail();
-        } catch (ClassNotFoundException e) {
-            // skip
-        }
+        });
     }
 
     @Disabled

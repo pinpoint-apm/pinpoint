@@ -71,7 +71,7 @@ public class JavaAssistUtilsTest {
 
         // classes
         Assertions.assertEquals("java.util.List", JavaAssistUtils.javaClassNameToObjectName(List.class.getName()));
-        Assertions.assertEquals("java.util.ArrayList", JavaAssistUtils.javaClassNameToObjectName(new ArrayList<Integer>().getClass().getName()));
+        Assertions.assertEquals("java.util.ArrayList", JavaAssistUtils.javaClassNameToObjectName(ArrayList.class.getName()));
 
         // arrays
         Assertions.assertEquals("boolean[]", JavaAssistUtils.javaClassNameToObjectName(boolean[].class.getName()));
@@ -99,7 +99,7 @@ public class JavaAssistUtilsTest {
                 JavaAssistUtils.javaClassNameToObjectName(inner.getClass().getName())); // assume nothing else is defined in this class
         Assertions.assertEquals(
                 this.getClass().getName() + "$1SomeComparable[]",
-                JavaAssistUtils.javaClassNameToObjectName(new SomeComparable[]{inner}.getClass().getName()));
+                JavaAssistUtils.javaClassNameToObjectName(SomeComparable[].class.getName()));
         Assertions.assertEquals("java.util.Map$Entry", JavaAssistUtils.javaClassNameToObjectName(Map.Entry.class.getName()));
         Assertions.assertEquals("java.util.Map$Entry[]", JavaAssistUtils.javaClassNameToObjectName(Map.Entry[].class.getName()));
     }
@@ -116,17 +116,13 @@ public class JavaAssistUtilsTest {
         Assertions.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String"), "Ljava/lang/String;");
         Assertions.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String[][]"), "[[Ljava/lang/String;");
 
-        try {
-            Assertions.assertEquals(JavaAssistUtils.toJvmSignature(""), "");
-            Assertions.fail("empty string");
-        } catch (Exception ignored) {
-        }
+        Assertions.assertThrows(Exception.class, () -> {
+            JavaAssistUtils.toJvmSignature("");
+        });
 
-        try {
-            Assertions.assertEquals(JavaAssistUtils.toJvmSignature(null), null);
-            Assertions.fail("null");
-        } catch (Exception ignored) {
-        }
+        Assertions.assertThrows(Exception.class, () -> {
+            JavaAssistUtils.toJvmSignature(null);
+        });
     }
 
     @Test

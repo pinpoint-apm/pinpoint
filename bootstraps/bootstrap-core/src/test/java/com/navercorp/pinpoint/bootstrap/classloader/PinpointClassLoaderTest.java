@@ -45,11 +45,9 @@ public class PinpointClassLoaderTest {
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), urls, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
         Assertions.assertSame(cl.getClass(), classLoaderType);
 
-        try {
+        Assertions.assertThrowsExactly(ClassNotFoundException.class, () -> {
             cl.loadClass("test");
-            Assertions.fail();
-        } catch (ClassNotFoundException ignored) {
-        }
+        });
 
         Class<?> selfLoadClass = cl.loadClass(testClass.getName());
         Assertions.assertNotSame(testClass, selfLoadClass);

@@ -92,11 +92,9 @@ public class UdpSocketTest {
     public void testDatagramSendFail() {
         int size = 70000;
         DatagramPacket packet1 = newDatagramPacket(size);
-        try {
+        Assertions.assertThrowsExactly(IOException.class, () -> {
             sender.send(packet1);
-            Assertions.fail("expected fail, but succeed");
-        } catch (IOException ignored) {
-        }
+        });
     }
 
     @Test

@@ -136,11 +136,9 @@ public class ByteSizeUnitTest {
     }
 
     private void expectedThrowExceptionTest(String value) {
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             ByteSizeUnit.getByteSize(value);
-            Assertions.fail(value);
-        } catch (Exception ignore) {
-        }
+        });
     }
 
 

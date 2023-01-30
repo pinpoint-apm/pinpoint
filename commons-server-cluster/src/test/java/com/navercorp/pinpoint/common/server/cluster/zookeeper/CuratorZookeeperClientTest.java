@@ -99,7 +99,7 @@ public class CuratorZookeeperClientTest {
             if (curatorZookeeperClient != null) {
                 curatorZookeeperClient.close();
             }
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             // skip
         }
 
@@ -141,11 +141,9 @@ public class CuratorZookeeperClientTest {
             ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(testNodePath);
             String path = pathAndNode.getPath();
 
-            try {
+            Assertions.assertThrows(Exception.class, () -> {
                 curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes()));
-                Assertions.fail();
-            } catch (Exception ignored) {
-            }
+            });
 
             boolean existNode = isExistNode(zooKeeper, path);
             Assertions.assertFalse(existNode);
@@ -165,7 +163,7 @@ public class CuratorZookeeperClientTest {
     }
 
     @Test
-    public void alreadyExistNodeCreateTest() throws Exception {
+    public void alreadyExistNodeCreateTest() {
         Assertions.assertThrows(BadOperationException.class, () -> {
             ZooKeeper zooKeeper = createZookeeper();
             try {

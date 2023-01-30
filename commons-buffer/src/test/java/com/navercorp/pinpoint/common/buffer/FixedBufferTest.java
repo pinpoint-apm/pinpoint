@@ -105,18 +105,14 @@ public class FixedBufferTest {
     public void testPadBytes_Error() {
 
         Buffer buffer1_1 = new FixedBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_1.putPadBytes(new byte[11], 10);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
         Buffer buffer1_2 = new FixedBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_2.putPadBytes(new byte[20], 10);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
         Buffer buffer2 = new FixedBuffer(32);
         buffer2.putPadBytes(new byte[10], 10);
@@ -124,7 +120,7 @@ public class FixedBufferTest {
     }
 
     @Test
-    public void testPadString() throws Exception {
+    public void testPadString() {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
         int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
@@ -178,17 +174,15 @@ public class FixedBufferTest {
     public void testPadString_Error() {
 
         Buffer buffer1_1 = new FixedBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
+
 
         Buffer buffer1_2 = new FixedBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
-            Assertions.fail("error");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
         Buffer buffer2 = new FixedBuffer(32);
         buffer2.putPadString(StringUtils.repeat("a", 10), 10);
@@ -206,12 +200,10 @@ public class FixedBufferTest {
         byte[] bytes = new byte[Short.MAX_VALUE];
         checkPut2PrefixedBytes(BytesUtils.toString(bytes), endExpected, Short.MAX_VALUE * 2);
 
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             byte[] bytes2 = new byte[Short.MAX_VALUE + 1];
             checkPut2PrefixedBytes(BytesUtils.toString(bytes2), endExpected, Short.MAX_VALUE * 2);
-            Assertions.fail("too large bytes");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
+        });
 
     }
 
@@ -468,11 +460,9 @@ public class FixedBufferTest {
     public void readVInt_errorCase() {
         byte[] errorCode = new byte[]{-118, -41, -17, -117, -81, -115, -64, -64, -108, -88};
         Buffer buffer = new FixedBuffer(errorCode);
-        try {
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> {
             buffer.readVInt();
-            Assertions.fail("invalid VInt");
-        } catch (IllegalArgumentException ignored) {
-        }
+        });
 
         Assertions.assertEquals(0, buffer.getOffset());
     }
@@ -481,11 +471,9 @@ public class FixedBufferTest {
     public void readVLong_errorCase() {
         byte[] errorCode = new byte[]{-25, -45, -47, -14, -16, -104, -53, -48, -72, -9};
         Buffer buffer = new FixedBuffer(errorCode);
-        try {
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> {
             buffer.readVLong();
-            Assertions.fail("invalid VLong");
-        } catch (IllegalArgumentException ignored) {
-        }
+        });
 
         Assertions.assertEquals(0, buffer.getOffset());
     }
@@ -607,10 +595,10 @@ public class FixedBufferTest {
 
         Buffer read = new FixedBuffer(buffer.getBuffer());
         boolean b = read.readBoolean();
-        Assertions.assertEquals(true, b);
+        Assertions.assertTrue(b);
 
         boolean c = read.readBoolean();
-        Assertions.assertEquals(false, c);
+        Assertions.assertFalse(c);
     }
 
     @Test

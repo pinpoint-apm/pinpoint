@@ -83,11 +83,9 @@ public class ArrayUtilsTest {
     public void abbreviateNegative() {
         byte[] bytes = new byte[]{1};
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             ArrayUtils.abbreviate(bytes, -1);
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
+        });
     }
 
     @Test

@@ -34,11 +34,8 @@ public class LimitUtilsTest {
         int low = LimitUtils.checkRange(0);
         Assertions.assertEquals(low, 0);
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             LimitUtils.checkRange(-1);
-            Assertions.fail();
-        } catch (Exception ignored) {
-        }
-
+        });
     }
 }

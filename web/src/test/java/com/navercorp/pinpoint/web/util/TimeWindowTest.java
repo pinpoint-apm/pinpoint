@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -38,22 +39,19 @@ public class TimeWindowTest {
         logger.debug("{}", window.getWindowRange());
         Iterator<Long> iterator = window.iterator();
         Assertions.assertEquals(iterator.next(), (Long)0L);
-        try {
+
+        Assertions.assertThrows(Exception.class, () -> {
             iterator.next();
-            Assertions.fail("no more element");
-        } catch (Exception ignored) {
-        }
+        });
 
         TimeWindow window2 = new TimeWindow(Range.between(0L, TimeUnit.MINUTES.toMillis(1)));
         logger.debug("{}", window2.getWindowRange());
         Iterator<Long> iterator2 = window2.iterator();
         Assertions.assertEquals(iterator2.next(), (Long)0L);
         Assertions.assertEquals(iterator2.next(), (Long)(1000*60L));
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             iterator2.next();
-            Assertions.fail("no more element");
-        } catch (Exception ignored) {
-        }
+        });
     }
 
     @Test
