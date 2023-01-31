@@ -58,7 +58,7 @@ public class PlainClassLoaderHandlerTest {
 
         ClassNameFilter filter = new ClassNameFilter() {
             @Override
-            public boolean accept(String className) {
+            public boolean accept(String className, ClassLoader classLoader) {
                 return ClassNameFilter.ACCEPT;
             }
         };

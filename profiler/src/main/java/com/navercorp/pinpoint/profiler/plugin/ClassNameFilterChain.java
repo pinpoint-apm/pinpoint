@@ -33,9 +33,9 @@ public class ClassNameFilterChain implements ClassNameFilter {
 
 
     @Override
-    public boolean accept(String className) {
+    public boolean accept(String className, ClassLoader classLoader) {
         for (ClassNameFilter classNameFilter : this.filterChain) {
-            if (!classNameFilter.accept(className)) {
+            if (!classNameFilter.accept(className, classLoader)) {
                 return REJECT;
             }
         }

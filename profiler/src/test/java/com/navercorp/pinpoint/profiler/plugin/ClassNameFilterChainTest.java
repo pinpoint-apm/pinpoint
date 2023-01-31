@@ -34,9 +34,9 @@ public class ClassNameFilterChainTest {
         ClassNameFilterChain chain = new ClassNameFilterChain(Arrays.asList(include, exclude));
 
 
-        Assertions.assertTrue(chain.accept("com.include"));
-        Assertions.assertFalse(chain.accept("com.exclude"));
+        Assertions.assertTrue(chain.accept("com.include", null));
+        Assertions.assertFalse(chain.accept("com.exclude", null));
 
-        Assertions.assertFalse(chain.accept("unknown"));
+        Assertions.assertFalse(chain.accept("unknown", null));
     }
 }

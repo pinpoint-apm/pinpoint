@@ -28,9 +28,9 @@ public class PinpointProfilerPackageSkipFilterTest {
     public void testAccept() {
 
         PinpointProfilerPackageSkipFilter filter = new PinpointProfilerPackageSkipFilter();
-        Assertions.assertFalse(filter.accept("com.navercorp.pinpoint.bootstrap.test.class"), "skip");
+        Assertions.assertFalse(filter.accept("com.navercorp.pinpoint.bootstrap.test.class", null), "skip");
 
-        Assertions.assertTrue(filter.accept("test"), "include");
+        Assertions.assertTrue(filter.accept("test", null), "include");
 
     }
 }

@@ -30,8 +30,8 @@ public class PluginPackageFilterTest {
     public void testAccept() {
         PluginPackageFilter filter = new PluginPackageFilter(Arrays.asList("com.plugin"));
 
-        Assertions.assertTrue(filter.accept("com.plugin.test.module"));
+        Assertions.assertTrue(filter.accept("com.plugin.test.module", null));
 
-        Assertions.assertFalse(filter.accept("test"));
+        Assertions.assertFalse(filter.accept("test", null));
     }
 }
