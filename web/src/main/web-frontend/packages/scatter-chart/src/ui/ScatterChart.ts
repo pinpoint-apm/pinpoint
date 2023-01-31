@@ -7,7 +7,7 @@ import { Viewport } from "./Viewport";
 import { drawCircle, drawRect } from "../utils/draw";
 import { YAxis } from "./YAxis";
 import { XAxis } from "./XAxis";
-import { CONTAINER_HEIGHT, CONTAINER_PADDING, 
+import { COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING, 
   CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER, TEXT_MARGIN_BOTTOM, 
   TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP 
 } from "../constants/ui";
@@ -42,16 +42,16 @@ interface ScatterChartSettedOption {
 export class ScatterChart {
   static REALTIME_MULTIPLE = 3;
   static SCATTER_CHART_CONTAINER_CLASS = `${SCATTER_CHART_IDENTIFIER}container`;
+  public viewport!: Viewport;
+  protected options!: ScatterChartSettedOption;
+  protected xAxis!: XAxis;
+  protected yAxis!: YAxis;
+  protected gridAxis!: GridAxis;
+  protected legend!: Legend;
+  protected guide!: Guide;
   private wrapper;
   private canvasWrapper;
-  private options!: ScatterChartSettedOption;
-  public xAxis!: XAxis;
-  private yAxis!: YAxis;
-  private gridAxis!: GridAxis;
-  private legend!: Legend;
   private dataColorMap!: { [key: string]: string };
-  public viewport!: Viewport;
-  private guide!: Guide;
   private dataLayers: { [key: string]: Layer } = {};
   private data: ScatterDataType[] = [];
   private datas: {[key: string]: Coord[]} = {};
@@ -102,13 +102,6 @@ export class ScatterChart {
       padding: {...this.compositedPadding, ...options?.padding},
       point: {...defaultPointOption, ...options.point},
     };
-
-    this.dataColorMap = this.options.data.reduce((prev, curr) => {
-      return {
-        [curr.type]: curr.color,
-        ...prev,
-      }
-    }, {});
   }
 
   private setWidthAndHeight() {
@@ -226,11 +219,19 @@ export class ScatterChart {
   }
 
   private setLegends() {
+    this.dataColorMap = this.options.data.reduce((prev, curr, i) => {
+      return {
+        [curr.type]: curr.color || COLORS[i % COLORS.length],
+        ...prev,
+      }
+    }, {});
+
     this.legend = new Legend(this.wrapper, { 
       types: Object.keys(this.dataLayers), 
       dataColorMap: this.dataColorMap,
       legendOptions: this.options?.legend!
     });
+
     this.legend.addEvents(({ type, checked }) => {
       if (type) {
         if (checked) {
@@ -318,12 +319,14 @@ export class ScatterChart {
     const { styleWidth, styleHeight } = this.viewport;
     const { padding, point } = this.options;
 
-    if (append) {
-      this.data = [...this.data, ...data];
-    } else {
-      this.data = data;
-      this.datas = {};
-      Object.values(this.dataLayers).forEach(layer => layer.clear());
+    if (this.reqAnimation === 0) {
+      if (append) {
+        this.data = [...this.data, ...data];
+      } else {
+        this.data = data;
+        this.datas = {};
+        Object.values(this.dataLayers).forEach(layer => layer.clear());
+      }
     }
 
     data.forEach(({ x, y, type, hidden }) => {
@@ -343,7 +346,7 @@ export class ScatterChart {
         !hidden && drawCircle(
           this.dataLayers[legend].context,
           this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding,
-          this.height - padding.bottom - this.yAxis.innerPadding - this.yRatio * (y - this.yAxis.min),
+          styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (y - this.yAxis.min),
           {
             fillColor: this.dataColorMap[legend],
             radius: point.radius,
@@ -370,6 +373,10 @@ export class ScatterChart {
 
   public on(evetntType: string, callback: (data: any) => void) {
     this.guide.on(evetntType, callback);
+  }
+
+  public off(evetntType: string) {
+    this.guide.off(evetntType);
   }
 
   public resize(width?: number, height?: number) {
@@ -409,8 +416,8 @@ export class ScatterChart {
 
   public async toBase64Image() {
     const layer = new Layer({ width: this.width , height: this.height});
-    const containerCanvas = await html2canvas(document.querySelector(`.${ScatterChart.SCATTER_CHART_CONTAINER_CLASS}`)!).then(canvas => canvas);
-    const legendCanvas = await html2canvas(document.querySelector(`.${Legend.LEGEND_CONTAINER_CLASS}`)!).then(canvas => canvas);
+    const containerCanvas = await html2canvas(document.querySelector(`.${ScatterChart.SCATTER_CHART_CONTAINER_CLASS}`)!);
+    const legendCanvas = await html2canvas(document.querySelector(`.${Legend.LEGEND_CONTAINER_CLASS}`)!);
 
     layer.setSize(containerCanvas.width, containerCanvas.height + legendCanvas.height);
     layer.context.drawImage(containerCanvas, 0, 0);
@@ -443,11 +450,12 @@ export class ScatterChart {
     this.gridAxis
       .setSize(realtimeWidth, this.height)
 
-    this.animate(duration, this.t0);
     Object.values(this.dataLayers).forEach(layer => {
       layer.setSize(realtimeWidth, this.height);
     });
     this.render(this.data);
+
+    this.animate(duration, this.t0);
   }
 
   public stopRealtime() {
@@ -469,6 +477,7 @@ export class ScatterChart {
     this.gridAxis
       .setSize(this.width, this.height)
       .render();
-    this.shoot();
+
+    this.render(this.data);
   }
 }

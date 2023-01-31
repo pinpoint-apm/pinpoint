@@ -30,7 +30,6 @@ export const createCustomizeTheme = () => {
         }
       },
       grid: {
-        // hidden: true,
         strokeColor: 'rgb(255, 0, 255, 0.4)'
       },
       point: {
@@ -59,11 +58,11 @@ export const createCustomizeTheme = () => {
     })
     wrapper.append(btnStart);
     wrapper.append(btnStop);
+    const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
+    SC.render(newData, {append: true});
 
     btnStart.addEventListener('click', () => {
-      SC.startRealtime(47335);
-      const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
-      SC.render(newData, {append: true});
+      SC.startRealtime(data1.to - data1.from);
     });
 
     btnStop.addEventListener('click', () => {
