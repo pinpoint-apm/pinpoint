@@ -1,9 +1,14 @@
 {
   "name": "@pinpoint-fe/scatter-chart",
-  "version": "0.2.0-alpha",
+  "version": "1.0.0",
   "description": "Open-source scatter-chart library written in pure JS based on canvas api, Specifically designed for visualizing request and response patterns over time",
-  "repository": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web/src/main/web-frontend/packages/scatter-chart/README.md",
-  "author": "NAVER",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web/src/main/web-frontend/packages/scatter-chart/README.md"
+  },
+  "author": {
+    "name": "NAVER"
+  },
   "license": "Apache-2.0",
   "main": "./dist/index.js",
   "browser": "./dist/index.js",
@@ -17,10 +22,11 @@
     "test": "jest",
     "storybook": "start-storybook -p 6009",
     "build-storybook": "build-storybook",
-    "build": "tsup --entry.index src/index.ts --entry.scatter-chart src/style/index.css --format esm,cjs",
+    "build": "tsup --entry.index src/index.ts --dts --minify --format esm,cjs",
     "clean": "rm -rf dist",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
-    "devBuild": "tsup src/index.ts --format esm,cjs --dts"
+    "devBuild": "tsup src/index.ts --format esm,cjs --dts",
+    "chromatic": "npx chromatic --project-token=8e9829505277"
   },
   "dependencies": {
     "html2canvas": "^1.4.1",
@@ -55,5 +61,7 @@
     "ts-jest": "^28.0.5",
     "tsup": "^6.2.1",
     "typescript": "^4.5.5"
-  }
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "@pinpoint-fe/scatter-chart@0.2.0-alpha"
 }
