@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.tomcat.interceptor;
+package com.navercorp.pinpoint.plugin.tomcat.javax.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -139,7 +139,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final HttpServletResponse response = (HttpServletResponse) args[1];
             int statusCode = getStatusCode(response);
-            final Throwable t = (Throwable) request.getAttribute(TomcatConstants.ERROR_EXCEPTION);
+            final Throwable t = (Throwable) request.getAttribute(TomcatConstants.JAVAX_ERROR_EXCEPTION);
             if (t != null) {
                 final AsyncListenerInterceptor asyncListenerInterceptor = (AsyncListenerInterceptor) request.getAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE);
                 if (asyncListenerInterceptor != null) {

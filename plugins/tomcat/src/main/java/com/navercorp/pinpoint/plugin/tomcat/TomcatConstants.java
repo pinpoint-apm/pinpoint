@@ -42,5 +42,6 @@ public final class TomcatConstants {
      *
      * @since Servlet 3.0
      */
-    public static final String ERROR_EXCEPTION = "javax.servlet.error.exception";
+    public static final String JAVAX_ERROR_EXCEPTION = "javax.servlet.error.exception";
+    public static final String JAKARTA_ERROR_EXCEPTION = "jakarta.servlet.error.exception";
 }

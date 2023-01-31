@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -23,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -32,10 +31,10 @@ import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.JbossDetector;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor;
-import com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor;
-import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author Jongho Moon
@@ -174,7 +173,12 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             // Add async listener. Servlet 3.0
             final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
             if (startAsyncMethodEditor != null) {
-                startAsyncMethodEditor.addInterceptor(RequestStartAsyncInterceptor.class);
+                startAsyncMethodEditor.addInterceptor(com.navercorp.pinpoint.plugin.tomcat.javax.interceptor.RequestStartAsyncInterceptor.class);
+            }
+
+            final InstrumentMethod startAsyncMethodEditorJakarta = target.getDeclaredMethod("startAsync", "jakarta.servlet.ServletRequest", "jakarta.servlet.ServletResponse");
+            if (startAsyncMethodEditorJakarta != null) {
+                startAsyncMethodEditorJakarta.addInterceptor(com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor.RequestStartAsyncInterceptor.class);
             }
             return target.toBytecode();
         }
@@ -202,10 +206,27 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
             // Remove bind trace
             final InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
             if (method != null) {
-                method.addInterceptor(StandardHostValveInvokeInterceptor.class);
+                method.addInterceptor(getStandardHostValveInvokeInterceptor(classLoader));
             }
             return target.toBytecode();
         }
+
+        private static Class<? extends Interceptor> getStandardHostValveInvokeInterceptor(ClassLoader classLoader) {
+            if (hasClass("jakarta.servlet.http.HttpServletRequest", classLoader)) {
+                return com.navercorp.pinpoint.plugin.tomcat.jakarta.interceptor.StandardHostValveInvokeInterceptor.class;
+            } else {
+                return com.navercorp.pinpoint.plugin.tomcat.javax.interceptor.StandardHostValveInvokeInterceptor.class;
+            }
+        }
+    }
+
+    private static boolean hasClass(String className, ClassLoader classLoader) {
+        try {
+            Class.forName(className, false, classLoader);
+            return true;
+        } catch (ClassNotFoundException ignored) {
+        }
+        return false;
     }
 
     @Override

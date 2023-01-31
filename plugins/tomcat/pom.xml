@@ -73,6 +73,11 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -133,6 +138,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Pinpoint-Plugin-Package-Class-Requirements>com.navercorp.pinpoint.plugin.tomcat.javax:javax.servlet.http.HttpServletRequest, com.navercorp.pinpoint.plugin.tomcat.jakarta:jakarta.servlet.http.HttpServletRequest</Pinpoint-Plugin-Package-Class-Requirements>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
