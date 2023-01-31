@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.plugin.spring.web.interceptor;
 
 import com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcConstants;
+import com.navercorp.pinpoint.plugin.spring.web.javax.interceptor.ServletRequestAttributeUtils;
 import org.junit.jupiter.api.Test;
 
 import javax.servlet.ServletRequest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

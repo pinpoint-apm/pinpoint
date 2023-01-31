@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.plugin.spring.web.interceptor;
+package com.navercorp.pinpoint.plugin.spring.web.javax.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;

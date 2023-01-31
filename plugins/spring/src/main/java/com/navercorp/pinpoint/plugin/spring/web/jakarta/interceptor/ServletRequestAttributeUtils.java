@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.web.interceptor;
+package com.navercorp.pinpoint.plugin.spring.web.jakarta.interceptor;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 public class ServletRequestAttributeUtils {
 
