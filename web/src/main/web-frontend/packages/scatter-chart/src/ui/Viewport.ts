@@ -9,15 +9,11 @@ export interface ViewportOption {
 export class Viewport {
   private view: Layer;
   private layers: Layer[];
-  private width: number;
-  private height: number;
   
   constructor(wrapper: HTMLElement, {
     width = 0,
     height = 0,
   }) {
-    this.width = width;
-    this.height = height;
     this.layers = [];
     this.view = new Layer({
       width, 
@@ -40,11 +36,11 @@ export class Viewport {
   }
 
   get styleWidth() {
-    return this.width;
+    return this.view.canvas.width / this.view.dpr;
   }
 
   get styleHeight() {
-    return this.height;  
+    return this.view.canvas.height / this.view.dpr;  
   }
 
   public render(x: number, y: number) {
