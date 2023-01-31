@@ -26,13 +26,14 @@ public class PluginPackageClassRequirementFilter implements ClassNameFilter {
     }
 
     @Override
-    public boolean accept(String className) {
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
+    public boolean accept(String className, ClassLoader classLoader) {
+        Objects.requireNonNull(classLoader, "classLoader"); 
+        
         for (int i = 0; i < packages.length; i++) {
             if (className.startsWith(packages[i])) {
-                if (!isLoadedClass(requirements[i], cl)) {
+                if (!isLoadedClass(requirements[i], classLoader)) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("reject class:{}, packageName:{}, requirement:{}, classloader:{}", className, packages[i], requirements[i], cl);
+                        logger.debug("reject class:{}, packageName:{}, requirement:{}, classloader:{}", className, packages[i], requirements[i], classLoader);
                     }
                     return REJECT;
                 }

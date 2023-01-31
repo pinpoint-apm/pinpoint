@@ -34,7 +34,7 @@ public class PluginPackageFilter implements ClassNameFilter {
     }
 
     @Override
-    public boolean accept(String className) {
+    public boolean accept(String className, ClassLoader classLoader) {
         for (String packageName : packageList) {
             if (className.startsWith(packageName)) {
                 return ACCEPT;

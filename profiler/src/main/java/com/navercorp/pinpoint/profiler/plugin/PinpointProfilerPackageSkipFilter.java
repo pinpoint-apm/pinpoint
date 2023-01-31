@@ -43,7 +43,7 @@ public class PinpointProfilerPackageSkipFilter implements ClassNameFilter {
 
 
     @Override
-    public boolean accept(String className) {
+    public boolean accept(String className, ClassLoader classLoader) {
         Objects.requireNonNull(className, "className");
 
         for (String packageName : packageList) {

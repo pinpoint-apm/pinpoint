@@ -23,5 +23,5 @@ public interface ClassNameFilter {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
-    boolean accept(String className);
+    boolean accept(String className, ClassLoader classLoader);
 }

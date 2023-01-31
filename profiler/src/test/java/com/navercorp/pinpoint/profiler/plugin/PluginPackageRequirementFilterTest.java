@@ -32,10 +32,12 @@ public class PluginPackageRequirementFilterTest {
         List<String> packageRequirementString = StringUtils.tokenizeToStringList(testRequirements, ",");
         ClassNameFilter filter = new PluginPackageClassRequirementFilter(packageRequirementString);
 
-        Assertions.assertTrue(filter.accept("com.plugin.acceptTrue.SomeClass"));
-        Assertions.assertFalse(filter.accept("com.plugin.acceptFalse.SomeClass"));
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
-        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass"));
+        Assertions.assertTrue(filter.accept("com.plugin.acceptTrue.SomeClass", classLoader));
+        Assertions.assertFalse(filter.accept("com.plugin.acceptFalse.SomeClass", classLoader));
+
+        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass", classLoader));
     }
 
     @Test
@@ -43,8 +45,10 @@ public class PluginPackageRequirementFilterTest {
         List<String> packageRequirementString = StringUtils.tokenizeToStringList(null, ",");
         ClassNameFilter filter = new PluginPackageClassRequirementFilter(packageRequirementString);
 
-        Assertions.assertTrue(filter.accept("com.plugin.SomeClass"));
-        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass"));
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+        Assertions.assertTrue(filter.accept("com.plugin.SomeClass", classLoader));
+        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass", classLoader));
     }
 
     @Test
@@ -52,8 +56,10 @@ public class PluginPackageRequirementFilterTest {
         List<String> packageRequirementString = StringUtils.tokenizeToStringList("", ",");
         ClassNameFilter filter = new PluginPackageClassRequirementFilter(packageRequirementString);
 
-        Assertions.assertTrue(filter.accept("com.plugin.SomeClass"));
-        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass"));
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+        Assertions.assertTrue(filter.accept("com.plugin.SomeClass", classLoader));
+        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass", classLoader));
     }
 
     @Test
@@ -61,7 +67,22 @@ public class PluginPackageRequirementFilterTest {
         List<String> packageRequirementString = Collections.emptyList();
         ClassNameFilter filter = new PluginPackageClassRequirementFilter(packageRequirementString);
 
-        Assertions.assertTrue(filter.accept("com.plugin.SomeClass"));
-        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass"));
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+        Assertions.assertTrue(filter.accept("com.plugin.SomeClass", classLoader));
+        Assertions.assertTrue(filter.accept("com.notPlugin.SomeClass", classLoader));
+    }
+
+    @Test
+    public void testNullClassloaderRequirement() {
+        List<String> packageRequirementString = Collections.emptyList();
+        ClassNameFilter filter = new PluginPackageClassRequirementFilter(packageRequirementString);
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            filter.accept("com.plugin.SomeClass", null);
+        });
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            filter.accept("com.notPlugin.SomeClass", null);
+        });
     }
 }
