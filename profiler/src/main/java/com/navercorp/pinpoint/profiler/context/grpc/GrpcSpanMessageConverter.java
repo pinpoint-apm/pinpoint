@@ -20,6 +20,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -48,6 +49,8 @@ import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +65,9 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
     public static final String DEFAULT_END_POINT = "UNKNOWN";
     public static final String DEFAULT_RPC_NAME = "UNKNOWN";
     public static final String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(this.logger, 100);
 
     private final String agentId;
     private final short applicationServiceType;
@@ -79,7 +85,6 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Objects.requireNonNull(spanProcessor, "spanProcessor");
-
     }
 
     @Override
@@ -174,13 +179,34 @@ public class GrpcSpanMessageConverter implements MessageConverter<SpanType, Gene
     private PAcceptEvent newAcceptEvent(Span span) {
         PAcceptEvent.Builder builder = PAcceptEvent.newBuilder();
 
-        final String remoteAddr = StringUtils.defaultIfEmpty(span.getRemoteAddr(), DEFAULT_REMOTE_ADDRESS);
-        builder.setRemoteAddr(remoteAddr);
+        boolean hasEmptyValue = false;
+        final String remoteAddr = span.getRemoteAddr();
+        if (StringUtils.isEmpty(remoteAddr)) {
+            hasEmptyValue = true;
+            builder.setRemoteAddr(DEFAULT_REMOTE_ADDRESS);
+        } else {
+            builder.setRemoteAddr(remoteAddr);
+        }
+
         final Shared shared = span.getTraceRoot().getShared();
-        final String rpc = StringUtils.defaultIfEmpty(shared.getRpcName(), DEFAULT_RPC_NAME);
-        builder.setRpc(rpc);
-        final String endPoint = StringUtils.defaultIfEmpty(shared.getEndPoint(), DEFAULT_END_POINT);
-        builder.setEndPoint(endPoint);
+        final String rpc = shared.getRpcName();
+        if (StringUtils.isEmpty(rpc)) {
+            hasEmptyValue = true;
+            builder.setRpc(DEFAULT_RPC_NAME);
+        } else {
+            builder.setRpc(rpc);
+        }
+
+        final String endPoint = shared.getEndPoint();
+        if (StringUtils.isEmpty(endPoint)) {
+            hasEmptyValue = true;
+            builder.setEndPoint(DEFAULT_END_POINT);
+        } else {
+            builder.setEndPoint(endPoint);
+        }
+        if (hasEmptyValue) {
+            throttledLogger.warn("Empty value found. serviceType={}, remoteAddr={}, rpcName={}, endPoint={}", span.getServiceType(), remoteAddr, rpc, endPoint);
+        }
 
         PParentInfo pParentInfo = newParentInfo(span);
         if (pParentInfo != null) {
