@@ -10,13 +10,14 @@ export const createRealtime = () => {
   
   setTimeout(() => {  
     const SC = newScatterChart(wrapper);
+    const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
+    SC.render(newData, {append: true});
+    
     wrapper.append(btnStart);
     wrapper.append(btnStop);
 
     btnStart.addEventListener('click', () => {
       SC.startRealtime(data1.to - data1.from);
-      const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
-      SC.render(newData, {append: true});
     });
 
     btnStop.addEventListener('click', () => {

@@ -177,28 +177,6 @@ export class Guide extends Layer {
     this.addEventListener();
   }
 
-  // public setSize(width: number, height: number){
-  //   super.setSize(width, height);
-  //   this.removeEventListener();
-  //   this.addEventListener();
-  //   return this;
-  // }
-
-  // public setPadding(padding: Padding) {
-  //   this.padding = {...CONTAINER_PADDING, ...padding};
-  //   return this;
-  // }
-
-  // public setRatio(ratio: { x: number, y: number }){
-  //   this.ratio = ratio;
-  //   this.removeEventListener();
-  //   this.addEventListener();
-  //   return this;
-  // }
-
-  // public updateXAxis(x: Partial<AxisOption>) {
-  //   this.axisOption = {...this.axisOption, ...{ x: {...this.xAxis, ...x}}}
-  // }
   public updateMinX(minX: number) {
     this.minX = minX;
     return this;
@@ -206,5 +184,9 @@ export class Guide extends Layer {
 
   public on(evetntType: string, callback: (data: any) => void) {
     this.eventHandlers[evetntType] = callback;
+  }
+
+  public off(evetntType: string) {
+    delete this.eventHandlers[evetntType];
   }
 }
