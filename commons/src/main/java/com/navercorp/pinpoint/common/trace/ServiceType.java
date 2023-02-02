@@ -212,6 +212,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8660</td><td><i>KAFKA_CLIENT</i></td></tr>
  * <tr><td>8661</td><td><i>KAFKA_CLIENT_INTERNAL</i></td></tr>
+ * <tr><td>8662</td><td><i>KAFKA_STREAMS</i></td></tr>
  * <tr><td>8800</td><td>HBASE_CLIENT</td></tr>
  * <tr><td>8801</td><td><i>HBASE_CLIENT_ADMIN</i></td></tr>
  * <tr><td>8802</td><td><i>HBASE_CLIENT_TABLE</i></td></tr>
