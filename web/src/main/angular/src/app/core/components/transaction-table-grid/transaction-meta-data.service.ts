@@ -73,7 +73,8 @@ export class TransactionMetaDataService {
                     catchError((error: IServerError) => {
                         this.onError({
                             data: {title: 'Error', contents: error},
-                            component: ServerErrorPopupContainerComponent
+                            component: ServerErrorPopupContainerComponent,
+
                         });
 
                         return EMPTY;
@@ -110,6 +111,20 @@ export class TransactionMetaDataService {
                 this.onError({
                     data: {title: 'Notice', contents: this.retrieveErrorMessage, type: 'html'},
                     component: MessagePopupContainerComponent,
+                    onCloseCallback: () => {
+                        this.urlRouteManagerService.moveOnPage({
+                            url: [
+                                UrlPath.MAIN,
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+                            ],
+                            queryParams: {
+                                [UrlQuery.DRAG_INFO]: null,
+                                [UrlQuery.TRANSACTION_INFO]: null
+                            }
+                        });
+                    }
                 });
             } else {
                 this.http.post<{metadata: ITransactionMetaData[]}>(this.requestURLV1, this.makeV1RequestOptionsArgs(), {
@@ -251,24 +266,11 @@ export class TransactionMetaDataService {
     }
 
     // TODO: When v1 gets removed, no need to receive component parameter. Just use ServerError component.
-    private onError({data, component}: {data: any, component: any}): void {
+    private onError({data, component, onCloseCallback}: {data: any, component: any, onCloseCallback?: () => void}): void {
         this.dynamicPopupService.openPopup({
             data,
             component,
-            onCloseCallback: () => {
-                this.urlRouteManagerService.moveOnPage({
-                    url: [
-                        UrlPath.MAIN,
-                        this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                        this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                        this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-                    ],
-                    queryParams: {
-                        [UrlQuery.DRAG_INFO]: null,
-                        [UrlQuery.TRANSACTION_INFO]: null
-                    }
-                });
-            }
+            onCloseCallback
         }, {
             resolver: this.componentFactoryResolver,
             injector: this.injector
