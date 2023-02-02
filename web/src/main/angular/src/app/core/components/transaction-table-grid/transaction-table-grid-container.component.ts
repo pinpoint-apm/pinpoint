@@ -93,6 +93,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             filter((responseData: ITransactionMetaData[]) => {
                 if (responseData.length === 0) {
                     this.transactionDataForAgGrid = [];
+                    this.cd.detectChanges();
                     return false;
                 } else {
                     return true;
