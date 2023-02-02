@@ -25,6 +25,7 @@ public class KafkaMetadataProvider implements TraceMetadataProvider {
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(KafkaConstants.KAFKA_CLIENT);
         context.addServiceType(KafkaConstants.KAFKA_CLIENT_INTERNAL);
+        context.addServiceType(KafkaConstants.KAFKA_STREAMS);
 
         context.addAnnotationKey(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY);
         context.addAnnotationKey(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY);

@@ -33,6 +33,7 @@ public class KafkaConstants {
     public static final String SCOPE = "KAFKA_SCOPE";
 
     public static final ServiceType KAFKA_CLIENT = ServiceTypeFactory.of(8660, "KAFKA_CLIENT", "KAFKA_CLIENT", QUEUE, RECORD_STATISTICS);
+    public static final ServiceType KAFKA_STREAMS = ServiceTypeFactory.of(8662, "KAFKA_STREAMS", "KAFKA_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType KAFKA_CLIENT_INTERNAL = ServiceTypeFactory.of(8661, "KAFKA_CLIENT_INTERNAL", "KAFKA_CLIENT");
 
     public static final AnnotationKey KAFKA_TOPIC_ANNOTATION_KEY = AnnotationKeyFactory.of(140, "kafka.topic", VIEW_IN_RECORD_SET);
