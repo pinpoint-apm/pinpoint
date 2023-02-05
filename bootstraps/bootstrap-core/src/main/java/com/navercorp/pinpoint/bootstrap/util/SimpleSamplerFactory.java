@@ -38,6 +38,13 @@ public class SimpleSamplerFactory {
         return new SamplingRateSampler(samplingRate);
     }
 
+    public static SimpleSampler createPercentSampler(boolean sampling, int samplingRate) {
+        if (!sampling || samplingRate <= 0) {
+            return FALSE_SAMPLER;
+        }
+        return new PercentRateSampler(samplingRate);
+    }
+
     public static class SimpleTrueSampler implements SimpleSampler {
         @Override
         public boolean isSampling() {
@@ -68,6 +75,25 @@ public class SimpleSamplerFactory {
             int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
             int isSampling = samplingCount % samplingRate;
             return isSampling == 0;
+        }
+    }
+
+    public static class PercentRateSampler implements SimpleSampler {
+        private final AtomicInteger counter = new AtomicInteger(0);
+        private final int samplingRate;
+
+        public PercentRateSampler(int samplingRate) {
+            if (samplingRate <= 0) {
+                throw new IllegalArgumentException("Invalid samplingRate " + samplingRate);
+            }
+            this.samplingRate = samplingRate;
+        }
+
+        @Override
+        public boolean isSampling() {
+            int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
+            int max = 100;
+            return samplingCount % max < samplingRate;
         }
     }
 }

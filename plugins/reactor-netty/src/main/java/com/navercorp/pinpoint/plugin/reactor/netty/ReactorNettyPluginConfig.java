@@ -39,6 +39,9 @@ public class ReactorNettyPluginConfig {
     private final List<String> traceSubscribeErrorExcludeMessageList;
     private final boolean clientEnable;
     private boolean param = true;
+    private final boolean forceSample;
+    //Sampling percentage,max is 100.(1: 1%, 2: 2%,50: 50%)
+    private final int forceSampleRate;
 
     public ReactorNettyPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
@@ -61,6 +64,9 @@ public class ReactorNettyPluginConfig {
         // Reactor
         this.traceSubscribeError = config.readBoolean("profiler.reactor-netty.trace.subscribe.error", true);
         this.traceSubscribeErrorExcludeMessageList = config.readList("profiler.reactor-netty.trace.subscribe.error.exclude.message");
+
+        this.forceSample = config.readBoolean("profiler.reactor-netty.forceSample.enable", true);
+        this.forceSampleRate = config.readInt("profiler.reactor-netty.forceSample.rate", 100);
     }
 
     public boolean isEnable() {
@@ -111,6 +117,13 @@ public class ReactorNettyPluginConfig {
         return param;
     }
 
+    public boolean isForceSample() {
+        return forceSample;
+    }
+
+    public int getForceSampleRate() {
+        return forceSampleRate;
+    }
     @Override
     public String toString() {
         return "ReactorNettyPluginConfig{" +
@@ -126,6 +139,8 @@ public class ReactorNettyPluginConfig {
                 ", traceSubscribeErrorExcludeMessageList=" + traceSubscribeErrorExcludeMessageList +
                 ", clientEnable=" + clientEnable +
                 ", param=" + param +
+                ", forceSample=" + forceSample +
+                ", forceSampleRate=" + forceSampleRate +
                 '}';
     }
 }
