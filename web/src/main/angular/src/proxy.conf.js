@@ -71,7 +71,8 @@ const PROXY_CONFIG = [
             "/uriStat/top50.pinpoint",
             "/uriStat/chart.pinpoint",
             "/agents/search-all",
-            "/agents/search-application"
+            "/agents/search-application",
+            "/agents/statistics"
         ],
         target: 'http://localhost:8080',
         secure: false
