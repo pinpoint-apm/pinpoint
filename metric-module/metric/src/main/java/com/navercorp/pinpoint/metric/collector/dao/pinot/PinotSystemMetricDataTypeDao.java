@@ -19,12 +19,16 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDataTypeDao;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
+import com.navercorp.pinpoint.metric.common.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +46,9 @@ public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
     private final SqlSessionTemplate sqlPinotSessionTemplate;
     private final KafkaTemplate<String, MetricData> kafkaDataTypeTemplate;
     private final String topic;
+
+    private final ListenableFutureCallback<SendResult<String, MetricData>> resultCallback
+            = KafkaCallbacks.loggingCallback("Kafka(MetricData)", logger);
 
     public PinotSystemMetricDataTypeDao(SqlSessionTemplate sqlPinotSessionTemplate,
                              KafkaTemplate<String, MetricData> kafkaDataTypeTemplate,
@@ -64,6 +71,7 @@ public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
 
     @Override
     public void updateMetricDataType(MetricData metricData) {
-        kafkaDataTypeTemplate.send(topic, metricData.getMetricName(), metricData);
+        ListenableFuture<SendResult<String, MetricData>> callback = kafkaDataTypeTemplate.send(topic, metricData.getMetricName(), metricData);
+        callback.addCallback(resultCallback);
     }
 }

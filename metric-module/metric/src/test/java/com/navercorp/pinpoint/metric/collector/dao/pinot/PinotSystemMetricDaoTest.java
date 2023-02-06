@@ -30,6 +30,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.Random;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Hyunjoon Cho
@@ -63,7 +65,7 @@ public class PinotSystemMetricDaoTest {
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 sendCount.increment();
                 logger.info("Sending View {}", sendCount.intValue());
-                return null;
+                return mock(ListenableFuture.class);
             }
         }).when(kafkaTemplate).send(anyString(), anyString(), any(SystemMetricView.class));
     }
