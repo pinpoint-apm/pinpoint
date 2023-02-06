@@ -15,6 +15,7 @@ target/
 *.iws
 /.idea/
 out/
+.run
 
 # vscode
 .vscode
