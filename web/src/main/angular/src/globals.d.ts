@@ -336,20 +336,25 @@ interface IServerAndAgentDataV2 {
 }
 
 interface IAgentDataV2 {
+    applicationName: string;
     agentId: string;
     agentName: string;
-    agentVersion: string;
-    applicationName: string;
-    container: boolean;
+    startTimestamp: number;
     hostName: string;
     ip: string;
-    linkList: any[];
-    pid: number;
     ports: string;
     serviceType: string;
+    pid: number;
+    vmVersion: string;
+    agentVersion: string;
+    container: boolean;
     serviceTypeCode: number;
-    startTimestamp: number;
-    status: {
+    jvmInfo?: {
+        version: number;
+        jvmVersion: string;
+        gcTypeName: string;
+    };
+    status?: {
         agentId: string;
         eventTimestamp: number;
         state: {
@@ -357,7 +362,7 @@ interface IAgentDataV2 {
             desc: string;
         }
     };
-    vmVersion: string;
+    linkList?: any[];
 }
 
 // @store

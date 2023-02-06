@@ -25,7 +25,7 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.agentListData$ = this.storeHelperService.getAgentList(this.unsubscribe).pipe(
-            map((data: IAgentList) => this.makeGridData(data))
+            map((data: IServerAndAgentDataV2[]) => this.makeGridData(data))
         );
     }
 
@@ -34,33 +34,27 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
 
-    private makeGridData(agentList: IAgentList): IGridData[] {
+    private makeGridData(data: IServerAndAgentDataV2[]): IGridData[] {
         let index = 1;
         const resultData: IGridData[] = [];
-        Object.keys(agentList).forEach((key: string, innerIndex: number) => {
-            const list: IAgent[] = agentList[key];
+        data.forEach(({instancesList}: IServerAndAgentDataV2) => {
             let row: IGridData;
 
-            if (list.length === 0) {
-                row = this.makeRow(list[0], index, false, false);
+            instancesList.forEach((agent: IAgentDataV2, agentIndex: number) => {
+                if (agentIndex === 0) {
+                    row = this.makeRow(agent, index, true, false);
+                } else {
+                    row.children.push(this.makeRow(agent, index, false, true));
+                }
                 index++;
-            } else {
-                list.forEach((agent: IAgent, agentIndex: number) => {
-                    if (agentIndex === 0) {
-                        row = this.makeRow(agent, index, true, false);
-                    } else {
-                        row.children.push(this.makeRow(agent, index, false, true));
-                    }
-                    index++;
-                });
-            }
+            });
             resultData.push(row);
         });
 
         return resultData;
     }
 
-    private makeRow(agent: IAgent, index: number, hasChild: boolean, isChild: boolean): any {
+    private makeRow(agent: IAgentDataV2, index: number, hasChild: boolean, isChild: boolean): any {
         const oRow: IGridData = {
             index: index,
             application: agent.applicationName,

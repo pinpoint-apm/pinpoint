@@ -108,7 +108,7 @@ export class StoreHelperService {
             })
         );
     }
-    getAgentList(unsubscribe: Subject<void>): Observable<IAgentList> {
+    getAgentList(unsubscribe: Subject<void>): Observable<IServerAndAgentDataV2[]> {
         return this.getObservable(STORE_KEY.ADMIN_AGENT_LIST, unsubscribe);
     }
     getAgentSelection(unsubscribe: Subject<void>): Observable<string> {

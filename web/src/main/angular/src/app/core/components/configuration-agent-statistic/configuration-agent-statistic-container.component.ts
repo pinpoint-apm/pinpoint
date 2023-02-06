@@ -43,7 +43,7 @@ export class ConfigurationAgentStatisticContainerComponent implements OnInit, On
             tap(() => {
                 this.lastRequestTime = moment(this.agentStatisticDataService.getLastRequestTime()).tz(this.timezone).format(this.dateFormat);
             }),
-            map((data: IAgentList) => !!data)
+            map((data: IServerAndAgentDataV2[]) => !!data)
         );
     }
 
@@ -80,7 +80,7 @@ export class ConfigurationAgentStatisticContainerComponent implements OnInit, On
         this.showProcessing();
         this.agentStatisticDataService.getData().pipe(
             takeUntil(this.unsubscribe)
-        ).subscribe((agentList: IAgentList) => {
+        ).subscribe((agentList: IServerAndAgentDataV2[]) => {
             this.storeHelperService.dispatch(new Actions.UpdateAdminAgentList(agentList));
             this.hideProcessing();
         }, (error: IServerError) => {

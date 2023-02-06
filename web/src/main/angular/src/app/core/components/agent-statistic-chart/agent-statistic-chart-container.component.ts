@@ -27,12 +27,12 @@ export class AgentStatisticChartContainerComponent implements OnInit {
     ngOnInit() {
         this.emptyText$ = this.translateService.get('COMMON.NO_DATA');
         this.chartData$ = this.storeHelperService.getAgentList(this.unsubscribe).pipe(
-            filter((data: IAgentList) => !!data),
-            map((data: IAgentList) => this.makeChartData(data))
+            filter((data: IServerAndAgentDataV2[]) => !!data),
+            map((data: IServerAndAgentDataV2[]) => this.makeChartData(data))
         );
     }
 
-    private makeChartData(data: IAgentList): {[key: string]: PrimitiveArray[]} {
+    private makeChartData(data: IServerAndAgentDataV2[]): {[key: string]: PrimitiveArray[]} {
         if (isEmpty(data)) {
             return {
                 jvm: [],
@@ -55,11 +55,11 @@ export class AgentStatisticChartContainerComponent implements OnInit {
          * }
          */
         let count = 0;
-        const dataObj = Object.keys(data).reduce((acc1: {[key: string]: any}, appKey: string) => {
-            const app = data[appKey];
 
-            return app.reduce((acc2: {[key: string]: any}, {agentVersion, jvmInfo}: IAgent) => {
+        const dataObj = data.reduce((acc1: {[key: string]: any}, {instancesList}: IServerAndAgentDataV2) => {
+            return instancesList.reduce((acc2: {[key: string]: any}, {agentVersion, jvmInfo}: IAgentDataV2) => {
                 count++;
+
                 if (agentVersion) {
                     acc2['agent'][agentVersion] = (acc2['agent'][agentVersion] || 0) + 1;
                 }
@@ -71,7 +71,7 @@ export class AgentStatisticChartContainerComponent implements OnInit {
 
                 return acc2;
             }, acc1);
-        }, {jvm: {}, agent: {}}) as {[key: string]: {[key: string]: number}};
+        }, {jvm: {}, agent: {}})
 
         const sortedDataObj = Object.entries(dataObj).reduce((acc1: {[key: string]: Map<string, number>}, [key, valueObj]: [string, {[key: string]: number}]) => {
             const sortedChildMap = new Map<string, number>(Object.entries(valueObj).sort(([k1], [k2]) => k1 < k2 ? -1 : 1));
