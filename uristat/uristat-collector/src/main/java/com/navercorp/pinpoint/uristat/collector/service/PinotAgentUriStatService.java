@@ -23,15 +23,19 @@ import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
 import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.collector.dao.UriStatDao;
 import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
 @Profile("metric")
 public class PinotAgentUriStatService implements AgentUriStatService {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final int BUCKET_SIZE = 8;
     private final int[] EMPTY_BUCKETS = new int[BUCKET_SIZE];
@@ -45,7 +49,11 @@ public class PinotAgentUriStatService implements AgentUriStatService {
 
     @Override
     public void save(AgentUriStatBo agentUriStatBo) {
-        ArrayList<UriStat> data = new ArrayList<>();
+        if (logger.isDebugEnabled()) {
+            logger.debug("save {}", agentUriStatBo);
+        }
+
+        List<UriStat> data = new ArrayList<>();
         final String serviceName = agentUriStatBo.getServiceName();
         final String applicationName = agentUriStatBo.getApplicationName();
         final String agentId = agentUriStatBo.getAgentId();

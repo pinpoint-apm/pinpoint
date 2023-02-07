@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,12 @@ import org.springframework.stereotype.Service;
 @ConditionalOnMissingBean(value = AgentUriStatService.class, ignored = EmptyAgentUriStatService.class)
 @Service
 public class EmptyAgentUriStatService implements AgentUriStatService {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Override
-    public void save(AgentUriStatBo agentUriStatBo) {}
+    public void save(AgentUriStatBo agentUriStatBo) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("save {}", agentUriStatBo);
+        }
+    }
 }
