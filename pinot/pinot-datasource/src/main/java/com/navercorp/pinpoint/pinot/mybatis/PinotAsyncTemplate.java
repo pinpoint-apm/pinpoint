@@ -79,6 +79,11 @@ public class PinotAsyncTemplate {
             ParameterHandler parameterHandler = configuration.newParameterHandler(mappedStatement, parameter, boundSql);
             bindParameter(pinotStatement, parameterHandler);
 
+            //TODO : (minwoo) It would be nice to output the parameters as well.
+            if (logger.isDebugEnabled()) {
+                logger.debug("[pinot statement info] statement:{} \n\t\t\t\t ", boundSql.getSql());
+            }
+
             Executor executor = configuration.newExecutor(transactionFactory.newTransaction(connection));
             StatementHandler handler = new StatementHandler(configuration, executor, mappedStatement, parameterHandler, rowBounds, boundSql);
             return executeAsync(connection, pinotStatement, handler);

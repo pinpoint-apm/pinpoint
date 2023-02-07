@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.inspector.web.dao.pinot.PinotAgentStatDao">
+
+    <resultMap id="inspectorMetricPointResultMap" type="SystemMetricPoint">
+        <constructor>
+            <arg column="avgTime" javaType="_long"/>
+            <arg column="avgValue" javaType="Number" typeHandler="DoubleHandler"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="tagInfoMap" type="TagInformation">
+        <constructor>
+            <arg column="agentId" javaType="string"/>
+            <arg column="metricName" javaType="string"/>
+            <arg column="fieldName" javaType="string"/>
+            <arg column="tags" javaType="list" typeHandler="MultiValueTagTypeHandler"/>
+        </constructor>
+    </resultMap>
+
+    <!--TODO : (minwoo) Need to think about integrating AVG and MAX sum into one. -->
+    <select id="selectInspectorAvgData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
+        SELECT
+            AVG(fieldValue) AS avgValue,
+            DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+        FROM inspectorStat
+        WHERE
+      <!--  tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
+            AND applicationName = #{applicationName} -->
+            agentId = #{agentId}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            GROUP BY avgTime
+            ORDER BY avgTime asc
+            LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorMaxData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
+        SELECT
+        MAX(fieldValue) AS avgValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+        FROM inspectorStat
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName}
+              AND applicationName = #{applicationName} -->
+        agentId = #{agentId}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY avgTime
+        ORDER BY avgTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorSumData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
+        SELECT
+        SUM(fieldValue) AS avgValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+        FROM inspectorStat
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName}
+              AND applicationName = #{applicationName} -->
+        agentId = #{agentId}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY avgTime
+        ORDER BY avgTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectTagInfo" parameterType="inspectorQueryParameter" resultType="Tag">
+        SELECT DISTINCT(tags)
+        FROM inspectorStat
+        WHERE
+            agentId = #{agentId}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+    </select>
+
+    <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameter" resultMap="tagInfoMap">
+        SELECT agentId, metricName, fieldName, tags
+        FROM inspectorStat
+        WHERE
+            agentId = #{agentId}
+            AND metricName = #{metricName}
+            AND fieldName = #{fieldName}
+            <foreach collection="tagList" item="tag" separator=" ">
+                AND tags = #{tag}
+            </foreach>
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+        LIMIT 1
+    </select>
+
+</mapper>

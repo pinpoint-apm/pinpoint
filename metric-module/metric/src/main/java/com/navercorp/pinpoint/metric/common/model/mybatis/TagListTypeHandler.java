@@ -37,7 +37,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @MappedJdbcTypes({JdbcType.VARCHAR})
-public class TagListTypeHandler implements TypeHandler<List<Tag>> {
+public class  TagListTypeHandler implements TypeHandler<List<Tag>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final static ObjectMapper OBJECT_MAPPER = createObjectMapper();

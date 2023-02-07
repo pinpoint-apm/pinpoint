@@ -69,7 +69,7 @@ public class TagUtils {
     public static Tag parseTag(String tagString) {
         Objects.requireNonNull(tagString, "tagString");
 
-        String[] tag = tagString.split(":");
+        String[] tag = tagString.split(":",2);
         return new Tag(tag[0], tag[1]);
     }
 

@@ -19,9 +19,11 @@ package com.navercorp.pinpoint.web.service.stat;
 import com.navercorp.pinpoint.web.dao.SampledAgentStatDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
+import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,6 +46,12 @@ public class DefaultAgentStatChartService<IN extends SampledAgentStatDataPoint, 
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(timeWindow, "timeWindow");
         List<IN> dataPoint = this.statDao.getSampledAgentStatList(agentId, timeWindow);
+        for (IN in : dataPoint) {
+            if (in instanceof SampledJvmGc) {
+                SampledJvmGc sampledJvmGc = (SampledJvmGc) in;
+                System.out.println("### time: "+ new Date(sampledJvmGc.getGcOldCount().getXVal()) + " sampledJvmGc = " + sampledJvmGc.getGcOldCount().getSumYVal());
+            }
+        }
         return chartFunction.apply(timeWindow, dataPoint);
     }
 

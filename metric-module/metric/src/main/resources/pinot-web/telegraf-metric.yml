@@ -45,9 +45,9 @@ mappings:
     unit: "byte"
     fields:
       - name: "total"
-        matchingRule: ALL
+        matchingRule: PASSED_ALL
       - name: "used"
-        matchingRule: ALL
+        matchingRule: PASSED_ALL
 
   - definitionId: "diskPercent"
     name: "disk"
@@ -56,7 +56,7 @@ mappings:
     unit: "percent"
     fields:
       - name: "used_percent"
-        matchingRule: ALL
+        matchingRule: PASSED_ALL
 
   - definitionId: "inodeUsage"
     name: "disk"
@@ -65,11 +65,11 @@ mappings:
     unit: "count"
     fields:
       - name: "inodes_total"
-        matchingRule: ALL
+        matchingRule: PASSED_ALL
       - name: "inodes_used"
-        matchingRule: ALL
+        matchingRule: PASSED_ALL
       - name: "inodes_free"
-        matchingRule: ALL
+        matchingRule: PASSED_ALL
 
   - definitionId: "systemLoad"
     name: "system"

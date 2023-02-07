@@ -124,6 +124,7 @@
         <module>uristat</module>
         <module>realtime</module>
         <module>redis</module>
+        <module>inspector-module</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
@@ -491,6 +492,16 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-metric</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-inspector-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-inspector-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

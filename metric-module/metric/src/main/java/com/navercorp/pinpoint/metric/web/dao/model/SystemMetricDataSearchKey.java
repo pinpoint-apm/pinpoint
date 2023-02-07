@@ -41,7 +41,7 @@ public class SystemMetricDataSearchKey {
     private final long limit;
 
     public SystemMetricDataSearchKey(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
-        Objects.requireNonNull(metricDataSearchKey, "range");
+        Objects.requireNonNull(metricDataSearchKey, "metricDataSearchKey");
         Objects.requireNonNull(metricTag, "metricTag");
 
         this.tenantId = metricDataSearchKey.getTenantId();
