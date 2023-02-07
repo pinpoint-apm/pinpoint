@@ -16,9 +16,12 @@
 
 package com.pinpoint.test.plugin;
 
+import com.pinpoint.test.common.view.ApiLinkPage;
+import com.pinpoint.test.common.view.HrefTag;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
+import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SelfSignedCertificate;
@@ -28,6 +31,7 @@ import io.vertx.ext.web.client.WebClient;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Vertx4PluginTestStarter extends AbstractVerticle {
 
@@ -105,10 +109,11 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
             routingContext.response().end("pinpoint.metric.uri-tempate = /test");
         });
 
-        vertx.createHttpServer().requestHandler(router).listen(18080, http -> {
+        HttpServer httpServer = vertx.createHttpServer();
+        httpServer.requestHandler(router).listen(18080, http -> {
             if (http.succeeded()) {
                 startPromise.complete();
-                System.out.println("HTTP server started on port 18080");
+                System.out.println("HTTP server started on port " + httpServer.actualPort());
             } else {
                 startPromise.fail(http.cause());
             }
@@ -116,8 +121,12 @@ public class Vertx4PluginTestStarter extends AbstractVerticle {
     }
 
     private String buildMain(String title, List<Route> routes) {
+        List<HrefTag> tags = routes.stream()
+                .map(route -> HrefTag.of(route.getPath()))
+                .collect(Collectors.toList());
         return new ApiLinkPage(title)
-                .buildRoute(routes);
+                .addHrefTag(tags)
+                .build();
     }
 
     private void executeBlocking(HttpServerRequest request, final int waitSeconds) {
