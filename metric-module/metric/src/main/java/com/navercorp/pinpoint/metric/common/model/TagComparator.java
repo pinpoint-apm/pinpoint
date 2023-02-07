@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
+
 import java.util.Comparator;
 
 /**

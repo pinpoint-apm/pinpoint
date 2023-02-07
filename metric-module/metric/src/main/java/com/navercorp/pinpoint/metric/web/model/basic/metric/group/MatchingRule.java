@@ -12,8 +12,9 @@ public enum MatchingRule {
 
     //multi
     CONTAIN(100, "contain"),
-    ALL(200, "all"),
+    PASSED_ALL(200, "passed_all"),
 
+    ALL(300, "passed_all"),
 
     UNKNOWN(999, "unknown");
 

@@ -72,7 +72,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         List<MetricInfo> metricDefinitionIdList = new ArrayList<>();
         for (String metricName : metricNameList) {
             for (String metricDefinitionId : systemMetricBasicGroupManager.findMetricDefinitionIdList(metricName)) {
-                boolean isMatchingRuleAll = (systemMetricBasicGroupManager.findMatchingRule(metricDefinitionId) == MatchingRule.ALL);
+                boolean isMatchingRuleAll = (systemMetricBasicGroupManager.findMatchingRule(metricDefinitionId) == MatchingRule.PASSED_ALL);
                 metricDefinitionIdList.add(new MetricInfo(metricDefinitionId, isMatchingRuleAll));
             }
         }
@@ -97,7 +97,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
                 return getExactMatchingTag(metricDataSearchKey, field);
             case ANY_ONE:
                 return getAnyOneTag(metricDataSearchKey, field);
-            case ALL :
+            case PASSED_ALL :
                 return createTag(metricDataSearchKey, field, tags);
             default :
                 throw new UnsupportedOperationException("unsupported matchingRule:" + matchingRule);

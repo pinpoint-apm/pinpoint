@@ -10,10 +10,12 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializ
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -61,6 +63,17 @@ public class DefaultAgentStatDao<T extends AgentStatDataPoint> implements AgentS
             return;
         }
 
+        if (agentStatType.equals(AgentStatType.JVM_GC)) {
+            for (T dataPoint : dataPoints) {
+                if (dataPoint instanceof JvmGcBo)
+                {
+                    JvmGcBo jvmGcBo = (JvmGcBo) dataPoint;
+                    System.out.println("#### time : " + new Date(jvmGcBo.getTimestamp()) + " Gc count : " + jvmGcBo.getGcOldCount());
+                }
+
+            }
+
+        }
         dataPoints = preprocessor.apply(dataPoints);
         List<Put> puts = this.operations.createPuts(agentId, agentStatType, dataPoints, this.serializer);
         if (!puts.isEmpty()) {

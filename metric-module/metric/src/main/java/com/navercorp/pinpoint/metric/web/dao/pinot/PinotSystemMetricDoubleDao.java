@@ -26,6 +26,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
     private final SqlSessionTemplate sqlPinotSessionTemplate;
     private final PinotAsyncTemplate asyncTemplate;
 
-    public PinotSystemMetricDoubleDao(SqlSessionTemplate sqlPinotSessionTemplate, PinotAsyncTemplate asyncTemplate) {
+    public PinotSystemMetricDoubleDao(SqlSessionTemplate sqlPinotSessionTemplate, @Qualifier("pinotAsyncTemplate") PinotAsyncTemplate asyncTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
     }

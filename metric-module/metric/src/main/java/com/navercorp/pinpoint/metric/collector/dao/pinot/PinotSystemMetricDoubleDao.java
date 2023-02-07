@@ -51,6 +51,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
                                       @Value("${kafka.double.topic}") String topic) {
         this.kafkaDoubleTemplate = Objects.requireNonNull(kafkaDoubleTemplate, "kafkaDoubleTemplate");
         this.topic = Objects.requireNonNull(topic, "topic");
+
     }
 
     @Override

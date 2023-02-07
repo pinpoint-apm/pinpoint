@@ -39,7 +39,7 @@ public class MetricDataSearchKey {
     private final long limit;
 
     public MetricDataSearchKey(String tenantId, String hostGroupName, String hostName, String metricName, String metricDefinitionId, TimeWindow timeWindow) {
-        this.tenantId = StringPrecondition.requireHasLength(tenantId, "hostGroupName");
+        this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");

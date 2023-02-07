@@ -6,7 +6,8 @@ package com.navercorp.pinpoint.metric.collector;
 public enum CollectorType {
     ALL,
     BASIC,
-    METRIC;
+    METRIC,
+    BASIC_WITH_INSPECTOR;
 
     public boolean hasType(CollectorType type) {
         if (this == ALL) {

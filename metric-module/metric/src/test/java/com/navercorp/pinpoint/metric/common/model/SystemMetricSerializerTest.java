@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
