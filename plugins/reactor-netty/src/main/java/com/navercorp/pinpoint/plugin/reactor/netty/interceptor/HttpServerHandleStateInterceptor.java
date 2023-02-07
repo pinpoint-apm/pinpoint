@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import reactor.netty.ConnectionObserver;
 import reactor.netty.http.server.HttpServerRequest;
@@ -33,41 +34,25 @@ public class HttpServerHandleStateInterceptor extends AbstractHttpServerHandleIn
         super(traceContext, descriptor, requestRecorderFactory);
     }
 
-    public boolean validate(Object[] args) {
-        if (ArrayUtils.getLength(args) < 2) {
-            return false;
-        }
-
-        if (!(args[1] instanceof ConnectionObserver.State)) {
-            return false;
-        }
-
-        return true;
-    }
-
     public boolean isReceived(Object[] args) {
-        if (!validate(args)) {
-            return false;
+        final ConnectionObserver.State state = ArrayArgumentUtils.getArgument(args, 1, ConnectionObserver.State.class);
+        if (state != null && state == ConnectionObserver.State.CONFIGURED) {
+            return true;
         }
-
-        ConnectionObserver.State state = (ConnectionObserver.State) args[1];
-        if (state != ConnectionObserver.State.CONFIGURED) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
-    public boolean isDisconnecting(Object[] args) {
-        if (!validate(args)) {
+    public boolean isClosed(Object[] args) {
+        final ConnectionObserver.State state = ArrayArgumentUtils.getArgument(args, 1, ConnectionObserver.State.class);
+        if (state == null) {
             return false;
         }
-
-        ConnectionObserver.State state = (ConnectionObserver.State) args[1];
-        if (state != ConnectionObserver.State.DISCONNECTING) {
-            return false;
+        // ACQUIRED: Propagated when a connection has been reused / acquired (keep-alive or pooling)
+        // RELEASED: Propagated when a connection has been released but not fully closed (keep-alive or pooling)
+        // DISCONNECTING: Propagated when a connection is being fully closed
+        if (state == ConnectionObserver.State.DISCONNECTING || state == ConnectionObserver.State.ACQUIRED || state == ConnectionObserver.State.RELEASED) {
+            return true;
         }
-
-        return true;
+        return false;
     }
 }
