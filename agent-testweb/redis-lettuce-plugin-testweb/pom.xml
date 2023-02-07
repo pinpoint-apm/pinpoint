@@ -39,8 +39,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.j2html</groupId>
-            <artifactId>j2html</artifactId>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-testweb-commons</artifactId>
         </dependency>
     </dependencies>
 

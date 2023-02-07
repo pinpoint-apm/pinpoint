@@ -9,6 +9,6 @@ public class Vertx3VerticalMain {
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(new VertxPluginTestStarter());
+        vertx.deployVerticle(new Vertx3PluginTestStarter());
     }
 }

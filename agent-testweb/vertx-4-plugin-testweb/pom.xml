@@ -57,9 +57,8 @@
             <version>${vertx.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.j2html</groupId>
-            <artifactId>j2html</artifactId>
-            <version>1.6.0</version>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-testweb-commons</artifactId>
         </dependency>
     </dependencies>
 

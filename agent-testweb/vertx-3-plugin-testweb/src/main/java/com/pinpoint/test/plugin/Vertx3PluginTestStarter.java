@@ -16,6 +16,8 @@
 
 package com.pinpoint.test.plugin;
 
+import com.pinpoint.test.common.view.ApiLinkPage;
+import com.pinpoint.test.common.view.HrefTag;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -23,6 +25,7 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -32,8 +35,9 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-public class VertxPluginTestStarter extends AbstractVerticle {
+public class Vertx3PluginTestStarter extends AbstractVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
@@ -114,10 +118,11 @@ public class VertxPluginTestStarter extends AbstractVerticle {
         });
 
 
-        vertx.createHttpServer().requestHandler(router).listen(18080, http -> {
+        HttpServer httpServer = vertx.createHttpServer();
+        httpServer.requestHandler(router).listen(18080, http -> {
             if (http.succeeded()) {
                 startPromise.complete();
-                System.out.println("HTTP server started on port 18080");
+                System.out.println("HTTP server started on port " + httpServer.actualPort());
             } else {
                 startPromise.fail(http.cause());
             }
@@ -133,8 +138,12 @@ public class VertxPluginTestStarter extends AbstractVerticle {
     }
 
     private String buildMain(String title, List<Route> routes) {
+        List<HrefTag> tags = routes.stream()
+                .map(route -> HrefTag.of(route.getPath(), route.getPath()))
+                .collect(Collectors.toList());
         return new ApiLinkPage(title)
-                .buildRoute(routes);
+                .addHrefTag(tags)
+                .build();
     }
 
     private void executeBlocking(HttpServerRequest request, final int waitSeconds) {

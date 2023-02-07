@@ -20,6 +20,8 @@ import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import com.pinpoint.test.common.view.ApiLinkPage;
+import com.pinpoint.test.common.view.HrefTag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -67,14 +69,16 @@ public class MongoReactivePluginController {
     @GetMapping("/")
     String welcome() {
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.handlerMapping.getHandlerMethods();
-        List<String> list = new ArrayList<>();
+        List<HrefTag> list = new ArrayList<>();
         for (RequestMappingInfo info : handlerMethods.keySet()) {
             for (String path : info.getDirectPaths()) {
-                list.add(path);
+                list.add(HrefTag.of(path));
             }
         }
-        list.sort(String::compareTo);
-        return new ApiLinkPage("mongodb-reactive-plugin-testweb").build(list);
+        list.sort(Comparator.comparing(HrefTag::getPath));
+        return new ApiLinkPage("mongodb-reactive-plugin-testweb")
+                .addHrefTag(list)
+                .build();
     }
 
     @GetMapping(value = "/insertOne")

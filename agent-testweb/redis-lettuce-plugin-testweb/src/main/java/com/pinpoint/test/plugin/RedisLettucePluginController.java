@@ -16,6 +16,8 @@
 
 package com.pinpoint.test.plugin;
 
+import com.pinpoint.test.common.view.ApiLinkPage;
+import com.pinpoint.test.common.view.HrefTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -33,6 +35,7 @@ import org.springframework.web.reactive.result.method.annotation.RequestMappingH
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -55,22 +58,23 @@ public class RedisLettucePluginController {
     @GetMapping("/")
     String welcome() {
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.handlerMapping.getHandlerMethods();
-        List<String> list = new ArrayList<>();
+        List<HrefTag> list = new ArrayList<>();
         for (RequestMappingInfo info : handlerMethods.keySet()) {
             for (String path : info.getDirectPaths()) {
-                list.add(path);
+                list.add(HrefTag.of(path));
             }
         }
-        list.sort(String::compareTo);
-        return new ApiLinkPage("redis-lettuce-plugin-testweb").build(list);
+        list.sort(Comparator.comparing(HrefTag::getPath));
+        return new ApiLinkPage("redis-lettuce-plugin-testweb")
+                .addHrefTag(list)
+                .build();
     }
 
     @GetMapping("/basic/get")
     public String get() {
         stringRedisTemplate.opsForValue().set("foo", "bar");
-        String value = stringRedisTemplate.opsForValue().get("foo");
 
-        return value;
+        return stringRedisTemplate.opsForValue().get("foo");
     }
 
     @GetMapping("/basic/callback")
@@ -114,8 +118,7 @@ public class RedisLettucePluginController {
     @GetMapping("/reactive/get")
     public Mono<String> reactiveGet() {
         reactiveStringRedisTemplate.opsForValue().set("foo", "bar");
-        Mono<String> value = reactiveStringRedisTemplate.opsForValue().get("foo");
 
-        return value;
+        return reactiveStringRedisTemplate.opsForValue().get("foo");
     }
 }

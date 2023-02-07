@@ -39,7 +39,7 @@
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
-        <main.verticle>com.pinpoint.test.plugin.VertxPluginTestStarter</main.verticle>
+        <main.verticle>com.pinpoint.test.plugin.Vertx3PluginTestStarter</main.verticle>
         <launcher.class>io.vertx.core.Launcher</launcher.class>
 
     </properties>
@@ -51,9 +51,8 @@
             <version>${vertx.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.j2html</groupId>
-            <artifactId>j2html</artifactId>
-            <version>1.6.0</version>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-testweb-commons</artifactId>
         </dependency>
     </dependencies>
 

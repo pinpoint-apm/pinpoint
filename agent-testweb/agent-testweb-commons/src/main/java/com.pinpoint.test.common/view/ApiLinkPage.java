@@ -1,24 +1,9 @@
-/*
- * Copyright 2023 NAVER Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.pinpoint.test.plugin;
+package com.pinpoint.test.common.view;
 
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.HtmlTag;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,26 +22,28 @@ import static j2html.TagCreator.title;
  */
 public class ApiLinkPage {
     private final String title;
+    private List<ATag> aTags = new ArrayList<>();
 
     public ApiLinkPage(String title) {
         this.title = Objects.requireNonNull(title, "title");
     }
 
-    public String build(List<String> routes) {
-        List<ATag> collect = routes.stream()
+    public ApiLinkPage addHrefTag(List<HrefTag> hrefTags) {
+        List<ATag> collect = hrefTags.stream()
                 .map(this::aTag)
                 .collect(Collectors.toList());
-        return buildHtml(collect);
+        this.aTags.addAll(collect);
+        return this;
     }
 
-    private ATag aTag(String path) {
+    private ATag aTag(HrefTag hrefTag) {
         return a()
-                .withText(path)
-                .withHref(path)
+                .withText(hrefTag.getText())
+                .withHref(hrefTag.getPath())
                 .withTarget("_blank");
     }
 
-    public String buildHtml(List<ATag> aTags) {
+    public String build() {
 
         HtmlTag html = html(
                 head(title(title)),
@@ -67,4 +54,5 @@ public class ApiLinkPage {
         );
         return html.render();
     }
+
 }
