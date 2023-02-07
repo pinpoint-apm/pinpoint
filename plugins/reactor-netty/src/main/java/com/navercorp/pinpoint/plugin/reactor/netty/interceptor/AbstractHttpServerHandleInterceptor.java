@@ -23,12 +23,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
@@ -37,6 +39,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -55,6 +58,10 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
     private final boolean enableAsyncEndPoint;
     private final ServletRequestListener<HttpServerRequest> servletRequestListener;
     private final ServletResponseListener<HttpServerResponse> servletResponseListener;
+
+    abstract boolean isReceived(Object[] args);
+
+    abstract boolean isClosed(Object[] args);
 
     public AbstractHttpServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
         this.traceContext = traceContext;
@@ -89,53 +96,57 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
             logger.beforeInterceptor(target, args);
         }
 
-        if (traceContext.currentRawTraceObject() != null) {
-            if (isDisconnecting(args)) {
-                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
-                if (asyncContext != null) {
-                    if (AsyncContextUtils.asyncStateFinish(asyncContext)) {
-                        if (isDebug) {
-                            logger.debug("Finished asyncState. asyncTraceId={}", asyncContext);
-                        }
-                    }
-                }
-            }
-            // duplicate trace.
-            return;
-        }
-
         try {
-            if (Boolean.FALSE == isReceived(args)) {
-                // invalid args
-                return;
-            }
-
-            final HttpServerRequest request = (HttpServerRequest) args[0];
-            final HttpServerResponse response = (HttpServerResponse) args[0];
-            this.servletRequestListener.initialized(request, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor);
-            this.servletResponseListener.initialized(response, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor); //must after request listener due to trace block begin
-
-            // Set end-point
-            final Trace trace = this.traceContext.currentTraceObject();
-            if (trace == null) {
-                return;
-            }
-
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (recorder != null) {
-                // make asynchronous trace-id
-                final boolean asyncStateSupport = enableAsyncEndPoint;
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext(asyncStateSupport);
-                ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
-                if (isDebug) {
-                    logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
-                }
+            if (isReceived(args)) {
+                received(args);
+            } else if (isClosed(args)) {
+                closed(args);
             }
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
             }
         }
+    }
+
+    private void received(final Object[] args) {
+        final HttpServerRequest request = ArrayArgumentUtils.getArgument(args, 0, HttpServerRequest.class);
+        if (request == null) {
+            return;
+        }
+        final HttpServerResponse response = ArrayArgumentUtils.getArgument(args, 0, HttpServerResponse.class);
+        if (response == null) {
+            return;
+        }
+
+        this.servletRequestListener.initialized(request, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor);
+        this.servletResponseListener.initialized(response, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor); //must after request listener due to trace block begin
+
+        // Set end-point
+        final Trace trace = this.traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+        if (recorder != null) {
+            // make asynchronous trace-id
+            final boolean asyncStateSupport = enableAsyncEndPoint;
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext(asyncStateSupport);
+            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
+            }
+        }
+    }
+
+    private void closed(final Object[] args) {
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
+        if (asyncContext == null) {
+            return;
+        }
+        // closed
+        AsyncContextUtils.asyncStateFinish(asyncContext);
     }
 
     @Override
@@ -145,15 +156,9 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         try {
-            if (Boolean.FALSE == isReceived(args)) {
-                return;
+            if (isReceived(args)) {
+                received(args, throwable);
             }
-
-            final HttpServerRequest request = (HttpServerRequest) args[0];
-            final HttpServerResponse response = (HttpServerResponse) args[0];
-            final int statusCode = getStatusCode(response);
-            this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
-            this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
@@ -161,9 +166,13 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
     }
 
-    abstract boolean isReceived(Object[] args);
-
-    abstract boolean isDisconnecting(Object[] args);
+    private void received(Object[] args, Throwable throwable) {
+        final HttpServerRequest request = (HttpServerRequest) args[0];
+        final HttpServerResponse response = (HttpServerResponse) args[0];
+        final int statusCode = getStatusCode(response);
+        this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
+        this.servletRequestListener.destroyed(request, throwable, statusCode);
+    }
 
     private int getStatusCode(final HttpServerResponse response) {
         try {

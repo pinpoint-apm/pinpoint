@@ -16,6 +16,9 @@
 
 package com.pinpoint.test.plugin;
 
+import com.pinpoint.test.common.view.ApiLinkPage;
+import com.pinpoint.test.common.view.HrefTag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,16 +27,57 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.result.method.RequestMappingInfo;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 @RestController
 public class SpringWebfluxPluginController {
+
+    private final RequestMappingHandlerMapping handlerMapping;
+
+    @Autowired
+    public SpringWebfluxPluginController(RequestMappingHandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
+    }
+
+    @GetMapping("/")
+    String welcome() {
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.handlerMapping.getHandlerMethods();
+        List<HrefTag> list = new ArrayList<>();
+        for (RequestMappingInfo info : handlerMethods.keySet()) {
+            for (String path : info.getDirectPaths()) {
+                list.add(HrefTag.of(path));
+            }
+        }
+        list.sort(Comparator.comparing(HrefTag::getPath));
+        return new ApiLinkPage("spring-webflux-plugin-testweb")
+                .addHrefTag(list)
+                .build();
+    }
+
     @GetMapping("/server/welcome/**")
-    public Mono<String> welcome(ServerWebExchange exchange) {
+    public Mono<String> serverWelcome(ServerWebExchange exchange) {
         exchange.getAttributes().put("pinpoint.metric.uri-template", "/test");
+        return Mono.just("Welcome Home");
+    }
+
+    @GetMapping("/server/wait/3s")
+    public Mono<String> wait3(ServerWebExchange exchange) {
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+        }
         return Mono.just("Welcome Home");
     }
 
