@@ -96,7 +96,7 @@ export class ServerAndAgentListComponent implements OnInit {
         });
     }
 
-    getAgentLabel({agentId, agentName}: IServerAndAgentData): string {
+    getAgentLabel({agentId, agentName}: IAgentDataV2): string {
         switch (this.selectedSortOptionKey) {
             case SortOption.ID:
             case SortOption.RECENT:

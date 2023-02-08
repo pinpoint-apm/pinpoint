@@ -1,27 +1,27 @@
 :host {
     display: block;
 }
-.l-servers-list {
-    padding: 0 13px 0 25px;
+.servers-list {
+    padding: 0 8px 0 15px;
 }
-.l-server-name {
+.server-name {
     display: block;
     overflow : hidden;
     white-space : nowrap;
     text-overflow : ellipsis;
 }
-.l-servers-list li {
+.servers-list li {
     font-size: 13px;
     color:var(--text-primary);
     font-weight: 600;
 }
-.l-servers-list li {
+.servers-list li {
     margin: 15px 0 0 0;
 }
-.l-servers-list li.first-child {
-    margin:0;
+.servers-list li.first-child {
+    margin: 0;
 }
-.l-servers-list li.first-child:before {
+.servers-list li.first-child:before {
     font-family: FontAwesome;
     content: '\f0ae';
     font-size: 14px;
@@ -29,58 +29,50 @@
     color: var(--text-secondary);
     font-weight: normal;
 }
-.l-servers-list li .l-category {
-    margin: 10px 0 0 27px;
+.depth-1 {
+    margin: 10px 0 0 15px;
 }
-.l-servers-list li .l-category span {
-    display: inline-block;
-    padding: 2px 5px;
-    font-size: 10px;
-    color: var(--text-knockout);
-    font-weight: 600;
-}
-.l-servers-list li ul {
-    margin: 13px 0 0 20px;
-}
-.l-servers-list li ul li {
+.depth-1 li {
     font-size: 12px;
     color: var(--text-primary-lightest);
     font-weight: 400;
-    height: 20px;
+    height: 25px;
     margin: 5px 0px;
     color: var(--text-secondary);
+    display: flex;
+    align-items: center;
 }
-.l-servers-list li ul li input {
+.radio-input {
     margin: 0 5px;
 }
-.l-servers-list li ul li div {
-    float: right;
-}
-.l-servers-list li ul li label {
-    display: block;
+.radio-label {
     overflow : hidden;
     white-space : nowrap;
     text-overflow : ellipsis;
 }
-.l-servers-list li ul li:hover {
+.depth-1 li:hover {
     background: var(--background-hover-default);
 }
-.l-text-box {
-    padding: 3px 5px;
+.inspector-btn{
+    padding: 5px 5px;
     font-size: 10px;
     color: var(--text-knockout);
-    margin-left: 13px;
     background-color: var(--primary);
+    border-radius: 2px;
 }
-.l-icon-alert {
+.icon-alert {
     height: 1em;
+    display: inline-block;
+    width: 11px;
 }
-.l-servers-list ul li {
-    height: 30px;
+.label-radio-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
 }
-.l-servers-list ul span {
-    cursor: pointer;
-}
-i.fas {
-    margin-right: 4px;
+
+.btn-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }

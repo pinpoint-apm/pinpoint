@@ -10,15 +10,16 @@ const enum SortOptionParamKey {
     NAME = 'AGENT_NAME_ASC',
     RECENT = 'RECENT'
 }
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class ServerAndAgentListDataService {
     private url = 'agents/search-application.pinpoint';
 
+    // TODO: Agent-list fetch service 일원화
     constructor(
         private http: HttpClient,
     ) {}
 
-    getData(applicationName: string, range: number[], sortOption: SortOption): Observable<IServerAndAgentDataV2[]> {
+    getData(applicationName: string, range: number[], sortOption: SortOption = SortOption.ID): Observable<IServerAndAgentDataV2[]> {
         return this.http.get<IServerAndAgentDataV2[]>(this.url, this.makeRequestOptionsArgs(applicationName, range, sortOption));
     }
 

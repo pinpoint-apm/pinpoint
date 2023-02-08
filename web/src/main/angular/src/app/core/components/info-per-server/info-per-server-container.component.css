@@ -18,7 +18,7 @@
     color: var(--text-primary-lightest);
     justify-content: space-between;
     align-items: center;
-    padding: 0 25px;
+    padding: 0 15px;
     background: none;
     border: none;
     height: 50px;    
@@ -84,7 +84,7 @@
     flex-flow: row wrap;
     align-items: center;
     height: 64px;
-    padding: 0 25px;
+    padding: 0 15px;
     margin-bottom: 37px;
     position: relative;
 }
