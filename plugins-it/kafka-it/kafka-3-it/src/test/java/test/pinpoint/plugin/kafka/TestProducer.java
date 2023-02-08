@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import static test.pinpoint.plugin.kafka.KafkaITConstants.MESSAGE;
 import static test.pinpoint.plugin.kafka.KafkaITConstants.TOPIC;
+import static test.pinpoint.plugin.kafka.KafkaITConstants.INPUT_TOPIC;
 import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
 
 /**
@@ -51,6 +52,19 @@ public class TestProducer {
         producer.close();
     }
 
-
+    public void sendMessageForStream(String brokerUrl, int messageCount, String traceType) {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+        for (int i = 0; i < messageCount; i++) {
+            ProducerRecord<String, String> record = new ProducerRecord<>(INPUT_TOPIC, traceType, MESSAGE);
+            producer.send(record);
+        }
+        producer.flush();
+        producer.close();
+    }
 
 }
