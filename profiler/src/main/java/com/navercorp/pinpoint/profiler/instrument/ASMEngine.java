@@ -63,8 +63,7 @@ public class ASMEngine implements InstrumentEngine {
             final ClassNode classNode = new ClassNode();
             classReader.accept(classNode, 0);
 
-
-            return new ASMClass(engineComponent, instrumentContext, classLoader, protectionDomain, classNode);
+            return ASMClass.load(engineComponent, instrumentContext, classLoader, protectionDomain, classNode);
         } catch (Exception e) {
             throw new NotFoundInstrumentException(e);
         }

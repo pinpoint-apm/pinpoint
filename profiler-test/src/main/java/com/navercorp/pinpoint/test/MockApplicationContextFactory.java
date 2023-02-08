@@ -53,8 +53,7 @@ public class MockApplicationContextFactory {
     }
 
     public DefaultApplicationContext build(ProfilerConfig config) {
-        DefaultApplicationContext context = build(config, newModuleFactory());
-        return context;
+        return build(config, newModuleFactory());
     }
 
     public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {

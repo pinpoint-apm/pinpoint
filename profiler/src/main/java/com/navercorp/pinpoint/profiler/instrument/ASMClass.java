@@ -69,8 +69,9 @@ public class ASMClass implements InstrumentClass {
     private boolean modified = false;
     private String name;
 
-    public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode) {
-        this(engineComponent, pluginContext, new ASMClassNodeAdapter(pluginContext, classLoader, protectionDomain, classNode));
+    public static ASMClass load(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode) {
+        ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, classLoader, protectionDomain, classNode);
+        return new ASMClass(engineComponent, pluginContext, classNodeAdapter);
     }
 
     public ASMClass(EngineComponent engineComponent, final InstrumentContext pluginContext, final ASMClassNodeAdapter classNode) {
