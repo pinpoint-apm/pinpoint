@@ -1,16 +1,21 @@
-<ul class="l-servers-list">
-    <li *ngFor="let serverName of getServerKeys(); let outerIndex = index">
-        <div class="l-server-name" [attr.title]="serverName">{{ serverName }}</div>
-        <ul>
-            <li *ngFor="let agentId of getAgentKeys(serverName); let innerIndex = index">
-                <div>
-                    <span class="l-icon-alert" *ngIf="hasError(agentId)"><img [src]="getAlertImgPath()" alt=""></span>
-                    <button class="l-text-box fas fa-chart-line" (click)="onOpenInspector(agentId)" *ngIf="isWas"></button>
+<ul class="servers-list depth-0">
+    <li *ngFor="let server of serverList; let outerIndex = index">
+        <div class="server-name" [attr.title]="server.groupName">{{server.groupName}}</div>
+        <ul class="depth-1">
+            <li *ngFor="let agent of server.instancesList; let innerIndex = index">
+                <div class="label-radio-wrapper" [style.max-width]="getLabelMaxWidth(btnWrapper)">
+                    <input
+                        type="radio"
+                        class="radio-input"
+                        id="step3-category-{{outerIndex}}-{{innerIndex}}"
+                        name="main-server-list-selected-agent" (click)="onSelectAgent(agent)" [checked]="isSelectedAgent(agent)"
+                    >
+                    <label for="step3-category-{{outerIndex}}-{{innerIndex}}" class="radio-label" title="{{getAgentName(agent)}}">{{getAgentLabel(agent)}}</label>
                 </div>
-                <label for="step3-category-{{outerIndex}}-{{innerIndex}}" title="{{ getAgentName(serverName, agentId) || 'N/A' }}">
-                    <input type="radio" id="step3-category-{{outerIndex}}-{{innerIndex}}" name="main-server-list-selected-agent" (click)="onSelectAgent(agentId)" [checked]="isSelectedAgent(agentId)">
-                    {{ agentId }} ({{ getAgentName(serverName, agentId) || "N/A" }})
-                </label>
+                <div class="btn-wrapper" #btnWrapper>
+                    <span class="icon-alert" *ngIf="hasError(agent)"><img [src]="getAlertImgPath()" alt=""></span>
+                    <button class="inspector-btn fas fa-chart-line" (click)="onOpenInspector(agent)" *ngIf="isWas"></button>
+                </div>
             </li>
         </ul>
     </li>

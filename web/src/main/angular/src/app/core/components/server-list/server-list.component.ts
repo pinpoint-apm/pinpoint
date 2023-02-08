@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
     selector: 'pp-server-list',
@@ -6,7 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
     styleUrls: ['./server-list.component.css'],
 })
 export class ServerListComponent implements OnInit {
-    @Input() serverList: any = {};
+    @Input() serverList: IServerAndAgentDataV2[];
     @Input() agentData: any = {};
     @Input() isWas: boolean;
     @Input() selectedAgent: string;
@@ -16,38 +16,39 @@ export class ServerListComponent implements OnInit {
 
     constructor() {}
     ngOnInit() {}
-    getServerKeys(): string[] {
-        return Object.keys(this.serverList).sort();
+    getAgentLabel({agentId, agentName}: IAgentDataV2): string {
+        return `${agentId} (${this.getAgentName({agentName} as IAgentDataV2)})`;
     }
 
-    getAgentKeys(serverName: string): string[] {
-        return Object.keys(this.serverList[serverName]['instanceList']).sort();
+    getAgentName({agentName}: IAgentDataV2): string {
+        return agentName ? agentName : 'N/A';
     }
 
-    getAgentName(serverName: string, agentId: string): string {
-        const agentInfo = this.serverList[serverName]['instanceList'][agentId];
-        return agentInfo && agentInfo['agentName'] ? agentInfo['agentName'] : null;
-    }
-
-    hasError(agent: string): boolean {
-        return this.agentData[agent] && this.agentData[agent]['Error'] > 0;
+    hasError({agentId}: IAgentDataV2): boolean {
+        return this.agentData[agentId] && this.agentData[agentId]['Error'] > 0;
     }
 
     getAlertImgPath(): string {
         return this.funcImagePath('icon-alert');
     }
 
-    onSelectAgent(agent: string) {
-        if (this.selectedAgent !== agent) {
-            this.outSelectAgent.emit(agent);
+    onSelectAgent({agentId}: IAgentDataV2) {
+        if (this.selectedAgent === agentId) {
+            return;
         }
+
+        this.outSelectAgent.emit(agentId);
     }
 
-    onOpenInspector(agent: string): void {
-        this.outOpenInspector.emit(agent);
+    onOpenInspector({agentId}: IAgentDataV2): void {
+        this.outOpenInspector.emit(agentId);
     }
 
-    isSelectedAgent(agent: string): boolean {
-        return this.selectedAgent === agent;
+    isSelectedAgent({agentId}: IAgentDataV2): boolean {
+        return this.selectedAgent === agentId;
+    }
+
+    getLabelMaxWidth(btnWrapper: HTMLElement): string {
+        return `calc(100% - ${btnWrapper.offsetWidth}px)`;
     }
 }

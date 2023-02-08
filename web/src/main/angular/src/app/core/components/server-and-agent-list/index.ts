@@ -4,7 +4,6 @@ import { SharedModule } from 'app/shared';
 import { ServerAndAgentListComponent } from './server-and-agent-list.component';
 import { ServerAndAgentListContainerComponent } from './server-and-agent-list-container.component';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
-import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
 
 @NgModule({
     declarations: [
@@ -18,8 +17,6 @@ import { ServerAndAgentListDataService } from './server-and-agent-list-data.serv
     exports: [
         ServerAndAgentListContainerComponent
     ],
-    providers: [
-        ServerAndAgentListDataService
-    ]
+    providers: []
 })
 export class ServerAndAgentListModule { }
