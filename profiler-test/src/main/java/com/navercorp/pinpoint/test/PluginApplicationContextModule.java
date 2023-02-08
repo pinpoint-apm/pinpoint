@@ -67,7 +67,7 @@ public class PluginApplicationContextModule extends AbstractModule {
 
         bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
-        bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
+        bind(PinpointClientFactory.class).toProvider(Providers.of(null));
 
         EnhancedDataSender<MetaDataType> enhancedDataSender = newTcpDataSender();
         logger.debug("enhancedDataSender:{}", enhancedDataSender);

@@ -33,7 +33,7 @@ import java.util.List;
  */
 public final class ThreadDumpUtils {
 
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    public static final String LINE_SEPARATOR = System.lineSeparator();
     public static final String TAB_SEPARATOR = "    "; // tab to 4 spaces
 
     public static String createDumpMessage(TThreadDump threadDump) {

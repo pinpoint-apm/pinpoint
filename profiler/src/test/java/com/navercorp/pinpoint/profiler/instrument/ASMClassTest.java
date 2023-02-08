@@ -650,6 +650,6 @@ public class ASMClassTest {
     private ASMClass getClass(final String targetClassName) throws Exception {
         ClassNode classNode = loader.get(targetClassName);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return new ASMClass(engineComponent, pluginContext, classLoader, getClass().getProtectionDomain(), classNode);
+        return ASMClass.load(engineComponent, pluginContext, classLoader, getClass().getProtectionDomain(), classNode);
     }
 }

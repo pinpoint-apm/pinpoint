@@ -64,8 +64,7 @@ public class MockApplicationContextModule extends AbstractModule {
 
     private ServerMetaDataRegistryService newServerMetaDataRegistryService() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(vmArgs);
-        return serverMetaDataRegistryService;
+        return new DefaultServerMetaDataRegistryService(vmArgs);
     }
 
 }

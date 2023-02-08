@@ -185,7 +185,7 @@ public class MethodInterfaceTest {
         ClassNode classNode = TestClassLoader.get("com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterface");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         EngineComponent engineComponent = mock(EngineComponent.class);
-        ASMClass clazz = new ASMClass(engineComponent, pluginContext, classLoader, null, classNode);
+        ASMClass clazz = ASMClass.load(engineComponent, pluginContext, classLoader, null, classNode);
         assertTrue(clazz.isInterceptable());
     }
 

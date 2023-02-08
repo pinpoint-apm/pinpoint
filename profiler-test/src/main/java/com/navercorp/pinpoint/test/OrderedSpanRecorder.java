@@ -32,11 +32,8 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  * @author Jongho Moon
  */
 public class OrderedSpanRecorder implements ListenableDataSender.Listener<SpanType>, Iterable<SpanType> {
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
     public static final int ROOT_SEQUENCE = -1;
-    public static final int ASYNC_ID_NOT_SET = -1;
-    public static final int ASYNC_SEQUENCE_NOT_SET = -1;
-
     private final List<Item<SpanType>> list = new ArrayList<>();
 
     public OrderedSpanRecorder() {
@@ -63,7 +60,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<SpanTy
         long startTime = span.getStartTime();
         TraceRoot traceRoot = span.getTraceRoot();
 
-        Item<SpanType> item = new Item<SpanType>(span, startTime, traceRoot, ROOT_SEQUENCE);
+        Item<SpanType> item = new Item<>(span, startTime, traceRoot, ROOT_SEQUENCE);
         insertItem(item);
     }
 
@@ -87,7 +84,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<SpanTy
 
         final SpanEvent event = spanEventList.get(0);
         long startTime = event.getStartTime();
-        Item<SpanType> item = new Item<SpanType>(spanChunk, startTime, spanChunk.getTraceRoot(), event.getSequence());
+        Item<SpanType> item = new Item<>(spanChunk, startTime, spanChunk.getTraceRoot(), event.getSequence());
         insertItem(item);
     }
 

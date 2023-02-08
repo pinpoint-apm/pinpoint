@@ -14,7 +14,7 @@ public final class ServerBootLogger {
     private final PrintStream err = System.err;
 
     private static final String LOGGER_FORMAT = "%-35.35s";
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS");
 
     private ServerBootLogger(String loggerName) {
