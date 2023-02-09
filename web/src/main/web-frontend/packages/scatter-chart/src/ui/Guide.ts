@@ -1,5 +1,5 @@
 import { TEXT_MARGIN_BOTTOM, TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP } from "../constants/ui";
-import { AxisOption, GuideOption, Padding } from "../types/types";
+import { AxisOption, DeepNonNullable, GuideOption, Padding } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
 import { Axis } from "./Axis";
 import { Layer } from "./Layer";

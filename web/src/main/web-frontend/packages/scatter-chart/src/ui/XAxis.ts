@@ -1,5 +1,5 @@
 import { TEXT_MARGIN_TOP } from "../constants/ui";
-import { Padding, TickOption } from "../types/types";
+import { DeepNonNullable, Padding, TickOption } from "../types/types";
 import { drawLine, drawText } from "../utils/draw";
 import { Axis, AxisProps } from "./Axis";
 
