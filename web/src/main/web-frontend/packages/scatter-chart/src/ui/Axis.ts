@@ -1,6 +1,6 @@
 import { AXIS_DEFAULT_FORMAT } from "../constants/options";
 import { AXIS_DEFAULT_TICK_COUNT, AXIS_INNER_PADDING, CONTAINER_PADDING } from "../constants/ui";
-import { Padding, AxisOption } from "../types/types";
+import { Padding, AxisOption, DeepNonNullable } from "../types/types";
 import { Layer, LayerProps } from "./Layer";
 
 export interface AxisProps extends LayerProps {
