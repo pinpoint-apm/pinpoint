@@ -1,7 +1,7 @@
 import merge from 'lodash.merge';
 import html2canvas from 'html2canvas';
 
-import { AxisOption, BackgroundOption, Coord, DataOption, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
+import { AxisOption, BackgroundOption, Coord, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
 import { drawCircle, drawRect } from "../utils/draw";
