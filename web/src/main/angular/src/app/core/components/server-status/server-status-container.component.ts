@@ -17,8 +17,6 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     private _isInfoPerServerShow: boolean;
     private selectedAgent = '';
 
-    sideNavigationUI: boolean;
-
     enableRealTime: boolean;
     node: INodeInfo;
     isLoading = false;
@@ -35,12 +33,9 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
         private messageQueueService: MessageQueueService,
-        private webAppSettingDataService: WebAppSettingDataService,
     ) {}
 
     ngOnInit() {
-        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
-        
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {

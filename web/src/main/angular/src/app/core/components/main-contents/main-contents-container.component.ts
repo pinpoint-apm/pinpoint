@@ -13,8 +13,6 @@ import { UrlPathId } from 'app/shared/models';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainContentsContainerComponent implements OnInit {
-    sideNavigationUI: boolean;
-    
     showElements$: Observable<boolean>;
     enableRealTime$: Observable<boolean>;
 
@@ -29,8 +27,6 @@ export class MainContentsContainerComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.sideNavigationUI = this.webAppSettingDataService.getExperimentalOption('sideNavigationUI');
-        
         this.showElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME))
         );
