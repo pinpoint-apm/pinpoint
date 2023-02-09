@@ -1,5 +1,5 @@
 import { CONTAINER_PADDING } from "../constants/ui";
-import { GridOption, Padding, TickOption } from "../types/types";
+import { DeepNonNullable, GridOption, Padding, TickOption } from "../types/types";
 import { drawLine } from "../utils/draw";
 import { Axis } from "./Axis";
 import { Layer, LayerProps } from "./Layer";
