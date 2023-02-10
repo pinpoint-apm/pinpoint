@@ -43,6 +43,7 @@ public class AsyncDisableTrace extends DisableTrace {
     public void close() {
         if (asyncState.await()) {
             // flush.
+            super.flush();
             if (isDebug) {
                 logger.debug("Await trace={}, asyncState={}", this, this.asyncState);
             }

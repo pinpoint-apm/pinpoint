@@ -114,9 +114,15 @@ public class ListenableAsyncState implements AsyncState {
 
     @InterfaceAudience.LimitedPrivate("LocalTraceContext")
     public interface AsyncStateListener {
-        AsyncStateListener EMPTY = () -> {
-        };
+        AsyncStateListener EMPTY = new DisableAsyncStateListener();
+
         void finish();
+    }
+
+    static class DisableAsyncStateListener implements AsyncStateListener {
+        @Override
+        public void finish() {
+        }
     }
 
     @Override

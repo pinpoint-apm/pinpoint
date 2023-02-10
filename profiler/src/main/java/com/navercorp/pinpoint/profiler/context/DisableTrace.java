@@ -153,6 +153,10 @@ public class DisableTrace implements Trace {
         this.closeListener.close(purgeTime);
     }
 
+    protected void flush() {
+        this.closed = true;
+    }
+
     private boolean getStatus() {
         return getShared().getErrorCode() == 0;
     }
