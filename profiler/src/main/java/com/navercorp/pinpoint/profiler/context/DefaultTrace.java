@@ -120,7 +120,9 @@ public class DefaultTrace implements Trace {
 
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
-        logger.warn("[DefaultTrace] Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
+        if (logger.isWarnEnabled()) {
+            logger.warn("[{}] Corrupted call stack found TraceRoot:{}, CallStack:{}", getClass().getSimpleName(), getTraceRoot(), callStack, exception);
+        }
     }
 
     @Override
@@ -199,7 +201,7 @@ public class DefaultTrace implements Trace {
     }
 
 
-    void flush() {
+    protected void flush() {
         this.storage.flush();
         this.closed = true;
     }
