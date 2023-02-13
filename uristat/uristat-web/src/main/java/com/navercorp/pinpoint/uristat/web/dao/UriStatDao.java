@@ -21,10 +21,16 @@ import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UriStatDao {
     List<UriStat> getUriStatApplication(UriStatQueryParameter queryParameter);
     List<UriStat> getUriStatAgent(UriStatQueryParameter queryParameter);
+    @Deprecated
     List<UriStatSummary> getUriStatApplicationSummary(UriStatQueryParameter uriStatQueryParameter);
+    @Deprecated
     List<UriStatSummary> getUriStatAgentSummary(UriStatQueryParameter uriStatQueryParameter);
+    List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatQueryParameter uriStatQueryParameter);
+    List<UriStatSummary> getUriStatAgentPagedSummary(UriStatQueryParameter uriStatQueryParameter);
+
 }

@@ -24,10 +24,12 @@ public class UriStatSummary {
     private final double failureCount;
     private final double maxTimeMs;
     private final double avgTimeMs;
+    private final double apdex;
     private final int version;
 
-    public UriStatSummary(String uri, double totalCount, double failureCount, double maxTimeMs, double totalTimeMs, int version) {
+    public UriStatSummary(String uri, double apdexRaw, double apdexCount, double totalCount, double failureCount, double maxTimeMs, double totalTimeMs, int version) {
         this.uri = uri;
+        this.apdex = MathUtils.average(apdexRaw, apdexCount);
         this.totalCount = totalCount;
         this.failureCount = failureCount;
         this.maxTimeMs = maxTimeMs;
@@ -35,9 +37,22 @@ public class UriStatSummary {
         this.version = version;
     }
 
-
+    @Deprecated
+    public UriStatSummary(String uri, double totalCount, double failureCount, double maxTimeMs, double totalTimeMs, int version) {
+        this.uri = uri;
+        this.apdex = 0;
+        this.totalCount = totalCount;
+        this.failureCount = failureCount;
+        this.maxTimeMs = maxTimeMs;
+        this.avgTimeMs = MathUtils.average(totalTimeMs, totalCount);
+        this.version = version;
+    }
     public String getUri() {
         return uri;
+    }
+
+    public double getApdex() {
+        return apdex;
     }
 
     public double getTotalCount() {

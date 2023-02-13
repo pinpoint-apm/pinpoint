@@ -49,7 +49,32 @@ public class UriStatController {
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
+    @GetMapping("summary")
+    public List<UriStatSummary> getUriStatPagedSummary(@RequestParam("applicationName") String applicationName,
+                                                  @RequestParam(value = "agentId", required = false) String agentId,
+                                                  @RequestParam("from") long from,
+                                                  @RequestParam("to") long to,
+                                                  @RequestParam("orderby") String column,
+                                                  @RequestParam("isDesc") boolean isDesc,
+                                                  @RequestParam("count") int count) {
+        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
+        builder.setTenantId(tenantProvider.getTenantId());
+        builder.setApplicationName(applicationName);
+        builder.setRange(Range.newRange(from, to));
+        builder.setOrderby(column);
+        builder.setDesc(isDesc);
+        builder.setLimit(count);
+
+        if (StringUtils.isEmpty(agentId)) {
+            return uriStatService.getUriStatApplicationPagedSummary(builder.build());
+        } else {
+            builder.setAgentId(agentId);
+            return uriStatService.getUriStatAgentPagedSummary(builder.build());
+        }
+    }
+
     @GetMapping("top50")
+    @Deprecated
     public List<UriStatSummary> getUriStatSummary(@RequestParam("applicationName") String applicationName,
                                             @RequestParam(value = "agentId", required = false) String agentId,
                                             @RequestParam("from") long from,

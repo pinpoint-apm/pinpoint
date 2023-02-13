@@ -30,6 +30,7 @@ public class UriStat {
     private final String applicationName;
     private final String agentId;
     private final String uri;
+    private final double apdexRaw;
     private final long count;
     private final long failCount;
     private final long maxLatencyMs;
@@ -52,6 +53,7 @@ public class UriStat {
         this.failureHistogram = Objects.requireNonNull(failureHistogram, "totalHistogram");
         this.count = Arrays.stream(totalHistogram).sum();
         this.failCount = Arrays.stream(failureHistogram).sum();
+        this.apdexRaw = (totalHistogram[0] + totalHistogram[1] + totalHistogram[2] + totalHistogram[3] + (0.5 * totalHistogram[4]));
         this.version = version;
     }
 
@@ -69,6 +71,7 @@ public class UriStat {
         this.failCount = EMPTY_NUMBER;
         this.maxLatencyMs = EMPTY_NUMBER;
         this.totalTimeMs = EMPTY_NUMBER;
+        this.apdexRaw = EMPTY_NUMBER;
         this.totalHistogram = new int[]{(int) tot0, (int) tot1, (int) tot2, (int) tot3, (int) tot4, (int) tot5, (int) tot6, (int) tot7};
         this.failureHistogram = new int[]{(int) fail0, (int) fail1, (int) fail2, (int) fail3, (int) fail4, (int) fail5, (int) fail6, (int) fail7};
         this.version = version;
@@ -92,6 +95,10 @@ public class UriStat {
 
     public String getUri() {
         return uri;
+    }
+
+    public double getApdexRaw() {
+        return apdexRaw;
     }
 
     public long getCount() {
@@ -199,6 +206,7 @@ public class UriStat {
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", uri=" + uri +
+                ", apdexRaw= " + apdexRaw +
                 ", count=" + count +
                 ", maxLatencyMs=" + maxLatencyMs +
                 ", totalTimeMs=" + totalTimeMs +
