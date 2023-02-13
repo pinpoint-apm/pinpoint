@@ -38,7 +38,9 @@ public interface CallStack<T> {
 
     T newInstance();
 
-    Factory<T> getFactory();
+    T disableInstance();
+
+    boolean isDisable(T element);
 
     void setOverflowListener(CallStackOverflowListener overflowListener);
 
