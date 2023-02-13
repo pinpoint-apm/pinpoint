@@ -190,8 +190,14 @@ public class DefaultCallStack<T> implements CallStack<T> {
     }
 
     @Override
-    public Factory<T> getFactory() {
-        return factory;
+    public T disableInstance() {
+        return this.factory.disableInstance();
+    }
+
+    @Override
+    public boolean isDisable(T element) {
+        return this.factory.isDisable(element);
+
     }
 
     @Override

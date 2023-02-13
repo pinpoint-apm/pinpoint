@@ -121,7 +121,7 @@ public class DefaultTrace implements Trace {
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
         if (logger.isWarnEnabled()) {
-            logger.warn("[{}] Corrupted call stack found TraceRoot:{}, CallStack:{}", getClass().getSimpleName(), getTraceRoot(), callStack, exception);
+            logger.warn("Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
         }
     }
 
@@ -282,12 +282,12 @@ public class DefaultTrace implements Trace {
 
     @VisibleForTesting
     SpanEvent dummySpanEvent() {
-        return callStack.getFactory().disableInstance();
+        return callStack.disableInstance();
     }
 
     @VisibleForTesting
     boolean isDummySpanEvent(final SpanEvent spanEvent) {
-        return callStack.getFactory().isDisable(spanEvent);
+        return callStack.isDisable(spanEvent);
     }
 
     @Override

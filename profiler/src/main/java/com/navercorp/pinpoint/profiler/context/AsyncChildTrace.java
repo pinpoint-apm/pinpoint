@@ -103,7 +103,7 @@ public class AsyncChildTrace implements Trace {
 
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
-        logger.warn("[DefaultTrace] Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
+        logger.warn("Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
     }
 
     @Override
@@ -258,7 +258,7 @@ public class AsyncChildTrace implements Trace {
     }
 
     private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = callStack.getFactory().newInstance();
+        final SpanEvent spanEvent = callStack.newInstance();
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         return spanEvent;
@@ -266,12 +266,12 @@ public class AsyncChildTrace implements Trace {
 
     @VisibleForTesting
     SpanEvent dummySpanEvent() {
-        return callStack.getFactory().disableInstance();
+        return callStack.disableInstance();
     }
 
     @VisibleForTesting
     boolean isDummySpanEvent(final SpanEvent spanEvent) {
-        return callStack.getFactory().isDisable(spanEvent);
+        return callStack.isDisable(spanEvent);
     }
 
     @Override
