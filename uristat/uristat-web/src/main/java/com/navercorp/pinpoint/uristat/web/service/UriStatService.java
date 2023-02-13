@@ -25,6 +25,11 @@ import java.util.List;
 public interface UriStatService {
     List<UriStat> getCollectedUriStatApplication(UriStatQueryParameter queryParameter);
     List<UriStat> getCollectedUriStatAgent(UriStatQueryParameter queryParameter);
+    @Deprecated
     List<UriStatSummary> getUriStatApplicationSummary(UriStatQueryParameter queryParameter);
+    @Deprecated
     List<UriStatSummary> getUriStatAgentSummary(UriStatQueryParameter queryParameter);
+    List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatQueryParameter queryParameter);
+    List<UriStatSummary> getUriStatAgentPagedSummary(UriStatQueryParameter queryParameter);
+
 }
