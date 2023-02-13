@@ -35,8 +35,8 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class DisableTrace implements Trace {
-    static final Logger logger = LogManager.getLogger(DisableTrace.class);
-    static final boolean isDebug = logger.isDebugEnabled();
+    protected final Logger logger = LogManager.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     public static final String UNSUPPORTED_OPERATION = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;
@@ -157,14 +157,9 @@ public class DisableTrace implements Trace {
         this.closed = true;
     }
 
-    private boolean getStatus() {
-        return getShared().getErrorCode() == 0;
-    }
-
     private Shared getShared() {
         return traceRoot.getShared();
     }
-
 
     @Override
     public int getCallStackFrameId() {
