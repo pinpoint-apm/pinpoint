@@ -39,8 +39,8 @@ import java.util.Objects;
  */
 public class DefaultTrace implements Trace {
 
-    static final Logger logger = LogManager.getLogger(DefaultTrace.class);
-    static final boolean isDebug = logger.isDebugEnabled();
+    protected final Logger logger = LogManager.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     private final CallStack<SpanEvent> callStack;
 
@@ -56,6 +56,7 @@ public class DefaultTrace implements Trace {
     private final Span span;
 
     private final CloseListener closeListener;
+
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
         this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
@@ -109,8 +110,7 @@ public class DefaultTrace implements Trace {
             if (logger.isWarnEnabled()) {
                 stackDump("already closed trace");
             }
-            final SpanEvent dummy = dummySpanEvent();
-            return dummy;
+            return dummySpanEvent();
         }
         // Set properties for the case when stackFrame is not used as part of Span.
         final SpanEvent spanEvent = newSpanEvent(stackId);
@@ -120,9 +120,7 @@ public class DefaultTrace implements Trace {
 
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
-        if (logger.isWarnEnabled()) {
-            logger.warn("Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
-        }
+        logger.warn("Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
     }
 
     @Override
@@ -160,6 +158,7 @@ public class DefaultTrace implements Trace {
                 stackDump("not matched stack id. expected=" + stackId + ", current=" + spanEvent.getStackId());
             }
         }
+
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
         }
@@ -193,7 +192,7 @@ public class DefaultTrace implements Trace {
             if (span.isTimeRecording()) {
                 span.markAfterTime(afterTime);
             }
-            logSpan(span);
+            logSpan();
         }
 
         this.storage.close();
@@ -240,8 +239,8 @@ public class DefaultTrace implements Trace {
         this.storage.store(spanEvent);
     }
 
-    private void logSpan(Span span) {
-        this.storage.store(span);
+    private void logSpan() {
+        this.storage.store(this.span);
     }
 
     @Override
@@ -320,7 +319,7 @@ public class DefaultTrace implements Trace {
     @Override
     public String toString() {
         return "DefaultTrace{" +
-                ", traceRoot=" + getTraceRoot() +
-        '}';
+                "traceRoot=" + getTraceRoot() +
+                '}';
     }
 }

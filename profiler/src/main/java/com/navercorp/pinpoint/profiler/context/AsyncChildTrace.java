@@ -36,8 +36,9 @@ public class AsyncChildTrace implements Trace {
 
     private static final int ASYNC_BEGIN_STACK_ID = 1001;
 
-    private static final Logger logger = LogManager.getLogger(AsyncChildTrace.class);
-    private static final boolean isDebug = logger.isDebugEnabled();
+    protected final Logger logger = LogManager.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
+
     private final CallStack<SpanEvent> callStack;
 
     private final Storage storage;
@@ -165,9 +166,7 @@ public class AsyncChildTrace implements Trace {
 
     public void close0() {
         if (closed) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Already closed {}", this);
-            }
+            logger.warn("Already closed {}", this);
             return;
         }
         closed = true;
