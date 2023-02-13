@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Repository
@@ -51,12 +52,25 @@ public class PinotUriStatDao implements UriStatDao {
     }
 
     @Override
+    public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "uriStatApplicationSummary", queryParameter);
+    }
+
+    @Override
+    public List<UriStatSummary> getUriStatAgentPagedSummary(UriStatQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "uriStatAgentSummary", queryParameter);
+    }
+
+    @Override
+    @Deprecated
     public List<UriStatSummary> getUriStatApplicationSummary(UriStatQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "top50UriStatApplication", queryParameter);
     }
 
     @Override
+    @Deprecated
     public List<UriStatSummary> getUriStatAgentSummary(UriStatQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "top50UriStatAgent", queryParameter);
     }
+
 }

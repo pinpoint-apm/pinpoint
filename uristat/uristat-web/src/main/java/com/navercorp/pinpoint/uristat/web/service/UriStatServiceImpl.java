@@ -45,12 +45,25 @@ public class UriStatServiceImpl implements UriStatService {
     }
 
     @Override
+    @Deprecated
     public List<UriStatSummary> getUriStatApplicationSummary(UriStatQueryParameter queryParameter) {
         return uriStatDao.getUriStatApplicationSummary(queryParameter);
     }
 
     @Override
+    @Deprecated
     public List<UriStatSummary> getUriStatAgentSummary(UriStatQueryParameter queryParameter) {
         return uriStatDao.getUriStatAgentSummary(queryParameter);
     }
+
+    @Override
+    public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatQueryParameter queryParameter) {
+        return uriStatDao.getUriStatApplicationPagedSummary(queryParameter);
+    }
+
+    @Override
+    public List<UriStatSummary> getUriStatAgentPagedSummary(UriStatQueryParameter queryParameter) {
+        return uriStatDao.getUriStatAgentPagedSummary(queryParameter);
+    }
+
 }
