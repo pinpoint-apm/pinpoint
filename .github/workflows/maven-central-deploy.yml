@@ -22,20 +22,20 @@ jobs:
       with:
         ref: ${{ github.event.inputs.git-ref }}
     - name: Cache Maven packages
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Cache node modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: '**/node_modules'
         key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-modules-
     - name: Cache node install
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: 'node_install'
         key: ${{ runner.os }}-node_install-${{ hashFiles('**/pom.xml') }}
