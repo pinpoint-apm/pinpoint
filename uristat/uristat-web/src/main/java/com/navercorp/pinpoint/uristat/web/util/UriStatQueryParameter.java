@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.uristat.web.util;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 
+import java.security.InvalidParameterException;
 import java.util.concurrent.TimeUnit;
 
 public class UriStatQueryParameter extends QueryParameter {
@@ -27,6 +28,45 @@ public class UriStatQueryParameter extends QueryParameter {
     private final String applicationName;
     private final String agentId;
     private final String uri;
+    private final OrderBy orderBy;
+    private final String isDesc;
+
+
+    private enum OrderBy {
+        URI("uri"),
+        APDEX("apdex"),
+        TOTAL("totalCount"),
+        FAILURE("failureCount"),
+        MAX("maxTimeMs"),
+        AVG("avgTimeMs");
+
+        private final String value;
+
+        OrderBy(String value) {
+            this.value = value;
+        }
+
+        public static OrderBy fromValue(String value) {
+            for (OrderBy orderBy : OrderBy.values()) {
+                if (orderBy.value.equalsIgnoreCase(value)) {
+                    return orderBy;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            switch(this) {
+                case APDEX:
+                    return "(apdexRaw / apdexCount)";
+                case AVG:
+                    return "(totalTimeMs / totalCount)";
+                default:
+                    return this.value;
+            }
+        }
+    }
 
     protected UriStatQueryParameter(Builder builder) {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
@@ -35,6 +75,8 @@ public class UriStatQueryParameter extends QueryParameter {
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.uri = builder.uri;
+        this.orderBy = builder.orderBy;
+        this.isDesc = builder.isDesc;
     }
 
     public static class Builder extends QueryParameter.Builder {
@@ -43,6 +85,8 @@ public class UriStatQueryParameter extends QueryParameter {
         private String applicationName;
         private String agentId;
         private String uri;
+        private OrderBy orderBy;
+        private String isDesc;
 
         public void setTenantId(String tenantId) {
             this.tenantId = tenantId;
@@ -61,12 +105,41 @@ public class UriStatQueryParameter extends QueryParameter {
 
         public void setUri(String uri) { this.uri = uri; }
 
+        public void setOrderby(String orderBy) throws InvalidParameterException {
+            this.orderBy = OrderBy.fromValue(orderBy);
+            if (this.orderBy == null) {
+                throw new InvalidParameterException("Invalid order by type : " + orderBy + " not supported.");
+            }
+        }
+
+        public void setDesc(boolean desc) {
+            if (desc) {
+                isDesc = "desc";
+            } else {
+                isDesc = "asc";
+            }
+        }
+
+        public void setLimit(long limit) {
+            if (limit > 200) {
+                this.limit = 200;
+            } else if (limit < 50) {
+                this.limit = 50;
+            } else {
+                this.limit = limit;
+            }
+        }
+
         @Override
         public UriStatQueryParameter build() {
             if (timePrecision == null) {
                 this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 30000);
             }
-            this.limit = estimateLimit();
+
+            if (limit == 0) {
+                this.limit = estimateLimit();
+            }
+
             return new UriStatQueryParameter(this);
         }
     }
