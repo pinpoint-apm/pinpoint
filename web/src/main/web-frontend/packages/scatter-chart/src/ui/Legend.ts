@@ -28,10 +28,6 @@ export class Legend {
     this.containerElement.className = Legend.LEGEND_CONTAINER_CLASS;
     this.setSize(width);
   }
-
-  get container() {
-    return this.containerElement;
-  }
   
   public setSize(width?: number) {
     this.containerElement.style.width = `${width}px` || `${this.rootWrapper.clientWidth}px`;

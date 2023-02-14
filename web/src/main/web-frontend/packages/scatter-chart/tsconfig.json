@@ -10,7 +10,7 @@
     "node_modules"
   ],
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "resolveJsonModule": true,
   }
 }
