@@ -1,6 +1,6 @@
 {
   "name": "@pinpoint-fe/scatter-chart",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Open-source scatter-chart library written in pure JS based on canvas api, Specifically designed for visualizing request and response patterns over time",
   "repository": {
     "type": "git",
@@ -22,9 +22,9 @@
     "test": "jest",
     "storybook": "start-storybook -p 6009",
     "build-storybook": "build-storybook",
-    "build": "tsup --entry.index src/index.ts --dts --minify --format esm,cjs",
+    "build": "tsup --config tsup.config.production.ts",
     "clean": "rm -rf dist",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "dev": "tsup --config tsup.config.dev.ts --watch",
     "devBuild": "tsup src/index.ts --format esm,cjs --dts",
     "chromatic": "npx chromatic --project-token=8e9829505277"
   },
@@ -45,6 +45,7 @@
     "@storybook/html": "^6.5.15",
     "@storybook/manager-webpack5": "^6.5.15",
     "@storybook/testing-library": "^0.0.13",
+    "@swc/core": "^1.3.35",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.2.1",
     "@types/jest": "^28.1.4",
