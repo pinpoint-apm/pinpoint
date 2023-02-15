@@ -33,6 +33,8 @@ public interface AsyncContext {
 
     void close();
 
+    boolean finish();
+
 //    void setAttribute(String name, Object o);
 //
 //    Object getAttribute(String name);

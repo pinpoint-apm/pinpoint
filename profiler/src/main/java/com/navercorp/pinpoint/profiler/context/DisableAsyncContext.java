@@ -1,12 +1,14 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -17,11 +19,17 @@ public class DisableAsyncContext implements AsyncContext {
     private final LocalTraceRoot traceRoot;
     private final AsyncTraceContext asyncTraceContext;
     private final Binder<Trace> binder;
+    @Nullable
+    private final AsyncState asyncState;
 
-    public DisableAsyncContext(AsyncTraceContext asyncTraceContext, Binder<Trace> binder, LocalTraceRoot traceRoot) {
+    DisableAsyncContext(AsyncTraceContext asyncTraceContext,
+                               Binder<Trace> binder,
+                               LocalTraceRoot traceRoot,
+                               @Nullable AsyncState asyncState) {
         this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
         this.binder = Objects.requireNonNull(binder, "binder");
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.asyncState = asyncState;
     }
 
     @Override
@@ -65,5 +73,16 @@ public class DisableAsyncContext implements AsyncContext {
     @Override
     public void close() {
         binder.remove();
+    }
+
+
+    @Override
+    public boolean finish() {
+        final AsyncState copy = this.asyncState;
+        if (copy != null) {
+            copy.finish();
+            return true;
+        }
+        return false;
     }
 }

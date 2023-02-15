@@ -32,23 +32,18 @@ import java.util.Objects;
  */
 public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
-    private final AsyncTraceContext asyncTraceContext;
-    private final Binder<Trace> binder;
+    private final AsyncContexts.Remote remote;
+    private final AsyncContexts.Local local;
     private final AsyncIdGenerator asyncIdGenerator;
-    private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
-    private final int asyncMethodApiId;
-
     public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext,
                                       Binder<Trace> binder,
                                       AsyncIdGenerator asyncIdGenerator,
                                       PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "traceFactoryProvider");
+        int asyncMethodApiId = getAsyncMethodApiId(predefinedMethodDescriptorRegistry);
+        this.remote = AsyncContexts.remote(asyncTraceContext, binder, asyncMethodApiId);
+        this.local = AsyncContexts.local(asyncTraceContext, binder);
+
         this.asyncIdGenerator = Objects.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
-        this.binder = Objects.requireNonNull(binder, "binder");
-
-        this.predefinedMethodDescriptorRegistry = Objects.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
-
-        this.asyncMethodApiId = getAsyncMethodApiId(predefinedMethodDescriptorRegistry);
     }
 
     private int getAsyncMethodApiId(PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
@@ -67,7 +62,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         Objects.requireNonNull(asyncId, "asyncId");
 
         if (canSampled) {
-            return new DefaultAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, this.asyncMethodApiId);
+            return remote.sync(traceRoot, asyncId);
         } else {
             return newDisableAsyncContext(traceRoot);
         }
@@ -80,7 +75,7 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
         Objects.requireNonNull(asyncState, "asyncState");
 
         if (canSampled) {
-            return new StatefulAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, asyncMethodApiId, asyncState);
+            return remote.async(traceRoot, asyncState, asyncId);
         } else {
             // TODO
             return newDisableAsyncContext(traceRoot, asyncState);
@@ -90,12 +85,12 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
     @Override
     public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot) {
-        return new DisableAsyncContext(asyncTraceContext, binder, traceRoot);
+        return local.sync(traceRoot);
     }
 
     @Override
     public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot, AsyncState asyncState) {
-        return new StatefulDisableAsyncContext(asyncTraceContext, binder, traceRoot, asyncState);
+        return local.async(traceRoot, asyncState);
     }
 
 }

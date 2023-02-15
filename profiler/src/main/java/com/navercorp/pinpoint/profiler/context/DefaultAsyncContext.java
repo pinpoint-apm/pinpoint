@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -43,17 +45,22 @@ public class DefaultAsyncContext implements AsyncContext {
 
     private final int asyncMethodApiId;
 
+    @Nullable
+    private final AsyncState asyncState;
 
-    public DefaultAsyncContext(AsyncTraceContext asyncTraceContext,
-                               Binder<Trace> binder,
-                               TraceRoot traceRoot,
-                               AsyncId asyncId, int asyncMethodApiId) {
+    DefaultAsyncContext(AsyncTraceContext asyncTraceContext,
+                        Binder<Trace> binder,
+                        TraceRoot traceRoot,
+                        AsyncId asyncId,
+                        int asyncMethodApiId,
+                        @Nullable AsyncState asyncState) {
         this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
         this.binder = Objects.requireNonNull(binder, "binder");
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.asyncId = Objects.requireNonNull(asyncId, "asyncId");
 
         this.asyncMethodApiId = asyncMethodApiId;
+        this.asyncState = asyncState;
     }
 
 
@@ -127,6 +134,21 @@ public class DefaultAsyncContext implements AsyncContext {
     @Override
     public void close() {
         binder.remove();
+    }
+
+    @Override
+    public boolean finish() {
+        final AsyncState copy = this.asyncState;
+        if (copy != null) {
+            copy.finish();
+            return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public AsyncState getAsyncState() {
+        return asyncState;
     }
 
     @Override

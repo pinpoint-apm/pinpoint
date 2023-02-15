@@ -10,11 +10,11 @@ class AsyncContextUtilsTest {
 
     @Test
     void finish_success() {
-        AsyncState state = mock(AsyncState.class);
-        TestAsyncContext context = mock(TestAsyncContext.class);
-        when(context.getAsyncState()).thenReturn(state);
+        AsyncContext context = mock(AsyncContext.class);
+        when(context.finish()).thenReturn(true);
 
         Assertions.assertTrue(AsyncContextUtils.asyncStateFinish(context));
+        
     }
 
     @Test
@@ -22,9 +22,8 @@ class AsyncContextUtilsTest {
         AsyncContext context = mock(AsyncContext.class);
 
         Assertions.assertFalse(AsyncContextUtils.asyncStateFinish(context));
+        Assertions.assertFalse(AsyncContextUtils.asyncStateFinish(null));
     }
 
-    interface TestAsyncContext extends AsyncContext, AsyncStateSupport {
-    }
 
 }

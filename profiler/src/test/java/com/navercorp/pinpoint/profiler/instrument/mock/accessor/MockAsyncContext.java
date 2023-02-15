@@ -39,6 +39,11 @@ public class MockAsyncContext implements AsyncContext {
     }
 
     @Override
+    public boolean finish() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "MockAsyncContext{}";
     }

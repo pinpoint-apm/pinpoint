@@ -5,10 +5,8 @@ public final class AsyncContextUtils {
     }
 
     public static boolean asyncStateFinish(final AsyncContext asyncContext) {
-        if (asyncContext instanceof AsyncStateSupport) {
-            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncContext;
-            asyncStateSupport.finish();
-            return true;
+        if (asyncContext != null) {
+            return asyncContext.finish();
         }
         return false;
     }

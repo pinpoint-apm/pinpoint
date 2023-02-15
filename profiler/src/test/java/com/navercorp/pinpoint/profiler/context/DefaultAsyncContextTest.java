@@ -9,9 +9,9 @@ public class DefaultAsyncContextTest extends AsyncContextTest {
         Binder<Trace> binder = new ThreadLocalBinder<>();
         AsyncTraceContext asyncTraceContext = newAsyncTraceContext();
         if (canSampled) {
-            return new DefaultAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, 0);
+            return AsyncContexts.remote(asyncTraceContext, binder, 0).sync(traceRoot, asyncId);
         } else {
-            return new DisableAsyncContext(asyncTraceContext, binder, traceRoot);
+            return AsyncContexts.local(asyncTraceContext, binder).sync(traceRoot);
         }
     }
 }
