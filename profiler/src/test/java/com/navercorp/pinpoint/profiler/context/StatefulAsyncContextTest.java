@@ -19,16 +19,16 @@ public class StatefulAsyncContextTest extends AsyncContextTest {
         Binder<Trace> binder = new ThreadLocalBinder<>();
         AsyncTraceContext asyncTraceContext = newAsyncTraceContext();
         if (canSampled) {
-            return new StatefulAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, 0, asyncState);
+            return AsyncContexts.remote(asyncTraceContext, binder, 0).async(traceRoot, asyncState, asyncId);
         } else {
-            return new DisableAsyncContext(asyncTraceContext, binder, traceRoot);
+            return AsyncContexts.local(asyncTraceContext, binder).sync(traceRoot);
         }
     }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     public void testGetAsyncState() {
-        StatefulAsyncContext asyncContext = (StatefulAsyncContext) newAsyncContext(true);
+        DefaultAsyncContext asyncContext = (DefaultAsyncContext) newAsyncContext(true);
 
         assertEquals(asyncState, asyncContext.getAsyncState());
     }
