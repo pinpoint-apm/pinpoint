@@ -1,4 +1,4 @@
-> alpha version
+> latest version: v1.1.0
 
 # @pinpoint-fe/scatter-chart
 - [documentation](https://pinpoint-apm.github.io/pinpoint-fe-docs/scatterchart/introduction)
@@ -34,27 +34,31 @@ const SC = new ScatterChart(
       x: {
         min: 1669103462000,
         max: 1669103509335,
-        format: (value) => `
-          ${String(date.getHours()).padStart(2, '0')}:
-          ${String(date.getMinutes()).padStart(2, '0')}:
-          ${String(date.getSeconds()).padStart(2, '0')}
-        `;,
+        tick: {
+          format: (value) => `
+            ${String(date.getHours()).padStart(2, '0')}:
+            ${String(date.getMinutes()).padStart(2, '0')}:
+            ${String(date.getSeconds()).padStart(2, '0')}
+          `;,
+        }
       },
       y: {
         min: 0,
         max: 10000,
-        format: (value) => value.toLocaleString(),
+        tick: {
+          format: (value) => value.toLocaleString(),
+        }
       }
     },
     data: [
       {
         type: 'success',
-        color: 'green',
+        color: 'rgba(61, 207, 168, 0.5)',
         priority: 1,
       },
       {
         type: 'fail',
-        color: 'red',
+        color: 'rgba(235, 71, 71, 0.5)',
         priority: 2,
       },
     ],

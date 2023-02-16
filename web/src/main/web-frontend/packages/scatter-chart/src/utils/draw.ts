@@ -12,7 +12,7 @@ export const drawCircle = (
     fillColor?: string,
   } = {}
 ) => {
-  ctx.beginPath()
+  ctx.beginPath();
   ctx.arc(x, y, radius, 0, radius * Math.PI);
   ctx.fillStyle = fillColor;
   ctx.fill();

@@ -9,6 +9,14 @@ export type ScatterDataType =  {
   hidden?: boolean;
 }
 
+export type DataStyleMap = {
+  [key: string]: {
+    legend: string, 
+    point: string,
+    radius: number,
+  }
+}
+
 export type Coord = {
   x: number;
   y: number;
@@ -27,6 +35,7 @@ export interface AxisOption {
   min: number;
   max: number;
   padding?: number;
+  strokeColor?: string;
   tick?: TickOption;
 }
 
@@ -43,6 +52,8 @@ export interface DataOption {
   type: string;
   color?: string;
   priority?: number;
+  radius?: number;
+  opacity?: number;
 }
 
 export interface LegendOption {
@@ -53,6 +64,7 @@ export interface LegendOption {
 
 export interface PointOption {
   radius?: number;
+  opacity?: number;
 }
 
 export interface GuideOption {

@@ -1,7 +1,8 @@
 import merge from 'lodash.merge';
+import Color from 'color';
 import html2canvas from 'html2canvas';
 
-import { AxisOption, BackgroundOption, Coord, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
+import { AxisOption, BackgroundOption, Coord, DataStyleMap, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
 import { drawCircle, drawRect } from "../utils/draw";
@@ -51,7 +52,7 @@ export class ScatterChart {
   protected guide!: Guide;
   private wrapper;
   private canvasWrapper;
-  private dataColorMap!: { [key: string]: string };
+  private dataStyleMap!: DataStyleMap;
   private dataLayers: { [key: string]: Layer } = {};
   private data: ScatterDataType[] = [];
   private datas: {[key: string]: Coord[]} = {};
@@ -219,16 +220,24 @@ export class ScatterChart {
   }
 
   private setLegends() {
-    this.dataColorMap = this.options.data.reduce((prev, curr, i) => {
+    this.dataStyleMap = this.options.data.reduce((prev, curr, i) => {
+      const opacity = curr.opacity || this.options.point.opacity || 1;
+      const ogColor = curr.color || COLORS[i % COLORS.length];
+      const color = Color(ogColor).alpha(opacity);
+
       return {
-        [curr.type]: curr.color || COLORS[i % COLORS.length],
+        [curr.type]: {
+          point: color,
+          legend: ogColor, 
+          radius: curr.radius || this.options.point.radius,
+        },
         ...prev,
       }
     }, {});
 
     this.legend = new Legend(this.wrapper, { 
       types: Object.keys(this.dataLayers), 
-      dataColorMap: this.dataColorMap,
+      dataStyleMap: this.dataStyleMap,
       legendOptions: this.options?.legend!
     });
 
@@ -331,6 +340,7 @@ export class ScatterChart {
 
     data.forEach(({ x, y, type, hidden }) => {
       const legend = type ? type : 'unknown';
+      const radius = this.dataStyleMap[legend].radius;
 
       if (!this.dataLayers[legend]) {
         this.setLayer(legend, styleWidth, styleHeight, LAYER_DEFAULT_PRIORITY);
@@ -348,8 +358,8 @@ export class ScatterChart {
           this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding,
           styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (y - this.yAxis.min),
           {
-            fillColor: this.dataColorMap[legend],
-            radius: point.radius,
+            fillColor: this.dataStyleMap[legend].point,
+            radius: radius,
           }
         );
       }
