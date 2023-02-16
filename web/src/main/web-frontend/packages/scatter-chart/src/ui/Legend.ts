@@ -1,10 +1,10 @@
 import { SCATTER_CHART_IDENTIFIER } from "../constants/ui";
-import { LegendOption } from "../types/types";
+import { DataStyleMap, LegendOption } from "../types/types";
 
 export type LegendProps = { 
   types: string[], 
   legendOptions: LegendOption, 
-  dataColorMap: {[key: string]: string},
+  dataStyleMap: DataStyleMap,
   width?: number;
 }
 export class Legend {
@@ -15,15 +15,15 @@ export class Legend {
   private rootWrapper;
   private types;
   private options;
-  private dataColorMap;
+  private dataStyleMap;
   private containerElement: HTMLElement;
   private legendElements: {[key: string]: HTMLDivElement} = {} 
   
-  constructor(rootWrapper: HTMLElement, { types, legendOptions, dataColorMap, width }: LegendProps) {
+  constructor(rootWrapper: HTMLElement, { types, legendOptions, dataStyleMap, width }: LegendProps) {
     this.rootWrapper = rootWrapper;
     this.types = types;
     this.options = legendOptions;
-    this.dataColorMap = dataColorMap;
+    this.dataStyleMap = dataStyleMap;
     this.containerElement = document.createElement('div');
     this.containerElement.className = Legend.LEGEND_CONTAINER_CLASS;
     this.setSize(width);
@@ -60,7 +60,7 @@ export class Legend {
 
       // mark
       const markElement = document.createElement('span');
-      markElement.style.background = this.dataColorMap[type];
+      markElement.style.background = this.dataStyleMap[type].legend;
       // const formattedLabel = options?.formatLabel?.(type) || type;
       markElement.className = Legend.MARK_CLASS;
 

@@ -2,6 +2,7 @@ import { createAppendDatas } from './templates/createAppendDatas';
 import { createCaptureIamge } from './templates/createCaptureImage';
 import { createCustomizeTheme } from './templates/createCustomizeTheme';
 import { createDefault } from './templates/createDefault';
+import { createPinpointTheme } from './templates/createPinpointTheme';
 import { createRealtime } from './templates/createRealtime';
 import { createResizable } from './templates/createResizable';
 import { createSetAxis } from './templates/createSetAxis';
@@ -43,3 +44,6 @@ export const Realtime = TemplateRealtime.bind({});
 
 const TemplateCustomizeTheme = () => createCustomizeTheme();
 export const CustomizeTheme = TemplateCustomizeTheme.bind({});
+
+const TemplatePinpointTheme = () => createPinpointTheme();
+export const PinpointTheme = TemplatePinpointTheme.bind({});

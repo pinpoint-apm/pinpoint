@@ -1,6 +1,11 @@
 export const SCATTER_CHART_IDENTIFIER = '__scatter_chart__';
 export const PIXEL_RATIO = window && window.devicePixelRatio || 1;
 
+// canvas color
+export const COLOR_TEXT = 'black';
+export const COLOR_STROKE = 'black';
+export const COLOR_BACKGROUND = 'white';
+
 // container 
 export const CONTAINER_WIDTH = 518;
 export const CONTAINER_HEIGHT = 320;

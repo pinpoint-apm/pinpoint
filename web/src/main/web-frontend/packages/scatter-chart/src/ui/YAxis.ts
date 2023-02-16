@@ -35,8 +35,8 @@ export class YAxis extends Axis {
   public render() {
     this.clear();
     
-    const { min, max, tick, innerPadding, backgroundColor } = this;
-    const { format, count, color, width: tickWidth, strokeColor } = tick as DeepNonNullable<TickOption>;
+    const { min, max, tick, innerPadding, backgroundColor, strokeColor } = this;
+    const { format, count, color, width: tickWidth, strokeColor: tickStrokeColor } = tick as DeepNonNullable<TickOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
     const height = this.canvas.height / this.dpr;
@@ -59,8 +59,8 @@ export class YAxis extends Axis {
         y + this.getTextHeight(label) / 4, 
         { textAlign: 'end', color }
       );
-      drawLine(this.context, startX - tickWidth, y, startX, y, {color: strokeColor});
+      drawLine(this.context, startX - tickWidth, y, startX, y, {color: tickStrokeColor});
     })
-    drawLine(this.context, startX, startY - innerPadding, startX, endY + innerPadding);
+    drawLine(this.context, startX, startY - innerPadding, startX, endY + innerPadding, {color: strokeColor});
   }
 }
