@@ -16,30 +16,28 @@
 
 package com.navercorp.pinpoint.plugin.tomcat.javax;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorHelper;
 
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
-public class TomcatAsyncListener implements AsyncListener, AsyncListenerInterceptor {
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+public class TomcatAsyncListenerAdaptor implements AsyncListener {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
-    private final AsyncListenerInterceptorHelper asyncListenerInterceptorHelper;
+    private final AsyncListenerInterceptorHelper delegate;
 
-    public TomcatAsyncListener(final TraceContext traceContext, final AsyncContext asyncContext) {
-        this.asyncListenerInterceptorHelper = new AsyncListenerInterceptorHelper(traceContext, asyncContext);
+    public TomcatAsyncListenerAdaptor(AsyncListenerInterceptorHelper delegate) {
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override
@@ -49,25 +47,16 @@ public class TomcatAsyncListener implements AsyncListener, AsyncListenerIntercep
         }
 
         if (asyncEvent == null) {
-            if (isInfo) {
-                logger.info("Invalid event. event is null");
-            }
+            logger.info("Invalid event. event is null");
             return;
         }
 
         try {
             final int statusCode = getStatusCode(asyncEvent);
-            complete(asyncEvent.getThrowable(), statusCode);
+            this.delegate.complete(asyncEvent.getThrowable(), statusCode);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to async event handle. event={}", asyncEvent, t);
-            }
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
         }
-    }
-
-    @Override
-    public void complete(Throwable throwable, int statusCode) {
-        this.asyncListenerInterceptorHelper.complete(throwable, statusCode);
     }
 
     @Override
@@ -84,16 +73,12 @@ public class TomcatAsyncListener implements AsyncListener, AsyncListenerIntercep
         }
 
         try {
-            timeout(asyncEvent.getThrowable());
+            this.delegate.timeout(asyncEvent.getThrowable());
         } catch (Throwable t) {
             logger.info("Failed to async event handle. event={}", asyncEvent, t);
         }
     }
 
-    @Override
-    public void timeout(Throwable throwable) {
-        this.asyncListenerInterceptorHelper.timeout(throwable);
-    }
 
     @Override
     public void onError(AsyncEvent asyncEvent) throws IOException {
@@ -102,25 +87,17 @@ public class TomcatAsyncListener implements AsyncListener, AsyncListenerIntercep
         }
 
         if (asyncEvent == null) {
-            if (isInfo) {
-                logger.info("Invalid event. event is null");
-            }
+            logger.info("Invalid event. event is null");
             return;
         }
 
         try {
-            error(asyncEvent.getThrowable());
+            this.delegate.error(asyncEvent.getThrowable());
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to async event handle. event={}", asyncEvent, t);
-            }
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
         }
     }
 
-    @Override
-    public void error(Throwable throwable) {
-        this.asyncListenerInterceptorHelper.error(throwable);
-    }
 
     @Override
     public void onStartAsync(AsyncEvent asyncEvent) throws IOException {
@@ -128,8 +105,9 @@ public class TomcatAsyncListener implements AsyncListener, AsyncListenerIntercep
 
     private int getStatusCode(final AsyncEvent asyncEvent) {
         try {
-            if (asyncEvent.getSuppliedResponse() instanceof HttpServletResponse) {
-                return ((HttpServletResponse) asyncEvent.getSuppliedResponse()).getStatus();
+            final ServletResponse suppliedResponse = asyncEvent.getSuppliedResponse();
+            if (suppliedResponse instanceof HttpServletResponse) {
+                return ((HttpServletResponse) suppliedResponse).getStatus();
             }
         } catch (Exception ignored) {
         }

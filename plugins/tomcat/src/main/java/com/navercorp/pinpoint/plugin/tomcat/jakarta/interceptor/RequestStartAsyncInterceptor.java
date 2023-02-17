@@ -21,21 +21,21 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorHelper;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
-import com.navercorp.pinpoint.plugin.tomcat.jakarta.TomcatAsyncListener;
+import com.navercorp.pinpoint.plugin.tomcat.jakarta.TomcatAsyncListenerAdaptor;
 import jakarta.servlet.AsyncContext;
-import jakarta.servlet.AsyncListener;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author jaehong.kim
  */
 public class RequestStartAsyncInterceptor implements AroundInterceptor {
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
 
     public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
         this.traceContext = context;
@@ -70,16 +70,19 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
                 com.navercorp.pinpoint.bootstrap.context.AsyncContext nextAsyncContext = recorder.recordNextAsyncContext(true);
+
+                final AsyncListenerInterceptorHelper listenerInterceptor = new AsyncListenerInterceptorHelper(traceContext, nextAsyncContext);
+
                 // Add async listener
                 final AsyncContext asyncContext = (AsyncContext) result;
-                final AsyncListener asyncListener = new TomcatAsyncListener(this.traceContext, nextAsyncContext);
-                asyncContext.addListener(asyncListener);
+                asyncContext.addListener(new TomcatAsyncListenerAdaptor(listenerInterceptor));
+
                 // Set AsyncContext, AsyncListener
                 final HttpServletRequest request = (HttpServletRequest) target;
                 request.setAttribute(com.navercorp.pinpoint.bootstrap.context.AsyncContext.class.getName(), nextAsyncContext);
-                request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, asyncListener);
+                request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, listenerInterceptor);
                 if (isDebug) {
-                    logger.debug("Add async listener {}", asyncListener);
+                    logger.debug("Add async listener {}", listenerInterceptor);
                 }
             }
             recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
