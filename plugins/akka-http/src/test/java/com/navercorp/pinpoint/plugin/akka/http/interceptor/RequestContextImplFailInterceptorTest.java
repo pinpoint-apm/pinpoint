@@ -51,7 +51,7 @@ public class RequestContextImplFailInterceptorTest {
 
     @Test
     public void doInBeforeTrace() {
-        interceptor.doInBeforeTrace(recorder, null, null, new Object[]{e});
+        interceptor.doInBeforeTrace(recorder, null, new Object[]{e});
         verify(recorder).recordException(e);
     }
 

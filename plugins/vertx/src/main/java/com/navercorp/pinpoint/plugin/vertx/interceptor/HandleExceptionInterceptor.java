@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
@@ -33,7 +34,7 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
@@ -44,7 +45,6 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
         final Throwable handleException = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
         if (handleException != null) {
             if (throwable != null) {
-
                 // handle to two throwable(handle and catch).
                 String errorMessage = buildErrorMessage(handleException, throwable);
                 recorder.recordException(new VertxHandleException(errorMessage));
