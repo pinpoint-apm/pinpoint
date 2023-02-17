@@ -21,45 +21,24 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
 
 /**
  * @author Taejin Koo
  */
-public class ServerListenerInterceptor extends GrpcAsyncContextSpanEventEndPointInterceptor {
+public class ServerListenerInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
     public ServerListenerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
-    // BEFORE
     @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args) {
-        if (target instanceof AsyncContextAccessor) {
-            return ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
-        }
-
-        logger.info("failed to get AsyncContext");
-        return null;
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-    }
-
-    // AFTER
-    @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (target instanceof AsyncContextAccessor) {
-            return ((AsyncContextAccessor) target)._$PINPOINT$_getAsyncContext();
-        }
-
-        logger.info("failed to get AsyncContext");
-        return null;
-    }
-
-    @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE_INTERNAL);
     }

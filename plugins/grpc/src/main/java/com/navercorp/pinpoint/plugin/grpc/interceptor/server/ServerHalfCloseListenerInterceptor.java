@@ -19,25 +19,27 @@ package com.navercorp.pinpoint.plugin.grpc.interceptor.server;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
 
 /**
  * @author Taejin Koo
  */
-public class ServerHalfCloseListenerInterceptor extends ServerListenerInterceptor {
+public class ServerHalfCloseListenerInterceptor extends AsyncContextSpanEventEndPointInterceptor {
 
     public ServerHalfCloseListenerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    protected void finishAsyncState(final AsyncContext asyncContext) {
-        if (AsyncContextUtils.asyncStateFinish(asyncContext)) {
-            if (isDebug) {
-                logger.debug("finished asyncState. asyncTraceId={}", asyncContext);
-            }
-        }
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
-
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE_INTERNAL);
+    }
 }

@@ -52,7 +52,7 @@ public class RequestContextImplCompleteInterceptorTest {
 
     @Test
     public void doInBeforeTrace() {
-        interceptor.doInBeforeTrace(recorder, null, null, new Object[]{marshallable});
+        interceptor.doInBeforeTrace(recorder, null, new Object[]{marshallable});
     }
 
     @Test
