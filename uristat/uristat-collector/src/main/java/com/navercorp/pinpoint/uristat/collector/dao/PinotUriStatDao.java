@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.uristat.collector.dao;
 
 import com.navercorp.pinpoint.metric.common.util.KafkaCallbacks;
-import com.navercorp.pinpoint.uristat.common.util.StringPrecondition;
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import com.navercorp.pinpoint.uristat.collector.util.StringPrecondition;
+import com.navercorp.pinpoint.uristat.collector.model.UriStat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;

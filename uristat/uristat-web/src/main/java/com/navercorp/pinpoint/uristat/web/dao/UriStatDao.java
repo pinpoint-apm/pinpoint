@@ -16,16 +16,17 @@
 
 package com.navercorp.pinpoint.uristat.web.dao;
 
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UriStatDao {
-    List<UriStat> getUriStatApplication(UriStatQueryParameter queryParameter);
-    List<UriStat> getUriStatAgent(UriStatQueryParameter queryParameter);
+    List<UriStatHistogram> getUriStatApplication(UriStatQueryParameter queryParameter);
+    List<UriStatHistogram> getUriStatAgent(UriStatQueryParameter queryParameter);
+    List<UriStatHistogram> getFailedUriStatApplication(UriStatQueryParameter queryParameter);
+    List<UriStatHistogram> getFailedUriStatAgent(UriStatQueryParameter queryParameter);
     @Deprecated
     List<UriStatSummary> getUriStatApplicationSummary(UriStatQueryParameter uriStatQueryParameter);
     @Deprecated
