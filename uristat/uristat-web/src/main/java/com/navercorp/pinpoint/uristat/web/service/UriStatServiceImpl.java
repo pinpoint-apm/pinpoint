@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.uristat.web.service;
 
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
 import com.navercorp.pinpoint.uristat.web.dao.UriStatDao;
+import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
 import org.springframework.stereotype.Service;
@@ -35,13 +35,23 @@ public class UriStatServiceImpl implements UriStatService {
     }
 
     @Override
-    public List<UriStat> getCollectedUriStatApplication(UriStatQueryParameter queryParameter) {
+    public List<UriStatHistogram> getCollectedUriStatApplication(UriStatQueryParameter queryParameter) {
         return uriStatDao.getUriStatApplication(queryParameter);
     }
 
     @Override
-    public List<UriStat> getCollectedUriStatAgent(UriStatQueryParameter queryParameter) {
+    public List<UriStatHistogram> getCollectedUriStatAgent(UriStatQueryParameter queryParameter) {
         return uriStatDao.getUriStatAgent(queryParameter);
+    }
+
+    @Override
+    public List<UriStatHistogram> getFailedUriStatApplication(UriStatQueryParameter queryParameter) {
+        return uriStatDao.getFailedUriStatApplication(queryParameter);
+    }
+
+    @Override
+    public List<UriStatHistogram> getFailedUriStatAgent(UriStatQueryParameter queryParameter) {
+        return uriStatDao.getFailedUriStatAgent(queryParameter);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.uristat.common.util;
+package com.navercorp.pinpoint.uristat.collector.util;
 
 import org.springframework.util.StringUtils;
 

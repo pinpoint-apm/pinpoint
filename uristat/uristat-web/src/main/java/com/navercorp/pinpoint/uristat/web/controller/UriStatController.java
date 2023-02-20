@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.uristat.web.controller;
 
 import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.service.UriStatService;
 import com.navercorp.pinpoint.metric.web.util.Range;
@@ -97,7 +97,8 @@ public class UriStatController {
                                            @RequestParam(value = "agentId", required = false) String agentId,
                                            @RequestParam("uri") String uri,
                                            @RequestParam("from") long from,
-                                           @RequestParam("to") long to) {
+                                           @RequestParam("to") long to,
+                                           @RequestParam(value = "type", required = false) String type) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
         UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
         builder.setTenantId(tenantProvider.getTenantId());
@@ -107,14 +108,32 @@ public class UriStatController {
         builder.setTimeSize((int) timeWindow.getWindowSlotSize());
         builder.setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
 
-        List<UriStat> uriStats;
-        if (StringUtils.isEmpty(agentId)) {
-            uriStats = uriStatService.getCollectedUriStatApplication(builder.build());
+        List<UriStatHistogram> uriStats;
+        if (!StringUtils.isEmpty(type) && type.equalsIgnoreCase("failure")) {
+            uriStats = getFailedHistogramChartData(builder, agentId);
         } else {
-            builder.setAgentId(agentId);
-            uriStats = uriStatService.getCollectedUriStatAgent(builder.build());
+            uriStats = getTotalHistogramChartData(builder, agentId);
         }
 
         return new UriStatView(uri, timeWindow, uriStats);
     }
+
+    private List<UriStatHistogram> getTotalHistogramChartData(UriStatQueryParameter.Builder builder, String agentId) {
+        if (StringUtils.isEmpty(agentId)) {
+            return uriStatService.getCollectedUriStatApplication(builder.build());
+        } else {
+            builder.setAgentId(agentId);
+            return uriStatService.getCollectedUriStatAgent(builder.build());
+        }
+    }
+
+    private List<UriStatHistogram> getFailedHistogramChartData(UriStatQueryParameter.Builder builder, String agentId) {
+        if (StringUtils.isEmpty(agentId)) {
+            return uriStatService.getFailedUriStatApplication(builder.build());
+        } else {
+            builder.setAgentId(agentId);
+            return uriStatService.getFailedUriStatAgent(builder.build());
+        }
+    }
+
 }

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.uristat.common.model;
+package com.navercorp.pinpoint.uristat.collector.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.navercorp.pinpoint.uristat.common.util.StringPrecondition;
+import com.navercorp.pinpoint.uristat.collector.util.StringPrecondition;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -57,6 +57,7 @@ public class UriStat {
         this.version = version;
     }
 
+    @Deprecated
     public UriStat(long timestamp, double tot0, double tot1, double tot2, double tot3,
                    double tot4, double tot5, double tot6, double tot7,
                    double fail0, double fail1, double fail2, double fail3,

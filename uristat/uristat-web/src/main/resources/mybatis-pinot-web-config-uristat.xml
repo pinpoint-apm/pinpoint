@@ -15,7 +15,7 @@
     </settings>
 
     <typeAliases>
-        <typeAlias type="com.navercorp.pinpoint.uristat.common.model.UriStat" alias="UriStat" />
+        <typeAlias type="com.navercorp.pinpoint.uristat.web.model.UriStatHistogram" alias="UriStatHistogram" />
         <typeAlias type="com.navercorp.pinpoint.uristat.web.model.UriStatSummary" alias="UriStatSummary" />
         <typeAlias type="com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter" alias="UriStatQueryParameter" />
     </typeAliases>

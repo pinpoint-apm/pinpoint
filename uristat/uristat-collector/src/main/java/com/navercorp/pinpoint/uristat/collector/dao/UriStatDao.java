@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.uristat.collector.dao;
 
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import com.navercorp.pinpoint.uristat.collector.model.UriStat;
 
 import java.util.List;
 

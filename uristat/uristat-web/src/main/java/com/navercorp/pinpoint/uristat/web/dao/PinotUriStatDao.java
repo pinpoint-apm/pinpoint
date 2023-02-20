@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.dao;
 
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Repository
@@ -42,13 +41,23 @@ public class PinotUriStatDao implements UriStatDao {
     }
 
     @Override
-    public List<UriStat> getUriStatApplication(UriStatQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectUriStatApplication", queryParameter);
+    public List<UriStatHistogram> getUriStatApplication(UriStatQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectTotalUriStatApplication", queryParameter);
     }
 
     @Override
-    public List<UriStat> getUriStatAgent(UriStatQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectUriStatAgentId", queryParameter);
+    public List<UriStatHistogram> getUriStatAgent(UriStatQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectTotalUriStatAgentId", queryParameter);
+    }
+
+    @Override
+    public List<UriStatHistogram> getFailedUriStatApplication(UriStatQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectFailedUriStatApplication", queryParameter);
+    }
+
+    @Override
+    public List<UriStatHistogram> getFailedUriStatAgent(UriStatQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectFailedUriStatAgentId", queryParameter);
     }
 
     @Override
