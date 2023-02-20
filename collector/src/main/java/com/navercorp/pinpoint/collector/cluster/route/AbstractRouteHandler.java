@@ -22,9 +22,8 @@ import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,10 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
         String agentId = deliveryCommand.getAgentId();
         long startTimeStamp = deliveryCommand.getStartTime();
         final ClusterKey sourceKey = new ClusterKey(applicationName, agentId, startTimeStamp);
+        return findClusterPoint(sourceKey);
+    }
 
+    public ClusterPoint<?> findClusterPoint(ClusterKey sourceKey) {
         List<ClusterPoint<?>> result = new ArrayList<>();
 
         for (ClusterPoint<?> targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
@@ -62,7 +64,7 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
         }
 
         if (result.size() > 1) {
-            logger.warn("Ambiguous ClusterPoint {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeStamp, result);
+            logger.warn("Ambiguous ClusterPoint {} (Valid Agent list={}).", sourceKey, result);
             return null;
         }
 

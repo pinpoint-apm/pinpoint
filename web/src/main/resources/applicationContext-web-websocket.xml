@@ -14,13 +14,6 @@
     </bean>
 
 
-    <bean id="handlerRegister" class="com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager">
-        <constructor-arg>
-            <list>
-                <ref bean="activeThreadHandler" />
-            </list>
-        </constructor-arg>
-    </bean>
-
+    <bean id="handlerRegister" class="com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager" />
 
 </beans>

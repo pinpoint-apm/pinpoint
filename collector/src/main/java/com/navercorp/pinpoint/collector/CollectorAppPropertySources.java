@@ -25,6 +25,7 @@ import org.springframework.context.annotation.PropertySources;
         @PropertySource(name = "CollectorAppPropertySources-GRPC", value = { CollectorAppPropertySources.GRPC_ROOT, CollectorAppPropertySources.GRPC_PROFILE}),
         @PropertySource(name = "CollectorAppPropertySources-HBase", value = { CollectorAppPropertySources.HBASE_ROOT, CollectorAppPropertySources.HBASE_PROFILE}),
         @PropertySource(name = "CollectorAppPropertySources-JDBC", value = { CollectorAppPropertySources.JDBC_ROOT, CollectorAppPropertySources.JDBC_PROFILE}),
+        @PropertySource(name = "CollectorAppPropertySources-Redis", value = { CollectorAppPropertySources.REDIS_ROOT, CollectorAppPropertySources.REDIS_PROFILE}),
 })
 public final class CollectorAppPropertySources {
     public static final String HBASE_ROOT= "classpath:hbase-root.properties";
@@ -35,6 +36,9 @@ public final class CollectorAppPropertySources {
 
     public static final String JDBC_ROOT = "classpath:jdbc-root.properties";
     public static final String JDBC_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/jdbc.properties";
+
+    public static final String REDIS_ROOT = "classpath:redis-root.properties";
+    public static final String REDIS_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/redis.properties";
 
     public static final String COLLECTOR_ROOT = "classpath:pinpoint-collector-root.properties";
     public static final String COLLECTOR_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-collector.properties";

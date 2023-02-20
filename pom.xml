@@ -119,6 +119,7 @@
         <module>hbase2-module</module>
         <module>metric-module</module>
         <module>uristat</module>
+        <module>realtime</module>
 
         <!-- <module>agent-testweb</module> -->
         <!-- <module>plugins-it</module> -->
@@ -437,6 +438,21 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-uristat-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-realtime-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-realtime-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-realtime-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -24,6 +24,7 @@ import org.springframework.context.annotation.PropertySources;
         @PropertySource(name = "WebAppPropertySources", value = { WebAppPropertySources.WEB_ROOT, WebAppPropertySources.WEB_PROFILE}),
         @PropertySource(name = "WebAppPropertySources-HBase", value = { WebAppPropertySources.HBASE_ROOT, WebAppPropertySources.HBASE_PROFILE}),
         @PropertySource(name = "WebAppPropertySources-JDBC", value = { WebAppPropertySources.JDBC_ROOT, WebAppPropertySources.JDBC_PROFILE}),
+        @PropertySource(name = "WebAppPropertySources-Redis", value = { WebAppPropertySources.REDIS_ROOT, WebAppPropertySources.REDIS_PROFILE}),
 })
 public final class WebAppPropertySources {
     public static final String HBASE_ROOT= "classpath:hbase-root.properties";
@@ -31,6 +32,9 @@ public final class WebAppPropertySources {
 
     public static final String JDBC_ROOT = "classpath:jdbc-root.properties";
     public static final String JDBC_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/jdbc.properties";
+
+    public static final String REDIS_ROOT = "classpath:redis-root.properties";
+    public static final String REDIS_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/redis.properties";
 
     public static final String WEB_ROOT = "classpath:pinpoint-web-root.properties";
     public static final String WEB_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/pinpoint-web.properties";
