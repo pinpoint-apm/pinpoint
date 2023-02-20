@@ -16,11 +16,11 @@
 package com.navercorp.pinpoint.uristat.web.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
 import com.navercorp.pinpoint.uristat.web.model.UriStatGroup;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
+import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class UriStatView implements TimeSeriesView {
 
     private final List<TimeseriesValueGroupView> uriStats = new ArrayList<>();
 
-    public UriStatView(String uri, TimeWindow timeWindow, List<UriStat> uriStats) {
+    public UriStatView(String uri, TimeWindow timeWindow, List<UriStatHistogram> uriStats) {
         Objects.requireNonNull(timeWindow, "timeWindow");
         Objects.requireNonNull(uriStats, "uriStats");
         this.timestampList = createTimeStampList(timeWindow);

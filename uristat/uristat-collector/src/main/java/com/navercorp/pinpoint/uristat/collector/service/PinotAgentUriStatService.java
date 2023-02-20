@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
 import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.collector.dao.UriStatDao;
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
+import com.navercorp.pinpoint.uristat.collector.model.UriStat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Profile;

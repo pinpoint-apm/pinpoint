@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.uristat.web.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.metric.common.model.StringPrecondition;
-import com.navercorp.pinpoint.uristat.common.model.UriStat;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
@@ -43,7 +42,7 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         this.values = Collections.emptyList();
     }
 
-    public UriStatGroup(String uri, int dataSize, TimeWindow timeWindow, List<UriStat> uriStats) {
+    public UriStatGroup(String uri, int dataSize, TimeWindow timeWindow, List<UriStatHistogram> uriStats) {
         this.uri = uri;
         this.values = UriStatValue.createValueList(dataSize, timeWindow, uriStats);
     }
@@ -63,22 +62,22 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         private final String fieldName;
         private final List<Integer> values;
 
-        public static List<TimeSeriesValueView> createValueList(int dataSize, TimeWindow timeWindow,  List<UriStat> uriStats) {
+        public static List<TimeSeriesValueView> createValueList(int dataSize, TimeWindow timeWindow,  List<UriStatHistogram> uriStats) {
             Objects.requireNonNull(uriStats);
 
             List<TimeSeriesValueView> values = new ArrayList<>();
 
-            final int bucketSize = uriStats.get(0).getTotalHistogram().length;
+            final int bucketSize = uriStats.get(0).getHistogram().length;
 
             for (int histogramIndex = 0 ; histogramIndex < bucketSize; histogramIndex++) {
                 int[] filledData = new int[dataSize];
 
-                for (UriStat uriStat : uriStats) {
+                for (UriStatHistogram uriStat : uriStats) {
                     int filledIndex = timeWindow.getWindowIndex(uriStat.getTimestamp());
                     if (filledData[filledIndex] != 0) {
                         throw new RuntimeException("Uri stat timestamp mismatch.");
                     }
-                    filledData[filledIndex] = uriStat.getTotalHistogram()[histogramIndex];
+                    filledData[filledIndex] = uriStat.getHistogram()[histogramIndex];
                 }
                 values.add(new UriStatValue(FIELD_PREFIX + histogramIndex, filledData));
             }
