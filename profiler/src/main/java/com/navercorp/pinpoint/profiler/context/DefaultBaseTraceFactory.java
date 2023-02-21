@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.LoggingAsyncState;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
@@ -34,6 +35,8 @@ import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -43,6 +46,7 @@ import java.util.Objects;
  * @author Taejin Koo
  */
 public class DefaultBaseTraceFactory implements BaseTraceFactory {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CallStackFactory<SpanEvent> callStackFactory;
 
@@ -134,9 +138,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot) {
         final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
-        final AsyncState asyncState = new ListenableAsyncState(traceRoot,
-                ListenableAsyncState.AsyncStateListener.EMPTY,
-                handle, uriStatStorage);
+        final AsyncState asyncState = newAsyncState(traceRoot, handle, ListenableAsyncState.AsyncStateListener.EMPTY);
 
         SpanRecorder spanRecorder = recorderFactory.newDisableSpanRecorder(traceRoot);
         SpanEventRecorder spanEventRecorder = recorderFactory.newDisableSpanEventRecorder(traceRoot, asyncState);
@@ -209,7 +211,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
         final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
         final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
-        final AsyncState asyncState = new ListenableAsyncState(traceRoot, asyncStateListener, handle, uriStatStorage);
+        final AsyncState asyncState = newAsyncState(traceRoot, handle, asyncStateListener);
 
         final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot, asyncState);
@@ -234,12 +236,23 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final SpanRecorder spanRecorder = recorderFactory.newDisableSpanRecorder(traceRoot);
 
         final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
-        AsyncState asyncState = new ListenableAsyncState(traceRoot,
-                ListenableAsyncState.AsyncStateListener.EMPTY,
-                handle, uriStatStorage);
+        ListenableAsyncState.AsyncStateListener listener = ListenableAsyncState.AsyncStateListener.EMPTY;
+        AsyncState asyncState = newAsyncState(traceRoot, handle, listener);
 
         final SpanEventRecorder spanEventRecorder = recorderFactory.newDisableSpanEventRecorder(traceRoot, asyncState);
         return new AsyncDisableTrace(traceRoot, spanRecorder, spanEventRecorder, asyncState);
+    }
+
+    private AsyncState newAsyncState(LocalTraceRoot traceRoot, ActiveTraceHandle activeTrace, ListenableAsyncState.AsyncStateListener listener) {
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(traceRoot, listener, activeTrace, uriStatStorage);
+        if (logger.isDebugEnabled()) {
+            return new LoggingAsyncState(listenableAsyncState);
+        }
+        return listenableAsyncState;
+    }
+
+    private ActiveTraceHandle registerActiveTrace(TraceRoot traceRoot) {
+        return activeTraceRepository.register(traceRoot);
     }
 
     private ActiveTraceHandle registerActiveTrace(LocalTraceRoot localTraceRoot) {

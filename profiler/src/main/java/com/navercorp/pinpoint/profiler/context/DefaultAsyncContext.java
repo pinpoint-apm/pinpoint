@@ -40,26 +40,19 @@ public class DefaultAsyncContext implements AsyncContext {
     private final TraceRoot traceRoot;
     private final AsyncId asyncId;
 
-    private final AsyncTraceContext asyncTraceContext;
-    private final Binder<Trace> binder;
-
-    private final int asyncMethodApiId;
+    private final AsyncContexts.Remote remote;
 
     @Nullable
     private final AsyncState asyncState;
 
-    DefaultAsyncContext(AsyncTraceContext asyncTraceContext,
-                        Binder<Trace> binder,
+    DefaultAsyncContext(AsyncContexts.Remote remote,
                         TraceRoot traceRoot,
                         AsyncId asyncId,
-                        int asyncMethodApiId,
                         @Nullable AsyncState asyncState) {
-        this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
-        this.binder = Objects.requireNonNull(binder, "binder");
+        this.remote = Objects.requireNonNull(remote, "remote");
+
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.asyncId = Objects.requireNonNull(asyncId, "asyncId");
-
-        this.asyncMethodApiId = asyncMethodApiId;
         this.asyncState = asyncState;
     }
 
@@ -71,7 +64,7 @@ public class DefaultAsyncContext implements AsyncContext {
     @Override
     public Trace continueAsyncTraceObject() {
 
-        final Reference<Trace> reference = binder.get();
+        final Reference<Trace> reference = remote.binder().get();
         final Trace nestedTrace = reference.get();
         if (nestedTrace != null) {
             // return Nested Trace Object?
@@ -88,7 +81,7 @@ public class DefaultAsyncContext implements AsyncContext {
 //        final int asyncId = this.asyncId.getAsyncId();
 //        final short asyncSequence = this.asyncId.nextAsyncSequence();
         final LocalAsyncId localAsyncId = this.asyncId.nextLocalAsyncId();
-        final Trace asyncTrace = asyncTraceContext.continueAsyncContextTraceObject(traceRoot, localAsyncId);
+        final Trace asyncTrace = remote.asyncTraceContext().continueAsyncContextTraceObject(traceRoot, localAsyncId);
 
         bind(reference, asyncTrace);
 
@@ -104,7 +97,7 @@ public class DefaultAsyncContext implements AsyncContext {
         final SpanEventRecorder recorder = asyncTrace.currentSpanEventRecorder();
         if (recorder != null) {
             recorder.recordServiceType(ServiceType.ASYNC);
-            recorder.recordApiId(asyncMethodApiId);
+            recorder.recordApiId(remote.asyncMethodApiId());
         }
 
         return asyncTrace;
@@ -119,7 +112,7 @@ public class DefaultAsyncContext implements AsyncContext {
 
     @Override
     public Trace currentAsyncTraceObject() {
-        final Reference<Trace> reference = binder.get();
+        final Reference<Trace> reference = remote.binder().get();
         final Trace trace = reference.get();
         if (trace == null) {
             return null;
@@ -133,7 +126,7 @@ public class DefaultAsyncContext implements AsyncContext {
 
     @Override
     public void close() {
-        binder.remove();
+       remote.binder().remove();
     }
 
     @Override
@@ -156,6 +149,7 @@ public class DefaultAsyncContext implements AsyncContext {
         return "DefaultAsyncContext{" +
                 "asyncId=" + asyncId +
                 ", traceRoot=" + traceRoot +
+                ", asyncState=" + asyncState +
                 '}';
     }
 }

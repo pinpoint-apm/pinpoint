@@ -23,12 +23,18 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
 public class DisableAsyncChildTrace implements Trace {
     // private static final int ASYNC_BEGIN_STACK_ID = 1001;
     public static final String UNSUPPORTED_OPERATION = "disable async child trace";
+
+    protected final Logger logger = LogManager.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
+
     private boolean closed = false;
 
     private DefaultTraceScopePool scopePool;
@@ -141,6 +147,7 @@ public class DisableAsyncChildTrace implements Trace {
     @Override
     public void close() {
         if (closed) {
+            logger.debug("Already closed");
             return;
         }
         closed = true;

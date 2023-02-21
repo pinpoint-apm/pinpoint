@@ -31,7 +31,7 @@ public final class AsyncContexts {
         private final Binder<Trace> binder;
         private final int asyncMethodApiId;
 
-        public Remote(AsyncTraceContext asyncTraceContext, Binder<Trace> binder, int asyncMethodApiId) {
+        private Remote(AsyncTraceContext asyncTraceContext, Binder<Trace> binder, int asyncMethodApiId) {
             this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
             this.binder = Objects.requireNonNull(binder, "binder");
             this.asyncMethodApiId = asyncMethodApiId;
@@ -39,13 +39,25 @@ public final class AsyncContexts {
 
         public AsyncContext sync(TraceRoot traceRoot,
                                  AsyncId asyncId) {
-            return new DefaultAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, asyncMethodApiId, null);
+            return new DefaultAsyncContext(this, traceRoot, asyncId, null);
         }
 
         public AsyncContext async(TraceRoot traceRoot,
                                   AsyncState asyncState,
                                   AsyncId asyncId) {
-            return new DefaultAsyncContext(asyncTraceContext, binder, traceRoot, asyncId, asyncMethodApiId, asyncState);
+            return new DefaultAsyncContext(this, traceRoot, asyncId, asyncState);
+        }
+
+        public AsyncTraceContext asyncTraceContext() {
+            return asyncTraceContext;
+        }
+
+        public Binder<Trace> binder() {
+            return binder;
+        }
+
+        public int asyncMethodApiId() {
+            return asyncMethodApiId;
         }
     }
 
@@ -54,18 +66,26 @@ public final class AsyncContexts {
         private final AsyncTraceContext asyncTraceContext;
         private final Binder<Trace> binder;
 
-        public Local(AsyncTraceContext asyncTraceContext, Binder<Trace> binder) {
+        private Local(AsyncTraceContext asyncTraceContext, Binder<Trace> binder) {
             this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
             this.binder = Objects.requireNonNull(binder, "binder");
         }
 
         public AsyncContext sync(LocalTraceRoot traceRoot) {
-            return new DisableAsyncContext(asyncTraceContext, binder, traceRoot, null);
+            return new DisableAsyncContext(this, traceRoot, null);
         }
 
         public AsyncContext async(LocalTraceRoot traceRoot,
                                   AsyncState asyncState) {
-            return new DisableAsyncContext(asyncTraceContext, binder, traceRoot, asyncState);
+            return new DisableAsyncContext(this, traceRoot, asyncState);
+        }
+
+        public AsyncTraceContext asyncTraceContext() {
+            return asyncTraceContext;
+        }
+
+        public Binder<Trace> binder() {
+            return binder;
         }
     }
 
