@@ -16,25 +16,23 @@ import java.util.Objects;
  */
 public class DisableAsyncContext implements AsyncContext {
     private static final Logger logger = LogManager.getLogger(DisableAsyncContext.class);
+
+    private final AsyncContexts.Local local;
     private final LocalTraceRoot traceRoot;
-    private final AsyncTraceContext asyncTraceContext;
-    private final Binder<Trace> binder;
     @Nullable
     private final AsyncState asyncState;
 
-    DisableAsyncContext(AsyncTraceContext asyncTraceContext,
-                               Binder<Trace> binder,
-                               LocalTraceRoot traceRoot,
-                               @Nullable AsyncState asyncState) {
-        this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
-        this.binder = Objects.requireNonNull(binder, "binder");
+    DisableAsyncContext(AsyncContexts.Local local,
+                        LocalTraceRoot traceRoot,
+                        @Nullable AsyncState asyncState) {
+        this.local = Objects.requireNonNull(local, "local");
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.asyncState = asyncState;
     }
 
     @Override
     public Trace continueAsyncTraceObject() {
-        final Reference<Trace> reference = binder.get();
+        final Reference<Trace> reference = local.binder().get();
         final Trace nestedTrace = reference.get();
         if (nestedTrace != null) {
             return nestedTrace;
@@ -44,7 +42,7 @@ public class DisableAsyncContext implements AsyncContext {
     }
 
     private Trace newAsyncContextTrace(Reference<Trace> reference) {
-        final Trace asyncTrace = asyncTraceContext.continueDisableAsyncContextTraceObject(traceRoot);
+        final Trace asyncTrace = local.asyncTraceContext().continueDisableAsyncContextTraceObject(traceRoot);
         bind(reference, asyncTrace);
 
         if (logger.isDebugEnabled()) {
@@ -66,13 +64,13 @@ public class DisableAsyncContext implements AsyncContext {
 
     @Override
     public Trace currentAsyncTraceObject() {
-        final Reference<Trace> reference = binder.get();
+        final Reference<Trace> reference = local.binder().get();
         return reference.get();
     }
 
     @Override
     public void close() {
-        binder.remove();
+        local.binder().remove();
     }
 
 
@@ -84,5 +82,13 @@ public class DisableAsyncContext implements AsyncContext {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "DisableAsyncContext{" +
+                "traceRoot=" + traceRoot +
+                ", asyncState=" + asyncState +
+                '}';
     }
 }

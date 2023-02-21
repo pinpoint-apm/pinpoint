@@ -145,6 +145,7 @@ public class DisableTrace implements Trace {
     @Override
     public void close() {
         if (closed) {
+            logger.debug("Already closed");
             return;
         }
         closed = true;
