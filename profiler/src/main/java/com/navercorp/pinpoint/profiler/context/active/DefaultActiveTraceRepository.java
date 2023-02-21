@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,32 +82,20 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
         }
     }
 
-    @Override
-    public ActiveTraceHandle register(TraceRoot traceRoot) {
-        final ActiveTrace activeTrace = new DefaultActiveTrace(traceRoot);
-        return register0(activeTrace);
-    }
 
 
     @Override
     public ActiveTraceHandle register(LocalTraceRoot localTraceRoot) {
-        final ActiveTrace activeTrace = new DefaultActiveTrace(localTraceRoot);
-        return register0(activeTrace);
-    }
-
-    private ActiveTraceHandle register0(ActiveTrace activeTrace) {
         if (isDebug) {
-            logger.debug("register ActiveTrace key:{}", activeTrace);
+            logger.debug("register ActiveTrace key:{}", localTraceRoot);
         }
 
-        final long id = activeTrace.getId();
+        final long id = localTraceRoot.getLocalTransactionId();
+
         final ActiveTraceHandle handle = new DefaultActiveTraceHandle(id);
-        final ActiveTrace old = this.activeTraceInfoMap.put(handle, activeTrace);
-        if (old != null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("old activeTrace exist:{}", old);
-            }
-        }
+
+        this.activeTraceInfoMap.computeIfAbsent(handle, activeTraceHandle -> new DefaultActiveTrace(localTraceRoot));
+
         return handle;
     }
 

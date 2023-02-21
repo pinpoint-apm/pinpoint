@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 
 import java.util.Collections;
@@ -53,11 +52,6 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
         return Collections.emptyList();
     }
 
-    @Override
-    public ActiveTraceHandle register(TraceRoot traceRoot) {
-        Objects.requireNonNull(traceRoot, "traceRoot");
-        return new EmptyActiveTraceHandle(traceRoot.getTraceStartTime());
-    }
 
     @Override
     public ActiveTraceHandle register(LocalTraceRoot traceRoot) {
