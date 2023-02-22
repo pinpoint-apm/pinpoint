@@ -20,7 +20,7 @@ jobs:
           body: |
             > Action has been started. [Click here to see the action](${{ steps.vars.outputs.run-url }})
       - name: Git checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: 'refs/pull/${{ env.PR_NUMBER }}/merge'
       - name: Cache node modules
@@ -49,7 +49,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           df -h
       - name: Set up JDK 7
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 7
