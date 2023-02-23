@@ -22,10 +22,10 @@ export const AXIS_TICK_WIDTH = 5;
 export const AXIS_DEFAULT_TICK_COUNT = 5;
 
 // tick text
-export const TEXT_MARGIN_TOP = 1;
-export const TEXT_MARGIN_BOTTOM = 2;
-export const TEXT_MARGIN_LEFT = 2;
-export const TEXT_MARGIN_RIGHT= 2;
+export const TEXT_PADDING_TOP = 2;
+export const TEXT_PADDING_BOTTOM = 2;
+export const TEXT_PADDING_LEFT = 2;
+export const TEXT_PADDING_RIGHT= 2;
 
 // point
 export const POINT_RADIUS= 3;

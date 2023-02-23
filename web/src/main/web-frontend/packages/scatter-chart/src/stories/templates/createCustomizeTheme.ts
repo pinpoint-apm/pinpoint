@@ -40,10 +40,20 @@ export const createCustomizeTheme = () => {
       x: {
         padding: 20,
         tick: {
-          font: '20px serif',
+          font: '25px serif',
           color: 'red',
           strokeColor: 'blue',
           width: 10,
+          format: (value) => {
+            const date = new Date(value);
+            return `${String(date.getFullYear())}.${String(date.getMonth())}.${String(date.getDay())}\n${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+          },
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          } 
         }
       },
       y: {
@@ -53,6 +63,12 @@ export const createCustomizeTheme = () => {
           color: 'green',
           strokeColor: 'purple',
           width: 10,
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          } 
         }
       }
     })
