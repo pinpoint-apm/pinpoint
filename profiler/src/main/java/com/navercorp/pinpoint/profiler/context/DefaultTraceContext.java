@@ -25,14 +25,15 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 
 /**
@@ -177,6 +178,9 @@ public class DefaultTraceContext implements TraceContext {
         // work around : unsampled trace must be closed.
         if (!trace.canSampled()) {
             if (!trace.isClosed()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("closeUnsampledTrace");
+                }
                 trace.close();
             }
         }

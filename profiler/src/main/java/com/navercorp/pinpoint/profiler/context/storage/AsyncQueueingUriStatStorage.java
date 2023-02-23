@@ -61,6 +61,9 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
             uri = URITemplate.NULL_URI;
         }
         UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("UriStatInfo {}", uriStatInfo);
+        }
         execute(uriStatInfo);
     }
 

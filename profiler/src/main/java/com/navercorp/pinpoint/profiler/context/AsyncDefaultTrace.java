@@ -22,10 +22,10 @@ public class AsyncDefaultTrace extends DefaultTrace {
 
     @Override
     public void close() {
-//        if (isClosed()) {
-//            logger.debug("Already closed");
-//            return;
-//        }
+        if (isClosed()) {
+            logger.debug("Already closed");
+            return;
+        }
         if (asyncState.await()) {
             // flush.
             super.flush();
