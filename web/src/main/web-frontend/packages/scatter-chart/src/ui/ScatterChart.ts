@@ -2,19 +2,18 @@ import merge from 'lodash.merge';
 import Color from 'color';
 import html2canvas from 'html2canvas';
 
-import { AxisOption, BackgroundOption, Coord, DataStyleMap, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
+import { AxisOption, BackgroundOption, Coord, DataStyleMap, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType, ScatterChartEventsTypes } from "../types/types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
 import { drawCircle, drawRect } from "../utils/draw";
 import { YAxis } from "./YAxis";
 import { XAxis } from "./XAxis";
 import { COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING, 
-  CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER, TEXT_MARGIN_BOTTOM, 
-  TEXT_MARGIN_LEFT, TEXT_MARGIN_RIGHT, TEXT_MARGIN_TOP 
+  CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER
 } from "../constants/ui";
 import { GridAxis } from "./GridAxis";
-import { Legend } from "./Legend";
-import { Guide } from "./Guide";
+import { Legend, LegendEventCallback } from "./Legend";
+import { Guide, GuideEventCallback } from "./Guide";
 import { defaultAxisOption, defaultBackgroundOption, defaultDataOption, defaultGridOption, defaultGuideOption, defaultLegendOption, defaultPointOption } from "../constants/options";
 import { getLongestText, getTickTexts } from '../utils/helper';
 
@@ -50,12 +49,12 @@ export class ScatterChart {
   protected gridAxis!: GridAxis;
   protected legend!: Legend;
   protected guide!: Guide;
+  protected data: ScatterDataType[] = [];
+  private datas: {[key: string]: Coord[]} = {};
   private wrapper;
   private canvasWrapper;
   private dataStyleMap!: DataStyleMap;
   private dataLayers: { [key: string]: Layer } = {};
-  private data: ScatterDataType[] = [];
-  private datas: {[key: string]: Coord[]} = {};
   private xRatio = 1;
   private yRatio = 1;
   private coordX = 0;
@@ -146,12 +145,14 @@ export class ScatterChart {
     const maxXTickTextWidth = getLongestText(xTicks, (t) => this.xAxis.getTextWidth(t));
     const maxXTickTextHeight = getLongestText(xTicks, (t) => this.xAxis.getTextHeight(t));
     const maxYTickTextWidth = getLongestText(yTicks, (t) => this.yAxis.getTextWidth(t));
+    const xTickPadding = this.xAxis.tick?.padding as DeepNonNullable<Padding>;
+    const yTickPadding = this.xAxis.tick?.padding as DeepNonNullable<Padding>;
     
     this.options.padding = {
       top: this.compositedPadding.top,
-      right: this.compositedPadding.right + maxXTickTextWidth / 2 + TEXT_MARGIN_RIGHT,
-      bottom: maxXTickTextHeight + TEXT_MARGIN_TOP + TEXT_MARGIN_BOTTOM + xAxisOption.tick?.width! + this.compositedPadding.bottom,
-      left: (maxXTickTextWidth / 2 > maxYTickTextWidth ? maxXTickTextWidth / 2 : maxYTickTextWidth) + TEXT_MARGIN_LEFT + TEXT_MARGIN_RIGHT + yAxisOptoin.tick?.width! + this.compositedPadding.left,
+      right: this.compositedPadding.right + maxXTickTextWidth / 2 + xTickPadding.right,
+      bottom: maxXTickTextHeight + xTickPadding.top + xTickPadding.bottom + xAxisOption.tick?.width! + this.compositedPadding.bottom,
+      left: (maxXTickTextWidth / 2 > maxYTickTextWidth ? maxXTickTextWidth / 2 : maxYTickTextWidth) + yTickPadding.left + yTickPadding.right + yAxisOptoin.tick?.width! + this.compositedPadding.left,
     }
 
     this.xAxis.setPadding(this.options.padding);
@@ -220,6 +221,8 @@ export class ScatterChart {
   }
 
   private setLegends() {
+    const types = Object.keys(this.dataLayers);
+
     this.dataStyleMap = this.options.data.reduce((prev, curr, i) => {
       const opacity = curr.opacity || this.options.point.opacity || 1;
       const ogColor = curr.color || COLORS[i % COLORS.length];
@@ -236,31 +239,27 @@ export class ScatterChart {
     }, {});
 
     this.legend = new Legend(this.wrapper, { 
-      types: Object.keys(this.dataLayers), 
+      types, 
       dataStyleMap: this.dataStyleMap,
       legendOptions: this.options?.legend!
     });
 
-    this.legend.addEvents(({ type, checked }) => {
-      if (type) {
-        if (checked) {
-          this.viewport.showLayer(type);
-        } else {
-          this.viewport.hideLayer(type);
-        }
-      }
+    this.legend.onChange((_, { checked, unChecked }) => {
+      checked.forEach(type => this.viewport.showLayer(type));
+      unChecked.forEach(type => this.viewport.hideLayer(type));
       this.shoot();
     })
+
     this.legend.render();
   }
 
   private setLegendCount(type: string, minCoord: Coord, maxCoord: Coord) {
-    const count = this.datas[type].reduce((acc, curr) => {
+    const count = this.datas[type]?.reduce((acc, curr) => {
       if (curr.x >= minCoord.x && curr.x <= maxCoord.x && curr.y >= minCoord.y && curr.y <= maxCoord.y) {
         return ++acc;
       }
       return acc;
-    }, 0)
+    }, 0) || 0;
     this.legend.setLegendCount(type, count);
   }
 
@@ -325,6 +324,7 @@ export class ScatterChart {
   }
 
   public render(data: ScatterDataType[], { append = false } = {}) {
+    const types = Object.keys(this.dataLayers);
     const { styleWidth, styleHeight } = this.viewport;
     const { padding, point } = this.options;
 
@@ -365,7 +365,7 @@ export class ScatterChart {
       }
     });
 
-    Object.keys(this.datas).forEach(key => {
+    types.forEach(key => {
       this.setLegendCount(key, 
         { 
           x: this.xAxis.min,
@@ -381,12 +381,20 @@ export class ScatterChart {
     this.shoot();
   }
 
-  public on(evetntType: string, callback: (data: any) => void) {
-    this.guide.on(evetntType, callback);
+  public on(eventType: ScatterChartEventsTypes, callback: GuideEventCallback | LegendEventCallback) {
+    if (eventType === 'clickLegend') {
+      this.legend.on(eventType, callback as LegendEventCallback)
+    } else {
+      this.guide.on(eventType, callback as GuideEventCallback);
+    }
   }
 
-  public off(evetntType: string) {
-    this.guide.off(evetntType);
+  public off(eventType: ScatterChartEventsTypes) {
+    if (eventType === 'clickLegend') {
+      this.legend.off(eventType)
+    } else {
+      this.guide.off(eventType);
+    }
   }
 
   public resize(width?: number, height?: number) {
@@ -489,5 +497,9 @@ export class ScatterChart {
       .render();
 
     this.render(this.data);
+  }
+
+  public clear() {
+    this.render([]);
   }
 }

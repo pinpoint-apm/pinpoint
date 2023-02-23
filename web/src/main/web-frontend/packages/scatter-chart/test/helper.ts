@@ -29,6 +29,10 @@ export class ScatterChartTestHelper extends ScatterChart {
   getGuide() {
     return this.guide;
   }
+
+  getData() {
+    return this.data;
+  }
 }
 
 export const initOption = {

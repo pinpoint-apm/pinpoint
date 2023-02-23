@@ -113,14 +113,22 @@ export class Layer {
     this.context.putImageData(rightImage, startAt * this.dpr, 0);
   }
 
-  public getTextWidth(text: string | number) {
-    return this.context.measureText(`${text}`).width;
+  public getTextWidth(text: string) {
+    const lines = `${text}`.split('\n');
+    let largestWidth = lines.reduce((width, txt) => {
+      const textWidth = this.context.measureText(`${txt}`).width;
+      return width > textWidth ? width : textWidth; 
+    }, 0)
+    return largestWidth;
   }
 
-  public getTextHeight(text: string | number) {
-    const metrics = this.context.measureText(`${text}`);
-    let fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
-    // let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-    return fontHeight;
+  public getTextHeight(text: string) {
+    const lines = `${text}`.split('\n');
+    let totalHeight = lines.reduce((sum, txt) => {
+      const metrics = this.context.measureText(`${txt}`);
+      let textHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+      return textHeight + sum;
+    }, 0)
+    return totalHeight;
   }
 }

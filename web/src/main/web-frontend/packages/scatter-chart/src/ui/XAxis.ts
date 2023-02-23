@@ -1,4 +1,3 @@
-import { TEXT_MARGIN_TOP } from "../constants/ui";
 import { DeepNonNullable, Padding, TickOption } from "../types/types";
 import { drawLine, drawText } from "../utils/draw";
 import { Axis, AxisProps } from "./Axis";
@@ -40,14 +39,18 @@ export class XAxis extends Axis {
 
     [...Array(count)].forEach((_, i) => {
       const x = wGap * i + startX;
-      const label = format(xTickGap * i + min);
+      const label = `${format(xTickGap * i + min)}`;
+      const lines = `${label}`.split('\n');
       const textHeight = this.getTextHeight(label);
-      drawText(
-        this.context, `${label}`,
-        x,
-        height - padding.bottom + tick?.width! + textHeight + TEXT_MARGIN_TOP,
-        { textAlign: 'center', textBaseline: 'bottom', color }
-      );
+
+      lines.reverse().forEach((line, i) => {
+        drawText(
+          this.context, `${line}`, 
+          x,
+          height - padding.bottom + tick?.width! + textHeight + tick?.padding?.top! - i * this.getTextHeight(line),
+          { textAlign: 'center', textBaseline: 'bottom', color }
+        );
+      })
       drawLine(this.context, x, endY, x, endY + tickWidth, { color: tickStrokeColor });
     })
     drawLine(this.context, startX - innerPadding, endY, endX + innerPadding, endY, { color: strokeColor });
