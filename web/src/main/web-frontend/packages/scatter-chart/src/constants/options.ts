@@ -1,5 +1,5 @@
 import { AxisOption, BackgroundOption, DataOption, GridOption, GuideOption, LegendOption, PointOption } from "../types/types";
-import { AXIS_DEFAULT_TICK_COUNT, AXIS_TICK_WIDTH, COLOR_BACKGROUND, COLOR_STROKE, COLOR_TEXT, POINT_RADIUS } from "./ui";
+import { AXIS_DEFAULT_TICK_COUNT, AXIS_TICK_WIDTH, COLOR_BACKGROUND, COLOR_STROKE, COLOR_TEXT, POINT_RADIUS, TEXT_PADDING_BOTTOM, TEXT_PADDING_LEFT, TEXT_PADDING_RIGHT, TEXT_PADDING_TOP } from "./ui";
 
 export const AXIS_DEFAULT_FORMAT = ((value: number | string) => value);
 
@@ -26,6 +26,12 @@ export const defaultAxisOption: {
       width: AXIS_TICK_WIDTH,
       count: AXIS_DEFAULT_TICK_COUNT,
       format: AXIS_DEFAULT_FORMAT,
+      padding: {
+        top: TEXT_PADDING_TOP,
+        bottom: TEXT_PADDING_BOTTOM,
+        left: TEXT_PADDING_LEFT,
+        right: TEXT_PADDING_RIGHT,
+      }
     }
   },
   y: {
@@ -38,6 +44,12 @@ export const defaultAxisOption: {
       width: AXIS_TICK_WIDTH,
       count: AXIS_DEFAULT_TICK_COUNT,
       format: AXIS_DEFAULT_FORMAT,
+      padding: {
+        top: TEXT_PADDING_TOP,
+        bottom: TEXT_PADDING_BOTTOM,
+        left: TEXT_PADDING_LEFT,
+        right: TEXT_PADDING_RIGHT,
+      }
     }
   }
 }

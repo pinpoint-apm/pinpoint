@@ -1,4 +1,3 @@
-import { TEXT_MARGIN_RIGHT } from "../constants/ui";
 import { DeepNonNullable, Padding, TickOption } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
 import { Axis, AxisProps } from "./Axis";
@@ -52,10 +51,10 @@ export class YAxis extends Axis {
     drawRect(this.context, 0, 0, width, padding.top, { color: backgroundColor });
     [...Array(count)].forEach((_, i) => {
       const y = hGap * i + startY;
-      const label = format(yTickGap * (count - 1 - i) + min);
+      const label = `${format(yTickGap * (count - 1 - i) + min)}`;
       drawText(
         this.context, `${label}`, 
-        startX - TEXT_MARGIN_RIGHT - tickWidth, 
+        startX - tick?.padding?.right! - tickWidth, 
         y + this.getTextHeight(label) / 4, 
         { textAlign: 'end', color }
       );
