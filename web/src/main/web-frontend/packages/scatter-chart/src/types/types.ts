@@ -2,7 +2,7 @@ export type DeepNonNullable<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
 }
 
-export type ScatterDataType =  {
+export type ScatterDataType = {
   x: number;
   y: number;
   type?: string;
@@ -11,7 +11,7 @@ export type ScatterDataType =  {
 
 export type DataStyleMap = {
   [key: string]: {
-    legend: string, 
+    legend: string,
     point: string,
     radius: number,
   }
@@ -46,6 +46,7 @@ export interface TickOption {
   width?: number;
   count?: number;
   format?: FormatType<number | string>;
+  padding?: Padding;
 }
 
 export interface DataOption {
@@ -87,3 +88,8 @@ export interface GridOption {
   hidden?: boolean;
   strokeColor?: string;
 }
+
+export type GuideEventTypes = 'click' | 'dragEnd';
+export type LegendEventTypes = 'clickLegend';
+export type ScatterChartEventsTypes = GuideEventTypes | LegendEventTypes;
+

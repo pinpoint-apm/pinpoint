@@ -47,6 +47,21 @@ describe('Test for Scatter', () => {
       expect(onClick).toHaveBeenCalled();
     });
 
+    it('should occur callback function registerd by `on` method when clicking legend area', () => {
+      // given
+      const onClick = jest.fn();
+      SC = new ScatterChartTestHelper(wrapper, initOption);
+      SC.on('clickLegend', onClick)
+
+      // when
+      const inputElement = SC.getLegend().container.getElementsByTagName('input')[0];
+      fireEvent.click(inputElement)
+
+      // then
+      expect(onClick).toHaveBeenCalled();
+      expect(onClick.mock.calls[0][1]).toMatchObject({ checked: ['fail'] })
+    });
+
     it('should not occur callback function when remove callback event by `off` method', () => {
       // given
       const onClick = jest.fn();
@@ -71,6 +86,17 @@ describe('Test for Scatter', () => {
       // then
       expect(SC.viewport.styleWidth).toBe(100);
       expect(SC.viewport.styleHeight).toBe(100);
+    });
+
+    it('data should be cleared by `clear` method', () => {
+      // given
+      SC = new ScatterChartTestHelper(wrapper, initOption);
+      
+      // when
+      SC.clear();
+
+      // then
+      expect(SC.getData().length).toBe(0);
     });
   });
 })

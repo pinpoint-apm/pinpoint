@@ -1,5 +1,5 @@
 import { SCATTER_CHART_IDENTIFIER } from "../constants/ui";
-import { DataStyleMap, LegendOption } from "../types/types";
+import { DataStyleMap, LegendEventTypes, LegendOption, ScatterChartEventsTypes } from "../types/types";
 
 export type LegendProps = { 
   types: string[], 
@@ -7,6 +7,20 @@ export type LegendProps = {
   dataStyleMap: DataStyleMap,
   width?: number;
 }
+
+export interface LegendEventCallback {
+  (event: MouseEvent, data: {
+    checked: string[];
+  }): void;
+}
+
+interface LegendChangeCallback {
+  (event: MouseEvent, data: {
+    checked: string[];
+    unChecked: string[];
+  }): void;
+}
+
 export class Legend {
   static LEGEND_CLASS = `${SCATTER_CHART_IDENTIFIER}legend`;
   static LEGEND_CONTAINER_CLASS = `${Legend.LEGEND_CLASS}_container`;
@@ -18,6 +32,10 @@ export class Legend {
   private dataStyleMap;
   private containerElement: HTMLElement;
   private legendElements: {[key: string]: HTMLDivElement} = {} 
+  private eventHandlers: {
+    change?: LegendChangeCallback,
+    clickLegend?: LegendEventCallback,
+  } = {}
   
   constructor(rootWrapper: HTMLElement, { types, legendOptions, dataStyleMap, width }: LegendProps) {
     this.rootWrapper = rootWrapper;
@@ -27,25 +45,43 @@ export class Legend {
     this.containerElement = document.createElement('div');
     this.containerElement.className = Legend.LEGEND_CONTAINER_CLASS;
     this.setSize(width);
+    this.addEventListener();
+  }
+
+  get container() {
+    return this.containerElement
   }
   
   public setSize(width?: number) {
     this.containerElement.style.width = `${width}px` || `${this.rootWrapper.clientWidth}px`;
   }
 
-  public addEvents(callback?: ({ type, checked }: { type?: string, checked?: boolean}) => void) {
+  private addEventListener = () => {
     this.containerElement.addEventListener('click', (event) => {
       const { target } = event;
       if (target instanceof HTMLElement) {
         const isInputNode = target.nodeName === 'INPUT';
-        const wrapper = target.closest('div');
-        const checkbox = wrapper?.querySelector('input');
 
         if (isInputNode) {
-          callback?.({ type: wrapper?.dataset.name, checked: checkbox?.checked });
+          const checkedInputElements = this.containerElement.querySelectorAll('input:checked');
+          const checkedTypes = [...checkedInputElements].map(inputElement => {
+            return inputElement.getAttribute('data-name') || '';
+          })
+
+          this.eventHandlers.change?.(event, {
+            checked: checkedTypes,
+            unChecked: this.types.filter(type => !checkedTypes.includes(type)),
+          });
+          this.eventHandlers.clickLegend?.(event, {
+            checked: checkedTypes
+          });
         }
       }
-    });
+    })
+  }
+
+  public onChange(callback: LegendChangeCallback) {
+    this.eventHandlers['change'] = callback;
   }
 
   public render() {
@@ -55,7 +91,6 @@ export class Legend {
     dataTypes.forEach(type => {
       // wrapper div
       const legendWrapper = document.createElement('div');
-      legendWrapper.dataset.name = type;
       legendWrapper.className = `${Legend.LEGEND_CLASS} ${type}`;
 
       // mark
@@ -67,6 +102,7 @@ export class Legend {
       // count span
       const countElement = document.createElement('span');
       countElement.className = Legend.COUNT_CLASS;
+      countElement.innerHTML = '0';
 
       // label
       const labelElement = document.createElement('label');
@@ -79,6 +115,7 @@ export class Legend {
       const inputElement = document.createElement('input');
       inputElement.id = `${Legend.LEGEND_CLASS}_${type}_input`;
       inputElement.type = 'checkbox';
+      inputElement.dataset.name = type;
       inputElement.checked = true;
 
       this.legendElements[type] = legendWrapper;
@@ -92,7 +129,15 @@ export class Legend {
   public setLegendCount(type: string, value: number) {
     const legendElement = this.legendElements[type];
     const countElement = legendElement.getElementsByClassName(Legend.COUNT_CLASS)[0];
-    
+
     countElement.innerHTML = `${this.options.formatValue?.(value)}`;
+  }
+
+  public on(eventType: LegendEventTypes, callback: LegendEventCallback) {
+    this.eventHandlers[eventType] = callback;
+  }
+
+  public off(eventType: LegendEventTypes) {
+    delete this.eventHandlers[eventType];
   }
 }

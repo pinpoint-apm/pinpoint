@@ -2,6 +2,7 @@ import { createAppendDatas } from './templates/createAppendDatas';
 import { createCaptureIamge } from './templates/createCaptureImage';
 import { createCustomizeTheme } from './templates/createCustomizeTheme';
 import { createDefault } from './templates/createDefault';
+import { createInteractions } from './templates/createInteractions';
 import { createPinpointTheme } from './templates/createPinpointTheme';
 import { createRealtime } from './templates/createRealtime';
 import { createResizable } from './templates/createResizable';
@@ -26,6 +27,9 @@ export default {
 // More on component templates: https://storybook.js.org/docs/html/writing-stories/introduction#using-args
 const TemplateDefault = () => createDefault();
 export const Defatult = TemplateDefault.bind({});
+
+const TemplateInteractions = () => createInteractions();
+export const Interactions = TemplateInteractions.bind({});
 
 const TemplateAppendDatas = () => createAppendDatas();
 export const AppendDatas = TemplateAppendDatas.bind({});
