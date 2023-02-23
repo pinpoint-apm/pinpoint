@@ -127,10 +127,10 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
             entryScope(trace);
             this.httpHeaderFilter.filter(request);
-
-            if (!trace.canSampled()) {
-                return;
-            }
+            // for URI-metric
+//            if (!trace.canSampled()) {
+//                return;
+//            }
 
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
@@ -144,9 +144,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             }
 
         } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
-            }
+            logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
         }
     }
 
@@ -214,10 +212,11 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatusCode());
         }
 
-        if (!trace.canSampled()) {
-            deleteTrace(trace);
-            return;
-        }
+        // for URI-metric
+//        if (!trace.canSampled()) {
+//            deleteTrace(trace);
+//            return;
+//        }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
@@ -228,9 +227,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
                 parameterRecorder.record(recorder, request, throwable);
             }
         } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER. Caused:{}", t.getMessage(), t);
-            }
+            logger.warn("AFTER. Caused:{}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
             deleteTrace(trace);
@@ -273,7 +270,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
 
-
     private boolean initScope(final Trace trace) {
         // add user scope.
         final TraceScope oldScope = trace.addScope(SCOPE_NAME);
@@ -312,7 +308,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private boolean isEndScope(final Trace trace) {
         return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
-
 
 
 }
