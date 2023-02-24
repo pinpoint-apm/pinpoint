@@ -23,14 +23,12 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContextUtils;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
@@ -52,7 +50,6 @@ import reactor.netty.http.server.HttpServerResponse;
 public abstract class AbstractHttpServerHandleInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
     private final boolean enableAsyncEndPoint;
@@ -103,9 +100,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
                 closed(args);
             }
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
@@ -131,8 +126,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         if (recorder != null) {
             // make asynchronous trace-id
-            final boolean asyncStateSupport = enableAsyncEndPoint;
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext(asyncStateSupport);
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext(enableAsyncEndPoint);
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
                 logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
@@ -160,9 +154,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
                 received(args, throwable);
             }
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 

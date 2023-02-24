@@ -54,7 +54,7 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
 
         final RequestAdaptor<GrpcServerStreamRequest> requestAdaptor = new GrpcServerStreamRequestAdaptor();
         this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
-        this.requestTraceReader = new RequestTraceReader(traceContext, requestAdaptor, true);
+        this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
 
         traceContext.cacheApi(GRPC_SERVER_CALL_METHOD_DESCRIPTOR);
     }

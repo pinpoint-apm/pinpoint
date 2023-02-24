@@ -99,7 +99,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             logger.beforeInterceptor(target, args);
         }
 
-        if (traceContext.currentRawTraceObject() != null) {
+        if (currentTrace() != null) {
             // duplicate trace.
             return;
         }
@@ -148,6 +148,10 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         }
     }
 
+    private Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
     private boolean validate(final Object[] args) {
         if (ArrayUtils.isEmpty(args)) {
             if (isDebug) {
@@ -181,7 +185,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = currentTrace();
         if (trace == null) {
             return;
         }
