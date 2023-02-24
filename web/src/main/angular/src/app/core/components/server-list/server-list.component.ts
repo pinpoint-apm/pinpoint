@@ -1,5 +1,9 @@
-import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Renderer2} from '@angular/core';
+import { from } from 'rxjs';
 
+const enum ListStyle {
+    RADIO_BTN_WIDTH = 23
+}
 @Component({
     selector: 'pp-server-list',
     templateUrl: './server-list.component.html',
@@ -14,7 +18,9 @@ export class ServerListComponent implements OnInit {
     @Output() outSelectAgent = new EventEmitter<string>();
     @Output() outOpenInspector = new EventEmitter<string>();
 
-    constructor() {}
+    constructor(
+        private renderer: Renderer2
+    ) {}
     ngOnInit() {}
     getAgentLabel({agentId, agentName}: IAgentDataV2): string {
         return `${agentId} (${this.getAgentName({agentName} as IAgentDataV2)})`;
@@ -50,5 +56,34 @@ export class ServerListComponent implements OnInit {
 
     getLabelMaxWidth(btnWrapper: HTMLElement): string {
         return `calc(100% - ${btnWrapper.offsetWidth}px)`;
+    }
+
+    getLeftPosition(labelWrapperElement: HTMLElement, labelElement: HTMLElement): string {
+        const labelWrapperWidth = labelWrapperElement.offsetWidth;
+        const labelWidth = labelElement.offsetWidth;
+
+        return labelWidth + ListStyle.RADIO_BTN_WIDTH >= labelWrapperWidth
+            ? `${labelWrapperWidth - 25}px`
+            : `${ListStyle.RADIO_BTN_WIDTH + labelWidth - 4}px`;
+    }
+
+    onClickCopy(event: Event, agentLabel: string): void {
+        event.stopPropagation();
+        from(navigator.clipboard.writeText(agentLabel)).subscribe(() => {
+            const copyBtnElement = event.target as HTMLElement;
+            const wrapperElement = copyBtnElement.parentElement;
+            const pElement = this.renderer.createElement('p');
+            const copiedTextElement = this.renderer.createText('Copied');
+
+            this.renderer.setStyle(copyBtnElement, 'display', 'none');
+            this.renderer.setStyle(pElement, 'font-size', '10px');
+            this.renderer.appendChild(pElement, copiedTextElement);
+            this.renderer.appendChild(wrapperElement, pElement);
+
+            setTimeout(() => {
+                this.renderer.removeChild(wrapperElement, pElement);
+                this.renderer.setStyle(copyBtnElement, 'display', 'inline-block');
+            }, 1500);
+        });
     }
 }

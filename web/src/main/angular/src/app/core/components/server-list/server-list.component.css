@@ -69,10 +69,36 @@
     display: flex;
     align-items: center;
     flex: 1;
+    position: relative;
 }
 
 .btn-wrapper {
     display: flex;
     align-items: center;
     gap: 2px;
+}
+.depth-1 li:hover .copy-button {
+    display: inline-block;
+}
+.copy-button {
+    display: none;
+    position: absolute;
+    /* right: 25px; */
+    /* right: 2px; */
+    /* top: 0px; */
+    bottom: -13px;
+    z-index: 100;
+}
+
+.copy-button:focus {
+    outline: 0;
+}
+
+.fa-copy {
+    font-size: 15px;
+    color: var(--icon-default);
+}
+
+.fa-copy:hover {
+    color: var(--icon-hover);
 }
