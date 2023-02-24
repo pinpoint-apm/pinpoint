@@ -18,9 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.AsyncListenerInterceptorHelper;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.plugin.tomcat.javax.TomcatAsyncListenerAdaptor;
@@ -31,69 +29,44 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class RequestStartAsyncInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        this.traceContext = context;
-        this.descriptor = descriptor;
+        super(context, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-        trace.traceBlockBegin();
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
+    protected Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        if (validate(target, result, throwable)) {
+            com.navercorp.pinpoint.bootstrap.context.AsyncContext nextAsyncContext = recorder.recordNextAsyncContext(true);
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (validate(target, result, throwable)) {
-                com.navercorp.pinpoint.bootstrap.context.AsyncContext nextAsyncContext = recorder.recordNextAsyncContext(true);
+            final AsyncListenerInterceptorHelper listenerInterceptor = new AsyncListenerInterceptorHelper(traceContext, nextAsyncContext);
 
-                final AsyncListenerInterceptorHelper listenerInterceptor = new AsyncListenerInterceptorHelper(traceContext, nextAsyncContext);
+            // Add async listener
+            final AsyncContext asyncContext = (AsyncContext) result;
+            asyncContext.addListener(new TomcatAsyncListenerAdaptor(listenerInterceptor));
 
-                // Add async listener
-                final AsyncContext asyncContext = (AsyncContext) result;
-                asyncContext.addListener(new TomcatAsyncListenerAdaptor(listenerInterceptor));
-
-                // Set AsyncContext, AsyncListener
-                final HttpServletRequest request = (HttpServletRequest) target;
-                request.setAttribute(com.navercorp.pinpoint.bootstrap.context.AsyncContext.class.getName(), nextAsyncContext);
-                request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, listenerInterceptor);
-                if (isDebug) {
-                    logger.debug("Add async listener {}", listenerInterceptor);
-                }
+            // Set AsyncContext, AsyncListener
+            final HttpServletRequest request = (HttpServletRequest) target;
+            request.setAttribute(com.navercorp.pinpoint.bootstrap.context.AsyncContext.class.getName(), nextAsyncContext);
+            request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, listenerInterceptor);
+            if (isDebug) {
+                logger.debug("Add async listener {}", listenerInterceptor);
             }
-            recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-        } catch (Throwable t) {
-            logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
-        } finally {
-            trace.traceBlockEnd();
         }
+        recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
 
     private boolean validate(final Object target, final Object result, final Throwable throwable) {

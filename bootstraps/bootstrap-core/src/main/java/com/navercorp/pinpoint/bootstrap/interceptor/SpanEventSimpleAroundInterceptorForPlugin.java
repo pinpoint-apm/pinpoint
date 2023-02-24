@@ -49,7 +49,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
 
         prepareBeforeTrace(target, args);
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = currentTrace();
         if (trace == null) {
             return;
         }
@@ -62,6 +62,10 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
+    }
+
+    protected Trace currentTrace() {
+        return traceContext.currentTraceObject();
     }
 
     protected void logBeforeInterceptor(Object target, Object[] args) {
@@ -82,7 +86,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
 
         prepareAfterTrace(target, args, result, throwable);
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = currentTrace();
         if (trace == null) {
             return;
         }
