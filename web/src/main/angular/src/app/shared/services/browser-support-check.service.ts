@@ -16,13 +16,13 @@ export class BrowserSupportCheckService {
             version: 66
         }, {
             name: 'firefox',
-            version: 60
+            version: 63
         }, {
             name: 'safari',
-            version: 11
+            version: 13
         }, {
             name: 'edge',
-            version: 42
+            version: 79
         }, {
             name: 'whale',
             version: 1
