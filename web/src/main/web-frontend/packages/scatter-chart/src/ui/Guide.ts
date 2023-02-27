@@ -1,4 +1,4 @@
-import { Coord, DeepNonNullable, GuideOption, Padding, ScatterChartEventsTypes } from "../types/types";
+import { Coord, DeepNonNullable, GuideOption, Padding } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
 import { Axis } from "./Axis";
 import { Layer } from "./Layer";
@@ -16,20 +16,27 @@ export interface GuideOptions {
   padding: DeepNonNullable<Padding>;
 }
 
-type GuideEventHandlers<T> = {
-  [Key in ScatterChartEventsTypes]?: T;
+export type GuideEventTypes = 'click' | 'dragEnd';
+
+type GuideDragEndCallbackData = {
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
 }
 
-export interface GuideEventCallback {
-  (event: MouseEvent, data: Coord | {
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-  }): void;
+type GuideEventData<T extends GuideEventTypes> =
+  T extends 'click' ? Coord :
+  T extends 'dragEnd' ? GuideDragEndCallbackData : 
+  never;
+
+export interface GuideEventCallback<T extends GuideEventTypes> {
+  (event: MouseEvent, data: GuideEventData<T>): void;
 }
 
-type GuideEventTypes = Exclude<ScatterChartEventsTypes, 'clickLegend'>;
+interface GuideEventHandlers {
+  [key: string]: GuideEventCallback<GuideEventTypes>;
+}
 
 export class Guide extends Layer {
   private wrapper;
@@ -39,7 +46,7 @@ export class Guide extends Layer {
   private isDragging = false;
   private dragStartX = 0;
   private dragStartY = 0;
-  private eventHandlers: GuideEventHandlers<GuideEventCallback> = {}
+  private eventHandlers: GuideEventHandlers = {}
   private xAxis;
   private yAxis;
   private minX;
@@ -205,7 +212,7 @@ export class Guide extends Layer {
     return this;
   }
 
-  public on(eventType: GuideEventTypes, callback: GuideEventCallback) {
+  public on<T extends GuideEventTypes>(eventType: GuideEventTypes, callback: GuideEventCallback<T>) {
     this.eventHandlers[eventType] = callback;
   }
 
