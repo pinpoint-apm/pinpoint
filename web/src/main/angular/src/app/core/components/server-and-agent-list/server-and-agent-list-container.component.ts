@@ -86,10 +86,15 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                     const isRealTimeMode = urlService.isRealTimeMode();
 
                     // if (isAppChanged || isPeriodChanged || isRealTimeMode) {
+
                     if (isAppChanged) {
                         this.filteredServerList = [];
                         this.previousParams = null;
                         this.showLoading = true;
+                    } else if (isPeriodChanged && !isEmpty(this.filteredServerList)) {
+                        this.previousParams = null;
+                        this.showLoading = true;
+                        this.useDisable = true;
                     }
 
                 }),

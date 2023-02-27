@@ -3,6 +3,8 @@
     [emptyMessage]="emptyMessage$ | async"
     (outSelectUrlInfo)="onSelectUrlInfo($event)">
 </pp-url-statistic-info>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-loading [showLoading]="showLoading" [zIndex]="11"></pp-loading>
 <ng-container *ngIf="errorMessage">
     <pp-server-error-message
         [message]="errorMessage"

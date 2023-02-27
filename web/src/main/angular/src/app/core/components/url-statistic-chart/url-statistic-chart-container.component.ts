@@ -41,7 +41,7 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     guideMessage: string;
     emptyMessage: string;
     chartVisibility = {};
-    _activeLayer: Layer = Layer.LOADING;
+    _activeLayer: Layer;
 
 	constructor(
 		private messageQueueService: MessageQueueService,
@@ -99,7 +99,9 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 					const agentId = urlService.getPathValue(UrlPathId.AGENT_ID) || '';
 					const params = this.previousParams = {from, to, applicationName, agentId, uri};
                     
-                    // this.activeLayer = Layer.LOADING;
+                    this.activeLayer = Layer.LOADING;
+                    this.cd.detectChanges();
+
 					return this.urlStatisticChartDataService.getData(params).pipe(
 						map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
 							this.cachedData[uri] = {timestamp, metricValues: metricValueGroups[0].metricValues};

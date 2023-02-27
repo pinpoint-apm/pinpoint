@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
-import { catchError, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
@@ -19,18 +19,29 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     data$: Observable<IUrlStatInfoData[]>;
     emptyMessage$: Observable<string>;
     errorMessage: string;
+    showLoading: boolean;
+    useDisable: boolean;
 
     constructor(
         private urlStatisticInfoDataService: UrlStatisticInfoDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private messageQueueService: MessageQueueService,
         private translateService: TranslateService,
+        private cd: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
         this.emptyMessage$ = this.translateService.get('COMMON.NO_DATA');
         this.data$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
+            tap((urlService: NewUrlStateNotificationService) => {
+                // if (!urlService.isValueChanged(UrlPathId.APPLICATION)) {
+                    this.useDisable = true;
+                // }
+
+                this.showLoading = true;
+                this.cd.detectChanges();
+            }),
             switchMap((urlService: NewUrlStateNotificationService) => {
                 const from = urlService.getStartTimeToNumber();
                 const to = urlService.getEndTimeToNumber();
@@ -38,7 +49,12 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
                 const agentId = urlService.getPathValue(UrlPathId.AGENT_ID) || '';
                 const params = {from, to, applicationName, agentId};
 
-                return this.urlStatisticInfoDataService.getData(params);
+                return this.urlStatisticInfoDataService.getData(params).pipe(
+                    tap(() => {
+                        this.showLoading = false;
+                        this.useDisable = false;
+                    })
+                );
             }),
             catchError((error: IServerError) => {
                 this.errorMessage = error.message;
