@@ -1,5 +1,5 @@
 import { SCATTER_CHART_IDENTIFIER } from "../constants/ui";
-import { DataStyleMap, LegendEventTypes, LegendOption, ScatterChartEventsTypes } from "../types/types";
+import { DataStyleMap, LegendOption } from "../types/types";
 
 export type LegendProps = { 
   types: string[], 
@@ -8,17 +8,27 @@ export type LegendProps = {
   width?: number;
 }
 
-export interface LegendEventCallback {
-  (event: MouseEvent, data: {
-    checked: string[];
-  }): void;
+export type LegendEventTypes = 'clickLegend' | 'change';
+
+type LegendClickCallbackData = {
+  checked: string[],
 }
 
-interface LegendChangeCallback {
-  (event: MouseEvent, data: {
-    checked: string[];
-    unChecked: string[];
-  }): void;
+type LegendChangeChallbackData = {
+  unChecked: string[];
+} & LegendClickCallbackData
+
+type LegendEventData<T extends LegendEventTypes> =
+  T extends 'clickLegend' ? LegendClickCallbackData :
+  T extends 'change' ? LegendChangeChallbackData :
+  never;
+
+export interface LegendEventCallback<T extends LegendEventTypes> {
+  (event: MouseEvent, data: LegendEventData<T>): void;
+}
+
+interface LegendEventHandlers {
+  [key: string]: LegendEventCallback<LegendEventTypes>;
 }
 
 export class Legend {
@@ -32,10 +42,7 @@ export class Legend {
   private dataStyleMap;
   private containerElement: HTMLElement;
   private legendElements: {[key: string]: HTMLDivElement} = {} 
-  private eventHandlers: {
-    change?: LegendChangeCallback,
-    clickLegend?: LegendEventCallback,
-  } = {}
+  private eventHandlers: LegendEventHandlers = {}
   
   constructor(rootWrapper: HTMLElement, { types, legendOptions, dataStyleMap, width }: LegendProps) {
     this.rootWrapper = rootWrapper;
@@ -80,7 +87,7 @@ export class Legend {
     })
   }
 
-  public onChange(callback: LegendChangeCallback) {
+  public onChange(callback: LegendEventCallback<'change'>) {
     this.eventHandlers['change'] = callback;
   }
 
@@ -133,7 +140,7 @@ export class Legend {
     countElement.innerHTML = `${this.options.formatValue?.(value)}`;
   }
 
-  public on(eventType: LegendEventTypes, callback: LegendEventCallback) {
+  public on(eventType: LegendEventTypes, callback: LegendEventCallback<'clickLegend'>) {
     this.eventHandlers[eventType] = callback;
   }
 

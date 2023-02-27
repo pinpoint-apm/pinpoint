@@ -2,7 +2,7 @@ import merge from 'lodash.merge';
 import Color from 'color';
 import html2canvas from 'html2canvas';
 
-import { AxisOption, BackgroundOption, Coord, DataStyleMap, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType, ScatterChartEventsTypes } from "../types/types";
+import { AxisOption, BackgroundOption, Coord, DataStyleMap, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
 import { drawCircle, drawRect } from "../utils/draw";
@@ -12,8 +12,8 @@ import { COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING,
   CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER
 } from "../constants/ui";
 import { GridAxis } from "./GridAxis";
-import { Legend, LegendEventCallback } from "./Legend";
-import { Guide, GuideEventCallback } from "./Guide";
+import { Legend, LegendEventCallback, LegendEventTypes } from "./Legend";
+import { Guide, GuideEventCallback, GuideEventTypes } from "./Guide";
 import { defaultAxisOption, defaultBackgroundOption, defaultDataOption, defaultGridOption, defaultGuideOption, defaultLegendOption, defaultPointOption } from "../constants/options";
 import { getLongestText, getTickTexts } from '../utils/helper';
 
@@ -38,6 +38,10 @@ interface ScatterChartSettedOption {
   padding: DeepNonNullable<Padding>;
   point: PointOption
 }
+
+export type ScatterChartEventsTypes = Exclude<GuideEventTypes | LegendEventTypes, 'change'>;
+export type EventData<T> = T extends (...args: any[]) => void ? Parameters<T>[1] : never;
+export type EventCallback<T> = T extends 'clickLegend' ? LegendEventCallback<T> : T extends 'click' | 'dragEnd' ? GuideEventCallback<T> : never;
 
 export class ScatterChart {
   static REALTIME_MULTIPLE = 3;
@@ -381,15 +385,15 @@ export class ScatterChart {
     this.shoot();
   }
 
-  public on(eventType: ScatterChartEventsTypes, callback: GuideEventCallback | LegendEventCallback) {
+  public on<T extends ScatterChartEventsTypes>(eventType: T, callback: (event: MouseEvent, data: EventData<EventCallback<T>>) => void) {
     if (eventType === 'clickLegend') {
-      this.legend.on(eventType, callback as LegendEventCallback)
+      this.legend.on(eventType, callback as LegendEventCallback<LegendEventTypes>)
     } else {
-      this.guide.on(eventType, callback as GuideEventCallback);
+      this.guide.on(eventType, callback as GuideEventCallback<GuideEventTypes>);
     }
   }
 
-  public off(eventType: ScatterChartEventsTypes) {
+  public off<T extends ScatterChartEventsTypes>(eventType: T) {
     if (eventType === 'clickLegend') {
       this.legend.off(eventType)
     } else {

@@ -89,7 +89,4 @@ export interface GridOption {
   strokeColor?: string;
 }
 
-export type GuideEventTypes = 'click' | 'dragEnd';
-export type LegendEventTypes = 'clickLegend';
-export type ScatterChartEventsTypes = GuideEventTypes | LegendEventTypes;
 
