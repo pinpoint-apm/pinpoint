@@ -53,13 +53,15 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
                     tap(() => {
                         this.showLoading = false;
                         this.useDisable = false;
-                    })
+                    }),
+                    catchError((error: IServerError) => {
+                        this.errorMessage = error.message;
+                        this.showLoading = false;
+                        this.useDisable = false;
+                        return of([])
+                    }),
                 );
             }),
-            catchError((error: IServerError) => {
-                this.errorMessage = error.message;
-                return of([])
-            })
         );
     }
 
