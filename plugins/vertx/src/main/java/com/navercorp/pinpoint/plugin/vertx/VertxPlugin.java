@@ -460,8 +460,11 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     }
 
     private void addHttpClientStream() {
+        // 3.3, 3.4
         transformTemplate.transform("io.vertx.core.http.impl.ClientConnection", ClientConnectionTransform.class);
-        //  3.7
+        // 3.5, 3.6, 3.7
+        transformTemplate.transform("io.vertx.core.http.impl.Http1xClientConnection$StreamImpl", ClientConnectionTransform.class);
+        // 3.8
         transformTemplate.transform("io.vertx.core.http.impl.Http1xClientConnection", ClientConnectionTransform.class);
     }
 
@@ -479,10 +482,16 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             }
 
             // add pinpoint headers.
-            // private void prepareRequestHeaders(HttpRequest request, String hostHeader, boolean chunked)
+            // 3.3, 3.4, 3.5
             final InstrumentMethod prepareHeadersMethod = target.getDeclaredMethod("prepareHeaders", "io.netty.handler.codec.http.HttpRequest", "java.lang.String", "boolean");
             if (prepareHeadersMethod != null) {
                 prepareHeadersMethod.addInterceptor(HttpClientStreamInterceptor.class);
+            }
+            // 3.6, 3.7
+            // private void prepareRequestHeaders(HttpRequest request, String hostHeader, boolean chunked)
+            final InstrumentMethod prepareRequestHeadersMethod = target.getDeclaredMethod("prepareRequestHeaders", "io.netty.handler.codec.http.HttpRequest", "java.lang.String", "boolean");
+            if (prepareRequestHeadersMethod != null) {
+                prepareRequestHeadersMethod.addInterceptor(HttpClientStreamInterceptor.class);
             }
 
             // 3.8+
