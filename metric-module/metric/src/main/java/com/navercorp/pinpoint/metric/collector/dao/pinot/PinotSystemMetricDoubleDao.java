@@ -60,9 +60,10 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
         for (DoubleMetric doubleMetric : systemMetrics) {
-            String kafkaKey = generateKafkaKey(doubleMetric);
+//            String kafkaKey = generateKafkaKey(doubleMetric);
             SystemMetricView systemMetricView = new SystemMetricView(tenantId, hostGroupName, doubleMetric);
-            ListenableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
+//            ListenableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
+            ListenableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, hostName, systemMetricView);
             callback.addCallback(resultCallback);
         }
     }
