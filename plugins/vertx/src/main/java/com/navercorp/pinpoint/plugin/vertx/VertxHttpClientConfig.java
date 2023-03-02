@@ -25,9 +25,9 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class VertxHttpClientConfig {
 
     // client
-    private boolean param = true;
-    private HttpDumpConfig httpDumpConfig;
-    private boolean statusCode = true;
+    private final boolean param;
+    private final HttpDumpConfig httpDumpConfig;
+    private final boolean statusCode;
 
     public VertxHttpClientConfig(ProfilerConfig config) {
         this.param = config.readBoolean("profiler.vertx.http.client.param", true);

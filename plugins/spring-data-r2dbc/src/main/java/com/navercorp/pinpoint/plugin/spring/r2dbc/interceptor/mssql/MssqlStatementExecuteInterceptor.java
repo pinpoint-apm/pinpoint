@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MssqlStatementExecuteInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    private int maxSqlBindValueSize;
+    private final int maxSqlBindValueSize;
 
     public MssqlStatementExecuteInterceptor(TraceContext context, MethodDescriptor descriptor, int maxSqlBindValueSize) {
         super(context, descriptor);

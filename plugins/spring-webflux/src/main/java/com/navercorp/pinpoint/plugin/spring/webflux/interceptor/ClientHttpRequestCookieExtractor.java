@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
-
 import org.springframework.http.HttpCookie;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 import java.util.Map;
@@ -35,24 +35,27 @@ public class ClientHttpRequestCookieExtractor implements CookieExtractor<ClientH
 
     @Override
     public String getCookie(final ClientHttpRequest request) {
-        if (request != null && request.getCookies() != null) {
-            final StringBuilder sb = new StringBuilder();
-            for (Map.Entry<String, List<HttpCookie>> entry : request.getCookies().entrySet()) {
-                boolean repeated = false;
-                for (HttpCookie httpCookie : entry.getValue()) {
-                    if (repeated) {
-                        sb.append(',');
+        if (request != null) {
+            MultiValueMap<String, HttpCookie> cookies = request.getCookies();
+            if (cookies != null) {
+                final StringBuilder sb = new StringBuilder();
+                for (Map.Entry<String, List<HttpCookie>> entry : cookies.entrySet()) {
+                    boolean repeated = false;
+                    for (HttpCookie httpCookie : entry.getValue()) {
+                        if (repeated) {
+                            sb.append(',');
+                        }
+                        sb.append(httpCookie.getName());
+                        sb.append('=');
+                        sb.append(httpCookie.getValue());
+                        repeated = true;
                     }
-                    sb.append(httpCookie.getName());
-                    sb.append('=');
-                    sb.append(httpCookie.getValue());
-                    repeated = true;
                 }
+                if (isDebug) {
+                    logger.debug("Cookie={}", sb.toString());
+                }
+                return sb.toString();
             }
-            if (isDebug) {
-                logger.debug("Cookie={}", sb.toString());
-            }
-            return sb.toString();
         }
         return null;
     }

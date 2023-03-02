@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 
 public class ConnectionCreateStatementInterceptor extends SetDatabaseInfoInterceptor {
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
 
     public ConnectionCreateStatementInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;

@@ -28,8 +28,8 @@ import java.util.Map;
  */
 public class HttpServerParameterExtractor implements ParameterExtractor<HttpServerRequest> {
 
-    private int eachLimit;
-    private int totalLimit;
+    private final int eachLimit;
+    private final int totalLimit;
 
     public HttpServerParameterExtractor(int eachLimit, int totalLimit) {
         this.eachLimit = eachLimit;

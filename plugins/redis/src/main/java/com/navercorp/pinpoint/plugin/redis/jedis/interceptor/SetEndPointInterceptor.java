@@ -16,19 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 
-import java.net.URI;
-
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.plugin.redis.jedis.EndPointUtils;
-import redis.clients.jedis.JedisShardInfo;
-
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.redis.jedis.EndPointAccessor;
+import com.navercorp.pinpoint.plugin.redis.jedis.EndPointUtils;
+import redis.clients.jedis.JedisShardInfo;
+
+import java.net.URI;
 //import redis.clients.jedis.JedisSocketFactory; // For compatibility with Java 1.7
 
 /**
@@ -42,7 +39,7 @@ public class SetEndPointInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public SetEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public SetEndPointInterceptor() {
     }
 
     @Override

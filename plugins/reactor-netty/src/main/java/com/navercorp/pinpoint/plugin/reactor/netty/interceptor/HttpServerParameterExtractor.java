@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
 import com.navercorp.pinpoint.common.util.StringUtils;
-
 import reactor.netty.http.server.HttpServerRequest;
 
 import java.util.Map;
@@ -27,8 +26,8 @@ import java.util.Map;
  * @author Woonduk Kang(emeroad)
  */
 public class HttpServerParameterExtractor implements ParameterExtractor<HttpServerRequest> {
-    private int eachLimit;
-    private int totalLimit;
+    private final int eachLimit;
+    private final int totalLimit;
 
     public HttpServerParameterExtractor(int eachLimit, int totalLimit) {
         this.eachLimit = eachLimit;

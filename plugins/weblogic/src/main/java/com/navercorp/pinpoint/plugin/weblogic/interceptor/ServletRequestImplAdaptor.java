@@ -47,8 +47,7 @@ public class ServletRequestImplAdaptor implements RequestAdaptor<ServletRequestI
     @Override
     public String getEndPoint(ServletRequestImpl request) {
         final int port = request.getServerPort();
-        final String endPoint = request.getServerName() + ":" + port;
-        return endPoint;
+        return request.getServerName() + ":" + port;
     }
 
     @Override

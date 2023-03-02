@@ -50,7 +50,7 @@ public class DefaultSessionConstructorInterceptor implements AroundInterceptor {
         }
 
         try {
-            final Set endPointSet = ArrayArgumentUtils.getArgument(args, 1, Set.class);
+            final Set<?> endPointSet = ArrayArgumentUtils.getArgument(args, 1, Set.class);
             if (endPointSet == null) {
                 return;
             }

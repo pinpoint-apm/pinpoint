@@ -50,7 +50,6 @@ import org.apache.catalina.connector.Response;
 public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
     private final Validator validator;
@@ -118,9 +117,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             this.servletRequestListener.initialized(request, TomcatConstants.TOMCAT_METHOD, this.methodDescriptor);
             this.servletResponseListener.initialized(response, TomcatConstants.TOMCAT_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
@@ -153,9 +150,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
             this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
             this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
