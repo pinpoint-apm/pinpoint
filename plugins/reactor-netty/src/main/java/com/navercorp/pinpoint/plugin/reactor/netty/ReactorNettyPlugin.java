@@ -44,16 +44,15 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsOnInboundCompleteMethodInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandlerRequestWithBodyInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandlerConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientHandlerRequestWithBodyInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnInboundNextInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnOutboundCompleteInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsOnOutboundErrorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpClientOperationsSendInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpIOHandlerObserverConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpIOHandlerObserverOnStateChangeInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleHttpServerStateInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleStateInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpTcpClientConnectInterceptor;
 
 import java.security.ProtectionDomain;
@@ -134,9 +133,9 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             if (method != null) {
                 if (instrumentor.exist(loader, "reactor.netty.http.server.HttpServerState")) {
                     // over reactor-netty.0.7.x
-                    method.addInterceptor(HttpServerHandleHttpServerStateInterceptor.class);
+                    method.addInterceptor(HttpServerHandleInterceptor.class, va(ReactorNettyConstants.V0_7_0));
                 } else {
-                    method.addInterceptor(HttpServerHandleStateInterceptor.class);
+                    method.addInterceptor(HttpServerHandleInterceptor.class, va(ReactorNettyConstants.V0_0_0));
                 }
             }
 

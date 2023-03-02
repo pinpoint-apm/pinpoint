@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerB
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.util.ConnectionObserverAdaptor;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import reactor.netty.http.server.HttpServerRequest;
 import reactor.netty.http.server.HttpServerResponse;
@@ -47,7 +48,7 @@ import reactor.netty.http.server.HttpServerResponse;
 /**
  * @author jaehong.kim
  */
-public abstract class AbstractHttpServerHandleInterceptor implements AroundInterceptor {
+public class HttpServerHandleInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final TraceContext traceContext;
@@ -55,12 +56,13 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
     private final boolean enableAsyncEndPoint;
     private final ServletRequestListener<HttpServerRequest> servletRequestListener;
     private final ServletResponseListener<HttpServerResponse> servletResponseListener;
+    private final ConnectionObserverAdaptor connectionObserver;
 
-    abstract boolean isReceived(Object[] args);
 
-    abstract boolean isClosed(Object[] args);
-
-    public AbstractHttpServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
+    public HttpServerHandleInterceptor(TraceContext traceContext,
+                                       MethodDescriptor descriptor,
+                                       RequestRecorderFactory<HttpServerRequest> requestRecorderFactory,
+                                       int version) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
 
@@ -85,6 +87,8 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpResponseAdaptor()).build();
 
         this.enableAsyncEndPoint = config.isEnableAsyncEndPoint();
+
+        this.connectionObserver = ConnectionObserverAdaptor.Factory.newAdaptor(version);
     }
 
     @Override
@@ -94,13 +98,13 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         try {
-            if (isReceived(args)) {
+            if (connectionObserver.isReceived(args)) {
                 received(args);
-            } else if (isClosed(args)) {
+            } else if (connectionObserver.isClosed(args)) {
                 closed(args);
             }
         } catch (Throwable t) {
-            logger.info("Failed to servlet request event handle.", t);
+            logger.info("Failed to servlet request event handle", t);
         }
     }
 
@@ -118,7 +122,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         this.servletResponseListener.initialized(response, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor); //must after request listener due to trace block begin
 
         // Set end-point
-        final Trace trace = this.traceContext.currentTraceObject();
+        final Trace trace = this.traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -150,7 +154,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         try {
-            if (isReceived(args)) {
+            if (connectionObserver.isReceived(args)) {
                 received(args, throwable);
             }
         } catch (Throwable t) {
