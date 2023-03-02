@@ -61,7 +61,7 @@ public class MongoClientConstructorInterceptor implements AroundInterceptor {
                 hostList.add(hostAddress);
             } else {
                 // arg0 is List<ServerAddress>
-                final List list = ArrayArgumentUtils.getArgument(args, 0, List.class);
+                final List<?> list = ArrayArgumentUtils.getArgument(args, 0, List.class);
                 if (list != null) {
                     for (Object o : list) {
                         if (o instanceof ServerAddress) {

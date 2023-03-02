@@ -18,27 +18,17 @@ package com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
-public class NotifyCancellingInterceptor implements AroundInterceptor {
+public class NotifyCancellingInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final PLogger logger = PLoggerFactory.getLogger(BasicMethodInterceptor.class);
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MethodDescriptor descriptor;
-    private final TraceContext traceContext;
     private final ServiceType serviceType;
 
     public NotifyCancellingInterceptor(TraceContext traceContext, MethodDescriptor descriptor, ServiceType serviceType) {
-        this.descriptor = descriptor;
-        this.traceContext = traceContext;
+        super(traceContext, descriptor);
         this.serviceType = serviceType;
     }
 
@@ -47,43 +37,27 @@ public class NotifyCancellingInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
         recorder.recordServiceType(serviceType);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }
+    }
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordApi(methodDescriptor);
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-
-            if (ArrayUtils.getLength(args) == 2) {
-                Object expectedThrowable = args[1];
-                if (expectedThrowable instanceof Throwable) {
-                    recorder.recordException((Throwable) expectedThrowable);
-                }
+        if (ArrayUtils.getLength(args) == 2) {
+            Object expectedThrowable = args[1];
+            if (expectedThrowable instanceof Throwable) {
+                recorder.recordException((Throwable) expectedThrowable);
             }
-        } finally {
-            trace.traceBlockEnd();
         }
     }
+
 }

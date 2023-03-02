@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import io.vertx.core.http.HttpClientRequest;
 
 import java.util.Objects;
 
 public class HttpClientRequestWrapper implements ClientRequestWrapper {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
     private final HttpClientRequest httpRequest;
     private final String host;

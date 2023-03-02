@@ -29,8 +29,8 @@ import java.util.Map;
  * @author jaehong.kim
  */
 public class ServletRequestImplParameterExtractor implements ParameterExtractor<ServletRequestImpl> {
-    private int eachLimit;
-    private int totalLimit;
+    private final int eachLimit;
+    private final int totalLimit;
 
     public ServletRequestImplParameterExtractor(int eachLimit, int totalLimit) {
         this.eachLimit = eachLimit;

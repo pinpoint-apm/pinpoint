@@ -48,7 +48,6 @@ import io.undertow.server.HttpServerExchange;
 public class ConnectorsExecuteRootHandlerInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
     private final Validator validator;
@@ -107,9 +106,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
             this.servletResponseListener.initialized(request, UndertowConstants.UNDERTOW_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
             this.httpHeaderFilter.filter(request);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 
@@ -130,9 +127,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
             // TODO Get exception. e.g. request.getAttachment(DefaultResponseListener.EXCEPTION)
             this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 

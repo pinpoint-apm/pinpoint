@@ -1,5 +1,13 @@
 package com.navercorp.pinpoint.plugin.resin.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
+
+import javax.servlet.ServletContext;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -8,21 +16,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.ServletContext;
-
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author huangpengjie@fang.com
  */
 public class WebAppInterceptor implements AroundInterceptor {
 
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;

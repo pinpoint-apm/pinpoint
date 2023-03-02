@@ -93,7 +93,7 @@ public class HttpJspBaseServiceMethodInterceptor extends SpanEventSimpleAroundIn
     private String replace(final String text, final int beginIndex, final int endIndex, final String replacement) {
         final StringBuilder sb = new StringBuilder();
         if (beginIndex > 0) {
-            sb.append(text.substring(0, beginIndex));
+            sb.append(text, 0, beginIndex);
         }
         sb.append(replacement);
         if (text.length() > endIndex) {

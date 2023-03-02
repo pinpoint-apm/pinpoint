@@ -30,7 +30,7 @@ import java.io.IOException;
  * @author jaehong.kim
  */
 public class WebsphereAsyncListener implements AsyncListener {
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AsyncListenerInterceptorHelper asyncListenerInterceptorHelper;

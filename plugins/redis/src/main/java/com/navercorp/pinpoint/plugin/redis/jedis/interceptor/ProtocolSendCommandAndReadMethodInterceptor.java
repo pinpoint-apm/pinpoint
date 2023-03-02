@@ -36,9 +36,9 @@ public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterc
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-    private InterceptorScope interceptorScope;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+    private final InterceptorScope interceptorScope;
 
     public ProtocolSendCommandAndReadMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;

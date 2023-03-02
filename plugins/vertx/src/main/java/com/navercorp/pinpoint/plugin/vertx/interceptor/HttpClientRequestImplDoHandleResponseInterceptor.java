@@ -32,7 +32,7 @@ import io.vertx.core.http.impl.HttpClientResponseImpl;
  */
 public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    private boolean statusCode;
+    private final boolean statusCode;
 
     public HttpClientRequestImplDoHandleResponseInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

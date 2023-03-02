@@ -70,7 +70,6 @@ public class ProducerConstructorInterceptor implements AroundInterceptor {
             Object remoteAddressObject = map.get(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
             String remoteAddress = getRemoteAddress0(remoteAddressObject);
             ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
-            return;
         }
 
     }
@@ -82,20 +81,19 @@ public class ProducerConstructorInterceptor implements AroundInterceptor {
     }
 
     private String getRemoteAddress0(Object remoteAddressObject) {
-        String remoteAddress = KafkaConstants.UNKNOWN;
         if (remoteAddressObject instanceof List) {
             List<?> remoteAddressList = (List<?>) remoteAddressObject;
             if (CollectionUtils.nullSafeSize(remoteAddressList) == 1) {
-                remoteAddress = String.valueOf(remoteAddressList.get(0));
+                return String.valueOf(remoteAddressList.get(0));
             } else if (CollectionUtils.nullSafeSize(remoteAddressList) > 1) {
-                remoteAddress = remoteAddressList.toString();
+                return remoteAddressList.toString();
             }
-            return remoteAddress;
+            return KafkaConstants.UNKNOWN;
         } else if (remoteAddressObject instanceof String) {
             return (String) remoteAddressObject;
         }
 
-        return remoteAddress;
+        return KafkaConstants.UNKNOWN;
     }
 
 }

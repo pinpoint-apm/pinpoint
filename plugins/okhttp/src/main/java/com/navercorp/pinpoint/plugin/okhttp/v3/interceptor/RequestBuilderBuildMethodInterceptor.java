@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.okhttp.v3.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -43,13 +42,11 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
     private final InterceptorScope interceptorScope;
     private final RequestTraceWriter<Request.Builder> requestTraceWriter;;
 
-    public RequestBuilderBuildMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
+    public RequestBuilderBuildMethodInterceptor(TraceContext traceContext, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
         this.interceptorScope = interceptorScope;
 
         ClientHeaderAdaptor<Request.Builder> clientHeaderAdaptor = new RequestBuilder3ClientHeaderAdaptor();

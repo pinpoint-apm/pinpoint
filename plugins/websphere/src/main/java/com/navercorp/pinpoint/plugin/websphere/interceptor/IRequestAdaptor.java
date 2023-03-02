@@ -49,8 +49,7 @@ public class IRequestAdaptor implements RequestAdaptor<IRequest> {
     @Override
     public String getEndPoint(IRequest request) {
         final int port = request.getServerPort();
-        final String endPoint = HostAndPort.toHostAndPortString(request.getServerName(), port);
-        return endPoint;
+        return HostAndPort.toHostAndPortString(request.getServerName(), port);
     }
 
     @Override

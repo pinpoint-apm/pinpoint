@@ -27,9 +27,11 @@ import java.util.Objects;
 public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogger {
 
     private final Logger logger;
+    private final boolean isDebug;
 
     public Log4j2PLoggerAdapter(Logger logger) {
         this.logger = Objects.requireNonNull(logger, "logger");
+        this.isDebug = logger.isDebugEnabled();
     }
 
     public String getName() {
@@ -38,7 +40,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
 
     @Override
     public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             StringBuilder sb = logMethod(TYPE.BEFORE, target, className, methodName, parameterDescription, args);
             String log = sb.toString();
             logger.debug(log);
@@ -47,7 +49,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
 
     @Override
     public void beforeInterceptor(Object target, Object[] args) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             StringBuilder sb = logMethod(TYPE.BEFORE, target, args);
             String log = sb.toString();
             logger.debug(log);
@@ -56,7 +58,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
 
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             StringBuilder sb = logMethod(TYPE.AFTER, target, className, methodName, parameterDescription, args);
             logResult(sb, result, throwable);
             String log = sb.toString();
@@ -71,7 +73,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
 
     @Override
     public void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             StringBuilder sb = logMethod(TYPE.AFTER, target, args);
             logResult(sb, result, throwable);
             String log = sb.toString();
@@ -86,7 +88,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
 
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             StringBuilder sb = logMethod(TYPE.AFTER, target, className, methodName, parameterDescription, args);
             String log = sb.toString();
             logger.debug(log);
@@ -95,7 +97,7 @@ public class Log4j2PLoggerAdapter extends AbstractLoggerAdapter implements PLogg
 
     @Override
     public void afterInterceptor(Object target, Object[] args) {
-        if (logger.isDebugEnabled()) {
+        if (isDebug) {
             StringBuilder sb = logMethod(TYPE.AFTER, target, args);
             String log = sb.toString();
             logger.debug(log);

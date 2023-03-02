@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.springframework.http.HttpHeaders;
 
@@ -35,7 +34,7 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
 
     private final RequestTraceWriter<HttpHeaders> requestTraceWriter;
 

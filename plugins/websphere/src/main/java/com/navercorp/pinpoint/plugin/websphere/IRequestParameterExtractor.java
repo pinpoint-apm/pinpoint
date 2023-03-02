@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class IRequestParameterExtractor implements ParameterExtractor<IRequest> {
 
-    private int eachLimit;
-    private int totalLimit;
+    private final int eachLimit;
+    private final int totalLimit;
 
     public IRequestParameterExtractor(int eachLimit, int totalLimit) {
         this.eachLimit = eachLimit;

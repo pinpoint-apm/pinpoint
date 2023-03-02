@@ -49,7 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 public class ServletInvocationServiceInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private final MethodDescriptor methodDescriptor;
     private final Validator validator;
@@ -65,7 +64,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
 
-        ServletRequestListenerBuilder<HttpServletRequest> reqBuilder = new ServletRequestListenerBuilder<HttpServletRequest>(ResinConstants.RESIN, traceContext, requestAdaptor);
+        ServletRequestListenerBuilder<HttpServletRequest> reqBuilder = new ServletRequestListenerBuilder<>(ResinConstants.RESIN, traceContext, requestAdaptor);
         reqBuilder.setExcludeURLFilter(config.getExcludeUrlFilter());
         reqBuilder.setParameterRecorder(parameterRecorder);
         reqBuilder.setRequestRecorderFactory(requestRecorderFactory);
@@ -78,7 +77,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
         reqBuilder.setRecordStatusCode(false);
 
         this.servletRequestListener = reqBuilder.build();
-        this.servletResponseListener = new ServletResponseListenerBuilder<HttpServletResponse>(traceContext, new HttpServletResponseAdaptor()).build();
+        this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpServletResponseAdaptor()).build();
     }
 
     private Validator buildValidator() {
@@ -111,9 +110,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             final HttpServletResponse response = (HttpServletResponse) args[1];
             this.servletResponseListener.initialized(response, ResinConstants.RESIN_METHOD, this.methodDescriptor); //must after request listener due to trace block begin
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+             logger.info("Failed to servlet request event handle.", t);
         }
     }
 
@@ -141,9 +138,7 @@ public class ServletInvocationServiceInterceptor implements AroundInterceptor {
             this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
             this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to servlet request event handle.", t);
-            }
+            logger.info("Failed to servlet request event handle.", t);
         }
     }
 

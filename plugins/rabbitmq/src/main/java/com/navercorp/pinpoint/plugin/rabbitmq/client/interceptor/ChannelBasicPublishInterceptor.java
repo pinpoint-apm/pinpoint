@@ -15,7 +15,6 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor;
-
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -53,8 +52,9 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
         }
 
         if (!validate(target, args)) {
-            if (isDebug)
+            if (isDebug) {
                 logger.debug("validate argument failed!");
+            }
             return;
         }
 

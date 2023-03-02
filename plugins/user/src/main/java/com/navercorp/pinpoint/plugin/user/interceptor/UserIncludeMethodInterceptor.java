@@ -41,8 +41,8 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
     private final String path;
 
     public UserIncludeMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
