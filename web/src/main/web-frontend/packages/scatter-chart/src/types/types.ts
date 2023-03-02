@@ -9,13 +9,16 @@ export type ScatterDataType = {
   hidden?: boolean;
 }
 
-export type DataStyleMap = {
-  [key: string]: {
-    legend: string,
-    point: string,
-    radius: number,
-  }
+type DataStyle = {
+  legend: string,
+  point: string,
+  radius: number,
 }
+
+export type DataStyleMap = {
+  [key: string]: DataStyle
+}
+
 
 export type Coord = {
   x: number;

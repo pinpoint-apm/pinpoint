@@ -2,13 +2,14 @@ import merge from 'lodash.merge';
 import Color from 'color';
 import html2canvas from 'html2canvas';
 
-import { AxisOption, BackgroundOption, Coord, DataStyleMap, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType } from "../types/types";
+import { AxisOption, BackgroundOption, Coord, DataOption, DeepNonNullable, GridOption, GuideOption, LegendOption, Padding, PointOption, ScatterDataType, DataStyleMap } from "../types/types";
 import { Layer } from "./Layer";
 import { Viewport } from "./Viewport";
 import { drawCircle, drawRect } from "../utils/draw";
 import { YAxis } from "./YAxis";
 import { XAxis } from "./XAxis";
-import { COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING, 
+import {
+  COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING,
   CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY, SCATTER_CHART_IDENTIFIER
 } from "../constants/ui";
 import { GridAxis } from "./GridAxis";
@@ -54,7 +55,7 @@ export class ScatterChart {
   protected legend!: Legend;
   protected guide!: Guide;
   protected data: ScatterDataType[] = [];
-  private datas: {[key: string]: Coord[]} = {};
+  private datas: { [key: string]: Coord[] } = {};
   private wrapper;
   private canvasWrapper;
   private dataStyleMap!: DataStyleMap;
@@ -77,7 +78,7 @@ export class ScatterChart {
     this.canvasWrapper.className = ScatterChart.SCATTER_CHART_CONTAINER_CLASS;
     this.canvasWrapper.style.position = 'relative';
     this.wrapper.append(this.canvasWrapper);
-    this.compositedPadding = {...CONTAINER_PADDING, ...options.padding};
+    this.compositedPadding = { ...CONTAINER_PADDING, ...options.padding };
 
     this.setOptions(options);
     this.setWidthAndHeight();
@@ -102,9 +103,9 @@ export class ScatterChart {
       legend: merge({}, defaultLegendOption, options?.legend),
       guide: merge({}, defaultGuideOption, options?.guide),
       background: merge({}, defaultBackgroundOption, options?.background),
-      grid: {...defaultGridOption, ...options?.grid},
-      padding: {...this.compositedPadding, ...options?.padding},
-      point: {...defaultPointOption, ...options.point},
+      grid: { ...defaultGridOption, ...options?.grid },
+      padding: { ...this.compositedPadding, ...options?.padding },
+      point: { ...defaultPointOption, ...options.point },
     };
   }
 
@@ -118,21 +119,21 @@ export class ScatterChart {
 
     this.yAxis = new YAxis({
       option: options.axis.y,
-      width: this.width, 
-      height: this.height, 
+      width: this.width,
+      height: this.height,
       backgroundColor: options.background?.color,
     });
 
     this.xAxis = new XAxis({
       option: options.axis.x,
-      width: this.width, 
-      height: this.height, 
+      width: this.width,
+      height: this.height,
     });
 
     this.gridAxis = new GridAxis({
       option: options.grid,
-      width: this.width, 
-      height: this.height, 
+      width: this.width,
+      height: this.height,
       xAxis: this.xAxis,
       yAxis: this.yAxis,
     })
@@ -150,8 +151,8 @@ export class ScatterChart {
     const maxXTickTextHeight = getLongestText(xTicks, (t) => this.xAxis.getTextHeight(t));
     const maxYTickTextWidth = getLongestText(yTicks, (t) => this.yAxis.getTextWidth(t));
     const xTickPadding = this.xAxis.tick?.padding as DeepNonNullable<Padding>;
-    const yTickPadding = this.xAxis.tick?.padding as DeepNonNullable<Padding>;
-    
+    const yTickPadding = this.yAxis.tick?.padding as DeepNonNullable<Padding>;
+
     this.options.padding = {
       top: this.compositedPadding.top,
       right: this.compositedPadding.right + maxXTickTextWidth / 2 + xTickPadding.right,
@@ -179,14 +180,14 @@ export class ScatterChart {
     this.xRatio = (width - padding.left - padding.right - innerPaddingX * 2) / (maxX - minX);
     this.yRatio = (height - padding.bottom - padding.top - innerPaddingY * 2) / (maxY - minY);
   }
-  
+
   private setGuide() {
     this.guide = new Guide(
       this.canvasWrapper,
-      { 
-        width: this.width, 
-        height: this.height, 
-        padding: this.options.padding, 
+      {
+        width: this.width,
+        height: this.height,
+        padding: this.options.padding,
         xAxis: this.xAxis,
         yAxis: this.yAxis,
         ratio: {
@@ -202,6 +203,7 @@ export class ScatterChart {
     const width = this.viewport.styleWidth;
     const height = this.viewport.styleHeight;
     const dataOptions = this.options.data;
+    this.setDataStyle(dataOptions)
 
     dataOptions.forEach(({ type, priority = LAYER_DEFAULT_PRIORITY }) => {
       this.setLayer(type, width, height, priority);
@@ -224,26 +226,25 @@ export class ScatterChart {
     return layer;
   }
 
-  private setLegends() {
-    const types = Object.keys(this.dataLayers);
-
-    this.dataStyleMap = this.options.data.reduce((prev, curr, i) => {
+  private setDataStyle = (data: DataOption[]) => {
+    this.dataStyleMap = data.reduce((prev, curr, i) => {
       const opacity = curr.opacity || this.options.point.opacity || 1;
-      const ogColor = curr.color || COLORS[i % COLORS.length];
+      const ogColor = curr.color?.trim() || COLORS[i % COLORS.length];
       const color = Color(ogColor).alpha(opacity);
 
       return {
+        ...prev,
         [curr.type]: {
           point: color,
-          legend: ogColor, 
+          legend: ogColor,
           radius: curr.radius || this.options.point.radius,
         },
-        ...prev,
       }
     }, {});
+  }
 
-    this.legend = new Legend(this.wrapper, { 
-      types, 
+  private setLegends() {
+    this.legend = new Legend(this.wrapper, {
       dataStyleMap: this.dataStyleMap,
       legendOptions: this.options?.legend!
     });
@@ -288,12 +289,12 @@ export class ScatterChart {
       const x = Math.abs(this.coordX + innerPadding) / this.xRatio + this.realtimeAxisMinX;
       Object.keys(this.datas).forEach(key => {
         this.datas[key] = this.datas[key].filter(d => d.x > x);
-        this.setLegendCount(key, 
-          { 
+        this.setLegendCount(key,
+          {
             x: x,
             y: this.yAxis.min,
           },
-          { 
+          {
             x: x + this.xAxis.max - this.xAxis.min,
             y: this.yAxis.max,
           }
@@ -310,14 +311,14 @@ export class ScatterChart {
       this.coordX = this.coordX + pureWidth;;
       this.xAxis
         .setOption({
-          min: this.realtimeAxisMinX, 
+          min: this.realtimeAxisMinX,
           max: this.realtimeAxisMaxX,
         })
         .render();
       Object.values(this.dataLayers)
         .forEach(layer => {
           if (!layer.isFixed) {
-            layer.swapCanvasImage({ 
+            layer.swapCanvasImage({
               width: pureWidth,
               startAt: this.xAxis.innerPadding + this.options.padding.left,
             })
@@ -327,10 +328,17 @@ export class ScatterChart {
     this.reqAnimation = requestAnimationFrame((t) => this.animate(duration, t));
   }
 
-  public render(data: ScatterDataType[], { append = false } = {}) {
-    const types = Object.keys(this.dataLayers);
+  private addNewDataType = (type: string) => {
     const { styleWidth, styleHeight } = this.viewport;
-    const { padding, point } = this.options;
+    this.options.data = [...this.options.data, { type }]
+    this.setDataStyle(this.options.data);
+    this.setLayer(type, styleWidth, styleHeight, LAYER_DEFAULT_PRIORITY);
+    this.legend.unmount().setDataStyleMap(this.dataStyleMap).render();
+  }
+
+  public render(data: ScatterDataType[], { append = false } = {}) {
+    const { styleHeight } = this.viewport;
+    const { padding } = this.options;
 
     if (this.reqAnimation === 0) {
       if (append) {
@@ -344,16 +352,15 @@ export class ScatterChart {
 
     data.forEach(({ x, y, type, hidden }) => {
       const legend = type ? type : 'unknown';
-      const radius = this.dataStyleMap[legend].radius;
-
+      const radius = this.dataStyleMap[legend]?.radius;
       if (!this.dataLayers[legend]) {
-        this.setLayer(legend, styleWidth, styleHeight, LAYER_DEFAULT_PRIORITY);
+        this.addNewDataType(legend);
       }
-      
+
       if (this.datas[legend]) {
-        this.datas[legend].push({x,y});
+        this.datas[legend].push({ x, y });
       } else {
-        this.datas[legend] = [{x, y}];
+        this.datas[legend] = [{ x, y }];
       }
 
       if (x >= this.xAxis.min && x <= this.xAxis.max && y >= this.yAxis.min && y <= this.yAxis.max) {
@@ -362,20 +369,20 @@ export class ScatterChart {
           this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding,
           styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (y - this.yAxis.min),
           {
-            fillColor: this.dataStyleMap[legend].point,
+            fillColor: this.dataStyleMap[legend]?.point,
             radius: radius,
           }
         );
       }
     });
 
-    types.forEach(key => {
-      this.setLegendCount(key, 
-        { 
+    Object.keys(this.dataLayers).forEach(key => {
+      this.setLegendCount(key,
+        {
           x: this.xAxis.min,
           y: this.yAxis.min,
         },
-        { 
+        {
           x: this.xAxis.max,
           y: this.yAxis.max,
         }
@@ -431,13 +438,13 @@ export class ScatterChart {
     this.setRatio();
     this.guide.setOptions({
       padding: this.options.padding,
-      ratio: {x: this.xRatio, y: this.yRatio},
+      ratio: { x: this.xRatio, y: this.yRatio },
     });
-    this.render(this.data);    
+    this.render(this.data);
   }
 
   public async toBase64Image() {
-    const layer = new Layer({ width: this.width , height: this.height});
+    const layer = new Layer({ width: this.width, height: this.height });
     const containerCanvas = await html2canvas(document.querySelector(`.${ScatterChart.SCATTER_CHART_CONTAINER_CLASS}`)!);
     const legendCanvas = await html2canvas(document.querySelector(`.${Legend.LEGEND_CONTAINER_CLASS}`)!);
 
@@ -459,16 +466,16 @@ export class ScatterChart {
     this.realtimeAxisMinX = axisOptions.x.min;
     this.realtimeAxisMaxX = (axisOptions.x.max - axisOptions.x.min) * ScatterChart.REALTIME_MULTIPLE + axisOptions.x.min;
     this.coordX = -this.xAxis.innerPadding;
-    
+
     this.xAxis
       .setSize(realtimeWidth, this.height)
       .setOption({
-        min: this.realtimeAxisMinX, 
+        min: this.realtimeAxisMinX,
         max: this.realtimeAxisMaxX,
-        tick: { count: axisOptions.x.tick?.count! * ScatterChart.REALTIME_MULTIPLE - (ScatterChart.REALTIME_MULTIPLE - 1)},
+        tick: { count: axisOptions.x.tick?.count! * ScatterChart.REALTIME_MULTIPLE - (ScatterChart.REALTIME_MULTIPLE - 1) },
       })
       .render();
-    
+
     this.gridAxis
       .setSize(realtimeWidth, this.height)
 
