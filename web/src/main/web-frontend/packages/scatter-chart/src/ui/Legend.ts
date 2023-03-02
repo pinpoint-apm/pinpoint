@@ -2,7 +2,6 @@ import { SCATTER_CHART_IDENTIFIER } from "../constants/ui";
 import { DataStyleMap, LegendOption } from "../types/types";
 
 export type LegendProps = { 
-  types: string[], 
   legendOptions: LegendOption, 
   dataStyleMap: DataStyleMap,
   width?: number;
@@ -37,22 +36,22 @@ export class Legend {
   static MARK_CLASS = `${Legend.LEGEND_CLASS}_mark`;
   static COUNT_CLASS = `${Legend.LEGEND_CLASS}_count`;
   private rootWrapper;
-  private types;
   private options;
-  private dataStyleMap;
+  private dataStyleMap!: DataStyleMap;
   private containerElement: HTMLElement;
   private legendElements: {[key: string]: HTMLDivElement} = {} 
   private eventHandlers: LegendEventHandlers = {}
+  private types!: string[];
   
-  constructor(rootWrapper: HTMLElement, { types, legendOptions, dataStyleMap, width }: LegendProps) {
+  constructor(rootWrapper: HTMLElement, { legendOptions, dataStyleMap, width }: LegendProps) {
     this.rootWrapper = rootWrapper;
-    this.types = types;
     this.options = legendOptions;
-    this.dataStyleMap = dataStyleMap;
     this.containerElement = document.createElement('div');
     this.containerElement.className = Legend.LEGEND_CONTAINER_CLASS;
+    this.rootWrapper.append(this.containerElement);
     this.setSize(width);
     this.addEventListener();
+    this.setDataStyleMap(dataStyleMap)
   }
 
   get container() {
@@ -61,6 +60,12 @@ export class Legend {
   
   public setSize(width?: number) {
     this.containerElement.style.width = `${width}px` || `${this.rootWrapper.clientWidth}px`;
+  }
+
+  public setDataStyleMap(dataStyleMap: DataStyleMap) {
+    this.dataStyleMap = dataStyleMap;
+    this.types = Object.keys(dataStyleMap);
+    return this;
   }
 
   private addEventListener = () => {
@@ -94,7 +99,7 @@ export class Legend {
   public render() {
     const options = this.options;
     const dataTypes = this.types;
-
+    
     dataTypes.forEach(type => {
       // wrapper div
       const legendWrapper = document.createElement('div');
@@ -130,7 +135,15 @@ export class Legend {
       legendWrapper.append(markElement, labelElement, inputElement);
       this.containerElement.append(legendWrapper);
     })
-    this.rootWrapper.append(this.containerElement);
+    return this;
+  }
+
+  public unmount() {
+    const containerElement = this.containerElement;
+    while(containerElement.firstChild) {
+      containerElement.removeChild(containerElement.firstChild);
+    }
+    return this;
   }
 
   public setLegendCount(type: string, value: number) {
