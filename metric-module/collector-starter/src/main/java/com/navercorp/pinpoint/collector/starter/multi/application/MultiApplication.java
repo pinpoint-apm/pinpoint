@@ -45,6 +45,8 @@ public class MultiApplication {
         if (types.hasType(CollectorType.BASIC)) {
             logger.info(String.format("Start %s collector", CollectorType.BASIC));
             SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400, BasicCollectorApp.class, UriStatCollectorConfig.class);
+            collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
+            collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
             collectorAppBuilder.build().run(args);
         }
 
