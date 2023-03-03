@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @ImportResource({"classpath:applicationContext-web-uristat.xml"})
 @Import(UriStatWebPropertySources.class)
-@Profile("metric")
+@Profile("uri")
 public class UriStatWebConfig {
 }
