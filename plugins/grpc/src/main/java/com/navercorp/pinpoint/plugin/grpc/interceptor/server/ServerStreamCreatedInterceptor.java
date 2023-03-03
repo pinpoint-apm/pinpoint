@@ -65,7 +65,7 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (traceContext.currentTraceObject() != null) {
+        if (currentTrace() != null) {
             return;
         }
 
@@ -75,7 +75,7 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
         }
 
         final Trace trace = createTrace(request);
-        if (trace == null || !trace.canSampled()) {
+        if (trace == null) {
             return;
         }
 
@@ -89,8 +89,12 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
         }
     }
 
+    private Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
     private Trace createTrace(final GrpcServerStreamRequest request) {
-        Trace trace = requestTraceReader.read(request);
+        final Trace trace = requestTraceReader.read(request);
         if (trace.canSampled()) {
             SpanRecorder spanRecorder = trace.getSpanRecorder();
             spanRecorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE);
@@ -108,13 +112,8 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = currentTrace();
         if (trace == null) {
-            return;
-        }
-
-        if (!trace.canSampled()) {
-            deleteTrace(trace);
             return;
         }
 
