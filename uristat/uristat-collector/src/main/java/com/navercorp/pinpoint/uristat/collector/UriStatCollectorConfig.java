@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
-@Profile("metric")
+@Profile("uri")
 @Configuration
 @ImportResource({"classpath*:**/applicationContext-collector-metric-namespace.xml", "classpath:applicationContext-collector-uristat-pinot-kafka.xml"})
 @ComponentScan({"com.navercorp.pinpoint.uristat.collector.service", "com.navercorp.pinpoint.uristat.collector.dao"})

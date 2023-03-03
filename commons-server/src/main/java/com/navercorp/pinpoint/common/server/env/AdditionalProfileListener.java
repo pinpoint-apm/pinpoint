@@ -39,6 +39,11 @@ public class AdditionalProfileListener implements ApplicationListener<Applicatio
         this.profiles = List.of(profiles);
     }
 
+    public AdditionalProfileListener(List<String> profiles) {
+        Objects.requireNonNull(profiles, "profiles");
+        this.profiles = new ArrayList<>(profiles);
+    }
+
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         logger.info(String.format("onApplicationEvent(%s)", event.getClass().getSimpleName()));

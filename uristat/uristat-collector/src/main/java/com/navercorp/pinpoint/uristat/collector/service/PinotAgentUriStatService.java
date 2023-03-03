@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@Profile("metric")
+@Profile("uri")
 public class PinotAgentUriStatService implements AgentUriStatService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
