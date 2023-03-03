@@ -79,7 +79,7 @@ public class UriStatQueryParameter extends QueryParameter {
         this.isDesc = builder.isDesc;
     }
 
-    public static class Builder extends QueryParameter.Builder {
+    public static class Builder extends QueryParameter.Builder<Builder> {
         private String tenantId;
         private String serviceName;
         private String applicationName;
@@ -88,39 +88,54 @@ public class UriStatQueryParameter extends QueryParameter {
         private OrderBy orderBy;
         private String isDesc;
 
-        public void setTenantId(String tenantId) {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        public Builder setTenantId(String tenantId) {
             this.tenantId = tenantId;
+            return self();
         }
-        public void setServiceName(String serviceName) {
+        public Builder setServiceName(String serviceName) {
             this.serviceName = serviceName;
+            return self();
         }
 
-        public void setApplicationName(String applicationName) {
+        public Builder setApplicationName(String applicationName) {
             this.applicationName = applicationName;
+            return self();
         }
 
-        public void setAgentId(String agentId) {
+        public Builder setAgentId(String agentId) {
             this.agentId = agentId;
+            return self();
         }
 
-        public void setUri(String uri) { this.uri = uri; }
+        public Builder setUri(String uri) {
+            this.uri = uri;
+            return self();
+        }
 
-        public void setOrderby(String orderBy) throws InvalidParameterException {
-            this.orderBy = OrderBy.fromValue(orderBy);
+        public Builder setOrderby(String orderBy) throws InvalidParameterException {
+            UriStatQueryParameter.OrderBy order = OrderBy.fromValue(orderBy);
             if (this.orderBy == null) {
                 throw new InvalidParameterException("Invalid order by type : " + orderBy + " not supported.");
             }
+            this.orderBy = order;
+            return self();
         }
 
-        public void setDesc(boolean desc) {
+        public Builder setDesc(boolean desc) {
             if (desc) {
-                isDesc = "desc";
+                this.isDesc = "desc";
             } else {
-                isDesc = "asc";
+                this.isDesc = "asc";
             }
+            return self();
         }
 
-        public void setLimit(long limit) {
+        public Builder setLimit(long limit) {
             if (limit > 200) {
                 this.limit = 200;
             } else if (limit < 50) {
@@ -128,6 +143,7 @@ public class UriStatQueryParameter extends QueryParameter {
             } else {
                 this.limit = limit;
             }
+            return self();
         }
 
         @Override

@@ -50,20 +50,22 @@ public class UriStatController {
     }
 
     @GetMapping("summary")
-    public List<UriStatSummary> getUriStatPagedSummary(@RequestParam("applicationName") String applicationName,
-                                                  @RequestParam(value = "agentId", required = false) String agentId,
-                                                  @RequestParam("from") long from,
-                                                  @RequestParam("to") long to,
-                                                  @RequestParam("orderby") String column,
-                                                  @RequestParam("isDesc") boolean isDesc,
-                                                  @RequestParam("count") int count) {
-        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
-        builder.setTenantId(tenantProvider.getTenantId());
-        builder.setApplicationName(applicationName);
-        builder.setRange(Range.newRange(from, to));
-        builder.setOrderby(column);
-        builder.setDesc(isDesc);
-        builder.setLimit(count);
+    public List<UriStatSummary> getUriStatPagedSummary(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam("orderby") String column,
+            @RequestParam("isDesc") boolean isDesc,
+            @RequestParam("count") int count
+    ) {
+        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
+                .setApplicationName(applicationName)
+                .setRange(Range.newRange(from, to))
+                .setOrderby(column)
+                .setDesc(isDesc)
+                .setLimit(count);
 
         if (StringUtils.isEmpty(agentId)) {
             return uriStatService.getUriStatApplicationPagedSummary(builder.build());
@@ -75,14 +77,16 @@ public class UriStatController {
 
     @GetMapping("top50")
     @Deprecated
-    public List<UriStatSummary> getUriStatSummary(@RequestParam("applicationName") String applicationName,
-                                            @RequestParam(value = "agentId", required = false) String agentId,
-                                            @RequestParam("from") long from,
-                                            @RequestParam("to") long to) {
-        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
-        builder.setTenantId(tenantProvider.getTenantId());
-        builder.setApplicationName(applicationName);
-        builder.setRange(Range.newRange(from, to));
+    public List<UriStatSummary> getUriStatSummary(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to
+    ) {
+        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
+                .setApplicationName(applicationName)
+                .setRange(Range.newRange(from, to));
 
         if (StringUtils.isEmpty(agentId)) {
             return uriStatService.getUriStatApplicationSummary(builder.build());
@@ -93,20 +97,22 @@ public class UriStatController {
     }
 
     @GetMapping("chart")
-    public UriStatView getCollectedUriStat(@RequestParam("applicationName") String applicationName,
-                                           @RequestParam(value = "agentId", required = false) String agentId,
-                                           @RequestParam("uri") String uri,
-                                           @RequestParam("from") long from,
-                                           @RequestParam("to") long to,
-                                           @RequestParam(value = "type", required = false) String type) {
+    public UriStatView getCollectedUriStat(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam("uri") String uri,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "type", required = false) String type
+    ) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
-        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder();
-        builder.setTenantId(tenantProvider.getTenantId());
-        builder.setApplicationName(applicationName);
-        builder.setUri(uri);
-        builder.setRange(timeWindow.getWindowRange());
-        builder.setTimeSize((int) timeWindow.getWindowSlotSize());
-        builder.setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
+        UriStatQueryParameter.Builder builder = new UriStatQueryParameter.Builder()
+                .setTenantId(tenantProvider.getTenantId())
+                .setApplicationName(applicationName)
+                .setUri(uri)
+                .setRange(timeWindow.getWindowRange())
+                .setTimeSize((int) timeWindow.getWindowSlotSize())
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()));
 
         List<UriStatHistogram> uriStats;
         if (!StringUtils.isEmpty(type) && type.equalsIgnoreCase("failure")) {

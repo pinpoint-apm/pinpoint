@@ -63,31 +63,41 @@ public class MetricsQueryParameter extends QueryParameter {
         return tagList;
     }
 
-    public static class Builder extends QueryParameter.Builder {
+    public static class Builder extends QueryParameter.Builder<Builder> {
         private String hostGroupName;
         private String hostName;
         private String metricName;
         private String fieldName;
         private List<Tag> tagList;
 
-        public void setHostGroupName(String hostGroupName) {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        public Builder setHostGroupName(String hostGroupName) {
             this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
+            return self();
         }
 
-        public void setHostName(String hostName) {
+        public Builder setHostName(String hostName) {
             this.hostName = Objects.requireNonNull(hostName, "hostName");
+            return self();
         }
 
-        public void setMetricName(String metricName) {
+        public Builder setMetricName(String metricName) {
             this.metricName = Objects.requireNonNull(metricName, "metricName");
+            return self();
         }
 
-        public void setFieldName(String fieldName) {
+        public Builder setFieldName(String fieldName) {
             this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
+            return self();
         }
 
-        public void setTagList(List<Tag> tagList) {
+        public Builder setTagList(List<Tag> tagList) {
             this.tagList = tagList;
+            return self();
         }
 
         public MetricsQueryParameter build() {
