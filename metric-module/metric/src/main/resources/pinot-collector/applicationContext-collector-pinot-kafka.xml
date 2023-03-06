@@ -8,6 +8,7 @@
         <entry key="key.serializer" value="${pinpoint.metric.kafka.key.serializer}"/>
         <entry key="value.serializer" value="${pinpoint.metric.kafka.value.serializer}"/>
         <entry key="partitioner.class" value="org.apache.kafka.clients.producer.internals.DefaultPartitioner"/>
+<!--        <entry key="partitioner.class" value="com.navercorp.pinpoint.metric.collector.dao.pinot.DefaultPartitioner"/>-->
         <entry key="acks" value="${pinpoint.metric.kafka.acks}"/>
         <entry key="compression.type" value="zstd"/>
     </util:map>
