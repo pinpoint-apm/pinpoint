@@ -104,7 +104,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
 
                 return this.agentHistogramDataService.getData(this.serverMapData, range, node).pipe(
                     tap((histogramData = {}) => {
-                        this.agentHistogramData = { isWas: node.isWas, ...histogramData };
+                        this.agentHistogramData = {isWas: node.isWas, app: node.applicationName, ...histogramData};
                         this.selectedAgent = this.selectedAgent ? this.selectedAgent : this.getFirstAgent();
                         this.selectedAgentName = this.getAgentName(this.selectedAgent);
                         this.messageQueueService.sendMessage({
