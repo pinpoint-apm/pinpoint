@@ -18,7 +18,7 @@
     <select id="selectHostGroupNameList" parameterType="String" resultType="String">
         SELECT DISTINCT hostGroupName
         FROM systemMetricTag
-        WHERE tenantId = #{tenantId}
+        WHERE tenantId = #{tenantId} AND hostGroupName IS NOT NULL
     </select>
 
     <select id="selectHostList" parameterType="hostInfoSearchKey" resultType="String">
