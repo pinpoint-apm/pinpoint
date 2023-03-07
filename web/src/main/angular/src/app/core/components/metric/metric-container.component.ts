@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectorRef } from '@angular/core';
 import { filter, map, switchMap, takeUntil, tap, catchError } from 'rxjs/operators';
 import { Data, line, PrimitiveArray, zoom } from 'billboard.js';
 import * as moment from 'moment-timezone';
@@ -60,6 +60,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector,
+        private cd: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -70,7 +71,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
             filter((urlService: NewUrlStateNotificationService) => {
                 return !this.chartConfig || (urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME));
             }),
-            // tap(() => this.activeLayer = Layer.LOADING),
+            tap(() => this.activeLayer = Layer.LOADING),
             switchMap((urlService: NewUrlStateNotificationService) => {
                 const hostGroupName = urlService.getPathValue(UrlPathId.HOST_GROUP);
                 const hostName = urlService.getPathValue(UrlPathId.HOST);
@@ -152,6 +153,7 @@ export class MetricContainerComponent implements OnInit, OnDestroy {
 
     onRendered(): void {
         this.activeLayer = Layer.CHART;
+        this.cd.detectChanges();
     }
 
     private setChartVisibility(showChart: boolean): void {
