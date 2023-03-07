@@ -52,7 +52,6 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     @Override
     public List<String> getHostGroupNameList(String tenantId) {
         List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId);
-        hostGroupNameList.remove(null);
         hostGroupNameList.sort(Comparator.naturalOrder());
 
         return hostGroupNameList;
