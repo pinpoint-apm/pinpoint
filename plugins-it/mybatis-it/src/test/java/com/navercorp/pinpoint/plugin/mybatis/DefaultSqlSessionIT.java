@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -54,6 +56,9 @@ public class DefaultSqlSessionIT extends SqlSessionTestBase {
     private ObjectFactory objectFactory;
 
     @Mock
+    private MappedStatement mappedStatement;
+
+    @Mock
     private Executor executor;
 
     private AutoCloseable openMocks;
@@ -62,6 +67,7 @@ public class DefaultSqlSessionIT extends SqlSessionTestBase {
     public void setUp() {
         openMocks = MockitoAnnotations.openMocks(this);
         when(this.configuration.getObjectFactory()).thenReturn(this.objectFactory);
+        when(this.configuration.getMappedStatement(anyString())).thenReturn(mappedStatement);
     }
 
     @AfterEach
