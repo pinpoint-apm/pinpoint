@@ -92,4 +92,8 @@ export interface GridOption {
   strokeColor?: string;
 }
 
+export interface RenderOption {
+  append?: boolean;
+  drawOutOfRange?: boolean;
+}
 

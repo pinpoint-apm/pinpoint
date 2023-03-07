@@ -1,5 +1,5 @@
 import 'jest-canvas-mock';
-import { fireEvent } from '@testing-library/dom'
+import { fireEvent, screen, waitFor } from '@testing-library/dom'
 import data1 from './mock/data1.json';
 import data2 from './mock/data2.json';
 import { initOption, ScatterChartTestHelper } from './helper';
@@ -32,6 +32,21 @@ describe('Test for Scatter', () => {
       // then
       const events = SC.viewport.context.__getEvents();
       expect(events).toMatchSnapshot();
+    });
+
+    it('should render all data then greater than y.min when drawOutOfRange flag is true', () => {
+      // given
+      SC = new ScatterChartTestHelper(wrapper, initOption);
+      const dataCount = data1.data.filter(d => d.y > SC.getYAxis().min && d.type === 'success').length;
+
+      // when
+      SC.render(data1.data, { drawOutOfRange: true });
+      const successCount = wrapper.querySelector('.success .__scatter_chart__legend_count')?.innerHTML;
+
+      // then
+      waitFor(() => {
+        expect(successCount).toBe(`${dataCount}`);
+      })
     });
 
     it('should occur callback function registerd by `on` method when clicking chart area', () => {
@@ -97,6 +112,23 @@ describe('Test for Scatter', () => {
 
       // then
       expect(SC.getData().length).toBe(0);
+    });
+
+    it('all legends should be 0 by `clear` method', () => {
+      // given
+      SC = new ScatterChartTestHelper(wrapper, initOption);
+      SC.render(data1.data);
+      
+      // when
+      SC.clear();
+
+      // then
+      const successCount = wrapper.querySelector('.success .__scatter_chart__legend_count')?.innerHTML;
+      const failCount = wrapper.querySelector('.fail .__scatter_chart__legend_count')?.innerHTML;
+      waitFor(() => {
+        expect(successCount).toBe('0');
+        expect(failCount).toBe('0');
+      })
     });
   });
 })

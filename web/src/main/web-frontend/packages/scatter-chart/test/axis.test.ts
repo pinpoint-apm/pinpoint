@@ -43,7 +43,7 @@ describe('Test for Axis', () => {
     );
   })
 
-  it('should check axis options are setted by setAxisOption ', () => {
+  it('should check axis options are setted by setOption ', () => {
     // given
     const x = {
       padding: 20,
@@ -66,8 +66,10 @@ describe('Test for Axis', () => {
     SC = new ScatterChartTestHelper(wrapper, initOption);
 
     // when
-    SC.setAxisOption({
-      x, y
+    SC.setOption({
+      axis: {
+        x, y
+      }
     })
 
     // then

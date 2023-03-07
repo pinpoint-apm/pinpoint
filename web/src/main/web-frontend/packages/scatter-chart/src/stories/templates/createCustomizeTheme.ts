@@ -36,7 +36,7 @@ export const createCustomizeTheme = () => {
         radius: 10,
       },
     });
-    SC.setAxisOption({
+    SC.setOption({axis: {
       x: {
         padding: 20,
         tick: {
@@ -71,7 +71,7 @@ export const createCustomizeTheme = () => {
           } 
         }
       }
-    })
+    }})
     wrapper.append(btnStart);
     wrapper.append(btnStop);
     const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
