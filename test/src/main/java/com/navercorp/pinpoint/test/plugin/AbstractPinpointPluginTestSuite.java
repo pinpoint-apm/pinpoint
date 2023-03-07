@@ -364,10 +364,11 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             for (int ver : jvmVersions) {
                 String javaExe = getJavaExecutable(ver);
 
-                // TODO for now, java 8 is not mandatory to build pinpoint.
+                // TODO for now, java 17 is not mandatory to build pinpoint.
                 // so failing to find java installation should not cause build failure.
                 if (javaExe == null) {
                     logger.error("Cannot find Java version {}. Skip test with Java {}", ver, ver);
+                    runners.add(new PinpointPluginTestAssumptionViolationRunner(getTestClass().getName(), "assumptionFailed:" + ver, "Cannot find Java version " + ver));
                     continue;
                 }
 
