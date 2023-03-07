@@ -6,7 +6,7 @@ import { createInteractions } from './templates/createInteractions';
 import { createPinpointTheme } from './templates/createPinpointTheme';
 import { createRealtime } from './templates/createRealtime';
 import { createResizable } from './templates/createResizable';
-import { createSetAxis } from './templates/createSetAxis';
+import { createSetOption } from './templates/createSetOption';
 
 // More on default export: https://storybook.js.org/docs/html/writing-stories/introduction#default-export
 export default {
@@ -37,8 +37,8 @@ export const AppendDatas = TemplateAppendDatas.bind({});
 const TemplateResize = () => createResizable();
 export const Resize = TemplateResize.bind({});
 
-const TemplateSetAxis = () => createSetAxis();
-export const SetAxis = TemplateSetAxis.bind({});
+const TemplateSetOption = () => createSetOption();
+export const SetOption = TemplateSetOption.bind({});
 
 const TemplateCaptureImage = () => createCaptureIamge();
 export const CaptureImage = TemplateCaptureImage.bind({});
