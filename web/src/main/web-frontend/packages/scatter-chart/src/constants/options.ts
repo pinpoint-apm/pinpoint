@@ -1,4 +1,4 @@
-import { AxisOption, BackgroundOption, DataOption, GridOption, GuideOption, LegendOption, PointOption } from "../types/types";
+import { AxisOption, BackgroundOption, DataOption, GridOption, GuideOption, LegendOption, PointOption, RenderOption } from "../types/types";
 import { AXIS_DEFAULT_TICK_COUNT, AXIS_TICK_WIDTH, COLOR_BACKGROUND, COLOR_STROKE, COLOR_TEXT, POINT_RADIUS, TEXT_PADDING_BOTTOM, TEXT_PADDING_LEFT, TEXT_PADDING_RIGHT, TEXT_PADDING_TOP } from "./ui";
 
 export const AXIS_DEFAULT_FORMAT = ((value: number | string) => value);
@@ -75,4 +75,9 @@ export const defaultBackgroundOption: BackgroundOption = {
 
 export const defaultGridOption: GridOption = {
   strokeColor: '#d1d1d1',
+}
+
+export const defaultRenderOption: RenderOption = {
+  append: false,
+  drawOutOfRange: false,
 }

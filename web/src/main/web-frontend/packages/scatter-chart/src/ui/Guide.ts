@@ -1,3 +1,4 @@
+import cloneDeep from 'lodash.clonedeep';
 import { Coord, DeepNonNullable, GuideOption, Padding } from "../types/types";
 import { drawLine, drawRect, drawText } from "../utils/draw";
 import { Axis } from "./Axis";
@@ -27,7 +28,7 @@ type GuideDragEndCallbackData = {
 
 type GuideEventData<T extends GuideEventTypes> =
   T extends 'click' ? Coord :
-  T extends 'dragEnd' ? GuideDragEndCallbackData : 
+  T extends 'dragEnd' ? GuideDragEndCallbackData :
   never;
 
 export interface GuideEventCallback<T extends GuideEventTypes> {
@@ -40,37 +41,29 @@ interface GuideEventHandlers {
 
 export class Guide extends Layer {
   private wrapper;
-  private padding;
-  private ratio;
   private isMouseDown = false;
   private isDragging = false;
   private dragStartX = 0;
   private dragStartY = 0;
   private eventHandlers: GuideEventHandlers = {}
-  private xAxis;
-  private yAxis;
-  private minX;
-  private maxY;
+  private padding!: GuideOptions['padding'];
+  private ratio!: GuideOptions['ratio'];
+  private xAxis!: GuideOptions['xAxis'];
+  private yAxis!: GuideOptions['yAxis'];
   private option;
 
-  constructor(wrapper: HTMLElement, {
-    width, height, padding, ratio, xAxis, yAxis, option,
-  }: GuideOptions) {
-    super({ width, height });
+  constructor(wrapper: HTMLElement, props: GuideOptions) {
+    super({ width: props.width, height: props.height});
     this.canvas.style.position = 'absolute';
     this.canvas.style.zIndex = '999';
     this.canvas.style.top = '0px';
     this.canvas.style.left = '0px';
     this.canvas.style.background = 'transparent';
-    this.padding = padding;
-    this.ratio = ratio;
-    this.xAxis = xAxis;
-    this.yAxis = yAxis;
-    this.minX = this.xAxis.min;
-    this.maxY = this.yAxis.max;
-    this.option = option;
+    this.option = props.option;
+    this.setOptions(props);
     this.wrapper = wrapper;
     this.wrapper.append(this.canvas);
+    
     this.addEventListener();
   }
 
@@ -88,17 +81,15 @@ export class Guide extends Layer {
   }
 
   private addEventListener() {
-    const { drag } = this.option
-    const width = this.canvas.width / this.dpr;
-    const height = this.canvas.height / this.dpr;
-
     this.canvas.addEventListener('mousedown', ({ offsetX, offsetY }) => {
       this.isMouseDown = true;
       this.dragStartX = offsetX;
       this.dragStartY = offsetY;
     });
 
-    this.canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
+    this.canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {;
+      const width = this.canvas.width / this.dpr;
+      const height = this.canvas.height / this.dpr;
       this.context.clearRect(0, 0, width, height);
       const x = offsetX;
       const y = offsetY;
@@ -115,30 +106,57 @@ export class Guide extends Layer {
         drawRect(this.context,
           this.dragStartX, this.dragStartY, offsetX - this.dragStartX, offsetY - this.dragStartY,
           {
-            color: drag?.backgroundColor,
-            strokeColor: drag?.strokeColor,
+            color: this.option?.drag?.backgroundColor,
+            strokeColor: this.option?.drag?.strokeColor,
           }
         )
       }
     });
 
     this.canvas.addEventListener('mouseout', event => {
+      const width = this.canvas.width / this.dpr;
+      const height = this.canvas.height / this.dpr;
       this.isMouseDown = false;
       this.isDragging = false;
       this.context.clearRect(0, 0, width, height);
     });
 
     this.canvas.addEventListener('mouseup', event => {
+      const width = this.canvas.width / this.dpr;
+      const height = this.canvas.height / this.dpr;
       const { offsetX, offsetY } = event;
       this.context.clearRect(0, 0, width, height);
 
       if (this.isDragging) {
         this.isMouseInValidArea(offsetX, offsetY) && this.drawGuideText(offsetX, offsetY)
+        const minX = this.xAxis.min;
+        const maxY = this.yAxis.max;
+        const xPadding = this.padding.left + this.xAxis.innerPadding
+        const yPadding = this.padding.top + this.yAxis.innerPadding
+        const startX = (this.dragStartX - xPadding) / this.ratio.x + minX;
+        const startY = maxY - (this.dragStartY - yPadding) / this.ratio.y;
+        const endX = (offsetX - xPadding) / this.ratio.x + minX;
+        const endY = maxY - (offsetY - yPadding) / this.ratio.y;
+        let x1, x2, y1, y2;
+
+        if (startX > endX) {
+          x1 = endX;
+          x2 = startX;
+        } else {
+          x1 = startX;
+          x2 = endX;
+        }
+
+        if (startY > endY) {
+          y1 = startY;
+          y2 = endY;
+        } else {
+          y1 = endY;
+          y2 = startY;
+        }
+
         this.eventHandlers['dragEnd']?.(event, {
-          x1: this.dragStartX / this.ratio.x + this.minX,
-          y1: this.maxY - (this.dragStartY - this.padding.top - this.xAxis.innerPadding) / this.ratio.y,
-          x2: this.maxY - (offsetX - this.padding.top - this.yAxis.innerPadding) / this.ratio.x + this.minX,
-          y2: this.maxY - (offsetY - this.padding.top - this.yAxis.innerPadding) / this.ratio.y,
+          x1, y1, x2, y2
         });
       }
       this.isMouseDown = false;
@@ -147,16 +165,16 @@ export class Guide extends Layer {
     this.canvas.addEventListener('click', event => {
       const { offsetX, offsetY } = event;
       if (!this.isDragging) {
+        const xPadding = this.padding.left + this.xAxis.innerPadding
+        const yPadding = this.padding.top + this.yAxis.innerPadding
+
         this.eventHandlers['click']?.(event, {
-          x: offsetX / this.ratio.x + this.minX,
-          y: this.maxY - (offsetY - this.padding.top - this.yAxis.innerPadding) / this.ratio.y,
+          x: (offsetX - xPadding) / this.ratio.x + this.xAxis.min,
+          y: this.yAxis.max - (offsetY - yPadding) / this.ratio.y,
         })
       }
       this.isDragging = false;
     })
-  }
-
-  private removeEventListener() {
   }
 
   private drawGuideText(x: number, y: number) {
@@ -164,7 +182,7 @@ export class Guide extends Layer {
     const { color, backgroundColor, strokeColor } = this.option;
 
     const height = canvas.height / this.dpr;
-    const xText = `${xAxis.tick?.format!((x - padding.left - xAxis.innerPadding) / ratio.x + this.minX)}`;
+    const xText = `${xAxis.tick?.format!((x - padding.left - xAxis.innerPadding) / ratio.x + xAxis.min)}`;
     const xTextLines = `${xText}`.split('\n');
     const yText = `${yAxis.tick?.format!(Math.floor(Math.abs((height - padding.bottom - yAxis.innerPadding - y) / ratio.y + yAxis.min)))}`;
 
@@ -180,9 +198,9 @@ export class Guide extends Layer {
     drawLine(context, padding.left - xAxis.tick?.width!, y, padding.left, y, { color: strokeColor });
     xTextLines.reverse().forEach((xLine, i) => {
       drawText(
-        context, xLine, 
-        x, 
-        height - padding.bottom + xAxis.tick?.width! + xTextHeight + xAxis.tick?.padding?.top! - i * this.getTextHeight(xLine), 
+        context, xLine,
+        x,
+        height - padding.bottom + xAxis.tick?.width! + xTextHeight + xAxis.tick?.padding?.top! - i * this.getTextHeight(xLine),
         { color, textAlign: 'center', textBaseline: 'bottom' }
       );
     })
@@ -191,7 +209,6 @@ export class Guide extends Layer {
     drawRect(context, padding.left - yAxis.tick?.width! - yTextWidth, y - yTextHeight / 2, yTextWidth, yTextHeight, { color: backgroundColor });
     drawLine(context, x, height - padding.bottom, x, height - padding.bottom + yAxis.tick?.width!, { color: strokeColor });
     drawText(context, yText, padding.left - yAxis.tick?.width! - yAxis.tick?.padding?.right!, y + 3, { color, textAlign: 'end' });
-
   }
 
   public setOptions({
@@ -199,16 +216,18 @@ export class Guide extends Layer {
     height = this.canvas.height / this.dpr,
     ratio = this.ratio,
     padding = this.padding,
+    xAxis = this.xAxis,
+    yAxis = this.yAxis,
   }) {
-    this.removeEventListener();
     super.setSize(width, height);
     this.padding = { ...this.padding, ...padding };
-    this.ratio = ratio;
-    this.addEventListener();
+    this.ratio = cloneDeep(ratio);
+    this.xAxis = cloneDeep(xAxis);
+    this.yAxis = cloneDeep(yAxis);
   }
 
   public updateMinX(minX: number) {
-    this.minX = minX;
+    this.xAxis.min = minX;
     return this;
   }
 
