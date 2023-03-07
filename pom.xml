@@ -187,7 +187,7 @@
         <guava.version>31.1-jre</guava.version>
 
         <mybatis.spring.version>2.0.7</mybatis.spring.version>
-        <mybatis.version>3.5.11</mybatis.version>
+        <mybatis.version>3.5.12</mybatis.version>
 
         <jjwt.version>0.9.1</jjwt.version>
         <jaxb.version>2.3.3</jaxb.version>
