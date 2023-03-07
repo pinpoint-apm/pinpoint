@@ -10,7 +10,7 @@ export const createAppendDatas = () => {
   const datas = [data2, data3, data4, data5];
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
-    SC.setAxisOption({x: {min: 1669103462000, max: 1669103762000}});
+    SC.setOption({ axis: { x: { min: 1669103462000, max: 1669103762000 } } });
 
     const btn2 = document.createElement('button');
     const btn3 = document.createElement('button');
@@ -18,9 +18,9 @@ export const createAppendDatas = () => {
     const btn5 = document.createElement('button');
 
     [btn2, btn3, btn4, btn5].forEach((btnElement, i) => {
-      btnElement.innerText = `append data${i + 1}` 
+      btnElement.innerText = `append data${i + 1}`
       btnElement.addEventListener('click', () => {
-        SC.render(datas[i].data, {append: true});
+        SC.render(datas[i].data, { append: true });
         btnElement.disabled = true;
       })
       wrapper.append(btnElement);

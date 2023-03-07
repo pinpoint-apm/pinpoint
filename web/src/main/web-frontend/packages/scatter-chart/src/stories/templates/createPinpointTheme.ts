@@ -10,7 +10,7 @@ export const createPinpointTheme = () => {
   btnStop.innerText = 'stop realtime';
   const btnElement = document.createElement('button');
   btnElement.innerText = 'Capture Image';
-  
+
   setTimeout(() => {
     const SC = newScatterChart(wrapper, {
       point: {
@@ -31,20 +31,22 @@ export const createPinpointTheme = () => {
         },
       ],
     });
-    SC.setAxisOption({
-      x: {
-        padding: 7,
-      },
-      y: {
-        padding: 7,
-        min: 0,
-        max: 1000,
+    SC.setOption({
+      axis: {
+        x: {
+          padding: 7,
+        },
+        y: {
+          padding: 7,
+          min: 0,
+          max: 1000,
+        }
       }
     })
     wrapper.append(btnStart);
     wrapper.append(btnStop);
-    const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
-    SC.render(newData, {append: true});
+    const newData = data1.data.map(d => ({ ...d, x: d.x + 47335 }));
+    SC.render(newData, { append: true });
 
     btnStart.addEventListener('click', () => {
       SC.startRealtime(data1.to - data1.from);
@@ -57,7 +59,7 @@ export const createPinpointTheme = () => {
     wrapper.append(btnElement);
 
     btnElement.addEventListener('click', async () => {
-      
+
       const image = await SC.toBase64Image();
 
       const downloadElement = document.createElement('a');

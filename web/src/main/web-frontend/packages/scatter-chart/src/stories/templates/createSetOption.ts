@@ -14,6 +14,7 @@ const getMinMaxSettingElements = (title: string, defaultMinMax = {defaultMin: 0,
   maxInputElement.type = 'number';
   maxInputElement.value = `${defaultMinMax.defaultMax}`; 
   buttonElement.innerText = 'set Min Max';
+  
 
   wrapper.append(titleElement);
   wrapper.append(' min');
@@ -25,26 +26,38 @@ const getMinMaxSettingElements = (title: string, defaultMinMax = {defaultMin: 0,
   return wrapper;
 }
 
-export const createSetAxis = () => {
+export const createSetOption = () => {
   const wrapper = document.createElement('div');
 
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
     const XAxisSetter = getMinMaxSettingElements('X Axis');
     const YAxisSetter = getMinMaxSettingElements('Y Axis', {defaultMin: 10, defaultMax: 2500});
+    const checkBoxElement = document.createElement('input');
+    checkBoxElement.type = 'checkbox'
     
     wrapper.append(XAxisSetter);
     wrapper.append(YAxisSetter);
+    wrapper.append('drawOutOfRange');
+    wrapper.append(checkBoxElement);
 
     XAxisSetter.getElementsByTagName('button')[0].addEventListener('click', () => {
       const min = XAxisSetter.getElementsByTagName('input')[0].value;
       const max = XAxisSetter.getElementsByTagName('input')[1].value;
-      SC.setAxisOption({x:{ min: Number(min), max: Number(max) }})
+      SC.setOption({axis: {x:{ min: Number(min), max: Number(max) }}})
     })
     YAxisSetter.getElementsByTagName('button')[0].addEventListener('click', () => {
       const min = YAxisSetter.getElementsByTagName('input')[0].value;
       const max = YAxisSetter.getElementsByTagName('input')[1].value;
-      SC.setAxisOption({y:{ min: Number(min), max: Number(max) }})
+      SC.setOption({axis: {y:{ min: Number(min), max: Number(max) }}})
+    })
+
+    checkBoxElement.addEventListener('change', (e) => {
+      if ((e?.target as HTMLInputElement).checked) {
+        SC.setOption({render: {drawOutOfRange: true}});
+      } else {
+        SC.setOption({render: {drawOutOfRange: false}});
+      }
     })
 
   }, 500);
