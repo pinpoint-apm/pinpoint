@@ -86,8 +86,9 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
             filter(() => this.selectedTarget && this.selectedTarget.isNode),
             filter((visibleState: boolean) => visibleState ? true : (this.hide(), this.cd.detectChanges(), false)),
             map(() => this.serverMapData.getNodeData(this.selectedTarget.node[0])),
-            tap(({serverList, agentHistogram, agentTimeSeriesHistogram, agentResponseStatistics, isWas}: INodeInfo) => {
+            tap(({serverList, agentHistogram, agentTimeSeriesHistogram, agentResponseStatistics, isWas, applicationName: app}: INodeInfo) => {
                 this.agentHistogramData = {
+                    app,
                     serverList,
                     agentHistogram,
                     agentTimeSeriesHistogram,

@@ -1,8 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
-import { iif, of, Subject } from 'rxjs';
+import { iif, merge, of, Subject } from 'rxjs';
+import { switchMap, takeUntil, tap, filter } from 'rxjs/operators';
 
-import { NewUrlStateNotificationService, WebAppSettingDataService } from 'app/shared/services';
+import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService, WebAppSettingDataService } from 'app/shared/services';
 import { ServerAndAgentListDataService } from 'app/core/components/server-and-agent-list/server-and-agent-list-data.service';
 import { UrlPathId } from 'app/shared/models';
 import { isEmpty } from 'app/core/utils/util';
@@ -15,13 +15,12 @@ import { isEmpty } from 'app/core/utils/util';
 })
 export class ServerListContainerComponent implements OnInit, OnDestroy {
     @Input()
-    set data({agentHistogram, isWas}: any) {
+    set data({agentHistogram, app, isWas}: any) {
         if (agentHistogram) {
             const urlService = this.newUrlStateNotificationService;
-            const app = (urlService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
             const range = [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
 
-            iif(() => isEmpty(this.serverList) || this.shouldUpdate,
+            iif(() => isEmpty(this.serverList),
                 of(null).pipe(
                     tap(() => this.showLoading = true),
                     switchMap(() => {
@@ -38,7 +37,6 @@ export class ServerListContainerComponent implements OnInit, OnDestroy {
                 this.serverList = data;
                 this.agentData = agentHistogram;
                 this.isWas = isWas;
-                this.shouldUpdate = false;
                 this.cd.detectChanges();
             });
         }
@@ -49,7 +47,6 @@ export class ServerListContainerComponent implements OnInit, OnDestroy {
     @Output() outOpenInspector = new EventEmitter<string>();
 
     private unsubscribe = new Subject<void>();
-    private shouldUpdate: boolean;
 
     showLoading: boolean;
     serverList: IServerAndAgentDataV2[];
@@ -63,24 +60,27 @@ export class ServerListContainerComponent implements OnInit, OnDestroy {
         private webAppSettingDataService: WebAppSettingDataService,
         private serverAndAgentListDataService: ServerAndAgentListDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private messageQueueService: MessageQueueService,
         private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-        ).subscribe((urlService: NewUrlStateNotificationService) => {
-            const isAppChanged = urlService.isValueChanged(UrlPathId.APPLICATION);
-            const isPeriodChanged = urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
-
-            this.shouldUpdate = isAppChanged || isPeriodChanged;
-
-            if (this.shouldUpdate) {
-                this.serverList = null;
-                this.cd.detectChanges();
-            }
-        });
+        merge(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT),
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                takeUntil(this.unsubscribe),
+                filter((urlService: NewUrlStateNotificationService) => {
+                    const isAppChanged = urlService.isValueChanged(UrlPathId.APPLICATION);
+                    const isPeriodChanged = urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
+        
+                    return isAppChanged || isPeriodChanged;         
+                })
+            )
+        ).subscribe(() => {
+            this.serverList = null;
+            this.cd.detectChanges();
+        })
     }
 
     ngOnDestroy() {
