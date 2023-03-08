@@ -42,7 +42,7 @@ public class LinkHistogramSummary {
         link.setTimeHistogramFormat(timeHistogramFormat);
     }
 
-    public String getLinkName() {
+    public LinkName getLinkName() {
         return link.getLinkName();
     }
 
