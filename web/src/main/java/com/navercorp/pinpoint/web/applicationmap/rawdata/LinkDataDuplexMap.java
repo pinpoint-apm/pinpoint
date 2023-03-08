@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import com.navercorp.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 
 import java.util.Collection;
 import java.util.Objects;

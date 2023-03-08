@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.vo.Application;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * representation of caller/callee relationship 
@@ -29,11 +32,9 @@ import java.util.*;
  */
 public class LinkCallData {
 
-    private final String source;
-    private final ServiceType sourceServiceType;
+    private final Application source;
 
-    private final String target;
-    private final ServiceType targetServiceType;
+    private final Application target;
 
     private final Map<Long, TimeHistogram> targetHistogramTimeMap;
     private final TimeWindow timeWindow;
@@ -44,11 +45,8 @@ public class LinkCallData {
     public LinkCallData(LinkKey linkKey, TimeWindow timeWindow) {
         Objects.requireNonNull(linkKey, "linkKey");
 
-        this.source = linkKey.getFromApplication();
-        this.sourceServiceType = linkKey.getFromServiceType();
-
-        this.target = linkKey.getToApplication();
-        this.targetServiceType = linkKey.getToServiceType();
+        this.source = linkKey.getFrom();
+        this.target = linkKey.getTo();
 
         this.targetHistogramTimeMap = new HashMap<>();
         this.timeWindow = timeWindow;
@@ -58,20 +56,12 @@ public class LinkCallData {
         return timeWindow;
     }
 
-    public String getSource() {
+    public Application getSource() {
         return source;
     }
 
-    public ServiceType getSourceServiceType() {
-        return sourceServiceType;
-    }
-
-    public String getTarget() {
+    public Application getTarget() {
         return target;
-    }
-
-    public ServiceType getTargetServiceType() {
-        return targetServiceType;
     }
 
     public Collection<TimeHistogram> getTimeHistogram() {
@@ -96,14 +86,8 @@ public class LinkCallData {
         if (!this.source.equals(copyLinkCallData.source)) {
             throw new IllegalArgumentException("source not equals");
         }
-        if (this.sourceServiceType != copyLinkCallData.sourceServiceType) {
-            throw new IllegalArgumentException("sourceServiceType not equals");
-        }
         if (!this.target.equals(copyLinkCallData.target)) {
             throw new IllegalArgumentException("target not equals");
-        }
-        if (this.targetServiceType != copyLinkCallData.targetServiceType) {
-            throw new IllegalArgumentException("targetServiceType not equals");
         }
 
         for (Map.Entry<Long, TimeHistogram> copyEntry : copyLinkCallData.targetHistogramTimeMap.entrySet()) {
@@ -117,7 +101,7 @@ public class LinkCallData {
         long key = timeWindow != null ? timeWindow.refineTimestamp(timeStamp) : timeStamp;
         TimeHistogram histogram = targetHistogramTimeMap.get(key);
         if (histogram == null) {
-            histogram = new TimeHistogram(targetServiceType, key);
+            histogram = new TimeHistogram(target.getServiceType(), key);
             targetHistogramTimeMap.put(key, histogram);
         }
         return histogram;
@@ -135,9 +119,7 @@ public class LinkCallData {
     public String toString() {
         return "LinkCallData{" +
                 "source='" + source + '\'' +
-                ", sourceServiceType=" + sourceServiceType +
                 ", target='" + target + '\'' +
-                ", targetServiceType=" + targetServiceType +
                 '}';
     }
 }

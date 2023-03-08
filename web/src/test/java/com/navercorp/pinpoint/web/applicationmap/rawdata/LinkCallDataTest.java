@@ -2,9 +2,9 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
-import com.navercorp.pinpoint.web.vo.LinkKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ public class LinkCallDataTest {
     
     @Test
     public void addCallData() {
-        LinkKey key = new LinkKey("fromApplication", ServiceType.STAND_ALONE, "toApplication", ServiceType.STAND_ALONE);
+        LinkKey key = LinkKey.of("fromApplication", ServiceType.STAND_ALONE, "toApplication", ServiceType.STAND_ALONE);
 
         long currentTime = System.currentTimeMillis();
         

@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -118,7 +117,7 @@ public class Link {
     }
 
     public LinkName getLinkName() {
-        return LinkName.of(fromNode.getNodeName(), toNode.getNodeName());
+        return LinkName.of(fromNode.getApplication(), toNode.getApplication());
     }
 
     public TimeHistogramFormat getTimeHistogramFormat() {
@@ -226,21 +225,19 @@ public class Link {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap);
-        AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel(timeHistogramFormat));
-        return agentResponseTimeViewModelList;
+        return new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel(timeHistogramFormat));
     }
 
     public AgentTimeHistogram getTargetAgentTimeHistogram() {
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap);
-        return agentTimeHistogram;
+        return builder.buildSource(targetLinkCallDataMap);
     }
 
     public Collection<Application> getSourceLinkTargetAgentList() {
         Set<Application> agentList = new HashSet<>();
         Collection<LinkCallData> linkDataList = sourceLinkCallDataMap.getLinkDataList();
         for (LinkCallData linkCallData : linkDataList) {
-            agentList.add(new Application(linkCallData.getTarget(), linkCallData.getTargetServiceType()));
+            agentList.add(linkCallData.getTarget());
         }
         return agentList;
     }

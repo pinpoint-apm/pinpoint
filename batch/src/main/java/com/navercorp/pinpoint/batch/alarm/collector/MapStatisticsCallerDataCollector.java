@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.collector;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
 
             for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
-                calleeStatMap.put(linkCallData.getTarget(), linkCallData);
+                calleeStatMap.put(linkCallData.getTarget().getName(), linkCallData);
             }
         }
 

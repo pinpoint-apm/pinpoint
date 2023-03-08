@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
@@ -28,7 +29,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,8 +261,8 @@ public abstract class LinkSelectorTestBase {
         List<LinkCallData> callDatas = new ArrayList<>(linkData_A_B.getLinkCallDataMap().getLinkDataList());
         Assertions.assertEquals(1, callDatas.size());
         LinkCallData callData = callDatas.get(0);
-        Assertions.assertEquals(rpcUri, callData.getTarget());
-        Assertions.assertEquals(testRpcServiceType, callData.getTargetServiceType());
+        Assertions.assertEquals(rpcUri, callData.getTarget().getName());
+        Assertions.assertEquals(testRpcServiceType, callData.getTarget().getServiceType());
     }
 
     @Test
@@ -395,14 +395,14 @@ public abstract class LinkSelectorTestBase {
         List<LinkCallData> callData_A_Bs = new ArrayList<>(linkData_A_B.getLinkCallDataMap().getLinkDataList());
         Assertions.assertEquals(1, callData_A_Bs.size());
         LinkCallData callData_A_B = callData_A_Bs.get(0);
-        Assertions.assertEquals(rpcUri, callData_A_B.getTarget());
-        Assertions.assertEquals(testRpcServiceType, callData_A_B.getTargetServiceType());
+        Assertions.assertEquals(rpcUri, callData_A_B.getTarget().getName());
+        Assertions.assertEquals(testRpcServiceType, callData_A_B.getTarget().getServiceType());
 
         List<LinkCallData> callData_A_Cs = new ArrayList<>(linkData_A_C.getLinkCallDataMap().getLinkDataList());
         Assertions.assertEquals(1, callData_A_Cs.size());
         LinkCallData callData_A_C = callData_A_Cs.get(0);
-        Assertions.assertEquals(rpcUri, callData_A_C.getTarget());
-        Assertions.assertEquals(testRpcServiceType, callData_A_C.getTargetServiceType());
+        Assertions.assertEquals(rpcUri, callData_A_C.getTarget().getName());
+        Assertions.assertEquals(testRpcServiceType, callData_A_C.getTarget().getServiceType());
     }
 
     @Test

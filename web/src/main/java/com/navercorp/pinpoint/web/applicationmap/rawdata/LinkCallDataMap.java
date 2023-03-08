@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,8 +49,8 @@ public class LinkCallDataMap {
         return this.timeWindow;
     }
 
-    public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, Collection<TimeHistogram> timeHistogramList) {
-        LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
+    public void addCallData(Application sourceAgent, Application targetAgent, Collection<TimeHistogram> timeHistogramList) {
+        LinkKey linkKey = new LinkKey(sourceAgent, targetAgent);
         LinkCallData linkCallData = getLinkCallData(linkKey);
         linkCallData.addCallData(timeHistogramList);
     }
@@ -61,8 +62,15 @@ public class LinkCallDataMap {
         linkCallData.addCallData(timestamp, slot, count);
     }
 
+    public void addCallData(Application sourceAgent, Application targetAgent, long timestamp, short slot, long count) {
+        LinkKey linkKey = new LinkKey(sourceAgent, targetAgent);
+        LinkCallData linkCallData = getLinkCallData(linkKey);
+        linkCallData.addCallData(timestamp, slot, count);
+    }
+
+
     private LinkKey createLinkKey(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType) {
-        return new LinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
+        return LinkKey.of(sourceAgentId, sourceServiceType, targetId, targetServiceType);
     }
 
     public void addLinkDataMap(LinkCallDataMap target) {
@@ -96,7 +104,7 @@ public class LinkCallDataMap {
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
-            targetList.addAgentHistogram(key.getToApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
+            targetList.addTimeHistogram(key.getTo(), linkCallData.getTimeHistogram());
         }
         return targetList;
     }
@@ -110,7 +118,7 @@ public class LinkCallDataMap {
             // need target (to) ServiceType
             // the definition of source is data from the source when the source sends a request to a target.
             // Thus ServiceType is the target's ServiceType
-            sourceList.addAgentHistogram(key.getFromApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
+            sourceList.addAgentHistogram(key.getFrom().getName(), key.getTo().getServiceType(), linkCallData.getTimeHistogram());
         }
         return sourceList;
     }

@@ -18,9 +18,13 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -53,7 +57,7 @@ public class LinkList {
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
             // find all the callers of toApplication/destination
-            if (toNode.getApplication().equals(toApplication) && toNode.getServiceType().equals(toApplication.getServiceType())) {
+            if (toNode.getApplication().equals(toApplication)) {
                 findList.add(link);
             }
         }
@@ -72,7 +76,7 @@ public class LinkList {
         for (Link link : linkMap.values()) {
             Node fromNode = link.getFrom();
 
-            if (fromNode.getApplication().equals(fromApplication) && fromNode.getServiceType().equals(fromApplication.getServiceType())) {
+            if (fromNode.getApplication().equals(fromApplication)) {
                 findList.add(link);
             }
         }
