@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterData;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapWithScatterScanResult;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
@@ -49,9 +49,8 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
             jgen.writeFieldName("applicationScatterScanResult");
             jgen.writeStartObject();
             for (ApplicationScatterScanResult scatterScanResult : applicationScatterScanResult) {
-                Application application = scatterScanResult.getApplication();
-                String name = Node.createNodeName(application);
-                jgen.writeObjectField(name, scatterScanResult.getScatterScanResult());
+                NodeName nodeName = NodeName.of(scatterScanResult.getApplication());
+                jgen.writeObjectField(nodeName.getName(), scatterScanResult.getScatterScanResult());
             }
             jgen.writeEndObject();
         }
@@ -63,9 +62,8 @@ public class FilterMapWrapSerializer extends JsonSerializer<FilterMapWrap> {
             jgen.writeStartObject();
 
             for (Map.Entry<Application, ScatterData> entry : applicationScatterDataMap.entrySet()) {
-                Application application = entry.getKey();
-                String name = Node.createNodeName(application);
-                jgen.writeFieldName(name);
+                NodeName nodeName = NodeName.of(entry.getKey());
+                jgen.writeFieldName(nodeName.getName());
 
                 ScatterData scatterData = entry.getValue();
 
