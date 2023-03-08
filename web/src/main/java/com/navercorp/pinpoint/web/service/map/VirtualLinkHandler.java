@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -24,10 +26,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,12 +140,10 @@ public class VirtualLinkHandler {
                 if (logger.isDebugEnabled()) {
                     logger.debug("emulationLink BEFORE:{}", beforeLinkCallData);
                     logger.debug("emulationLink agent:{}", agentHistogram);
-                    logger.debug("emulationLink link:{}/{} -> {}/{}", agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
-                            beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode());
+                    logger.debug("emulationLink link:{} -> {}", agentHistogram.getTarget(), beforeLinkCallData.getTarget());
                 }
 
-                linkCallDataMap.addCallData(agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
-                        beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType(), timeHistogramList);
+                linkCallDataMap.addCallData(agentHistogram.getTarget(), beforeLinkCallData.getTarget(), timeHistogramList);
             }
         }
     }

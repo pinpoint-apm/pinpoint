@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import java.util.*;
-
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class LinkDataMap {
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<>();
@@ -68,8 +71,7 @@ public class LinkDataMap {
 
     private LinkData getLinkData(Application fromApplication, Application toApplication) {
         final LinkKey key = new LinkKey(fromApplication, toApplication);
-        LinkData findLink = linkDataMap.computeIfAbsent(key, k -> new LinkData(fromApplication, toApplication, timeWindow));
-        return findLink;
+        return linkDataMap.computeIfAbsent(key, k -> new LinkData(fromApplication, toApplication, timeWindow));
     }
 
     // test api

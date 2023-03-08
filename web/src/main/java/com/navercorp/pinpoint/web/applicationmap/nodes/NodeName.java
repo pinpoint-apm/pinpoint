@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class NodeName {
-    private static final String NODE_DELIMITER = "^";
+    public static final String NODE_DELIMITER = "^";
 
     private final String name;
     private final ServiceType serviceType;
@@ -27,6 +27,10 @@ public class NodeName {
 
     @JsonValue
     public String getName() {
+        return toNodeName(name, serviceType);
+    }
+
+    public static String toNodeName(String name, ServiceType serviceType) {
         return name + NODE_DELIMITER + serviceType.getDesc();
     }
 
