@@ -18,14 +18,15 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -34,7 +35,6 @@ import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,8 +51,6 @@ import java.util.Set;
  */
 @JsonSerialize(using = LinkSerializer.class)
 public class Link {
-
-    private static final String LINK_DELIMITER = "~";
 
     private final LinkType linkType;
 
@@ -119,8 +117,8 @@ public class Link {
         return range;
     }
 
-    public String getLinkName() {
-        return createLinkName(fromNode, toNode);
+    public LinkName getLinkName() {
+        return LinkName.of(fromNode.getNodeName(), toNode.getNodeName());
     }
 
     public TimeHistogramFormat getTimeHistogramFormat() {
@@ -131,9 +129,6 @@ public class Link {
         this.timeHistogramFormat = timeHistogramFormat;
     }
 
-    public static String createLinkName(Node fromNode, Node toNode) {
-        return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
-    }
 
     public LinkCallDataMap getSourceLinkCallDataMap() {
         return sourceLinkCallDataMap;
