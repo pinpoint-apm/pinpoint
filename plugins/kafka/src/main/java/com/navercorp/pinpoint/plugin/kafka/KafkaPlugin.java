@@ -85,6 +85,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             transformTemplate.transform("org.apache.kafka.clients.NetworkClient", NetworkClientTransform.class);
             transformTemplate.transform("org.apache.kafka.common.TopicPartition", TopicPartitionTransform.class);
             transformTemplate.transform("org.apache.kafka.clients.consumer.ConsumerRecords", ConsumerRecordsTransform.class);
+            transformTemplate.transform("org.apache.kafka.common.requests.FetchResponse", FetchResponseTransform.class);
 
             if (config.isSpringConsumerEnable()) {
                 transformTemplate.transform("org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter", AcknowledgingConsumerAwareMessageListenerTransform.class);
@@ -107,6 +108,27 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
+    public static class FetchResponseTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(EndPointFieldAccessor.class);
+
+            // api version 13+
+            InstrumentMethod responseData = target.getDeclaredMethod("responseData", "java.util.Map", "short");
+            if (responseData == null) {
+                //api version ~ 12
+                responseData = target.getDeclaredMethod("responseData");
+            }
+
+            if (responseData != null) {
+                responseData.addInterceptor(FetchResponseInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
     public static class RecordCollectorTransform implements TransformCallback {
 
         @Override
@@ -472,13 +494,15 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            final int kafkaVersion = KafkaVersion.getVersion(classLoader);
 
             InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long", "long");
 
             if (pollMethod != null) {
-                pollMethod.addInterceptor(NetworkClientPollInterceptor.class, va(kafkaVersion, KafkaVersion.getResponseDataMethod()));
-                target.addGetter(SelectorGetter.class, "selector");
+                pollMethod.addInterceptor(NetworkClientPollInterceptor.class);
+                if (target.hasField("selector")) {
+                    target.addGetter(SelectorGetter.class, "selector");
+                }
+
             }
 
             return target.toBytecode();
