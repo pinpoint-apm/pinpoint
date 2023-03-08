@@ -157,7 +157,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(
                 activeAgentFilter,
-                SortByAgentInfo.agentIdAsc(AgentStatusAndLink::getAgentInfo),
+                SortByAgentInfo.comparing(AgentStatusAndLink::getAgentInfo, sortBy.getRule()),
                 hyperLinkFactory,
                 agentInfoAndStatuses
         );
