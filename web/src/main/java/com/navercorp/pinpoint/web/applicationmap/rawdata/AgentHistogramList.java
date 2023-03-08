@@ -21,11 +21,14 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -83,8 +86,7 @@ public class AgentHistogramList {
     private AgentHistogram getAgentHistogram(Application agentId) {
         Objects.requireNonNull(agentId, "agentId");
 
-        AgentHistogram agentHistogram = agentHistogramMap.computeIfAbsent(agentId, k -> new AgentHistogram(agentId));
-        return agentHistogram;
+        return agentHistogramMap.computeIfAbsent(agentId, k -> new AgentHistogram(agentId));
     }
 
     public Histogram mergeHistogram(ServiceType serviceType) {

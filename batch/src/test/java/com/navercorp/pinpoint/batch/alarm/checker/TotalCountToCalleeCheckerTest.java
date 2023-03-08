@@ -64,7 +64,7 @@ public class TotalCountToCalleeCheckerTest {
                         timeHistogramList.add(timeHistogram);
                     }
 
-                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceType(), toApplication.getName(), toApplication.getServiceType(), timeHistogramList);
+                    linkCallDataMap.addCallData(fromApplication, toApplication, timeHistogramList);
                     LinkData linkData = new LinkData(fromApplication, toApplication);
                     linkData.setLinkCallDataMap(linkCallDataMap);
                     linkDataMap.addLinkData(linkData);

@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.jupiter.api.Assertions;
@@ -143,14 +143,14 @@ public class FilteredMapBuilderTest {
     }
 
     private void assertSourceLinkData(LinkDataMap sourceLinkDataMap, String fromApplicationName, ServiceType fromServiceType, String toApplicationName, ServiceType toServiceType) {
-        LinkKey linkKey = new LinkKey(fromApplicationName, fromServiceType, toApplicationName, toServiceType);
+        LinkKey linkKey = LinkKey.of(fromApplicationName, fromServiceType, toApplicationName, toServiceType);
         LinkData sourceLinkData = sourceLinkDataMap.getLinkData(linkKey);
         String assertMessage = String.format("%s[%s] to %s[%s] source link data does not exist", fromApplicationName, fromServiceType.getName(), toApplicationName, toServiceType.getName());
         Assertions.assertNotNull(sourceLinkData, assertMessage);
     }
 
     private void assertTargetLinkData(LinkDataMap targetLinkDataMap, String fromApplicationName, ServiceType fromServiceType, String toApplicationName, ServiceType toServiceType) {
-        LinkKey linkKey = new LinkKey(fromApplicationName, fromServiceType, toApplicationName, toServiceType);
+        LinkKey linkKey = LinkKey.of(fromApplicationName, fromServiceType, toApplicationName, toServiceType);
         LinkData targetLinkData = targetLinkDataMap.getLinkData(linkKey);
         String assertMessage = String.format("%s[%s] from %s[%s] target link data does not exist", toApplicationName, toServiceType.getName(), fromApplicationName, fromServiceType.getName());
         Assertions.assertNotNull(targetLinkData, assertMessage);

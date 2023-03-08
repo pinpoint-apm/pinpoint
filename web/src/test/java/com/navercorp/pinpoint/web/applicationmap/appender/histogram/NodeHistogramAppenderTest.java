@@ -354,7 +354,7 @@ public class NodeHistogramAppenderTest {
     private LinkCallDataMap createLinkCallDataMap(String fromAgentId, ServiceType fromAgentServiceType, String toAgentId, ServiceType toAgentServiceType, HistogramSlot slot, long callCount) {
         long currentTimestamp = System.currentTimeMillis();
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
-        linkCallDataMap.addCallData(fromAgentId, fromAgentServiceType, toAgentId, toAgentServiceType, currentTimestamp, slot.getSlotTime(), callCount);
+        linkCallDataMap.addCallData(new Application(fromAgentId, fromAgentServiceType), new Application(toAgentId, toAgentServiceType), currentTimestamp, slot.getSlotTime(), callCount);
         return linkCallDataMap;
     }
 
