@@ -24,19 +24,14 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.SocketChannelListFieldAccessor;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.SelectorGetter;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.util.KafkaResponseDataProvider;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.util.KafkaResponseDataProviderFactory;
 import org.apache.kafka.clients.ClientResponse;
 import org.apache.kafka.common.requests.FetchResponse;
 
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -45,11 +40,6 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final KafkaResponseDataProvider responseDataProvider;
-
-    public NetworkClientPollInterceptor(int kafkaVersion, Method responseDataMethod) {
-        this.responseDataProvider = KafkaResponseDataProviderFactory.getResponseDataProvider(kafkaVersion, responseDataMethod);
-    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -64,19 +54,15 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        if (!(target instanceof SelectorGetter)) {
-            return;
-        }
-        Object selector = ((SelectorGetter) target)._$PINPOINT$_getSelector();
-        if (!(selector instanceof SocketChannelListFieldAccessor)) {
-            return;
-        }
-
         if (!(result instanceof List<?>) || CollectionUtils.isEmpty((List<?>) result)) {
             return;
         }
 
-        final String endPointAddress = getEndPointAddressString((SocketChannelListFieldAccessor) selector);
+
+        final String endPointAddress = getEndPointAddressString(target);
+        if (endPointAddress == null) {
+            return;
+        }
 
         for (Object object : (List<?>) result) {
 
@@ -85,33 +71,34 @@ public class NetworkClientPollInterceptor implements AroundInterceptor {
             }
             ClientResponse clientResponse = (ClientResponse) object;
             Object responseBody = clientResponse.responseBody();
+
             if (!(responseBody instanceof FetchResponse)) {
                 continue;
             }
 
-            final Map<?, ?> responseData = responseDataProvider.getResponseData(responseBody);
-
-            if (responseData == null) {
+            if (!(responseBody instanceof EndPointFieldAccessor)) {
                 continue;
             }
 
-            Set<?> keySet = responseData.keySet();
-            for (Object key : keySet) {
-                if (key instanceof EndPointFieldAccessor) {
-                    EndPointFieldAccessor endPointFieldAccessor = (EndPointFieldAccessor) key;
-
-                    if (endPointFieldAccessor._$PINPOINT$_getEndPoint() == null) {
-                        endPointFieldAccessor._$PINPOINT$_setEndPoint(endPointAddress);
-                    }
-                }
-
+            EndPointFieldAccessor endPointFieldAccessor = (EndPointFieldAccessor) responseBody;
+            if (endPointFieldAccessor._$PINPOINT$_getEndPoint() == null) {
+                endPointFieldAccessor._$PINPOINT$_setEndPoint(endPointAddress);
             }
         }
     }
 
 
-    private String getEndPointAddressString(SocketChannelListFieldAccessor socketChannelListFieldAccessor) {
-        List<SocketChannel> socketChannels = socketChannelListFieldAccessor._$PINPOINT$_getSocketChannelList();
+    private String getEndPointAddressString(Object target) {
+        if (!(target instanceof SelectorGetter)) {
+            return null;
+        }
+
+        Object selector = ((SelectorGetter) target)._$PINPOINT$_getSelector();
+        if (!(selector instanceof SocketChannelListFieldAccessor)) {
+            return null;
+        }
+
+        List<SocketChannel> socketChannels = ((SocketChannelListFieldAccessor)selector)._$PINPOINT$_getSocketChannelList();
         if (CollectionUtils.isEmpty(socketChannels)) {
             return null;
         }
