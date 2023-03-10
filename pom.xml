@@ -117,6 +117,7 @@
         <module>batch</module>
 
         <module>hbase2-module</module>
+        <module>pinot-config</module>
         <module>metric-module</module>
         <module>uristat</module>
 
@@ -302,6 +303,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-pinot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-pinot-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
