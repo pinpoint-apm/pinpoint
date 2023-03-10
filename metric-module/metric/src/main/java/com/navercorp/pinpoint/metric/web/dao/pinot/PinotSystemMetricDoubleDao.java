@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
-import com.navercorp.pinpoint.common.pinot.mybatis.PinotAsyncTemplate;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

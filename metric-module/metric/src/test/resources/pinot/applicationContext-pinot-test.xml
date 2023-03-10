@@ -7,7 +7,7 @@
     <tx:annotation-driven/>
 
     <bean id="pinotDataSource"
-          class="com.navercorp.pinpoint.common.pinot.datasource.PinotDataSource" destroy-method="close">
+          class="com.navercorp.pinpoint.pinot.datasource.PinotDataSource" destroy-method="close">
         <property name="url" value="jdbc:pinot://localhost:9000"/>
         <property name="username" value="root"/>
         <property name="password" value="password"/>
