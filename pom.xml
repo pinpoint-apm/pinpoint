@@ -96,7 +96,6 @@
         <module>commons-config</module>
         <module>commons-profiler</module>
         <module>commons-hbase</module>
-        <module>commons-pinot</module>
         <module>commons-server</module>
         <module>commons-server-cluster</module>
         <module>tools</module>
@@ -117,7 +116,7 @@
         <module>batch</module>
 
         <module>hbase2-module</module>
-        <module>pinot-config</module>
+        <module>pinot</module>
         <module>metric-module</module>
         <module>uristat</module>
 
@@ -302,7 +301,7 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-commons-pinot</artifactId>
+                <artifactId>pinpoint-pinot-datasource</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
