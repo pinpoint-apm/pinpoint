@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-pinot</artifactId>
+            <artifactId>pinpoint-pinot-config</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

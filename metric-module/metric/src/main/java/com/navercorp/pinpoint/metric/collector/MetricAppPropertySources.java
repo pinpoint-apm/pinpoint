@@ -25,13 +25,9 @@ import org.springframework.context.annotation.PropertySources;
 
 @PropertySources({
         @PropertySource(name = "MetricAppPropertySources-KAFKA", value = { MetricAppPropertySources.KAFKA_TOPIC, MetricAppPropertySources.KAFKA_PRODUCER}),
-        @PropertySource(name = "MetricAppPropertySources-PINOT", value = { MetricAppPropertySources.PINOT_CONFIG}),
-        @PropertySource(name = "MetricAppPropertySources-JDBC", value = { MetricAppPropertySources.JDBC_PROFILE })
 })
 public class MetricAppPropertySources {
     public static final String KAFKA_TOPIC = "classpath:pinot-collector/kafka-topic.properties";
     public static final String KAFKA_PRODUCER = "classpath:pinot-collector/profiles/${pinpoint.profiles.active}/kafka-producer-factory.properties";
 
-    public static final String PINOT_CONFIG = "classpath:pinot-collector/pinot.properties";
-    public static final String JDBC_PROFILE = "classpath:pinot-collector/profiles/${pinpoint.profiles.active}/jdbc.properties";
 }
