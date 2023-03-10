@@ -68,6 +68,7 @@ export class ScatterChart {
   private coordY = 0;
   private realtimeAxisMinX = 0;
   private realtimeAxisMaxX = 0;
+  private realtimeCycle = 0;
   private width = 0;
   private height = 0;
   private t0: number = 0;
@@ -298,11 +299,11 @@ export class ScatterChart {
     const innerPadding = this.xAxis.innerPadding;
     const pureWidth = this.viewport.styleWidth - this.options.padding.left - this.options.padding.right - innerPadding * 2;
     const pixcelPerFrame = pureWidth / duration * dt;
-    const pixcelPerSecond = pixcelPerFrame * 60;
     this.t0 = now;
     this.coordX = this.coordX - pixcelPerFrame;
+    this.realtimeCycle++;
     
-    if (Math.abs(Math.floor(this.coordX)) % (Math.floor(pixcelPerSecond / 4)) === 0) {
+    if (this.realtimeCycle % 15 === 0) {
       const x = Math.abs(this.coordX + innerPadding) / this.xRatio + this.realtimeAxisMinX;
  
       Object.keys(this.datas).forEach(key => {
@@ -321,6 +322,7 @@ export class ScatterChart {
         });
       })
       this.guide.updateMinX(Math.abs(this.coordX) / this.xRatio + this.realtimeAxisMinX);
+      this.realtimeCycle = 0;
     }
 
     if (this.coordX + innerPadding < -pureWidth) {
