@@ -53,6 +53,8 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
     dateFormat: string[];
     showBlockMessagePopup = false;
     enableServerSideScan: boolean;
+    sampleScatter: boolean;
+    useScatterChartV2: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -74,7 +76,12 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
             // const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
             // this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
             // Temp: Set it false till implementing the filter
+            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+            const useScatterChartV2 = this.webAppSettingDataService.getExperimentalOption('useScatterChartV2');
+            
             this.enableServerSideScan = false;
+            this.sampleScatter = sampleScatter === null ? configuration.sampleScatter.value : sampleScatter;
+            this.useScatterChartV2 = useScatterChartV2 === null ? configuration.useScatterChartV2.value : useScatterChartV2;
         });
 
         this.setScatterY();

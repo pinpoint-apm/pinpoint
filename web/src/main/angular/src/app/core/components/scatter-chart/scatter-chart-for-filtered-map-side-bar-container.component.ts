@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { forkJoin, Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { takeUntil, filter, tap, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
@@ -53,6 +53,8 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     showBlockMessagePopup = false;
     shouldHide = true;
     enableServerSideScan: boolean;
+    sampleScatter: boolean;
+    useScatterChartV2: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -74,7 +76,12 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
             // const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
             // this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
             // Temp: Set it false till implementing the filter
+            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+            const useScatterChartV2 = this.webAppSettingDataService.getExperimentalOption('useScatterChartV2');
+            
             this.enableServerSideScan = false;
+            this.sampleScatter = sampleScatter === null ? configuration.sampleScatter.value : sampleScatter;
+            this.useScatterChartV2 = useScatterChartV2 === null ? configuration.useScatterChartV2.value : useScatterChartV2;
         });
 
         this.setScatterY();
@@ -150,16 +157,20 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
             this.cd.detectChanges();
         });
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
-            filter(({isAuthorized}: ISelectedTarget) => isAuthorized)
+            filter(({isAuthorized}: ISelectedTarget) => isAuthorized),
+            tap(({isNode, isWAS, isMerged}: ISelectedTarget) => {
+                this.shouldHide = !(isNode && isWAS && !isMerged);
+                this.cd.detectChanges();
+            }),
         ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
-            this.shouldHide = !(this.selectedTarget.isNode && this.selectedTarget.isWAS && !this.selectedTarget.isMerged);
             if (!this.shouldHide) {
                 this.selectedAgent = '';
                 this.selectedApplication = this.selectedTarget.node[0];
                 this.reset({fromX: this.fromX, toX: this.toX});
                 this.getScatterData(0);
             }
+
             this.cd.detectChanges();
         });
     }
@@ -175,7 +186,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
 
     getScatterData(startIndex: number): void {
         for (let i = startIndex; i < this.scatterChartDataOfAllNode.length; i++) {
-            this.scatterChartInteractionService.addChartData(this.instanceKey, this.scatterChartDataOfAllNode[i][this.selectedApplication]);
+            of(null).pipe(delay(0)).subscribe(() => {
+                this.scatterChartInteractionService.addChartData(this.instanceKey, this.scatterChartDataOfAllNode[i][this.selectedApplication]);
+            });
         }
     }
 

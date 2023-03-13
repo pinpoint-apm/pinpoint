@@ -9,6 +9,7 @@ export enum ExperimentalConfigurationLocalStorageKey {
     useStatisticsAgentState = 'statisticsAgentState',
     enableServerMapRealTime = 'serverMapRealTime',
     sampleScatter = 'scatterSampling',
+    useScatterChartV2 = 'useScatterChartV2'
 }
 
 type ExperimentalConfigMetaItem = {
@@ -18,6 +19,7 @@ type ExperimentalConfigMetaItem = {
 
 enum ClientExperimentalConfig {
     // enableSideNavigationUI = 'enableSideNavigationUI',
+    useScatterChartV2 = 'useScatterChartV2'
 }
 
 export type ExperimentalConfigurationKeyType = keyof typeof ExperimentalConfigurationLocalStorageKey
@@ -52,13 +54,12 @@ export class SystemConfigurationDataService {
         private http: HttpClient
     ) {}
 
-    // getClientExperimentalConfiguration(): Record<'enableSideNavigationUI', ExperimentalConfigMetaItem> {
     getClientExperimentalConfiguration(): Record<ClientExperimentalConfig, ExperimentalConfigMetaItem> {
         return {
-            // enableSideNavigationUI: {
-            //     description: 'Use a new side navigation UI.',
-            //     value: false,
-            // }
+            useScatterChartV2: {
+                description: 'Use ScatterChart v2',
+                value: false
+            }
         };
     }
 
