@@ -1,0 +1,14 @@
+<div class="l-wrapper">
+    <div class="l-scatter" #scatter></div>
+    <ng-container [ngSwitch]="dataState">
+        <ng-container *ngSwitchCase="'LOADING'">
+            <div class="l-message"><span>Loading...</span></div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'NO_DATA'">
+            <div class="l-message"><span>{{i18nText.NO_DATA}}</span></div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'ERROR'">
+            <div class="l-message"><span>{{i18nText.FAILED_TO_FETCH_DATA}}</span></div>
+        </ng-container>
+    </ng-container>
+</div>

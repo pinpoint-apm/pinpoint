@@ -39,7 +39,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         from: 0,
         to: 0
     };
-    selectedTarget: ISelectedTarget;
     selectedApplication: string;
     selectedAgent: string;
     typeCount: object;
@@ -51,14 +50,14 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     toX: number;
     fromY: number;
     toY: number;
-    application: string;
     scatterChartMode: string;
     timezone: string;
     dateFormat: string[];
     showBlockMessagePopup = false;
     shouldHide = true;
     enableServerSideScan: boolean;
-    apdexScore: number;
+    sampleScatter: boolean;
+    useScatterChartV2: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -79,7 +78,12 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
             const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
+            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+            const useScatterChartV2 = this.webAppSettingDataService.getExperimentalOption('useScatterChartV2');
+            
+            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
+            this.sampleScatter = sampleScatter === null ? configuration.sampleScatter.value : sampleScatter;
+            this.useScatterChartV2 = useScatterChartV2 === null ? configuration.useScatterChartV2.value : useScatterChartV2;
         });
 
         this.setScatterY();
@@ -102,7 +106,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.scatterChartDataService.stopLoad();
             this.scatterChartMode = urlService.isRealTimeMode() ? ScatterChart.MODE.REALTIME : ScatterChart.MODE.STATIC;
-            this.application = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
             this.selectedAgent = '';
             this.currentRange.from = this.fromX = urlService.getStartTimeToNumber();
             this.currentRange.to = this.toX = urlService.getEndTimeToNumber();
@@ -221,18 +224,19 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             this.cd.detectChanges();
         });
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
-            filter(({isAuthorized}: ISelectedTarget) => isAuthorized)
-        ).subscribe((target: ISelectedTarget) => {
-            this.selectedTarget = target;
-            this.shouldHide = !(this.selectedTarget.isNode && this.selectedTarget.isWAS && !this.selectedTarget.isMerged);
-
+            filter(({isAuthorized}: ISelectedTarget) => isAuthorized),
+            tap(({isNode, isWAS, isMerged}: ISelectedTarget) => {
+                this.shouldHide = !(isNode && isWAS && !isMerged);
+                this.cd.detectChanges();    
+            })
+        ).subscribe(({node}: ISelectedTarget) => {
             if (!this.shouldHide) {
                 this.selectedAgent = '';
-                this.selectedApplication = this.selectedTarget.node[0];
+                this.selectedApplication = node[0];
                 this.reset({fromX: this.fromX, toX: this.toX});
                 this.getScatterData();
-                this.apdexScore = target.apdexScore;
             }
+
             this.cd.detectChanges();
         });
     }

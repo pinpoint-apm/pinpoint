@@ -36,7 +36,6 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     addWindow = false;
     i18nText: { [key: string]: string };
     isChangedTarget: boolean;
-    selectedTarget: ISelectedTarget;
     selectedApplication: string;
     selectedAgent: string;
     typeCount: object;
@@ -54,6 +53,8 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     dateFormat: string[];
     showBlockMessagePopup = false;
     enableServerSideScan: boolean;
+    sampleScatter: boolean;
+    useScatterChartV2: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -74,7 +75,12 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     ngOnInit() {
         this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
             const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
+            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+            const useScatterChartV2 = this.webAppSettingDataService.getExperimentalOption('useScatterChartV2');
+            
+            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
+            this.sampleScatter = sampleScatter === null ? configuration.sampleScatter.value : sampleScatter;
+            this.useScatterChartV2 = useScatterChartV2 === null ? configuration.useScatterChartV2.value : useScatterChartV2;
         });
 
         this.setScatterY();
@@ -143,11 +149,10 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         });
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
             filter(({isAuthorized}: ISelectedTarget) => isAuthorized),
-            tap((target: ISelectedTarget) => {
+            tap(({node}: ISelectedTarget) => {
                 this.isChangedTarget = true;
-                this.selectedTarget = target;
                 this.selectedAgent = '';
-                this.selectedApplication = this.selectedTarget.node[0];
+                this.selectedApplication = node[0];
                 this.reset({fromX: this.fromX, toX: this.toX});
             }),
             switchMap(() => this.scatterChartDataService.getSavedData().pipe(

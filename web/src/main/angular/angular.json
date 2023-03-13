@@ -42,6 +42,7 @@
                             "./node_modules/nouislider/distribute/nouislider.css",
                             "./node_modules/billboard.js/dist/billboard.css",
                             "./node_modules/intl-tel-input/build/css/intlTelInput.min.css",
+                            "./node_modules/@pinpoint-fe/scatter-chart/dist/index.css",
                             "src/assets/lib/prettify/prettify.css",
                             "src/assets/lib/prettify/sunburst.css",
                             "src/main.css",

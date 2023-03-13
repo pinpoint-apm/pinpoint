@@ -57,6 +57,9 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     dateFormat: string[];
     showBlockMessagePopup = false;
     enableServerSideScan: boolean;
+    useScatterChartV2: boolean;
+    sampleScatter: boolean;
+    backgroundColor: string;
 
     constructor(
         private renderer: Renderer2,
@@ -76,8 +79,14 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     ngOnInit() {
         this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
             const enableServerSideScan = this.webAppSettingDataService.getExperimentalOption('scatterScan');
-            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;            
+            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
+            const useScatterChartV2 = this.webAppSettingDataService.getExperimentalOption('useScatterChartV2');
+            
+            this.enableServerSideScan = enableServerSideScan === null ? configuration.enableServerSideScanForScatter.value : enableServerSideScan;
+            this.sampleScatter = sampleScatter === null ? configuration.sampleScatter.value : sampleScatter;
+            this.useScatterChartV2 = useScatterChartV2 === null ? configuration.useScatterChartV2.value : useScatterChartV2;
         });
+        this.backgroundColor = getComputedStyle(document.body).getPropertyValue('--background-primary');
         
         this.setScatterY();
         this.getI18NText();
