@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
-import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
+import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.collector.dao.UriStatDao;
 import com.navercorp.pinpoint.uristat.collector.model.UriStat;
 import org.apache.logging.log4j.LogManager;

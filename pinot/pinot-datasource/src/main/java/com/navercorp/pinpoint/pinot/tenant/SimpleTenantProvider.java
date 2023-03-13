@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.tenant;
+package com.navercorp.pinpoint.pinot.tenant;
 
 
 /**
