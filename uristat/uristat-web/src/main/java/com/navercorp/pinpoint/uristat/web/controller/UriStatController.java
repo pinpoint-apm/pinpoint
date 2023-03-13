@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.uristat.web.controller;
 
-import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
-import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
-import com.navercorp.pinpoint.uristat.web.service.UriStatService;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
+import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
+import com.navercorp.pinpoint.uristat.web.service.UriStatService;
 import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
 import com.navercorp.pinpoint.uristat.web.view.UriStatView;
 import org.springframework.web.bind.annotation.GetMapping;

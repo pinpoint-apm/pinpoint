@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.pinot.config;
 
-import com.navercorp.pinpoint.common.server.tenant.SimpleTenantProvider;
-import com.navercorp.pinpoint.common.server.tenant.TenantProvider;
+import com.navercorp.pinpoint.pinot.tenant.SimpleTenantProvider;
+import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;

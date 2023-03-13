@@ -23,12 +23,13 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-pinot-datasource</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-server</artifactId>
+            <artifactId>pinpoint-pinot-datasource</artifactId>
         </dependency>
 
         <!-- Logging dependencies -->
