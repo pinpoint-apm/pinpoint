@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, OnChanges, Input, Output, EventEmitter, V
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
-import { WebAppSettingDataService, WindowRefService } from 'app/shared/services';
+import { WindowRefService } from 'app/shared/services';
 import { ScatterChart } from './class/scatter-chart.class';
 import { ScatterChartDataBlock } from './class/scatter-chart-data-block.class';
 import { ScatterChartInteractionService, IChangedViewTypeParam, IRangeParam, IResetParam, IChangedAgentParam } from './scatter-chart-interaction.service';
@@ -29,6 +29,7 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
     @Input() timezone: string;
     @Input() dateFormat: string[];
     @Input() enableServerSideScan: boolean;
+    @Input() sampleScatter: boolean;
     @Output() outTransactionCount: EventEmitter<object> = new EventEmitter();
     @Output() outSelectArea: EventEmitter<any> = new EventEmitter();
     @Output() outChangeRangeX: EventEmitter<any> = new EventEmitter();
@@ -36,24 +37,15 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
     private unsubscribe = new Subject<void>();
     private hasError = false;
 
-    private sampleScatter: boolean;
-
     dataLoaded = false;
     scatterChartInstance: ScatterChart = null;
 
     constructor(
         private windowRefService: WindowRefService,
         private scatterChartInteractionService: ScatterChartInteractionService,
-        private webAppSettingDataService: WebAppSettingDataService
     ) {}
 
-    ngOnInit() {
-        this.webAppSettingDataService.getExperimentalConfiguration().subscribe(configuration => {
-            const sampleScatter = this.webAppSettingDataService.getExperimentalOption('scatterSampling');
-            this.sampleScatter = sampleScatter === null ? configuration.sampleScatter.value : sampleScatter;            
-        });
-    }
-
+    ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
         if (this.mode && (this.fromX >= 0) && (this.toX >= 0) && (this.fromY >= 0) && (this.toY >= 0) && this.application && this.timezone && this.dateFormat) {
             if (this.scatterChartInstance === null) {
