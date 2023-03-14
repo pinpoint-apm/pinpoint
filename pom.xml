@@ -306,6 +306,11 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-pinot-kafka</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-pinot-config</artifactId>
                 <version>${project.version}</version>
             </dependency>

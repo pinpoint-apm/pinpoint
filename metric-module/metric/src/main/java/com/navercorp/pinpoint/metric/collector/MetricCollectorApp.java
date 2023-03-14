@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.metric.collector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
+import com.navercorp.pinpoint.metric.collector.config.MetricKafkaConfiguration;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -26,13 +27,13 @@ import org.springframework.context.annotation.Profile;
         "com.navercorp.pinpoint.metric.collector.controller"
 })
 @ImportResource({
-        "classpath:pinot-collector/applicationContext-collector-pinot-kafka.xml",
         "classpath:pinot-collector/applicationContext-collector-pinot-dao-config.xml"
 })
 @Import({
         MetricAppPropertySources.class,
         MetricCacheConfiguration.class,
-        PinotConfiguration.class
+        PinotConfiguration.class,
+        MetricKafkaConfiguration.class
 })
 @Profile("metric")
 public class MetricCollectorApp {
@@ -41,6 +42,8 @@ public class MetricCollectorApp {
     public ObjectMapper getObjectMapper() {
         return new ObjectMapper();
     }
+
+
 
 
 }

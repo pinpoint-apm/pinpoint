@@ -29,6 +29,7 @@
 
     <modules>
         <module>pinot-datasource</module>
+        <module>pinot-kafka</module>
         <module>pinot-config</module>
     </modules>
 
