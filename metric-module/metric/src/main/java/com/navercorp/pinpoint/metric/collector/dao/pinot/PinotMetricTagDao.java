@@ -68,7 +68,7 @@ public class PinotMetricTagDao implements MetricTagDao {
         callBack.addCallback(resultCallback);
     }
 
-    private static class MetricJsonTag {
+    public static class MetricJsonTag {
 
         private String tenantId;
         private String hostGroupName;
