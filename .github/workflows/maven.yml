@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Cache Maven packages
       uses: actions/cache@v3
       with:
@@ -48,7 +48,6 @@ jobs:
     - name: Code coverage report
       run: ./mvnw --batch-mode -Pcode.coverage jacoco:report --file pom.xml
     - name: Code coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
-        files: ./**/target/site/jacoco/jacoco.xml
         name: codecov
