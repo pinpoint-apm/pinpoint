@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, Observable, of, Subject } from 'rxjs';
+import { catchError, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
@@ -15,8 +15,13 @@ import { UrlPathId } from 'app/shared/models';
 })
 export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+    private countChange = new Subject<number>();
+    private onCountChange$ = this.countChange.asObservable();
 
     data$: Observable<IUrlStatInfoData[]>;
+    countList = [50, 100, 150, 200];
+    selectedCount: number = this.countList[0];
+
     emptyMessage$: Observable<string>;
     errorMessage: string;
     showLoading: boolean;
@@ -28,26 +33,29 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
         private messageQueueService: MessageQueueService,
         private translateService: TranslateService,
         private cd: ChangeDetectorRef
-    ) { }
+    ) {}
 
     ngOnInit() {
         this.emptyMessage$ = this.translateService.get('COMMON.NO_DATA');
-        this.data$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-            tap((urlService: NewUrlStateNotificationService) => {
-                // if (!urlService.isValueChanged(UrlPathId.APPLICATION)) {
-                    this.useDisable = true;
-                // }
 
+        this.data$ = combineLatest([
+            this.newUrlStateNotificationService.onUrlStateChange$,
+            this.onCountChange$.pipe(
+                startWith(this.selectedCount)
+            )
+        ]).pipe(
+            takeUntil(this.unsubscribe),
+            tap(() => {
+                this.useDisable = true;
                 this.showLoading = true;
                 this.cd.detectChanges();
             }),
-            switchMap((urlService: NewUrlStateNotificationService) => {
+            switchMap(([urlService, count]: [NewUrlStateNotificationService, number]) => {
                 const from = urlService.getStartTimeToNumber();
                 const to = urlService.getEndTimeToNumber();
                 const applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
                 const agentId = urlService.getPathValue(UrlPathId.AGENT_ID) || '';
-                const params = {from, to, applicationName, agentId};
+                const params = {from, to, applicationName, agentId, count};
 
                 return this.urlStatisticInfoDataService.getData(params).pipe(
                     tap(() => {
@@ -75,6 +83,10 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
             to: MESSAGE_TO.SELECT_URL_INFO,
             param: url
         })
+    }
+
+    onSelectionChange(count: number): void {
+        this.countChange.next(count);
     }
 
     onCloseErrorMessage(): void {
