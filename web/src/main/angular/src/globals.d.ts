@@ -503,6 +503,7 @@ interface IMetricValue {
 
 interface IUrlStatInfoData {
     uri: string;
+    apdex: number;
     totalCount: number;
     failureCount: number;
     maxTimeMs: number;

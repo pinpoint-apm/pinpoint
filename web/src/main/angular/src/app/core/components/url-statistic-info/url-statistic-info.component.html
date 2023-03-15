@@ -6,6 +6,7 @@
                 <div class="url-info-cell header-cell url-cell">URL</div>
                 <div class="url-info-cell header-cell total-count-cell">Total Count</div>
                 <div class="url-info-cell header-cell failure-count-cell">Failure Count</div>
+                <div class="url-info-cell header-cell apdex-cell">Apdex</div>
                 <div class="url-info-cell header-cell avg-cell">Avg(ms)</div>
                 <div class="url-info-cell header-cell max-cell">Max(ms)</div>
             </div>
@@ -30,6 +31,7 @@
                         <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">{{urlInfo.totalCount | number}}</div>
                     </div>
                     <div class="url-info-cell failure-count-cell">{{urlInfo.failureCount | number}}</div>
+                    <div class="url-info-cell apdex-cell">{{getFormattedApdexScore(urlInfo.apdex)}}</div>
                     <div class="url-info-cell avg-cell">{{urlInfo.avgTimeMs | number: '1.0-0'}}</div>
                     <div class="url-info-cell max-cell">{{urlInfo.maxTimeMs | number: '1.0-0'}}</div>
                 </div>
