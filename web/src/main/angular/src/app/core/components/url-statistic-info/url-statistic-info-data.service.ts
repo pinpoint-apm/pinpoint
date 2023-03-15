@@ -7,6 +7,7 @@ export interface IUrlStatInfoDataParams {
     to: number;
     applicationName: string;
     agentId: string;
+    count: number;
 }
 
 @Injectable({
