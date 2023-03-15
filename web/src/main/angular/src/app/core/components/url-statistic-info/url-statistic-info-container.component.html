@@ -1,3 +1,10 @@
+<div class="select-wrapper">
+    <mat-form-field class="count-select">
+        <mat-select [(ngModel)]="selectedCount" (selectionChange)="onSelectionChange($event.value)">
+            <mat-option *ngFor="let count of countList" [value]="count">View {{count}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
 <pp-url-statistic-info
     [data]="data$ | async"
     [emptyMessage]="emptyMessage$ | async"
