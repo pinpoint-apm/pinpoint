@@ -82,6 +82,10 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges, AfterViewCh
         return this.selectedUrl === url;
     }
 
+    getFormattedApdexScore(score: number): string {
+        return (Math.floor(score * 100) / 100).toFixed(2);
+    }
+
     getRatioBackgroundColor(count: number): string {
         const computedStyle = getComputedStyle(this.el.nativeElement);
         const urlCountRatio = computedStyle.getPropertyValue('--url-count-ratio');
