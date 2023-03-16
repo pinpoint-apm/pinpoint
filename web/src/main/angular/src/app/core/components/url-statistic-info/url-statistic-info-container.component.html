@@ -7,8 +7,11 @@
 </div>
 <pp-url-statistic-info
     [data]="data$ | async"
+    [sortStatus]="sortStatus"
     [emptyMessage]="emptyMessage$ | async"
-    (outSelectUrlInfo)="onSelectUrlInfo($event)">
+    (outSelectUrlInfo)="onSelectUrlInfo($event)"
+    (outClickSort)="onClickSort($event)"
+>
 </pp-url-statistic-info>
 <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
 <pp-loading [showLoading]="showLoading" [zIndex]="11"></pp-loading>

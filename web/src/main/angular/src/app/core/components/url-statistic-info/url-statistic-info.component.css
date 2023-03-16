@@ -18,6 +18,13 @@
     width: 100%;
 }
 
+.sort-btn {
+    font-size: 11px;
+    color: var(--icon-default-darker);
+    margin-left: 2px;
+    padding-top: 1px;
+}
+
 .url-info-row {
     display: flex;
     gap: 15px;
@@ -89,6 +96,10 @@
     color: var(--text-primary);
     font-weight: bold;
     font-size: 13px;
+}
+
+.header-label-wrapper {
+    cursor: pointer;
 }
 
 .url-info-body {

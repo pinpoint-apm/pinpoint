@@ -10,10 +10,51 @@ import { isEmpty } from 'app/core/utils/util';
 export class UrlStatisticInfoComponent implements OnInit, OnChanges, AfterViewChecked {
     @ViewChild('urlInfoTableBody' , {static: true}) urlInfoTableBody: ElementRef;
     @Input() data: IUrlStatInfoData[];
+    @Input() sortStatus: {orderby: string, isDesc: boolean};
     @Input() emptyMessage: string;
     @Output() outSelectUrlInfo = new EventEmitter<string>();
+    @Output() outClickSort = new EventEmitter<{orderby: string, isDesc: boolean}>();
 
     private dataUpdated: boolean;
+
+    columnList = [
+        {
+            key: 'index',
+            headerLabel: '#', 
+            headerClassName: this.getHeaderCellClassName('index-cell'),
+        },
+        {
+            key: 'uri',
+            headerLabel: 'URL',
+            headerClassName: this.getHeaderCellClassName('url-cell'),
+        },
+        {
+            key: 'totalCount',
+            headerLabel: 'Total Count',
+            headerClassName: this.getHeaderCellClassName('total-count-cell'),
+        },
+        {
+            key: 'failureCount',
+            headerLabel: 'Failure Count',
+            headerClassName: this.getHeaderCellClassName('failure-count-cell')
+        },
+        {
+            key: 'apdex',
+            headerLabel: 'Apdex',
+            headerClassName: this.getHeaderCellClassName('apdex-cell')
+        },
+        {
+            key: 'avgTimeMs',
+            headerLabel: 'Avg(ms)',
+            headerClassName: this.getHeaderCellClassName('avg-cell')
+        },
+        {
+            key: 'maxTimeMs',
+            headerLabel: 'Max(ms)',
+            headerClassName: this.getHeaderCellClassName('max-cell')
+        },
+        
+    ]
 
     totalCount: number;
     selectedUrl: string;
@@ -92,5 +133,26 @@ export class UrlStatisticInfoComponent implements OnInit, OnChanges, AfterViewCh
         const urlCountRatioBG = computedStyle.getPropertyValue('--url-count-ratio-background');
 
         return `linear-gradient(to right, ${urlCountRatio} ${count / this.totalCount * 100}%, ${urlCountRatioBG} ${count / this.totalCount * 100}% 100%)`;
+    }
+
+    onClickSort(key: string): void {
+        this.outClickSort.next({
+            orderby: key,
+            isDesc: this.sortStatus.orderby === key ? !this.sortStatus.isDesc : true
+        });
+    }
+
+    isSortActive(key: string): boolean {
+        return key === this.sortStatus.orderby;
+    }
+
+    getSortIconClass(): string {
+        return this.sortStatus.isDesc ? 'fas fa-arrow-down' : 'fas fa-arrow-up'
+    }
+
+    private getHeaderCellClassName(className: string): string {
+        const commonClassNameList = ['url-info-cell', 'header-cell'];
+
+        return `${commonClassNameList.join(' ')} ${className}`;
     }
 }
