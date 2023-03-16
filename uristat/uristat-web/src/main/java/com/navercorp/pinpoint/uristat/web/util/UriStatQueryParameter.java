@@ -119,7 +119,7 @@ public class UriStatQueryParameter extends QueryParameter {
 
         public Builder setOrderby(String orderBy) throws InvalidParameterException {
             UriStatQueryParameter.OrderBy order = OrderBy.fromValue(orderBy);
-            if (this.orderBy == null) {
+            if (order == null) {
                 throw new InvalidParameterException("Invalid order by type : " + orderBy + " not supported.");
             }
             this.orderBy = order;
