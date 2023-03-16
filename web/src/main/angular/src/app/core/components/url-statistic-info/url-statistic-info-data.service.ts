@@ -8,13 +8,15 @@ export interface IUrlStatInfoDataParams {
     applicationName: string;
     agentId: string;
     count: number;
+    orderby: string;
+    isDesc: boolean;
 }
 
 @Injectable({
     providedIn: 'root'
 })
 export class UrlStatisticInfoDataService {
-    private url = 'uriStat/top50.pinpoint';
+    private url = 'uriStat/summary.pinpoint';
 
     constructor(
         private http: HttpClient,
