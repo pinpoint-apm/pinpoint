@@ -2,13 +2,19 @@
     <div class="url-info-table table">
         <div class="url-info-header">
             <div class="url-info-row header-row">
-                <div class="url-info-cell header-cell index-cell">#</div>
-                <div class="url-info-cell header-cell url-cell">URL</div>
-                <div class="url-info-cell header-cell total-count-cell">Total Count</div>
-                <div class="url-info-cell header-cell failure-count-cell">Failure Count</div>
-                <div class="url-info-cell header-cell apdex-cell">Apdex</div>
-                <div class="url-info-cell header-cell avg-cell">Avg(ms)</div>
-                <div class="url-info-cell header-cell max-cell">Max(ms)</div>
+                <ng-container *ngFor="let column of columnList">
+                    <!-- TODO: any way to bind class without overide? -->
+                    <div class={{column.headerClassName}}>
+                        <span class="header-label-wrapper" (click)="onClickSort(column.key)">
+                            {{column.headerLabel}}
+                            <ng-container *ngIf="isSortActive(column.key)">
+                                <button class="sort-btn">
+                                    <i [class]="getSortIconClass()"></i>
+                                </button>
+                            </ng-container>
+                        </span>
+                    </div>
+                </ng-container>
             </div>
         </div>
         <div class="url-info-body" #urlInfoTableBody>
@@ -25,6 +31,7 @@
                     (click)="onSelectUrlInfo(urlInfo.uri)"
                     [class.active]="isSelectedUrl(urlInfo.uri)"
                 >
+                <!-- TODO: Refactor it based on columnList -->
                     <div class="url-info-cell index-cell">{{i + 1}}</div>
                     <div class="url-info-cell url-cell">{{urlInfo.uri}}</div>
                     <div class="url-info-cell total-count-cell">

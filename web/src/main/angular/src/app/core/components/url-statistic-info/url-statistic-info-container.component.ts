@@ -16,11 +16,17 @@ import { UrlPathId } from 'app/shared/models';
 export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
     private countChange = new Subject<number>();
+    private clickSort = new Subject<{orderby: string, isDesc: boolean}>();
     private onCountChange$ = this.countChange.asObservable();
+    private onClickSort$ = this.clickSort.asObservable();
 
     data$: Observable<IUrlStatInfoData[]>;
     countList = [50, 100, 150, 200];
     selectedCount: number = this.countList[0];
+    sortStatus = {
+        orderby: 'totalCount',
+        isDesc: true
+    };
 
     emptyMessage$: Observable<string>;
     errorMessage: string;
@@ -42,6 +48,9 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
             this.newUrlStateNotificationService.onUrlStateChange$,
             this.onCountChange$.pipe(
                 startWith(this.selectedCount)
+            ),
+            this.onClickSort$.pipe(
+                startWith(this.sortStatus)
             )
         ]).pipe(
             takeUntil(this.unsubscribe),
@@ -50,12 +59,12 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
                 this.showLoading = true;
                 this.cd.detectChanges();
             }),
-            switchMap(([urlService, count]: [NewUrlStateNotificationService, number]) => {
+            switchMap(([urlService, count, {orderby, isDesc}]: [NewUrlStateNotificationService, number, {orderby: string, isDesc: boolean}]) => {
                 const from = urlService.getStartTimeToNumber();
                 const to = urlService.getEndTimeToNumber();
                 const applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
                 const agentId = urlService.getPathValue(UrlPathId.AGENT_ID) || '';
-                const params = {from, to, applicationName, agentId, count};
+                const params = {from, to, applicationName, agentId, count, orderby, isDesc};
 
                 return this.urlStatisticInfoDataService.getData(params).pipe(
                     tap(() => {
@@ -87,6 +96,11 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
 
     onSelectionChange(count: number): void {
         this.countChange.next(count);
+    }
+
+    onClickSort(sortStatus: {orderby: string, isDesc: boolean}): void {
+        this.sortStatus = sortStatus;
+        this.clickSort.next(sortStatus);
     }
 
     onCloseErrorMessage(): void {
