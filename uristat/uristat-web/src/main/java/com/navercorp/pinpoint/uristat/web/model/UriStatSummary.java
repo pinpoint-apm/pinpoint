@@ -27,9 +27,9 @@ public class UriStatSummary {
     private final double apdex;
     private final int version;
 
-    public UriStatSummary(String uri, double apdexRaw, double apdexCount, double totalCount, double failureCount, double maxTimeMs, double totalTimeMs, int version) {
+    public UriStatSummary(String uri, double apdexRaw, double totalCount, double failureCount, double maxTimeMs, double totalTimeMs, int version) {
         this.uri = uri;
-        this.apdex = MathUtils.average(apdexRaw, apdexCount);
+        this.apdex = MathUtils.average(apdexRaw, totalCount);
         this.totalCount = totalCount;
         this.failureCount = failureCount;
         this.maxTimeMs = maxTimeMs;
