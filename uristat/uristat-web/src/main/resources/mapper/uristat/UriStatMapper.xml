@@ -34,7 +34,6 @@
         <constructor>
             <arg column="uri" javaType="string"/>
             <arg column="apdexRaw" javaType="_double"/>
-            <arg column="apdexCount" javaType="_double"/>
             <arg column="totalCount" javaType="_double"/>
             <arg column="failureCount" javaType="_double"/>
             <arg column="maxTimeMs" javaType="_double"/>
@@ -57,18 +56,7 @@
     <select id="uriStatApplicationSummary" resultMap="uriStatSummary" parameterType="UriStatQueryParameter">
         SELECT
             uri,
-            sum(
-                CASE
-                    WHEN apdexRaw > -1 THEN apdexRaw
-                    ELSE 0
-                    END
-            ) as apdexRaw,
-            sum(
-                CASE
-                    WHEN apdexRaw > -1 THEN "count"
-                    ELSE 0
-                    END
-            ) as apdexCount,
+            sum(apdexRaw) as apdexRaw,
             sum("count") as totalCount,
             max(maxLatencyMs) as maxTimeMs,
             sum(totalTimeMs) as totalTimeMs,
@@ -86,18 +74,7 @@
     <select id="uriStatAgentSummary" resultMap="uriStatSummary" parameterType="UriStatQueryParameter">
         SELECT
             uri,
-            sum(
-                CASE
-                    WHEN apdexRaw > -1 THEN apdexRaw
-                    ELSE 0
-                END
-            ) as apdexRaw,
-            sum(
-                CASE
-                    WHEN apdexRaw > -1 THEN "count"
-                    ELSE 0
-                END
-            ) as apdexCount,
+            sum(apdexRaw) as apdexRaw,
             sum("count") as totalCount,
             max(maxLatencyMs) as maxTimeMs,
             sum(totalTimeMs) as totalTimeMs,
