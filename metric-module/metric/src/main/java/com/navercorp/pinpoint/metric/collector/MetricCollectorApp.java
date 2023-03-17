@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.metric.collector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
+import com.navercorp.pinpoint.metric.collector.config.MetricCollectorPinotDaoConfiguration;
 import com.navercorp.pinpoint.metric.collector.config.MetricKafkaConfiguration;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.SpringBootConfiguration;
@@ -12,7 +13,6 @@ import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfigu
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 
 
@@ -26,13 +26,11 @@ import org.springframework.context.annotation.Profile;
         "com.navercorp.pinpoint.common.server.util",
         "com.navercorp.pinpoint.metric.collector.controller"
 })
-@ImportResource({
-        "classpath:pinot-collector/applicationContext-collector-pinot-dao-config.xml"
-})
 @Import({
         MetricAppPropertySources.class,
         MetricCacheConfiguration.class,
         PinotConfiguration.class,
+        MetricCollectorPinotDaoConfiguration.class,
         MetricKafkaConfiguration.class
 })
 @Profile("metric")
