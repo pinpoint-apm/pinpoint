@@ -59,7 +59,7 @@ public class UriStatQueryParameter extends QueryParameter {
         public String toString() {
             switch(this) {
                 case APDEX:
-                    return "(apdexRaw / apdexCount)";
+                    return "(apdexRaw / totalCount)";
                 case AVG:
                     return "(totalTimeMs / totalCount)";
                 default:
