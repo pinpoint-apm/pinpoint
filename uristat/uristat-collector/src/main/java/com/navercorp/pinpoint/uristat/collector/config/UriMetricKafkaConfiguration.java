@@ -16,8 +16,8 @@ import org.springframework.kafka.core.ProducerFactory;
 @Import({KafkaConfiguration.class})
 public class UriMetricKafkaConfiguration {
 
-    @Bean("kafkaUriStatTemplate")
-    public KafkaTemplate<String, UriStat> getKafkaTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
+    @Bean
+    public KafkaTemplate<String, UriStat> kafkaUriStatTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 }

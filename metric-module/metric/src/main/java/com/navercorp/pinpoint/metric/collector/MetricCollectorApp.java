@@ -36,8 +36,8 @@ import org.springframework.context.annotation.Profile;
 @Profile("metric")
 public class MetricCollectorApp {
 
-    @Bean("objectMapper")
-    public ObjectMapper getObjectMapper() {
+    @Bean
+    public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
 
