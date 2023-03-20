@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
@@ -29,7 +29,7 @@ import javax.annotation.PostConstruct;
  * @author HyunGil Jeong
  * @author Jongjin.Bae
  */
-@Configuration
+@Component
 public class ConfigProperties {
 
     private final Logger logger = LogManager.getLogger(ConfigProperties.class);

@@ -13,16 +13,16 @@ import org.springframework.context.annotation.Primary;
 public class AgentStatOperationConfiguration {
 
     @Primary
-    @Bean("agentStatDaoOperations")
-    public HbaseAgentStatDaoOperations getHbaseAgentStatDaoOperations(HbaseOperations2 hbaseOperations2,
+    @Bean
+    public HbaseAgentStatDaoOperations agentStatDaoOperations(HbaseOperations2 hbaseOperations2,
                                                                       TableNameProvider tableNameProvider,
                                                                       AgentStatHbaseOperationFactory operationFactory) {
         HbaseColumnFamily.AgentStatStatistics stat = HbaseColumnFamily.AGENT_STAT_STATISTICS;
         return new HbaseAgentStatDaoOperations(stat, stat.TIMESPAN_MS, hbaseOperations2, tableNameProvider, operationFactory);
     }
 
-    @Bean("agentUriDaoOperations")
-    public HbaseAgentStatDaoOperations getHbaseAgentUriDaoOperations(HbaseOperations2 hbaseOperations2,
+    @Bean
+    public HbaseAgentStatDaoOperations agentUriDaoOperations(HbaseOperations2 hbaseOperations2,
                                                                       TableNameProvider tableNameProvider,
                                                                       AgentStatHbaseOperationFactory operationFactory) {
         HbaseColumnFamily.AgentUriStatStatistics uri = HbaseColumnFamily.AGENT_URI_STAT_STATISTICS;

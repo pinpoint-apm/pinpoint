@@ -86,8 +86,8 @@ public class GrpcStatReceiverConfigurationFactory {
     }
 
 
-    @Bean("grpcStatReceiverConfig")
-    public GrpcStatReceiverConfiguration newStatReceiverConfig(
+    @Bean
+    public GrpcStatReceiverConfiguration grpcStatReceiverConfig(
             Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.stat.enable", boolean.class, false);

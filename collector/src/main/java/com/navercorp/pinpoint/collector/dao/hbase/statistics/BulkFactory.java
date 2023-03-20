@@ -63,8 +63,8 @@ public class BulkFactory {
         }
     }
 
-    @Bean("callerBulkIncrementer")
-    public BulkIncrementer getCallerBulkIncrementer() {
+    @Bean
+    public BulkIncrementer callerBulkIncrementer() {
         String reporterName = "callerBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER;
         int limitSize = bulkConfiguration.getCallerLimitSize();
@@ -72,15 +72,15 @@ public class BulkFactory {
         return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
     }
 
-    @Bean("callerBulkUpdater")
-    public BulkUpdater getCallerBulkUpdater() {
+    @Bean
+    public BulkUpdater callerBulkUpdater() {
         String reporterName = "callerBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
 
-    @Bean("callerBulkWriter")
-    public BulkWriter newCallerBulkWriter(HbaseOperations2 hbaseTemplate,
+    @Bean
+    public BulkWriter callerBulkWriter(HbaseOperations2 hbaseTemplate,
                                           TableNameProvider tableNameProvider,
                                           @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                           @Qualifier("callerBulkIncrementer") BulkIncrementer bulkIncrementer,
@@ -90,8 +90,8 @@ public class BulkFactory {
     }
 
 
-    @Bean("calleeBulkIncrementer")
-    public BulkIncrementer getCalleeBulkIncrementer() {
+    @Bean
+    public BulkIncrementer calleeBulkIncrementer() {
         String reporterName = "calleeBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
         int limitSize = bulkConfiguration.getCalleeLimitSize();
@@ -100,14 +100,14 @@ public class BulkFactory {
     }
 
 
-    @Bean("calleeBulkUpdater")
-    public BulkUpdater getCalleeBulkUpdater() {
+    @Bean
+    public BulkUpdater calleeBulkUpdater() {
         String reporterName = "calleeBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
-    @Bean("calleeBulkWriter")
-    public BulkWriter newCalleeBulkWriter(HbaseOperations2 hbaseTemplate,
+    @Bean
+    public BulkWriter calleeBulkWriter(HbaseOperations2 hbaseTemplate,
                                           TableNameProvider tableNameProvider,
                                           @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                           @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer,
@@ -116,8 +116,8 @@ public class BulkFactory {
         return newBulkWriter(loggerName, hbaseTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
-    @Bean("selfBulkIncrementer")
-    public BulkIncrementer getSelfBulkIncrementer() {
+    @Bean
+    public BulkIncrementer selfBulkIncrementer() {
         String reporterName = "selfBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
         int limitSize = bulkConfiguration.getSelfLimitSize();
@@ -125,14 +125,14 @@ public class BulkFactory {
         return newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
     }
 
-    @Bean("selfBulkUpdater")
-    public BulkUpdater getSelfBulkUpdater() {
+    @Bean
+    public BulkUpdater selfBulkUpdater() {
         String reporterName = "selfBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
-    @Bean("selfBulkWriter")
-    public BulkWriter newSelfBulkWriter(HbaseOperations2 hbaseTemplate,
+    @Bean
+    public BulkWriter selfBulkWriter(HbaseOperations2 hbaseTemplate,
                                         TableNameProvider tableNameProvider,
                                         @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                         @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,

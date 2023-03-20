@@ -85,8 +85,8 @@ public class GrpcSpanReceiverConfigurationFactory {
         return new GrpcPropertiesServerOptionBuilder();
     }
 
-    @Bean("grpcSpanReceiverConfig")
-    public GrpcSpanReceiverConfiguration newSpanReceiverConfig(Environment environment) {
+    @Bean
+    public GrpcSpanReceiverConfiguration grpcSpanReceiverConfig(Environment environment) {
 
         boolean enable = environment.getProperty("collector.receiver.grpc.span.enable", boolean.class, false);
 
