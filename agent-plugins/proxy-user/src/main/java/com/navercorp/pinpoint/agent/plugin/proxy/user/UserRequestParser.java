@@ -29,6 +29,10 @@ import java.util.List;
 public class UserRequestParser implements ProxyRequestParser {
     private List<String> headerNameList = Collections.emptyList();
 
+    @Override
+    public String getHttpHeaderName() {
+        return "";
+    }
 
     @Override
     public List<String> getHttpHeaderNameList() {
@@ -48,6 +52,11 @@ public class UserRequestParser implements ProxyRequestParser {
         this.headerNameList = profilerConfig.readList(UserRequestConstants.USER_PROXY_HEADER_NAME_LIST);
     }
 
+    @Override
+    @Deprecated
+    public ProxyRequestHeader parse(String value) {
+        return parseHeader("UNKNOWN", value);
+    }
 
     @Override
     public ProxyRequestHeader parseHeader(String name, String value) {
@@ -80,8 +89,19 @@ public class UserRequestParser implements ProxyRequestParser {
             return 0;
         }
 
-        // to milliseconds.
-        return NumberUtils.parseLong(value, 0);
+        final int length = value.length();
+
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) {
+            if (length - millisPosition != 4) {
+                // invalid format.
+                return 0;
+            }
+            String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+            return NumberUtils.parseLong(strValue, 0);
+        }else {
+            return NumberUtils.parseLong(value, 0);
+        }
     }
 
     public int toDurationTimeMicros(final String value) {

@@ -17,16 +17,11 @@
 package com.navercorp.pinpoint.agent.plugin.proxy.user;
 
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.*;
 
 public class UserRequestParserTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void parse() {
@@ -57,17 +52,29 @@ public class UserRequestParserTest {
     public void parseNotFoundReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "D=123";
-        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
+        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
         assertFalse(proxyHttpHeader.isValid());
-        logger.info(proxyHttpHeader);
+        System.out.println(proxyHttpHeader);
+    }
+
+    @Test
+    public void parseReceivedSeconds() {
+        UserRequestParser parser = new UserRequestParser();
+        String value = "t=1625212448.369";
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
+        assertEquals(1625212448369L, proxyHttpHeader.getReceivedTimeMillis());
+        assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
+        assertEquals(-1, proxyHttpHeader.getIdlePercent());
+        assertEquals(-1, proxyHttpHeader.getBusyPercent());
     }
 
     @Test
     public void parseInvalidReceived() {
         UserRequestParser parser = new UserRequestParser();
-        String value = "t=1625212448.369";
-        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
+        String value = "t=1625212448:369";
+        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
         assertFalse(proxyHttpHeader.isValid());
-        logger.info(proxyHttpHeader);
+        System.out.println(proxyHttpHeader);
     }
+
 }
