@@ -21,7 +21,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 /**
  * @author Taejin Koo
@@ -76,22 +75,22 @@ public class ClusterConfigurationFactory {
         return ZookeeperClusterConfiguration.newBuilder();
     }
 
-    @Bean("clusterConfiguration")
-    public ZookeeperClusterConfiguration newDefault(Environment environment) {
+    @Bean
+    public ZookeeperClusterConfiguration clusterConfiguration() {
         ClusterEnable clusterEnable = newDefaultConfigurationEnable();
         ZookeeperClusterConfiguration.Builder builder = newDefaultConfigurationBuilder();
         return createConfiguration(clusterEnable, builder);
     }
 
-    @Bean("flinkClusterConfiguration")
-    public ZookeeperClusterConfiguration newFlink(Environment environment) {
+    @Bean
+    public ZookeeperClusterConfiguration flinkClusterConfiguration() {
         ClusterEnable clusterEnable = newFlinkConfigurationEnable();
         ZookeeperClusterConfiguration.Builder builder = newFlinkConfigurationBuilder();
         return createConfiguration(clusterEnable, builder);
     }
 
-    @Bean("flinkSpanStatClusterConfiguration")
-    public ZookeeperClusterConfiguration newFlinkSpanStat(Environment environment) {
+    @Bean
+    public ZookeeperClusterConfiguration flinkSpanStatClusterConfiguration() {
         ClusterEnable clusterEnable = newFlinkSpanStatConfigurationEnable();
         ZookeeperClusterConfiguration.Builder builder = newFlinkSpanStatConfigurationBuilder();
         return createConfiguration(clusterEnable, builder);
@@ -100,8 +99,7 @@ public class ClusterConfigurationFactory {
     private ZookeeperClusterConfiguration createConfiguration(ClusterEnable clusterEnable, ZookeeperClusterConfiguration.Builder builder) {
         builder.setEnable(clusterEnable.isEnable());
 
-        ZookeeperClusterConfiguration configuration = builder.build();
-        return configuration;
+        return builder.build();
     }
 
     private static class ClusterEnable {

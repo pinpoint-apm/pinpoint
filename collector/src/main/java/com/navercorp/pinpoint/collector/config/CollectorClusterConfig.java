@@ -19,9 +19,8 @@ package com.navercorp.pinpoint.collector.config;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -32,15 +31,21 @@ import javax.annotation.PostConstruct;
 public class CollectorClusterConfig {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    @Qualifier("clusterConfiguration")
-    @Autowired
-    private ZookeeperClusterConfiguration clusterConfiguration;
+    private final ZookeeperClusterConfiguration clusterConfiguration;
 
-    @Value("${cluster.listen.ip:}")
-    private String clusterListenIp;
+    private final String clusterListenIp;
 
-    @Value("${cluster.listen.port:-1}")
-    private int clusterListenPort;
+    private final int clusterListenPort;
+
+
+    public CollectorClusterConfig(
+            @Qualifier("clusterConfiguration") ZookeeperClusterConfiguration clusterConfiguration,
+            @Value("${cluster.listen.ip:}")    String clusterListenIp,
+            @Value("${cluster.listen.port:-1}") int clusterListenPort) {
+        this.clusterConfiguration = clusterConfiguration;
+        this.clusterListenIp = clusterListenIp;
+        this.clusterListenPort = clusterListenPort;
+    }
 
     public boolean isClusterEnable() {
         return clusterConfiguration.isEnable();
@@ -66,16 +71,9 @@ public class CollectorClusterConfig {
         return clusterListenIp;
     }
 
-    public void setClusterListenIp(String clusterListenIp) {
-        this.clusterListenIp = clusterListenIp;
-    }
 
     public int getClusterListenPort() {
         return clusterListenPort;
-    }
-
-    public void setClusterListenPort(int clusterListenPort) {
-        this.clusterListenPort = clusterListenPort;
     }
 
     @PostConstruct

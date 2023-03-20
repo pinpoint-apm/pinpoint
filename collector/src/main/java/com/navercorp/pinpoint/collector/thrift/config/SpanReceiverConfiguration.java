@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -163,8 +163,8 @@ public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration
         return workerMonitorEnable;
     }
 
-    @Bean("spanExecutorConfiguration")
-    public ExecutorConfiguration newExecutorConfiguration() {
+    @Bean
+    public ExecutorConfiguration spanExecutorConfiguration() {
         return new ExecutorConfiguration(workerThreadSize, workerQueueSize, workerMonitorEnable);
     }
 

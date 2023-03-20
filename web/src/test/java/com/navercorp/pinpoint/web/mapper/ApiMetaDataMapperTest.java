@@ -27,7 +27,7 @@ public class ApiMetaDataMapperTest {
                 .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js")
                 .build();
 
-        RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = new DistributorConfiguration().getMetadataRowKeyDistributor();
+        RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = new DistributorConfiguration().metadataRowKeyDistributor();
         final byte[] rowKey = givenRowKeyDistributorByHashPrefix.getDistributedKey(new MetadataEncoder().encodeRowKey(expected));
         final Buffer buffer = new AutomaticBuffer(64);
         final String api = expected.getApiInfo();

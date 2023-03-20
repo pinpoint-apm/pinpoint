@@ -76,8 +76,8 @@ public class GrpcAgentDataReceiverConfigurationFactory {
         return new GrpcPropertiesServerOptionBuilder();
     }
 
-    @Bean("grpcAgentReceiverConfig")
-    public GrpcAgentDataReceiverConfiguration newAgentReceiverConfig(Environment environment) {
+    @Bean
+    public GrpcAgentDataReceiverConfiguration grpcAgentReceiverConfig(Environment environment) {
         boolean enable = environment.getProperty("collector.receiver.grpc.agent.enable", boolean.class, false);
 
         ServerOption serverOption = newServerOption().build();

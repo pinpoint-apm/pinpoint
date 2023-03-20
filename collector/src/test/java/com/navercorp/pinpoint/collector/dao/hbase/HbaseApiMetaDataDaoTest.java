@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class HbaseApiMetaDataDaoTest {
 
@@ -26,7 +26,7 @@ public class HbaseApiMetaDataDaoTest {
         HbaseOperations2 mockedHbaseTemplate = mock(HbaseOperations2.class);
         TableNameProvider mockedProvider = mock(TableNameProvider.class);
         DistributorConfiguration givenConfiguration = new DistributorConfiguration();
-        RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = givenConfiguration.getMetadataRowKeyDistributor();
+        RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = givenConfiguration.metadataRowKeyDistributor();
         HbaseApiMetaDataDao dut = new HbaseApiMetaDataDao(mockedHbaseTemplate, mockedProvider, givenRowKeyDistributorByHashPrefix);
 
         doAnswer((invocation) -> {
