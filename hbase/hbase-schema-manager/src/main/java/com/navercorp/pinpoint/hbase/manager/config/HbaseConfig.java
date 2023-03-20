@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseAdminFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.Properties;
@@ -32,7 +32,7 @@ import java.util.Properties;
 /**
  * @author HyunGil Jeong
  */
-@Configuration
+@org.springframework.context.annotation.Configuration
 @PropertySource("classpath:hbase.properties")
 public class HbaseConfig {
 
@@ -165,7 +165,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public ConnectionFactoryBean connectionFactory(org.apache.hadoop.conf.Configuration configuration) {
+    public ConnectionFactoryBean connectionFactory(Configuration configuration) {
         return new ConnectionFactoryBean(configuration);
     }
 
@@ -180,7 +180,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public HbaseTemplate2 hbaseTemplate(org.apache.hadoop.conf.Configuration configuration,
+    public HbaseTemplate2 hbaseTemplate(Configuration configuration,
                                         HbaseTableFactory hbaseTableFactory) {
         HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(configuration);

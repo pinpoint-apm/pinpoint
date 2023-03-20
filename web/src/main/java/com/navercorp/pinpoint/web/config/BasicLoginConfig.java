@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -39,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 @Profile("basicLogin")
-@Configuration
+@Component
 public class BasicLoginConfig {
 
     private static final String DEFAULT_JWT_SECRET_KEY = "PINPOINT_JWT_SECRET";

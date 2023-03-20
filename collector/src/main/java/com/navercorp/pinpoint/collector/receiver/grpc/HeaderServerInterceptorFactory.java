@@ -13,18 +13,18 @@ import java.util.List;
 
 @Configuration
 public class HeaderServerInterceptorFactory {
-    @Bean("agentInterceptorList")
-    public List<ServerInterceptor> getAgentServerInterceptor() {
+    @Bean
+    public List<ServerInterceptor> agentInterceptorList() {
         return newServerInterceptors("agent");
     }
 
-    @Bean("spanInterceptorList")
-    public List<ServerInterceptor> getSpanServerInterceptor() {
+    @Bean
+    public List<ServerInterceptor> spanInterceptorList() {
         return newServerInterceptors("span");
     }
 
-    @Bean("statInterceptorList")
-    public List<ServerInterceptor> getStatServerInterceptor() {
+    @Bean
+    public List<ServerInterceptor> statInterceptorList() {
         return newServerInterceptors("stat");
     }
 
