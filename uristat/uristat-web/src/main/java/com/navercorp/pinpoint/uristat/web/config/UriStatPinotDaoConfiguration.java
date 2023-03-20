@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -12,7 +13,6 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Configuration
+@org.springframework.context.annotation.Configuration
 public class UriStatPinotDaoConfiguration {
 
     @Bean
@@ -41,8 +41,8 @@ public class UriStatPinotDaoConfiguration {
         return sessionFactoryBean.getObject();
     }
 
-    private org.apache.ibatis.session.Configuration newConfiguration() {
-        org.apache.ibatis.session.Configuration config = MyBatisConfiguration.defaultConfiguration();
+    private Configuration newConfiguration() {
+        Configuration config = MyBatisConfiguration.defaultConfiguration();
 
         TypeAliasRegistry typeAliasRegistry = config.getTypeAliasRegistry();
         typeAliasRegistry.registerAlias("UriStatHistogram", UriStatHistogram.class);

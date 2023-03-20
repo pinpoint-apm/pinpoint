@@ -34,8 +34,8 @@ public class KafkaConfiguration {
         return config;
     }
 
-    @Bean("kafkaProducerFactory")
-    public ProducerFactory getKafkaProducerFactory(KafkaProperties properties) {
+    @Bean
+    public ProducerFactory kafkaProducerFactory(KafkaProperties properties) {
         logger.info("kafka {}:{}", ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getBootstrapServers());
         logger.debug("kafka config:{}", properties);
 
@@ -44,7 +44,7 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public KafkaProperties getKafkaProperties(Environment env) {
+    public KafkaProperties kafkaProperties(Environment env) {
         KafkaProperties properties = new KafkaProperties();
 
         bindProperties(env, "pinpoint.metric.kafka.bootstrap.servers", properties::setBootstrapServers);
