@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
@@ -129,7 +129,7 @@ public class SpanEncoderV0 implements SpanEncoder {
     public ByteBuffer encodeSpanColumnValue(SpanEncodingContext<SpanBo> encodingContext) {
         final SpanBo span = encodingContext.getValue();
 
-        final SpanBitFiled bitField = SpanBitFiled.build(span);
+        final SpanBitField bitField = SpanBitField.build(span);
 
         final Buffer buffer = new AutomaticBuffer(256);
 
