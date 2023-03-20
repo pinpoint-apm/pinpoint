@@ -18,18 +18,18 @@ import org.springframework.kafka.core.ProducerFactory;
 @Import({KafkaConfiguration.class})
 public class MetricKafkaConfiguration {
 
-    @Bean("kafkaDoubleTemplate")
-    public KafkaTemplate<String, SystemMetricView> getSystemMetricKafkaTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
+    @Bean
+    public KafkaTemplate<String, SystemMetricView> kafkaDoubleTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean("kafkaTagTemplate")
-    public KafkaTemplate<String, PinotMetricTagDao.MetricJsonTag> getTagKafkaTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
+    @Bean
+    public KafkaTemplate<String, PinotMetricTagDao.MetricJsonTag> kafkaTagTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean("kafkaDataTypeTemplate")
-    public KafkaTemplate<String, MetricData> getDataTypeKafkaTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
+    @Bean
+    public KafkaTemplate<String, MetricData> kafkaDataTypeTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 }
