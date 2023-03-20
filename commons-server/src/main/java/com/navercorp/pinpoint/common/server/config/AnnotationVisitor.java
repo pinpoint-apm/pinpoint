@@ -50,7 +50,7 @@ public class AnnotationVisitor<T extends Annotation> {
             if (!annotation) {
                 continue;
             }
-            final Object fieldValue = getFiledValue(object, field);
+            final Object fieldValue = getFieldValue(object, field);
             fieldVisitor.visit(field, fieldValue);
         }
     }
@@ -66,7 +66,7 @@ public class AnnotationVisitor<T extends Annotation> {
     }
 
 
-    private Object getFiledValue(Object object, Field field) {
+    private Object getFieldValue(Object object, Field field) {
         ReflectionUtils.makeAccessible(field);
         return ReflectionUtils.getField(field, object);
     }

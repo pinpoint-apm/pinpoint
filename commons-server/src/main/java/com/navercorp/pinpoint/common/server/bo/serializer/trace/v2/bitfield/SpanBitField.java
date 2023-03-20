@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanBitFiled {
+public class SpanBitField {
 
     // 1bit
     public static final int SET_APPLICATION_SERVICE_TYPE_ENCODING_STRATEGY = 0;
@@ -43,47 +43,47 @@ public class SpanBitFiled {
     // reserved : 1 bit
     private byte bitField = 0;
 
-    public static SpanBitFiled build(SpanBo spanBo) {
+    public static SpanBitField build(SpanBo spanBo) {
         Objects.requireNonNull(spanBo, "spanBo");
 
-        final SpanBitFiled spanBitFiled = new SpanBitFiled();
+        final SpanBitField spanBitField = new SpanBitField();
 
 
         if (spanBo.getServiceType() == spanBo.getApplicationServiceType()) {
-            spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
+            spanBitField.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
         } else {
-            spanBitFiled.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.RAW);
+            spanBitField.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.RAW);
         }
 
         if (spanBo.getParentSpanId() == ROOT_PARENT_SPAN_ID) {
-            spanBitFiled.setRoot(true);
+            spanBitField.setRoot(true);
         }
         if (spanBo.getErrCode() != 0) {
-            spanBitFiled.setErrorCode(true);
+            spanBitField.setErrorCode(true);
         }
 
         if (spanBo.hasException()) {
-            spanBitFiled.setHasException(true);
+            spanBitField.setHasException(true);
         }
 
         if (spanBo.getFlag() != 0) {
-            spanBitFiled.setFlag(true);
+            spanBitField.setFlag(true);
         }
 
         if (spanBo.getLoggingTransactionInfo() != LoggingInfo.NOT_LOGGED.getCode()) {
-            spanBitFiled.setLoggingTransactionInfo(true);
+            spanBitField.setLoggingTransactionInfo(true);
         }
         if (CollectionUtils.isNotEmpty(spanBo.getAnnotationBoList())) {
-            spanBitFiled.setAnnotation(true);
+            spanBitField.setAnnotation(true);
         }
 
-        return spanBitFiled;
+        return spanBitField;
     }
 
-    public SpanBitFiled() {
+    public SpanBitField() {
     }
 
-    public SpanBitFiled(byte bitField) {
+    public SpanBitField(byte bitField) {
         this.bitField = bitField;
     }
 
