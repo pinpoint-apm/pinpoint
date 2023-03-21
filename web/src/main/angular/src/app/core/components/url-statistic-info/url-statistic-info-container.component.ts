@@ -15,9 +15,9 @@ import { UrlPathId } from 'app/shared/models';
 })
 export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    private countChange = new Subject<number>();
+    private changeCount = new Subject<number>();
     private clickSort = new Subject<{orderby: string, isDesc: boolean}>();
-    private onCountChange$ = this.countChange.asObservable();
+    private onChangeCount$ = this.changeCount.asObservable();
     private onClickSort$ = this.clickSort.asObservable();
 
     data$: Observable<IUrlStatInfoData[]>;
@@ -46,7 +46,7 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
 
         this.data$ = combineLatest([
             this.newUrlStateNotificationService.onUrlStateChange$,
-            this.onCountChange$.pipe(
+            this.onChangeCount$.pipe(
                 startWith(this.selectedCount)
             ),
             this.onClickSort$.pipe(
@@ -95,7 +95,7 @@ export class UrlStatisticInfoContainerComponent implements OnInit, OnDestroy {
     }
 
     onSelectionChange(count: number): void {
-        this.countChange.next(count);
+        this.changeCount.next(count);
     }
 
     onClickSort(sortStatus: {orderby: string, isDesc: boolean}): void {
