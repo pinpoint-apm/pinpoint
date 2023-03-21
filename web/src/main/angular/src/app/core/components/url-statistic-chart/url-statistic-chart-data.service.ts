@@ -6,8 +6,9 @@ export interface IUrlStatChartDataParams {
     from: number;
     to: number;
     applicationName: string;
-    agentId: string;
+    agentId?: string;
     uri: string;
+    type?: string;
 }
 
 @Injectable({

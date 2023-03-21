@@ -76,6 +76,12 @@
     margin-right: 15px;
 }
 
+.url-info-row.active .url-cell {
+    font-weight: bold;
+    color: var(--text-primary-lighter);
+    font-size: 13px;
+}
+
 .url-info-cell.apdex-cell,
 .url-info-cell.avg-cell,
 .url-info-cell.max-cell {
