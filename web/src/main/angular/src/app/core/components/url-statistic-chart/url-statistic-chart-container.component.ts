@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { EMPTY, forkJoin, iif, Observable, of, Subject } from 'rxjs';
-import { catchError, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, EMPTY, forkJoin, iif, Observable, of, Subject } from 'rxjs';
+import { catchError, filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Data, PrimitiveArray, bar, zoom } from 'billboard.js';
 import * as moment from 'moment-timezone';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService, StoreH
 import { IUrlStatChartDataParams, UrlStatisticChartDataService } from './url-statistic-chart-data.service';
 import { UrlPathId } from 'app/shared/models';
 import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
+import { isEmpty } from 'app/core/utils/util';
 
 export enum Layer {
     LOADING = 'loading',
@@ -22,13 +23,22 @@ export enum Layer {
 	styleUrls: ['./url-statistic-chart-container.component.css']
 })
 export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
+    private clickTab = new Subject<string>();
+    private onClickTab$ = this.clickTab.asObservable();
 	private unsubscribe = new Subject<void>();
 	private defaultYMax = 1;
     private chartColorList: string[];
     private timezone: string;
     private dateFormatMonth: string;
     private dateFormatDay: string;
-	private cachedData: {[key: string]: {timestamp: number[], metricValues: IMetricValue[]}} = {};
+	private cachedData: {
+        [key: string]: { // url
+            [key: string]: { // chart type (total, failure, ...)
+                timestamp: number[],
+                metricValues: IMetricValue[]
+            }
+        }
+     } = {};
     private fieldNameList: string[];
     private previousParams: IUrlStatChartDataParams;
     
@@ -42,6 +52,9 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
     emptyMessage: string;
     chartVisibility = {};
     _activeLayer: Layer;
+
+    tabList: {id: string, display: string}[];
+    activeTabId = 'total';
 
 	constructor(
 		private messageQueueService: MessageQueueService,
@@ -58,6 +71,7 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         this.initFieldNameList();
 		this.initChartColorList();
         this.initI18nText();
+        this.initTabList();
         // this.initDefaultChartConfig();
         this.listenToEmitter();
 
@@ -71,12 +85,21 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
             // this.initDefaultChartConfig();
 		});
 
-		this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SELECT_URL_INFO).pipe(
-            tap((uri: string) => {
-                this.selectedUri = uri;
-            }),
-            filter((uri: string) => {
+        combineLatest([
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SELECT_URL_INFO).pipe(
+                tap((uri: string) => {
+                    this.selectedUri = uri;
+                }),
+            ),
+            this.onClickTab$.pipe(
+                startWith(this.activeTabId)
+            )
+        ]).pipe(
+            filter(([uri, _]: string[]) => {
                 if (Boolean(uri)) {
+                    if (isEmpty(this.cachedData[uri])) {
+                        this.cachedData[uri] = {};
+                    }
                     return true;
                 } else {
                     this.initDefaultChartConfig();
@@ -84,28 +107,24 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
                     return false;
                 }
             }),
-            // tap((uri: string) => {
-            //     this.isUriSelected = true;
-            //     this.selectedUri = uri;
-            // }),
-			switchMap((uri: string) => {
-				if (Boolean(this.cachedData[uri])) {
-					return of(this.cachedData[uri]);
+            switchMap(([uri, tabId]: string[]) => {
+				if (Boolean(this.cachedData[uri][tabId])) {
+					return of(this.cachedData[uri][tabId]);
 				} else {
 					const urlService = this.newUrlStateNotificationService;
 					const from = urlService.getStartTimeToNumber();
 					const to = urlService.getEndTimeToNumber();
 					const applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
 					const agentId = urlService.getPathValue(UrlPathId.AGENT_ID) || '';
-					const params = this.previousParams = {from, to, applicationName, agentId, uri};
+					const params = this.previousParams = {from, to, applicationName, agentId, uri, type: tabId};
                     
                     this.activeLayer = Layer.LOADING;
                     this.cd.detectChanges();
 
 					return this.urlStatisticChartDataService.getData(params).pipe(
 						map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
-							this.cachedData[uri] = {timestamp, metricValues: metricValueGroups[0].metricValues};
-							return this.cachedData[uri];
+							this.cachedData[uri][tabId] = {timestamp, metricValues: metricValueGroups[0].metricValues};
+							return this.cachedData[uri][tabId];
 						}),
                         catchError((error: IServerError) => {
                             this.activeLayer = Layer.RETRY;
@@ -116,7 +135,7 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
 					);	
 				}
 			})
-		).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
+        ).subscribe((data: {timestamp: number[], metricValues: IMetricValue[]}) => {
 			this.setChartConfig(this.makeChartData(data));
 		});
 	}
@@ -142,6 +161,26 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         };
     }
 
+    private initTabList(): void {
+        this.tabList = [{
+            id: 'total',
+            display: 'Total Count',
+        },
+        {
+            id: 'failure',
+            display: 'Failure Count',
+        }];
+    }
+
+    onTabClick(tabId: string): void {
+        if (tabId === this.activeTabId) {
+            return;
+        }
+
+        this.activeTabId = tabId;
+        this.clickTab.next(tabId);
+    }
+
     onRendered(): void {
         this.activeLayer = Layer.CHART;
 	}
@@ -154,8 +193,8 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
         this.activeLayer = Layer.LOADING;
         this.urlStatisticChartDataService.getData(this.previousParams).pipe(
             map(({timestamp, metricValueGroups}: IUrlStatChartData) => {
-                this.cachedData[this.selectedUri] = {timestamp, metricValues: metricValueGroups[0].metricValues};
-                return this.cachedData[this.selectedUri];
+                this.cachedData[this.selectedUri][this.activeTabId] = {timestamp, metricValues: metricValueGroups[0].metricValues};
+                return this.cachedData[this.selectedUri][this.activeTabId];
             }),
             catchError((error: IServerError) => {
                 this.activeLayer = Layer.RETRY;
@@ -280,7 +319,7 @@ export class UrlStatisticChartContainerComponent implements OnInit, OnDestroy {
             padding: {
                 top: 20,
                 bottom: 20,
-                right: 10
+                right: 20
             },
             axis: {
                 x: {
