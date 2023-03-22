@@ -1,3 +1,3 @@
 import './style/index.css';
 export * from './ui';
-// export * from './types';
+export * from './types/types';
