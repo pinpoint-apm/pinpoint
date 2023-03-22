@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.metric.common.util;
+package com.navercorp.pinpoint.pinot.kafka.util;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.kafka.support.SendResult;
