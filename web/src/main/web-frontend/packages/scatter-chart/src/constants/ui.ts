@@ -1,5 +1,4 @@
 export const SCATTER_CHART_IDENTIFIER = '__scatter_chart__';
-export const PIXEL_RATIO = window && window.devicePixelRatio || 1;
 
 // canvas color
 export const COLOR_TEXT = 'black';
