@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.metric.collector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
-import com.navercorp.pinpoint.metric.collector.config.MetricCollectorPinotDaoConfiguration;
 import com.navercorp.pinpoint.metric.collector.config.MetricKafkaConfiguration;
+import com.navercorp.pinpoint.metric.common.config.MetricCollectorPinotDaoConfiguration;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
