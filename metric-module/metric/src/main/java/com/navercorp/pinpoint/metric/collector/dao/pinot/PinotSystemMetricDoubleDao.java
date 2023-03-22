@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.metric.collector.dao.pinot;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
-import com.navercorp.pinpoint.metric.common.util.KafkaCallbacks;
+import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
