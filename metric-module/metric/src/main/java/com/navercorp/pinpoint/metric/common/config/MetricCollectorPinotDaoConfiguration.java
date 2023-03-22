@@ -1,12 +1,13 @@
-package com.navercorp.pinpoint.metric.collector.config;
+package com.navercorp.pinpoint.metric.common.config;
 
-import com.navercorp.pinpoint.metric.common.config.MetricSqlSessionFactoryBuilder;
+import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,17 +40,27 @@ public class MetricCollectorPinotDaoConfiguration {
             logger.info("Mapper location: {}", mapper.getDescription());
         }
 
-        MetricSqlSessionFactoryBuilder factory = new MetricSqlSessionFactoryBuilder();
-        factory.setDataSource(dataSource);
-        factory.setMappers(mappers);
+        SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
+        sessionFactoryBean.setDataSource(dataSource);
+        sessionFactoryBean.setMapperLocations(mappers);
+        sessionFactoryBean.setTransactionFactory(transactionFactory());
 
         Configuration config = MyBatisConfiguration.defaultConfiguration();
-        factory.setConfiguration(config);
+        sessionFactoryBean.setConfiguration(config);
 
-        factory.registerCommonTypeAlias();
-        factory.registerCommonTypeHandler();
-        factory.setTransactionFactory(new ManagedTransactionFactory());
-        return factory.build();
+        MyBatisRegistryHandler registry = registryHandler();
+        registry.registerTypeAlias(config.getTypeAliasRegistry());
+        registry.registerTypeHandler(config.getTypeHandlerRegistry());
+
+        return sessionFactoryBean.getObject();
+    }
+
+    private ManagedTransactionFactory transactionFactory() {
+        return new ManagedTransactionFactory();
+    }
+
+    private MyBatisRegistryHandler registryHandler() {
+        return new CommonRegistryHandler();
     }
 
 
