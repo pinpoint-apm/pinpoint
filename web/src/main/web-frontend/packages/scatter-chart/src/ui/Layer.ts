@@ -124,9 +124,13 @@ export class Layer {
 
   public getTextHeight(text: string) {
     const lines = `${text}`.split('\n');
-    let totalHeight = lines.reduce((sum, txt) => {
+    const totalHeight = lines.reduce((sum, txt) => {
       const metrics = this.context.measureText(`${txt}`);
-      let textHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+      
+      const textAscent = metrics.fontBoundingBoxAscent || metrics.actualBoundingBoxAscent;
+      const textDescent = metrics.fontBoundingBoxDescent || metrics.actualBoundingBoxDescent;
+      const textHeight = textAscent + textDescent;
+      
       return textHeight + sum;
     }, 0)
     return totalHeight;

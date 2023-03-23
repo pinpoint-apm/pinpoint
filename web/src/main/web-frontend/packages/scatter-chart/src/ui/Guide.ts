@@ -87,7 +87,7 @@ export class Guide extends Layer {
       this.dragStartY = offsetY;
     });
 
-    this.canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {;
+    this.canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
       const width = this.canvas.width / this.dpr;
       const height = this.canvas.height / this.dpr;
       this.context.clearRect(0, 0, width, height);
@@ -196,6 +196,7 @@ export class Guide extends Layer {
     // x
     drawRect(context, x - xTextWidth / 2, height - padding.bottom + xAxis.tick?.width!, xTextWidth, xTextHeight + xAxis.tick?.padding?.top! + xAxis.tick?.padding?.bottom!, { color: backgroundColor });
     drawLine(context, padding.left - xAxis.tick?.width!, y, padding.left, y, { color: strokeColor });
+
     xTextLines.reverse().forEach((xLine, i) => {
       drawText(
         context, xLine,
