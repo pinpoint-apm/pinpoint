@@ -28,3 +28,46 @@ export const getLongestText = (texts: string[], measurer: (t: string) => number)
 
   return measurer(text);
 }
+
+export const getSafeDrawImageArgs = (
+  canvas: HTMLCanvasElement,
+  sx: number, sy: number, sw: number, sh: number,
+  dx: number, dy: number, dw: number, dh: number
+): [HTMLCanvasElement, number, number, number, number, number, number, number, number] => {
+  const { width, height } = canvas;
+
+  if (sw < 0) {
+    sx += sw;
+    sw = Math.abs(sw);
+  }
+  if (sh < 0) {
+    sy += sh;
+    sh = Math.abs(sh);
+  }
+  if (dw < 0) {
+    dx += dw;
+    dw = Math.abs(dw);
+  }
+  if (dh < 0) {
+    dy += dh;
+    dh = Math.abs(dh);
+  }
+  const x1 = Math.max(sx, 0);
+  const x2 = Math.min(sx + sw, width);
+  const y1 = Math.max(sy, 0);
+  const y2 = Math.min(sy + sh, height);
+  const w_ratio = dw / sw;
+  const h_ratio = dh / sh;
+
+  return [
+    canvas,
+    x1,
+    y1,
+    x2 - x1,
+    y2 - y1,
+    sx < 0 ? dx - (sx * w_ratio) : dx,
+    sy < 0 ? dy - (sy * h_ratio) : dy,
+    (x2 - x1) * w_ratio,
+    (y2 - y1) * h_ratio
+  ];
+}

@@ -1,4 +1,5 @@
 import { drawRect } from "../utils/draw";
+import { getSafeDrawImageArgs } from "../utils/helper";
 import { Layer } from "./Layer";
 
 export interface ViewportOption {
@@ -9,14 +10,17 @@ export interface ViewportOption {
 export class Viewport {
   private view: Layer;
   private layers: Layer[];
-  
+  private useSafeDrawImageArgs: boolean;
+
   constructor(wrapper: HTMLElement, {
     width = 0,
     height = 0,
   }) {
+    // handle safari issue
+    this.useSafeDrawImageArgs = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     this.layers = [];
     this.view = new Layer({
-      width, 
+      width,
       height,
     });
     this.view.canvas.style.display = 'block';
@@ -40,29 +44,33 @@ export class Viewport {
   }
 
   get styleHeight() {
-    return this.view.canvas.height / this.view.dpr;  
+    return this.view.canvas.height / this.view.dpr;
   }
 
   public render(x: number, y: number) {
     this.layers.forEach(layer => {
       const layerCanvas = layer.canvas;
       const dpr = layer.dpr;
-      
+
       if (layer.isDisplay) {
         if (layer.isFixed) {
           this.view.context.drawImage(
-            layerCanvas, 
-            0, 0, layerCanvas.width, layerCanvas.height, 
+            layerCanvas,
+            0, 0, layerCanvas.width, layerCanvas.height,
             0, 0, layerCanvas.width / dpr, layerCanvas.height / dpr
           );
         } else {
-          this.view.context.drawImage(
-            layerCanvas, 
+          const args: ReturnType<typeof getSafeDrawImageArgs> = [
+            layerCanvas,
             -x * dpr, y * dpr, layerCanvas.width, layerCanvas.height,
             0, y, layerCanvas.width / dpr, layerCanvas.height / dpr
+          ]
+          const safeArgs = this.useSafeDrawImageArgs ? getSafeDrawImageArgs(...args) : args;
+          this.view.context.drawImage(
+            ...safeArgs
           );
         }
-      } 
+      }
     })
   }
 
@@ -86,10 +94,10 @@ export class Viewport {
     this.layers.sort((a, b) => {
       if (a.priority > b.priority) {
         return -1;
-      } else 
+      } else
         return 1;
     })
-    
+
     return this;
   }
 
@@ -99,7 +107,7 @@ export class Viewport {
       layer.setSize(width, height);
     });
     return this;
-  } 
+  }
 
   public clear() {
     this.view.context.clearRect(0, 0, this.view.canvas.width, this.view.canvas.height);
