@@ -32,6 +32,11 @@
       "dataType": "STRING",
       "singleValueField": false,
       "defaultNullValue": "null"
+    },
+    {
+      "name": "version",
+      "dataType": "STRING",
+      "defaultNullValue": ""
     }
   ],
   "metricFieldSpecs": [
