@@ -1,25 +1,25 @@
 {
-  "tableName": "uriStat",
+  "tableName": "systemMetricDouble",
   "tableType": "REALTIME",
   "segmentsConfig": {
-    "timeColumnName": "timestamp",
+    "timeColumnName": "eventTime",
     "timeType": "MILLISECONDS",
-    "schemaName": "uriStat",
-    "replicasPerPartition": "1",
+    "schemaName": "systemMetricDouble",
+    "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "56"
+    "retentionTimeValue": "21"
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["tenantId", "serviceName", "applicationName", "agentId", "uri"],
-    "bloomFilterColumns": ["tenantId", "serviceName", "applicationName", "agentId"],
-    "noDictionaryColumns": ["tot0", "tot1", "tot2", "tot3", "tot4", "tot5", "tot6", "tot7", "fail0", "fail1", "fail2", "fail3", "fail4", "fail5", "fail6", "fail7"],
+    "sortedColumn": ["hostName"],
+    "bloomFilterColumns": ["tenantId", "serviceName", "hostGroupName", "hostName", "metricName", "fieldName"],
+    "noDictionaryColumns": ["fieldValue", "eventTime"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
       "streamType": "kafka",
       "stream.kafka.consumer.type": "lowlevel",
-      "stream.kafka.topic.name": "url-stat",
+      "stream.kafka.topic.name": "system-metric-double",
       "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
       "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
       "stream.kafka.broker.list": "localhost:19092",
@@ -30,5 +30,16 @@
     }
   },
   "metadata": {
+    "customConfigs": {}
+  },
+  "task": {
+    "taskTypeConfigsMap": {
+      "RealtimeToOfflineSegmentsTask": {
+        "bucketTimePeriod": "4h",
+        "bufferTimePeriod": "12h",
+        "schedule": "0 0 * * * ?",
+        "maxNumRecordsPerSegment": "6000000"
+      }
+    }
   }
 }

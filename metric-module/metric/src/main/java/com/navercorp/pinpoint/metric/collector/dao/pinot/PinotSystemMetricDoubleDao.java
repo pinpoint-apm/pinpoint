@@ -43,20 +43,14 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
     private final KafkaTemplate<String, SystemMetricView> kafkaDoubleTemplate;
 
     private final String topic;
-    private final String topic2;
 
     private final ListenableFutureCallback<SendResult<String, SystemMetricView>> resultCallback
             = KafkaCallbacks.loggingCallback("Kafka(SystemMetricView)", logger);
-
-    private final ListenableFutureCallback<SendResult<String, SystemMetricView>> resultCallback2
-            = KafkaCallbacks.loggingCallback("Kafka(SystemMetricView2)", logger);
-
 
     public PinotSystemMetricDoubleDao(KafkaTemplate<String, SystemMetricView> kafkaDoubleTemplate,
                                       @Value("${kafka.double.topic}") String topic) {
         this.kafkaDoubleTemplate = Objects.requireNonNull(kafkaDoubleTemplate, "kafkaDoubleTemplate");
         this.topic = Objects.requireNonNull(topic, "topic");
-        this.topic2 = "system-metric-double2";
     }
 
     @Override
@@ -66,14 +60,10 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
         for (DoubleMetric doubleMetric : systemMetrics) {
-            SystemMetricView systemMetricView = new SystemMetricView(tenantId, hostGroupName, doubleMetric);
             String kafkaKey = generateKafkaKey(doubleMetric);
+            SystemMetricView systemMetricView = new SystemMetricView(tenantId, hostGroupName, doubleMetric);
             ListenableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
             callback.addCallback(resultCallback);
-
-            String kafkaKey2 = generateKafkaKey2(doubleMetric);
-            ListenableFuture<SendResult<String, SystemMetricView>> callback2 = this.kafkaDoubleTemplate.send(topic2, kafkaKey2, systemMetricView);
-            callback2.addCallback(resultCallback2);
         }
     }
 
@@ -83,15 +73,5 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
                 doubleMetric.getMetricName() +
                 "_" +
                 doubleMetric.getFieldName();
-    }
-
-    private String generateKafkaKey2(DoubleMetric doubleMetric) {
-        return doubleMetric.getHostName() +
-                "_" +
-                doubleMetric.getMetricName() +
-                "_" +
-                doubleMetric.getFieldName() +
-                "_" +
-                doubleMetric.getEventTime();
     }
 }
