@@ -1,23 +1,23 @@
 {
-  "tableName": "systemMetricDataType",
+  "tableName": "systemMetricTag",
   "tableType": "REALTIME",
   "segmentsConfig": {
     "timeColumnName": "saveTime",
     "timeType": "MILLISECONDS",
-    "schemaName": "systemMetricDataType",
+    "schemaName": "systemMetricTag",
     "replicasPerPartition": "1",
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "70"
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["metricName", "fieldName"],
+    "sortedColumn": ["hostName"],
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
       "streamType": "kafka",
       "stream.kafka.consumer.type": "lowlevel",
-      "stream.kafka.topic.name": "system-metric-data-type",
+      "stream.kafka.topic.name": "system-metric-tag",
       "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
       "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
       "stream.kafka.broker.list": "localhost:19092",
