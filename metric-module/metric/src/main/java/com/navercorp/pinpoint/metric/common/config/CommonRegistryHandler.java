@@ -24,6 +24,8 @@ public class CommonRegistryHandler implements MyBatisRegistryHandler {
 
     @Override
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
+        typeAliasRegistry.registerAlias("Number", Number.class);
+        
         typeAliasRegistry.registerAlias("Tag", Tag.class);
         typeAliasRegistry.registerAlias("DoubleMetric", DoubleMetric.class);
         typeAliasRegistry.registerAlias("MetricData", MetricData.class);
