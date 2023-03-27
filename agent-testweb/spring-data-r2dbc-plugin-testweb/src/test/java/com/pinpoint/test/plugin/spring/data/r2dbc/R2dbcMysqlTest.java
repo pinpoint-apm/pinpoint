@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
 
-import java.util.concurrent.TimeUnit;
-
 public class R2dbcMysqlTest {
     public static final String DATABASE_NAME = "test";
     public static final String USERNAME = "root";

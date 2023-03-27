@@ -44,7 +44,7 @@ public class SpringDataR2dbcPluginController {
 
     R2dbcDatabase r2dbcDatabase;
 
-    public SpringDataR2dbcPluginController(@Qualifier("mssql") R2dbcDatabase r2dbcDatabase) {
+    public SpringDataR2dbcPluginController(@Qualifier("mysql") R2dbcDatabase r2dbcDatabase) {
         this.r2dbcDatabase = r2dbcDatabase;
     }
 
