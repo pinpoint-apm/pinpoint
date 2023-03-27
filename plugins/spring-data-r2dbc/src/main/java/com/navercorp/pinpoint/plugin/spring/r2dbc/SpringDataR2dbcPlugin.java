@@ -45,18 +45,24 @@ import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.DefaultFetchSpecIn
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.DefaultGenericExecuteSpecInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.DefaultGenericExecuteSpecResultFunctionApplyInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.DefaultGenericExecuteSpecStatementFunctionGetLambdaInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.SetDatabaseInfoConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindNullInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementExecuteInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.H2ConnectionConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.H2ConnectionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.H2ConnectionFactoryConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.JasyncConnectionFactoryConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.SessionClientConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.ConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.JasyncClientConnectionConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.JasyncConnectionFactoryConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.MySQLConnectionFactoryConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mariadb.MariadbConnectionConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mariadb.MariadbConnectionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mariadb.MariadbConnectionFactoryTransformConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlConnectionConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlConnectionConfigurationToConnectionOptionsInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlConnectionConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.MySQLConnectionFactoryConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlConnectionFactoryConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlStatementBindInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlStatementBindNullInterceptor;
@@ -64,18 +70,13 @@ import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlStateme
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.MySqlConnectionConfigurationInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.MySqlConnectionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.MySqlConnectionFactoryFromInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.QueryFlowLoginInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.ReactorNettyClientConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.oracle.OracleConnectionFactoryImplConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.oracle.OracleConnectionFactoryImplLambdaCreateInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.oracle.OracleConnectionImplConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.postgresql.PostgresqlConnectionConfigurationInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.postgresql.PostgresqlConnectionConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.QueryFlowLoginInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.ReactorNettyClientConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.SessionClientConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindNullInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementExecuteInterceptor;
-import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.jasync.ConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.postgresql.PostgresqlConnectionFactoryConstructorInterceptor;
 
 import java.security.ProtectionDomain;
@@ -163,6 +164,14 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         transformTemplate.transform("org.springframework.r2dbc.core.DefaultDatabaseClient", DefaultDatabaseClientTransform.class);
         transformTemplate.transform("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec", DefaultGenericExecuteSpecTransform.class);
         transformTemplate.transform("org.springframework.r2dbc.core.DefaultFetchSpec", DefaultFetchSpecTransform.class);
+
+        // ConnectionFactory
+        transformTemplate.transform("io.r2dbc.pool.ConnectionPoolConfiguration", ConnectionPoolConfigurationTransform.class);
+        transformTemplate.transform("io.r2dbc.pool.ConnectionPool", ConnectionPoolTransform.class);
+        transformTemplate.transform("org.springframework.boot.r2dbc.OptionsCapableConnectionFactory", OptionsCapableConnectionFactoryTransform.class);
+        transformTemplate.transform("org.springframework.r2dbc.connection.DelegatingConnectionFactory", DelegatingConnectionFactoryTransform.class);
+        transformTemplate.transform("org.springframework.r2dbc.connection.SingleConnectionFactory", SingleConnectionFactoryTransform.class);
+        transformTemplate.transform("org.springframework.r2dbc.connection.TransactionAwareConnectionFactoryProxy", TransactionAwareConnectionFactoryProxyTransform.class);
 
         // statementFunction, resultFunction Lambda
         final Matcher defaultGenericExecuteSpecLambdaMatcher = Matchers.newLambdaExpressionMatcher("org.springframework.r2dbc.core.DefaultDatabaseClient$DefaultGenericExecuteSpec", "java.util.function.Function");
@@ -959,6 +968,119 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("one", "first", "all", "rowsUpdated"))) {
                 method.addScopedInterceptor(DefaultFetchSpecInterceptor.class, "DefaultFetchSpec", ExecutionPolicy.BOUNDARY);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ConnectionPoolConfigurationTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(DatabaseInfoAccessor.class);
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                if (ArrayUtils.hasLength(constructorMethod.getParameterTypes())) {
+                    // ConnectionPoolConfiguration(int acquireRetry, @Nullable Duration backgroundEvictionInterval, ConnectionFactory connectionFactory, ...)
+                    constructorMethod.addInterceptor(SetDatabaseInfoConstructorInterceptor.class, va(2));
+                }
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class ConnectionPoolTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(DatabaseInfoAccessor.class);
+
+            final InstrumentMethod constructorMethod = target.getConstructor("io.r2dbc.pool.ConnectionPoolConfiguration");
+            if (constructorMethod != null) {
+                // ConnectionPool(ConnectionPoolConfiguration configuration)
+                constructorMethod.addInterceptor(SetDatabaseInfoConstructorInterceptor.class, va(0));
+            }
+            final InstrumentMethod createMethod = target.getDeclaredMethod("create");
+            if (createMethod != null) {
+                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class OptionsCapableConnectionFactoryTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(DatabaseInfoAccessor.class);
+
+            final InstrumentMethod constructorMethod = target.getConstructor("io.r2dbc.spi.ConnectionFactoryOptions", "io.r2dbc.spi.ConnectionFactory");
+            if (constructorMethod != null) {
+                // OptionsCapableConnectionFactory(ConnectionFactoryOptions options, ConnectionFactory delegate)
+                constructorMethod.addInterceptor(SetDatabaseInfoConstructorInterceptor.class, va(1));
+            }
+            final InstrumentMethod createMethod = target.getDeclaredMethod("create");
+            if (createMethod != null) {
+                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class DelegatingConnectionFactoryTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(DatabaseInfoAccessor.class);
+
+            final InstrumentMethod constructorMethod = target.getConstructor("io.r2dbc.spi.ConnectionFactory");
+            if (constructorMethod != null) {
+                // DelegatingConnectionFactory(ConnectionFactory targetConnectionFactory)
+                constructorMethod.addInterceptor(SetDatabaseInfoConstructorInterceptor.class, va(0));
+            }
+            final InstrumentMethod createMethod = target.getDeclaredMethod("create");
+            if (createMethod != null) {
+                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+
+    public static class SingleConnectionFactoryTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod createMethod = target.getDeclaredMethod("create");
+            if (createMethod != null) {
+                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+
+    public static class TransactionAwareConnectionFactoryProxyTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod createMethod = target.getDeclaredMethod("create");
+            if (createMethod != null) {
+                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
             }
 
             return target.toBytecode();

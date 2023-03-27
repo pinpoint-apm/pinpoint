@@ -45,7 +45,7 @@ public class DefaultGenericExecuteSpecStatementFunctionGetLambdaInterceptor impl
 
         final DatabaseInfo databaseInfo = DatabaseInfoAccessorUtils.getDatabaseInfo(args, 0);
         if (databaseInfo != null) {
-            DatabaseInfoAccessorUtils.setDatabaseInfo(databaseInfo, result);
+            DatabaseInfoAccessorUtils.setDatabaseInfo(databaseInfo, target);
         }
 
         if (Boolean.FALSE == target instanceof AsyncContextAccessor) {
