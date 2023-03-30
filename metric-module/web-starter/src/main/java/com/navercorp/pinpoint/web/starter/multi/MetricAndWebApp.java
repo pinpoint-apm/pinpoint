@@ -21,27 +21,22 @@ import com.navercorp.pinpoint.metric.web.MetricWebApp;
 import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
 import com.navercorp.pinpoint.web.AuthorizationConfig;
 import com.navercorp.pinpoint.web.PinpointBasicLoginConfig;
+import com.navercorp.pinpoint.web.PinpointWebModule;
 import com.navercorp.pinpoint.web.WebApp;
-import com.navercorp.pinpoint.web.WebAppPropertySources;
-import com.navercorp.pinpoint.web.WebMvcConfig;
-import com.navercorp.pinpoint.web.WebServerConfig;
 import com.navercorp.pinpoint.web.WebStarter;
-import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 /**
  * @author minwoo.jung
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class,
         SecurityAutoConfiguration.class})
-@ImportResource({"classpath:applicationContext-web.xml", "classpath:servlet-context-web.xml"})
-@Import({WebAppPropertySources.class, WebServerConfig.class, WebMvcConfig.class, CacheConfiguration.class})
+@Import({PinpointWebModule.class})
 public class MetricAndWebApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
 

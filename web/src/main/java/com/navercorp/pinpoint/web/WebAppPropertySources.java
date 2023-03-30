@@ -18,20 +18,16 @@ package com.navercorp.pinpoint.web;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 
 @PropertySources({
         @PropertySource(name = "WebAppPropertySources", value = { WebAppPropertySources.WEB_ROOT, WebAppPropertySources.WEB_PROFILE}),
-        @PropertySource(name = "WebAppPropertySources-HBase", value = { WebAppPropertySources.HBASE_ROOT, WebAppPropertySources.HBASE_PROFILE}),
-        @PropertySource(name = "WebAppPropertySources-JDBC", value = { WebAppPropertySources.JDBC_ROOT, WebAppPropertySources.JDBC_PROFILE}),
 })
+
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public final class WebAppPropertySources {
-    public static final String HBASE_ROOT= "classpath:hbase-root.properties";
-    public static final String HBASE_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/hbase.properties";
-
-    public static final String JDBC_ROOT = "classpath:jdbc-root.properties";
-    public static final String JDBC_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/jdbc.properties";
-
     public static final String WEB_ROOT = "classpath:pinpoint-web-root.properties";
     public static final String WEB_PROFILE = "classpath:profiles/${pinpoint.profiles.active:release}/pinpoint-web.properties";
 

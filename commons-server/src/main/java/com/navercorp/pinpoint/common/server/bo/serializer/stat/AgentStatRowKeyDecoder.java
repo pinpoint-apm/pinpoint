@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import org.springframework.stereotype.Component;
 
 import static com.navercorp.pinpoint.common.hbase.HbaseTableConstants.AGENT_ID_MAX_LEN;
 import static com.navercorp.pinpoint.common.server.bo.stat.AgentStatType.TYPE_CODE_BYTE_LENGTH;
@@ -28,7 +27,6 @@ import static com.navercorp.pinpoint.common.server.bo.stat.AgentStatType.TYPE_CO
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class AgentStatRowKeyDecoder implements RowKeyDecoder<AgentStatRowKeyComponent> {
 
     @Override

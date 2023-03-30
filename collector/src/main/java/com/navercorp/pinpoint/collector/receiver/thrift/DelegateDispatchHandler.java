@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 

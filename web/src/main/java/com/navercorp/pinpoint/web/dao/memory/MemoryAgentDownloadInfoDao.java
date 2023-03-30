@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao.memory;
 
-import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
-import com.navercorp.pinpoint.web.vo.install.AgentDownloadInfo;
+import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
+import com.navercorp.pinpoint.web.install.model.AgentDownloadInfo;
 
 import java.util.Collections;
 import java.util.List;

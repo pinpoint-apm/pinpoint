@@ -17,17 +17,12 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
-import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
-import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Objects;
 
-@Component
 public class CollectorClusterConfig {
     private final Logger logger = LogManager.getLogger(getClass());
 
@@ -38,12 +33,11 @@ public class CollectorClusterConfig {
     private final int clusterListenPort;
 
 
-    public CollectorClusterConfig(
-            @Qualifier("clusterConfiguration") ZookeeperClusterConfiguration clusterConfiguration,
-            @Value("${cluster.listen.ip:}")    String clusterListenIp,
-            @Value("${cluster.listen.port:-1}") int clusterListenPort) {
-        this.clusterConfiguration = clusterConfiguration;
-        this.clusterListenIp = clusterListenIp;
+    public CollectorClusterConfig(ZookeeperClusterConfiguration clusterConfiguration,
+                                  String clusterListenIp,
+                                  int clusterListenPort) {
+        this.clusterConfiguration = Objects.requireNonNull(clusterConfiguration, "clusterConfiguration");
+        this.clusterListenIp = Objects.requireNonNull(clusterListenIp, "clusterListenIp");
         this.clusterListenPort = clusterListenPort;
     }
 
@@ -79,8 +73,6 @@ public class CollectorClusterConfig {
     @PostConstruct
     public void log() {
         logger.info("{}", this);
-        AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
-        visitor.visit(this, new LoggingEvent(logger));
     }
 
     @Override

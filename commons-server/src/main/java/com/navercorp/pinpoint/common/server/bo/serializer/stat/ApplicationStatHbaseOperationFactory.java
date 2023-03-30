@@ -20,13 +20,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +35,6 @@ import java.util.TreeMap;
 /**
  * @author Minwoo Jung
  */
-@Component
 public class ApplicationStatHbaseOperationFactory {
 
     private final ApplicationStatRowKeyEncoder rowKeyEncoder;
@@ -48,9 +44,9 @@ public class ApplicationStatHbaseOperationFactory {
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
     public ApplicationStatHbaseOperationFactory(
-                ApplicationStatRowKeyEncoder rowKeyEncoder,
-                ApplicationStatRowKeyDecoder rowKeyDecoder,
-                @Qualifier("applicationStatRowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor) {
+            ApplicationStatRowKeyEncoder rowKeyEncoder,
+            ApplicationStatRowKeyDecoder rowKeyDecoder,
+            AbstractRowKeyDistributor rowKeyDistributor) {
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");

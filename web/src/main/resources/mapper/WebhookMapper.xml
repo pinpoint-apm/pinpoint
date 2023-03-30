@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.navercorp.pinpoint.web.dao.WebhookDao">
+<mapper namespace="com.navercorp.pinpoint.web.webhook.dao.WebhookDao">
 
     <insert id="insertWebhook" parameterType="Webhook" useGeneratedKeys="true" keyProperty="webhookId">
         INSERT INTO webhook (alias, url, application_id, service_name)
-        VALUES
-            (#{alias}, #{url}, #{applicationId}, #{serviceName})
+        VALUES (#{alias}, #{url}, #{applicationId}, #{serviceName})
     </insert>
 
     <delete id="deleteWebhook" parameterType="Webhook">

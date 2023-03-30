@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfoResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
