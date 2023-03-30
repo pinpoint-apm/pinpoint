@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.dao.rest;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
-import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
-import com.navercorp.pinpoint.web.vo.install.AgentDownloadInfo;
-import com.navercorp.pinpoint.web.vo.install.GithubAgentDownloadInfo;
+import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
+import com.navercorp.pinpoint.web.install.model.AgentDownloadInfo;
+import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.ParameterizedTypeReference;

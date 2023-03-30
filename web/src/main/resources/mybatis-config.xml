@@ -29,8 +29,8 @@
         <typeAlias type="com.navercorp.pinpoint.web.vo.User" alias="User"/>
         <typeAlias type="com.navercorp.pinpoint.web.vo.UserPhoneInfo" alias="UserPhoneInfo"/>
         <typeAlias type="com.navercorp.pinpoint.web.alarm.vo.Rule" alias="Rule"/>
-        <typeAlias type="com.navercorp.pinpoint.web.vo.webhook.Webhook" alias="Webhook"/>
-        <typeAlias type="com.navercorp.pinpoint.web.vo.webhook.WebhookSendInfo" alias="WebhookSendInfo"/>
+        <typeAlias type="com.navercorp.pinpoint.web.webhook.model.Webhook" alias="Webhook"/>
+        <typeAlias type="com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo" alias="WebhookSendInfo"/>
 
         <typeAlias type="com.navercorp.pinpoint.web.vo.AgentCountStatistics" alias="AgentCountStatistics"/>
         <typeAlias type="com.navercorp.pinpoint.common.server.util.time.Range" alias="Range"/>

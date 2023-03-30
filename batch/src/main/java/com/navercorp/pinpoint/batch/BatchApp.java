@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.batch;
 
+import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
+import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
-
+import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -31,10 +33,22 @@ import org.springframework.context.annotation.ImportResource;
  * @author minwoo.jung
  */
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, SecurityAutoConfiguration.class,
-        TransactionAutoConfiguration.class, BatchAutoConfiguration.class})
-@ImportResource({ "classpath:applicationContext-batch-schedule.xml"})
-@Import(BatchAppPropertySources.class)
+@EnableAutoConfiguration(exclude = {
+        DataSourceAutoConfiguration.class,
+        SecurityAutoConfiguration.class,
+        TransactionAutoConfiguration.class,
+        BatchAutoConfiguration.class
+})
+@ImportResource({
+        "classpath:applicationContext-batch-schedule.xml"
+})
+@Import({
+        TypeLoaderConfiguration.class,
+        BatchAppPropertySources.class,
+        WebhookModule.class,
+        HbaseNamespaceConfiguration.class
+
+})
 public class BatchApp {
 
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(BatchApp.class);

@@ -36,7 +36,7 @@ public class AgentStatSerializer<T extends AgentStatDataPoint> implements HbaseS
 
     private final AgentStatEncoder<T> encoder;
 
-    protected AgentStatSerializer(AgentStatEncoder<T> encoder) {
+    public AgentStatSerializer(AgentStatEncoder<T> encoder) {
         this.encoder = Objects.requireNonNull(encoder, "encoder");
     }
 

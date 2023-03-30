@@ -31,10 +31,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.Span
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
 import com.navercorp.pinpoint.io.SpanVersion;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.stereotype.Component;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +40,6 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Component
 public class SpanDecoderV0 implements SpanDecoder {
 
     private final Logger logger = LogManager.getLogger(this.getClass());

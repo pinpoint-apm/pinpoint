@@ -23,13 +23,9 @@ import org.springframework.context.annotation.PropertySources;
 @PropertySources({
         @PropertySource(name = "CollectorAppPropertySources", value = { CollectorAppPropertySources.COLLECTOR_ROOT, CollectorAppPropertySources.COLLECTOR_PROFILE}),
         @PropertySource(name = "CollectorAppPropertySources-GRPC", value = { CollectorAppPropertySources.GRPC_ROOT, CollectorAppPropertySources.GRPC_PROFILE}),
-        @PropertySource(name = "CollectorAppPropertySources-HBase", value = { CollectorAppPropertySources.HBASE_ROOT, CollectorAppPropertySources.HBASE_PROFILE}),
         @PropertySource(name = "CollectorAppPropertySources-JDBC", value = { CollectorAppPropertySources.JDBC_ROOT, CollectorAppPropertySources.JDBC_PROFILE}),
 })
 public final class CollectorAppPropertySources {
-    public static final String HBASE_ROOT= "classpath:hbase-root.properties";
-    public static final String HBASE_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/hbase.properties";
-
     public static final String GRPC_ROOT = "classpath:pinpoint-collector-grpc-root.properties";
     public static final String GRPC_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-collector-grpc.properties";
 

@@ -7,8 +7,6 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:annotation-config/>
-
     <import resource="classpath:applicationContext-flink-profile.xml"/>
     <import resource="classpath:applicationContext-flink-extend.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
@@ -53,7 +51,7 @@
     <bean id="joinLoadedClassCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassCodec"/>
 
     <bean class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ApplicationCoderConfiguration"/>
-    <bean class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializerConfiguration"/>
+    <bean class="com.navercorp.pinpoint.common.server.bo.serializer.stat.config.ApplicationStatSerializeConfiguration"/>
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
 

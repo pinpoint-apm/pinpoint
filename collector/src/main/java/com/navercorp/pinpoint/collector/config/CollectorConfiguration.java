@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -33,7 +31,6 @@ import java.util.Objects;
  * @author emeroad
  * @author jaehong.kim
  */
-@Component
 public class CollectorConfiguration {
     private final Logger logger = LogManager.getLogger(getClass());
 

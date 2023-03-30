@@ -36,7 +36,7 @@ public class ApplicationStatSerializer<T extends JoinStatBo> implements HbaseSer
 
     private final ApplicationStatEncoder<T> encoder;
 
-    protected ApplicationStatSerializer(ApplicationStatEncoder<T> encoder) {
+    public ApplicationStatSerializer(ApplicationStatEncoder<T> encoder) {
         this.encoder = Objects.requireNonNull(encoder, "encoder");
     }
 

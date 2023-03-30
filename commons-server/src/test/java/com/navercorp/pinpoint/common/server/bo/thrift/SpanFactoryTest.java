@@ -41,11 +41,13 @@ public class SpanFactoryTest {
 
     private static final int REPEAT_COUNT = 10;
 
+    private final long spanAcceptTime = System.currentTimeMillis();
+
     private final SpanFactory spanFactory = new SpanFactory();
 
-    private SpanFactoryAssert spanFactoryAssert = new SpanFactoryAssert();
+    private final SpanFactoryAssert spanFactoryAssert = new SpanFactoryAssert();
 
-    private RandomTSpan random = new RandomTSpan();
+    private final RandomTSpan random = new RandomTSpan();
 
 
     @Test
@@ -109,7 +111,7 @@ public class SpanFactoryTest {
         TSpanEvent tSpanEvent4 = random.randomTSpanEvent((short) 2);
         tSpan.setSpanEventList(Arrays.asList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
 
-        SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
+        SpanBo spanBo = spanFactory.buildSpanBo(tSpan, spanAcceptTime);
 
         spanFactoryAssert.assertSpan(tSpan, spanBo);
 
@@ -132,14 +134,14 @@ public class SpanFactoryTest {
         TSpanEvent tSpanEvent4 = random.randomTSpanEvent((short) 2);
         tSpanChunk.setSpanEventList(Arrays.asList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
 
-        SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(tSpanChunk);
+        SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptTime);
 
         spanFactoryAssert.assertSpanChunk(tSpanChunk, spanChunkBo);
 
     }
 
     @Test
-    public void testBuildSpanChunkBo_N() throws Exception {
+    public void testBuildSpanChunkBo_N() {
         for (int i = 0; i < REPEAT_COUNT; i++) {
             testBuildSpanChunkBo();
         }
