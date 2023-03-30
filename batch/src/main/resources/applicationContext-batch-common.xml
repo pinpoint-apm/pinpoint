@@ -2,10 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:batch="http://www.springframework.org/schema/batch"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -70,8 +66,6 @@
 
     <bean id="userGroupDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlUserGroupDao"/>
     <bean id="userDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlUserDao"/>
-    <bean id="webhookDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlWebhookDao"/>
-    <bean id="webhookSendInfoDao" class="com.navercorp.pinpoint.web.dao.mysql.MysqlWebhookSendInfoDao"/>
 
 <!--    <bean id="userGroupService" class="com.navercorp.pinpoint.web.service.UserGroupServiceImpl"/>-->
 <!--    <bean id="alarmService" class="com.navercorp.pinpoint.web.service.AlarmServiceImpl"/>-->

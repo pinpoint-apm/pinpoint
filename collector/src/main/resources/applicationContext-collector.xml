@@ -1,55 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <context:annotation-config/>
-
-    <context:component-scan base-package="com.navercorp.pinpoint.collector.config,
-                                          com.navercorp.pinpoint.collector.handler,
-                                          com.navercorp.pinpoint.collector.manage,
-                                          com.navercorp.pinpoint.collector.mapper,
-                                          com.navercorp.pinpoint.collector.util,
-                                          com.navercorp.pinpoint.collector.service,
-                                          com.navercorp.pinpoint.common.server.bo.codec,
-                                          com.navercorp.pinpoint.common.server.util,
-                                          com.navercorp.pinpoint.common.server.bo,
-                                          com.navercorp.pinpoint.common.server.dao.hbase.mapper" />
-
-    <import resource="classpath:applicationContext-collector-profile.xml"/>
-    <import resource="classpath:applicationContext-collector-grpc.xml"/>
-    <import resource="classpath:applicationContext-collector-thrift.xml"/>
-    <import resource="classpath:applicationContext-collector-hbase.xml"/>
-    <import resource="classpath:applicationContext-collector-namespace.xml"/>
-
-    <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
-
-    <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
-    </bean>
-
-    <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
-    </bean>
+    <bean class="com.navercorp.pinpoint.collector.config.ScatterConfiguration"/>
 
     <!-- Manager-related Beans -->
-    <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
-    </bean>
+    <!--    <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">-->
+    <!--    </bean>-->
 
-    <bean id="jmxCollectorManagerList" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManagerList">
-    </bean>
+    <!--    <bean id="jmxCollectorManagerList" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManagerList">-->
+    <!--    </bean>-->
 
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
-    </bean>
-
-    <bean id="clusterManager" class="com.navercorp.pinpoint.collector.manage.ClusterManager">
-        <constructor-arg ref="collectorClusterConfig"/>
-        <constructor-arg ref="targetClusterPointRepository"/>
     </bean>
 
 
@@ -57,16 +25,6 @@
         <constructor-arg value="${collector.receiver.channel.properties.key:#{null}}"/>
     </bean>
 
-
-    <!-- Serializer Factory Beans -->
-    <bean id="commandHeaderTBaseSerializerFactory"
-          class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory"
-          factory-method="getDefaultInstance">
-    </bean>
-    <bean id="commandHeaderTBaseDeserializerFactory"
-          class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory"
-          factory-method="getDefaultInstance">
-    </bean>
 
     <!-- Agent Event/Lifecycle related Beans -->
     <task:annotation-driven/>
@@ -87,87 +45,6 @@
 
     <bean id="agentLifeCycleChangeEventHandler"
           class="com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler"/>
-
-    <!-- Route Filters -->
-    <bean id="loggingRouteFilter" class="com.navercorp.pinpoint.collector.cluster.route.filter.LoggingFilter"/>
-    <bean id="agentEventHandlingFilter"
-          class="com.navercorp.pinpoint.collector.cluster.route.filter.AgentEventHandlingFilter"/>
-
-    <!-- Filter Chains -->
-    <bean id="requestFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
-        <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
-                <ref bean="loggingRouteFilter"/>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="responseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
-        <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
-                <ref bean="loggingRouteFilter"/>
-                <ref bean="agentEventHandlingFilter"/>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="streamCreateFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
-        <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
-                <ref bean="loggingRouteFilter"/>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="streamResponseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
-        <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
-                <ref bean="loggingRouteFilter"/>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="streamCloseFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
-        <constructor-arg>
-            <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter"/>
-        </constructor-arg>
-    </bean>
-
-    <!-- Cluster-related Beans -->
-    <bean id="targetClusterPointRepository" class="com.navercorp.pinpoint.collector.cluster.ClusterPointRepository"/>
-
-    <bean id="defaultRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler">
-        <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator"
-                         ref="targetClusterPointRepository"/>
-        <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain"
-                         ref="requestFilterChain"/>
-        <constructor-arg index="2" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain"
-                         ref="responseFilterChain"/>
-    </bean>
-
-    <bean id="streamRouteHandler" class="com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler">
-        <constructor-arg index="0" type="com.navercorp.pinpoint.collector.cluster.ClusterPointLocator"
-                         ref="targetClusterPointRepository"/>
-        <constructor-arg index="1" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain"
-                         ref="streamCreateFilterChain"/>
-        <constructor-arg index="2" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain"
-                         ref="streamResponseFilterChain"/>
-        <constructor-arg index="3" type="com.navercorp.pinpoint.collector.cluster.route.RouteFilterChain"
-                         ref="streamCloseFilterChain"/>
-    </bean>
-
-    <bean id="clusterPointRouter" class="com.navercorp.pinpoint.collector.cluster.ClusterPointRouter">
-        <constructor-arg ref="targetClusterPointRepository"/>
-        <constructor-arg ref="defaultRouteHandler"/>
-        <constructor-arg ref="streamRouteHandler"/>
-        <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
-        <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
-    </bean>
-
-    <bean id="clusterService" class="com.navercorp.pinpoint.collector.cluster.ClusterServiceFactory">
-        <property name="clusterConfig" ref="collectorClusterConfig"/>
-        <property name="clusterPointRouter" ref="clusterPointRouter"/>
-    </bean>
 
     <util:list id="channelStateChangeEventHandlers"
                value-type="com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler">
@@ -199,17 +76,6 @@
     </bean>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">
-    </bean>
-
-    <bean id="commonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Log4j2CommonLoggerFactory"/>
-
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
-        <constructor-arg index="0" ref="commonLoggerFactory"/>
-    </bean>
-
-    <bean id="serviceTypeRegistryService"
-          class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
-        <constructor-arg ref="typeLoaderService"/>
     </bean>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">

@@ -19,17 +19,14 @@ package com.navercorp.pinpoint.web.config;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,8 +34,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Taejin Koo
  */
-@Profile("basicLogin")
-@Component
 public class BasicLoginConfig {
 
     private static final String DEFAULT_JWT_SECRET_KEY = "PINPOINT_JWT_SECRET";
@@ -86,13 +81,11 @@ public class BasicLoginConfig {
     }
 
     private List<UserDetails> createUser(List<String> idAndPasswordList) {
-        List<UserDetails> users = createUserDetails(idAndPasswordList, "ROLE_USER");
-        return users;
+        return createUserDetails(idAndPasswordList, "ROLE_USER");
     }
 
     private List<UserDetails> createAdmin(List<String> idAndPasswordList) {
-        List<UserDetails> users = createUserDetails(idAndPasswordList, "ROLE_ADMIN");
-        return users;
+        return createUserDetails(idAndPasswordList, "ROLE_ADMIN");
     }
 
     private List<UserDetails> createUserDetails(List<String> idAndPasswordList, String role) {
@@ -108,7 +101,7 @@ public class BasicLoginConfig {
                 String id = tokenize.get(0);
                 String password = tokenize.get(1);
 
-                User role_user = new User(id, passwordEncoder.encode(password), Arrays.asList(new SimpleGrantedAuthority(role)));
+                User role_user = new User(id, passwordEncoder.encode(password), List.of(new SimpleGrantedAuthority(role)));
                 users.add(role_user);
             }
         }

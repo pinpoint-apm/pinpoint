@@ -21,15 +21,12 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Component
 public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
@@ -37,7 +34,7 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
-    public TraceRowKeyEncoderV2(@Qualifier("traceV2Distributor") AbstractRowKeyDistributor rowKeyDistributor) {
+    public TraceRowKeyEncoderV2(AbstractRowKeyDistributor rowKeyDistributor) {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 

@@ -41,6 +41,7 @@ public class CollectorGrpcSpanFactoryTest {
 
     private final GrpcSpanBinder binder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new SequenceSpanEventFilter(MAX_SEQUENCE);
+
     private final AcceptedTimeService acceptedTimeService = new EmptyAcceptedTimeService(System.currentTimeMillis());
     private final GrpcSpanFactory factory = new CollectorGrpcSpanFactory(binder, filter, acceptedTimeService);
 

@@ -19,15 +19,13 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.apache.thrift.TBase;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 import com.navercorp.pinpoint.thrift.dto.TSpan;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -43,10 +41,14 @@ public class ThriftSpanHandler implements SimpleHandler<TBase<?, ?>> {
 
     private final TraceService traceService;
 
+    private final AcceptedTimeService acceptedTimeService;
     private final SpanFactory spanFactory;
 
-    public ThriftSpanHandler(TraceService traceService, SpanFactory spanFactory) {
+    public ThriftSpanHandler(TraceService traceService,
+                             AcceptedTimeService acceptedTimeService,
+                             SpanFactory spanFactory) {
         this.traceService = Objects.requireNonNull(traceService, "traceService");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
@@ -66,7 +68,8 @@ public class ThriftSpanHandler implements SimpleHandler<TBase<?, ?>> {
 
     private void handleSpan(TSpan tSpan) {
         try {
-            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
+            long acceptedTime = acceptedTimeService.getAcceptedTime();
+            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan, acceptedTime);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
             logger.warn("Failed to handle Span={}, Caused:{}", tSpan, e.getMessage(), e);

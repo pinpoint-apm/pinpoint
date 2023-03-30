@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,8 +47,11 @@ public class TraceService {
 
     private final ServiceTypeRegistryService registry;
 
-    public TraceService(TraceDao traceDao, ApplicationTraceIndexDao applicationTraceIndexDao, HostApplicationMapDao hostApplicationMapDao,
-                        StatisticsService statisticsService, ServiceTypeRegistryService registry) {
+    public TraceService(TraceDao traceDao,
+                        ApplicationTraceIndexDao applicationTraceIndexDao,
+                        HostApplicationMapDao hostApplicationMapDao,
+                        StatisticsService statisticsService,
+                        ServiceTypeRegistryService registry) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");

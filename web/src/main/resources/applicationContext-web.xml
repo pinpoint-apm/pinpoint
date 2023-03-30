@@ -1,31 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
-    <context:annotation-config/>
-    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
-                                         com.navercorp.pinpoint.web.service,
-                                         com.navercorp.pinpoint.web.mapper,
-                                         com.navercorp.pinpoint.web.filter,
-                                         com.navercorp.pinpoint.web.view,
-                                         com.navercorp.pinpoint.web.applicationmap,
-                                         com.navercorp.pinpoint.web.query,
-                                         com.navercorp.pinpoint.common.server.bo,
-                                         com.navercorp.pinpoint.common.server.util,
-                                         com.navercorp.pinpoint.common.server.dao.hbase.mapper" />
-
-    <import resource="classpath:applicationContext-web-profile.xml" />
-    <import resource="classpath:applicationContext-web-hbase.xml" />
-    <import resource="classpath:applicationContext-web-datasource.xml" />
-    <import resource="classpath:applicationContext-web-dao-config.xml" />
-    <import resource="classpath:applicationContext-web-websocket.xml" />
-    <import resource="classpath:applicationContext-web-namespace.xml"/>
-
-    <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"/>
 
@@ -33,13 +9,6 @@
     <bean class="com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory"/>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
-
-    <bean id="webConfig" class="com.navercorp.pinpoint.web.config.WebClusterConfig"/>
-    <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
-    <bean id="logConfiguration" class="com.navercorp.pinpoint.web.config.LogConfiguration"/>
-    <bean id="webSocketConfig" class="com.navercorp.pinpoint.web.config.WebSocketConfig"/>
-    <bean id="scatterChartConfig" class="com.navercorp.pinpoint.web.config.ScatterChartConfig"/>
-    <bean id="experimentalConfig" class="com.navercorp.pinpoint.web.config.ExperimentalConfig"/>
 
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
@@ -49,15 +18,15 @@
     </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
-        <constructor-arg ref="webConfig" />
+        <constructor-arg ref="webClusterConfig"/>
     </bean>
 
     <bean id="clusterDataManager" class="com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager">
-        <constructor-arg ref="webConfig" />
+        <constructor-arg ref="webClusterConfig"/>
     </bean>
 
     <bean id="clusterManager" class="com.navercorp.pinpoint.web.cluster.ClusterManager">
-        <constructor-arg ref="webConfig" />
+        <constructor-arg ref="webClusterConfig"/>
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
@@ -71,15 +40,6 @@
 
     <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
 
-    <bean id="commonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Log4j2CommonLoggerFactory"/>
-
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
-        <constructor-arg index="0" ref="commonLoggerFactory"/>
-    </bean>
-
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
-        <constructor-arg ref="typeLoaderService"/>
-    </bean>
 
     <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
@@ -181,10 +141,5 @@
     <bean class="com.navercorp.pinpoint.web.interceptor.PerformanceLoggingInterceptor">
         <constructor-arg value="1000"/>
     </bean>
-
-    <beans profile="basicLogin">
-        <bean id="basicLoginConfig" class="com.navercorp.pinpoint.web.config.BasicLoginConfig"/>
-        <bean id="basicLoginService" class="com.navercorp.pinpoint.web.security.login.BasicLoginService"/>
-    </beans>
 
 </beans>

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
@@ -28,10 +30,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
@@ -39,8 +37,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,13 +56,12 @@ public class SpanFactory {
 
     private SpanEventFilter spanEventFilter = new EmptySpanEventFilter();
 
-    private AcceptedTimeService acceptedTimeService = new EmptyAcceptedTimeService();
-
     private final AnnotationFactory<TAnnotation> annotationFactory = new AnnotationFactory<>(new ThriftAnnotationHandler());
 
     // TODO
     private final boolean fastAsyncIdGen;
 
+    @Autowired
     public SpanFactory() {
         this(fastAsyncIdGen());
     }
@@ -83,12 +80,7 @@ public class SpanFactory {
         this.spanEventFilter = spanEventFilter;
     }
 
-    @Autowired(required = false)
-    public void setAcceptedTimeService(AcceptedTimeService acceptedTimeService) {
-        this.acceptedTimeService = acceptedTimeService;
-    }
-
-    public SpanBo buildSpanBo(TSpan tSpan) {
+    public SpanBo buildSpanBo(TSpan tSpan, long acceptedTime) {
 
         final SpanBo spanBo = newSpanBo(tSpan);
 
@@ -96,7 +88,6 @@ public class SpanFactory {
         List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
         spanBo.addSpanEventBoList(spanEventBoList);
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
         spanBo.setCollectorAcceptTime(acceptedTime);
 
         return spanBo;
@@ -207,7 +198,7 @@ public class SpanFactory {
 //        }
     }
 
-    public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
+    public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk, long acceptedTime) {
         final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
         final LocalAsyncIdBo localAsyncIdBo = getLocalAsyncId(tSpanChunk);
         if (localAsyncIdBo != null) {
@@ -217,9 +208,6 @@ public class SpanFactory {
         List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
         List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
         spanChunkBo.addSpanEventBoList(spanEventBoList);
-
-
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
         spanChunkBo.setCollectorAcceptTime(acceptedTime);
 
         return spanChunkBo;

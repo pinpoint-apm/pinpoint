@@ -24,8 +24,6 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +35,6 @@ import java.util.TreeMap;
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class AgentStatHbaseOperationFactory {
 
     private final AgentStatRowKeyEncoder rowKeyEncoder;
@@ -49,7 +46,7 @@ public class AgentStatHbaseOperationFactory {
     public AgentStatHbaseOperationFactory(
             AgentStatRowKeyEncoder rowKeyEncoder,
             AgentStatRowKeyDecoder rowKeyDecoder,
-            @Qualifier("agentStatV2RowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor) {
+            AbstractRowKeyDistributor rowKeyDistributor) {
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");

@@ -16,28 +16,26 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
-import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
-import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.BeanNameAware;
 
 import javax.annotation.PostConstruct;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-@Component
-public class FlinkConfiguration {
+public class FlinkConfiguration implements BeanNameAware {
 
     private final Logger logger = LogManager.getLogger(getClass());
 
-    @Qualifier("flinkClusterConfiguration")
-    @Autowired
-    private ZookeeperClusterConfiguration clusterConfiguration;
+    private String name;
+    private final ZookeeperClusterConfiguration clusterConfiguration;
+
+    public FlinkConfiguration(ZookeeperClusterConfiguration clusterConfiguration) {
+        this.clusterConfiguration = Objects.requireNonNull(clusterConfiguration, "clusterConfiguration");
+    }
 
     public boolean isFlinkClusterEnable() {
         return clusterConfiguration.isEnable();
@@ -55,23 +53,25 @@ public class FlinkConfiguration {
         return clusterConfiguration.getSessionTimeout();
     }
 
+    @Override
+    public void setBeanName(String name) {
+        this.name = name;
+    }
+
     @PostConstruct
     public void log() {
         logger.info("{}", this);
-        if (logger.isDebugEnabled()) {
-            AnnotationVisitor<Value> visitor = new AnnotationVisitor<>(Value.class);
-            visitor.visit(this, new LoggingEvent(logger));
-        }
     }
-
 
     @Override
     public String toString() {
         return "FlinkConfiguration{" +
-                "flinkClusterEnable=" + isFlinkClusterEnable() +
+                "name=" + name +
+                ", flinkClusterEnable=" + isFlinkClusterEnable() +
                 ", flinkClusterZookeeperAddress='" + getFlinkClusterZookeeperAddress() + '\'' +
                 ", flinkZNodePath='" + getFlinkZNodePath() + '\'' +
                 ", flinkClusterSessionTimeout=" + getFlinkClusterSessionTimeout() +
                 '}';
     }
+
 }

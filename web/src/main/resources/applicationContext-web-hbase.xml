@@ -69,5 +69,4 @@
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
-    <bean id="distributorConfiguration" class="com.navercorp.pinpoint.common.server.hbase.DistributorConfiguration"/>
 </beans>

@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.common.BatchConfiguration;
 import com.navercorp.pinpoint.web.service.UserService;
-import com.navercorp.pinpoint.web.service.WebhookService;
+import com.navercorp.pinpoint.web.webhook.service.WebhookService;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.web.client.RestTemplate;
 
