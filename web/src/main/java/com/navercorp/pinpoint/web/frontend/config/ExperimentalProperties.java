@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.config;
+package com.navercorp.pinpoint.web.frontend.config;
 
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -27,13 +27,13 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ExperimentalConfig {
+public class ExperimentalProperties {
     public static final String PREFIX = "experimental.";
 
     private final Map<String, Object> properties;
 
 
-    public ExperimentalConfig(Environment environment) {
+    public ExperimentalProperties(Environment environment) {
         Objects.requireNonNull(environment, "environment");
         this.properties = readExperimentalProperties(environment);
     }
