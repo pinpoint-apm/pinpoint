@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.frontend.export;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
-@ConditionalOnBean(ConfigProperties.class)
 public class ConfigPropertiesExporter implements FrontendConfigExporter {
 
     private final ConfigProperties webProperties;

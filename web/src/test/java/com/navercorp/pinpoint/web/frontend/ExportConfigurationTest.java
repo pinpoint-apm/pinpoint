@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web.frontend;
 
 import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.frontend.config.ExperimentalProperties;
 import com.navercorp.pinpoint.web.frontend.export.ConfigPropertiesExporter;
 import com.navercorp.pinpoint.web.frontend.export.ExperimentalPropertiesExporter;
 import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
@@ -17,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ContextConfiguration(classes = {
         ConfigProperties.class,
-        ExperimentalProperties.class,
 
         ExportConfiguration.class,
 })

@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,14 +41,14 @@ public class FrontendConfigController {
         this.exporters = Objects.requireNonNull(exporters, "exporters");
 
         exporters.forEach(exporter ->
-                logger.info("FrontendConfigExporter {}", exporter.getClass())
+                logger.info("FrontendConfigExporter {}", exporter.getClass().getName())
         );
     }
 
     @GetMapping(value = "/configuration")
     public Map<String, Object> getProperties() {
 
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
         for (FrontendConfigExporter configExporter : exporters) {
             configExporter.export(result);
         }

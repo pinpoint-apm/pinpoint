@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.vo.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
-@ConditionalOnBean(UserService.class)
 public class UserServiceConfigExporter implements FrontendConfigExporter {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final UserService userService;

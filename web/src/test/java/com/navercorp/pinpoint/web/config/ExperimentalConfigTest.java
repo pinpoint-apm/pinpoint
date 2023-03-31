@@ -16,7 +16,7 @@ public class ExperimentalConfigTest {
         environment.setProperty(key, "strValue");
         environment.setProperty("ignore.test", "aabbcc");
 
-        ExperimentalProperties config = new ExperimentalProperties(environment);
+        ExperimentalProperties config = ExperimentalProperties.of(environment);
 
         Map<String, Object> map = config.getProperties();
 
@@ -35,7 +35,7 @@ public class ExperimentalConfigTest {
         environment.setProperty(trueKey, "true");
 
 
-        ExperimentalProperties config = new ExperimentalProperties(environment);
+        ExperimentalProperties config = ExperimentalProperties.of(environment);
         Map<String, Object> map = config.getProperties();
 
 
