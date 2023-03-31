@@ -31,8 +31,7 @@
   "metricFieldSpecs": [
     {
       "name": "apdexRaw",
-      "dataType": "DOUBLE",
-      "defaultNullValue": -1.0
+      "dataType": "DOUBLE"
     },
     {
       "name": "count",
