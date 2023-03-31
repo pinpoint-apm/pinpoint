@@ -1,0 +1,27 @@
+{
+  "OFFLINE": {
+    "tableName": "uriStat",
+    "tableType": "OFFLINE",
+    "segmentsConfig": {
+      "timeType": "MILLISECONDS",
+      "schemaName": "uriStat",
+      "retentionTimeUnit": "DAYS",
+      "retentionTimeValue": "56",
+      "replication": "3",
+      "timeColumnName": "timestamp",
+      "minimizeDataMovement": false
+    },
+    "tenants": {
+      "broker": "DefaultTenant",
+      "server": "DefaultTenant"
+    },
+    "tableIndexConfig": {
+      "sortedColumn": ["applicationName"],
+      "bloomFilterColumns": ["tenantId", "serviceName", "applicationName", "agentId"],
+      "noDictionaryColumns": ["tot0", "tot1", "tot2", "tot3", "tot4", "tot5", "tot6", "tot7", "fail0", "fail1", "fail2", "fail3", "fail4", "fail5", "fail6", "fail7"],
+      "loadMode": "MMAP",
+      "nullHandlingEnabled": true
+    },
+    "metadata": {}
+  }
+}
