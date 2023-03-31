@@ -33,12 +33,11 @@ public class ExperimentalProperties {
     private final Map<String, Object> properties;
 
 
-    public ExperimentalProperties(Environment environment) {
-        Objects.requireNonNull(environment, "environment");
-        this.properties = readExperimentalProperties(environment);
+    public ExperimentalProperties(Map<String, Object> properties) {
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
-    private Map<String, Object> readExperimentalProperties(Environment environment) {
+    public static ExperimentalProperties of(Environment environment) {
 
         MutablePropertySources propertySources = ((AbstractEnvironment) environment).getPropertySources();
         Map<String, Object> collect = propertySources.stream()
@@ -47,10 +46,11 @@ public class ExperimentalProperties {
                 .flatMap(Arrays::stream)
                 .filter(propName -> propName.startsWith(PREFIX))
                 .collect(Collectors.toMap(Function.identity(), toValue(environment)));
-        return collect;
+        
+        return new ExperimentalProperties(collect);
     }
 
-    private Function<String, Object> toValue(Environment environment) {
+    private static Function<String, Object> toValue(Environment environment) {
         return key -> {
             final String value = environment.getProperty(key);
             final Boolean boolValue = parseBoolean(value);
@@ -62,7 +62,7 @@ public class ExperimentalProperties {
         };
     }
 
-    private Boolean parseBoolean(String value) {
+    private static Boolean parseBoolean(String value) {
         if ("true".equalsIgnoreCase(value)) {
             return Boolean.TRUE;
         }
