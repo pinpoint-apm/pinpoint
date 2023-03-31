@@ -7,11 +7,8 @@
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "56",
     "replication": "3",
-    "minimizeDataMovement": false,
     "timeColumnName": "eventTime",
-    "allowNullTimeValue": false,
-    "segmentPushFrequency": "DAILY",
-    "segmentPushType": "APPEND"
+    "minimizeDataMovement": false
   },
   "tenants": {},
   "tableIndexConfig": {

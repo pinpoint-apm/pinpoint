@@ -5,7 +5,7 @@
     "timeColumnName": "saveTime",
     "timeType": "MILLISECONDS",
     "schemaName": "systemMetricDataType",
-    "replicasPerPartition": "1",
+    "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "70"
   },

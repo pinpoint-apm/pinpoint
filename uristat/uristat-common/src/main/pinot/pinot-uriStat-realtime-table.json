@@ -5,7 +5,7 @@
     "timeColumnName": "timestamp",
     "timeType": "MILLISECONDS",
     "schemaName": "uriStat",
-    "replicasPerPartition": "1",
+    "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
     "retentionTimeValue": "56"
   },
