@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -29,6 +31,7 @@ import org.apache.thrift.TBase;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author emeroad
@@ -42,13 +45,16 @@ public class ThriftSpanHandler implements SimpleHandler<TBase<?, ?>> {
     private final TraceService traceService;
 
     private final AcceptedTimeService acceptedTimeService;
+    private final SpanEventFilter spanEventFilter;
     private final SpanFactory spanFactory;
 
     public ThriftSpanHandler(TraceService traceService,
                              AcceptedTimeService acceptedTimeService,
+                             Optional<SpanEventFilter> spanEventFilter,
                              SpanFactory spanFactory) {
         this.traceService = Objects.requireNonNull(traceService, "traceService");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.spanEventFilter = spanEventFilter.orElseGet(EmptySpanEventFilter::new);
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
@@ -69,7 +75,7 @@ public class ThriftSpanHandler implements SimpleHandler<TBase<?, ?>> {
     private void handleSpan(TSpan tSpan) {
         try {
             long acceptedTime = acceptedTimeService.getAcceptedTime();
-            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan, acceptedTime);
+            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan, acceptedTime, spanEventFilter);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
             logger.warn("Failed to handle Span={}, Caused:{}", tSpan, e.getMessage(), e);

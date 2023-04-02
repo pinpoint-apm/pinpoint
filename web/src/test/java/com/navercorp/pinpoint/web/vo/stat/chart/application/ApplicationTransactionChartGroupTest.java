@@ -23,13 +23,12 @@ import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.apache.commons.math3.util.Precision;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -44,17 +43,13 @@ public class ApplicationTransactionChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(range);
 
         final String id = "test_app";
-        List<AggreJoinTransactionBo> aggreJoinTransactionBoList = new ArrayList<AggreJoinTransactionBo>(5);
-        AggreJoinTransactionBo aggreJoinTransactionBo1 = new AggreJoinTransactionBo(id, 5000, 150, 10, "app_1_1", 230, "app_1_2", time);
-        AggreJoinTransactionBo aggreJoinTransactionBo2 = new AggreJoinTransactionBo(id, 5000, 110, 22, "app_2_1", 330, "app_2_2", time - 60000);
-        AggreJoinTransactionBo aggreJoinTransactionBo3 = new AggreJoinTransactionBo(id, 5000, 120, 24, "app_3_1", 540, "app_3_2", time - 120000);
-        AggreJoinTransactionBo aggreJoinTransactionBo4 = new AggreJoinTransactionBo(id, 5000, 130, 25, "app_4_1", 560, "app_4_2", time - 180000);
-        AggreJoinTransactionBo aggreJoinTransactionBo5 = new AggreJoinTransactionBo(id, 5000, 140, 12, "app_5_1", 260, "app_5_2", time - 240000);
-        aggreJoinTransactionBoList.add(aggreJoinTransactionBo1);
-        aggreJoinTransactionBoList.add(aggreJoinTransactionBo2);
-        aggreJoinTransactionBoList.add(aggreJoinTransactionBo3);
-        aggreJoinTransactionBoList.add(aggreJoinTransactionBo4);
-        aggreJoinTransactionBoList.add(aggreJoinTransactionBo5);
+        List<AggreJoinTransactionBo> aggreJoinTransactionBoList = List.of(
+                new AggreJoinTransactionBo(id, 5000, 150, 10, "app_1_1", 230, "app_1_2", time),
+                new AggreJoinTransactionBo(id, 5000, 110, 22, "app_2_1", 330, "app_2_2", time - 60000),
+                new AggreJoinTransactionBo(id, 5000, 120, 24, "app_3_1", 540, "app_3_2", time - 120000),
+                new AggreJoinTransactionBo(id, 5000, 130, 25, "app_4_1", 560, "app_4_2", time - 180000),
+                new AggreJoinTransactionBo(id, 5000, 140, 12, "app_5_1", 260, "app_5_2", time - 240000)
+        );
 
         ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> builder = ApplicationTransactionChart.newChartBuilder();
         StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = builder.build(timeWindow, aggreJoinTransactionBoList);
@@ -62,7 +57,7 @@ public class ApplicationTransactionChartGroupTest {
 
         Chart<ApplicationStatPoint<Double>> tranCountChart = charts.get(ApplicationTransactionChart.TransactionChartType.TRANSACTION_COUNT);
         List<ApplicationStatPoint<Double>> tranCountPointList = tranCountChart.getPoints();
-        assertEquals(5, tranCountPointList.size());
+        assertThat(tranCountPointList).hasSize(5);
         int index = tranCountPointList.size();
         for (ApplicationStatPoint<Double> point : tranCountPointList) {
             testTranCount(point, aggreJoinTransactionBoList.get(--index));

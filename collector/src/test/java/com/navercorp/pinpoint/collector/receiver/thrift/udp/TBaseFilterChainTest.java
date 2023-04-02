@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
@@ -31,7 +31,7 @@ public class TBaseFilterChainTest {
     @Test
     public void constructor_generic_array() {
         TBaseFilter<InetSocketAddress> filter = mock(TBaseFilter.class);
-        TBaseFilterChain<InetSocketAddress> chain = new TBaseFilterChain<>(Collections.singletonList(filter));
+        TBaseFilterChain<InetSocketAddress> chain = new TBaseFilterChain<>(List.of(filter));
         chain.filter(null, null, null);
     }
 }

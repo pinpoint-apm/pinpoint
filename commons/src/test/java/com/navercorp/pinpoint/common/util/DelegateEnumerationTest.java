@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -119,13 +120,13 @@ public class DelegateEnumerationTest {
         Assertions.assertTrue(delegateEnumeration.hasMoreElements());
         Assertions.assertTrue(valueList.remove(delegateEnumeration.nextElement()));
 
-        Assertions.assertEquals(valueList.size(), 1);
+        assertThat(valueList).hasSize(1);
 
         Assertions.assertFalse(delegateEnumeration.hasMoreElements());
         assertNextElements_Expected_ExceptionEmulation(enumeration, delegateEnumeration);
-        Assertions.assertEquals(valueList.size(), 1);
-
-        Assertions.assertEquals(valueList.get(0), "bb");
+        assertThat(valueList)
+                .hasSize(1)
+                .first().isEqualTo("bb");
     }
 
     @Test

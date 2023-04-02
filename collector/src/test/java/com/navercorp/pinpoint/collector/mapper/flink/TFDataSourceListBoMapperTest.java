@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -66,7 +67,7 @@ public class TFDataSourceListBoMapperTest {
         TFDataSourceList tfDataSourceList = tFDataSourceListBoMapper.map(dataSourceListBo);
 
         List<TFDataSource> dataSourceList = tfDataSourceList.getDataSourceList();
-        assertEquals(dataSourceList.size(), 2);
+        assertThat(dataSourceList).hasSize(2);
 
         TFDataSource tfDataSource1 = dataSourceList.get(0);
         assertEquals(tfDataSource1.getId(), 1);

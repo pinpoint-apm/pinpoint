@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,19 +29,14 @@ public class JoinDataSourceBoTest {
 
     @Test
     public void joinDataSourceBoListTest() {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
 
-        JoinDataSourceBo joinDataSourceBo1 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6");
-        JoinDataSourceBo joinDataSourceBo2 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7");
-        JoinDataSourceBo joinDataSourceBo3 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8");
-        JoinDataSourceBo joinDataSourceBo4 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9");
-        JoinDataSourceBo joinDataSourceBo5 = new JoinDataSourceBo((short) 1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10");
-
-        joinDataSourceBoList.add(joinDataSourceBo1);
-        joinDataSourceBoList.add(joinDataSourceBo2);
-        joinDataSourceBoList.add(joinDataSourceBo3);
-        joinDataSourceBoList.add(joinDataSourceBo4);
-        joinDataSourceBoList.add(joinDataSourceBo5);
+        List<JoinDataSourceBo> joinDataSourceBoList = List.of(
+                new JoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6"),
+                new JoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7"),
+                new JoinDataSourceBo((short) 1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8"),
+                new JoinDataSourceBo((short) 1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9"),
+                new JoinDataSourceBo((short) 1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10")
+        );
 
         JoinDataSourceBo joinDataSourceBo = JoinDataSourceBo.joinDataSourceBoList(joinDataSourceBoList);
 
@@ -53,8 +47,7 @@ public class JoinDataSourceBoTest {
 
     @Test
     public void joinDataSourceBoList2Test() {
-        List<JoinDataSourceBo> joinDataSourceBoList = new ArrayList<>();
-        JoinDataSourceBo joinDataSourceBo = JoinDataSourceBo.joinDataSourceBoList(joinDataSourceBoList);
+        JoinDataSourceBo joinDataSourceBo = JoinDataSourceBo.joinDataSourceBoList(List.of());
 
         assertEquals(joinDataSourceBo, JoinDataSourceBo.EMPTY_JOIN_DATA_SOURCE_BO);
     }

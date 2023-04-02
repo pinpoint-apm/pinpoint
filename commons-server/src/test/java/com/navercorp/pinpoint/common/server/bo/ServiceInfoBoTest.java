@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +30,7 @@ public class ServiceInfoBoTest {
     @Test
     public void testByteArrayConversion() {
         // Given
-        final ServiceInfoBo testBo = createTestBo("testService", Arrays.asList("lib1", "lib2"));
+        final ServiceInfoBo testBo = createTestBo("testService", List.of("lib1", "lib2"));
         // When
         final byte[] serializedBo = testBo.writeValue();
         final ServiceInfoBo deserializedBo = new ServiceInfoBo.Builder(serializedBo).build();

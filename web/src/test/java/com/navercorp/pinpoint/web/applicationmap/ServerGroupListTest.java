@@ -29,9 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -54,9 +54,9 @@ public class ServerGroupListTest {
         ServerGroupList serverGroupList = builder.build();
         List<String> agentIdList = serverGroupList.getAgentIdList();
 
-        assertThat(agentIdList).hasSize(2);
-        assertThat(agentIdList).contains("agentId1");
-        assertThat(agentIdList).contains("agentId2");
+        assertThat(agentIdList).hasSize(2)
+                .contains("agentId1")
+                .contains("agentId2");
     }
 
     public static AgentAndStatus createAgentInfo(String agentId, String hostName) {

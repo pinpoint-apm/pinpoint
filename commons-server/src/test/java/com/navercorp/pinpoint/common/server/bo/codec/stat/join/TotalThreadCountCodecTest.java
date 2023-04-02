@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -62,17 +61,12 @@ public class TotalThreadCountCodecTest {
 
     private List<JoinTotalThreadCountBo> createJoinTotalThreadCountBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>();
-        JoinTotalThreadCountBo joinTotalThreadCountBo1 = new JoinTotalThreadCountBo(id, currentTime, 80, 1000, "agent1_1", 30, "agent1_2");
-        JoinTotalThreadCountBo joinTotalThreadCountBo2 = new JoinTotalThreadCountBo(id, currentTime + 5000, 70, 900, "agent2_1", 20, "agent2_2");
-        JoinTotalThreadCountBo joinTotalThreadCountBo3 = new JoinTotalThreadCountBo(id, currentTime + 15000, 60, 800, "agent4_1", 15, "agent4_2");
-        JoinTotalThreadCountBo joinTotalThreadCountBo4 = new JoinTotalThreadCountBo(id, currentTime + 10000, 50, 700, "agent3_1", 10, "agent3_2");
-        JoinTotalThreadCountBo joinTotalThreadCountBo5 = new JoinTotalThreadCountBo(id, currentTime + 20000, 40, 600, "agent5_1", 5, "agent5_2");
-        joinTotalThreadCountBoList.add(joinTotalThreadCountBo1);
-        joinTotalThreadCountBoList.add(joinTotalThreadCountBo2);
-        joinTotalThreadCountBoList.add(joinTotalThreadCountBo3);
-        joinTotalThreadCountBoList.add(joinTotalThreadCountBo4);
-        joinTotalThreadCountBoList.add(joinTotalThreadCountBo5);
-        return joinTotalThreadCountBoList;
+        return List.of(
+                new JoinTotalThreadCountBo(id, currentTime, 80, 1000, "agent1_1", 30, "agent1_2"),
+                new JoinTotalThreadCountBo(id, currentTime + 5000, 70, 900, "agent2_1", 20, "agent2_2"),
+                new JoinTotalThreadCountBo(id, currentTime + 15000, 60, 800, "agent4_1", 15, "agent4_2"),
+                new JoinTotalThreadCountBo(id, currentTime + 10000, 50, 700, "agent3_1", 10, "agent3_2"),
+                new JoinTotalThreadCountBo(id, currentTime + 20000, 40, 600, "agent5_1", 5, "agent5_2")
+        );
     }
 }

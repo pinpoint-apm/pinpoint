@@ -32,9 +32,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 
@@ -81,7 +81,7 @@ public class AgentEventAsyncTaskServiceTest {
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
         assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
         assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertEquals(0, actualAgentEventBo.getEventBody().length);
+        assertThat(actualAgentEventBo.getEventBody()).isEmpty();
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
@@ -89,11 +89,10 @@ public class AgentEventAsyncTaskServiceTest {
     }
 
     private static Map<Object, Object> createChannelProperties(String applicationId, String agentId, long startTimestamp) {
-        Map<Object, Object> map = new HashMap<>();
-
-        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
-        map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
-        map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
-        return map;
+        return Map.of(
+                HandshakePropertyType.APPLICATION_NAME.getName(), applicationId,
+                HandshakePropertyType.AGENT_ID.getName(), agentId,
+                HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp
+        );
     }
 }

@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -36,7 +36,7 @@ public class DefaultClassBasedMatcherTest {
         assertEquals("java.lang.String", matcher.getBaseClassName());
 
         MatcherOperand operand = matcher.getMatcherOperand();
-        assertTrue(operand instanceof ClassInternalNameMatcherOperand);
+        assertThat(operand).isInstanceOf(ClassInternalNameMatcherOperand.class);
         ClassInternalNameMatcherOperand classInternalNameMatcherOperand = (ClassInternalNameMatcherOperand) operand;
         assertEquals("java/lang/String", classInternalNameMatcherOperand.getClassInternalName());
     }
@@ -48,11 +48,11 @@ public class DefaultClassBasedMatcherTest {
         assertEquals("java.lang.String", matcher.getBaseClassName());
 
         MatcherOperand operand = matcher.getMatcherOperand();
-        assertTrue(operand instanceof AndMatcherOperator);
+        assertThat(operand).isInstanceOf(AndMatcherOperator.class);
 
         AndMatcherOperator operator = (AndMatcherOperator) operand;
-        assertTrue(operator.getLeftOperand() instanceof ClassInternalNameMatcherOperand);
-        assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(ClassInternalNameMatcherOperand.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(InterfaceInternalNameMatcherOperand.class);
     }
 
     @Test

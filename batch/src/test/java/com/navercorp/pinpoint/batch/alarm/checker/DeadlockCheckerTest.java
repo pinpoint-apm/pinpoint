@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -80,7 +81,7 @@ public class DeadlockCheckerTest {
         Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assertions.assertEquals(1, smsMessage.size());
+        assertThat(smsMessage).hasSize(1);
     }
 
     @Test
@@ -98,10 +99,10 @@ public class DeadlockCheckerTest {
         Assertions.assertFalse(checker.isDetected());
 
         String emailMessage = checker.getEmailMessage();
-        Assertions.assertTrue(StringUtils.isEmpty(emailMessage));
+        assertThat(emailMessage).isNullOrEmpty();
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assertions.assertTrue(smsMessage.isEmpty());
+        assertThat(smsMessage).isEmpty();
     }
 
     private AgentEventBo createAgentEvent(String agentId, long eventTimestamp, AgentEventType agentEventType) {

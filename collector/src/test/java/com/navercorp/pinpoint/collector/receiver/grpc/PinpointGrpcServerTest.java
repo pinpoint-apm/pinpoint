@@ -37,9 +37,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -78,7 +79,7 @@ public class PinpointGrpcServerTest {
         future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         pinpointGrpcServer.handleHandshake(supportCommandList);
         assertCurrentState(SocketStateCode.RUN_DUPLEX, pinpointGrpcServer);
 
@@ -90,7 +91,7 @@ public class PinpointGrpcServerTest {
 
     private void requestOnInvalidState(Future<ResponseMessage> future, RecordedStreamObserver recordedStreamObserver) {
         Assertions.assertFalse(future.isSuccess());
-        Assertions.assertTrue(future.getCause() instanceof IllegalStateException);
+        assertThat(future.getCause()).isInstanceOf(IllegalStateException.class);
         Assertions.assertEquals(0, recordedStreamObserver.getRequestCount());
     }
 
@@ -101,7 +102,7 @@ public class PinpointGrpcServerTest {
         PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, new RequestManager(testTimer, 3000), Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
         pinpointGrpcServer.connected();
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         pinpointGrpcServer.handleHandshake(supportCommandList);
 
         Future<ResponseMessage> future = pinpointGrpcServer.request(this.request);

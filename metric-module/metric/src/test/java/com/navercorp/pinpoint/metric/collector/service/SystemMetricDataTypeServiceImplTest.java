@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -31,7 +31,7 @@ public class SystemMetricDataTypeServiceImplTest {
         MetricData metricData = new MetricData("metricName", "fieldName", MetricDataType.DOUBLE, metricDataName.getSaveTime());
         when(metricDataTypeCache.getMetricDataType(any(MetricDataName.class))).thenReturn(metricData);
 
-        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, new ArrayList<>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, List.of(), Long.MAX_VALUE);
         systemMetricDataTypeService.saveMetricDataType(systemMetric);
 
         verify(metricDataTypeCache, never()).saveMetricDataType(any(MetricDataName.class), any(MetricData.class));
@@ -43,7 +43,7 @@ public class SystemMetricDataTypeServiceImplTest {
         SystemMetricDataTypeService systemMetricDataTypeService = new SystemMetricDataTypeServiceImpl(metricDataTypeCache);
         when(metricDataTypeCache.getMetricDataType(any(MetricDataName.class))).thenReturn(null);
 
-        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, new ArrayList<>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, List.of(), Long.MAX_VALUE);
         systemMetricDataTypeService.saveMetricDataType(systemMetric);
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
@@ -57,7 +57,7 @@ public class SystemMetricDataTypeServiceImplTest {
         SystemMetricDataTypeService systemMetricDataTypeService = new SystemMetricDataTypeServiceImpl(metricDataTypeCache);
         when(metricDataTypeCache.getMetricDataType(any(MetricDataName.class))).thenReturn(null);
 
-        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, new ArrayList<>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new DoubleMetric("metricName", "hostName", "fieldName", 0, List.of(), Long.MAX_VALUE);
         systemMetricDataTypeService.saveMetricDataType(systemMetric);
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
@@ -71,7 +71,7 @@ public class SystemMetricDataTypeServiceImplTest {
         SystemMetricDataTypeService systemMetricDataTypeService = new SystemMetricDataTypeServiceImpl(metricDataTypeCache);
         when(metricDataTypeCache.getMetricDataType(any(MetricDataName.class))).thenReturn(null);
 
-        SystemMetric systemMetric = new SystemMetric("metricName", "fieldName", "hostName", new ArrayList<>(), Long.MAX_VALUE);
+        SystemMetric systemMetric = new SystemMetric("metricName", "fieldName", "hostName", List.of(), Long.MAX_VALUE);
         systemMetricDataTypeService.saveMetricDataType(systemMetric);
 
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());

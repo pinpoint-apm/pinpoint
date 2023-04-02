@@ -28,6 +28,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -77,7 +79,7 @@ public class Java9ClassLoaderTest {
     public void loadClass_bootstrap() throws Exception {
 
         ClassLoader cl = PinpointClassLoaderFactory.createClassLoader(this.getClass().getName(), new URL[]{}, null, ProfilerLibs.PINPOINT_PROFILER_CLASS);
-        Assertions.assertTrue(cl instanceof Java9ClassLoader);
+        assertThat(cl).isInstanceOf(Java9ClassLoader.class);
 
         Class<?> stringClazz1 = cl.loadClass("java.lang.String");
         Class<?> stringClazz2 = ClassLoader.getSystemClassLoader().loadClass("java.lang.String");

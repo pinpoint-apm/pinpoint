@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class FuzzyRowFilterTest {
 
@@ -22,7 +22,7 @@ public class FuzzyRowFilterTest {
         byte[] fuzzy = {1, 0};
         Pair<byte[], byte[]> fuzzyPair1 = new Pair<>(a1, fuzzy);
         Pair<byte[], byte[]> fuzzyPair2 = new Pair<>(a2, fuzzy);
-        FuzzyRowFilter filter = new FuzzyRowFilter(Arrays.asList(fuzzyPair1, fuzzyPair2));
+        FuzzyRowFilter filter = new FuzzyRowFilter(List.of(fuzzyPair1, fuzzyPair2));
 
         KeyValue keyValue = new KeyValue(new byte[]{0, 1}, 1L);
         Filter.ReturnCode returnCode = filter.filterKeyValue(keyValue);

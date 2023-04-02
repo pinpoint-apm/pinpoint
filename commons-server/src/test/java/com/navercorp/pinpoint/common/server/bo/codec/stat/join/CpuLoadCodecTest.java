@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -64,18 +63,13 @@ public class CpuLoadCodecTest {
 
     private List<JoinCpuLoadBo> createJoinCpuLoadBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinCpuLoadBo> joinCpuLoadBoList = new ArrayList<>();
-        JoinCpuLoadBo joinCpuLoadBo1 = new JoinCpuLoadBo(id, 50, 97, "agent1_1", 27, "agent1_2", 80, 97, "agent1_3", 46, "agent1_4", currentTime);
-        JoinCpuLoadBo joinCpuLoadBo2 = new JoinCpuLoadBo(id, 40, 87, "agent2_1", 40, "agent2_2", 70, 97, "agent2_3", 40, "agent2_4", currentTime + 5000);
-        JoinCpuLoadBo joinCpuLoadBo4 = new JoinCpuLoadBo(id, 20, 67, "agent4_1", 17, "agent4_2", 40, 99, "agent4_3", 18, "agent4_4", currentTime + 15000);
-        JoinCpuLoadBo joinCpuLoadBo3 = new JoinCpuLoadBo(id, 30, 77, "agent3_1", 27, "agent3_2", 60, 77, "agent3_3", 27, "agent3_4", currentTime + 10000);
-        JoinCpuLoadBo joinCpuLoadBo5 = new JoinCpuLoadBo(id, 10, 99, "agent5_1", 7, "agent5_2", 30, 59, "agent5_3", 8, "agent5_4", currentTime + 20000);
-        joinCpuLoadBoList.add(joinCpuLoadBo1);
-        joinCpuLoadBoList.add(joinCpuLoadBo2);
-        joinCpuLoadBoList.add(joinCpuLoadBo3);
-        joinCpuLoadBoList.add(joinCpuLoadBo4);
-        joinCpuLoadBoList.add(joinCpuLoadBo5);
-        return joinCpuLoadBoList;
+        return List.of(
+                new JoinCpuLoadBo(id, 50, 97, "agent1_1", 27, "agent1_2", 80, 97, "agent1_3", 46, "agent1_4", currentTime),
+                new JoinCpuLoadBo(id, 40, 87, "agent2_1", 40, "agent2_2", 70, 97, "agent2_3", 40, "agent2_4", currentTime + 5000),
+                new JoinCpuLoadBo(id, 30, 77, "agent3_1", 27, "agent3_2", 60, 77, "agent3_3", 27, "agent3_4", currentTime + 10000),
+                new JoinCpuLoadBo(id, 20, 67, "agent4_1", 17, "agent4_2", 40, 99, "agent4_3", 18, "agent4_4", currentTime + 15000),
+                new JoinCpuLoadBo(id, 10, 99, "agent5_1", 7, "agent5_2", 30, 59, "agent5_3", 8, "agent5_4", currentTime + 20000)
+        );
     }
 
 }

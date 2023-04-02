@@ -9,9 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -46,14 +46,15 @@ public class MemoryUserDaoTest {
 
     @Test
     public void insertUserList() {
-        List<User> userList = new ArrayList<>();
-        userList.add(createUser("user1", "dep1", "name1"));
-        userList.add(createUser("user2", "dep2", "name2"));
-    
+        List<User> userList = List.of(
+                createUser("user1", "dep1", "name1"),
+                createUser("user2", "dep2", "name2")
+        );
+
         memoryUserDao.insertUserList(userList);
-        
+
         List<User> selectedUserList = memoryUserDao.selectUser();
-        assertEquals(2, selectedUserList.size());
+        assertThat(selectedUserList).hasSize(2);
     }
     
     @Test
@@ -65,7 +66,7 @@ public class MemoryUserDaoTest {
         memoryUserDao.insertUser(inputUser2);
     
         List<User> selectedUserList = memoryUserDao.selectUserByDepartment("dep1");
-        assertEquals(1, selectedUserList.size());
+        assertThat(selectedUserList).hasSize(1);
     }
     
     @Test
@@ -77,7 +78,7 @@ public class MemoryUserDaoTest {
         memoryUserDao.insertUser(inputUser2);
         
         List<User> selectedUserList = memoryUserDao.selectUserByUserName("name1");
-        assertEquals(1, selectedUserList.size());
+        assertThat(selectedUserList).hasSize(1);
     }
     
     @Test
@@ -86,28 +87,27 @@ public class MemoryUserDaoTest {
         User inputUser2 = createUser("user2", "dep2", "name2");
         memoryUserDao.insertUser(inputUser1);
         memoryUserDao.insertUser(inputUser2);
-    
+
         UserGroupMember userGroupMember1 = new UserGroupMember();
         userGroupMember1.setName("name1");
         userGroupMember1.setDepartment("dep1");
         userGroupMember1.setMemberId("user1");
         userGroupMember1.setUserGroupId("userGroupId");
-        
-        List<UserGroupMember> userGroupMembers = new ArrayList<>();
-        userGroupMembers.add(userGroupMember1);
-        
+
+        List<UserGroupMember> userGroupMembers = List.of(userGroupMember1);
+
         when(userGroupDao.selectMember("userGroupId")).thenReturn(userGroupMembers);
         List<User> selectedUserList = memoryUserDao.selectUserByUserGroupId("userGroupId");
-    
+
         assertEquals(userGroupMember1.getMemberId(), selectedUserList.get(0).getUserId());
         assertEquals(userGroupMember1.getName(), selectedUserList.get(0).getName());
-        assertEquals(1, selectedUserList.size());
+        assertThat(selectedUserList).hasSize(1);
     }
     
     @Test
     public void dropAndCreateUserTable() {
         memoryUserDao.dropAndCreateUserTable();
         List<User> selectedUserList = memoryUserDao.selectUser();
-        assertEquals(0, selectedUserList.size());
+        assertThat(selectedUserList).isEmpty();
     }
 }

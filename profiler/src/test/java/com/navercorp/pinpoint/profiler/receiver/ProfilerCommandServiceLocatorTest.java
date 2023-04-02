@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Taejin Koo
  */
@@ -88,9 +90,9 @@ public class ProfilerCommandServiceLocatorTest {
 
         short commandEcho = TCommandType.ECHO.getCode();
 
-        Assertions.assertEquals(1, commandServiceLocator.getCommandServiceSize());
-        Assertions.assertEquals(1, commandServiceLocator.getCommandServiceCodes().size());
-        Assertions.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandEcho));
+        assertThat(commandServiceLocator.getCommandServiceSize()).isEqualTo(1);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).hasSize(1);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).contains(commandEcho);
 
         Assertions.assertNotNull(commandServiceLocator.getService(commandEcho));
         Assertions.assertNotNull(commandServiceLocator.getRequestService(commandEcho));
@@ -109,10 +111,10 @@ public class ProfilerCommandServiceLocatorTest {
 
         short commandTransfer = TCommandType.TRANSFER.getCode();
 
-        Assertions.assertEquals(2, commandServiceLocator.getCommandServiceSize());
-        Assertions.assertEquals(2, commandServiceLocator.getCommandServiceCodes().size());
-        Assertions.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandResult));
-        Assertions.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandTransfer));
+        assertThat(commandServiceLocator.getCommandServiceSize()).isEqualTo(2);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).hasSize(2);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).contains(commandResult);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).contains(commandTransfer);
 
         Assertions.assertNotNull(commandServiceLocator.getService(commandResult));
         Assertions.assertNotNull(commandServiceLocator.getSimpleService(commandResult));

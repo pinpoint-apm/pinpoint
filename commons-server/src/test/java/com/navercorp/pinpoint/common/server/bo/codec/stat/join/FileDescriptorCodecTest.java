@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,18 +64,13 @@ public class FileDescriptorCodecTest {
 
     private List<JoinFileDescriptorBo> createJoinFileDescriptorBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>();
-        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo(id, 80, 1000, "agent1_1", 30, "agent1_2", currentTime);
-        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo(id, 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000);
-        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo(id, 60, 800, "agent4_1", 15, "agent4_2", currentTime + 15000);
-        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo(id, 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000);
-        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo(id, 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
-        return joinFileDescriptorBoList;
+        return List.of(
+                new JoinFileDescriptorBo(id, 80, 1000, "agent1_1", 30, "agent1_2", currentTime),
+                new JoinFileDescriptorBo(id, 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000),
+                new JoinFileDescriptorBo(id, 60, 800, "agent4_1", 15, "agent4_2", currentTime + 15000),
+                new JoinFileDescriptorBo(id, 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000),
+                new JoinFileDescriptorBo(id, 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000)
+        );
     }
 
 }

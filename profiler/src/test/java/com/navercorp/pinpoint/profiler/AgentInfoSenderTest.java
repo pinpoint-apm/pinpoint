@@ -74,9 +74,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgentInfoSenderTest {
 
@@ -464,7 +464,7 @@ public class AgentInfoSenderTest {
             testPinpointServerAcceptor.close();
         }
         // Then
-        assertTrue(exceptions.isEmpty(), "Failed with exceptions : " + exceptions);
+        assertThat(exceptions).as("Failed with exceptions : " + exceptions).isEmpty();
         assertEquals(threadCount, messageListener.getRequestCount());
         assertEquals(threadCount, messageListener.getSuccessCount());
     }

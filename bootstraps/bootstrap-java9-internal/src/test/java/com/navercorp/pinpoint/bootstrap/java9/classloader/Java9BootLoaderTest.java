@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.classloader;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +25,12 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class Java9BootLoaderTest {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testFindResource() {
@@ -56,7 +54,6 @@ public class Java9BootLoaderTest {
 
         Enumeration<URL> bootstrapResources = bootLoader.findResources(stringResource);
         List<URL> list = Collections.list(bootstrapResources);
-        Assertions.assertEquals(1, list.size());
-        logger.debug("list:{}", list);
+        assertThat(list).hasSize(1);
     }
 }

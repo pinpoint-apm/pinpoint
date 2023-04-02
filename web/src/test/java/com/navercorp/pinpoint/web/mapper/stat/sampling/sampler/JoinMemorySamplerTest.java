@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,19 +43,13 @@ public class JoinMemorySamplerTest {
     }
 
     private List<JoinMemoryBo> createJoinMemoryBoList(long currentTime) {
-        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<JoinMemoryBo>();
-        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo(ID, currentTime + 5000, 3000, 2000, 5000, "app_1_1", "app_1_2", 500, 50, 600, "app_1_3", "app_1_4");
-        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo(ID, currentTime + 10000, 4000, 1000, 7000, "app_2_1", "app_2_2", 400, 150, 600, "app_2_3", "app_2_4");
-        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo(ID, currentTime + 15000, 5000, 3000, 8000, "app_3_1", "app_3_2", 200, 100, 200, "app_3_3", "app_3_4");
-        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo(ID, currentTime + 20000, 1000, 100, 3000, "app_4_1", "app_4_2", 100, 900, 1000, "app_4_3", "app_4_4");
-        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(ID, currentTime + 25000, 2000, 1000, 6000, "app_5_1", "app_5_2", 300, 100, 2900, "app_5_3", "app_5_4");
-        joinMemoryBoList.add(joinMemoryBo1);
-        joinMemoryBoList.add(joinMemoryBo3);
-        joinMemoryBoList.add(joinMemoryBo2);
-        joinMemoryBoList.add(joinMemoryBo5);
-        joinMemoryBoList.add(joinMemoryBo4);
-
-        return joinMemoryBoList;
+        return List.of(
+                new JoinMemoryBo(ID, currentTime + 5000, 3000, 2000, 5000, "app_1_1", "app_1_2", 500, 50, 600, "app_1_3", "app_1_4"),
+                new JoinMemoryBo(ID, currentTime + 10000, 4000, 1000, 7000, "app_2_1", "app_2_2", 400, 150, 600, "app_2_3", "app_2_4"),
+                new JoinMemoryBo(ID, currentTime + 15000, 5000, 3000, 8000, "app_3_1", "app_3_2", 200, 100, 200, "app_3_3", "app_3_4"),
+                new JoinMemoryBo(ID, currentTime + 20000, 1000, 100, 3000, "app_4_1", "app_4_2", 100, 900, 1000, "app_4_3", "app_4_4"),
+                new JoinMemoryBo(ID, currentTime + 25000, 2000, 1000, 6000, "app_5_1", "app_5_2", 300, 100, 2900, "app_5_3", "app_5_4")
+        );
     }
 
 }

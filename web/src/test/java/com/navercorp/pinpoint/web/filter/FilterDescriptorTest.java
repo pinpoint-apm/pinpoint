@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author netspider
  */
@@ -108,10 +110,11 @@ public class FilterDescriptorTest {
 
         logger.debug("json:{}", arrayJson);
 
-        List<FilterDescriptor> descriptor = mapper.readValue(arrayJson, new TypeReference<>() {});
+        List<FilterDescriptor> descriptor = mapper.readValue(arrayJson, new TypeReference<>() {
+        });
 
-        Assertions.assertEquals(1, descriptor.size());
-        Assertions.assertNotNull(descriptor.get(0));
+        assertThat(descriptor).hasSize(1)
+                .first().isNotNull();
     }
 
     @Test

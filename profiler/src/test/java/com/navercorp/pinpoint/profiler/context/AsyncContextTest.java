@@ -14,10 +14,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,12 +75,13 @@ public abstract class AsyncContextTest {
         // invoke continueTraceObject
         Trace enabledTrace = enabledAsyncContext.continueAsyncTraceObject();
         Trace disabledTrace = disabledAsyncContext.continueAsyncTraceObject();
-        assertTrue(enabledTrace instanceof AsyncChildTrace);
-        assertTrue(disabledTrace instanceof DisableAsyncChildTrace);
+        assertThat(enabledTrace)
+                .isInstanceOf(AsyncChildTrace.class)
+                .isEqualTo(enabledAsyncContext.currentAsyncTraceObject());
+        assertThat(disabledTrace)
+                .isInstanceOf(DisableAsyncChildTrace.class)
+                .isEqualTo(disabledAsyncContext.currentAsyncTraceObject());
 
-        // check current trace object
-        assertEquals(enabledTrace, enabledAsyncContext.currentAsyncTraceObject());
-        assertEquals(disabledTrace, disabledAsyncContext.currentAsyncTraceObject());
 
         // re-invocation of continueTraceObject must not change trace object
         Trace anotherEnabledTrace = enabledAsyncContext.continueAsyncTraceObject();

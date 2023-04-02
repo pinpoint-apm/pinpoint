@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.when;
@@ -56,23 +56,7 @@ public class HbaseAgentLifeCycleDaoTest {
     private HbaseOperations2 hbaseOperations2;
 
     @Spy
-    private final TableNameProvider tableNameProvider = new TableNameProvider() {
-
-        @Override
-        public TableName getTableName(HbaseTable hBaseTable) {
-            return getTableName(hBaseTable.getName());
-        }
-
-        @Override
-        public TableName getTableName(String tableName) {
-            return TableName.valueOf(tableName);
-        }
-
-        @Override
-        public boolean hasDefaultNameSpace() {
-            return true;
-        }
-    };
+    private final TableNameProvider tableNameProvider = new HbaseTableNameProvider("default");
 
     @Mock
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
@@ -97,9 +81,7 @@ public class HbaseAgentLifeCycleDaoTest {
         // When
         AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(expectedAgentId, expectedTimestamp);
         // Then
-        Assertions.assertEquals(expectedAgentId, agentStatus.getAgentId());
-        Assertions.assertEquals(expectedTimestamp, agentStatus.getEventTimestamp());
-        Assertions.assertEquals(expectedAgentLifeCycleState, agentStatus.getState());
+        assertStatus(agentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
 
     @Test
@@ -114,9 +96,7 @@ public class HbaseAgentLifeCycleDaoTest {
         // When
         AgentStatus agentStatus = this.agentLifeCycleDao.getAgentStatus(expectedAgentId, expectedTimestamp);
         // Then
-        Assertions.assertEquals(expectedAgentId, agentStatus.getAgentId());
-        Assertions.assertEquals(expectedTimestamp, agentStatus.getEventTimestamp());
-        Assertions.assertEquals(expectedAgentLifeCycleState, agentStatus.getState());
+        assertStatus(agentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
 
     @Test
@@ -136,9 +116,13 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentStatus givenStatus = agentStatus.get();
 
         // Then
-        Assertions.assertEquals(expectedAgentId, givenStatus.getAgentId());
-        Assertions.assertEquals(expectedTimestamp, givenStatus.getEventTimestamp());
-        Assertions.assertEquals(expectedAgentLifeCycleState, givenStatus.getState());
+        assertStatus(givenStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
+    }
+
+    private void assertStatus(AgentStatus givenStatus, String expectedAgentId, long expectedTimestamp, AgentLifeCycleState expectedAgentLifeCycleState) {
+        assertThat(givenStatus)
+                .extracting(AgentStatus::getAgentId, AgentStatus::getEventTimestamp, AgentStatus::getState)
+                .containsExactly(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
 
     @Test
@@ -159,39 +143,35 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentStatus actualAgentStatus = agentStatus.get();
 
         // Then
-        Assertions.assertEquals(expectedAgentId, actualAgentStatus.getAgentId());
-        Assertions.assertEquals(expectedTimestamp, actualAgentStatus.getEventTimestamp());
-        Assertions.assertEquals(expectedAgentLifeCycleState, actualAgentStatus.getState());
+        assertStatus(actualAgentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
 
     @Test
     public void agentInfos_should_be_populated_accordingly_even_with_nulls() {
         // Given
         final String expectedAgentId = "test-agent";
-        final Instant expectedTimestamp = Instant.ofEpochMilli(1000);
+        final long expectedTimestamp = 1000L;
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
-        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp.toEpochMilli(), expectedAgentLifeCycleState);
-        when(this.hbaseOperations2.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
+        when(this.hbaseOperations2.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class))).thenReturn(List.of(scannedLifeCycleBo, scannedLifeCycleBo));
 
         AgentInfo nonNullAgentInfo = new AgentInfo();
         nonNullAgentInfo.setAgentId(expectedAgentId);
-        nonNullAgentInfo.setStartTimestamp(expectedTimestamp.toEpochMilli());
+        nonNullAgentInfo.setStartTimestamp(expectedTimestamp);
         AgentInfo nullAgentInfo = null;
         List<AgentInfo> givenAgentInfos = Arrays.asList(nonNullAgentInfo, nullAgentInfo, nonNullAgentInfo, nullAgentInfo);
         // When
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(givenAgentInfos, expectedTimestamp);
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(givenAgentInfos, Instant.ofEpochMilli(expectedTimestamp));
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
 
         // Then
-        Assertions.assertEquals(nonNullAgentInfo, givenAgentInfos.get(0));
-        Assertions.assertEquals(nullAgentInfo, givenAgentInfos.get(1));
-        Assertions.assertEquals(nonNullAgentInfo, givenAgentInfos.get(2));
-        Assertions.assertEquals(nullAgentInfo, givenAgentInfos.get(3));
+        assertThat(givenAgentInfos)
+                .containsExactly(nonNullAgentInfo, nullAgentInfo, nonNullAgentInfo, nullAgentInfo);
+
         AgentStatus nonNullAgentInfoStatus = agentStatus.get(0).orElse(null);
-        Assertions.assertEquals(expectedAgentId, nonNullAgentInfoStatus.getAgentId());
-        Assertions.assertEquals(expectedTimestamp, Instant.ofEpochMilli(nonNullAgentInfoStatus.getEventTimestamp()));
-        Assertions.assertEquals(expectedAgentLifeCycleState, nonNullAgentInfoStatus.getState());
+
+        assertStatus(nonNullAgentInfoStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
     }
 
     @Test

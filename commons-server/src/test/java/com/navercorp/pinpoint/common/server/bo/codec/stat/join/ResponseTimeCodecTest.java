@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -64,19 +63,13 @@ public class ResponseTimeCodecTest {
 
     private List<JoinResponseTimeBo> createJoinResponseTimeBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>();
-        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2");
-        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2");
-        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2");
-        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo(id, currentTime + 15000, 5000, 20, "app_4_1", 8000, "app_4_2");
-        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo(id, currentTime + 20000, 1000, 10, "app_5_1", 6600, "app_5_2");
-        joinResponseTimeBoList.add(joinResponseTimeBo1);
-        joinResponseTimeBoList.add(joinResponseTimeBo2);
-        joinResponseTimeBoList.add(joinResponseTimeBo3);
-        joinResponseTimeBoList.add(joinResponseTimeBo4);
-        joinResponseTimeBoList.add(joinResponseTimeBo5);
-
-        return joinResponseTimeBoList;
+        return List.of(
+                new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2"),
+                new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2"),
+                new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2"),
+                new JoinResponseTimeBo(id, currentTime + 15000, 5000, 20, "app_4_1", 8000, "app_4_2"),
+                new JoinResponseTimeBo(id, currentTime + 20000, 1000, 10, "app_5_1", 6600, "app_5_2")
+        );
     }
 
 }

@@ -16,18 +16,15 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -54,11 +51,11 @@ public class AgentStatusTimelineBuilderTest {
         long endTime = getRandomLong(startTime, TO - 1);
         AgentStatusTimelineSegment timelineSegment = createTimelineSegment(startTime, endTime);
 
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, Arrays.asList(timelineSegment)).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, List.of(timelineSegment)).build();
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assertions.assertEquals(3, actualTimelineSegmentList.size());
+        assertThat(actualTimelineSegmentList).hasSize(3);
 
         AgentStatusTimelineSegment first = actualTimelineSegmentList.get(0);
         assertTimelineSegment(first, FROM, startTime, AgentState.RUNNING);
@@ -84,11 +81,11 @@ public class AgentStatusTimelineBuilderTest {
         long secondEndTime = ThreadLocalRandom.current().nextLong(secondStartTime + 1, TO - 1);
         AgentStatusTimelineSegment timelineSegment2 = createTimelineSegment(secondStartTime, secondEndTime);
 
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, Arrays.asList(timelineSegment1, timelineSegment2)).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, List.of(timelineSegment1, timelineSegment2)).build();
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assertions.assertEquals(5, actualTimelineSegmentList.size());
+        assertThat(actualTimelineSegmentList).hasSize(5);
 
         AgentStatusTimelineSegment first = actualTimelineSegmentList.get(0);
         assertTimelineSegment(first, FROM, firstStartTime, AgentState.RUNNING);
@@ -115,11 +112,11 @@ public class AgentStatusTimelineBuilderTest {
         long endTime = getRandomLong(FROM + 1, TO - 1);
         AgentStatusTimelineSegment timelineSegment = createTimelineSegment(FROM, endTime);
 
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, Arrays.asList(timelineSegment)).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, List.of(timelineSegment)).build();
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assertions.assertEquals(2, actualTimelineSegmentList.size());
+        assertThat(actualTimelineSegmentList).hasSize(2);
 
         AgentStatusTimelineSegment unstableTimelineSegment = actualTimelineSegmentList.get(0);
         assertTimelineSegment(unstableTimelineSegment, FROM, endTime, AgentState.UNSTABLE_RUNNING);
@@ -137,11 +134,11 @@ public class AgentStatusTimelineBuilderTest {
         long startTime = ThreadLocalRandom.current().nextLong(FROM + 1, FROM + (DIFF / 2));
         AgentStatusTimelineSegment timelineSegment = createTimelineSegment(startTime, TO);
 
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, Arrays.asList(timelineSegment)).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, List.of(timelineSegment)).build();
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assertions.assertEquals(2, actualTimelineSegmentList.size());
+        assertThat(actualTimelineSegmentList).hasSize(2);
 
         AgentStatusTimelineSegment first = actualTimelineSegmentList.get(0);
         assertTimelineSegment(first, FROM, startTime, AgentState.RUNNING);
@@ -160,11 +157,11 @@ public class AgentStatusTimelineBuilderTest {
 
         AgentStatusTimelineSegment timelineSegment = createTimelineSegment(FROM - 1, warningEndTime);
 
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, Arrays.asList(timelineSegment)).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, List.of(timelineSegment)).build();
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assertions.assertEquals(1, actualTimelineSegmentList.size());
+        assertThat(actualTimelineSegmentList).hasSize(1);
 
         AgentStatusTimelineSegment timelineSegment1 = actualTimelineSegmentList.get(0);
         assertTimelineSegment(timelineSegment1, FROM, TO, AgentState.RUNNING);
@@ -179,20 +176,20 @@ public class AgentStatusTimelineBuilderTest {
         long warningStartTime = ThreadLocalRandom.current().nextLong(FROM, TO);
         AgentStatusTimelineSegment timelineSegment = createTimelineSegment(warningStartTime, TO + 1);
 
-        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, Arrays.asList(timelineSegment)).build();
+        AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, DEFAULT_STATUS, null, List.of(timelineSegment)).build();
 
         // Then
         List<AgentStatusTimelineSegment> actualTimelineSegmentList = timeline.getTimelineSegments();
-        Assertions.assertEquals(1, actualTimelineSegmentList.size());
+        assertThat(actualTimelineSegmentList).hasSize(1);
 
         AgentStatusTimelineSegment timelineSegment1 = actualTimelineSegmentList.get(0);
         assertTimelineSegment(timelineSegment1, FROM, TO, AgentState.RUNNING);
     }
 
     private void assertTimelineSegment(AgentStatusTimelineSegment timelineSegment, long startTime, long endTime, AgentState state) {
-        Assertions.assertEquals(startTime, timelineSegment.getStartTimestamp());
-        Assertions.assertEquals(endTime, timelineSegment.getEndTimestamp());
-        Assertions.assertEquals(state, timelineSegment.getValue());
+        assertThat(timelineSegment)
+                .extracting(AgentStatusTimelineSegment::getStartTimestamp, AgentStatusTimelineSegment::getEndTimestamp, AgentStatusTimelineSegment::getValue)
+                .containsExactly(startTime, endTime, state);
     }
 
     private AgentStatusTimelineSegment createTimelineSegment(long startTimestamp, long endTimestamp) {
@@ -205,13 +202,9 @@ public class AgentStatusTimelineBuilderTest {
     }
 
     private static AgentStatus createAgentStatus(long timestamp, AgentLifeCycleState state) {
-        AgentStatus agentStatus = new AgentStatus("testAgent", state, timestamp);
-        return agentStatus;
+        return new AgentStatus("testAgent", state, timestamp);
     }
 
-    private AgentEvent createAgentEvent(long agentStartTimestamp, long timestamp, AgentEventType agentEventType) {
-        return new AgentEvent(new AgentEventBo("testAgentId", agentStartTimestamp, timestamp, agentEventType));
-    }
 
     private AgentStatusTimelineSegment createSegment(long startTimestamp, long endTimestamp, AgentState state) {
         AgentStatusTimelineSegment segment = new AgentStatusTimelineSegment();

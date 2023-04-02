@@ -39,6 +39,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.ALIAS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,7 +77,7 @@ public class RpcCallProcessorTest {
         Assertions.assertNotNull(replacedLinkDataMap.getLinkData(linkKey));
         Assertions.assertEquals(linkDataMap.size(), replacedLinkDataMap.size());
 
-        Assertions.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -111,7 +112,7 @@ public class RpcCallProcessorTest {
         Assertions.assertEquals(fromApplication, replacedLinkData.getFromApplication());
         Assertions.assertEquals(expectedToApplication, replacedLinkData.getToApplication());
 
-        Assertions.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -156,8 +157,8 @@ public class RpcCallProcessorTest {
         Assertions.assertEquals(expectedToApplication2, replacedLinkData2.getToApplication());
 
         Set<LinkData> virtualLinkDatas = virtualLinkMarker.getVirtualLinkData();
-        Assertions.assertTrue(virtualLinkDatas.contains(replacedLinkData1));
-        Assertions.assertTrue(virtualLinkDatas.contains(replacedLinkData2));
+        assertThat(virtualLinkDatas).contains(replacedLinkData1);
+        assertThat(virtualLinkDatas).contains(replacedLinkData2);
     }
 
     @Test
@@ -190,7 +191,7 @@ public class RpcCallProcessorTest {
         Assertions.assertEquals(fromApplication, replacedLinkData.getFromApplication());
         Assertions.assertEquals(expectedToApplication, replacedLinkData.getToApplication());
 
-        Assertions.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -220,7 +221,7 @@ public class RpcCallProcessorTest {
         Assertions.assertEquals(fromApplication, linkData.getFromApplication());
         Assertions.assertEquals(toApplication, linkData.getToApplication());
 
-        Assertions.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test

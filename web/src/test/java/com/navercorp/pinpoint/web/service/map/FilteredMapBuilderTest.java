@@ -39,9 +39,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -108,7 +109,7 @@ public class FilteredMapBuilderTest {
         appASpan.addSpanEvent(appACacheSpanEvent);
 
         // When
-        builder.addTransaction(Arrays.asList(rootSpan, appASpan));
+        builder.addTransaction(List.of(rootSpan, appASpan));
         FilteredMap filteredMap = builder.build();
 
         // Then
@@ -134,12 +135,13 @@ public class FilteredMapBuilderTest {
         ResponseHistograms responseHistograms = filteredMap.getResponseHistograms();
         Application rootApplication = new Application("ROOT_APP", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE));
         List<ResponseTime> rootAppResponseTimes = responseHistograms.getResponseTimeList(rootApplication);
-        Assertions.assertNotNull(rootAppResponseTimes);
-        Assertions.assertEquals(1, rootAppResponseTimes.size());
+
+        assertThat(rootAppResponseTimes).hasSize(1);
+
         Application applicationA = new Application("APP_A", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE));
         List<ResponseTime> appAResponseTimes = responseHistograms.getResponseTimeList(applicationA);
-        Assertions.assertNotNull(appAResponseTimes);
-        Assertions.assertEquals(1, appAResponseTimes.size());
+
+        assertThat(appAResponseTimes).hasSize(1);
     }
 
     private void assertSourceLinkData(LinkDataMap sourceLinkDataMap, String fromApplicationName, ServiceType fromServiceType, String toApplicationName, ServiceType toServiceType) {

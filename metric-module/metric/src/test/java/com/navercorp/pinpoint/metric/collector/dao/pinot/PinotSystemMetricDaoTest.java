@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -78,7 +78,7 @@ public class PinotSystemMetricDaoTest {
 
         longDao.insert("tenantId", "hostGroupName", "hostName", doubleMetricList);
 
-        Assertions.assertEquals(doubleMetricList.size(), sendCount.intValue());
+        assertThat(doubleMetricList).hasSize(sendCount.intValue());
     }
 
     private List<DoubleMetric> createDoubleCounterList() {

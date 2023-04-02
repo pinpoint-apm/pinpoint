@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternal
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,8 +35,8 @@ public class AndMatcherOperatorTest {
         assertEquals(2, operator.getPrecedence());
         assertTrue(operator.isOperator());
         assertFalse(operator.isIndex());
-        assertTrue(operator.getLeftOperand() instanceof ClassInternalNameMatcherOperand);
-        assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(ClassInternalNameMatcherOperand.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(InterfaceInternalNameMatcherOperand.class);
         assertEquals(3, operator.getExecutionCost());
     }
 }

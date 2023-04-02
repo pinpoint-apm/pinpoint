@@ -25,10 +25,10 @@ import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -42,26 +42,23 @@ public class ApplicationDirectBufferChartGroupTest {
         Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        List<AggreJoinDirectBufferBo> aggreDirectBufferList = new ArrayList<>(5);
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo1 = new AggreJoinDirectBufferBo("testApp", 11, 60, "agent1_1", 20, "agent1_2", 11, 60, "agent1_1", 20, "agent1_2", 11, 60, "agent1_1", 20, "agent1_2", 11, 60, "agent1_1", 20, "agent1_2", time);
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo2 = new AggreJoinDirectBufferBo("testApp", 22, 52, "agent2_1", 10, "agent2_2", 22, 52, "agent2_1", 10, "agent2_2", 22, 52, "agent2_1", 10, "agent2_2", 22, 52, "agent2_1", 10, "agent2_2", time - 60000);
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo3 = new AggreJoinDirectBufferBo("testApp", 33, 39, "agent3_1", 9, "agent3_2", 33, 39, "agent3_1", 9, "agent3_2", 33, 39, "agent3_1", 9, "agent3_2", 33, 39, "agent3_1", 9, "agent3_2", time - 120000);
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo4 = new AggreJoinDirectBufferBo("testApp", 44, 42, "agent4_1", 25, "agent4_2", 44, 42, "agent4_1", 25, "agent4_2", 44, 42, "agent4_1", 25, "agent4_2", 44, 42, "agent4_1", 25, "agent4_2", time - 180000);
-        AggreJoinDirectBufferBo aggreJoinDirectBufferBo5 = new AggreJoinDirectBufferBo("testApp", 55, 55, "agent5_1", 54, "agent5_2", 55, 55, "agent5_1", 54, "agent5_2", 55, 55, "agent5_1", 54, "agent5_2", 55, 55, "agent5_1", 54, "agent5_2", time - 240000);
-        aggreDirectBufferList.add(aggreJoinDirectBufferBo1);
-        aggreDirectBufferList.add(aggreJoinDirectBufferBo2);
-        aggreDirectBufferList.add(aggreJoinDirectBufferBo3);
-        aggreDirectBufferList.add(aggreJoinDirectBufferBo4);
-        aggreDirectBufferList.add(aggreJoinDirectBufferBo5);
+        List<AggreJoinDirectBufferBo> aggreDirectBufferList = List.of(
+                new AggreJoinDirectBufferBo("testApp", 11, 60, "agent1_1", 20, "agent1_2", 11, 60, "agent1_1", 20, "agent1_2", 11, 60, "agent1_1", 20, "agent1_2", 11, 60, "agent1_1", 20, "agent1_2", time),
+                new AggreJoinDirectBufferBo("testApp", 22, 52, "agent2_1", 10, "agent2_2", 22, 52, "agent2_1", 10, "agent2_2", 22, 52, "agent2_1", 10, "agent2_2", 22, 52, "agent2_1", 10, "agent2_2", time - 60000),
+                new AggreJoinDirectBufferBo("testApp", 33, 39, "agent3_1", 9, "agent3_2", 33, 39, "agent3_1", 9, "agent3_2", 33, 39, "agent3_1", 9, "agent3_2", 33, 39, "agent3_1", 9, "agent3_2", time - 120000),
+                new AggreJoinDirectBufferBo("testApp", 44, 42, "agent4_1", 25, "agent4_2", 44, 42, "agent4_1", 25, "agent4_2", 44, 42, "agent4_1", 25, "agent4_2", 44, 42, "agent4_1", 25, "agent4_2", time - 180000),
+                new AggreJoinDirectBufferBo("testApp", 55, 55, "agent5_1", 54, "agent5_2", 55, 55, "agent5_1", 54, "agent5_2", 55, 55, "agent5_1", 54, "agent5_2", 55, 55, "agent5_1", 54, "agent5_2", time - 240000)
+        );
+
 
         ChartGroupBuilder<AggreJoinDirectBufferBo, ApplicationStatPoint<Long>> builder = ApplicationDirectBufferChart.newChartBuilder();
         StatChartGroup<ApplicationStatPoint<Long>> group = builder.build(timeWindow, aggreDirectBufferList);
         Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = group.getCharts();
-        assertEquals(4, charts.size());
+        assertThat(charts).hasSize(4);
 
         Chart<ApplicationStatPoint<Long>> directCountChart = charts.get(ApplicationDirectBufferChart.DirectBufferChartType.DIRECT_COUNT);
         List<ApplicationStatPoint<Long>> directCountPoints = directCountChart.getPoints();
-        assertEquals(5, directCountPoints.size());
+        assertThat(directCountPoints).hasSize(5);
         int index = directCountPoints.size();
         for (ApplicationStatPoint<Long> point : directCountPoints) {
             testDirectCount(point, aggreDirectBufferList.get(--index));
@@ -69,7 +66,7 @@ public class ApplicationDirectBufferChartGroupTest {
 
         Chart<ApplicationStatPoint<Long>> directMemoryUsedChart = charts.get(ApplicationDirectBufferChart.DirectBufferChartType.DIRECT_MEMORY_USED);
         List<ApplicationStatPoint<Long>> directMemoryUsedPoints = directMemoryUsedChart.getPoints();
-        assertEquals(5, directMemoryUsedPoints.size());
+        assertThat(directMemoryUsedPoints).hasSize(5);
         index = directMemoryUsedPoints.size();
         for (ApplicationStatPoint<Long> point : directMemoryUsedPoints) {
             testDirectMemoryUsed(point, aggreDirectBufferList.get(--index));
@@ -77,7 +74,7 @@ public class ApplicationDirectBufferChartGroupTest {
 
         Chart<ApplicationStatPoint<Long>> mappedCountChart = charts.get(ApplicationDirectBufferChart.DirectBufferChartType.MAPPED_COUNT);
         List<ApplicationStatPoint<Long>> mappeedCountPoints = mappedCountChart.getPoints();
-        assertEquals(5, mappeedCountPoints.size());
+        assertThat(mappeedCountPoints).hasSize(5);
         index = mappeedCountPoints.size();
         for (ApplicationStatPoint<Long> point : mappeedCountPoints) {
             testMappedCount(point, aggreDirectBufferList.get(--index));
@@ -85,7 +82,7 @@ public class ApplicationDirectBufferChartGroupTest {
 
         Chart<ApplicationStatPoint<Long>> mappedMemoryUsedChart = charts.get(ApplicationDirectBufferChart.DirectBufferChartType.MAPPED_MEMORY_USED);
         List<ApplicationStatPoint<Long>> mappedMemoryUsedPoints = mappedMemoryUsedChart.getPoints();
-        assertEquals(5, mappedMemoryUsedPoints.size());
+        assertThat(mappedMemoryUsedPoints).hasSize(5);
         index = mappedMemoryUsedPoints.size();
         for (ApplicationStatPoint<Long> point : mappedMemoryUsedPoints) {
             testMappedMemoryUsed(point, aggreDirectBufferList.get(--index));

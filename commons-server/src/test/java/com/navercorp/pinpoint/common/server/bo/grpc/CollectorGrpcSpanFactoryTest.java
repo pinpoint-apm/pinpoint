@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -136,7 +135,7 @@ public class CollectorGrpcSpanFactoryTest {
     private PSpanChunk newSpanChunk(PSpanEvent... events) {
         PSpanChunk.Builder builder = PSpanChunk.newBuilder();
         builder.setVersion(SpanVersion.TRACE_V2);
-        builder.addAllSpanEvent(Arrays.asList(events));
+        builder.addAllSpanEvent(List.of(events));
         builder.setTransactionId(PTransactionId.getDefaultInstance());
         return builder.build();
     }

@@ -63,7 +63,7 @@ public class FileDescriptorDataCollector extends DataCollector {
         for(String agentId : agentIds) {
             List<FileDescriptorBo> fileDescriptorBoList = fileDescriptorDao.getAgentStatList(agentId, range);
 
-            if (fileDescriptorBoList.size() == 0) {
+            if (fileDescriptorBoList.isEmpty()) {
                 continue;
             }
 

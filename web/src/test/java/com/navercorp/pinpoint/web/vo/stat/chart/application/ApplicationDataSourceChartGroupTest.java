@@ -24,10 +24,10 @@ import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -41,25 +41,22 @@ public class ApplicationDataSourceChartGroupTest {
         Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>();
-        AggreJoinDataSourceBo aggreJoinDataSourceBo1 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6", time);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo2 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7", time - 60000);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo3 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8", time - 120000);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo4 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9", time - 180000);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo5 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10", time - 240000);
-        aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo1);
-        aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo2);
-        aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo3);
-        aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo4);
-        aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo5);
+        List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = List.of(
+                new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6", time),
+                new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7", time - 60000),
+                new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8", time - 120000),
+                new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9", time - 180000),
+                new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10", time - 240000)
+        );
+
 
         StatChartGroup<ApplicationStatPoint<Integer>> applicationDataSourceChartGroup = new ApplicationDataSourceChart.ApplicationDataSourceChartGroup(timeWindow, "jdbc:mysql", "dbcp2", aggreJoinDataSourceBoList);
         Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Integer>>> charts = applicationDataSourceChartGroup.getCharts();
-        assertEquals(1, charts.size());
+        assertThat(charts).hasSize(1);
 
         Chart<ApplicationStatPoint<Integer>> dataSourceChart = charts.get(ApplicationDataSourceChart.DataSourceChartType.ACTIVE_CONNECTION_SIZE);
         List<ApplicationStatPoint<Integer>> dataSourcePoints = dataSourceChart.getPoints();
-        assertEquals(5, dataSourcePoints.size());
+        assertThat(dataSourcePoints).hasSize(5);
         int index = dataSourcePoints.size();
 
         for (ApplicationStatPoint<Integer> point : dataSourcePoints) {

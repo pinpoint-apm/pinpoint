@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class DescriptorParserTest {
 
     @Test
@@ -21,7 +23,7 @@ public class DescriptorParserTest {
 
         DescriptorParser parser = new DescriptorParser(map);
         List<Descriptor> descriptorList = parser.parse();
-        Assertions.assertEquals(descriptorList.size(), 1);
+        assertThat(descriptorList).hasSize(1);
 
         ErrorHandlerBuilder builder = new ErrorHandlerBuilder(descriptorList);
         IgnoreErrorHandler errorHandler = builder.build();

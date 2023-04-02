@@ -23,9 +23,10 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -44,7 +45,7 @@ public class AgentActiveThreadCountListTest {
         AgentActiveThreadCount status1 = factory.createFail(TRouteResult.NOT_ACCEPTABLE.name());
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4));
+        response.setActiveThreadCount(List.of(1, 2, 3, 4));
         factory.setAgentId(hostName2);
         AgentActiveThreadCount status2 = factory.create(response);
 
@@ -54,13 +55,15 @@ public class AgentActiveThreadCountListTest {
 
         String listAsString = mapper.writeValueAsString(list);
 
-        Map<String, Map<String, Object>> map = mapper.readValue(listAsString, new TypeReference<>() {});
+        Map<String, Map<String, Object>> map = mapper.readValue(listAsString, new TypeReference<>() {
+        });
 
-        Assertions.assertTrue(map.containsKey(hostName1));
-        Assertions.assertTrue(map.containsKey(hostName2));
+        assertThat(map)
+                .containsKey(hostName1)
+                .containsKey(hostName2);
 
         assertDataWithSerializedJsonString(map.get(hostName1), TRouteResult.NOT_ACCEPTABLE, null);
-        assertDataWithSerializedJsonString(map.get(hostName2), TRouteResult.OK, Arrays.asList(1, 2, 3, 4));
+        assertDataWithSerializedJsonString(map.get(hostName2), TRouteResult.OK, List.of(1, 2, 3, 4));
     }
 
     void assertDataWithSerializedJsonString(Map<String, Object> data, TRouteResult routeResult, List<Integer> status) {
@@ -71,10 +74,7 @@ public class AgentActiveThreadCountListTest {
         }
 
         Assertions.assertEquals(routeResult.name(), data.get("message"));
-
-        if (status != null) {
-            Assertions.assertEquals(status, data.get("status"));
-        }
+        Assertions.assertEquals(status, data.get("status"));
 
     }
 
@@ -101,9 +101,9 @@ public class AgentActiveThreadCountListTest {
 
         final List<AgentActiveThreadCount> sortedList = list.getAgentActiveThreadRepository();
 
-        Assertions.assertEquals(sortedList.get(0).getAgentId(), "hostName1");
-        Assertions.assertEquals(sortedList.get(1).getAgentId(), "hostName2");
-        Assertions.assertEquals(sortedList.get(2).getAgentId(), "hostName3");
+        assertThat(sortedList)
+                .map(AgentActiveThreadCount::getAgentId)
+                .containsExactly(hostName1, hostName2, hostName3);
     }
 
 }

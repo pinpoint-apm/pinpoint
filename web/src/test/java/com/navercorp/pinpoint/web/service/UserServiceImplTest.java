@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -70,17 +71,18 @@ public class UserServiceImplTest {
         UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
         UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
-        List<User> userList = new ArrayList<>(5);
-        userList.add(new User("1", "userId01", "name01", "departmentName01", 82, "01012341234", "name01@pinpoint.com"));
-        userList.add(new User("2", "userId02", "name02", "departmentName01", 82, "01012341234", "name02@pinpoint.com"));
-        userList.add(new User("3", "userId03", "name03", "departmentName01", 82, "01012341234", "name03@pinpoint.com"));
-        userList.add(new User("4", "userId04", "name04", "departmentName01", 82, "01012341234", "name04@pinpoint.com"));
-        userList.add(new User("5", "userId05", "name05", "departmentName01", 82, "01012341234", "name05@pinpoint.com"));
+        List<User> userList = List.of(
+                new User("1", "userId01", "name01", "departmentName01", 82, "01012341234", "name01@pinpoint.com"),
+                new User("2", "userId02", "name02", "departmentName01", 82, "01012341234", "name02@pinpoint.com"),
+                new User("3", "userId03", "name03", "departmentName01", 82, "01012341234", "name03@pinpoint.com"),
+                new User("4", "userId04", "name04", "departmentName01", 82, "01012341234", "name04@pinpoint.com"),
+                new User("5", "userId05", "name05", "departmentName01", 82, "01012341234", "name05@pinpoint.com")
+        );
 
         userService.insertUserList(userList);
 
         List<User> selectUserList = userDao.selectUser();
-        assertEquals(5, selectUserList.size());
+        assertThat(selectUserList).hasSize(5);
         for (User user : selectUserList) {
             assertTrue(user.getUserId().startsWith("userId0"));
             assertTrue(user.getName().startsWith("name0"));
@@ -115,17 +117,18 @@ public class UserServiceImplTest {
 
     @Test
     public void selectUser() {
-        List<User> userList = new ArrayList<>(5);
-        userList.add(new User("1", "userId01", "name01", "departmentName01", 82, "01012341234", "name01@pinpoint.com"));
-        userList.add(new User("2", "userId02", "name02", "departmentName01", 82, "01012341234", "name02@pinpoint.com"));
-        userList.add(new User("3", "userId03", "name03", "departmentName01", 82, "01012341234", "name03@pinpoint.com"));
-        userList.add(new User("4", "userId04", "name04", "departmentName01", 82, "01012341234", "name04@pinpoint.com"));
-        userList.add(new User("5", "userId05", "name05", "departmentName01", 82, "01012341234", "name05@pinpoint.com"));
+        List<User> userList = List.of(
+                new User("1", "userId01", "name01", "departmentName01", 82, "01012341234", "name01@pinpoint.com"),
+                new User("2", "userId02", "name02", "departmentName01", 82, "01012341234", "name02@pinpoint.com"),
+                new User("3", "userId03", "name03", "departmentName01", 82, "01012341234", "name03@pinpoint.com"),
+                new User("4", "userId04", "name04", "departmentName01", 82, "01012341234", "name04@pinpoint.com"),
+                new User("5", "userId05", "name05", "departmentName01", 82, "01012341234", "name05@pinpoint.com")
+        );
 
         when(userDao.selectUser()).thenReturn(userList);
         List<User> result = userService.selectUser();
 
-        assertEquals(5, userList.size());
+        assertThat(userList).hasSize(5);
         for (User user : result) {
             assertTrue(user.getUserId().startsWith("userId0"));
             assertTrue(user.getName().startsWith("name0"));
@@ -141,17 +144,18 @@ public class UserServiceImplTest {
     public void selectUserByUserName() {
         String name = "name01";
 
-        List<User> userList = new ArrayList<>(5);
-        userList.add(new User("1", "userId01", name, "departmentName01", 82, "01012341234", "name01@pinpoint.com"));
-        userList.add(new User("2", "userId02", name, "departmentName01", 82, "01012341234", "name02@pinpoint.com"));
-        userList.add(new User("3", "userId03", name, "departmentName01", 82, "01012341234", "name03@pinpoint.com"));
-        userList.add(new User("4", "userId04", name, "departmentName01", 82, "01012341234", "name04@pinpoint.com"));
-        userList.add(new User("5", "userId05", name, "departmentName01", 82, "01012341234", "name05@pinpoint.com"));
+        List<User> userList = List.of(
+                new User("1", "userId01", name, "departmentName01", 82, "01012341234", "name01@pinpoint.com"),
+                new User("2", "userId02", name, "departmentName01", 82, "01012341234", "name02@pinpoint.com"),
+                new User("3", "userId03", name, "departmentName01", 82, "01012341234", "name03@pinpoint.com"),
+                new User("4", "userId04", name, "departmentName01", 82, "01012341234", "name04@pinpoint.com"),
+                new User("5", "userId05", name, "departmentName01", 82, "01012341234", "name05@pinpoint.com")
+        );
 
         when(userDao.selectUserByUserName(name)).thenReturn(userList);
         List<User> result = userService.selectUserByUserName("name01");
 
-        assertEquals(result.size(), 5);
+        assertThat(result).hasSize(5);
         for (User user : result) {
             assertTrue(user.getUserId().startsWith("userId"));
             assertTrue(user.getName().startsWith("name"));
@@ -183,17 +187,18 @@ public class UserServiceImplTest {
     public void selectUserByDepartment() {
         String departmentName = "departmentName";
 
-        List<User> userList = new ArrayList<>(5);
-        userList.add(new User("1", "userId01", "name01", departmentName, 82, "01012341234", "name01@pinpoint.com"));
-        userList.add(new User("2", "userId02", "name02", departmentName, 82, "01012341234", "name02@pinpoint.com"));
-        userList.add(new User("3", "userId03", "name03", departmentName, 82, "01012341234", "name03@pinpoint.com"));
-        userList.add(new User("4", "userId04", "name04", departmentName, 82, "01012341234", "name04@pinpoint.com"));
-        userList.add(new User("5", "userId05", "name05", departmentName, 82, "01012341234", "name05@pinpoint.com"));
+        List<User> userList = List.of(
+                new User("1", "userId01", "name01", departmentName, 82, "01012341234", "name01@pinpoint.com"),
+                new User("2", "userId02", "name02", departmentName, 82, "01012341234", "name02@pinpoint.com"),
+                new User("3", "userId03", "name03", departmentName, 82, "01012341234", "name03@pinpoint.com"),
+                new User("4", "userId04", "name04", departmentName, 82, "01012341234", "name04@pinpoint.com"),
+                new User("5", "userId05", "name05", departmentName, 82, "01012341234", "name05@pinpoint.com")
+        );
 
         when(userDao.selectUserByDepartment(departmentName)).thenReturn(userList);
         List<User> result = userService.selectUserByDepartment(departmentName);
 
-        assertEquals(result.size(), 5);
+        assertThat(result).hasSize(5);
         for (User user : result) {
             assertTrue(user.getUserId().startsWith("userId"));
             assertTrue(user.getName().startsWith("name"));
@@ -207,17 +212,18 @@ public class UserServiceImplTest {
     public void searchUser() {
         String condition = "part";
 
-        List<User> userList = new ArrayList<>(5);
-        userList.add(new User("1", "userId01", "name01", "departmentName", 82, "01012341234", "name01@pinpoint.com"));
-        userList.add(new User("2", "userId02", "name02", "departmentName", 82, "01012341234", "name02@pinpoint.com"));
-        userList.add(new User("3", "userId03", "name03", "departmentName", 82, "01012341234", "name03@pinpoint.com"));
-        userList.add(new User("4", "userId04", "name04", "departmentName", 82, "01012341234", "name04@pinpoint.com"));
-        userList.add(new User("5", "userId05", "name05", "departmentName", 82, "01012341234", "name05@pinpoint.com"));
+        List<User> userList = List.of(
+                new User("1", "userId01", "name01", "departmentName", 82, "01012341234", "name01@pinpoint.com"),
+                new User("2", "userId02", "name02", "departmentName", 82, "01012341234", "name02@pinpoint.com"),
+                new User("3", "userId03", "name03", "departmentName", 82, "01012341234", "name03@pinpoint.com"),
+                new User("4", "userId04", "name04", "departmentName", 82, "01012341234", "name04@pinpoint.com"),
+                new User("5", "userId05", "name05", "departmentName", 82, "01012341234", "name05@pinpoint.com")
+        );
 
         when(userDao.searchUser(condition)).thenReturn(userList);
         List<User> result = userService.searchUser(condition);
 
-        assertEquals(result.size(), 5);
+        assertThat(result).hasSize(5);
         for (User user : result) {
             assertTrue(user.getUserId().startsWith("userId"));
             assertTrue(user.getName().startsWith("name"));
@@ -266,8 +272,7 @@ public class UserServiceImplTest {
 
             String phoneNumber = decodePhoneNumber(user.getPhoneNumber());
             String email = decodeEmail(user.getEmail());
-            User decodedUser = new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
-            return decodedUser;
+            return new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
         }
 
         @Override

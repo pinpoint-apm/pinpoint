@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public class ApplicationGroupTest {
     public void getApplicationList() throws JsonProcessingException {
         Application app1 = new Application("test1", ServiceType.TEST);
         Application app2 = new Application("test2", ServiceType.TEST);
-        ApplicationGroup group = new ApplicationGroup(Arrays.asList(app1, app2));
+        ApplicationGroup group = new ApplicationGroup(List.of(app1, app2));
         String json = mapper.writeValueAsString(group);
 
         TypeReference<List<Map<String, String>>> ref = new TypeReference<>() {};

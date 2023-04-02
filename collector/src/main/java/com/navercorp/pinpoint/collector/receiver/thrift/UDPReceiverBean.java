@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-
 import org.apache.thrift.TBase;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -38,7 +37,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -99,7 +98,7 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
 
     private TBaseFilter<SocketAddress> newTBaseFilter() {
         TBaseFilter<SocketAddress> filter = new NetworkAvailabilityCheckPacketFilter<>();
-        return new TBaseFilterChain<>(Collections.singletonList(filter));
+        return new TBaseFilterChain<>(List.of(filter));
     }
 
     @Override

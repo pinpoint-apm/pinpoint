@@ -39,14 +39,12 @@ import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,6 +52,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -100,7 +99,7 @@ public class ApplicationMapBuilderTest {
                 int depth = ApplicationMapBuilderTestHelper.getDepthFromApplicationName(applicationName);
                 ResponseTime responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
                 responseTime.addResponseTime(ApplicationMapBuilderTestHelper.createAgentIdFromDepth(depth), applicationServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
-                return Collections.singletonList(responseTime);
+                return List.of(responseTime);
             }
         };
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
@@ -128,8 +127,7 @@ public class ApplicationMapBuilderTest {
             @Override
             public AgentStatus answer(InvocationOnMock invocation) throws Throwable {
                 String agentId = invocation.getArgument(0);
-                AgentStatus agentStatus = new AgentStatus(agentId, AgentLifeCycleState.RUNNING, System.currentTimeMillis());
-                return agentStatus;
+                return new AgentStatus(agentId, AgentLifeCycleState.RUNNING, System.currentTimeMillis());
             }
         });
         doAnswer(new Answer<List<Optional<AgentStatus>>>() {
@@ -184,12 +182,12 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(application, buildTimeoutMillis);
 
-        Assertions.assertEquals(1, applicationMap.getNodes().size());
-        Assertions.assertEquals(1, applicationMap.getNodes().size());
-        Assertions.assertEquals(1, applicationMap_parallelAppenders.getNodes().size());
-        Assertions.assertEquals(0, applicationMap.getLinks().size());
-        Assertions.assertEquals(0, applicationMap.getLinks().size());
-        Assertions.assertEquals(0, applicationMap_parallelAppenders.getLinks().size());
+        assertThat(applicationMap.getNodes()).hasSize(1);
+        assertThat(applicationMap.getNodes()).hasSize(1);
+        assertThat(applicationMap_parallelAppenders.getNodes()).hasSize(1);
+        assertThat(applicationMap.getLinks()).isEmpty();
+        assertThat(applicationMap.getLinks()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -215,12 +213,13 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        Assertions.assertTrue(applicationMap.getNodes().isEmpty());
-        Assertions.assertTrue(applicationMap.getNodes().isEmpty());
-        Assertions.assertTrue(applicationMap_parallelAppenders.getNodes().isEmpty());
-        Assertions.assertTrue(applicationMap.getLinks().isEmpty());
-        Assertions.assertTrue(applicationMap.getLinks().isEmpty());
-        Assertions.assertTrue(applicationMap_parallelAppenders.getLinks().isEmpty());
+        assertThat(applicationMap.getNodes()).isEmpty();
+        assertThat(applicationMap.getNodes()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
+
+        assertThat(applicationMap.getLinks()).isEmpty();
+        assertThat(applicationMap.getLinks()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -316,10 +315,12 @@ public class ApplicationMapBuilderTest {
                 .includeNodeHistogram(nodeHistogramFactory_MapResponseDao)
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
-        Assertions.assertEquals(expectedNumNodes, applicationMap_MapResponseDao.getNodes().size());
-        Assertions.assertEquals(expectedNumNodes, applicationMap_MapResponseDao_parallelAppenders.getNodes().size());
-        Assertions.assertEquals(expectedNumLinks, applicationMap_MapResponseDao.getLinks().size());
-        Assertions.assertEquals(expectedNumLinks, applicationMap_MapResponseDao_parallelAppenders.getLinks().size());
+
+        assertThat(applicationMap_MapResponseDao.getNodes()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_MapResponseDao_parallelAppenders.getNodes()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_MapResponseDao.getLinks()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_MapResponseDao_parallelAppenders.getLinks()).hasSize(expectedNumLinks);
+
         ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMap_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMap_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMap_MapResponseDao_parallelAppenders);
@@ -333,12 +334,15 @@ public class ApplicationMapBuilderTest {
                 .includeNodeHistogram(nodeHistogramFactory_ResponseHistogramBuilder)
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
-        Assertions.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder.getNodes().size());
-        Assertions.assertEquals(expectedNumNodes, applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().size());
-        Assertions.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder.getLinks().size());
-        Assertions.assertEquals(expectedNumLinks, applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks().size());
+
+        assertThat(applicationMap_ResponseHistogramBuilder.getNodes()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_ResponseHistogramBuilder.getLinks()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks()).hasSize(expectedNumLinks);
+
         ApplicationMapVerifier verifier_ResponseHistogramBuilder = new ApplicationMapVerifier(applicationMap_ResponseHistogramBuilder);
         verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder);
         verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder_parallelAppenders);
     }
 }
+

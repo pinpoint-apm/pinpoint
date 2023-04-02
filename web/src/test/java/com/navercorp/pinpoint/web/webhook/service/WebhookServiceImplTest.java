@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -26,10 +26,11 @@ public class WebhookServiceImplTest {
 
     @BeforeEach
     public void before() {
-        webhookList = new ArrayList<>(2);
-        webhookList.add(new Webhook("1340", "webhook", "testUrl", "testApp", "testGroup"));
-        webhookList.add(new Webhook("1341", "webhook1", "testUrl1", "testApp", "testGroup1"));
-        webhookList.add(new Webhook("1342", "webhook2", "testUrl2", "testApp1", "testGroup1"));
+        webhookList = List.of(
+                new Webhook("1340", "webhook", "testUrl", "testApp", "testGroup"),
+                new Webhook("1341", "webhook1", "testUrl1", "testApp", "testGroup1"),
+                new Webhook("1342", "webhook2", "testUrl2", "testApp1", "testGroup1")
+        );
     }
 
     @Test
@@ -87,12 +88,12 @@ public class WebhookServiceImplTest {
         }
 
         List<Webhook> selectedWebhooks = webhookService.selectWebhookByApplicationId("testApp");
-        assertEquals(2, selectedWebhooks.size());
+        assertThat(selectedWebhooks).hasSize(2);
 
         webhookService.deleteWebhookByApplicationId("testApp");
 
         selectedWebhooks = webhookService.selectWebhookByApplicationId("testApp");
-        assertEquals(0, selectedWebhooks.size());
+        assertThat(selectedWebhooks).isEmpty();
     }
 
 
@@ -107,11 +108,11 @@ public class WebhookServiceImplTest {
         }
 
         List<Webhook> selectedWebhooks = webhookService.selectWebhookByServiceName("testGroup1");
-        assertEquals(2, selectedWebhooks.size());
+        assertThat(selectedWebhooks).hasSize(2);
 
         webhookService.deleteWebhookByServiceName("testGroup1");
 
         selectedWebhooks = webhookService.selectWebhookByServiceName("testGroup1");
-        assertEquals(0, selectedWebhooks.size());
+        assertThat(selectedWebhooks).isEmpty();
     }
 }

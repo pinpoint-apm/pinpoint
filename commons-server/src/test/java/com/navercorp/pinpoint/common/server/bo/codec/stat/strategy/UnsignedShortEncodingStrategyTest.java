@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class UnsignedShortEncodingStrategyTest extends EncodingStrategyTestBase<
 
     @Override
     protected List<EncodingStrategy<Short>> getEncodingStrategies() {
-        return Arrays.asList(UnsignedShortEncodingStrategy.values());
+        return List.of(UnsignedShortEncodingStrategy.values());
     }
 
     @Override

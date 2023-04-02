@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
@@ -99,7 +99,7 @@ public class ServiceTypeRegistryMockFactory {
             final short serviceTypeCode = serviceType.getCode();
             when(serviceTypeRegistryService.findServiceTypeByName(serviceTypeName)).thenReturn(serviceType);
             when(serviceTypeRegistryService.findServiceType(serviceTypeCode)).thenReturn(serviceType);
-            when(serviceTypeRegistryService.findDesc(serviceTypeName)).thenReturn(Collections.singletonList(serviceType));
+            when(serviceTypeRegistryService.findDesc(serviceTypeName)).thenReturn(List.of(serviceType));
         }
 
         return serviceTypeRegistryService;

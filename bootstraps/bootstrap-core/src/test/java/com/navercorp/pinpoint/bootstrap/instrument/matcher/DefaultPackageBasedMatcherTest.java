@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -36,7 +36,7 @@ public class DefaultPackageBasedMatcherTest {
         assertEquals("java.lang", packageBasedMatcher.getBasePackageName());
 
         MatcherOperand operand = packageBasedMatcher.getMatcherOperand();
-        assertTrue(operand instanceof PackageInternalNameMatcherOperand);
+        assertThat(operand).isInstanceOf(PackageInternalNameMatcherOperand.class);
         PackageInternalNameMatcherOperand packageInternalNameMatcherOperand = (PackageInternalNameMatcherOperand) operand;
         assertEquals("java/lang", packageInternalNameMatcherOperand.getPackageInternalName());
     }
@@ -48,11 +48,11 @@ public class DefaultPackageBasedMatcherTest {
         assertEquals("java.lang", packageBasedMatcher.getBasePackageName());
 
         MatcherOperand operand = packageBasedMatcher.getMatcherOperand();
-        assertTrue(operand instanceof AndMatcherOperator);
+        assertThat(operand).isInstanceOf(AndMatcherOperator.class);
 
         AndMatcherOperator operator = (AndMatcherOperator) operand;
-        assertTrue(operator.getLeftOperand() instanceof PackageInternalNameMatcherOperand);
-        assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(PackageInternalNameMatcherOperand.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(InterfaceInternalNameMatcherOperand.class);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DefaultPackageBasedMatcherTest {
         // check unusual pattern.
         PackageBasedMatcher classMatcher = new DefaultPackageBasedMatcher("java.lang", null);
         MatcherOperand operand = classMatcher.getMatcherOperand();
-        assertTrue(operand instanceof PackageInternalNameMatcherOperand);
+        assertThat(operand).isInstanceOf(PackageInternalNameMatcherOperand.class);
         PackageInternalNameMatcherOperand annotationInternalNameMatcherOperand = (PackageInternalNameMatcherOperand) operand;
         assertEquals("java/lang", annotationInternalNameMatcherOperand.getPackageInternalName());
     }

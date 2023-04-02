@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.plugin.hystrix.HystrixTestHelper;
 import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloCommand;
 import com.netflix.hystrix.HystrixCommand;
 import org.junit.Assert;
-import rx.functions.Action1;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -82,8 +83,10 @@ public class HystrixCommandTestRunner {
         final String expectedMessage = HystrixTestHelper.sayHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.create(commandGroup, name);
         List<String> actualMessages = helloCommand.observe().toList().toBlocking().single();
-        Assert.assertEquals(1, actualMessages.size());
-        Assert.assertEquals(expectedMessage, actualMessages.get(0));
+
+        assertThat(actualMessages)
+                .hasSize(1)
+                .contains(expectedMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }
@@ -93,8 +96,10 @@ public class HystrixCommandTestRunner {
         final String expectedMessage = HystrixTestHelper.sayHello(name);
         HystrixCommand<String> helloCommand = SayHelloCommand.create(commandGroup, name);
         List<String> actualMessages = helloCommand.toObservable().toList().toBlocking().single();
-        Assert.assertEquals(1, actualMessages.size());
-        Assert.assertEquals(expectedMessage, actualMessages.get(0));
+
+        assertThat(actualMessages)
+                .hasSize(1)
+                .contains(expectedMessage);
 
         HystrixTestHelper.waitForSpanDataFlush();
     }

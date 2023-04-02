@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -118,7 +118,7 @@ public class SpanEventBitFieldTest {
     public void testAnnotation_first() throws Exception {
         SpanEventBo spanEventBo = new SpanEventBo();
 
-        spanEventBo.setAnnotationBoList(Collections.singletonList(new AnnotationBo(1, "test")));
+        spanEventBo.setAnnotationBoList(List.of(new AnnotationBo(1, "test")));
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
         Assertions.assertTrue(bitField.isSetAnnotation());

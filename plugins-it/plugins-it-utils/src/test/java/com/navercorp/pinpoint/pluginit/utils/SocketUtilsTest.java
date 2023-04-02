@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import java.util.SortedSet;
 
-import static org.junit.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * @author WonChul Heo(heowc)
@@ -75,7 +75,7 @@ public class SocketUtilsTest {
     @Test
     public void testSuccessfulFindAvailableTcpPorts() {
         SortedSet<Integer> availableTcpPorts = SocketUtils.findAvailableTcpPorts(1);
-        assertThat(availableTcpPorts.size()).isEqualTo(1);
+        assertThat(availableTcpPorts).hasSize(1);
         for (Integer port : availableTcpPorts) {
             assertThat(port)
                     .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
@@ -83,7 +83,7 @@ public class SocketUtilsTest {
         }
 
         availableTcpPorts = SocketUtils.findAvailableTcpPorts(2);
-        assertThat(availableTcpPorts.size()).isEqualTo(2);
+        assertThat(availableTcpPorts).hasSize(2);
         for (Integer port : availableTcpPorts) {
             assertThat(port)
                     .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
@@ -91,7 +91,7 @@ public class SocketUtilsTest {
         }
 
         availableTcpPorts = SocketUtils.findAvailableTcpPorts(3, SocketUtils.PORT_RANGE_MIN + 1, SocketUtils.PORT_RANGE_MAX - 1);
-        assertThat(availableTcpPorts.size()).isEqualTo(3);
+        assertThat(availableTcpPorts).hasSize(3);
         for (Integer port : availableTcpPorts) {
             assertThat(port)
                     .isGreaterThan(SocketUtils.PORT_RANGE_MIN + 1)
@@ -180,7 +180,7 @@ public class SocketUtilsTest {
     @Test
     public void testSuccessfulFindAvailableUdpPorts() {
         SortedSet<Integer> availableTcpPorts = SocketUtils.findAvailableUdpPorts(1);
-        assertThat(availableTcpPorts.size()).isEqualTo(1);
+        assertThat(availableTcpPorts).hasSize(1);
         for (Integer port : availableTcpPorts) {
             assertThat(port)
                     .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
@@ -188,7 +188,7 @@ public class SocketUtilsTest {
         }
 
         availableTcpPorts = SocketUtils.findAvailableUdpPorts(2);
-        assertThat(availableTcpPorts.size()).isEqualTo(2);
+        assertThat(availableTcpPorts).hasSize(2);
         for (Integer port : availableTcpPorts) {
             assertThat(port)
                     .isGreaterThan(SocketUtils.PORT_RANGE_MIN)
@@ -196,7 +196,7 @@ public class SocketUtilsTest {
         }
 
         availableTcpPorts = SocketUtils.findAvailableUdpPorts(3, SocketUtils.PORT_RANGE_MIN + 1, SocketUtils.PORT_RANGE_MAX - 1);
-        assertThat(availableTcpPorts.size()).isEqualTo(3);
+        assertThat(availableTcpPorts).hasSize(3);
         for (Integer port : availableTcpPorts) {
             assertThat(port)
                     .isGreaterThan(SocketUtils.PORT_RANGE_MIN)

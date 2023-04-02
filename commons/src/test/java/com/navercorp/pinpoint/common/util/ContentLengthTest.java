@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,15 +25,15 @@ public class ContentLengthTest {
 
         String strContent = "abc";
         int strLength = contentLength.getLength(strContent);
-        Assertions.assertEquals(strContent.length(), strLength);
+        assertThat(strContent).hasSize(strLength);
 
         byte[] byteArray = new byte[1];
         int bytesLength = contentLength.getLength(byteArray);
-        Assertions.assertEquals(byteArray.length, bytesLength);
+        assertThat(byteArray).hasSize(bytesLength);
 
         char[] charArray = new char[5];
         int charsLength = contentLength.getLength(charArray);
-        Assertions.assertEquals(charArray.length, charsLength);
+        assertThat(charArray).hasSize(charsLength);
 
         InputStream inputStream = mock(InputStream.class);
         when(inputStream.available()).thenReturn(20);

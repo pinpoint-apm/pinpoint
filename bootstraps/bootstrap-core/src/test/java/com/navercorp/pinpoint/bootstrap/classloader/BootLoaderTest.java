@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -60,8 +62,7 @@ public class BootLoaderTest {
 
         Enumeration<URL> bootstrapResources = bootLoader.findResources(stringResource);
         List<URL> list = Collections.list(bootstrapResources);
-        Assertions.assertEquals(1, list.size());
-        logger.debug("list:{}", list);
+        assertThat(list).hasSize(1);
     }
 
     @Test

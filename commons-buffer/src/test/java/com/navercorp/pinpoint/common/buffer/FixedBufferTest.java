@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author emeroad
  */
@@ -78,7 +80,7 @@ public class FixedBufferTest {
         buffer.putPadBytes(test, TOTAL_LENGTH);
 
         byte[] result = buffer.getBuffer();
-        Assertions.assertEquals(result.length, TOTAL_LENGTH);
+        assertThat(result).hasSize(TOTAL_LENGTH);
         Assertions.assertArrayEquals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE), "check data");
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
         Assertions.assertArrayEquals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH), "check pad");
@@ -132,7 +134,7 @@ public class FixedBufferTest {
         byte[] result = buffer.getBuffer();
         String decodedString = new String(result);
         String trimString = decodedString.trim();
-        Assertions.assertEquals(result.length, TOTAL_LENGTH);
+        assertThat(result).hasSize(TOTAL_LENGTH);
 
         Assertions.assertEquals(test, trimString, "check data");
 
@@ -316,7 +318,7 @@ public class FixedBufferTest {
 
         Buffer buffer = new FixedBuffer(length);
         String prefixedString = buffer.read4PrefixedString();
-        Assertions.assertEquals(prefixedString, null);
+        Assertions.assertNull(prefixedString);
 
     }
 
@@ -560,7 +562,7 @@ public class FixedBufferTest {
         Buffer buffer = new FixedBuffer(4);
         buffer.putInt(1);
         Assertions.assertEquals(buffer.getOffset(), 4);
-        Assertions.assertEquals(buffer.getBuffer().length, 4);
+        assertThat(buffer.getBuffer()).hasSize(4);
     }
 
     @Test
@@ -579,7 +581,7 @@ public class FixedBufferTest {
         Buffer buffer = new FixedBuffer(5);
         buffer.putInt(1);
         Assertions.assertEquals(buffer.getOffset(), 4);
-        Assertions.assertEquals(buffer.getBuffer().length, 4);
+        assertThat(buffer.getBuffer()).hasSize(4);
 
         byte[] buffer1 = buffer.getBuffer();
         byte[] buffer2 = buffer.getBuffer();

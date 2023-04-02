@@ -63,7 +63,7 @@ public class StreamChannelManagerTest {
             }
             clientListener.getLatch().await();
 
-            Assertions.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+            assertThat(clientListener.getReceivedMessage()).hasSize(sendCount);
 
             clientStreamChannel.close();
         } finally {
@@ -96,7 +96,7 @@ public class StreamChannelManagerTest {
             }
 
             clientListener.getLatch().await();
-            Assertions.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+            assertThat(clientListener.getReceivedMessage()).hasSize(sendCount);
 
             clientStreamChannel.close();
 
@@ -106,8 +106,8 @@ public class StreamChannelManagerTest {
             }
             clientListener2.getLatch().await();
 
-            Assertions.assertEquals(sendCount, clientListener.getReceivedMessage().size());
-            Assertions.assertEquals(8, clientListener2.getReceivedMessage().size());
+            assertThat(clientListener.getReceivedMessage()).hasSize(sendCount);
+            assertThat(clientListener2.getReceivedMessage()).hasSize(8);
 
             clientStreamChannel2.close();
         } finally {
@@ -129,7 +129,7 @@ public class StreamChannelManagerTest {
             testPinpointServerAcceptor.assertAwaitClientConnected(1000);
 
             List<PinpointSocket> writableServerList = testPinpointServerAcceptor.getConnectedPinpointSocketList();
-            Assertions.assertEquals(1, writableServerList.size());
+            assertThat(writableServerList).hasSize(1);
 
             PinpointSocket writableServer = writableServerList.get(0);
 
@@ -144,7 +144,7 @@ public class StreamChannelManagerTest {
                 }
                 clientListener.getLatch().await();
 
-                Assertions.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+                assertThat(clientListener.getReceivedMessage()).hasSize(sendCount);
 
                 clientStreamChannel.close();
             } else {
@@ -222,7 +222,7 @@ public class StreamChannelManagerTest {
                 testPinpointServerAcceptor.assertAwaitClientConnected(1000);
 
                 List<PinpointSocket> writableServerList = testPinpointServerAcceptor.getConnectedPinpointSocketList();
-                Assertions.assertEquals(1, writableServerList.size());
+                assertThat(writableServerList).hasSize(1);
 
                 PinpointSocket writableServer = writableServerList.get(0);
 

@@ -33,9 +33,6 @@ public class TraceRowKeyEncoderV2Test {
     private RowKeyDistributorByHashPrefix distributorByHashPrefix = newDistributorByHashPrefix();
 
     private RowKeyDistributorByHashPrefix newDistributorByHashPrefix() {
-//        <constructor-arg type="int" value="32"/>
-//        <constructor-arg type="int" value="40"/>
-//        <constructor-arg type="int" value="256"/>
         int startOffsetForMod = 32;
         int endOffsetForMod = 40;
         int maxBucketSize = 256;

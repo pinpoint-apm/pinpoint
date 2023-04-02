@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -119,7 +119,7 @@ public class UnidirectionalLinkSelectorTest extends LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(new HashSet<>());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(APP_A), range, 2, 2);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(List.of(APP_A), range, 2, 2);
 
         // APP_IN_IN -> APP_IN -> APP_A(selected) -> APP_OUT -> APP_OUT_OUT
         //                 |-> APP_IN_OUT   APP_OUT_IN -^

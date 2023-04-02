@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author emeroad
  */
@@ -52,13 +54,13 @@ public class RangeTest {
     @Test
     public void testRange_String() {
         Range range1 = Range.between(0, 0);
-        Assertions.assertTrue(range1.toString().contains(" = "));
+        assertThat(range1.toString()).contains(" = ");
 
         Range range2 = Range.between(0, 1);
-        Assertions.assertTrue(range2.toString().contains(" < "));
+        assertThat(range2.toString()).contains(" < ");
 
         Range range3 = Range.newUncheckedRange(1, 0);
-        Assertions.assertTrue(range3.toString().contains(" > "));
+        assertThat(range3.toString()).contains(" > ");
     }
 
     @Test

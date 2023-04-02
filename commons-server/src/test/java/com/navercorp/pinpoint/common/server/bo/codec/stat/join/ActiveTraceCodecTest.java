@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -64,20 +63,13 @@ public class ActiveTraceCodecTest {
 
     private List<JoinActiveTraceBo> createJoinActiveTRaceBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinActiveTraceBo> joinActiveTraceBoList = new ArrayList<>();
-        JoinActiveTraceBo joinActiveTraceBo1 = new JoinActiveTraceBo(id, 1, (short) 2, 31, 11, "app_1_1", 41, "app_1_2", currentTime);
-        JoinActiveTraceBo joinActiveTraceBo2 = new JoinActiveTraceBo(id, 1, (short) 2, 32, 12, "app_2_1", 42, "app_2_2", currentTime + 5000);
-        JoinActiveTraceBo joinActiveTraceBo3 = new JoinActiveTraceBo(id, 1, (short) 2, 33, 13, "app_3_1", 43, "app_3_2", currentTime + 10000);
-        JoinActiveTraceBo joinActiveTraceBo4 = new JoinActiveTraceBo(id, 1, (short) 2, 34, 14, "app_4_1", 44, "app_4_2", currentTime + 15000);
-        JoinActiveTraceBo joinActiveTraceBo5 = new JoinActiveTraceBo(id, 1, (short) 2, 35, 15, "app_5_1", 45, "app_5_2", currentTime + 20000);
-        joinActiveTraceBoList.add(joinActiveTraceBo1);
-        joinActiveTraceBoList.add(joinActiveTraceBo2);
-        joinActiveTraceBoList.add(joinActiveTraceBo3);
-        joinActiveTraceBoList.add(joinActiveTraceBo4);
-        joinActiveTraceBoList.add(joinActiveTraceBo5);
-
-        return joinActiveTraceBoList;
+        return List.of(
+                new JoinActiveTraceBo(id, 1, (short) 2, 31, 11, "app_1_1", 41, "app_1_2", currentTime),
+                new JoinActiveTraceBo(id, 1, (short) 2, 32, 12, "app_2_1", 42, "app_2_2", currentTime + 5000),
+                new JoinActiveTraceBo(id, 1, (short) 2, 33, 13, "app_3_1", 43, "app_3_2", currentTime + 10000),
+                new JoinActiveTraceBo(id, 1, (short) 2, 34, 14, "app_4_1", 44, "app_4_2", currentTime + 15000),
+                new JoinActiveTraceBo(id, 1, (short) 2, 35, 15, "app_5_1", 45, "app_5_2", currentTime + 20000)
+        );
     }
-
 
 }

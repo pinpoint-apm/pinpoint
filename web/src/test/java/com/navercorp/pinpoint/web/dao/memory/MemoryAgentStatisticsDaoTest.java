@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -58,24 +59,24 @@ public class MemoryAgentStatisticsDaoTest {
 
         Range range = Range.between(660L, 1320L);
         List<AgentCountStatistics> agentCountStatisticses = dao.selectAgentCount(range);
-        Assertions.assertEquals(7, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(7);
 
 
         range = Range.between(7100L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
-        Assertions.assertEquals(30, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(30);
 
         range = Range.between(0L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
-        Assertions.assertEquals(100, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(100);
 
         long currentTime = System.currentTimeMillis();
         range = Range.between(currentTime, currentTime + 100);
         agentCountStatisticses = dao.selectAgentCount(range);
-        Assertions.assertEquals(0, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).isEmpty();
 
         agentCountStatisticses = dao.selectLatestAgentCount(10);
-        Assertions.assertEquals(10, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(10);
     }
 
 }

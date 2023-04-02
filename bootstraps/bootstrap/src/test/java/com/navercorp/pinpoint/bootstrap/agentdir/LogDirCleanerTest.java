@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -12,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class LogDirCleanerTest {
@@ -60,7 +61,7 @@ public class LogDirCleanerTest {
         logDirCleaner.clean();
 
         String[] files = temp.toFile().list();
-        Assertions.assertEquals(0, files.length);
+        assertThat(files).isEmpty();
     }
 
     @Test
@@ -69,9 +70,9 @@ public class LogDirCleanerTest {
         logDirCleaner.clean();
 
         List<String> files = Arrays.asList(temp.toFile().list());
-        Assertions.assertEquals(2, files.size());
-        Assertions.assertTrue(files.contains("agentDir2"));
-        Assertions.assertTrue(files.contains("agentDir3"));
+        assertThat(files).hasSize(2)
+                .contains("agentDir2")
+                .contains("agentDir3");
     }
 
     @Test
@@ -80,6 +81,6 @@ public class LogDirCleanerTest {
         logDirCleaner.clean();
 
         String[] files = temp.toFile().list();
-        Assertions.assertEquals(3, files.length);
+        assertThat(files).hasSize(3);
     }
 }

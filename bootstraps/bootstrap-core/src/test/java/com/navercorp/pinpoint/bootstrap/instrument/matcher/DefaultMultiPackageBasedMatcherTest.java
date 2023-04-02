@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -33,17 +33,17 @@ public class DefaultMultiPackageBasedMatcherTest {
     @Test
     public void getMatcherOperandWithMulitPackageName() {
         DefaultMultiPackageBasedMatcher matcher = new DefaultMultiPackageBasedMatcher(Arrays.asList("java", "javax"));
-        assertTrue(matcher.getBasePackageNames().contains("java"));
-        assertTrue(matcher.getBasePackageNames().contains("javax"));
+        assertThat(matcher.getBasePackageNames())
+                .contains("java", "javax");
 
         MatcherOperand operand = matcher.getMatcherOperand();
-        assertTrue(operand instanceof OrMatcherOperator);
+        assertThat(operand).isInstanceOf(OrMatcherOperator.class);
         OrMatcherOperator operator = (OrMatcherOperator) operand;
-        assertTrue(operator.getLeftOperand() instanceof PackageInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(PackageInternalNameMatcherOperand.class);
         PackageInternalNameMatcherOperand leftOperand = (PackageInternalNameMatcherOperand) operator.getLeftOperand();
         assertEquals("java", leftOperand.getPackageInternalName());
 
-        assertTrue(operator.getRightOperand() instanceof PackageInternalNameMatcherOperand);
+        assertThat(operator.getRightOperand()).isInstanceOf(PackageInternalNameMatcherOperand.class);
         PackageInternalNameMatcherOperand rightOperand = (PackageInternalNameMatcherOperand) operator.getRightOperand();
         assertEquals("javax", rightOperand.getPackageInternalName());
     }

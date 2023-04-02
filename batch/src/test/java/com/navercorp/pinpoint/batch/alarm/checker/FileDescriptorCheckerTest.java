@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,9 +37,11 @@ public class FileDescriptorCheckerTest {
         Rule rule = new Rule();
         rule.setThreshold(10);
         FileDescriptorDataCollector fileDescriptorDataCollector = mock(FileDescriptorDataCollector.class);
-        Map<String, Long> result = new HashMap<>();
-        result.put("testAgent1", 10L);
-        result.put("testAgent2", 0L);
+
+        Map<String, Long> result = Map.ofEntries(
+                Map.entry("testAgent1", 10L),
+                Map.entry("testAgent2", 0L));
+
         when(fileDescriptorDataCollector.getFileDescriptorCount()).thenReturn(result);
         FileDescriptorChecker fileDescriptorChecker = new FileDescriptorChecker(fileDescriptorDataCollector, rule);
         fileDescriptorChecker.check();
@@ -52,9 +53,11 @@ public class FileDescriptorCheckerTest {
         Rule rule = new Rule();
         rule.setThreshold(20);
         FileDescriptorDataCollector fileDescriptorDataCollector = mock(FileDescriptorDataCollector.class);
-        Map<String, Long> result = new HashMap<>();
-        result.put("testAgent1", 10L);
-        result.put("testAgent2", 0L);
+
+        Map<String, Long> result = Map.ofEntries(
+                Map.entry("testAgent1", 10L),
+                Map.entry("testAgent2", 0L));
+
         when(fileDescriptorDataCollector.getFileDescriptorCount()).thenReturn(result);
         FileDescriptorChecker fileDescriptorChecker = new FileDescriptorChecker(fileDescriptorDataCollector, rule);
         fileDescriptorChecker.check();

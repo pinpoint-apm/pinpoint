@@ -29,10 +29,11 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Taejin Koo
@@ -53,8 +54,8 @@ public class PinpointRouteResponseTest {
         DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(contents);
         response.parse(deserializerFactory);
 
-        Assertions.assertEquals(TRouteResult.UNKNOWN, response.getRouteResult());
-        Assertions.assertTrue(response.getResponse() instanceof TCommandEcho);
+        assertEquals(TRouteResult.UNKNOWN, response.getRouteResult());
+        assertThat(response.getResponse()).isInstanceOf(TCommandEcho.class);
     }
 
     @Test
@@ -67,8 +68,8 @@ public class PinpointRouteResponseTest {
         DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
         response.parse(deserializerFactory);
 
-        Assertions.assertEquals(TRouteResult.OK, response.getRouteResult());
-        Assertions.assertTrue(response.getResponse() instanceof TCommandEcho);
+        assertEquals(TRouteResult.OK, response.getRouteResult());
+        assertThat(response.getResponse()).isInstanceOf(TCommandEcho.class);
         Assertions.assertNull(response.getMessage());
     }
 
@@ -82,9 +83,9 @@ public class PinpointRouteResponseTest {
         DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
         response.parse(deserializerFactory);
 
-        Assertions.assertEquals(TRouteResult.OK, response.getRouteResult());
+        assertEquals(TRouteResult.OK, response.getRouteResult());
         Assertions.assertNull(response.getResponse());
-        Assertions.assertEquals(message, response.getMessage());
+        assertEquals(message, response.getMessage());
     }
 
     private TCommandEcho createCommandEcho(String message) {

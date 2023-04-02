@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.NotMatcherOp
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.OrMatcherOperator;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author jaehong.kim
@@ -33,14 +33,14 @@ public class AbstractMatcherOperandTest {
         operand = operand.and(new InterfaceInternalNameMatcherOperand("java/lang/Runnable", false));
         operand = operand.and(new AnnotationInternalNameMatcherOperand("javax/annotation/Resource", false));
 
-        assertTrue(operand instanceof AndMatcherOperator);
+        assertThat(operand).isInstanceOf(AndMatcherOperator.class);
         AndMatcherOperator operator = (AndMatcherOperator) operand;
-        assertTrue(operator.getLeftOperand() instanceof AndMatcherOperator);
-        assertTrue(operator.getRightOperand() instanceof AnnotationInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(AndMatcherOperator.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(AnnotationInternalNameMatcherOperand.class);
 
         operator = (AndMatcherOperator) operator.getLeftOperand();
-        assertTrue(operator.getLeftOperand() instanceof ClassInternalNameMatcherOperand);
-        assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(ClassInternalNameMatcherOperand.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(InterfaceInternalNameMatcherOperand.class);
     }
 
     @Test
@@ -49,14 +49,14 @@ public class AbstractMatcherOperandTest {
         operand = operand.or(new InterfaceInternalNameMatcherOperand("java/lang/Runnable", false));
         operand = operand.or(new AnnotationInternalNameMatcherOperand("javax/annotation/Resource", false));
 
-        assertTrue(operand instanceof OrMatcherOperator);
+        assertThat(operand).isInstanceOf(OrMatcherOperator.class);
         OrMatcherOperator operator = (OrMatcherOperator) operand;
-        assertTrue(operator.getLeftOperand() instanceof OrMatcherOperator);
-        assertTrue(operator.getRightOperand() instanceof AnnotationInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(OrMatcherOperator.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(AnnotationInternalNameMatcherOperand.class);
 
         operator = (OrMatcherOperator) operator.getLeftOperand();
-        assertTrue(operator.getLeftOperand() instanceof ClassInternalNameMatcherOperand);
-        assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(ClassInternalNameMatcherOperand.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(InterfaceInternalNameMatcherOperand.class);
     }
 
     @Test
@@ -64,8 +64,8 @@ public class AbstractMatcherOperandTest {
         MatcherOperand operand = new ClassInternalNameMatcherOperand("java/lang/String");
         operand = operand.not();
 
-        assertTrue(operand instanceof NotMatcherOperator);
+        assertThat(operand).isInstanceOf(NotMatcherOperator.class);
         NotMatcherOperator operator = (NotMatcherOperator) operand;
-        assertTrue(operator.getRightOperand() instanceof ClassInternalNameMatcherOperand);
+        assertThat(operator.getRightOperand()).isInstanceOf(ClassInternalNameMatcherOperand.class);
     }
 }

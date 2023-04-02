@@ -29,10 +29,13 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author HyunGil Jeong
@@ -50,38 +53,14 @@ public class RpcURLPatternFilterTest {
 
     @BeforeEach
     public void setUp() {
-        serviceTypeRegistryService = new ServiceTypeRegistryService() {
-            @Override
-            public ServiceType findServiceType(short serviceType) {
-                return TEST_RPC_SERVICE_TYPE;
-            }
+        ServiceTypeRegistryService serviceType = mock(ServiceTypeRegistryService.class);
+        Mockito.when(serviceType.findServiceType(TEST_RPC_SERVICE_TYPE_CODE)).thenReturn(TEST_RPC_SERVICE_TYPE);
+        serviceTypeRegistryService = serviceType;
 
-            @Override
-            public ServiceType findServiceTypeByName(String typeName) {
-                throw new UnsupportedOperationException();
-            }
+        AnnotationKeyRegistryService annotationKey = mock(AnnotationKeyRegistryService.class);
+        Mockito.when(annotationKey.findAnnotationKeyByName(anyString())).thenReturn(TEST_RPC_URL_ANNOTATION_KEY);
+        annotationKeyRegistryService = annotationKey;
 
-            @Override
-            public List<ServiceType> findDesc(String desc) {
-                throw new UnsupportedOperationException();
-            }
-        };
-        annotationKeyRegistryService = new AnnotationKeyRegistryService() {
-            @Override
-            public AnnotationKey findAnnotationKey(int annotationCode) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public AnnotationKey findAnnotationKeyByName(String keyName) {
-                return TEST_RPC_URL_ANNOTATION_KEY;
-            }
-
-            @Override
-            public AnnotationKey findApiErrorCode(int annotationCode) {
-                throw new UnsupportedOperationException();
-            }
-        };
     }
 
 
@@ -167,7 +146,7 @@ public class RpcURLPatternFilterTest {
             SpanEventBo testRpcSpanEvent = new SpanEventBo();
             testRpcSpanEvent.setServiceType(TEST_RPC_SERVICE_TYPE_CODE);
             AnnotationBo testRpcAnnotationBo = new AnnotationBo(TEST_RPC_URL_ANNOTATION_KEY.getCode(), rpcUrl);
-            testRpcSpanEvent.setAnnotationBoList(Collections.singletonList(testRpcAnnotationBo));
+            testRpcSpanEvent.setAnnotationBoList(List.of(testRpcAnnotationBo));
             SpanBo spanBo = new SpanBo();
             spanBo.addSpanEvent(testRpcSpanEvent);
             spanBos.add(spanBo);

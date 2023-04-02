@@ -38,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -67,10 +68,11 @@ public class DataSourceConnectionUsageRateCheckerTest {
     public void before() {
         Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
 
-        List<DataSourceListBo> dataSourceListBoList = new ArrayList<>();
-        dataSourceListBoList.add(createDataSourceListBo(1, 30, 40, 3));
-        dataSourceListBoList.add(createDataSourceListBo(2, 25, 40, 3));
-        dataSourceListBoList.add(createDataSourceListBo(3, 10, 40, 3));
+        List<DataSourceListBo> dataSourceListBoList = List.of(
+                createDataSourceListBo(1, 30, 40, 3),
+                createDataSourceListBo(2, 25, 40, 3),
+                createDataSourceListBo(3, 10, 40, 3)
+        );
 
         when(mockDataSourceDao.getAgentStatList(AGENT_ID, range)).thenReturn(dataSourceListBoList);
     }
@@ -88,7 +90,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
-        Assertions.assertEquals(2, smsMessage.size());
+        assertThat(smsMessage).hasSize(2);
     }
 
     @Test

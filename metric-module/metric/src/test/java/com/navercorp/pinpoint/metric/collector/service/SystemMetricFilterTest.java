@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.metric.collector.dao.pinot.PinotSystemMetricDouble
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import com.navercorp.pinpoint.metric.common.model.SystemMetric;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Hyunjoon Cho
@@ -58,7 +59,7 @@ public class SystemMetricFilterTest {
 
         List<DoubleMetric> doubleMetricList = systemMetricService.filterDoubleCounter(systemMetrics);
 
-        Assertions.assertEquals(doubleCount, doubleMetricList.size());
+        assertThat(doubleMetricList).hasSize(doubleCount);
     }
 
     private Metrics createList(int longCount, int doubleCount) {

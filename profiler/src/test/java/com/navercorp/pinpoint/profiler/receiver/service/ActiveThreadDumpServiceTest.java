@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -148,7 +149,7 @@ public class ActiveThreadDumpServiceTest {
         Assertions.assertEquals(limit, response.getThreadDumpsSize());
 
         for (TActiveThreadDump dump : response.getThreadDumps()) {
-            Assertions.assertTrue(oldTimeList.contains(dump.getStartTime()));
+            assertThat(oldTimeList).contains(dump.getStartTime());
         }
 
     }

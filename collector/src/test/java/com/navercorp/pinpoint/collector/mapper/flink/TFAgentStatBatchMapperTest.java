@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -48,12 +49,12 @@ public class TFAgentStatBatchMapperTest {
         assertEquals(startTimestamp, tFAgentStatBatch.getStartTimestamp());
 
         List<TFAgentStat> agentStatList = tFAgentStatBatch.getAgentStats();
-        assertEquals(3, agentStatList.size());
+        assertThat(agentStatList).hasSize(3);
     }
 
     private AgentStatBo createCpuLoadBoList() {
-        AgentStatBo.Builder builder = AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
 
+        AgentStatBo.Builder builder = AgentStatBo.newBuilder(TEST_AGENT, startTimestamp);
         CpuLoadBo cpuLoadBo1 = new CpuLoadBo();
         cpuLoadBo1.setJvmCpuLoad(4);
         cpuLoadBo1.setSystemCpuLoad(3);

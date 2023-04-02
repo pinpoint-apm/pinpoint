@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author jaehong.kim
@@ -42,9 +43,9 @@ public class EndPointUtilsTest {
         assertEquals("127.0.0.1:99999", EndPointUtils.getEndPoint("http://127.0.0.1:99999", null));
         assertEquals("111111", EndPointUtils.getEndPoint("http://111111", null));
 
-        assertEquals(null, EndPointUtils.getEndPoint(null, null));
-        assertEquals(null, EndPointUtils.getEndPoint("", null));
-        assertEquals(null, EndPointUtils.getEndPoint(" ", null));
+        assertNull(EndPointUtils.getEndPoint(null, null));
+        assertNull(EndPointUtils.getEndPoint("", null));
+        assertNull(EndPointUtils.getEndPoint(" ", null));
 
         assertEquals("default", EndPointUtils.getEndPoint(null, "default"));
         assertEquals("default", EndPointUtils.getEndPoint("", "default"));

@@ -5,14 +5,13 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class LinkCallDataTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final long ONE_MINUTE = 6000 * 10;
     private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
@@ -26,17 +25,17 @@ public class LinkCallDataTest {
     public void addCallData() {
         LinkKey key = LinkKey.of("fromApplication", ServiceType.STAND_ALONE, "toApplication", ServiceType.STAND_ALONE);
 
-        long currentTime = System.currentTimeMillis();
-        
+        long currentTime = 1000;
+
         LinkCallData data1 = new LinkCallData(key);
         data1.addCallData(currentTime, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
-        
-        logger.debug("{}", data1.getTimeHistogram().size());
-        
+
+        assertThat(data1.getTimeHistogram()).hasSize(5);
+
         Range range = Range.between(currentTime, currentTime + SIX_HOURS);
         TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         LinkCallData data2 = new LinkCallData(key, window);
@@ -46,7 +45,7 @@ public class LinkCallDataTest {
         data2.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data2.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
 
-        logger.debug("{}", data2.getTimeHistogram().size());
+        assertThat(data2.getTimeHistogram()).hasSize(1);
 
     }
 

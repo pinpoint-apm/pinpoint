@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -63,24 +62,14 @@ public class TransactionCodecTest {
 
     private List<JoinTransactionBo> createJoinTransactionBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<>();
-        JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo(id, 5000, 150, 10, "app_1_1", 230, "app_1_2", currentTime);
-        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo(id, 10000, 110, 22, "app_2_1", 330, "app_2_2", currentTime + 5000);
-        JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo(id, 15000, 120, 24, "app_3_1", 540, "app_3_2", currentTime + 10000);
-        JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo(id, 20000, 130, 25, "app_4_1", 560, "app_4_2", currentTime + 15000);
-        JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo(id, 25000, 140, 12, "app_5_1", 260, "app_5_2", currentTime + 20000);
-        joinTransactionBoList.add(joinTransactionBo1);
-        joinTransactionBoList.add(joinTransactionBo2);
-        joinTransactionBoList.add(joinTransactionBo3);
-        joinTransactionBoList.add(joinTransactionBo4);
-        joinTransactionBoList.add(joinTransactionBo5);
-
-        return joinTransactionBoList;
+        return List.of(
+                new JoinTransactionBo(id, 5000, 150, 10, "app_1_1", 230, "app_1_2", currentTime),
+                new JoinTransactionBo(id, 10000, 110, 22, "app_2_1", 330, "app_2_2", currentTime + 5000),
+                new JoinTransactionBo(id, 15000, 120, 24, "app_3_1", 540, "app_3_2", currentTime + 10000),
+                new JoinTransactionBo(id, 20000, 130, 25, "app_4_1", 560, "app_4_2", currentTime + 15000),
+                new JoinTransactionBo(id, 25000, 140, 12, "app_5_1", 260, "app_5_2", currentTime + 20000)
+        );
     }
 
-    @Test
-    public void decodeValuesTest() {
-
-    }
 
 }

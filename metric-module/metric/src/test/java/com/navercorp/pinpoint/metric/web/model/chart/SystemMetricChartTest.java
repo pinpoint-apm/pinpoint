@@ -22,18 +22,17 @@ import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSampler;
 import com.navercorp.pinpoint.metric.web.util.TimeWindowSlotCentricSampler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import java.util.ArrayList;
+
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Hyunjoon Cho
  */
 public class SystemMetricChartTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void createSystemMetricChartTest() {
@@ -42,45 +41,42 @@ public class SystemMetricChartTest {
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
         TimeWindow timeWindow = new TimeWindow(range, sampler);
 
-        List<Tag> tagList1 = new ArrayList<>();
-        tagList1.add(new Tag("cpu", "cpu0"));
-        List<Tag> tagList2 = new ArrayList<>();
-        tagList2.add(new Tag("cpu", "cpu1"));
+        List<Tag> tagList1 = List.of(new Tag("cpu", "cpu0"));
+        List<Tag> tagList2 = List.of(new Tag("cpu", "cpu1"));
 
-        List<SampledSystemMetric<Double>> sampledSystemMetricList = new ArrayList<>();
 
         SystemMetricPoint<Double> systemMetricPoint1 = new SystemMetricPoint<>(time, 1.11);
         SampledSystemMetric<Double> sampledSystemMetric1 = new SampledSystemMetric<>(systemMetricPoint1, tagList1);
         SampledSystemMetric<Double> sampledSystemMetric2 = new SampledSystemMetric<>(systemMetricPoint1, tagList2);
+
         SystemMetricPoint<Double> systemMetricPoint2 = new SystemMetricPoint<>(time + 10000, 2.22);
         SampledSystemMetric<Double> sampledSystemMetric3 = new SampledSystemMetric<>(systemMetricPoint2, tagList1);
         SampledSystemMetric<Double> sampledSystemMetric4 = new SampledSystemMetric<>(systemMetricPoint2, tagList2);
+
         SystemMetricPoint<Double> systemMetricPoint3 = new SystemMetricPoint<>(time + 20000, 3.33);
         SampledSystemMetric<Double> sampledSystemMetric5 = new SampledSystemMetric<>(systemMetricPoint3, tagList1);
         SampledSystemMetric<Double> sampledSystemMetric6 = new SampledSystemMetric<>(systemMetricPoint3, tagList2);
+
         SystemMetricPoint<Double> systemMetricPoint4 = new SystemMetricPoint<>(time + 30000, 4.44);
         SampledSystemMetric<Double> sampledSystemMetric7 = new SampledSystemMetric<>(systemMetricPoint4, tagList1);
         SampledSystemMetric<Double> sampledSystemMetric8 = new SampledSystemMetric<>(systemMetricPoint4, tagList2);
 
-        sampledSystemMetricList.add(sampledSystemMetric1);
-        sampledSystemMetricList.add(sampledSystemMetric2);
-        sampledSystemMetricList.add(sampledSystemMetric3);
-        sampledSystemMetricList.add(sampledSystemMetric4);
-        sampledSystemMetricList.add(sampledSystemMetric5);
-        sampledSystemMetricList.add(sampledSystemMetric6);
-        sampledSystemMetricList.add(sampledSystemMetric7);
-        sampledSystemMetricList.add(sampledSystemMetric8);
+        List<SampledSystemMetric<Double>> sampledSystemMetricList = List.of(
+                sampledSystemMetric1, sampledSystemMetric2, sampledSystemMetric3, sampledSystemMetric4,
+                sampledSystemMetric5, sampledSystemMetric6, sampledSystemMetric7, sampledSystemMetric8
+        );
 
         SystemMetricChart systemMetricChart = new SystemMetricChart(timeWindow, "cpu_usage_user", sampledSystemMetricList);
         SystemMetricChart.SystemMetricChartGroup systemMetricChartGroup = systemMetricChart.getSystemMetricChartGroup();
 
         List<List<Tag>> tagsList = systemMetricChartGroup.getTagsList();
-        Assertions.assertEquals(2, tagsList.size());
-        Assertions.assertEquals(tagList1, tagsList.get(0));
-        Assertions.assertEquals(tagList2, tagsList.get(1));
+
+        assertThat(tagsList)
+                .containsExactly(tagList1, tagList2);
 
         List<Chart> chartList = systemMetricChartGroup.getCharts();
-        Assertions.assertEquals(2, chartList.size());
+        assertThat(chartList)
+                .hasSize(2);
 
         List<Point> pointsFromChart1 = chartList.get(0).getPoints();
         int index = 0;

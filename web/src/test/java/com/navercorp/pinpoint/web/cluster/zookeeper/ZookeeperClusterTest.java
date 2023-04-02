@@ -42,14 +42,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.TestSocketUtils;
-import org.springframework.util.SocketUtils;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -133,11 +132,11 @@ public class ZookeeperClusterTest {
 
             awaitCheckAgentRegistered(manager, new ClusterKey("a", "b", 1L));
             List<ClusterId> agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
-            Assertions.assertEquals(1, agentList.size());
+            assertThat(agentList).hasSize(1);
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             agentList = manager.getRegisteredAgentList(new ClusterKey("b", "c", 1L));
-            Assertions.assertEquals(0, agentList.size());
+            assertThat(agentList).isEmpty();
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
             awaitCheckAgentUnRegistered(manager, new ClusterKey("a", "b", 1L));
 
@@ -179,18 +178,18 @@ public class ZookeeperClusterTest {
 
             awaitCheckAgentRegistered(manager, new ClusterKey("a", "b", 1L));
             List<ClusterId> agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
-            Assertions.assertEquals(1, agentList.size());
+            assertThat(agentList).hasSize(1);
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
             awaitCheckAgentRegistered(manager, new ClusterKey("c", "d", 2L));
 
             agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
-            Assertions.assertEquals(1, agentList.size());
+            assertThat(agentList).hasSize(1);
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             agentList = manager.getRegisteredAgentList(new ClusterKey("c", "d", 2L));
-            Assertions.assertEquals(1, agentList.size());
+            assertThat(agentList).hasSize(1);
             Assertions.assertEquals("test", agentList.get(0).getCollectorId());
 
             zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
@@ -199,10 +198,10 @@ public class ZookeeperClusterTest {
             awaitCheckAgentUnRegistered(manager, new ClusterKey("a", "b", 1L));
 
             agentList = manager.getRegisteredAgentList(new ClusterKey("a", "b", 1L));
-            Assertions.assertEquals(0, agentList.size());
+            assertThat(agentList).isEmpty();
 
             agentList = manager.getRegisteredAgentList(new ClusterKey("c", "d", 2L));
-            Assertions.assertEquals(0, agentList.size());
+            assertThat(agentList).isEmpty();
         } finally {
             closeZk(zookeeper);
             closeManager(manager);
@@ -253,10 +252,10 @@ public class ZookeeperClusterTest {
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assertions.assertEquals(registeredIpList.length, ipList.size());
+        assertThat(ipList).hasSize(registeredIpList.length);
 
         for (String ip : registeredIpList) {
-            Assertions.assertTrue(ipList.contains(ip));
+            assertThat(ipList).contains(ip);
         }
     }
 

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -40,7 +40,7 @@ public class AgentActiveThreadCountFactoryTest {
     @Test
     public void invalidActiveThreadCountTest1() {
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setActiveThreadCount(Arrays.asList(1, 2, 3));
+        response.setActiveThreadCount(List.of(1, 2, 3));
 
         AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
         factory.setAgentId("test");
@@ -53,7 +53,7 @@ public class AgentActiveThreadCountFactoryTest {
     @Test
     public void invalidActiveThreadCountTest2() {
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
-        response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4, 5));
+        response.setActiveThreadCount(List.of(1, 2, 3, 4, 5));
 
         AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
         factory.setAgentId("test");

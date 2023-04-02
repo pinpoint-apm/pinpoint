@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.web.util;
 
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class TagUtils {
     }
 
     public static List<Tag> parseTags(List<String> tags) {
-        if (tags == null || tags.size() == 0) {
+        if (CollectionUtils.isEmpty(tags)) {
             return new ArrayList<>();
         }
 

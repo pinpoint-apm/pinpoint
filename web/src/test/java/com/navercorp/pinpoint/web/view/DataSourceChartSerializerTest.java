@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.DataSourceChart;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,11 +73,13 @@ public class DataSourceChartSerializerTest {
         String jsonValue = mapper.writeValueAsString(dataSourceChartGroup);
         Map<String, Object> map = mapper.readValue(jsonValue, TypeRef.map());
 
-        Assertions.assertTrue(map.containsKey("id"));
-        Assertions.assertTrue(map.containsKey("jdbcUrl"));
-        Assertions.assertTrue(map.containsKey("databaseName"));
-        Assertions.assertTrue(map.containsKey("serviceType"));
-        Assertions.assertTrue(map.containsKey("charts"));
+        org.assertj.core.api.Assertions.assertThat(map)
+                .containsKey("id")
+                .containsKey("jdbcUrl")
+                .containsKey("databaseName")
+                .containsKey("serviceType")
+                .containsKey("charts");
+
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {

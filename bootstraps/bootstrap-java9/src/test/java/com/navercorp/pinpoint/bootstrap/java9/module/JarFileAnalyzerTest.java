@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +62,7 @@ public class JarFileAnalyzerTest {
                 .filter(this::packageFilter)
                 .count();
 
-        Assertions.assertEquals(packageCount, packageSet.size());
+        assertThat(packageSet).hasSize((int) packageCount);
     }
 
     private boolean packageFilter(JarEntry jarEntry) {
@@ -109,7 +110,7 @@ public class JarFileAnalyzerTest {
         List<Providers> providers = analyze.getProviders();
         Providers first = providers.get(0);
         Assertions.assertEquals("org.apache.logging.log4j.util.PropertySource", first.getService());
-        Assertions.assertTrue(first.getProviders().contains("org.apache.logging.log4j.util.EnvironmentPropertySource"));
+        assertThat(first.getProviders()).contains("org.apache.logging.log4j.util.EnvironmentPropertySource");
 
 
     }

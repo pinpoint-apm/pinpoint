@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFDataSource;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -42,7 +42,7 @@ public class JoinDataSourceListBoMapperTest {
         tFAgentStat.setTimestamp(1491274138454L);
         TFDataSourceList tFDataSourceList = new TFDataSourceList();
 
-        List<TFDataSource> dataSourceList = new ArrayList<>();
+
         TFDataSource tFDataSource1 = new TFDataSource();
         tFDataSource1.setUrl("jdbc:mysql");
         tFDataSource1.setMaxConnectionSize(30);
@@ -55,8 +55,8 @@ public class JoinDataSourceListBoMapperTest {
         tFDataSource2.setActiveConnectionSize(23);
         tFDataSource2.setDatabaseName("pinpoint");
         tFDataSource2.setServiceTypeCode((short) 2000);
-        dataSourceList.add(tFDataSource1);
-        dataSourceList.add(tFDataSource2);
+
+        List<TFDataSource> dataSourceList = List.of(tFDataSource1, tFDataSource2);
 
         tFDataSourceList.setDataSourceList(dataSourceList);
         tFAgentStat.setDataSourceList(tFDataSourceList);
@@ -64,7 +64,7 @@ public class JoinDataSourceListBoMapperTest {
 
         assertEquals(joinDataSourceListBo.getId(), "testAgent");
         assertEquals(joinDataSourceListBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinDataSourceListBo.getJoinDataSourceBoList().size(), 2);
+        assertThat(joinDataSourceListBo.getJoinDataSourceBoList()).hasSize(2);
 
         List<JoinDataSourceBo> joinDataSourceBoList = joinDataSourceListBo.getJoinDataSourceBoList();
         JoinDataSourceBo joinDataSourceBo1 = joinDataSourceBoList.get(0);
@@ -92,8 +92,7 @@ public class JoinDataSourceListBoMapperTest {
         joinDataSourceListBo = mapper.map(tFAgentStat);
         assertEquals(joinDataSourceListBo, JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO);
 
-        List<TFDataSource> dataSourceList = new ArrayList<>();
-        tFDataSourceList.setDataSourceList(dataSourceList);
+        tFDataSourceList.setDataSourceList(List.of());
         joinDataSourceListBo = mapper.map(tFAgentStat);
         assertEquals(joinDataSourceListBo, JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO);
     }

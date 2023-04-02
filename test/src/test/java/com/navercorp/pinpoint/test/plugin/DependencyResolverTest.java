@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.assertj.core.api.Assertions;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -24,8 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Jongho Moon
@@ -45,7 +44,7 @@ public class DependencyResolverTest {
         DependencyResolverFactory factory = new DependencyResolverFactory();
         DependencyResolver resolver = factory.get();
         Map<String, List<Artifact>> sets = resolver.resolveDependencySets("net.sf.json-lib:json-lib:jar:jdk15:2.4");
-        assertFalse(sets.isEmpty());
+        Assertions.assertThat(sets).isNotEmpty();
     }
 
     @Test

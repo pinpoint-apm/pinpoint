@@ -61,7 +61,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
-import org.junit.Assert;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -102,7 +101,7 @@ public class ReactiveMongoDBITHelper {
         stopDB(collection);
     }
 
-    public void stopDB(MongoCollection<Document> collection) throws Exception {
+    public void stopDB(MongoCollection<Document> collection) {
         try {
             ObservableSubscriber<Void> sub = new ObservableSubscriber<>();
             collection.drop().subscribe(sub);
@@ -163,7 +162,7 @@ public class ReactiveMongoDBITHelper {
         collection.insertOne(document).subscribe(sub);
         try {
             sub.waitForThenCancel(1);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
@@ -186,7 +185,7 @@ public class ReactiveMongoDBITHelper {
         collection.insertOne(doc).subscribe(sub);
         try {
             sub.waitForThenCancel(1);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         Method insertOneMethod = getMethod(mongoDatabaseImpl, "insertOne", Object.class);
@@ -209,7 +208,7 @@ public class ReactiveMongoDBITHelper {
         collection.updateOne(doc, doc2).subscribe(sub);
         try {
             sub.waitForThenCancel(1);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         Method updateOne = getMethod(mongoDatabaseImpl, "updateOne", Bson.class, Bson.class);
@@ -230,7 +229,7 @@ public class ReactiveMongoDBITHelper {
         collection.find().subscribe(sub);
         try {
             sub.waitForThenCancel(2);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         Method find = getMethod(mongoDatabaseImpl, "find");
@@ -243,9 +242,6 @@ public class ReactiveMongoDBITHelper {
         verifier.verifyTrace(event(MONGO_REACTIVE, executeMethod));
     }
 
-    private void assertResultSize(String message, int expected, ObservableSubscriber<Document> subscriber) {
-        Assert.assertEquals(message, expected, subscriber.getResults().size());
-    }
 
     public void deleteData(PluginTestVerifier verifier, String address, MongoCollection<Document> collection, Class<?> mongoDatabaseImpl) throws Exception {
         //delete data
@@ -254,7 +250,7 @@ public class ReactiveMongoDBITHelper {
         collection.deleteMany(doc).subscribe(sub);
         try {
             sub.waitForThenCancel(1);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         Method deleteMany = getMethod(mongoDatabaseImpl, "deleteMany", Bson.class);
@@ -278,7 +274,7 @@ public class ReactiveMongoDBITHelper {
         collection.find(bson).subscribe(sub);
         try {
             sub.waitForThenCancel(1);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, address, null
@@ -299,7 +295,7 @@ public class ReactiveMongoDBITHelper {
         collection.find(bson).subscribe(sub);
         try {
             sub.waitForThenCancel(1);
-        } catch (Throwable throwable) {
+        } catch (Throwable ignored) {
         }
 
         verifier.verifyTrace(event(MONGO_EXECUTE_QUERY, find, null, address, null

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,18 +64,13 @@ public class DirectBufferCodecTest {
 
     private List<JoinDirectBufferBo> createJoinDirectBufferBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>();
-        JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo(id, 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", currentTime);
-        JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo(id, 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000);
-        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo(id, 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", currentTime + 15000);
-        JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo(id, 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000);
-        JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo(id, 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000);
-        joinDirectBufferBoList.add(joinDirectBufferBo1);
-        joinDirectBufferBoList.add(joinDirectBufferBo2);
-        joinDirectBufferBoList.add(joinDirectBufferBo3);
-        joinDirectBufferBoList.add(joinDirectBufferBo4);
-        joinDirectBufferBoList.add(joinDirectBufferBo5);
-        return joinDirectBufferBoList;
+        return List.of(
+                new JoinDirectBufferBo(id, 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", 80, 1000, "agent1_1", 30, "agent1_2", currentTime),
+                new JoinDirectBufferBo(id, 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000),
+                new JoinDirectBufferBo(id, 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", 60, 800, "agent4_1", 15, "agent4_2", currentTime + 15000),
+                new JoinDirectBufferBo(id, 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000),
+                new JoinDirectBufferBo(id, 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000)
+        );
     }
 
 }

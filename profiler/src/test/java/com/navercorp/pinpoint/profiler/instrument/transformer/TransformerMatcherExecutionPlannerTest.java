@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author jaehong.kim
@@ -44,7 +44,7 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.and(new PackageInternalNameMatcherOperand("java/lang"));
 
         List<MatcherOperand> result = executionPlanner.findIndex(operand);
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
 
         // or
         operand = new ClassInternalNameMatcherOperand("java/lang/String");
@@ -53,7 +53,7 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.or(new PackageInternalNameMatcherOperand("java/lang"));
 
         result = executionPlanner.findIndex(operand);
-        assertEquals(2, result.size());
+        assertThat(result).hasSize(2);
 
         // not
         operand = new InterfaceInternalNameMatcherOperand("java/lang/Comparable", false);
@@ -61,7 +61,7 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.and(new PackageInternalNameMatcherOperand("javax").not());
 
         result = executionPlanner.findIndex(operand);
-        assertEquals(0, result.size());
+        assertThat(result).isEmpty();
 
         // none
         operand = new InterfaceInternalNameMatcherOperand("java/lang/Comparable", false);
@@ -69,6 +69,6 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.and(new SuperClassInternalNameMatcherOperand("java/lang/Object", true));
 
         result = executionPlanner.findIndex(operand);
-        assertEquals(0, result.size());
+        assertThat(result).isEmpty();
     }
 }

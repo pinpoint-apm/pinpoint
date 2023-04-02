@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  */
 public class PartitionTest {
 
-    private final List<Integer> original = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    private final List<Integer> original = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 
     @Test
@@ -30,10 +29,10 @@ public class PartitionTest {
     }
 
 
-    private void assertPartition(int size) throws NoSuchFieldException, IllegalAccessException {
+    private void assertPartition(int size) {
         List<List<Integer>> daoImpl = splitTransactionIdList(original, size);
         List<List<Integer>> guava = ListUtils.partition(original, size);
-        Assertions.assertEquals(guava , daoImpl);
+        Assertions.assertEquals(guava, daoImpl);
     }
 
     static <V> List<List<V>> splitTransactionIdList(List<V> transactionIdList, int maxTransactionIdListSize) {
