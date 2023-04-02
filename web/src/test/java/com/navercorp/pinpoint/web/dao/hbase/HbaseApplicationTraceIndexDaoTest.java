@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -42,10 +42,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -67,23 +67,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     private AbstractRowKeyDistributor traceIdRowKeyDistributor;
 
     @Spy
-    private final TableNameProvider tableNameProvider = new TableNameProvider() {
-
-        @Override
-        public TableName getTableName(HbaseTable hBaseTable) {
-            return getTableName(hBaseTable.getName());
-        }
-
-        @Override
-        public TableName getTableName(String tableName) {
-            return TableName.valueOf(tableName);
-        }
-
-        @Override
-        public boolean hasDefaultNameSpace() {
-            return true;
-        }
-    };
+    private final TableNameProvider tableNameProvider = new HbaseTableNameProvider("default");
 
     private ApplicationTraceIndexDao applicationTraceIndexDao;
 
@@ -134,9 +118,9 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     @Test
     public void scanTraceScatterDataEmptyTest() {
-        List<ScatterData> scannedList = new ArrayList<>();
+
         when(this.hbaseOperations2.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
+                anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
                 = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
@@ -146,7 +130,7 @@ public class HbaseApplicationTraceIndexDaoTest {
 
         Assertions.assertEquals(1000L, result.getFrom());
         Assertions.assertEquals(5000L, result.getTo());
-        Assertions.assertEquals(0, result.getScatterData().size());
+        assertThat(result.getScatterData()).isEmpty();
     }
 
     @Test
@@ -176,7 +160,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     }
 
     private void addDot(List<List<Dot>> list, Dot dot) {
-        list.add(Collections.singletonList(dot));
+        list.add(List.of(dot));
     }
 
 

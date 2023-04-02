@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.rest;
+package com.navercorp.pinpoint.web.install.dao;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
-import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.model.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
 import org.apache.logging.log4j.LogManager;

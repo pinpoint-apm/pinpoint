@@ -38,8 +38,49 @@ import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectArrayAcces
 import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectArraysAccessor;
 import com.navercorp.pinpoint.profiler.instrument.mock.accessor.PublicStrAccessor;
 import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ThrowExceptionAccessor;
-import com.navercorp.pinpoint.profiler.instrument.mock.getter.*;
-import com.navercorp.pinpoint.profiler.instrument.mock.setter.*;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldEnumGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldIntArrayGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldIntGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectArrayGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectArraysGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldStrMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldTransientIntGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldVolatileIntGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldWildcardMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultFinalStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultStaticStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldEnumSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldIntArraySetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldIntSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldMapSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectArraySetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectArraysSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectMapSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPrivateStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldProtectedStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicFinalStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldStrMapSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldTransientIntSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldVolatileIntSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldWildcardMapSetter;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -54,6 +95,7 @@ import org.objectweb.asm.tree.ClassNode;
 import java.io.InputStream;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -129,16 +171,16 @@ public class ASMClassTest {
         assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", clazz.getSuperClass());
 
         clazz = getClass("java.lang.Object");
-        assertEquals(null, clazz.getSuperClass());
+        assertNull(clazz.getSuperClass());
     }
 
     @Test
     public void isInterface() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        assertEquals(false, clazz.isInterface());
+        assertFalse(clazz.isInterface());
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface");
-        assertEquals(true, clazz.isInterface());
+        assertTrue(clazz.isInterface());
     }
 
     @Test
@@ -150,13 +192,13 @@ public class ASMClassTest {
     @Test
     public void getInterfaces() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        assertEquals(0, clazz.getInterfaces().length);
+        assertThat(clazz.getInterfaces()).hasSize(0);
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface");
-        assertEquals(0, clazz.getInterfaces().length);
+        assertThat(clazz.getInterfaces()).hasSize(0);
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseImplementClass");
-        assertEquals(1, clazz.getInterfaces().length);
+        assertThat(clazz.getInterfaces()).hasSize(1);
         assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.BaseInterface", clazz.getInterfaces()[0]);
     }
 
@@ -210,7 +252,7 @@ public class ASMClassTest {
         assertNotNull(methods);
 
         methods = clazz.getDeclaredMethods(MethodFilters.name("arg"));
-        assertEquals(1, methods.size());
+        assertThat(methods).hasSize(1);
         assertEquals("arg", methods.get(0).getName());
     }
 
@@ -219,7 +261,7 @@ public class ASMClassTest {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<InstrumentMethod> constructors = clazz.getDeclaredConstructors();
         assertNotNull(constructors);
-        assertEquals(2, constructors.size());
+        assertThat(constructors).hasSize(2);
         assertEquals("ArgsClass", constructors.get(0).getName());
 
         assertEquals("ArgsClass", constructors.get(1).getName());
@@ -622,13 +664,14 @@ public class ASMClassTest {
         assertEquals(targetClassName, clazz.getNestedClasses(ClassFilters.name(targetClassName)).get(0).getName());
 
         // find enclosing method condition.
-        assertEquals(2, clazz.getNestedClasses(ClassFilters.enclosingMethod("annonymousInnerClass")).size());
+        assertThat(clazz.getNestedClasses(ClassFilters.enclosingMethod("annonymousInnerClass"))).hasSize(2);
 
         // find interface condition.
-        assertEquals(2, clazz.getNestedClasses(ClassFilters.interfaze("java.util.concurrent.Callable")).size());
+        assertThat(clazz.getNestedClasses(ClassFilters.interfaze("java.util.concurrent.Callable"))).hasSize(2);
 
         // find enclosing method & interface condition.
-        assertEquals(1, clazz.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("annonymousInnerClass"), ClassFilters.interfaze("java.util.concurrent.Callable"))).size());
+        assertThat(clazz.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("annonymousInnerClass"),
+                ClassFilters.interfaze("java.util.concurrent.Callable")))).hasSize(1);
     }
 
     @Test

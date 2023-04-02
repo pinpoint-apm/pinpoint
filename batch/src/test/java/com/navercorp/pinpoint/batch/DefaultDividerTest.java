@@ -22,7 +22,7 @@ import org.springframework.batch.item.ExecutionContext;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author minwoo.jung
@@ -33,7 +33,7 @@ public class DefaultDividerTest {
     public void devide() {
         DefaultDivider defaultDivider = new DefaultDivider();
         Map<String, ExecutionContext> map = defaultDivider.divide("test_partition", "test");
-        assertEquals(1, map.size());
+        assertThat(map).hasSize(1);
     }
 
 }

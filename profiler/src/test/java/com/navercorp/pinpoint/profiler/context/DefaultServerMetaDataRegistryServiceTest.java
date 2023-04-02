@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -32,6 +32,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,7 +44,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
     private static final int THREAD_COUNT = 500;
 
     private static final String SERVER_INFO = "testContainerInfo";
-    private static final List<String> VM_ARGS = Arrays.asList("testVmArgs");
+    private static final List<String> VM_ARGS = Collections.singletonList("testVmArgs");
 
     private ExecutorService executorService;
 
@@ -92,7 +93,8 @@ public class DefaultServerMetaDataRegistryServiceTest {
         startLatch.countDown();
         endLatch.await();
         // Then
-        assertTrue(exceptions.isEmpty(), "Failed with errors : " + exceptions);
+        assertThat(exceptions)
+                .as("Failed with errors : " + exceptions).isEmpty();
         ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
         assertEquals(SERVER_INFO, serverMetaData.getServerInfo());
         assertEquals(VM_ARGS, serverMetaData.getVmArgs());
@@ -139,7 +141,8 @@ public class DefaultServerMetaDataRegistryServiceTest {
         startLatch.countDown();
         endLatch.await();
         // Then
-        assertTrue(exceptions.isEmpty(), "Failed with exceptions : " + exceptions);
+        assertThat(exceptions)
+                .as("Failed with exceptions : " + exceptions).isEmpty();
         ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
         assertEquals(SERVER_INFO, serverMetaData.getServerInfo());
         assertEquals(VM_ARGS, serverMetaData.getVmArgs());

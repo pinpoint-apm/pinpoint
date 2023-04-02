@@ -33,6 +33,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -142,12 +143,12 @@ public class ASMMethodVariablesTest {
 
         final ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter("foo", new MethodNode(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, exceptions));
         ASMMethodVariables variables = new ASMMethodVariables(JavaAssistUtils.javaNameToJvmName(className), methodNodeAdapter.getMethodNode());
-        assertEquals(0, variables.getLocalVariables().size());
+        assertThat(variables.getLocalVariables()).isEmpty();
 
         InsnList instructions = new InsnList();
         variables.initLocalVariables(instructions);
 
-        assertEquals(2, variables.getLocalVariables().size());
+        assertThat(variables.getLocalVariables()).hasSize(2);
         assertEquals("this", variables.getLocalVariables().get(0).name);
         assertEquals("Lcom/navercorp/pinpoint/profiler/instrument/mock/ArgsClass;", variables.getLocalVariables().get(0).desc);
         assertEquals("byte", variables.getLocalVariables().get(1).name);

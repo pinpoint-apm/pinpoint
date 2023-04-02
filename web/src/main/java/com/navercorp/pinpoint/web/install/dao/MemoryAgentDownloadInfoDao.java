@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.memory;
+package com.navercorp.pinpoint.web.install.dao;
 
-import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.model.AgentDownloadInfo;
 
 import java.util.Collections;

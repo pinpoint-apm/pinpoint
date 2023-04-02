@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Taejin Koo
  */
@@ -52,7 +54,7 @@ public class AgentActiveThreadDumpListTest {
 
             AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(threads);
 
-            Assertions.assertEquals(CREATE_DUMP_SIZE, activeThreadDumpList.getAgentActiveThreadDumpRepository().size());
+            assertThat(activeThreadDumpList.getAgentActiveThreadDumpRepository()).hasSize(CREATE_DUMP_SIZE);
         } finally {
             clearResource(waitingJobList);
         }

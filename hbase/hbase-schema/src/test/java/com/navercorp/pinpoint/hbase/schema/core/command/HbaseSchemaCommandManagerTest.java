@@ -37,6 +37,7 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -44,7 +45,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -169,7 +169,7 @@ public class HbaseSchemaCommandManagerTest {
 
         // verify schema snapshot
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot.size()).isEqualTo(1);
+        assertThat(schemaSnapshot).hasSize(1);
         HTableDescriptor snapshotTable = schemaSnapshot.get(0);
         assertThat(snapshotTable.getTableName()).isEqualTo(TableName.valueOf(namespace, tableName));
         List<String> snapshotColumnFamilies = snapshotTable.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
@@ -207,7 +207,7 @@ public class HbaseSchemaCommandManagerTest {
 
         // verify schema snapshot
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot.size()).isEqualTo(1);
+        assertThat(schemaSnapshot).hasSize(1);
         HTableDescriptor snapshotTable = schemaSnapshot.get(0);
         assertThat(snapshotTable.getTableName()).isEqualTo(TableName.valueOf(namespace, tableName));
         List<String> snapshotColumnFamilies = snapshotTable.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());

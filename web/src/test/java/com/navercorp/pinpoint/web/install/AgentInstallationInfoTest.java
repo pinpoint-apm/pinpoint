@@ -20,18 +20,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.install.model.AgentInstallationInfo;
 import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
  */
 public class AgentInstallationInfoTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testName() throws Exception {
@@ -41,11 +39,10 @@ public class AgentInstallationInfoTest {
         String jsonString = objectMapper.writeValueAsString(agentInstallInfo);
         Map<String, Object> map = objectMapper.readValue(jsonString, TypeRef.map());
 
-        logger.debug(map);
-
-        Assertions.assertTrue(map.containsKey("version"));
-        Assertions.assertTrue(map.containsKey("downloadUrl"));
-        Assertions.assertTrue(map.containsKey("installationArgument"));
+        assertThat(map)
+                .containsKey("version")
+                .containsKey("downloadUrl")
+                .containsKey("installationArgument");
     }
 
 }

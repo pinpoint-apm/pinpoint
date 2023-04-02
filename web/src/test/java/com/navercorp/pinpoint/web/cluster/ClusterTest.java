@@ -46,9 +46,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -222,12 +222,12 @@ public class ClusterTest {
             });
             awaitZookeeperConnected(zookeeper);
 
-            Assertions.assertEquals(0, clusterConnectionManager.getClusterList().size());
+            assertThat(clusterConnectionManager.getClusterList()).isEmpty();
 
             testPinpointClient.connect(DEFAULT_IP, acceptorPort);
             awaitPinpointClientConnected(clusterConnectionManager);
 
-            Assertions.assertEquals(1, clusterConnectionManager.getClusterList().size());
+            assertThat(clusterConnectionManager.getClusterList()).hasSize(1);
         } finally {
             testPinpointClient.closeAll();
             if (zookeeper != null) {
@@ -259,10 +259,10 @@ public class ClusterTest {
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 
-        Assertions.assertEquals(registeredIpList.length, ipList.size());
+        assertThat(ipList).hasSize(registeredIpList.length);
 
         for (String ip : registeredIpList) {
-            Assertions.assertTrue(ipList.contains(ip));
+            assertThat(ipList).contains(ip);
         }
     }
 

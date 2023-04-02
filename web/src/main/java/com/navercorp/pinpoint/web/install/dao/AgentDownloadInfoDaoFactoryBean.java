@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.web.install.dao;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
-import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.web.client.RestTemplate;
 

@@ -29,7 +29,6 @@ import org.xml.sax.InputSource;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +45,7 @@ public class XmlHbaseSchemaParserTest {
         final String schemaFile = "hbase-schema/test-hbase-schema.xml";
 
         TableConfiguration expectedChangeSet1_tableConfiguration = new TableConfiguration.Builder().durability(TableConfiguration.Durability.ASYNC_WAL).build();
-        List<ColumnFamilyChange> expectedChangeSet1_columnFamilies = Arrays.asList(
+        List<ColumnFamilyChange> expectedChangeSet1_columnFamilies = List.of(
                 new CreateColumnFamilyChange("CF1", new ColumnFamilyConfiguration.Builder().timeToLive(86400).dataBlockEncoding(ColumnFamilyConfiguration.DataBlockEncoding.NONE).build()),
                 new CreateColumnFamilyChange("CF2", ColumnFamilyConfiguration.EMPTY_CONFIGURATION));
         CreateTableChange.SplitOption expectedChangeSet1_tableSplitOption = new CreateTableChange.SplitOption.Auto(16);
@@ -56,7 +55,7 @@ public class XmlHbaseSchemaParserTest {
                 expectedChangeSet1_columnFamilies,
                 expectedChangeSet1_tableSplitOption);
 
-        List<ColumnFamilyChange> expectedChangeSet2_columnFamilies = Arrays.asList(
+        List<ColumnFamilyChange> expectedChangeSet2_columnFamilies = List.of(
                 new CreateColumnFamilyChange("CF3", ColumnFamilyConfiguration.EMPTY_CONFIGURATION));
         TableChange expectedChangeSet2_tableChange = new ModifyTableChange(
                 "Table1",
@@ -67,12 +66,12 @@ public class XmlHbaseSchemaParserTest {
         XmlHbaseSchemaParseResult parseResult = parser.parseSchema(new InputSource(inputStream));
 
         List<String> includeFiles = new ArrayList<>(parseResult.getIncludeFiles());
-        assertThat(includeFiles.size()).isEqualTo(1);
+        assertThat(includeFiles).hasSize(1);
         String includeFile = includeFiles.get(0);
         assertThat(includeFile).isEqualTo("test-hbase-schema-include.xml");
 
         List<ChangeSet> changeSets = new ArrayList<>(parseResult.getChangeSets());
-        assertThat(changeSets.size()).isEqualTo(2);
+        assertThat(changeSets).hasSize(2);
 
         ChangeSet changeSet1 = changeSets.get(0);
         assertThat(changeSet1.getId()).isEqualTo("id-1");

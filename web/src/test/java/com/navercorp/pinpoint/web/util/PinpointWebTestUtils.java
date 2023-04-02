@@ -16,20 +16,16 @@
 
 package com.navercorp.pinpoint.web.util;
 
+import com.navercorp.pinpoint.common.util.NetUtils;
+
 import java.net.InetAddress;
 import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import com.navercorp.pinpoint.common.util.NetUtils;
 
 /**
  * @author Taejin Koo
  */
 public class PinpointWebTestUtils {
 
-    private static final Logger logger = LogManager.getLogger(PinpointWebTestUtils.class);
 
     private PinpointWebTestUtils() {
     }

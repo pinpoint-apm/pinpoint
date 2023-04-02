@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -92,68 +91,46 @@ public class HeatMapServiceImplTest {
     }
 
     private List<DotMetaData> dotMataData() {
-        final List<DotMetaData> result = new ArrayList<>(2);
         Dot dot1 = new Dot(TRANSACTION_ID_1, 1, 2, 0, "dotAgentId1");
         Dot dot2 = new Dot(TRANSACTION_ID_2, 3, 4, 0, "dotAgentId2");
 
-        //startTime == 0  false
-        result.add(new DotMetaData(dot1, null, null, null, null, 1000, 1));
-        result.add(new DotMetaData(dot2, null, null, null, null, 2000, 1));
-
-        return result;
+        return List.of(
+                new DotMetaData(dot1, null, null, null, null, 1000, 1),
+                new DotMetaData(dot2, null, null, null, null, 2000, 1)
+        );
     }
 
     private List<DotMetaData> legacyDotMataData() {
-        final List<DotMetaData> result = new ArrayList<>(2);
         Dot dot1 = new Dot(TRANSACTION_ID_1, 1, 2, 0, "dotAgentId1");
         Dot dot2 = new Dot(TRANSACTION_ID_2, 3, 4, 0, "dotAgentId2");
 
         //startTime == 0  true
-        result.add(new DotMetaData(dot1, null, null, null, null, 1000, 0));
-        result.add(new DotMetaData(dot2, null, null, null, null, 2000, 0));
-
-        return result;
+        return List.of(
+                new DotMetaData(dot1, null, null, null, null, 1000, 0),
+                new DotMetaData(dot2, null, null, null, null, 2000, 0)
+        );
     }
 
     private List<List<SpanBo>> matchingSpanData() {
-        final List<List<SpanBo>> result = new ArrayList<>(2);
-        List<SpanBo> spanList1 = new ArrayList<>();
-        spanList1.add(createSpan(TRANSACTION_ID_1));
+        List<SpanBo> spanList1 = List.of(createSpan(TRANSACTION_ID_1));
+        List<SpanBo> spanList2 = List.of(createSpan(TRANSACTION_ID_2));
 
-        List<SpanBo> spanList2 = new ArrayList<>();
-        spanList2.add(createSpan(TRANSACTION_ID_2));
-
-        result.add(spanList1);
-        result.add(spanList2);
-        return result;
+        return List.of(spanList1, spanList2);
     }
 
     private List<List<SpanBo>> moreSpanData() {
-        final List<List<SpanBo>> result = new ArrayList<>(4);
-        List<SpanBo> spanList1 = new ArrayList<>();
-        spanList1.add(createSpan(TRANSACTION_ID_1));
-        spanList1.add(createSpan(TRANSACTION_ID_1));
+        List<SpanBo> spanList1 = List.of(
+                createSpan(TRANSACTION_ID_1),
+                createSpan(TRANSACTION_ID_1));
+        List<SpanBo> spanList2 = List.of(
+                createSpan(TRANSACTION_ID_2),
+                createSpan(TRANSACTION_ID_2));
 
-        List<SpanBo> spanList2 = new ArrayList<>();
-        spanList2.add(createSpan(TRANSACTION_ID_2));
-        spanList2.add(createSpan(TRANSACTION_ID_2));
-
-        result.add(spanList1);
-        result.add(spanList2);
-        return result;
+        return List.of(spanList1, spanList2);
     }
 
     private List<List<SpanBo>> lessSpanData() {
-        final List<List<SpanBo>> result = new ArrayList<>(0);
-        List<SpanBo> spanList1 = new ArrayList<>();
-        //spanList1.add(createSpan(TX_ID1));
-
-        List<SpanBo> spanList2 = new ArrayList<>();
-        //spanList2.add(createSpan(TX_ID2));
-
-        result.add(spanList1);
-        result.add(spanList2);
-        return result;
+        return List.of(List.of(), List.of());
     }
 
     private SpanBo createSpan(TransactionId transactionId) {

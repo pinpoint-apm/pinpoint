@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -41,6 +40,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 import java.util.Map;
 
+import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -48,7 +49,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 
 /**
  * @author minwoo.jung
@@ -123,7 +123,7 @@ public class UserGroupControllerTest {
         String content = result.getResponse().getContentAsString();
 
         List<Map<String, Object>> userGroupList = mapper.readValue(content, TypeRef.listMap());
-        Assertions.assertEquals(userGroupList.size(), 2);
+        assertThat(userGroupList).hasSize(2);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class UserGroupControllerTest {
         String content = result.getResponse().getContentAsString();
 
         List<Map<String, Object>> userGroupList = mapper.readValue(content, TypeRef.listMap());
-        Assertions.assertEquals(userGroupList.size(), 2);
+        assertThat(userGroupList).hasSize(2);
     }
 
     @Test

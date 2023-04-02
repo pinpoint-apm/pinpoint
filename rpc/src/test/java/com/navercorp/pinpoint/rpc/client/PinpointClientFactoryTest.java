@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * @author emeroad
@@ -80,7 +82,7 @@ public class PinpointClientFactoryTest {
         ChannelFuture reconnect = clientFactory.reconnect(remoteAddress);
         reconnect.await();
         Assertions.assertFalse(reconnect.isSuccess());
-        Assertions.assertTrue(reconnect.getCause() instanceof ConnectException);
+        assertThat(reconnect.getCause()).isInstanceOf(ConnectException.class);
 
         Thread.sleep(1000);
     }

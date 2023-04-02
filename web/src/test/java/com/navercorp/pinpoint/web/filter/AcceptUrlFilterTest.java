@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -36,7 +36,7 @@ public class AcceptUrlFilterTest {
         AcceptUrlFilter filter = new AcceptUrlFilter("/**/*");
         SpanBo spanBo = new SpanBo();
         spanBo.setRpc("/test");
-        Assertions.assertTrue(filter.accept(Arrays.asList(spanBo)));
+        Assertions.assertTrue(filter.accept(List.of(spanBo)));
 
     }
 
@@ -46,7 +46,7 @@ public class AcceptUrlFilterTest {
         AcceptUrlFilter filter = new AcceptUrlFilter("/abc/*");
         SpanBo spanBo = new SpanBo();
         spanBo.setRpc("/test");
-        Assertions.assertFalse(filter.accept(Arrays.asList(spanBo)));
+        Assertions.assertFalse(filter.accept(List.of(spanBo)));
 
     }
 

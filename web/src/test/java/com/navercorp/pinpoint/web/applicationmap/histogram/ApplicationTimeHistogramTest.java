@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,16 +56,14 @@ public class ApplicationTimeHistogramTest {
     }
 
     private List<ResponseTime> createResponseTime(Application app) {
-        List<ResponseTime> responseTimeList = new ArrayList<>();
 
         ResponseTime one = new ResponseTime(app.getName(), app.getServiceType(), 0);
         one.addResponseTime("test", (short) 1000, 1);
-        responseTimeList.add(one);
 
         ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
         two.addResponseTime("test", (short) 3000, 1);
-        responseTimeList.add(two);
-        return responseTimeList;
+
+        return List.of(one, two);
     }
 
     @Test
@@ -77,10 +74,10 @@ public class ApplicationTimeHistogramTest {
 
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, range);
 
-        List<ResponseTime> responseHistogramList = new ArrayList<>();
         ResponseTime responseTime = new ResponseTime(app.getName(), app.getServiceType(), timestamp);
         responseTime.addResponseTime("test", (short) 1000, 1);
-        responseHistogramList.add(responseTime);
+
+        List<ResponseTime> responseHistogramList = List.of(responseTime);
 
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 

@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -48,7 +49,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assertions.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
     }
 
     @Test
@@ -65,7 +66,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assertions.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
     }
 
     @Test
@@ -82,7 +83,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assertions.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();
     }
 
     @Test
@@ -99,6 +100,6 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assertions.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();
     }
 }

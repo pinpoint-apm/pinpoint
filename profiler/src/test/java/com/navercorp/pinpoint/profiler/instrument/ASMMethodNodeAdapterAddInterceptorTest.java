@@ -44,9 +44,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
@@ -295,7 +297,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         BasicInterceptor.clear();
         ExceptionInterceptor.clear();
 
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
         Method method = null;
         if (methodName.equals("<init>")) {
             constructor = clazz.getConstructor(parameterTypes);
@@ -325,8 +327,8 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
         final String name = clazz.getName() + "." + methodName;
         if (interceptorClass == ArgsArrayInterceptor.class) {
-            assertEquals(true, ArgsArrayInterceptor.before, name);
-            assertEquals(true, ArgsArrayInterceptor.after, name);
+            assertTrue(ArgsArrayInterceptor.before, name);
+            assertTrue(ArgsArrayInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
                 assertNull(ArgsArrayInterceptor.beforeTarget, name);
@@ -338,19 +340,19 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertEquals(ArgsArrayInterceptor.beforeTarget, ArgsArrayInterceptor.afterTarget, name);
 
             if (ArgsArrayInterceptor.beforeArgs != null) {
-                assertEquals(args.length, ArgsArrayInterceptor.beforeArgs.length, name);
+                assertThat(args).as(name).containsExactly(ArgsArrayInterceptor.beforeArgs);
             }
 
             if (ArgsArrayInterceptor.afterArgs != null) {
-                assertEquals(args.length, ArgsArrayInterceptor.afterArgs.length, name);
+                assertThat(args).as(name).containsExactly(ArgsArrayInterceptor.afterArgs);
             }
             assertEquals(returnValue, ArgsArrayInterceptor.result, name);
             if (throwable) {
                 assertNotNull(ArgsArrayInterceptor.throwable, name);
             }
         } else if (interceptorClass == ExceptionInterceptor.class) {
-            assertEquals(true, ExceptionInterceptor.before, name);
-            assertEquals(true, ExceptionInterceptor.after, name);
+            assertTrue(ExceptionInterceptor.before, name);
+            assertTrue(ExceptionInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
                 assertNull(ExceptionInterceptor.beforeTarget, name);
@@ -362,11 +364,11 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertEquals(ExceptionInterceptor.beforeTarget, ExceptionInterceptor.afterTarget, name);
 
             if (ExceptionInterceptor.beforeArgs != null) {
-                assertEquals(args.length, ExceptionInterceptor.beforeArgs.length, name);
+                assertThat(args).as(name).containsExactly(ExceptionInterceptor.beforeArgs);
             }
 
             if (ExceptionInterceptor.afterArgs != null) {
-                assertEquals(args.length, ExceptionInterceptor.afterArgs.length, name);
+                assertThat(args).as(name).containsExactly(ExceptionInterceptor.afterArgs);
             }
 
             assertEquals(returnValue, ExceptionInterceptor.result, name);
@@ -374,8 +376,8 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 assertNotNull(ExceptionInterceptor.throwable, name);
             }
         } else if (interceptorClass == StaticInterceptor.class) {
-            assertEquals(true, StaticInterceptor.before);
-            assertEquals(true, StaticInterceptor.after);
+            assertTrue(StaticInterceptor.before);
+            assertTrue(StaticInterceptor.after);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
                 assertNull(StaticInterceptor.beforeTarget, name);
@@ -394,11 +396,11 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertNotNull(StaticInterceptor.afterParameterDescription);
 
             if (StaticInterceptor.beforeArgs != null) {
-                assertEquals(args.length, StaticInterceptor.beforeArgs.length);
+                assertThat(args).as(name).containsExactly(StaticInterceptor.beforeArgs);
             }
 
             if (StaticInterceptor.afterArgs != null) {
-                assertEquals(args.length, StaticInterceptor.afterArgs.length);
+                assertThat(args).as(name).containsExactly(StaticInterceptor.afterArgs);
             }
 
             assertEquals(returnValue, StaticInterceptor.result);
@@ -406,8 +408,8 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 assertNotNull(StaticInterceptor.throwable, name);
             }
         } else if (interceptorClass == ApiIdAwareInterceptor.class) {
-            assertEquals(true, ApiIdAwareInterceptor.before, name);
-            assertEquals(true, ApiIdAwareInterceptor.after, name);
+            assertTrue(ApiIdAwareInterceptor.before, name);
+            assertTrue(ApiIdAwareInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
                 assertNull(ApiIdAwareInterceptor.beforeTarget, name);
@@ -422,11 +424,11 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertEquals(99, ApiIdAwareInterceptor.afterApiId);
 
             if (ApiIdAwareInterceptor.beforeArgs != null) {
-                assertEquals(args.length, ApiIdAwareInterceptor.beforeArgs.length, name);
+                assertThat(args).as(name).containsExactly(ApiIdAwareInterceptor.beforeArgs);
             }
 
             if (ApiIdAwareInterceptor.afterArgs != null) {
-                assertEquals(args.length, ApiIdAwareInterceptor.afterArgs.length, name);
+                assertThat(args).as(name).containsExactly(ApiIdAwareInterceptor.afterArgs);
             }
 
             assertEquals(returnValue, ApiIdAwareInterceptor.result, name);
@@ -434,8 +436,8 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 assertNotNull(ApiIdAwareInterceptor.throwable, name);
             }
         } else if (interceptorClass == BasicInterceptor.class) {
-            assertEquals(true, BasicInterceptor.before, name);
-            assertEquals(true, BasicInterceptor.after, name);
+            assertTrue(BasicInterceptor.before, name);
+            assertTrue(BasicInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
                 assertNull(BasicInterceptor.beforeTarget, name);

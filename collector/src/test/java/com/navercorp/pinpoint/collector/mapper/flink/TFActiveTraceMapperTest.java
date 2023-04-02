@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -40,7 +41,7 @@ public class TFActiveTraceMapperTest {
     public void mapTest() {
         ActiveTraceBo activeTraceBo = new ActiveTraceBo();
         activeTraceBo.setAgentId(TEST_AGENT);
-        activeTraceBo.setVersion((short)1);
+        activeTraceBo.setVersion((short) 1);
         activeTraceBo.setStartTimestamp(startTimestamp);
         activeTraceBo.setTimestamp(timestamp);
         activeTraceBo.setHistogramSchemaType(1);
@@ -56,11 +57,8 @@ public class TFActiveTraceMapperTest {
         assertEquals(1, histogram.getHistogramSchemaType());
 
         List<Integer> activeTraceCountList = histogram.getActiveTraceCount();
-        assertEquals(4, activeTraceCountList.size());
-        assertEquals(30, (int)activeTraceCountList.get(0));
-        assertEquals(40, (int)activeTraceCountList.get(1));
-        assertEquals(10, (int)activeTraceCountList.get(2));
-        assertEquals(50, (int)activeTraceCountList.get(3));
+        assertThat(activeTraceCountList)
+                .containsExactly(30, 40, 10, 50);
     }
 
 }

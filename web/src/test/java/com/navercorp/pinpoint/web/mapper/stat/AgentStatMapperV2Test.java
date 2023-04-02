@@ -40,7 +40,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -162,7 +161,7 @@ public class AgentStatMapperV2Test {
 
     private static class TestAgentStatDecoder extends AgentStatDecoder<TestAgentStat> {
         protected TestAgentStatDecoder(AgentStatCodec<TestAgentStat> codec) {
-            super(Arrays.asList(codec));
+            super(List.of(codec));
         }
     }
 

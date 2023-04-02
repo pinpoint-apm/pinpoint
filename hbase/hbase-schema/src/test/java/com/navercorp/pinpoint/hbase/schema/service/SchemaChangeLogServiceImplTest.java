@@ -32,11 +32,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -95,7 +95,7 @@ public class SchemaChangeLogServiceImplTest {
         // When
         List<SchemaChangeLog> schemaChangeLogs = schemaChangeLogService.recordChangeSets("namespace", changeSets);
         // Then
-        assertThat(schemaChangeLogs.size()).isEqualTo(numChangeSets);
+        assertThat(schemaChangeLogs).hasSize(numChangeSets);
         final int initialExecOrder = 1;
         for (int i = 0; i < numChangeSets; i++) {
             SchemaChangeLog schemaChangeLog = schemaChangeLogs.get(i);
@@ -119,7 +119,7 @@ public class SchemaChangeLogServiceImplTest {
         // When
         List<SchemaChangeLog> schemaChangeLogs = schemaChangeLogService.recordChangeSets("namespace", initialExecOrder, changeSets);
         // Then
-        assertThat(schemaChangeLogs.size()).isEqualTo(numChangeSets);
+        assertThat(schemaChangeLogs).hasSize(numChangeSets);
         for (int i = 0; i < numChangeSets; i++) {
             SchemaChangeLog schemaChangeLog = schemaChangeLogs.get(i);
             ChangeSet changeSet = changeSets.get(i);

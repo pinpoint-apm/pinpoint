@@ -22,12 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadState;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author jaehong.kim
@@ -38,7 +36,6 @@ public class AgentEventMessageSerializerV1Test {
     public void serialize() throws Exception {
         AgentEventMessageSerializerV1 serializer = new AgentEventMessageSerializerV1();
         // Mock
-        List<ThreadDumpBo> threadDumpBoList = new ArrayList<>();
         ThreadDumpBo threadDumpBo = new ThreadDumpBo();
         threadDumpBo.setThreadName("threadName");
         threadDumpBo.setThreadId(0);
@@ -52,15 +49,14 @@ public class AgentEventMessageSerializerV1Test {
         threadDumpBo.setInNative(Boolean.TRUE);
         threadDumpBo.setSuspended(Boolean.FALSE);
         threadDumpBo.setThreadState(ThreadState.RUNNABLE);
-        threadDumpBo.setStackTraceList(Arrays.asList("foo", "bar"));
+        threadDumpBo.setStackTraceList(List.of("foo", "bar"));
 
-        List<MonitorInfoBo> monitorInfoBoList = new ArrayList<>();
         MonitorInfoBo monitorInfoBo = new MonitorInfoBo(9, "Frame");
-        monitorInfoBoList.add(monitorInfoBo);
+        List<MonitorInfoBo> monitorInfoBoList = List.of(monitorInfoBo);
         threadDumpBo.setLockedMonitorInfoList(monitorInfoBoList);
-        threadDumpBo.setLockedSynchronizerList(Arrays.asList("foo", "bar"));
+        threadDumpBo.setLockedSynchronizerList(List.of("foo", "bar"));
 
-        threadDumpBoList.add(threadDumpBo);
+        List<ThreadDumpBo> threadDumpBoList = List.of(threadDumpBo);
         final DeadlockBo deadlockBo = new DeadlockBo(1, threadDumpBoList);
 
         byte[] bytes = serializer.serialize(AgentEventType.AGENT_DEADLOCK_DETECTED, deadlockBo);
@@ -68,12 +64,13 @@ public class AgentEventMessageSerializerV1Test {
         // deserialize
         AgentEventMessageDeserializerV1 deserializer = new AgentEventMessageDeserializerV1();
         Object object = deserializer.deserialize(AgentEventType.AGENT_DEADLOCK_DETECTED, bytes);
-        if (!(object instanceof DeadlockBo)) {
-            fail("Failed to deserialize, expected object is DeadlockBo");
-        }
+
+        assertThat(object).isInstanceOf(DeadlockBo.class);
+
         DeadlockBo result = (DeadlockBo) object;
+
         assertEquals(1, result.getDeadlockedThreadCount());
-        assertEquals(1, result.getThreadDumpBoList().size());
+        assertThat(result.getThreadDumpBoList()).hasSize(1);
         assertThreadDumpBo(threadDumpBo, result.getThreadDumpBoList().get(0));
     }
 
@@ -90,7 +87,7 @@ public class AgentEventMessageSerializerV1Test {
         assertEquals(expectedThreadDumpBo.isInNative(), threadDumpBo.isInNative());
         assertEquals(expectedThreadDumpBo.isSuspended(), threadDumpBo.isSuspended());
         assertEquals(expectedThreadDumpBo.getThreadState().getValue(), threadDumpBo.getThreadState().getValue());
-        assertEquals(expectedThreadDumpBo.getStackTraceList().size(), threadDumpBo.getStackTraceList().size());
+        assertThat(expectedThreadDumpBo.getStackTraceList()).hasSameSizeAs(threadDumpBo.getStackTraceList());
         for (int i = 0; i < expectedThreadDumpBo.getStackTraceList().size(); i++) {
             final String expectedStackTrace = expectedThreadDumpBo.getStackTraceList().get(i);
             final String stackTrace = threadDumpBo.getStackTraceList().get(i);

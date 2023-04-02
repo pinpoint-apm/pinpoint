@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
@@ -42,7 +43,7 @@ public class LinkListTest {
     @Test
     public void testGetLinkList() {
         LinkList linkList = new LinkList();
-        Assertions.assertEquals(linkList.getLinkList().size(), 0);
+        assertThat(linkList.getLinkList()).isEmpty();
     }
 
     @Test
@@ -53,28 +54,25 @@ public class LinkListTest {
 
         LinkList original = new LinkList();
         original.addLinkList(copy);
-        Assertions.assertEquals(original.size(), 1);
+        assertThat(original.getLinkList()).hasSize(1);
 
         // don't copy in case of duplicated node
         original.addLinkList(copy);
         Assertions.assertEquals(original.size(), 1);
+        assertThat(original.getLinkList()).hasSize(1);
 
     }
 
     private Link createTomcatToTomcatLink() {
-        LinkList linkList = new LinkList();
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", TOMCAT));
-        Link link = new Link(CreateType.Source, from, to, Range.between(0, 0));
-        return link;
+        return new Link(CreateType.Source, from, to, Range.between(0, 0));
     }
 
     private Link createTomcatToBlocLink() {
-        LinkList linkList = new LinkList();
         Node from = new Node(new Application("from", TOMCAT));
         Node to = new Node(new Application("to", BLOC));
-        Link link = new Link(CreateType.Source, from, to, Range.between(0, 0));
-        return link;
+        return new Link(CreateType.Source, from, to, Range.between(0, 0));
     }
 
     @Test
@@ -88,7 +86,7 @@ public class LinkListTest {
         // find all links requesting "to"
         Application toBloc = new Application("to", BLOC);
         List<Link> findToLink = list.findToLink(toBloc);
-        Assertions.assertEquals(findToLink.size(), 1);
+        assertThat(findToLink).hasSize(1);
 
         for (Link link : findToLink) {
             Application to = link.getTo().getApplication();
@@ -96,7 +94,7 @@ public class LinkListTest {
         }
 
         List<Link> unknown = list.findToLink(new Application("unknown", BLOC));
-        Assertions.assertEquals(unknown.size(), 0);
+        assertThat(unknown).isEmpty();
     }
 
     @Test
@@ -117,7 +115,7 @@ public class LinkListTest {
         }
 
         List<Link> unknown = list.findFromLink(new Application("unknown", TOMCAT));
-        Assertions.assertEquals(unknown.size(), 0);
+        assertThat(unknown).isEmpty();
     }
 
     @Test
@@ -134,9 +132,9 @@ public class LinkListTest {
     @Test
     public void testSize() {
         LinkList list = new LinkList();
-        Assertions.assertEquals(list.size(), 0);
+        assertThat(list.getLinkList()).isEmpty();
 
         list.addLink(createTomcatToTomcatLink());
-        Assertions.assertEquals(list.size(), 1);
+        assertThat(list.getLinkList()).hasSize(1);
     }
 }

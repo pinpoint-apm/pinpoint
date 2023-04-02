@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -55,7 +55,7 @@ public class AddressFilterAdaptorTest {
     @Test
     public void accept_reject() {
         String ignoreString = "10.0.0.1";
-        AddressFilter ignoreAddressFilter = new IgnoreAddressFilter(Collections.singletonList(ignoreString));
+        AddressFilter ignoreAddressFilter = new IgnoreAddressFilter(List.of(ignoreString));
 
         Channel ignoreChannel = mockChannel(ignore);
         AddressFilterAdaptor adaptor = new AddressFilterAdaptor(ignoreAddressFilter);

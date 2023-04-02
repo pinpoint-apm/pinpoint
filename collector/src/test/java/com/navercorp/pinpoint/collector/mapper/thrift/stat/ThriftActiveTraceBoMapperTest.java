@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
 import org.junit.jupiter.api.Assertions;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ public class ThriftActiveTraceBoMapperTest extends ThriftBoMapperTestBase<TActiv
         } else {
             activeTraceHistogram.setHistogramSchemaType(BaseHistogramSchema.FAST_SCHEMA.getTypeCode());
         }
-        activeTraceHistogram.setActiveTraceCount(Arrays.asList(
+        activeTraceHistogram.setActiveTraceCount(List.of(
                 getRandomInteger(0, Integer.MAX_VALUE),
                 getRandomInteger(0, Integer.MAX_VALUE),
                 getRandomInteger(0, Integer.MAX_VALUE),

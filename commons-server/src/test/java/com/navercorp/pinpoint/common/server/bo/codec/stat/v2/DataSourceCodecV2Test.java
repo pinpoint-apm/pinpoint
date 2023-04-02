@@ -21,13 +21,14 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Taejin Koo
@@ -51,10 +52,10 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
 
     @Override
     protected void verify(DataSourceListBo expected, DataSourceListBo actual) {
-        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
-        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
-        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
-        Assertions.assertEquals(expected.size(), actual.size());
+        assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        assertEquals(expected.size(), actual.size());
 
         List<DataSourceBo> expectedDataSourceList = expected.getList();
         List<DataSourceBo> actualDataSourceList = actual.getList();
@@ -65,16 +66,16 @@ public class DataSourceCodecV2Test extends AgentStatCodecTestBase<DataSourceList
     }
 
     private void verify(DataSourceBo expected, DataSourceBo actual) {
-        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
-        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
-        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
 
-        Assertions.assertEquals(expected.getId(), actual.getId(), "id");
-        Assertions.assertEquals(expected.getServiceTypeCode(), actual.getServiceTypeCode(), "serviceTypeCode");
-        Assertions.assertEquals(expected.getDatabaseName(), actual.getDatabaseName(), "name");
-        Assertions.assertEquals(expected.getJdbcUrl(), actual.getJdbcUrl(), "jdbcUrl");
-        Assertions.assertEquals(expected.getActiveConnectionSize(), actual.getActiveConnectionSize(), "activeConnectionSize");
-        Assertions.assertEquals(expected.getMaxConnectionSize(), actual.getMaxConnectionSize(), "maxConnectionSize");
+        assertEquals(expected.getId(), actual.getId(), "id");
+        assertEquals(expected.getServiceTypeCode(), actual.getServiceTypeCode(), "serviceTypeCode");
+        assertEquals(expected.getDatabaseName(), actual.getDatabaseName(), "name");
+        assertEquals(expected.getJdbcUrl(), actual.getJdbcUrl(), "jdbcUrl");
+        assertEquals(expected.getActiveConnectionSize(), actual.getActiveConnectionSize(), "activeConnectionSize");
+        assertEquals(expected.getMaxConnectionSize(), actual.getMaxConnectionSize(), "maxConnectionSize");
     }
 
 }

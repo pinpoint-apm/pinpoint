@@ -6,6 +6,8 @@ import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -42,6 +44,8 @@ public class SpanEncoderTest {
 
     private final SpanEncoder spanEncoder = new SpanEncoderV0();
     private final SpanDecoder spanDecoder = new SpanDecoderV0();
+
+    private final SpanEventFilter filter = new EmptySpanEventFilter();
 
 
     @Test
@@ -119,7 +123,7 @@ public class SpanEncoderTest {
 
     private SpanBo randomSpan() {
         TSpan tSpan = randomTSpan.randomTSpan();
-        return spanFactory.buildSpanBo(tSpan, spanAcceptedTime);
+        return spanFactory.buildSpanBo(tSpan, spanAcceptedTime, filter);
     }
 
     private <T> List<T> newArrayList(T... elements) {
@@ -137,12 +141,12 @@ public class SpanEncoderTest {
         TSpanEvent tSpanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
 
         tSpan.setSpanEventList(newArrayList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
-        return spanFactory.buildSpanBo(tSpan, spanAcceptedTime);
+        return spanFactory.buildSpanBo(tSpan, spanAcceptedTime, filter);
     }
 
     private SpanChunkBo randomSpanChunk() {
         TSpanChunk tSpanChunk = randomTSpan.randomTSpanChunk();
-        return spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptedTime);
+        return spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptedTime, filter);
     }
 
     public SpanChunkBo randomComplexSpanChunk() {
@@ -153,7 +157,7 @@ public class SpanEncoderTest {
         TSpanEvent tSpanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
 
         tSpanChunk.setSpanEventList(newArrayList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
-        return spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptedTime);
+        return spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptedTime, filter);
     }
 
 

@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -33,8 +33,8 @@ public class DefaultSimpleClassMetadataTest {
         DefaultSimpleClassMetadata classMetadata = new DefaultSimpleClassMetadata(1, 1, "java/lang/String", "java/lang/Object", Arrays.asList("java/lang/Comparable", "java/lang/Serializable"), classBinary);
         assertEquals("java.lang.String", classMetadata.getClassName());
         assertEquals("java.lang.Object", classMetadata.getSuperClassName());
-        assertTrue(classMetadata.getInterfaceNames().contains("java.lang.Comparable"));
-        assertTrue(classMetadata.getInterfaceNames().contains("java.lang.Serializable"));
+        assertThat(classMetadata.getInterfaceNames()).contains("java.lang.Comparable");
+        assertThat(classMetadata.getInterfaceNames()).contains("java.lang.Serializable");
         assertEquals(1, classMetadata.getAccessFlag());
         assertEquals(1, classMetadata.getVersion());
         assertEquals(classBinary, classMetadata.getClassBinary());

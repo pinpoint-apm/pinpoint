@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Taejin Koo
  */
@@ -81,8 +83,7 @@ public class DefaultDataSourceMetricTest {
         for (DataSource dataSource : dataSourceList) {
             idSet.add(dataSource.getId());
         }
-
-        Assertions.assertEquals(dataSourceList.size(), idSet.size());
+        assertThat(dataSourceList).hasSameSizeAs(idSet);
     }
 
     private void assertContainsAndEquals(DataSourceMonitor dataSourceMonitor, List<DataSource> dataSourceList) {

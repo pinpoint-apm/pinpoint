@@ -17,12 +17,13 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
 
 import java.util.Map;
 import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AlarmPartitionerTest {
 
@@ -32,6 +33,6 @@ public class AlarmPartitionerTest {
     public void partitionTest() {
         AlarmPartitioner partitioner = new AlarmPartitioner(Optional.empty());
         Map<String, ExecutionContext> partitions = partitioner.partition(0);
-        Assertions.assertEquals(1, partitions.size());
+        assertThat(partitions).hasSize(1);
     }
 }

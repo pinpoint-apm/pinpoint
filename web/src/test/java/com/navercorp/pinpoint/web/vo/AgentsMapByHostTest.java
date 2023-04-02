@@ -3,17 +3,19 @@ package com.navercorp.pinpoint.web.vo;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.vo.tree.InstancesList;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
+import com.navercorp.pinpoint.web.vo.tree.InstancesList;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AgentsMapByHostTest {
 
@@ -32,26 +34,28 @@ public class AgentsMapByHostTest {
         AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(AgentStatusFilter::accept, sortBy, hyperLinkFactory, agentAndStatusList);
         List<InstancesList<AgentStatusAndLink>> instancesLists = agentsMapByHost.getAgentsListsList();
 
-        Assertions.assertEquals(3, instancesLists.size());
+        assertThat(instancesLists).hasSize(3);
 
         InstancesList<AgentStatusAndLink> containerInstancesList = instancesLists.get(0);
-        Assertions.assertEquals(AgentsMapByHost.CONTAINER, containerInstancesList.getGroupName());
+        assertEquals(AgentsMapByHost.CONTAINER, containerInstancesList.getGroupName());
         List<AgentStatusAndLink> containerAgents = containerInstancesList.getInstancesList();
-        Assertions.assertEquals(2, containerAgents.size());
-        Assertions.assertEquals(containerAgent1.getAgentInfo(), containerAgents.get(0).getAgentInfo());
-        Assertions.assertEquals(containerAgent2.getAgentInfo(), containerAgents.get(1).getAgentInfo());
+        assertThat(containerAgents)
+                .map(AgentStatusAndLink::getAgentInfo)
+                .containsExactly(containerAgent1.getAgentInfo(), containerAgent2.getAgentInfo());
 
         InstancesList<AgentStatusAndLink> host1InstancesList = instancesLists.get(1);
-        Assertions.assertEquals("Host1", host1InstancesList.getGroupName());
+        assertEquals("Host1", host1InstancesList.getGroupName());
         List<AgentStatusAndLink> host1Agents = host1InstancesList.getInstancesList();
-        Assertions.assertEquals(1, host1Agents.size());
-        Assertions.assertEquals(host1Agent1.getAgentInfo(), host1Agents.get(0).getAgentInfo());
+        assertThat(host1Agents)
+                .map(AgentStatusAndLink::getAgentInfo)
+                .containsExactly(host1Agent1.getAgentInfo());
 
         InstancesList<AgentStatusAndLink> host2InstancesList = instancesLists.get(2);
-        Assertions.assertEquals("Host2", host2InstancesList.getGroupName());
+        assertEquals("Host2", host2InstancesList.getGroupName());
         List<AgentStatusAndLink> host2Agents = host2InstancesList.getInstancesList();
-        Assertions.assertEquals(1, host2Agents.size());
-        Assertions.assertEquals(host2Agent1.getAgentInfo(), host2Agents.get(0).getAgentInfo());
+        assertThat(host2Agents)
+                .map(AgentStatusAndLink::getAgentInfo)
+                .containsExactly(host2Agent1.getAgentInfo());
     }
 
     private static List<AgentAndStatus> shuffleAgentInfos(AgentAndStatus... agentInfos) {

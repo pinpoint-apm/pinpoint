@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,16 +33,17 @@ public class JoinFileDescriptorSamplerTest {
     @Test
     public void sampleDataPoints() throws Exception {
         JoinFileDescriptorSampler joinFileDescriptorSampler = new JoinFileDescriptorSampler();
-        List<JoinFileDescriptorBo>joinFileDescriptorBoList = new ArrayList<>(5);
 
         long timeStamp = new Date().getTime();
-        joinFileDescriptorBoList.add(new JoinFileDescriptorBo("testApp", 11, 60, "agent1_1", 20, "agent1_2", timeStamp + 5000));
-        joinFileDescriptorBoList.add(new JoinFileDescriptorBo("testApp", 22, 52, "agent2_1", 10, "agent2_2", timeStamp + 10000));
-        joinFileDescriptorBoList.add(new JoinFileDescriptorBo("testApp", 33, 39, "agent3_1", 90, "agent3_2", timeStamp + 15000));
-        joinFileDescriptorBoList.add(new JoinFileDescriptorBo("testApp", 44, 42, "agent4_1", 25, "agent4_2", timeStamp + 20000));
-        joinFileDescriptorBoList.add(new JoinFileDescriptorBo("testApp", 55, 55, "agent5_1", 54, "agent5_2", timeStamp + 25000));
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = List.of(
+                new JoinFileDescriptorBo("testApp", 11, 60, "agent1_1", 20, "agent1_2", timeStamp + 5000),
+                new JoinFileDescriptorBo("testApp", 22, 52, "agent2_1", 10, "agent2_2", timeStamp + 10000),
+                new JoinFileDescriptorBo("testApp", 33, 39, "agent3_1", 90, "agent3_2", timeStamp + 15000),
+                new JoinFileDescriptorBo("testApp", 44, 42, "agent4_1", 25, "agent4_2", timeStamp + 20000),
+                new JoinFileDescriptorBo("testApp", 55, 55, "agent5_1", 54, "agent5_2", timeStamp + 25000)
+        );
 
-        AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = joinFileDescriptorSampler.sampleDataPoints(0, new Date().getTime(), joinFileDescriptorBoList,  new JoinFileDescriptorBo());
+        AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = joinFileDescriptorSampler.sampleDataPoints(0, new Date().getTime(), joinFileDescriptorBoList, new JoinFileDescriptorBo());
         assertEquals(aggreJoinFileDescriptorBo.getId(), "testApp");
         assertEquals(aggreJoinFileDescriptorBo.getOpenFdCountJoinValue(), new JoinLongFieldBo(33L, 10L, "agent2_2", 60L, "agent1_1"));
     }

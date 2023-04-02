@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author poap
  */
@@ -180,8 +182,7 @@ public class StringUtilsTest {
     public void testTokenizeToStringList_nullValue() {
 
         List<String> tokenList = StringUtils.tokenizeToStringList(null, ",");
-        Assertions.assertEquals(tokenList.size(), 0);
-
+        assertThat(tokenList).isEmpty();
     }
 
 

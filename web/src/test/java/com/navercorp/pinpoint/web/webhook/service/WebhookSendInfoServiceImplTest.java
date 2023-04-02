@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -27,14 +27,16 @@ public class WebhookSendInfoServiceImplTest {
 
     @BeforeEach
     public void before() {
-        webhookSendInfoList = new ArrayList<>(3);
-        webhookSendInfoList.add(new WebhookSendInfo("0", "1340", "4115234"));
-        webhookSendInfoList.add(new WebhookSendInfo("1", "5134", "4115234"));
-        webhookSendInfoList.add(new WebhookSendInfo("2", "5134", "4115230"));
+        webhookSendInfoList = List.of(
+                new WebhookSendInfo("0", "1340", "4115234"),
+                new WebhookSendInfo("1", "5134", "4115234"),
+                new WebhookSendInfo("2", "5134", "4115230")
+        );
 
-        webhookList = new ArrayList<>(2);
-        webhookList.add(new Webhook("1340", "webhook", "testUrl", "testApp", "testGroup"));
-        webhookList.add(new Webhook("1341", "webhook1", "testUrl1", "testApp", "testGroup"));
+        webhookList = List.of(
+                new Webhook("1340", "webhook", "testUrl", "testApp", "testGroup"),
+                new Webhook("1341", "webhook1", "testUrl1", "testApp", "testGroup")
+        );
 
     }
 
@@ -86,12 +88,12 @@ public class WebhookSendInfoServiceImplTest {
         }
 
         List<WebhookSendInfo> selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByWebhookId("5134");
-        assertEquals(2, selectedWebhookSendInfos.size());
+        assertThat(selectedWebhookSendInfos).hasSize(2);
 
         webhookSendInfoService.deleteWebhookSendInfoByWebhookId("5134");
 
         selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByWebhookId("5134");
-        assertEquals(0, selectedWebhookSendInfos.size());
+        assertThat(selectedWebhookSendInfos).isEmpty();
     }
 
     @Test
@@ -104,12 +106,12 @@ public class WebhookSendInfoServiceImplTest {
         }
 
         List<WebhookSendInfo> selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByRuleId("4115234");
-        assertEquals(2, selectedWebhookSendInfos.size());
+        assertThat(selectedWebhookSendInfos).hasSize(2);
 
         webhookSendInfoService.deleteWebhookSendInfoByRuleId("4115234");
 
         selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByWebhookId("4115234");
-        assertEquals(0, selectedWebhookSendInfos.size());
+        assertThat(selectedWebhookSendInfos).isEmpty();
     }
 
     @Test
@@ -124,8 +126,7 @@ public class WebhookSendInfoServiceImplTest {
         }
 
         List<WebhookSendInfo> selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByServiceName("testGroup");
-
-        assertEquals(1, selectedWebhookSendInfos.size());
+        assertThat(selectedWebhookSendInfos).hasSize(1);
 
     }
 
@@ -143,6 +144,6 @@ public class WebhookSendInfoServiceImplTest {
 
         List<WebhookSendInfo> selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByApplicationId("testApp");
 
-        assertEquals(1, selectedWebhookSendInfos.size());
+        assertThat(selectedWebhookSendInfos).hasSize(1);
     }
 }

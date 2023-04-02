@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.bootstrap.classloader;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,8 +39,8 @@ public class MergedEnumeration2Test {
 
         List<String> list = Collections.list(mergedEnumeration);
 
-        Assertions.assertEquals(6, list.size());
-        Assertions.assertEquals(Arrays.asList("a", "b", "c", "1", "2", "3"), list);
+        assertThat(list)
+                .containsExactly("a", "b", "c", "1", "2", "3");
     }
 
     private <T> Enumeration<T> newEnumeration(T... t) {
@@ -55,8 +56,7 @@ public class MergedEnumeration2Test {
 
         List<String> list = Collections.list(mergedEnumeration);
 
-        Assertions.assertEquals(3, list.size());
-        Assertions.assertEquals(Arrays.asList("1", "2", "3"), list);
+        assertThat(list).containsExactly("1", "2", "3");
     }
 
 
@@ -69,8 +69,7 @@ public class MergedEnumeration2Test {
 
         List<String> list = Collections.list(mergedEnumeration);
 
-        Assertions.assertEquals(3, list.size());
-        Assertions.assertEquals(Arrays.asList("a", "b", "c"), list);
+        assertThat(list).containsExactly("a", "b", "c");
     }
 
 }

@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Taejin Koo
  */
@@ -35,16 +37,16 @@ public class DefaultPluginMonitorContextTest {
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, remainingCapacity);
-        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         addOverDataSourceMonitor(dataSourceMonitorRegistryService);
-        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             boolean unregister = dataSourceMonitorRegistryService.unregister(mockMonitor);
             Assertions.assertTrue(unregister);
         }
-        Assertions.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).isEmpty();
 
     }
 
@@ -54,15 +56,15 @@ public class DefaultPluginMonitorContextTest {
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, remainingCapacity);
-        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         addOverDataSourceMonitor(dataSourceMonitorRegistryService);
-        Assertions.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             mockMonitor.close();
         }
-        Assertions.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).isEmpty();
     }
 
     private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorRegistryService dataSourceMonitorRegistry, int remainingCapacity) {

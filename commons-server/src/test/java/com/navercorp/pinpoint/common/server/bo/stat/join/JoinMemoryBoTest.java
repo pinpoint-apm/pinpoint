@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,18 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class JoinMemoryBoTest {
     @Test
-    public void joinMemoryBoListTest() throws Exception {
-        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>();
-        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo("agent1", 1496988667231L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1");
-        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo("agent2", 1496988667231L, 4000, 1000, 7000, "agent2", "agent2", 400, 150, 600, "agent2", "agent2");
-        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo("agent3", 1496988667231L, 5000, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3");
-        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo("agent4", 1496988667231L, 1000, 100, 3000, "agent4", "agent4", 100, 900, 1000, "agent4", "agent4");
-        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo("agent5", 1496988667231L, 2000, 1000, 6000, "agent5", "agent5", 300, 100, 2900, "agent5", "agent5");
-        joinMemoryBoList.add(joinMemoryBo1);
-        joinMemoryBoList.add(joinMemoryBo2);
-        joinMemoryBoList.add(joinMemoryBo3);
-        joinMemoryBoList.add(joinMemoryBo4);
-        joinMemoryBoList.add(joinMemoryBo5);
+    public void joinMemoryBoListTest() {
+        List<JoinMemoryBo> joinMemoryBoList = List.of(
+                new JoinMemoryBo("agent1", 1496988667231L, 3000, 2000, 5000, "agent1", "agent1", 500, 50, 600, "agent1", "agent1"),
+                new JoinMemoryBo("agent2", 1496988667231L, 4000, 1000, 7000, "agent2", "agent2", 400, 150, 600, "agent2", "agent2"),
+                new JoinMemoryBo("agent3", 1496988667231L, 5000, 3000, 8000, "agent3", "agent3", 200, 100, 200, "agent3", "agent3"),
+                new JoinMemoryBo("agent4", 1496988667231L, 1000, 100, 3000, "agent4", "agent4", 100, 900, 1000, "agent4", "agent4"),
+                new JoinMemoryBo("agent5", 1496988667231L, 2000, 1000, 6000, "agent5", "agent5", 300, 100, 2900, "agent5", "agent5")
+        );
 
         JoinMemoryBo joinMemoryBo = JoinMemoryBo.joinMemoryBoList(joinMemoryBoList, 1496988667231L);
         assertEquals("agent1", joinMemoryBo.getId());
@@ -51,8 +46,7 @@ public class JoinMemoryBoTest {
 
     @Test
     public void joinMemoryBoList2Test() {
-        List<JoinMemoryBo> joinMemoryBoList = new ArrayList<>();
-        JoinMemoryBo joinMemoryBo = JoinMemoryBo.joinMemoryBoList(joinMemoryBoList, 1496988667231L);
+        JoinMemoryBo joinMemoryBo = JoinMemoryBo.joinMemoryBoList(List.of(), 1496988667231L);
         assertEquals(joinMemoryBo, JoinMemoryBo.EMPTY_JOIN_MEMORY_BO);
     }
 

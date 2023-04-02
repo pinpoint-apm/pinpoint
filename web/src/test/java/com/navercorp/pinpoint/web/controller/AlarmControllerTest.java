@@ -37,6 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 import java.util.Map;
 
+import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,7 +46,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 
 /**
  * @author minwoo.jung
@@ -199,6 +200,6 @@ public class AlarmControllerTest {
         String content = result.getResponse().getContentAsString();
 
         List<String> checkerList = mapper.readValue(content, new TypeReference<>() {});
-        Assertions.assertNotEquals(checkerList.size(), 0);
+        assertThat(checkerList).isEmpty();
     }
 }

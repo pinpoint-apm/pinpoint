@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -29,6 +31,7 @@ import org.apache.thrift.TBase;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author emeroad
@@ -41,13 +44,16 @@ public class ThriftSpanChunkHandler implements SimpleHandler<TBase<?, ?>> {
     private final TraceService traceService;
 
     private final AcceptedTimeService acceptedTimeService;
+    private final SpanEventFilter spanEventFilter;
     private final SpanFactory spanFactory;
 
     public ThriftSpanChunkHandler(TraceService traceService,
                                   AcceptedTimeService acceptedTimeService,
+                                  Optional<SpanEventFilter> spanEventFilter,
                                   SpanFactory spanFactory) {
         this.traceService = Objects.requireNonNull(traceService, "traceService");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.spanEventFilter = spanEventFilter.orElseGet(EmptySpanEventFilter::new);
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
@@ -67,7 +73,7 @@ public class ThriftSpanChunkHandler implements SimpleHandler<TBase<?, ?>> {
     private void handleSpanChunk(TSpanChunk tbase) {
         try {
             long acceptedTime = acceptedTimeService.getAcceptedTime();
-            final SpanChunkBo spanChunkBo = this.spanFactory.buildSpanChunkBo(tbase, acceptedTime);
+            final SpanChunkBo spanChunkBo = this.spanFactory.buildSpanChunkBo(tbase, acceptedTime, spanEventFilter);
             this.traceService.insertSpanChunk(spanChunkBo);
         } catch (Exception e) {
             logger.warn("Failed to handle SpanChunk={}, Caused={}", tbase, e.getMessage(), e);

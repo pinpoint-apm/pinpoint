@@ -35,8 +35,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
@@ -82,13 +83,13 @@ public class AgentTimeHistogramTest {
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
         List<SampledApdexScore> sampledApdexScore1 = histogram.getSampledAgentApdexScoreList("test3");
-        Assertions.assertEquals(sampledApdexScore1.size(), 2);
+        assertThat(sampledApdexScore1).hasSize(2);
 
         List<SampledApdexScore> sampledApdexScore2 = histogram.getSampledAgentApdexScoreList("test4");
-        Assertions.assertEquals(sampledApdexScore2.size(), 2);
+        assertThat(sampledApdexScore2).hasSize(2);
 
         List<SampledApdexScore> wrongSampledApdexScore = histogram.getSampledAgentApdexScoreList("wrongAgentName");
-        Assertions.assertEquals(wrongSampledApdexScore.size(), 0);
+        assertThat(wrongSampledApdexScore).hasSize(0);
     }
 
     @Test
@@ -101,7 +102,7 @@ public class AgentTimeHistogramTest {
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
         List<DoubleApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
-        Assertions.assertEquals(applicationStatPointList.size(), 2);
+        assertThat(applicationStatPointList).hasSize(2);
         Assertions.assertEquals(applicationStatPointList.get(0).getXVal(), 0);
         Assertions.assertEquals(applicationStatPointList.get(0).getYValForAvg(), 1.0, 0.001);
         Assertions.assertEquals(applicationStatPointList.get(1).getXVal(), 1000 * 60);
@@ -109,24 +110,20 @@ public class AgentTimeHistogramTest {
     }
 
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {
-        List<ResponseTime> responseTimeList = new ArrayList<ResponseTime>();
 
         ResponseTime one = new ResponseTime(app.getName(), app.getServiceType(), 0);
         one.addResponseTime(agentName1, (short) 1000, 1);
-        responseTimeList.add(one);
 
         ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
         two.addResponseTime(agentName1, (short) 3000, 1);
-        responseTimeList.add(two);
 
         ResponseTime three = new ResponseTime(app.getName(), app.getServiceType(), 0);
         three.addResponseTime(agentName2, (short) 1000, 1);
-        responseTimeList.add(three);
 
         ResponseTime four = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
         four.addResponseTime(agentName2, (short) 3000, 1);
-        responseTimeList.add(four);
-        return responseTimeList;
+
+        return List.of(one, two, three, four);
     }
 
 }

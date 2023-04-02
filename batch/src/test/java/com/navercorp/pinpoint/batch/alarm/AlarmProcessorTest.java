@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -92,7 +92,8 @@ public class AlarmProcessorTest {
         verify(dataCollectorFactory).createDataCollector(any(), any(), any(), anyLong());
 
         assertNotNull(appChecker, "processed object is null");
-        assertEquals(2, appChecker.getChildren().size(), "rules should be propagated");
+        assertThat(appChecker.getChildren())
+                .as("rules should be propagated").hasSize(2);
         assertTrue(appChecker.getChildren().get(0).isDetected());
         assertFalse(appChecker.getChildren().get(1).isDetected());
     }

@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,7 +38,7 @@ public class GrpcAgentConnectionTest {
     public void requestTest() {
         PinpointGrpcServer mockGrpcServer = Mockito.mock(PinpointGrpcServer.class);
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(mockGrpcServer, supportCommandList);
 
         boolean supportCommand = grpcAgentConnection.isSupportCommand(TCommandType.TRANSFER.getBodyFactory().getObject());
@@ -65,7 +64,7 @@ public class GrpcAgentConnectionTest {
     public void equalsTest() {
         PinpointGrpcServer mockGrpcServer1 = Mockito.mock(PinpointGrpcServer.class);
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(mockGrpcServer1, supportCommandList);
 
         Assertions.assertEquals(grpcAgentConnection, grpcAgentConnection);

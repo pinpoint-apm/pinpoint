@@ -27,16 +27,10 @@ class ExportConfigurationTest {
 
     @Test
     void lookup() {
-        assertThat(exporters).hasSize(2);
-
         assertThat(exporters)
+                .hasSize(2)
                 .map(exporter -> (Class) exporter.getClass())
-                .containsOnlyOnce(ConfigPropertiesExporter.class);
-
-        assertThat(exporters)
-                .map(exporter -> (Class) exporter.getClass())
-                .containsOnlyOnce(ExperimentalPropertiesExporter.class);
-
+                .contains(ConfigPropertiesExporter.class, ExperimentalPropertiesExporter.class);
     }
 }
 

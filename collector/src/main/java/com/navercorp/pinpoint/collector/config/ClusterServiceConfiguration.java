@@ -1,9 +1,11 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
+import com.navercorp.pinpoint.collector.cluster.ClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterServiceFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,15 +23,13 @@ public class ClusterServiceConfiguration {
     }
 
     @Bean
-    public ClusterServiceFactory clusterService(
+    public FactoryBean<ClusterService> clusterService(
             @Qualifier("collectorClusterConfig") CollectorClusterConfig collectorClusterConfig,
-            @Qualifier("clusterPointRouter") ClusterPointRouter clusterPointRouter) throws Exception {
+            @Qualifier("clusterPointRouter") ClusterPointRouter clusterPointRouter) {
         ClusterServiceFactory factoryBean = new ClusterServiceFactory();
         factoryBean.setClusterConfig(collectorClusterConfig);
         factoryBean.setClusterPointRouter(clusterPointRouter);
 
         return factoryBean;
-//        factoryBean.afterPropertiesSet();
-//        return factoryBean.getObject();
     }
 }

@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class UrlSamplerConfigTest {
 
@@ -36,7 +39,7 @@ public class UrlSamplerConfigTest {
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
-        Assertions.assertEquals(0, entryList.size());
+        assertThat(entryList).isEmpty();
     }
 
     @Test
@@ -51,10 +54,10 @@ public class UrlSamplerConfigTest {
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
         UrlSamplerInfo urlInfo = entryList.get(0).getValue();
-        Assertions.assertEquals("/foo", urlInfo.getUrlPath());
+        assertEquals("/foo", urlInfo.getUrlPath());
         Assertions.assertNotNull(urlInfo.getSampler());
-        Assertions.assertEquals(0, urlInfo.getSamplingNewThroughput());
-        Assertions.assertEquals(0, urlInfo.getSamplingContinueThroughput());
+        assertEquals(0, urlInfo.getSamplingNewThroughput());
+        assertEquals(0, urlInfo.getSamplingContinueThroughput());
         Assertions.assertTrue(urlInfo.isValid());
     }
 
@@ -80,6 +83,6 @@ public class UrlSamplerConfigTest {
 
         UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, SamplerType.COUNTING);
         List<Map.Entry<Integer, UrlSamplerInfo>> entryList = urlSamplerConfig.entryList();
-        Assertions.assertEquals(0, entryList.size());
+        assertThat(entryList).isEmpty();
     }
 }

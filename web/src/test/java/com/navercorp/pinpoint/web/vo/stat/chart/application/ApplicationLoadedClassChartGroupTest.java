@@ -25,10 +25,10 @@ import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ApplicationLoadedClassChartGroupTest {
@@ -37,26 +37,22 @@ public class ApplicationLoadedClassChartGroupTest {
         long time = 1495418083250L;
         Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
-        List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList = new ArrayList<>(5);
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo1 = new AggreJoinLoadedClassBo("testApp", 11, 20, "agent1_1", 60, "agent1_2", 11, 20, "agent1_1", 60, "agent1_2",time);
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo2 = new AggreJoinLoadedClassBo("testApp", 22, 10, "agent2_1", 52, "agent2_2", 22, 10, "agent2_1", 52, "agent2_2",time - 60000);
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo3 = new AggreJoinLoadedClassBo("testApp", 33, 9, "agent3_1", 39, "agent3_2", 33, 9, "agent3_1", 39, "agent3_2",time - 120000);
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo4 = new AggreJoinLoadedClassBo("testApp", 44, 25, "agent4_1", 42, "agent4_2", 44, 25, "agent4_1", 42, "agent4_2",time - 180000);
-        AggreJoinLoadedClassBo aggreJoinLoadedClassBo5 = new AggreJoinLoadedClassBo("testApp", 55, 54, "agent5_1", 55, "agent5_2", 55, 54, "agent5_1", 55, "agent5_2",time - 240000);
-        aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo1);
-        aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo2);
-        aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo3);
-        aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo4);
-        aggreJoinLoadedClassBoList.add(aggreJoinLoadedClassBo5);
+        List<AggreJoinLoadedClassBo> aggreJoinLoadedClassBoList = List.of(
+                new AggreJoinLoadedClassBo("testApp", 11, 20, "agent1_1", 60, "agent1_2", 11, 20, "agent1_1", 60, "agent1_2", time),
+                new AggreJoinLoadedClassBo("testApp", 22, 10, "agent2_1", 52, "agent2_2", 22, 10, "agent2_1", 52, "agent2_2", time - 60000),
+                new AggreJoinLoadedClassBo("testApp", 33, 9, "agent3_1", 39, "agent3_2", 33, 9, "agent3_1", 39, "agent3_2", time - 120000),
+                new AggreJoinLoadedClassBo("testApp", 44, 25, "agent4_1", 42, "agent4_2", 44, 25, "agent4_1", 42, "agent4_2", time - 180000),
+                new AggreJoinLoadedClassBo("testApp", 55, 54, "agent5_1", 55, "agent5_2", 55, 54, "agent5_1", 55, "agent5_2", time - 240000)
+        );
 
         ChartGroupBuilder<AggreJoinLoadedClassBo, ApplicationStatPoint<Long>> builder = ApplicationLoadedClassChart.newChartBuilder();
         StatChartGroup<ApplicationStatPoint<Long>> statChartGroup = builder.build(timeWindow, aggreJoinLoadedClassBoList);
         Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = statChartGroup.getCharts();
-        assertEquals(2, charts.size());
+        assertThat(charts).hasSize(2);
 
         Chart<ApplicationStatPoint<Long>> loadedClassChart = charts.get(ApplicationLoadedClassChart.LoadedClassChartType.LOADED_CLASS_COUNT);
         List<ApplicationStatPoint<Long>> loadedClassChartPoints = loadedClassChart.getPoints();
-        assertEquals(5, loadedClassChartPoints.size());
+        assertThat(loadedClassChartPoints).hasSize(5);
         int index = loadedClassChartPoints.size();
 
         for (ApplicationStatPoint<Long> point : loadedClassChartPoints) {
@@ -65,9 +61,9 @@ public class ApplicationLoadedClassChartGroupTest {
 
         Chart<ApplicationStatPoint<Long>> unloadedClassChart = charts.get(ApplicationLoadedClassChart.LoadedClassChartType.UNLOADED_CLASS_COUNT);
         List<ApplicationStatPoint<Long>> unloadedClassChartPoints = unloadedClassChart.getPoints();
-        assertEquals(5, unloadedClassChartPoints.size());
-        index = unloadedClassChartPoints.size();
+        assertThat(unloadedClassChartPoints).hasSize(5);
 
+        index = unloadedClassChartPoints.size();
         for (ApplicationStatPoint<Long> point : unloadedClassChartPoints) {
             testUnloadedCLass(point, aggreJoinLoadedClassBoList.get(--index));
         }

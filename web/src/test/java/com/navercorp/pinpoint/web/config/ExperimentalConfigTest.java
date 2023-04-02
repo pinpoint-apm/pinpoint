@@ -1,11 +1,12 @@
 package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.web.frontend.config.ExperimentalProperties;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExperimentalConfigTest {
 
@@ -20,8 +21,10 @@ public class ExperimentalConfigTest {
 
         Map<String, Object> map = config.getProperties();
 
-        Assertions.assertEquals(1, map.size());
-        Assertions.assertEquals("strValue", map.get(key));
+        assertThat(map)
+                .hasSize(1)
+                .containsEntry(key, "strValue");
+
     }
 
     @Test
@@ -38,9 +41,9 @@ public class ExperimentalConfigTest {
         ExperimentalProperties config = ExperimentalProperties.of(environment);
         Map<String, Object> map = config.getProperties();
 
-
-        Assertions.assertEquals(Boolean.FALSE, map.get(falseKey));
-        Assertions.assertEquals(Boolean.TRUE, map.get(trueKey));
+        assertThat(map)
+                .containsEntry(falseKey, false)
+                .containsEntry(trueKey, true);
     }
 
 

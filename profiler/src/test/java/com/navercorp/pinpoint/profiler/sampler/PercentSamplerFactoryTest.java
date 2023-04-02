@@ -31,10 +31,10 @@ public class PercentSamplerFactoryTest {
         SamplerFactory factory = new PercentSamplerFactory(50_00);
         Sampler sampler = factory.createSampler();
 
-        Assertions.assertEquals(true, sampler.isSampling());
-        Assertions.assertEquals(false, sampler.isSampling());
-        Assertions.assertEquals(true, sampler.isSampling());
-        Assertions.assertEquals(false, sampler.isSampling());
+        Assertions.assertTrue(sampler.isSampling());
+        Assertions.assertFalse(sampler.isSampling());
+        Assertions.assertTrue(sampler.isSampling());
+        Assertions.assertFalse(sampler.isSampling());
     }
 
 }

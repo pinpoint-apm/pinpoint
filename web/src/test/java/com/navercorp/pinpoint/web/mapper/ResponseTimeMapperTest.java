@@ -29,9 +29,9 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -57,12 +57,9 @@ public class ResponseTimeMapperTest {
         responseTimeMapper.recordColumn(responseTime, mockCell);
 
         Histogram agentHistogram = responseTime.findHistogram("agent");
-        long fastCount = agentHistogram.getFastCount();
-        Assertions.assertEquals(fastCount, 1);
-        long normal = agentHistogram.getNormalCount();
-        Assertions.assertEquals(normal, 0);
-        long slow = agentHistogram.getSlowCount();
-        Assertions.assertEquals(slow, 0);
 
+        assertThat(agentHistogram)
+                .extracting(Histogram::getFastCount, Histogram::getNormalCount, Histogram::getSlowCount)
+                .containsExactly(1L, 0L, 0L);
     }
 }

@@ -7,7 +7,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operator.AndMatcherOp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LambdaExpressionMatcherTest {
 
@@ -17,25 +19,25 @@ public class LambdaExpressionMatcherTest {
         assertEquals("java.lang.Runnable" + LambdaExpressionMatcher.LAMBDA_INSTANCE_NAME_PREFIX, matcher.getBasePackageName());
 
         MatcherOperand operand = matcher.getMatcherOperand();
-        assertTrue(operand instanceof AndMatcherOperator);
+        assertThat(operand).isInstanceOf(AndMatcherOperator.class);
 
         AndMatcherOperator operator = (AndMatcherOperator) operand;
-        assertTrue(operator.getLeftOperand() instanceof PackageInternalNameMatcherOperand);
-        assertTrue(operator.getRightOperand() instanceof InterfaceInternalNameMatcherOperand);
+        assertThat(operator.getLeftOperand()).isInstanceOf(PackageInternalNameMatcherOperand.class);
+        assertThat(operator.getRightOperand()).isInstanceOf(InterfaceInternalNameMatcherOperand.class);
     }
 
     @Test
     public void getMatcherOperandWithBaseClassNameIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        assertThatThrownBy(() -> {
             LambdaExpressionMatcher lambdaExpressionMatcher = new LambdaExpressionMatcher(null, "java.util.function.Function");
-        });
+        }).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void getMatcherOperandWithBaseClassNameIsEmpty() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThatThrownBy(() -> {
             LambdaExpressionMatcher lambdaExpressionMatcher = new LambdaExpressionMatcher("", "java.util.function.Function");
-        });
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

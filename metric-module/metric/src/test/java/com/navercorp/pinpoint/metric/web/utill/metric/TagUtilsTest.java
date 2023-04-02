@@ -5,37 +5,40 @@ import com.navercorp.pinpoint.metric.web.util.TagUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TagUtilsTest {
 
     @Test
     public void parseTagTest() {
-        List<Tag> tagList = new ArrayList<>();
-        tagList.add(new Tag("A", "1"));
-        tagList.add(new Tag("B", "2"));
-        tagList.add(new Tag("C", "3"));
+        List<Tag> tagList = List.of(
+                new Tag("A", "1"),
+                new Tag("B", "2"),
+                new Tag("C", "3"));
 
-        List<Tag> result = new ArrayList<>();
-        result.add(TagUtils.parseTag("A:1"));
-        result.add(TagUtils.parseTag("B:2"));
-        result.add(TagUtils.parseTag("C:3"));
+        List<Tag> result = List.of(
+                TagUtils.parseTag("A:1"),
+                TagUtils.parseTag("B:2"),
+                TagUtils.parseTag("C:3"));
 
         Assertions.assertEquals(tagList, result);
     }
 
     @Test
     public void parseTagsListTest() {
-        List<Tag> tagList = new ArrayList<>();
-        tagList.add(new Tag("A", "1"));
-        tagList.add(new Tag("B", "2"));
-        tagList.add(new Tag("C", "3"));
+        List<Tag> tagList = List.of(
+                new Tag("A", "1"),
+                new Tag("B", "2"),
+                new Tag("C", "3")
+        );
 
-        List<String> tags = new ArrayList<>();
-        tags.add("A:1");
-        tags.add("B:2");
-        tags.add("C:3");
+        List<String> tags = List.of(
+                "A:1",
+                "B:2",
+                "C:3"
+        );
 
         List<Tag> result = TagUtils.parseTags(tags);
 
@@ -45,11 +48,12 @@ public class TagUtilsTest {
 
     @Test
     public void parseTagsStringParameterTest() {
-        List<Tag> tagList = new ArrayList<>();
-        tagList.add(new Tag("device", "1"));
-        tagList.add(new Tag("fstype", "2"));
-        tagList.add(new Tag("mode", "3"));
-        tagList.add(new Tag("path", "4"));
+        List<Tag> tagList = List.of(
+                new Tag("device", "1"),
+                new Tag("fstype", "2"),
+                new Tag("mode", "3"),
+                new Tag("path", "4")
+        );
 
         String parameterTagsString = "device:1,fstype:2,mode:3,path:4";
         List<Tag> result = TagUtils.parseTags(parameterTagsString);
@@ -62,16 +66,17 @@ public class TagUtilsTest {
         String nullString = null;
         List<Tag> result = TagUtils.parseTags(nullString);
 
-        Assertions.assertEquals(0, result.size());
+        assertThat(result).isEmpty();
     }
 
     @Test
     public void parseTagsStringListTypeTest() {
-        List<Tag> tagList = new ArrayList<>();
-        tagList.add(new Tag("device", "1"));
-        tagList.add(new Tag("fstype", "2"));
-        tagList.add(new Tag("mode", "3"));
-        tagList.add(new Tag("path", "4"));
+        List<Tag> tagList = List.of(
+                new Tag("device", "1"),
+                new Tag("fstype", "2"),
+                new Tag("mode", "3"),
+                new Tag("path", "4")
+        );
 
         String multiValueFieldTagString = "\"device:1\",\"fstype:2\",\"mode:3\",\"path:4\"";
         List<Tag> result = TagUtils.parseTags(multiValueFieldTagString);
@@ -84,7 +89,7 @@ public class TagUtilsTest {
         String multiValueFieldTagString = "\"null\"";
         List<Tag> result = TagUtils.parseTags(multiValueFieldTagString);
 
-        Assertions.assertEquals(0, result.size());
+        assertThat(result).isEmpty();
     }
 
 
@@ -101,6 +106,6 @@ public class TagUtilsTest {
         String jsonTagString = "{}";
         String result = TagUtils.toTagString(jsonTagString);
 
-        Assertions.assertEquals("", result);
+        assertThat(result).isBlank();
     }
 }

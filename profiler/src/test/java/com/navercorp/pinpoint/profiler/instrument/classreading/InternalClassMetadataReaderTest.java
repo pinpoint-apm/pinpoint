@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -43,7 +43,7 @@ public class InternalClassMetadataReaderTest {
         // interfaces
         for (Class<?> interfacez : clazz.getInterfaces()) {
             final String interfaceInternalName = JavaAssistUtils.javaNameToJvmName(interfacez.getName());
-            Assertions.assertTrue(classMetadata.getInterfaceInternalNames().contains(interfaceInternalName));
+            assertThat(classMetadata.getInterfaceInternalNames()).contains(interfaceInternalName);
         }
 
         // super
@@ -52,7 +52,7 @@ public class InternalClassMetadataReaderTest {
         // annotations
         for (Annotation annotation : clazz.getAnnotations()) {
             final String annotationInternalName = JavaAssistUtils.javaNameToJvmName(annotation.annotationType().getName());
-            Assertions.assertTrue(classMetadata.getAnnotationInternalNames().contains(annotationInternalName));
+            assertThat(classMetadata.getAnnotationInternalNames()).contains(annotationInternalName);
         }
     }
 

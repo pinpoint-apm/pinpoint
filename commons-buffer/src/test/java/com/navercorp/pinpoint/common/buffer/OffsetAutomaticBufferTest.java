@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author emeroad
  */
@@ -40,7 +42,7 @@ public class OffsetAutomaticBufferTest {
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
         Assertions.assertNotSame(intBuffer, byteArray, "deepcopy");
-        Assertions.assertEquals(intBuffer.length, 4);
+        assertThat(intBuffer).hasSize(4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
@@ -57,7 +59,7 @@ public class OffsetAutomaticBufferTest {
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
         Assertions.assertSame(intBuffer, byteArray, "shallowcopy");
-        Assertions.assertEquals(intBuffer.length, 4);
+        assertThat(intBuffer).hasSize(4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
@@ -74,7 +76,7 @@ public class OffsetAutomaticBufferTest {
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.copyBuffer();
         Assertions.assertNotSame(intBuffer, byteArray, "deepcopy");
-        Assertions.assertEquals(intBuffer.length, 4);
+        assertThat(intBuffer).hasSize(4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();

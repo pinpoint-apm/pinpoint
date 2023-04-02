@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.Resource;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,8 +45,8 @@ public class ClassReaderWrapperTest {
     @Test
     public void annotation() throws Exception {
         ClassReaderWrapper classReader = new ClassReaderWrapper(ClassLoaderUtils.getDefaultClassLoader(), JavaAssistUtils.javaNameToJvmName(AnnotationMock.class.getName()), true);
-        assertTrue(classReader.getAnnotationInternalNames().contains("java/lang/Deprecated"));
-        assertTrue(classReader.getAnnotationInternalNames().contains("javax/annotation/Resource"));
+        assertThat(classReader.getAnnotationInternalNames()).contains("java/lang/Deprecated");
+        assertThat(classReader.getAnnotationInternalNames()).contains("javax/annotation/Resource");
     }
 
     @Test
@@ -66,8 +67,8 @@ public class ClassReaderWrapperTest {
     private void assertClassReader(ClassReaderWrapper classReader) {
         assertEquals("java/lang/String", classReader.getClassInternalName());
         assertEquals("java/lang/Object", classReader.getSuperClassInternalName());
-        assertTrue(classReader.getInterfaceInternalNames().contains("java/lang/Comparable"));
-        assertTrue(classReader.getInterfaceInternalNames().contains("java/io/Serializable"));
+        assertThat(classReader.getInterfaceInternalNames()).contains("java/lang/Comparable");
+        assertThat(classReader.getInterfaceInternalNames()).contains("java/io/Serializable");
         classReader.getVersion();
         classReader.getAccess();
         assertNotNull(classReader.getClassBinary());

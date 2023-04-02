@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Taejin Koo
  */
@@ -55,16 +57,17 @@ public class AgentActiveThreadDumpListSerializerTest {
 
         Map<String, Object> map = list.get(0);
 
-        Assertions.assertTrue(map.containsKey("threadId"));
-        Assertions.assertTrue(map.containsKey("threadName"));
-        Assertions.assertTrue(map.containsKey("threadState"));
-        Assertions.assertTrue(map.containsKey("startTime"));
-        Assertions.assertTrue(map.containsKey("execTime"));
-        Assertions.assertTrue(map.containsKey("localTraceId"));
-        Assertions.assertTrue(map.containsKey("sampled"));
-        Assertions.assertTrue(map.containsKey("transactionId"));
-        Assertions.assertTrue(map.containsKey("entryPoint"));
-        Assertions.assertTrue(map.containsKey("detailMessage"));
+        assertThat(map)
+                .containsKey("threadId")
+                .containsKey("threadName")
+                .containsKey("threadState")
+                .containsKey("startTime")
+                .containsKey("execTime")
+                .containsKey("localTraceId")
+                .containsKey("sampled")
+                .containsKey("transactionId")
+                .containsKey("entryPoint")
+                .containsKey("detailMessage");
     }
 
     private AgentActiveThreadDumpList createThreadDumpList(ThreadInfo[] allThreadInfo) {
@@ -73,7 +76,7 @@ public class AgentActiveThreadDumpListSerializerTest {
             TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
             tActiveThreadDump.setStartTime(System.currentTimeMillis() - 1000);
 
-            final ThreadDumpMetricSnapshot threadDumpMetricSnapshot =ThreadDumpUtils.createThreadDump(threadInfo);
+            final ThreadDumpMetricSnapshot threadDumpMetricSnapshot = ThreadDumpUtils.createThreadDump(threadInfo);
             final TThreadDump threadDump = this.threadDumpThriftMessageConverter.toMessage(threadDumpMetricSnapshot);
             tActiveThreadDump.setThreadDump(threadDump);
             activeThreadDumpList.add(tActiveThreadDump);

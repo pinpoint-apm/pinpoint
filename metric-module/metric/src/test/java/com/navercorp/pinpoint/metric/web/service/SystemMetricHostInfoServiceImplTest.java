@@ -18,8 +18,9 @@ public class SystemMetricHostInfoServiceImplTest {
 
     @Test
     public void test() {
-        List<Tag> tagList = new ArrayList<>();
-        tagList.add(new Tag("key", "value"));
+        List<Tag> tagList = List.of(
+                new Tag("key", "value")
+        );
 
         List<Tag> comparedTagList = new ArrayList<>();
 

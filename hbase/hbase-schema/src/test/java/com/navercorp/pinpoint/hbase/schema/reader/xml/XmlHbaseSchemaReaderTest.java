@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableConfiguration;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,14 +47,14 @@ public class XmlHbaseSchemaReaderTest {
                         "IncludeTable1",
                         TableConfiguration.EMPTY_CONFIGURATION,
                         List.of(new CreateColumnFamilyChange("CF1", new ColumnFamilyConfiguration.Builder().timeToLive(5184000).build())),
-                        new CreateTableChange.SplitOption.Manual(Arrays.asList("\\x01", "\\x02", "\\x03"))));
+                        new CreateTableChange.SplitOption.Manual(List.of("\\x01", "\\x02", "\\x03"))));
 
         String expectedChangeSetId1 = "id-1";
         List<TableChange> expectedChangeSet1TableChanges = List.of(
                 new CreateTableChange(
                         "Table1",
                         new TableConfiguration.Builder().durability(TableConfiguration.Durability.ASYNC_WAL).build(),
-                        Arrays.asList(
+                        List.of(
                                 new CreateColumnFamilyChange("CF1", new ColumnFamilyConfiguration.Builder().timeToLive(86400).dataBlockEncoding(ColumnFamilyConfiguration.DataBlockEncoding.NONE).build()),
                                 new CreateColumnFamilyChange("CF2", ColumnFamilyConfiguration.EMPTY_CONFIGURATION)),
                         new CreateTableChange.SplitOption.Auto(16)));
@@ -68,7 +67,7 @@ public class XmlHbaseSchemaReaderTest {
                         List.of(new CreateColumnFamilyChange("CF3", ColumnFamilyConfiguration.EMPTY_CONFIGURATION))));
 
         List<ChangeSet> changeSets = reader.loadChangeSets(schemaFilePath);
-        assertThat(changeSets.size()).isEqualTo(3);
+        assertThat(changeSets).hasSize(3);
 
         ChangeSet includeChangeSet = changeSets.get(0);
         assertMatches(includeChangeSet, expectedIncludeChangeSetId, expectedIncludeChangeSetTableChanges);

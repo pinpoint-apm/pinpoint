@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.web.vo;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author minwoo.jung
@@ -30,14 +29,11 @@ public class UserTest {
 
     @Test
     public void testRemoveHyphenForPhoneNumberList() {
-        List<String> phoneNumberList = new ArrayList<>();
-        phoneNumberList.add("010-1111-1111");
-        phoneNumberList.add("010-2222-2222");
+        List<String> phoneNumberList = List.of("010-1111-1111", "010-2222-2222");
 
         List<String> editedPhoneNumberList = User.removeHyphenForPhoneNumberList(phoneNumberList);
-        assertEquals(editedPhoneNumberList.size(), 2);
-        assertEquals(editedPhoneNumberList.get(0), "01011111111");
-        assertEquals(editedPhoneNumberList.get(1), "01022222222");
+        assertThat(editedPhoneNumberList)
+                .containsExactly("01011111111", "01022222222");
     }
 
 }

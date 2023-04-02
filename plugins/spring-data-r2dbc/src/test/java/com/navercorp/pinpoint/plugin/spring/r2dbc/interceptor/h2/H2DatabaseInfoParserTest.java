@@ -18,50 +18,35 @@ package com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class H2DatabaseInfoParserTest {
 
     @Test
     void getHostListAndDatabase() {
-        H2DatabaseInfoParser parser = new H2DatabaseInfoParser("jdbc:h2:mem:test_mem");
-        List<String> list = parser.getHostList();
-        assertEquals(1, list.size());
-        assertEquals("local", parser.getHostList().get(0));
-        assertEquals("mem:test_mem", parser.getDatabase());
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:tcp://dbserv:8084/~/sample");
-        assertEquals("dbserv:8084", parser.getHostList().get(0));
-        assertEquals("~/sample", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:mem:test_mem", "local", "mem:test_mem");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:~/test");
-        assertEquals("local", parser.getHostList().get(0));
-        assertEquals("~/test", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:tcp://dbserv:8084/~/sample", "dbserv:8084", "~/sample");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:file:/data/sample");
-        assertEquals("local", parser.getHostList().get(0));
-        assertEquals("/data/sample", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:~/test", "local", "~/test");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:file:C:/data/sample");
-        assertEquals("local", parser.getHostList().get(0));
-        assertEquals("C:/data/sample", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:file:/data/sample", "local", "/data/sample");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:mem:");
-        assertEquals("local", parser.getHostList().get(0));
-        assertEquals("unnamed-in-memory", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:file:C:/data/sample", "local", "C:/data/sample");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:tcp://localhost/~/test");
-        assertEquals("localhost", parser.getHostList().get(0));
-        assertEquals("~/test", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:mem:", "local", "unnamed-in-memory");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:tcp://localhost/mem:test");
-        assertEquals("localhost", parser.getHostList().get(0));
-        assertEquals("mem:test", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:tcp://localhost/~/test", "localhost", "~/test");
 
-        parser = new H2DatabaseInfoParser("jdbc:h2:ssl://localhost:8085/~/sample;");
-        assertEquals("localhost:8085", parser.getHostList().get(0));
-        assertEquals("~/sample", parser.getDatabase());
+        assertDatabaseInfoEquals("jdbc:h2:tcp://localhost/mem:test", "localhost", "mem:test");
+
+        assertDatabaseInfoEquals("jdbc:h2:ssl://localhost:8085/~/sample;", "localhost:8085", "~/sample");
+    }
+
+    private static void assertDatabaseInfoEquals(String url, String host, String database) {
+        H2DatabaseInfoParser parser = new H2DatabaseInfoParser(url);
+        assertThat(parser.getHostList()).containsExactly(host);
+        assertThat(parser.getDatabase()).isEqualTo(database);
     }
 }

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author HyunGil Jeong
  */
@@ -78,7 +80,7 @@ public class TimeSeriesChartBuilderTest {
         Chart<TestPoint> chart = builder.build(timeWindow, points);
         // Then
         List<TestPoint> sampledPoints = chart.getPoints();
-        Assertions.assertTrue(sampledPoints.isEmpty());
+        assertThat(sampledPoints).isEmpty();
     }
 
     @Test

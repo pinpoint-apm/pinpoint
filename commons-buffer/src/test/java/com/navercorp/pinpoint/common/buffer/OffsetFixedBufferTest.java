@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author emeroad
  */
@@ -58,7 +60,7 @@ public class OffsetFixedBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.getBuffer();
-        Assertions.assertEquals(intBuffer.length, 4);
+        assertThat(intBuffer).hasSize(4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();
@@ -73,7 +75,7 @@ public class OffsetFixedBufferTest {
         final int putValue = 10;
         buffer.putInt(putValue);
         byte[] intBuffer = buffer.copyBuffer();
-        Assertions.assertEquals(intBuffer.length, 4);
+        assertThat(intBuffer).hasSize(4);
 
         Buffer read = new FixedBuffer(intBuffer);
         int value = read.readInt();

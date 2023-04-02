@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskDecorator;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +47,7 @@ public class ChainedTaskDecoratorTest {
         final CountingTaskDecorator decorator1 = new CountingTaskDecorator();
         final CountingTaskDecorator decorator2 = new CountingTaskDecorator();
         final CountingTaskDecorator decorator3 = new CountingTaskDecorator();
-        final List<TaskDecorator> decorators = Arrays.asList(decorator1, decorator2, decorator3);
+        final List<TaskDecorator> decorators = List.of(decorator1, decorator2, decorator3);
         final ChainedTaskDecorator chainedDecorator = new ChainedTaskDecorator(decorators);
         executor.setTaskDecorator(chainedDecorator);
         // When

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,39 +28,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class JoinDirectBufferBoTest {
     @Test
-    public void joinDirectBufferBoList() throws Exception {
-        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>();
-        JoinDirectBufferBo joinDirectBufferBo1 = new JoinDirectBufferBo("agent1", 33, 70, "agent1", 30, "agent1"
-                , 33, 70, "agent1", 30, "agent1"
-                , 33, 70, "agent1", 30, "agent1"
-                , 33, 70, "agent1", 30, "agent1"
-                , 1496988667231L);
-        JoinDirectBufferBo joinDirectBufferBo2 = new JoinDirectBufferBo("agent2", 33, 40, "agent2", 10, "agent2"
-                , 33, 40, "agent2", 10, "agent2"
-                , 33, 40, "agent2", 10, "agent2"
-                , 33, 40, "agent2", 10, "agent2"
-                , 1496988667231L);
-        JoinDirectBufferBo joinDirectBufferBo3 = new JoinDirectBufferBo("agent3", 54, 60, "agent3", 7, "agent3"
-                , 54, 60, "agent3", 7, "agent3"
-                , 54, 60, "agent3", 7, "agent3"
-                , 54, 60, "agent3", 7, "agent3"
-                , 1496988667231L);
-        JoinDirectBufferBo joinDirectBufferBo4 = new JoinDirectBufferBo("agent4", 11, 80, "agent4", 8, "agent4"
-                , 11, 80, "agent4", 8, "agent4"
-                , 11, 80, "agent4", 8, "agent4"
-                , 11, 80, "agent4", 8, "agent4"
-                , 1496988667231L);
-        JoinDirectBufferBo joinDirectBufferBo5 = new JoinDirectBufferBo("agent5", 22, 70, "agent5", 12, "agent5"
-                , 22, 70, "agent5", 12, "agent5"
-                , 22, 70, "agent5", 12, "agent5"
-                , 22, 70, "agent5", 12, "agent5"
-                , 1496988667231L);
+    public void joinDirectBufferBoList() {
+        List<JoinDirectBufferBo> joinDirectBufferBoList = List.of(
+                new JoinDirectBufferBo("agent1", 33, 70, "agent1", 30, "agent1"
+                        , 33, 70, "agent1", 30, "agent1"
+                        , 33, 70, "agent1", 30, "agent1"
+                        , 33, 70, "agent1", 30, "agent1"
+                        , 1496988667231L),
+                new JoinDirectBufferBo("agent2", 33, 40, "agent2", 10, "agent2"
+                        , 33, 40, "agent2", 10, "agent2"
+                        , 33, 40, "agent2", 10, "agent2"
+                        , 33, 40, "agent2", 10, "agent2"
+                        , 1496988667231L),
+                new JoinDirectBufferBo("agent3", 54, 60, "agent3", 7, "agent3"
+                        , 54, 60, "agent3", 7, "agent3"
+                        , 54, 60, "agent3", 7, "agent3"
+                        , 54, 60, "agent3", 7, "agent3"
+                        , 1496988667231L),
+                new JoinDirectBufferBo("agent4", 11, 80, "agent4", 8, "agent4"
+                        , 11, 80, "agent4", 8, "agent4"
+                        , 11, 80, "agent4", 8, "agent4"
+                        , 11, 80, "agent4", 8, "agent4"
+                        , 1496988667231L),
+                new JoinDirectBufferBo("agent5", 22, 70, "agent5", 12, "agent5"
+                        , 22, 70, "agent5", 12, "agent5"
+                        , 22, 70, "agent5", 12, "agent5"
+                        , 22, 70, "agent5", 12, "agent5"
+                        , 1496988667231L)
+        );
 
-        joinDirectBufferBoList.add(joinDirectBufferBo1);
-        joinDirectBufferBoList.add(joinDirectBufferBo2);
-        joinDirectBufferBoList.add(joinDirectBufferBo3);
-        joinDirectBufferBoList.add(joinDirectBufferBo4);
-        joinDirectBufferBoList.add(joinDirectBufferBo5);
 
         JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(joinDirectBufferBoList, 1496988667231L);
         assertEquals(joinDirectBufferBo.getId(), "agent1");
@@ -74,8 +69,7 @@ public class JoinDirectBufferBoTest {
 
     @Test
     public void joinDirectBufferBo2List() {
-        List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>();
-        JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(joinDirectBufferBoList, 1496988667231L);
+        JoinDirectBufferBo joinDirectBufferBo = JoinDirectBufferBo.joinDirectBufferBoList(List.of(), 1496988667231L);
         assertEquals(joinDirectBufferBo, JoinDirectBufferBo.EMPTY_JOIN_DIRECT_BUFFER_BO);
     }
 }

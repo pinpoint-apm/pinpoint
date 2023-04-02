@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class HeatMapBuilderTest {
 
@@ -50,7 +52,7 @@ public class HeatMapBuilderTest {
         HeatMap heatMap = builder.build();
         List<Point> points = heatMap.getData();
 
-        Assertions.assertEquals(points.size(), 2);
+        assertThat(points).hasSize(2);
 
         long sum = points.stream().mapToLong(Point::getSuccess).sum();
         Assertions.assertEquals(3L, sum);
@@ -70,12 +72,10 @@ public class HeatMapBuilderTest {
         HeatMap heatMap = builder.build();
         List<Point> points = heatMap.getData();
 
-        Assertions.assertEquals(points.size(), 2);
-
+        assertThat(points).hasSize(2);
 
         Assertions.assertEquals(0, points.get(0).getY());
         Assertions.assertEquals(20, points.get(1).getY());
-
 
     }
 
@@ -85,11 +85,9 @@ public class HeatMapBuilderTest {
         long[] index = resolver.getIndex();
         logger.debug("{}", Arrays.toString(index));
 
-        Assertions.assertEquals(10, index.length);
-
-        Assertions.assertEquals(0, index[0]);
-        Assertions.assertEquals(500, index[5]);
-        Assertions.assertEquals(900, index[9]);
+        assertThat(index)
+                .hasSize(10)
+                .containsExactly(0L, 100L, 200L, 300L, 400L, 500L, 600L, 700L, 800L, 900L);
     }
 
     @Test
@@ -98,10 +96,8 @@ public class HeatMapBuilderTest {
         long[] index = resolver.getIndex();
         logger.debug("{}", Arrays.toString(index));
 
-        Assertions.assertEquals(10, index.length);
-
-        Assertions.assertEquals(500, index[0]);
-        Assertions.assertEquals(750, index[5]);
-        Assertions.assertEquals(950, index[9]);
+        assertThat(index)
+                .hasSize(10)
+                .containsExactly(500L, 550L, 600L, 650L, 700L, 750L, 800L, 850L, 900L, 950L);
     }
 }

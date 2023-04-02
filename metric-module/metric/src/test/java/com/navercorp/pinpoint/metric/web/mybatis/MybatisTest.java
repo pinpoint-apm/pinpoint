@@ -22,7 +22,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +33,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Hyunjoon Cho
@@ -56,9 +57,9 @@ public class MybatisTest {
     @Test
     public void testDataSource() throws Exception {
         Connection connection = dataSource.getConnection();
-        Assertions.assertTrue(connection instanceof WrappedPinotConnection);
+        assertThat(connection).isInstanceOf(WrappedPinotConnection.class);
         PreparedStatement preparedStatement = connection.prepareStatement("testSQL");
-        Assertions.assertTrue(preparedStatement instanceof WrappedPinotPreparedStatement);
+        assertThat(preparedStatement).isInstanceOf(WrappedPinotPreparedStatement.class);
         connection.close();
     }
 

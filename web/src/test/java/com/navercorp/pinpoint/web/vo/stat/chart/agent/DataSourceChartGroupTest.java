@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;
@@ -40,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 
@@ -89,11 +89,9 @@ public class DataSourceChartGroupTest {
         Assertions.assertNull(dataSourceChartGroup.getServiceType());
 
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Integer>>> charts = dataSourceChartGroup.getCharts().getCharts();
-        Assertions.assertEquals(2, charts.size());
-
-        for (Chart<? extends Point> chart : charts.values()) {
-            Assertions.assertTrue(CollectionUtils.isEmpty(chart.getPoints()));
-        }
+        assertThat(charts)
+                .hasSize(2)
+                .allSatisfy((chartType, chart) -> assertThat(chart.getPoints()).isEmpty());
     }
 
     private List<SampledDataSource> createSampledDataSourceList(TimeWindow timeWindow) {

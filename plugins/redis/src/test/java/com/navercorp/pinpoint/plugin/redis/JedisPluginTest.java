@@ -16,20 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.redis;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import org.junit.Test;
-
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JedisPluginTest extends BasePinpointTest {
 
@@ -45,12 +44,12 @@ public class JedisPluginTest extends BasePinpointTest {
             close(jedis);
         }
         final List<SpanEvent> events = getCurrentSpanEvents();
-        assertEquals(1, events.size());
-        
+        assertThat(events).hasSize(1);
+
         final SpanEvent eventBo = events.get(0);
         assertEquals(HOST + ":" + PORT, eventBo.getEndPoint());
         assertEquals("REDIS", eventBo.getDestinationId());
-        
+
     }
 
     public void close(Jedis jedis) {
@@ -68,8 +67,8 @@ public class JedisPluginTest extends BasePinpointTest {
             close(jedis);
         }
         final List<SpanEvent> events = getCurrentSpanEvents();
-        assertEquals(1, events.size());
-        
+        assertThat(events).hasSize(1);
+
         final SpanEvent eventBo = events.get(0);
         assertEquals(HOST + ":" + PORT, eventBo.getEndPoint());
         assertEquals("REDIS", eventBo.getDestinationId());
@@ -87,7 +86,7 @@ public class JedisPluginTest extends BasePinpointTest {
         }
         
         final List<SpanEvent> events = getCurrentSpanEvents();
-        assertEquals(1, events.size());
+        assertThat(events).hasSize(1);
     }
     
     

@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author koo.taejin
@@ -32,9 +34,8 @@ public class TCommandTypeVersionTest {
 
         List<TCommandType> supportTypeList = version.getSupportCommandList();
 
-        Assertions.assertEquals(2, supportTypeList.size());
-        Assertions.assertTrue(supportTypeList.contains(TCommandType.THREAD_DUMP));
-        Assertions.assertTrue(supportTypeList.contains(TCommandType.RESULT));
+        assertThat(supportTypeList)
+                .contains(TCommandType.THREAD_DUMP, TCommandType.RESULT);
     }
 
     @Test
@@ -43,16 +44,16 @@ public class TCommandTypeVersionTest {
 
         List<TCommandType> supportTypeList = version.getSupportCommandList();
 
-        Assertions.assertEquals(0, supportTypeList.size());
+        assertThat(supportTypeList).isEmpty();
     }
 
     @Test
     public void versionTest3() {
         TCommandTypeVersion version = TCommandTypeVersion.getVersion("1.0.0");
-        Assertions.assertEquals(TCommandTypeVersion.UNKNOWN, version);
+        assertEquals(TCommandTypeVersion.UNKNOWN, version);
 
         version = TCommandTypeVersion.getVersion(TCommandTypeVersion.V_1_0_2_SNAPSHOT.getVersionName());
-        Assertions.assertEquals(TCommandTypeVersion.V_1_0_2_SNAPSHOT, version);
+        assertEquals(TCommandTypeVersion.V_1_0_2_SNAPSHOT, version);
     }
 
 

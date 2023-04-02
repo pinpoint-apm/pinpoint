@@ -20,18 +20,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IOUtils;
-import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
-import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDaoFactoryBean;
+import com.navercorp.pinpoint.web.install.dao.GithubAgentDownloadInfoDao;
+import com.navercorp.pinpoint.web.install.dao.MemoryAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Taejin Koo
@@ -50,9 +52,9 @@ public class AgentDownloadInfoTest {
         factoryBean.setRestTemplate(restTemplate);
 
         AgentDownloadInfoDao dao = factoryBean.getObject();
-        Assertions.assertTrue(dao instanceof MemoryAgentDownloadInfoDao);
-        Assertions.assertEquals(version, dao.getDownloadInfoList().get(0).getVersion());
-        Assertions.assertEquals(downloadUrl, dao.getDownloadInfoList().get(0).getDownloadUrl());
+        assertThat(dao).isInstanceOf(MemoryAgentDownloadInfoDao.class);
+        assertEquals(version, dao.getDownloadInfoList().get(0).getVersion());
+        assertEquals(downloadUrl, dao.getDownloadInfoList().get(0).getDownloadUrl());
     }
 
     @Test
@@ -63,7 +65,7 @@ public class AgentDownloadInfoTest {
         factoryBean.setRestTemplate(restTemplate);
 
         AgentDownloadInfoDao dao = factoryBean.getObject();
-        Assertions.assertTrue(dao instanceof GithubAgentDownloadInfoDao);
+        assertThat(dao).isInstanceOf(GithubAgentDownloadInfoDao.class);
     }
 
     @Test
@@ -74,7 +76,7 @@ public class AgentDownloadInfoTest {
         factoryBean.setRestTemplate(restTemplate);
 
         AgentDownloadInfoDao dao = factoryBean.getObject();
-        Assertions.assertTrue(dao instanceof GithubAgentDownloadInfoDao);
+        assertThat(dao).isInstanceOf(GithubAgentDownloadInfoDao.class);
     }
 
 
@@ -86,8 +88,7 @@ public class AgentDownloadInfoTest {
         TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<>() {
         };
         List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, typeReference);
-
-        Assertions.assertEquals(15, agentDownloadInfoList.size());
+        assertThat(agentDownloadInfoList).hasSize(15);
     }
 
     private String getMockJsonString() throws IOException {

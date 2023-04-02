@@ -24,11 +24,15 @@ import org.apache.logging.log4j.Logger;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author emeroad
@@ -61,10 +65,10 @@ public class RequestManagerTest {
         final int requestId = requestManager.nextRequestId();
         final Future<ResponseMessage> future = requestManager.register(requestId, 50);
 
-        Assertions.assertTrue(future.await(200));
-        Assertions.assertTrue(future.isReady());
-        Assertions.assertFalse(future.isSuccess());
-        Assertions.assertTrue(future.getCause().getMessage().contains("timeout"));
+        assertTrue(future.await(200));
+        assertTrue(future.isReady());
+        assertFalse(future.isSuccess());
+        assertThat(future.getCause().getMessage()).contains("timeout");
         logger.debug(future.getCause().getMessage());
     }
 
@@ -77,7 +81,7 @@ public class RequestManagerTest {
         future.setFailure(new RuntimeException());
 
         Future<ResponseMessage> nullFuture = requestManager.removeMessageFuture(requestId);
-        Assertions.assertNull(nullFuture);
+        assertNull(nullFuture);
     }
 
 }

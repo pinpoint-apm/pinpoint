@@ -4,9 +4,11 @@ import com.navercorp.pinpoint.metric.collector.config.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.pinot.mybatis.MyBatisConfiguration;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +23,9 @@ import javax.sql.DataSource;
 public class UriStatPinotDaoConfiguration {
 
     @Bean
-    public SqlSessionFactory uriStatPinotSessionFactory(
+    public FactoryBean<SqlSessionFactory> uriStatPinotSessionFactory(
             @Qualifier("pinotDataSource") DataSource dataSource,
-            @Value("classpath:mapper/uristat/*Mapper.xml") Resource[] mappers) throws Exception {
+            @Value("classpath:mapper/uristat/*Mapper.xml") Resource[] mappers) {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
 
         sessionFactoryBean.setDataSource(dataSource);
@@ -35,10 +37,10 @@ public class UriStatPinotDaoConfiguration {
         sessionFactoryBean.setTransactionFactory(transactionFactory());
 
 
-        return sessionFactoryBean.getObject();
+        return sessionFactoryBean;
     }
 
-    private ManagedTransactionFactory transactionFactory() {
+    private TransactionFactory transactionFactory() {
         return new ManagedTransactionFactory();
     }
 

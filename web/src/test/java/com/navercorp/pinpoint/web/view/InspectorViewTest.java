@@ -10,14 +10,15 @@ import com.navercorp.pinpoint.web.vo.stat.chart.InspectorData;
 import com.navercorp.pinpoint.web.vo.stat.chart.InspectorDataBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class InspectorViewTest {
 
@@ -61,19 +62,19 @@ public class InspectorViewTest {
         InspectorData inspectorData = inspectorDataBuilder.build(timeWindow, testAgentStatDataPoints);
         InspectorView inspectorView = new InspectorView(inspectorData);
 
-        Assertions.assertEquals(inspectorView.getTitle(), title);
-        Assertions.assertEquals(inspectorView.getUnit(), unit);
-        Assertions.assertEquals(inspectorView.getTimestamp().size(), timeWindow.getWindowRangeCount());
-        Assertions.assertEquals(inspectorView.getMetricValueGroups().size(), TestChartType.values().length);
+        assertEquals(inspectorView.getTitle(), title);
+        assertEquals(inspectorView.getUnit(), unit);
+        assertThat(inspectorView.getTimestamp()).hasSize((int) timeWindow.getWindowRangeCount());
+        assertThat(inspectorView.getMetricValueGroups()).hasSameSizeAs(TestChartType.values());
+
         InspectorView.InspectorValueGroupView inspectorValueGroupView = inspectorView.getMetricValueGroups().get(0);
-        Assertions.assertEquals(inspectorValueGroupView.getMetricValues().size(), valueFunctionMap.size());
+        assertThat(inspectorValueGroupView.getMetricValues()).hasSameSizeAs(valueFunctionMap.values());
     }
 
     private List<TestAgentStatDataPoint> createTestAgentStatDataPoint() {
-        List<TestAgentStatDataPoint> testAgentStatDataPoints = new ArrayList<>();
-        testAgentStatDataPoints.add(new TestAgentStatDataPoint(new AgentStatPoint<>(0, 1)));
-        testAgentStatDataPoints.add(new TestAgentStatDataPoint(new AgentStatPoint<>(1000 * 60, 2)));
-
-        return testAgentStatDataPoints;
+        return List.of(
+                new TestAgentStatDataPoint(new AgentStatPoint<>(0, 1)),
+                new TestAgentStatDataPoint(new AgentStatPoint<>(1000 * 60, 2))
+        );
     }
 }

@@ -36,11 +36,13 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -100,27 +102,26 @@ public class SpanThriftMessageConverterTest {
         final TSpan tSpan = messageConverter.buildTSpan(span);
 
 
-        Assertions.assertEquals(span.getStartTime(), tSpan.getStartTime());
-        Assertions.assertEquals(span.getElapsedTime(), tSpan.getElapsed());
-        Assertions.assertEquals(span.getAcceptorHost(), tSpan.getAcceptorHost());
-        Assertions.assertEquals(span.getExceptionInfo().getIntValue(), tSpan.getExceptionInfo().getIntValue());
-        Assertions.assertEquals(span.getExceptionInfo().getStringValue(), tSpan.getExceptionInfo().getStringValue());
-        Assertions.assertEquals(span.getApiId(), tSpan.getApiId());
-        Assertions.assertEquals(span.getServiceType(), tSpan.getServiceType());
-        Assertions.assertEquals(span.getRemoteAddr(), tSpan.getRemoteAddr());
-        Assertions.assertEquals(span.getParentApplicationName(), tSpan.getParentApplicationName());
-        Assertions.assertEquals(span.getParentApplicationType(), tSpan.getParentApplicationType());
+        assertEquals(span.getStartTime(), tSpan.getStartTime());
+        assertEquals(span.getElapsedTime(), tSpan.getElapsed());
+        assertEquals(span.getAcceptorHost(), tSpan.getAcceptorHost());
+        assertEquals(span.getExceptionInfo().getIntValue(), tSpan.getExceptionInfo().getIntValue());
+        assertEquals(span.getExceptionInfo().getStringValue(), tSpan.getExceptionInfo().getStringValue());
+        assertEquals(span.getApiId(), tSpan.getApiId());
+        assertEquals(span.getServiceType(), tSpan.getServiceType());
+        assertEquals(span.getRemoteAddr(), tSpan.getRemoteAddr());
+        assertEquals(span.getParentApplicationName(), tSpan.getParentApplicationName());
+        assertEquals(span.getParentApplicationType(), tSpan.getParentApplicationType());
 
-        Assertions.assertEquals(traceRoot.getTraceId().getSpanId(), tSpan.getSpanId());
-        Assertions.assertEquals(traceRoot.getShared().getEndPoint(), tSpan.getEndPoint());
-        Assertions.assertEquals(traceRoot.getShared().getRpcName(), tSpan.getRpc());
-        Assertions.assertEquals(traceRoot.getShared().getLoggingInfo(), tSpan.getLoggingTransactionInfo());
-        Assertions.assertEquals(traceRoot.getShared().getErrorCode(), tSpan.getErr());
+        assertEquals(traceRoot.getTraceId().getSpanId(), tSpan.getSpanId());
+        assertEquals(traceRoot.getShared().getEndPoint(), tSpan.getEndPoint());
+        assertEquals(traceRoot.getShared().getRpcName(), tSpan.getRpc());
+        assertEquals(traceRoot.getShared().getLoggingInfo(), tSpan.getLoggingTransactionInfo());
+        assertEquals(traceRoot.getShared().getErrorCode(), tSpan.getErr());
 // TODO
 //        Assertions.assertEquals(traceRoot.getShared().getStatusCode(),  );
-
-        Assertions.assertEquals(span.getAnnotations().size(), tSpan.getAnnotations().size());
-        Assertions.assertEquals(span.getSpanEventList().size(), tSpan.getSpanEventList().size());
+        assertThat(span.getAnnotations()).hasSameSizeAs(tSpan.getAnnotations());
+        assertThat(span.getSpanEventList()).hasSameSizeAs(tSpan.getSpanEventList());
     }
 
 
@@ -138,8 +139,8 @@ public class SpanThriftMessageConverterTest {
 
         TSpanChunk tSpanChunk = messageConverter.buildTSpanChunk(spanChunk);
 
-        Assertions.assertEquals(traceRoot.getTraceId().getSpanId(), tSpanChunk.getSpanId());
-        Assertions.assertEquals(traceRoot.getShared().getEndPoint(), tSpanChunk.getEndPoint());
+        assertEquals(traceRoot.getTraceId().getSpanId(), tSpanChunk.getSpanId());
+        assertEquals(traceRoot.getShared().getEndPoint(), tSpanChunk.getEndPoint());
     }
 
 
@@ -163,16 +164,16 @@ public class SpanThriftMessageConverterTest {
         TSpanEvent tSpanEvent = messageConverter.buildTSpanEvent(spanEvent);
         spanPostProcessor.postEventProcess(Collections.singletonList(spanEvent), Collections.singletonList(tSpanEvent), startTime);
 
-        Assertions.assertEquals(spanEvent.getDepth(), tSpanEvent.getDepth());
-        Assertions.assertEquals(spanEvent.getStartTime(), startTime + tSpanEvent.getStartElapsed());
-        Assertions.assertEquals(spanEvent.getAfterTime(), startTime + tSpanEvent.getStartElapsed() + tSpanEvent.getEndElapsed());
-        Assertions.assertEquals(spanEvent.getDestinationId(), tSpanEvent.getDestinationId());
-        Assertions.assertEquals(spanEvent.getSequence(), tSpanEvent.getSequence());
-        Assertions.assertEquals(spanEvent.getNextSpanId(), tSpanEvent.getNextSpanId());
+        assertEquals(spanEvent.getDepth(), tSpanEvent.getDepth());
+        assertEquals(spanEvent.getStartTime(), startTime + tSpanEvent.getStartElapsed());
+        assertEquals(spanEvent.getAfterTime(), startTime + tSpanEvent.getStartElapsed() + tSpanEvent.getEndElapsed());
+        assertEquals(spanEvent.getDestinationId(), tSpanEvent.getDestinationId());
+        assertEquals(spanEvent.getSequence(), tSpanEvent.getSequence());
+        assertEquals(spanEvent.getNextSpanId(), tSpanEvent.getNextSpanId());
 
-        Assertions.assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), tSpanEvent.getNextAsyncId());
+        assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), tSpanEvent.getNextAsyncId());
 
-        Assertions.assertEquals(spanEvent.getAnnotations().size(), tSpanEvent.getAnnotations().size());
+        assertThat(spanEvent.getAnnotations()).hasSameSizeAs(tSpanEvent.getAnnotations());
     }
 
 
@@ -183,8 +184,8 @@ public class SpanThriftMessageConverterTest {
         List<TAnnotation> tAnnotations = messageConverter.buildTAnnotation(annotations);
 
         TAnnotation tAnnotation = tAnnotations.get(0);
-        Assertions.assertEquals(annotation.getKey(), tAnnotation.getKey());
-        Assertions.assertEquals(annotation.getValue(), tAnnotation.getValue().getStringValue());
+        assertEquals(annotation.getKey(), tAnnotation.getKey());
+        assertEquals(annotation.getValue(), tAnnotation.getValue().getStringValue());
     }
 
 

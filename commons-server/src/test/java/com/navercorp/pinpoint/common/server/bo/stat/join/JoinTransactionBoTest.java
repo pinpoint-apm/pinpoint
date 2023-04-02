@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,17 +29,13 @@ public class JoinTransactionBoTest {
 
     @Test
     public void joinTransactionBoListTest() {
-        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<>();
-        JoinTransactionBo joinTransactionBo1 = new JoinTransactionBo("agent1", 5000, 150, 12, "agent1", 230, "agent1", 1496988667231L);
-        JoinTransactionBo joinTransactionBo2 = new JoinTransactionBo("agent2", 5000, 110, 40, "agent2", 240, "agent2", 1496988667231L);
-        JoinTransactionBo joinTransactionBo3 = new JoinTransactionBo("agent3", 5000, 120, 50, "agent3", 130, "agent3", 1496988667231L);
-        JoinTransactionBo joinTransactionBo4 = new JoinTransactionBo("agent4", 5000, 130, 60, "agent4", 630, "agent4", 1496988667231L);
-        JoinTransactionBo joinTransactionBo5 = new JoinTransactionBo("agent5", 5000, 140, 11, "agent5", 230, "agent5", 1496988667231L);
-        joinTransactionBoList.add(joinTransactionBo1);
-        joinTransactionBoList.add(joinTransactionBo2);
-        joinTransactionBoList.add(joinTransactionBo3);
-        joinTransactionBoList.add(joinTransactionBo4);
-        joinTransactionBoList.add(joinTransactionBo5);
+        List<JoinTransactionBo> joinTransactionBoList = List.of(
+                new JoinTransactionBo("agent1", 5000, 150, 12, "agent1", 230, "agent1", 1496988667231L),
+                new JoinTransactionBo("agent2", 5000, 110, 40, "agent2", 240, "agent2", 1496988667231L),
+                new JoinTransactionBo("agent3", 5000, 120, 50, "agent3", 130, "agent3", 1496988667231L),
+                new JoinTransactionBo("agent4", 5000, 130, 60, "agent4", 630, "agent4", 1496988667231L),
+                new JoinTransactionBo("agent5", 5000, 140, 11, "agent5", 230, "agent5", 1496988667231L)
+        );
 
         JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoList(joinTransactionBoList, 1496988667231L);
         assertEquals("agent1", joinTransactionBo.getId());
@@ -51,8 +46,7 @@ public class JoinTransactionBoTest {
 
     @Test
     public void joinTransactionBoList2Test() {
-        List<JoinTransactionBo> joinTransactionBoList = new ArrayList<>();
-        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoList(joinTransactionBoList, 1496988667231L);
+        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoList(List.of(), 1496988667231L);
         assertEquals(joinTransactionBo, JoinTransactionBo.EMPTY_JOIN_TRANSACTION_BO);
     }
 }

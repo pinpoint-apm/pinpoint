@@ -37,7 +37,6 @@ public class MappingsTest {
         Metric metric = mappings.getMappings().get(0);
         Assertions.assertEquals("cpu", metric.getName());
         Assertions.assertEquals("usage_user", metric.getFields().get(0).getName());
-//        Assertions.assertEquals("");
     }
 
 }

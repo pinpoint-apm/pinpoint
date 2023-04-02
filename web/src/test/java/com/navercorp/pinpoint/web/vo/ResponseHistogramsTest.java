@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author HyunGil Jeong
  */
@@ -50,7 +52,7 @@ public class ResponseHistogramsTest {
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
 
         // Then
-        Assertions.assertTrue(responseTimeList.isEmpty());
+        assertThat(responseTimeList).isEmpty();
     }
 
     @Test
@@ -74,8 +76,8 @@ public class ResponseHistogramsTest {
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(nonExistentApplication);
 
         // Then
-        Assertions.assertFalse(properResponseTimeList.isEmpty());
-        Assertions.assertTrue(responseTimeList.isEmpty());
+        assertThat(properResponseTimeList).isNotEmpty();
+        assertThat(responseTimeList).isEmpty();
     }
 
     @Test
@@ -112,7 +114,7 @@ public class ResponseHistogramsTest {
         // Then
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
         Assertions.assertNotNull(responseTimeList);
-        Assertions.assertEquals(3, responseTimeList.size());
+        assertThat(responseTimeList).hasSize(3);
         for (ResponseTime responseTime : responseTimeList) {
             Histogram applicationResponseHistogram = responseTime.getApplicationResponseHistogram();
             long timeslotTimestamp = responseTime.getTimeStamp();
@@ -173,9 +175,9 @@ public class ResponseHistogramsTest {
         // Then
         List<ResponseTime> responseTimeList = responseHistograms.getResponseTimeList(application);
         Assertions.assertNotNull(responseTimeList);
-        Assertions.assertEquals(1, responseTimeList.size());
+        assertThat(responseTimeList).hasSize(1);
         ResponseTime responseTime = responseTimeList.get(0);
-        Assertions.assertEquals(5, responseTime.getAgentResponseHistogramList().size());
+        assertThat(responseTime.getAgentResponseHistogramList()).hasSize(5);
 
         Histogram fastAgentHistogram = responseTime.findHistogram(fastAgentId);
         Assertions.assertEquals(1, fastAgentHistogram.getFastCount());
@@ -221,14 +223,14 @@ public class ResponseHistogramsTest {
 
         // Then
         List<ResponseTime> appAResponseTimeList = responseHistograms.getResponseTimeList(appA);
-        Assertions.assertEquals(1, appAResponseTimeList.size());
+        assertThat(appAResponseTimeList).hasSize(1);
         ResponseTime appAResponseTime = appAResponseTimeList.get(0);
         Histogram appAAgentHistogram = appAResponseTime.findHistogram(appAAgentId);
         Assertions.assertEquals(2, appAAgentHistogram.getFastCount());
         Assertions.assertEquals(2, appAAgentHistogram.getTotalCount());
 
         List<ResponseTime> appBResponseTimeList = responseHistograms.getResponseTimeList(appB);
-        Assertions.assertEquals(1, appBResponseTimeList.size());
+        assertThat(appBResponseTimeList).hasSize(1);
         ResponseTime appBResponseTime = appBResponseTimeList.get(0);
         Histogram appBAgentHistogram = appBResponseTime.findHistogram(appBAgentId);
         Assertions.assertEquals(3, appBAgentHistogram.getNormalCount());

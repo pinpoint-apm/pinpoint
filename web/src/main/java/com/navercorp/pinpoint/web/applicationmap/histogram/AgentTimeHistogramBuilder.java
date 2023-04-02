@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -23,7 +24,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class AgentTimeHistogramBuilder {
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
-                final Long time = window.refineTimestamp(timeHistogram.getTimeStamp());
+                final long time = window.refineTimestamp(timeHistogram.getTimeStamp());
                 Application agentId = agentHistogram.getAgentId();
                 TimeHistogram windowHistogram = new TimeHistogram(timeHistogram.getHistogramSchema(), time);
                 windowHistogram.add(timeHistogram);

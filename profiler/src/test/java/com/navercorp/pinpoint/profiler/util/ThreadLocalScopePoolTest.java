@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ThreadLocalScopePoolTest {
 
     @Test
@@ -30,7 +32,7 @@ public class ThreadLocalScopePoolTest {
 
         ScopePool pool = new ThreadLocalScopePool();
         InterceptorScopeInvocation scope = pool.getScope(new DefaultInterceptorScopeDefinition("test"));
-        Assertions.assertTrue(scope instanceof ThreadLocalScope);
+        assertThat(scope).isInstanceOf(ThreadLocalScope.class);
 
         Assertions.assertEquals(scope.getName(), "test", "name");
     }

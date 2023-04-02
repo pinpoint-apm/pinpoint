@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MemoryUserGroupDaoTest {
@@ -17,8 +17,8 @@ public class MemoryUserGroupDaoTest {
         userGroupDao.createUserGroup(new UserGroup("2", "userGroup2"));
         userGroupDao.insertMember(new UserGroupMember("userGroup1", "user1"));
         userGroupDao.insertMember(new UserGroupMember("userGroup2", "user1"));
-        
-        assertEquals(userGroupDao.selectUserGroupByUserId("user1").size(), 2);
+
+        assertThat(userGroupDao.selectUserGroupByUserId("user1")).hasSize(2);
     }
     
     @Test
@@ -28,8 +28,8 @@ public class MemoryUserGroupDaoTest {
         userGroupDao.createUserGroup(new UserGroup("2", "userGroup2"));
         userGroupDao.insertMember(new UserGroupMember("userGroup1", "user1"));
         userGroupDao.insertMember(new UserGroupMember("userGroup2", "user1"));
-        
-        assertEquals(userGroupDao.selectUserGroupByUserGroupId("Group").size(), 2);
+
+        assertThat(userGroupDao.selectUserGroupByUserGroupId("Group")).hasSize(2);
     }
 
 }

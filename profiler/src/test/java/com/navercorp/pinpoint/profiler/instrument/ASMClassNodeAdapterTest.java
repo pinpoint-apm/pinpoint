@@ -32,10 +32,13 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ASMClassNodeAdapterTest {
@@ -77,13 +80,13 @@ public class ASMClassNodeAdapterTest {
         assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.ExtendedClass", adapter.getName());
         assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/BaseClass", adapter.getSuperClassInternalName());
         assertEquals("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass", adapter.getSuperClassName());
-        assertEquals(false, adapter.isInterface());
-        assertEquals(false, adapter.isAnnotation());
-        assertEquals(0, adapter.getInterfaceNames().length);
+        assertFalse(adapter.isInterface());
+        assertFalse(adapter.isAnnotation());
+        assertThat(adapter.getInterfaceNames()).isEmpty();
 
         // method
         List<ASMMethodNodeAdapter> methods = adapter.getDeclaredMethods();
-        assertEquals(1, methods.size());
+        assertThat(methods).hasSize(1);
 
         ASMMethodNodeAdapter method = adapter.getDeclaredMethod("extended", "()");
         assertEquals("extended", method.getName());
@@ -104,7 +107,7 @@ public class ASMClassNodeAdapterTest {
 
         // interface
         adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, classLoader, getClass().getProtectionDomain(), "com/navercorp/pinpoint/profiler/instrument/mock/BaseInterface");
-        assertEquals(true, adapter.isInterface());
+        assertTrue(adapter.isInterface());
 
         // implement
         adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, classLoader, getClass().getProtectionDomain(), "com/navercorp/pinpoint/profiler/instrument/mock/BaseImplementClass");
@@ -114,7 +117,7 @@ public class ASMClassNodeAdapterTest {
 
         // annotation
         adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, classLoader, getClass().getProtectionDomain(), "com/navercorp/pinpoint/bootstrap/instrument/aspect/Aspect");
-        assertEquals(true, adapter.isAnnotation());
+        assertTrue(adapter.isAnnotation());
 
 
     }
@@ -250,7 +253,7 @@ public class ASMClassNodeAdapterTest {
         ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, ASMClassNodeLoader.getClassLoader(),
                 getClass().getProtectionDomain(), "com/navercorp/pinpoint/profiler/instrument/mock/ArgsClass");
         List<ASMMethodNodeAdapter> constructors = adapter.getDeclaredConstructors();
-        Assertions.assertEquals(2, constructors.size());
+        assertThat(constructors).hasSize(2);
         assertEquals("ArgsClass", constructors.get(0).getName());
 
         assertEquals("ArgsClass", constructors.get(1).getName());
@@ -263,13 +266,13 @@ public class ASMClassNodeAdapterTest {
     public void subclassOf() {
         ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, ASMClassNodeLoader.getClassLoader(), getClass().getProtectionDomain(), "com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass");
         // self
-        assertEquals(true, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass"));
+        assertTrue(adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/ExtendedClass"));
 
         // super
-        assertEquals(true, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/BaseClass"));
-        assertEquals(true, adapter.subclassOf("java/lang/Object"));
+        assertTrue(adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/BaseClass"));
+        assertTrue(adapter.subclassOf("java/lang/Object"));
 
         // not
-        assertEquals(false, adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/NormalClass"));
+        assertFalse(adapter.subclassOf("com/navercorp/pinpoint/profiler/instrument/mock/NormalClass"));
     }
 }

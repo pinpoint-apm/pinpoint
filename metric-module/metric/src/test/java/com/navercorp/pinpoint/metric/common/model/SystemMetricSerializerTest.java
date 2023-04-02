@@ -23,8 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Hyunjoon Cho
@@ -41,7 +41,7 @@ public class SystemMetricSerializerTest {
         Tag modeTag = new Tag("mode", "ro");
         Tag pathTag = new Tag("path", "/");
         DoubleMetric longMetric = new DoubleMetric("disk", "localhost", "free", 250685575168L,
-                Arrays.asList(deviceTag, fstypeTag, modeTag, pathTag), System.currentTimeMillis());
+                List.of(deviceTag, fstypeTag, modeTag, pathTag), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("tenandId", "applicationName", longMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);
@@ -60,7 +60,7 @@ public class SystemMetricSerializerTest {
     public void testDoubleCounter() throws JsonProcessingException {
         Tag cpuTag = new Tag("cpu", "cpu0");
         DoubleMetric doubleMetric = new DoubleMetric("cpu", "localhost", "usage_user", 16.200000000001854,
-                Arrays.asList(cpuTag), System.currentTimeMillis());
+                List.of(cpuTag), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("tenantId", "applicationName", doubleMetric);
         String json = mapper.writeValueAsString(systemMetricView);
         logger.info("{}", json);

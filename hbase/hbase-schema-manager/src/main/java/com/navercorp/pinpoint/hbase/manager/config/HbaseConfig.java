@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
@@ -147,7 +148,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public HbaseConfigurationFactoryBean hbaseConfiguration() {
+    public FactoryBean<Configuration> hbaseConfiguration() {
         Properties properties = new Properties();
         properties.setProperty("hbase.zookeeper.quorum", host);
         properties.setProperty("hbase.zookeeper.property.clientPort", port);
@@ -165,7 +166,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public ConnectionFactoryBean connectionFactory(Configuration configuration) {
+    public FactoryBean<Connection> connectionFactory(Configuration configuration) {
         return new ConnectionFactoryBean(configuration);
     }
 

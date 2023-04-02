@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -26,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -52,7 +53,7 @@ public class ScatterDataTest {
         }
 
         List<Dot> dots = extractDotList(builder.build());
-        Assertions.assertEquals(count, dots.size());
+        assertThat(dots).hasSize(count);
     }
 
     @Test
@@ -82,11 +83,11 @@ public class ScatterDataTest {
         ScatterData scatterData = builder.build();
 
         List<DotGroups> values = scatterData.getScatterData();
-        Assertions.assertEquals(1, values.size());
+        assertThat(values).hasSize(1);
 
         for (DotGroups dotGroups : values) {
             Map<Dot, DotGroup> dotGroupLeaders = dotGroups.getDotGroupLeaders();
-            Assertions.assertEquals(2, dotGroupLeaders.keySet().size());
+            assertThat(dotGroupLeaders.keySet()).hasSize(2);
         }
     }
 
@@ -115,7 +116,7 @@ public class ScatterDataTest {
         builder.addDot(dot2);
 
         List<Dot> dots = extractDotList(builder.build());
-        Assertions.assertEquals(2, dots.size());
+        assertThat(dots).hasSize(2);
     }
 
     private List<Dot> createDotList(String agentId, String transactionAgentId, int createSize, long from) {

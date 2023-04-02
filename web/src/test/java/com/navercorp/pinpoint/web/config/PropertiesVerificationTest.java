@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -29,7 +30,7 @@ import java.util.Properties;
 public class PropertiesVerificationTest {
 
     private static final String LOCAL_HOST = "localhost";
-    private static final String HBASE_CLIENT_HOST_VALUE =  "${pinpoint.zookeeper.address}";
+    private static final String HBASE_CLIENT_HOST_VALUE = "${pinpoint.zookeeper.address}";
 
     @Test
     public void checkHbasePropertiesTest() throws Exception {
@@ -53,7 +54,7 @@ public class PropertiesVerificationTest {
         Assertions.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
 
         String connectAddress = properties.getProperty("cluster.connect.address");
-        Assertions.assertTrue(StringUtils.isEmpty(connectAddress));
+        assertThat(connectAddress).isNullOrEmpty();
     }
 
 }

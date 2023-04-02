@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -42,7 +44,7 @@ public class AgentUriStatDataTest {
         UriStatInfo pattern2 = new UriStatInfo("pattern2", true, 10, baseTimestamp);
         metric.add(pattern2);
 
-        Assertions.assertEquals(2, metric.getAllUriStatData().size());
+        assertThat(metric.getAllUriStatData()).hasSize(2);
 
         Optional<EachUriStatData> findPattern1 = metric.getAllUriStatData()
                 .stream()

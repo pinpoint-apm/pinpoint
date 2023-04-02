@@ -36,7 +36,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
@@ -84,11 +87,9 @@ public class AgentStatHbaseOperationFactoryTest {
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
-        assertEquals(1, puts.size());
+        assertThat(puts).hasSize(1);
         Put put = puts.get(0);
-        assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
-        assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(put.getRow()));
-        assertEquals(expectedBaseTimestamp, this.agentStatHbaseOperationFactory.getBaseTimestamp(put.getRow()));
+        assertPut(put, expectedBaseTimestamp);
     }
 
     @Test
@@ -101,11 +102,9 @@ public class AgentStatHbaseOperationFactoryTest {
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
-        assertEquals(1, puts.size());
+        assertThat(puts).hasSize(1);
         Put put = puts.get(0);
-        assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
-        assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(put.getRow()));
-        assertEquals(expectedBaseTimestamp, this.agentStatHbaseOperationFactory.getBaseTimestamp(put.getRow()));
+        assertPut(put, expectedBaseTimestamp);
     }
 
     @Test
@@ -119,15 +118,17 @@ public class AgentStatHbaseOperationFactoryTest {
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
-        assertEquals(2, puts.size());
+        assertThat(puts).hasSize(2);
         Put firstPut = puts.get(0);
-        assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(firstPut.getRow()));
-        assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(firstPut.getRow()));
-        assertEquals(expectedBaseTimestamp1, this.agentStatHbaseOperationFactory.getBaseTimestamp(firstPut.getRow()));
+        assertPut(firstPut, expectedBaseTimestamp1);
         Put secondPut = puts.get(1);
-        assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(secondPut.getRow()));
-        assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(secondPut.getRow()));
-        assertEquals(expectedBaseTimestamp2, this.agentStatHbaseOperationFactory.getBaseTimestamp(secondPut.getRow()));
+        assertPut(secondPut, expectedBaseTimestamp2);
+    }
+
+    private void assertPut(Put put, long expectedBaseTimestamp) {
+        assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
+        assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(put.getRow()));
+        assertEquals(expectedBaseTimestamp, this.agentStatHbaseOperationFactory.getBaseTimestamp(put.getRow()));
     }
 
     @Test
@@ -140,7 +141,7 @@ public class AgentStatHbaseOperationFactoryTest {
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
-        assertEquals(numDataPoints, puts.size());
+        assertThat(puts).hasSize(numDataPoints);
         for (int i = 0; i < puts.size(); i++) {
             Put put = puts.get(i);
             assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
@@ -163,14 +164,12 @@ public class AgentStatHbaseOperationFactoryTest {
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
-        assertEquals(uniqueTimeslots.size(), puts.size());
+        assertThat(puts).hasSameSizeAs(uniqueTimeslots);
         int i = 0;
         for (Long timeslot : uniqueTimeslots) {
             long expectedBaseTimestamp = timeslot;
             Put put = puts.get(i++);
-            assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
-            assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(put.getRow()));
-            assertEquals(expectedBaseTimestamp, this.agentStatHbaseOperationFactory.getBaseTimestamp(put.getRow()));
+            assertPut(put, expectedBaseTimestamp);
         }
     }
 
@@ -188,45 +187,12 @@ public class AgentStatHbaseOperationFactoryTest {
     private AgentStatDataPoint createTestDataPoint(final long testTimestamp) {
         final String testAgentId = "testAgentId";
         final long testStartTimestamp = 0L;
-        return new AgentStatDataPoint() {
-            private String agentId = testAgentId;
-            private long startTimestamp = testStartTimestamp;
-            private long timestamp = testTimestamp;
 
-            @Override
-            public String getAgentId() {
-                return this.agentId;
-            }
-
-            @Override
-            public void setAgentId(String agentId) {
-                this.agentId = agentId;
-            }
-
-            @Override
-            public long getStartTimestamp() {
-                return startTimestamp;
-            }
-
-            @Override
-            public void setStartTimestamp(long startTimestamp) {
-                this.startTimestamp = startTimestamp;
-            }
-
-            @Override
-            public long getTimestamp() {
-                return this.timestamp;
-            }
-
-            @Override
-            public void setTimestamp(long timestamp) {
-                this.timestamp = timestamp;
-            }
-
-            @Override
-            public AgentStatType getAgentStatType() {
-                return AgentStatType.UNKNOWN;
-            }
-        };
+        AgentStatDataPoint mock = mock(AgentStatDataPoint.class);
+        when(mock.getAgentId()).thenReturn(testAgentId);
+        when(mock.getStartTimestamp()).thenReturn(testStartTimestamp);
+        when(mock.getTimestamp()).thenReturn(testTimestamp);
+        when(mock.getAgentStatType()).thenReturn(AgentStatType.UNKNOWN);
+        return mock;
     }
 }

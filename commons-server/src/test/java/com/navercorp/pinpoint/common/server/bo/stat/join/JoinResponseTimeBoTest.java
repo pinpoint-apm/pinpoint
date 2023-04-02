@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.stat.join;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,17 +30,13 @@ public class JoinResponseTimeBoTest {
     @Test
     public void joinResponseTimeBoListTest() {
         long time = 1496988667231L;
-        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>();
-        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo("agent1", time, 3000, 2, "agent1", 6000, "agent1");
-        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo("agent2", time, 4000, 200, "agent2", 9000, "agent2");
-        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo("agent3", time, 2000, 20, "agent3", 7000, "agent3");
-        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo("agent4", time, 5000, 20, "agent4", 8000, "agent4");
-        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo("agent5", time, 1000, 10, "agent5", 6600, "agent5");
-        joinResponseTimeBoList.add(joinResponseTimeBo1);
-        joinResponseTimeBoList.add(joinResponseTimeBo2);
-        joinResponseTimeBoList.add(joinResponseTimeBo3);
-        joinResponseTimeBoList.add(joinResponseTimeBo4);
-        joinResponseTimeBoList.add(joinResponseTimeBo5);
+        List<JoinResponseTimeBo> joinResponseTimeBoList = List.of(
+                new JoinResponseTimeBo("agent1", time, 3000, 2, "agent1", 6000, "agent1"),
+                new JoinResponseTimeBo("agent2", time, 4000, 200, "agent2", 9000, "agent2"),
+                new JoinResponseTimeBo("agent3", time, 2000, 20, "agent3", 7000, "agent3"),
+                new JoinResponseTimeBo("agent4", time, 5000, 20, "agent4", 8000, "agent4"),
+                new JoinResponseTimeBo("agent5", time, 1000, 10, "agent5", 6600, "agent5")
+        );
 
         JoinResponseTimeBo joinResponseTimeBo = JoinResponseTimeBo.joinResponseTimeBoList(joinResponseTimeBoList, time);
         assertEquals("agent1", joinResponseTimeBo.getId());
@@ -51,8 +46,7 @@ public class JoinResponseTimeBoTest {
 
     @Test
     public void joinResponseTimeBoList2Test() {
-        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>();
-        JoinResponseTimeBo joinResponseTimeBo = JoinResponseTimeBo.joinResponseTimeBoList(joinResponseTimeBoList, 1496988667231L);
+        JoinResponseTimeBo joinResponseTimeBo = JoinResponseTimeBo.joinResponseTimeBoList(List.of(), 1496988667231L);
         assertEquals(joinResponseTimeBo, JoinResponseTimeBo.EMPTY_JOIN_RESPONSE_TIME_BO);
     }
 

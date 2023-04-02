@@ -23,7 +23,6 @@ import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,7 +54,7 @@ public class HtdHbaseSchemaVerifierTest {
 
     @Test
     public void exactMatch_shouldReturnTrue() {
-        List<HTableDescriptor> expectedSchemas = Arrays.asList(
+        List<HTableDescriptor> expectedSchemas = List.of(
                 createHtd("table1", "table1_1"),
                 createHtd("table2", "table2_1", "table2_2", "table2_3"),
                 createHtd("table3"));
@@ -65,7 +64,7 @@ public class HtdHbaseSchemaVerifierTest {
 
     @Test
     public void excessiveTableNameMatch_shouldReturnTrue() {
-        List<HTableDescriptor> expectedSchemas = Arrays.asList(
+        List<HTableDescriptor> expectedSchemas = List.of(
                 createHtd("table1", "table1_1"),
                 createHtd("table2", "table2_1", "table2_2", "table2_3"),
                 createHtd("table3"));
@@ -76,7 +75,7 @@ public class HtdHbaseSchemaVerifierTest {
 
     @Test
     public void excessiveColumnFamilyMatch_shouldReturnTrue() {
-        List<HTableDescriptor> expectedSchemas = Arrays.asList(
+        List<HTableDescriptor> expectedSchemas = List.of(
                 createHtd("table1", "table1_1"),
                 createHtd("table2", "table2_1", "table2_2", "table2_3"),
                 createHtd("table3"));
@@ -89,7 +88,7 @@ public class HtdHbaseSchemaVerifierTest {
 
     @Test
     public void partialTableNameMatch_shouldReturnFalse() {
-        List<HTableDescriptor> actualSchemas = Arrays.asList(
+        List<HTableDescriptor> actualSchemas = List.of(
                 createHtd("table1", "table1_1"),
                 createHtd("table2", "table2_1", "table2_2", "table2_3"),
                 createHtd("table3"));
@@ -100,7 +99,7 @@ public class HtdHbaseSchemaVerifierTest {
 
     @Test
     public void partialColumnFamilyMatch_shouldReturnFalse() {
-        List<HTableDescriptor> actualSchemas = Arrays.asList(
+        List<HTableDescriptor> actualSchemas = List.of(
                 createHtd("table1", "table1_1"),
                 createHtd("table2", "table2_1", "table2_2", "table2_3"),
                 createHtd("table3"));
