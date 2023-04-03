@@ -7,7 +7,7 @@
     "schemaName": "uriStat",
     "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "56"
+    "retentionTimeValue": "7"
   },
   "tenants": {},
   "tableIndexConfig": {

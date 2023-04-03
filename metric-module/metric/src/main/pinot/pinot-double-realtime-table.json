@@ -7,7 +7,7 @@
     "schemaName": "systemMetricDouble",
     "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "21"
+    "retentionTimeValue": "7"
   },
   "tenants": {},
   "tableIndexConfig": {
