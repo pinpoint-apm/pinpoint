@@ -67,7 +67,7 @@ public class CollectorConfiguration {
     }
 
     public List<String> getL4IpList() {
-        return Arrays.asList(l4IpList);
+        return List.of(l4IpList);
     }
 
     public void setL4IpList(List<String> l4IpList) {

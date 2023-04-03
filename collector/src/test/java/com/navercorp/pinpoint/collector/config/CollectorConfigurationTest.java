@@ -28,8 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author emeroad
  */
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
 @ContextConfiguration(classes = CollectorConfiguration.class)
+@TestPropertySource(properties = "collector.l4.ip=127.0.0.1, 123.123.123.123")
 @ExtendWith(SpringExtension.class)
 public class CollectorConfigurationTest {
 
@@ -39,7 +39,7 @@ public class CollectorConfigurationTest {
     @Test
     public void l4IpTest() {
         assertThat(collectorConfiguration.getL4IpList())
-                .contains("127.0.0.1", "192.168.0.1", "255.255.255.255");
+                .contains("127.0.0.1", "123.123.123.123");
     }
 
 }
