@@ -185,6 +185,7 @@
         <protoc.version>3.21.7</protoc.version>
 
         <guava.version>31.1-jre</guava.version>
+        <gson.version>2.10.1</gson.version>
 
         <mybatis.spring.version>2.0.7</mybatis.spring.version>
         <mybatis.version>3.5.12</mybatis.version>
@@ -1220,7 +1221,21 @@
                 <artifactId>guice</artifactId>
                 <version>5.1.0</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>2.11.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.21.7</version>
+            </dependency>
 
             <dependency>
                 <groupId>joda-time</groupId>
