@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.flink.config;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,7 +84,7 @@ public class FlinkConfiguration {
     }
 
     public List<String> getL4IpList() {
-        return Arrays.asList(l4IpList);
+        return List.of(l4IpList);
     }
 
     @PostConstruct
