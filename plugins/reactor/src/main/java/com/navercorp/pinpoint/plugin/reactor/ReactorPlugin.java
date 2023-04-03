@@ -35,27 +35,28 @@ import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructor
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeOrReturnInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.ConnectableFluxSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoPublishOnInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxDelaySubscriptionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxDelaySubscriptionSubscribeInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxOperatorConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxOperatorSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FuncationApplyInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoDelaySubscriptionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoDelaySubscriptionSubscribeInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxSubscribeInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.ProcessorSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoOperatorConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.MonoSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.ProcessorSubscribeInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableCoreSubscriberConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableCoreSubscriberInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoPublishOnInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.SinkConstructorInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -97,6 +98,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addCoreSubscriber();
         addProcessor();
         addFunction();
+        addSink();
     }
 
     @Override
@@ -442,6 +444,13 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     private void addFunction() {
         final Matcher functionMatcher = Matchers.newPackageBasedMatcher("reactor.core.publisher", new InterfaceInternalNameMatcherOperand("java.util.function.Function", true));
         transformTemplate.transform(functionMatcher, FunctionTransform.class);
+    }
+
+    private void addSink() {
+        final Matcher fluxSinkMatcher = Matchers.newPackageBasedMatcher("reactor.core.publisher", new InterfaceInternalNameMatcherOperand("reactor.core.publisher.FluxSink", true));
+        transformTemplate.transform(fluxSinkMatcher, SinkTransform.class);
+        final Matcher monoSinkMatcher = Matchers.newPackageBasedMatcher("reactor.core.publisher", new InterfaceInternalNameMatcherOperand("reactor.core.publisher.MonoSink", true));
+        transformTemplate.transform(monoSinkMatcher, SinkTransform.class);
     }
 
     public static class FluxMethodTransform implements TransformCallback {
@@ -831,6 +840,24 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             final InstrumentMethod applyMethod = target.getDeclaredMethod("apply", "java.lang.Object");
             if (applyMethod != null) {
                 applyMethod.addInterceptor(FuncationApplyInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class SinkTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(ReactorContextAccessor.class);
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(SinkConstructorInterceptor.class);
+                }
             }
 
             return target.toBytecode();

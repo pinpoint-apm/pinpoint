@@ -412,5 +412,10 @@
             <artifactId>pinpoint-spring-data-r2dbc-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-spring-tx-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
