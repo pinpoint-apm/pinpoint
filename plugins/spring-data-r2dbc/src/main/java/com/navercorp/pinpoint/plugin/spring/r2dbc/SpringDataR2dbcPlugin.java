@@ -1071,7 +1071,6 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
         }
     }
 
-
     public static class TransactionAwareConnectionFactoryProxyTransform implements TransformCallback {
 
         @Override

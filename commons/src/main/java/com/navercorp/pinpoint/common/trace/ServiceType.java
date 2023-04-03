@@ -165,6 +165,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
  * <tr><td>5053</td><td>SPRING_WEBFLUX</td></tr>
+ * <tr><td>5054</td><td>SPRING_TX</td></tr>
  * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
  * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
  * <tr><td>5500</td><td>IBATIS</td></tr>

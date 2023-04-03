@@ -111,6 +111,7 @@
         <module>rocketmq</module>
         <module>agentsdk-async</module>
         <module>spring-data-r2dbc</module>
+        <module>spring-tx</module>
     </modules>
 
 
