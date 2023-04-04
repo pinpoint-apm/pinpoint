@@ -48,7 +48,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
                 // blockingCodeHandler
                 handlers.blockingCodeHandler._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking blockingCodeHandler. asyncContext={}", asyncContext);
+                    logger.debug("Set asyncContext to ContextImpl.executeBlocking blockingCodeHandler. asyncContext={}", asyncContext);
                 }
             }
 
@@ -56,7 +56,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
                 // resultHandler.
                 handlers.resultHandler._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking resultHandler. asyncContext={}", asyncContext);
+                    logger.debug("Set asyncContext to ContextImpl.executeBlocking resultHandler. asyncContext={}", asyncContext);
                 }
             }
         }
@@ -64,9 +64,6 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
 
     private boolean validate(final Object[] args) {
         if (ArrayUtils.getLength(args) < 2) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
             return false;
         }
         return true;

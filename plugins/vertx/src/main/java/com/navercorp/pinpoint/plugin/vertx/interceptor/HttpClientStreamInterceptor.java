@@ -104,17 +104,14 @@ public class HttpClientStreamInterceptor implements AroundInterceptor {
 
     private boolean validate(final Object[] args) {
         if (ArrayUtils.getLength(args) < 2) {
-            logger.debug("Invalid args object. args={}.", args);
             return false;
         }
 
         if (!(args[0] instanceof HttpRequest)) {
-            logger.debug("Invalid args[0] object. {}.", args[0]);
             return false;
         }
 
         if (!(args[1] instanceof String)) {
-            logger.debug("Invalid args[1] object. {}.", args[1]);
             return false;
         }
 

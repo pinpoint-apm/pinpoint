@@ -173,7 +173,6 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
 
     private boolean validate(final Object[] args, final Object result) {
         if (!(result instanceof HttpRequest)) {
-            logger.debug("Invalid result object. {}.", result);
             return false;
         }
 

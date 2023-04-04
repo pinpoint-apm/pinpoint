@@ -113,9 +113,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final HttpServerRequest request = (HttpServerRequest) args[0];
             final HttpServerResponse response = request.response();
             if (!(response instanceof AsyncContextAccessor)) {
-                if (isDebug) {
-                    logger.debug("Invalid response. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-                }
                 return;
             }
 
@@ -140,7 +137,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
             ((AsyncContextAccessor) response)._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set closeable-AsyncContext {}", asyncContext);
+                logger.debug("Set asyncContext to request/response. asyncContext={}", asyncContext);
             }
 
         } catch (Throwable t) {
@@ -154,24 +151,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
     private boolean validate(final Object[] args) {
         if (ArrayUtils.isEmpty(args)) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
             return false;
         }
 
         Object arg = args[0];
         if (!(arg instanceof HttpServerRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. {}.", arg);
-            }
             return false;
         }
 
         if (!(arg instanceof AsyncContextAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-            }
             return false;
         }
 
@@ -312,6 +300,4 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private boolean isEndScope(final Trace trace) {
         return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
-
-
 }

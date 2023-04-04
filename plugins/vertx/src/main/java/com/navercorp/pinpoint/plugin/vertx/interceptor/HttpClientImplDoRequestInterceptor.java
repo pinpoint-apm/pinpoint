@@ -110,10 +110,10 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
                 ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncContext {}", asyncContext);
+                    logger.debug("Set asyncContext to request. asyncContext={}", asyncContext);
                 }
             }
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER. Caused:{}", t.getMessage(), t);
             }
@@ -124,16 +124,10 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
 
     private boolean validate(final Object result) {
         if (result == null || !(result instanceof HttpClientRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid result object. result={}.", result);
-            }
             return false;
         }
 
         if (!(result instanceof AsyncContextAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid result object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-            }
             return false;
         }
 
@@ -155,7 +149,7 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
                 final int port = (Integer) args[3];
                 return HostAndPort.toHostAndPortString(host, port);
             }
-        } else if(length == 8) {
+        } else if (length == 8) {
             if (args[3] instanceof String && args[4] instanceof Integer) {
                 final String host = (String) args[3];
                 final int port = (Integer) args[4];
@@ -163,9 +157,6 @@ public class HttpClientImplDoRequestInterceptor implements AroundInterceptor {
             }
         }
 
-        if (isDebug) {
-            logger.debug("Invalid args[]. args={}.", args);
-        }
         return null;
     }
 }
