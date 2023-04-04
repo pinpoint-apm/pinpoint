@@ -35,9 +35,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.VarArgs;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.CancelledInterceptor;
-import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.CoroutinesUtilsInterceptor;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.DispatchInterceptor;
-import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.DispatchedContinuationInterceptor;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.MonoCoroutineConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.NotifyCancellingInterceptor;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor.ResumeWithInterceptor;
@@ -213,21 +211,6 @@ public class CoroutinesPlugin implements ProfilerPlugin, MatchableTransformTempl
         }
     }
 
-    public static class CoroutinesUtilsTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("invokeSuspendingFunction"))) {
-                method.addInterceptor(CoroutinesUtilsInterceptor.class);
-            }
-
-            return target.toBytecode();
-        }
-    }
-
-
     public static class MonoCoroutineTransform implements TransformCallback {
 
         @Override
@@ -239,21 +222,6 @@ public class CoroutinesPlugin implements ProfilerPlugin, MatchableTransformTempl
                 if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(MonoCoroutineConstructorInterceptor.class);
                 }
-            }
-
-            return target.toBytecode();
-        }
-    }
-
-
-    public static class DispatchedContinuationTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("invoke"))) {
-                method.addInterceptor(DispatchedContinuationInterceptor.class);
             }
 
             return target.toBytecode();
