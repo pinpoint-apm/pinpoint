@@ -43,23 +43,17 @@ public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInt
 
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set asyncContext {}", asyncContext);
+                logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
             }
         }
     }
 
     private boolean validate(final Object[] args) {
         if (ArrayUtils.isEmpty(args)) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
             return false;
         }
 
         if (!(args[0] instanceof AsyncContextAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-            }
             return false;
         }
 
@@ -72,5 +66,4 @@ public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInt
         recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
         recorder.recordException(throwable);
     }
-
 }

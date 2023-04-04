@@ -75,7 +75,7 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
         if (socketAddress != null) {
             return socketAddress.toString();
         }
-        return "unknown";
+        return "UNKNOWN";
     }
 
     @Override

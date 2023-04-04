@@ -28,7 +28,9 @@ import java.util.List;
 public class VertxDetector {
 
     private static final String DEFAULT_EXPECTED_MAIN_CLASS = "io.vertx.core.Starter";
-    private static final String REQUIRED_CLASS = "io.vertx.core.Starter";
+    // version 3 - "io.vertx.core.Starter"
+    // version 4 - "io.vertx.core.Launcher"
+    private static final String[] REQUIRED_CLASS_LIST = {"io.vertx.core.Starter", "io.vertx.core.Launcher"};
 
     private final List<String> expectedMainClasses;
 
@@ -46,10 +48,14 @@ public class VertxDetector {
         if (!isExpectedMainClass) {
             return false;
         }
-        boolean hasRequiredClass = ClassResourceCondition.INSTANCE.check(REQUIRED_CLASS);
-        if (!hasRequiredClass) {
-            return false;
+
+        for (String requiredClass : REQUIRED_CLASS_LIST) {
+            boolean hasRequiredClass = ClassResourceCondition.INSTANCE.check(requiredClass);
+            if (hasRequiredClass) {
+                return true;
+            }
         }
-        return true;
+
+        return false;
     }
 }

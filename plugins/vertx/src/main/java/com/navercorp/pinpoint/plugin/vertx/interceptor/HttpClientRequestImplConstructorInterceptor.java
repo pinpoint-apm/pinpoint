@@ -40,13 +40,17 @@ public class HttpClientRequestImplConstructorInterceptor implements AroundInterc
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
+
         if (ArrayUtils.getLength(args) < 1) {
             return;
         }
         final Object arg = args[0];
         final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(arg);
         if (asyncContext != null) {
-            ((AsyncContextAccessor)target)._$PINPOINT$_setAsyncContext(asyncContext);
+            ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set asyncContext to target. asyncContext={}", asyncContext);
+            }
         }
     }
 }
