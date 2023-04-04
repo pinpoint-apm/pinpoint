@@ -43,6 +43,8 @@ import org.springframework.core.env.StandardEnvironment;
 
         WebHbaseModule.class,
 
+        WebSocketConfig.class,
+
         InstallModule.class,
         WebhookModule.class,
         FrontendConfigExportConfiguration.class,
@@ -72,11 +74,6 @@ public class PinpointWebModule {
     @Bean
     public LogConfiguration logConfiguration() {
         return new LogConfiguration();
-    }
-
-    @Bean
-    public WebSocketConfig webSocketConfig() {
-        return new WebSocketConfig();
     }
 
     @Bean
