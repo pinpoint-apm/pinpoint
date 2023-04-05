@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.security.login;
+package com.navercorp.pinpoint.login.basic.service;
 
-import com.navercorp.pinpoint.web.config.BasicLoginConfig;
-
+import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtBuilder;
@@ -52,14 +51,14 @@ public class JwtService {
 
     private final long expirationTimeMillis;
 
-    public JwtService(BasicLoginConfig basicLoginConfig) {
-        String secretKey = basicLoginConfig.getJwtSecretKey();
+    public JwtService(BasicLoginProperties basicLoginProperties) {
+        String secretKey = basicLoginProperties.getJwtSecretKey();
         Assert.hasLength(secretKey, "secretKey must not be empty");
 
         this.secretKey = secretKey;
 
-        Assert.isTrue(basicLoginConfig.getExpirationTimeSeconds() > 0, "expirationTimeSeconds must be '>= 0'");
-        this.expirationTimeMillis = TimeUnit.SECONDS.toMillis(basicLoginConfig.getExpirationTimeSeconds());
+        Assert.isTrue(basicLoginProperties.getExpirationTimeSeconds() > 0, "expirationTimeSeconds must be '>= 0'");
+        this.expirationTimeMillis = TimeUnit.SECONDS.toMillis(basicLoginProperties.getExpirationTimeSeconds());
 
         JwtParser jwtParser = Jwts.parser();
         jwtParser.setSigningKey(secretKey);

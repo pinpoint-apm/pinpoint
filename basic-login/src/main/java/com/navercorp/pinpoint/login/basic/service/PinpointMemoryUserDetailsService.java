@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.security.login;
+package com.navercorp.pinpoint.login.basic.service;
 
-import com.navercorp.pinpoint.web.config.BasicLoginConfig;
-
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.context.annotation.Profile;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,14 +34,13 @@ import java.util.stream.Collectors;
  * @author Taejin Koo
  */
 @Service
-@Profile("basicLogin")
 public class PinpointMemoryUserDetailsService implements UserDetailsService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<String, UserDetails> userDetailsMap;
 
-    public PinpointMemoryUserDetailsService(BasicLoginConfig basicLoginConfig) {
+    public PinpointMemoryUserDetailsService(BasicLoginProperties basicLoginConfig) {
         Map<String, UserDetails> userDetailsMap = new HashMap<>();
 
         final List<UserDetails> userList = basicLoginConfig.getUserList();
@@ -54,7 +50,7 @@ public class PinpointMemoryUserDetailsService implements UserDetailsService {
         }
 
         if (logger.isDebugEnabled()) {
-            Collection<String> userRoleUserNameList = userList.stream().map(user -> user.getUsername()).collect(Collectors.toList());
+            Collection<String> userRoleUserNameList = userList.stream().map(UserDetails::getUsername).collect(Collectors.toList());
             logger.debug("Has been registered {} that has USER role.", userRoleUserNameList);
         }
 
@@ -64,11 +60,11 @@ public class PinpointMemoryUserDetailsService implements UserDetailsService {
         }
 
         if (logger.isDebugEnabled()) {
-            Collection<String> adminRoleUserNameList = adminList.stream().map(user -> user.getUsername()).collect(Collectors.toList());
+            Collection<String> adminRoleUserNameList = adminList.stream().map(UserDetails::getUsername).collect(Collectors.toList());
             logger.debug("Has been registered {} that has ADMIN role.", adminRoleUserNameList);
         }
 
-        this.userDetailsMap = Collections.unmodifiableMap(userDetailsMap);
+        this.userDetailsMap = Map.copyOf(userDetailsMap);
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConf
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.profile.StandardEnvironmentLogger;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
-import com.navercorp.pinpoint.web.config.BasicLoginConfiguration;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.config.ScatterChartConfig;
@@ -48,9 +47,6 @@ import org.springframework.core.env.StandardEnvironment;
         InstallModule.class,
         WebhookModule.class,
         FrontendConfigExportConfiguration.class,
-
-        // profile "basicLogin"
-        BasicLoginConfiguration.class
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.service",
