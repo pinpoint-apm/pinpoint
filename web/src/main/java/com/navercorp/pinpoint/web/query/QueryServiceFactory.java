@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.query;
 
-import io.jsonwebtoken.lang.Assert;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.EnumMap;
 import java.util.Map;

@@ -61,6 +61,10 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-basic-login</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
         </dependency>
         <dependency>
@@ -213,7 +217,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Mybatis dependecies -->
+        <!-- Mybatis dependencies -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -249,7 +253,7 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <!-- Caching dependecies -->
+        <!-- Caching dependencies -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
@@ -313,11 +317,6 @@
             <artifactId>jakarta.activation</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>${jjwt.version}</version>
-        </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>

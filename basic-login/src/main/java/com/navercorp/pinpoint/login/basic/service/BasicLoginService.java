@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.security.login;
+package com.navercorp.pinpoint.login.basic.service;
 
-import com.navercorp.pinpoint.web.config.BasicLoginConfig;
-
+import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.context.annotation.Profile;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,6 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 @Service
-@Profile("basicLogin")
 public class BasicLoginService {
 
     private final PinpointMemoryUserDetailsService pinpointMemoryUserDetailsService;
@@ -43,11 +40,10 @@ public class BasicLoginService {
 
     private final JwtService jwtService;
 
-    public BasicLoginService(BasicLoginConfig basicLoginConfig) {
-        PinpointMemoryUserDetailsService pinpointMemoryUserDetailsService = new PinpointMemoryUserDetailsService(basicLoginConfig);
-        this.pinpointMemoryUserDetailsService = pinpointMemoryUserDetailsService;
+    public BasicLoginService(BasicLoginProperties basicLoginProperties) {
+        this.pinpointMemoryUserDetailsService = new PinpointMemoryUserDetailsService(basicLoginProperties);
 
-        this.jwtService = new JwtService(basicLoginConfig);
+        this.jwtService = new JwtService(basicLoginProperties);
     }
 
     public UserDetails getUserDetails(Cookie[] cookies) {

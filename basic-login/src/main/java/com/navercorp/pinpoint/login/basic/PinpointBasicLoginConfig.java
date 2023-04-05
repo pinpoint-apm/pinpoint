@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web;
+package com.navercorp.pinpoint.login.basic;
 
-import com.navercorp.pinpoint.web.security.login.BasicLoginConstants;
-import com.navercorp.pinpoint.web.security.login.BasicLoginService;
-import com.navercorp.pinpoint.web.security.login.JwtRequestFilter;
-import com.navercorp.pinpoint.web.security.login.PreAuthenticationCheckFilter;
-import com.navercorp.pinpoint.web.security.login.SaveJwtTokenAuthenticationSuccessHandler;
-
+import com.navercorp.pinpoint.login.basic.config.BasicLoginConfiguration;
+import com.navercorp.pinpoint.login.basic.service.BasicLoginConstants;
+import com.navercorp.pinpoint.login.basic.service.BasicLoginService;
+import com.navercorp.pinpoint.login.basic.service.JwtRequestFilter;
+import com.navercorp.pinpoint.login.basic.service.PreAuthenticationCheckFilter;
+import com.navercorp.pinpoint.login.basic.service.SaveJwtTokenAuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -43,6 +44,7 @@ import java.util.Objects;
  */
 @Configuration
 @EnableWebSecurity
+@Import(BasicLoginConfiguration.class)
 @Profile("basicLogin")
 public class PinpointBasicLoginConfig extends WebSecurityConfigurerAdapter {
 
