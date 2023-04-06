@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.util;
 
-import com.navercorp.pinpoint.web.util.MongoJsonParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;

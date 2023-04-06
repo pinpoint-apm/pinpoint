@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.service;
 
 import java.util.EnumSet;
 import java.util.Objects;

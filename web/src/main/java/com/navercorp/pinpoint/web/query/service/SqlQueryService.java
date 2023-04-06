@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.service;
 
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.util;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.web.util.MongoJsonParser;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.util;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 

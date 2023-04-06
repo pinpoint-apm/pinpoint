@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.service;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;

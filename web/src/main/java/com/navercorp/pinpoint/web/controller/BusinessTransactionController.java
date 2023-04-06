@@ -26,9 +26,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
-import com.navercorp.pinpoint.web.query.BindType;
-import com.navercorp.pinpoint.web.query.QueryService;
-import com.navercorp.pinpoint.web.query.QueryServiceFactory;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.service.SpanResult;
@@ -42,7 +39,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -68,21 +64,20 @@ public class BusinessTransactionController {
     private final TransactionInfoService transactionInfoService;
     private final FilteredMapService filteredMapService;
     private final LogConfiguration logConfiguration;
-    private final QueryServiceFactory queryServiceFactory;
 
 
     @Value("${web.callstack.selectSpans.limit:-1}")
     private int callstackSelectSpansLimit;
 
 
-    public BusinessTransactionController(SpanService spanService, TransactionInfoService transactionInfoService,
-                                         FilteredMapService filteredMapService, LogConfiguration logConfiguration,
-                                         QueryServiceFactory queryServiceFactory) {
+    public BusinessTransactionController(SpanService spanService,
+                                         TransactionInfoService transactionInfoService,
+                                         FilteredMapService filteredMapService,
+                                         LogConfiguration logConfiguration) {
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
-        this.queryServiceFactory = Objects.requireNonNull(queryServiceFactory, "queryServiceFactory");
     }
 
     /**
@@ -178,41 +173,5 @@ public class BusinessTransactionController {
         return new TraceViewerDataViewModel(recordSet);
     }
 
-    @PostMapping(value = "/bind")
-    public BindSqlView metaDataBind(@RequestParam("type") String type,
-                               @RequestParam("metaData") String metaData,
-                               @RequestParam("bind") String bind) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("POST /bind params {metaData={}, bind={}}", metaData, bind);
-        }
 
-        final BindType bindType = BindType.of(type);
-        if (bindType == null) {
-            throw new IllegalArgumentException("Unknown Type:" + type);
-        }
-
-        if (metaData == null) {
-            return new BindSqlView("");
-        }
-
-        final QueryService service = queryServiceFactory.getService(bindType);
-        final String bindedQuery = service.bind(metaData, bind);
-        if (logger.isDebugEnabled()) {
-            logger.debug("bindedQuery={}", bindedQuery);
-        }
-
-        return new BindSqlView(bindedQuery);
-    }
-
-    public static class BindSqlView {
-        private final String bindedQuery;
-
-        public BindSqlView(String bindedQuery) {
-            this.bindedQuery = Objects.requireNonNull(bindedQuery, "bindedQuery");
-        }
-
-        public String getBindedQuery() {
-            return bindedQuery;
-        }
-    }
 }
