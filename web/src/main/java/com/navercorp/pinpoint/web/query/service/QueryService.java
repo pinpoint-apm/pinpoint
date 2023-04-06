@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.query;
+package com.navercorp.pinpoint.web.query.service;
 
 public interface QueryService {
     BindType getBindType();
