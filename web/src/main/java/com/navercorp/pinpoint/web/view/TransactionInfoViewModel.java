@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
@@ -24,10 +25,8 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
-import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,18 +48,20 @@ public class TransactionInfoViewModel {
     private final RecordSet recordSet;
     private final TraceState.State completeState;
 
-
-    private final LogConfiguration logConfiguration;
+    private final LogLinkView logLinkView;
     private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
-    public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, LogConfiguration logConfiguration) {
+    public TransactionInfoViewModel(TransactionId transactionId, long spanId,
+                                    Collection<Node> nodes, Collection<Link> links,
+                                    RecordSet recordSet, TraceState.State state,
+                                    LogLinkView logLinkView) {
         this.transactionId = transactionId;
         this.spanId = spanId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
         this.completeState = state;
-        this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
+        this.logLinkView = Objects.requireNonNull(logLinkView, "logLinkView");
     }
 
     public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
@@ -112,44 +113,19 @@ public class TransactionInfoViewModel {
         return completeState.toString();
     }
 
-    @JsonProperty("logLinkEnable")
-    public boolean isLogLinkEnable() {
-        return logConfiguration.isLogLinkEnable();
-    }
-
     @JsonProperty("loggingTransactionInfo")
     public boolean isLoggingTransactionInfo() {
         return recordSet.isLoggingTransactionInfo();
     }
 
-    @JsonProperty("logButtonName")
-    public String getLogButtonName() {
-        return logConfiguration.getLogButtonName();
-    }
-
-    @JsonProperty("logPageUrl")
-    public String getLogPageUrl() {
-        final String logPageUrl = logConfiguration.getLogPageUrl();
-        if (StringUtils.isNotEmpty(logPageUrl)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("transactionId=").append(getTransactionId());
-            sb.append("&spanId=").append(spanId);
-            sb.append("&applicationName=").append(getApplicationId());
-            sb.append("&time=").append(recordSet.getStartTime());
-            return logPageUrl + "?" + sb.toString();
-        }
-
-        return "";
-    }
-
-    @JsonProperty("disableButtonMessage")
-    public String getDisableButtonMessage() {
-        return logConfiguration.getDisableButtonMessage();
+    @JsonUnwrapped
+    public LogLinkView getLogLink() {
+        return logLinkView;
     }
 
     @JsonProperty("callStackIndex")
     public Map<String, Integer> getCallStackIndex() {
-        final Map<String, Integer> index = new HashMap<String, Integer>();
+        final Map<String, Integer> index = new HashMap<>();
         for (int i = 0; i < CallStack.INDEX.length; i++) {
             index.put(CallStack.INDEX[i], i);
         }
@@ -160,7 +136,7 @@ public class TransactionInfoViewModel {
     @JsonProperty("callStack")
     public List<CallStack> getCallStack() {
 
-        List<CallStack> list = new ArrayList<CallStack>();
+        List<CallStack> list = new ArrayList<>();
         boolean first = true;
         long barRatio = 0;
         for (Record record : recordSet.getRecordList()) {
@@ -183,7 +159,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("applicationMapData")
     public Map<String, List<Object>> getApplicationMapData() {
-        Map<String, List<Object>> result = new HashMap<String, List<Object>>();
+        Map<String, List<Object>> result = new HashMap<>();
         if (timeHistogramFormat == TimeHistogramFormat.V2) {
             for (Node node : nodes) {
                 node.setTimeHistogramFormat(timeHistogramFormat);

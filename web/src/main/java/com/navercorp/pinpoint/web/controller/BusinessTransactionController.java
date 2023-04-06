@@ -25,12 +25,13 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
-import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
 import com.navercorp.pinpoint.web.service.TransactionInfoService;
+import com.navercorp.pinpoint.web.view.LogLinkBuilder;
+import com.navercorp.pinpoint.web.view.LogLinkView;
 import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
@@ -63,8 +64,7 @@ public class BusinessTransactionController {
     private final SpanService spanService;
     private final TransactionInfoService transactionInfoService;
     private final FilteredMapService filteredMapService;
-    private final LogConfiguration logConfiguration;
-
+    private final LogLinkBuilder logLinkBuilder;
 
     @Value("${web.callstack.selectSpans.limit:-1}")
     private int callstackSelectSpansLimit;
@@ -73,11 +73,11 @@ public class BusinessTransactionController {
     public BusinessTransactionController(SpanService spanService,
                                          TransactionInfoService transactionInfoService,
                                          FilteredMapService filteredMapService,
-                                         LogConfiguration logConfiguration) {
+                                         LogLinkBuilder logLinkBuilder) {
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
-        this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
+        this.logLinkBuilder = Objects.requireNonNull(logLinkBuilder, "logLinkBuilder");
     }
 
     /**
@@ -111,12 +111,21 @@ public class BusinessTransactionController {
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
-        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+
+        TransactionInfoViewModel result = newTransactionInfo(spanId, transactionId, spanResult, map, recordSet);
 
         if (useLoadHistogramFormat) {
             result.setTimeHistogramFormat(TimeHistogramFormat.V2);
         }
         return result;
+    }
+
+    private TransactionInfoViewModel newTransactionInfo(long spanId, TransactionId transactionId,
+                                                        SpanResult spanResult, ApplicationMap map,
+                                                        RecordSet recordSet) {
+        LogLinkView logLinkView = logLinkBuilder.build(transactionId, spanId, recordSet.getApplicationId(), recordSet.getStartTime());
+        return new TransactionInfoViewModel(transactionId, spanId,
+                map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logLinkView);
     }
 
     /**
@@ -150,7 +159,7 @@ public class BusinessTransactionController {
                 .toUriString();
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        return new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, traceViewerDataURL, logConfiguration);
+        return new TransactionTimelineInfoViewModel(transactionId, recordSet, traceViewerDataURL);
     }
 
     @GetMapping(value = "/traceViewerData")
