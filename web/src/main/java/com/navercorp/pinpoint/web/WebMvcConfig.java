@@ -64,8 +64,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // default resource handler
         registry.addResourceHandler("/**").addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache());
-        registry.addResourceHandler("/webjars/**").addResourceLocations(RESOURCE_LOCATION)
-                .setCacheControl(CacheControl.noCache());
     }
 
     @Override
