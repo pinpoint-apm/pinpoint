@@ -50,20 +50,6 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
     }
 
     @Override
-    @Deprecated
-    public List<SystemMetricPoint<Double>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
-        StopWatch watch = StopWatch.createStarted();
-        logger.info("=========== thread start {} thread. tag:{}", Thread.currentThread().getName(), metricTag);
-
-        SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
-        List<SystemMetricPoint<Double>> result = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
-
-        watch.stop();
-        logger.info("============ thread end {} thread. executeTime:{} tag:{}", Thread.currentThread().getName(), watch.getTime(), metricTag);
-        return result;
-    }
-
-    @Override
     public Future<List<SystemMetricPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
         return asyncTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
