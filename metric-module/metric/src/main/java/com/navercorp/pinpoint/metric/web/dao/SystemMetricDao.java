@@ -28,8 +28,5 @@ import java.util.concurrent.Future;
  */
 public interface SystemMetricDao<T extends Number> {
 
-    @Deprecated
-    List<SystemMetricPoint<T>> getSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
-
     Future<List<SystemMetricPoint<T>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
 }
