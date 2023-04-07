@@ -4,12 +4,18 @@ import com.navercorp.pinpoint.collector.PinpointCollectorModule;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class, SqlInitializationAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {
+        DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        TransactionAutoConfiguration.class,
+        SqlInitializationAutoConfiguration.class
+})
 @Import({PinpointCollectorModule.class})
 public class BasicCollectorApp {
 }

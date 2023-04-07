@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,12 @@ import org.springframework.context.annotation.Profile;
 
 
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class, KafkaAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {
+        DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        TransactionAutoConfiguration.class,
+        KafkaAutoConfiguration.class
+})
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.metric.collector.dao",
         "com.navercorp.pinpoint.metric.collector.service",
