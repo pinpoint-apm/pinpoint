@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.WebStarter;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -34,8 +35,12 @@ import org.springframework.context.annotation.Import;
  * @author minwoo.jung
  */
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, TransactionAutoConfiguration.class,
-        SecurityAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {
+        DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        TransactionAutoConfiguration.class,
+        SecurityAutoConfiguration.class
+})
 @Import({PinpointWebModule.class})
 public class MetricAndWebApp {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(WebApp.class);
