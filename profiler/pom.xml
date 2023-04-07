@@ -121,7 +121,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
             <scope>test</scope>
             <!-- classloader test : JarProfilerPluginClassInjectorTest-->
         </dependency>
