@@ -343,6 +343,11 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-testcase</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- for zookeeper test -->
         <dependency>
