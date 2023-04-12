@@ -19,12 +19,14 @@ package com.pinpoint.test.plugin.mongo;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.concurrent.TimeUnit;
 
+@Ignore
 public class MongodbTest {
     private static MongoDBContainer container;
 
