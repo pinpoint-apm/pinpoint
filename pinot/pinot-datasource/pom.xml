@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-pinot</artifactId>
-        <version>2.5.1</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-pinot-datasource</artifactId>
