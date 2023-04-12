@@ -6,13 +6,13 @@ import com.navercorp.pinpoint.web.query.service.QueryService;
 import com.navercorp.pinpoint.web.query.service.QueryServiceFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
 
-@Controller
+@RestController
 public class QueryController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
