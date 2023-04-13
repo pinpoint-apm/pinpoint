@@ -19,7 +19,7 @@ export const getTransactionStatusSVGString = (nodeData: Node): string => {
   `)
 }
 
-type SVGCircleParam = typeof defaultTheme['transactionStatus']['default'] & { strokeDashOffset?: number, strokeDashArray?: string | number }
+type SVGCircleParam = {stroke?: string, strokeWidth?: number, strokeDashOffset?: number, strokeDashArray?: string | number }
 
 const getSVGCircle = (style: SVGCircleParam) => {
   const { stroke, strokeWidth, strokeDashOffset = 0, strokeDashArray = 'none' } = style;
@@ -46,8 +46,8 @@ const getTransactionStatusSVGCircle = (transactionInfo: TransactionInfo, isMerge
 
   if (isMerged || !transactionInfo) {
     return getSVGCircle({
-      stroke: transactionStatus.default.stroke,
-      strokeWidth: transactionStatus.default.strokeWidth
+      stroke: transactionStatus!.default!.stroke,
+      strokeWidth: transactionStatus!.default!.strokeWidth
     });
   } else {
     const sum = Object.keys(transactionInfo).reduce((prev: number, curr: string) => prev + transactionInfo[curr as keyof TransactionInfo], 0);
@@ -58,16 +58,16 @@ const getTransactionStatusSVGCircle = (transactionInfo: TransactionInfo, isMerge
     const badArcOffset = -1 * (0.75 * DIAMETER - badArc);
 
     return getSVGCircle({
-      stroke: transactionStatus.good.stroke,
-      strokeWidth: transactionStatus.good.strokeWidth,
+      stroke: transactionStatus.good!.stroke,
+      strokeWidth: transactionStatus.good!.strokeWidth,
     }) + getSVGCircle({
-      stroke: transactionStatus.slow.stroke,
-      strokeWidth: transactionStatus.slow.strokeWidth,
+      stroke: transactionStatus.slow!.stroke,
+      strokeWidth: transactionStatus.slow!.strokeWidth,
       strokeDashOffset: slowArcOffset,
       strokeDashArray: slowArc
     }) + getSVGCircle({
-      stroke: transactionStatus.bad.stroke,
-      strokeWidth: transactionStatus.bad.strokeWidth,
+      stroke: transactionStatus.bad!.stroke,
+      strokeWidth: transactionStatus.bad!.strokeWidth,
       strokeDashOffset: badArcOffset,
       strokeDashArray: badArc
     });

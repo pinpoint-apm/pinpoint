@@ -2,7 +2,6 @@
   "extends": "@pinpoint-fe/tsconfig/react-library.json",
   "include": [
     ".",
-    "./global.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ],
@@ -10,7 +9,4 @@
     "build",
     "node_modules"
   ],
-  "compilerOptions": {
-    "jsxImportSource": "@emotion/react",
-  }
 }
