@@ -1,13 +1,17 @@
 {
   "name": "@pinpoint-fe/server-map",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "description": "Open-source network-map library, specifically for application topology, written in React.js",
   "repository": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web-frontend/src/main/v3/packages/server-map/README.md",
   "author": "NAVER",
   "license": "Apache-2.0",
-  "main": "./dist/index.js",
-  "browser": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "types": "./dist/index.d.ts",
   "files": [
     "dist/**"
@@ -17,14 +21,12 @@
     "test": "jest",
     "storybook": "start-storybook -p 6008",
     "build-storybook": "build-storybook",
-    "build": "tsup src/index.tsx --format esm,cjs --dts --external react",
+    "build": "tsup --config tsup.config.production.ts",
     "clean": "rm -rf dist",
-    "dev": "tsup src/index.tsx --format esm,cjs --dts --external react --watch",
-    "devBuild": "tsup src/index.tsx --format esm,cjs --dts --external react"
+    "dev": "tsup --config tsup.config.dev.ts --watch",
+    "devBuild": "tsup --config tsup.config.dev.ts "
   },
   "dependencies": {
-    "@emotion/react": "^11.9.3",
-    "@emotion/styled": "^11.9.3",
     "cytoscape": "^3.22.1",
     "cytoscape-dagre": "^2.4.0",
     "date-fns": "^2.28.0",
@@ -36,8 +38,6 @@
   "devDependencies": {
     "@babel/core": "^7.17.10",
     "@babel/preset-react": "^7.18.6",
-    "@emotion/babel-plugin": "^11.9.2",
-    "@emotion/babel-preset-css-prop": "^11.2.0",
     "@pinpoint-fe/tsconfig": "*",
     "@storybook/addon-actions": "^6.5.9",
     "@storybook/addon-essentials": "^6.5.9",

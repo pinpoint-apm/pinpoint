@@ -2,7 +2,6 @@ import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import { ServerMap } from '../ui/ServerMap';
-import styled from '@emotion/styled';
 import { data, getServerMapData } from './mock';
 
 export default {
@@ -16,12 +15,6 @@ export default {
   },
 } as ComponentMeta<typeof ServerMap>;
 
-const StyledContainer = styled.div`
-  width: 100%;
-  height: 90vh;
-  border: 1px solid black;
-`
-
 const edgeDataById = data.applicationMapData.linkDataArray.reduce((acc, curr) => {
   return {
     ...acc,
@@ -31,11 +24,11 @@ const edgeDataById = data.applicationMapData.linkDataArray.reduce((acc, curr) =>
 const serverMapData = getServerMapData();
 
 const Template: ComponentStory<typeof ServerMap> = (args) => (
-  <StyledContainer>
+  <div style={{width: '100%', height: '90vh', border: '1px solid black'}}>
     <ServerMap
       {...args}
     />
-  </StyledContainer>
+  </div>
 );
 
 export const Default = Template.bind({});
