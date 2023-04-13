@@ -1,5 +1,9 @@
 import { Css } from 'cytoscape'
 
+type DeepNonNullable<T> = {
+  [P in keyof T]-?: NonNullable<T[P]>;
+}
+
 export type ServerMapTheme = {
   transactionStatus?: {
     default?: {
@@ -31,7 +35,7 @@ export type ServerMapTheme = {
   }
 } 
 
-export const defaultTheme: ServerMapTheme = {
+export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
   transactionStatus: {
     default: {
       stroke: 'transparent',
