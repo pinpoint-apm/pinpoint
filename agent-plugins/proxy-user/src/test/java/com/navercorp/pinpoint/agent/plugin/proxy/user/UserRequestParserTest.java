@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.agent.plugin.proxy.user;
 
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserRequestParserTest {
 
@@ -28,12 +28,12 @@ public class UserRequestParserTest {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448369 D=123";
         ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
-        assertTrue(proxyHttpHeader.isValid());
-        assertEquals(1625212448369L, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(123L, proxyHttpHeader.getDurationTimeMicroseconds());
-        assertEquals("HEADER_NAME", proxyHttpHeader.getApp());
-        assertEquals(-1, proxyHttpHeader.getIdlePercent());
-        assertEquals(-1, proxyHttpHeader.getBusyPercent());
+        assertThat(proxyHttpHeader.isValid()).isTrue();
+        assertThat(1625212448369L).isEqualTo(proxyHttpHeader.getReceivedTimeMillis());
+        assertThat(123L).isEqualTo(proxyHttpHeader.getDurationTimeMicroseconds());
+        assertThat("HEADER_NAME").isEqualTo(proxyHttpHeader.getApp());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getIdlePercent());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getBusyPercent());
     }
 
     @Test
@@ -41,20 +41,19 @@ public class UserRequestParserTest {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448369";
         ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
-        assertTrue(proxyHttpHeader.isValid());
-        assertEquals(1625212448369L, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
-        assertEquals(-1, proxyHttpHeader.getIdlePercent());
-        assertEquals(-1, proxyHttpHeader.getBusyPercent());
+        assertThat(proxyHttpHeader.isValid()).isTrue();
+        assertThat(1625212448369L).isEqualTo(proxyHttpHeader.getReceivedTimeMillis());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getDurationTimeMicroseconds());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getIdlePercent());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getBusyPercent());
     }
 
     @Test
     public void parseNotFoundReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "D=123";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
-        assertFalse(proxyHttpHeader.isValid());
-        System.out.println(proxyHttpHeader);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
+        assertThat(proxyHttpHeader.isValid()).isFalse();
     }
 
     @Test
@@ -62,19 +61,17 @@ public class UserRequestParserTest {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448.369";
         ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
-        assertEquals(1625212448369L, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
-        assertEquals(-1, proxyHttpHeader.getIdlePercent());
-        assertEquals(-1, proxyHttpHeader.getBusyPercent());
+        assertThat(1625212448369L).isEqualTo(proxyHttpHeader.getReceivedTimeMillis());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getDurationTimeMicroseconds());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getIdlePercent());
+        assertThat(-1).isEqualTo(proxyHttpHeader.getBusyPercent());
     }
 
     @Test
     public void parseInvalidReceived() {
         UserRequestParser parser = new UserRequestParser();
         String value = "t=1625212448:369";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
-        assertFalse(proxyHttpHeader.isValid());
-        System.out.println(proxyHttpHeader);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("HEADER_NAME", value);
+        assertThat(proxyHttpHeader.isValid()).isFalse();
     }
-
 }
