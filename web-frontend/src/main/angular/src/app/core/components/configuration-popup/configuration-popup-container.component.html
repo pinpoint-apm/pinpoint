@@ -1,0 +1,10 @@
+<pp-configuration-popup
+        [webhookEnable]="webhookEnable"
+        [currentTheme]="currentTheme"
+        (outMenuClick)="onMenuClick($event)"
+        (outChangeTheme)="onChangeTheme($event)"
+        (outOpenLink)="onOpenLink()"
+        (clickOutside)="onClickOutside()"
+        [exclude]="'.fa-cog'">
+</pp-configuration-popup>
+<div class="l-tooltip-caret" #tooltipCaret [style.left]="calculateTooltipCaretLeft(tooltipCaret)"></div>

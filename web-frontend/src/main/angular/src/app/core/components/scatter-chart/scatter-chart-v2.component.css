@@ -1,0 +1,67 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.l-wrapper {
+    display: block;
+    height: 100%;
+    position: relative;
+}
+
+.l-scatter {
+    width: 100%;
+    height: 100%;
+    /* height: 215px; */
+    display: block;
+    position: relative;
+}
+
+.l-message {
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    position: absolute;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.l-message span {
+    font-weight: 600;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+}
+
+::ng-deep .__scatter_chart__container {
+    width: 100%;
+    height: 100%;
+}
+
+::ng-deep .__scatter_chart__legend_container {
+    color: var(--text-secondary);
+}
+
+::ng-deep .__scatter_chart__legend {
+    align-items: center;
+}
+
+::ng-deep .__scatter_chart__legend_mark {
+    width: 13px;
+    height: 13px;
+}
+
+::ng-deep .__scatter_chart__legend_count {
+    color: var(--text-primary);
+    font-size: 22px;
+    margin-left: 5px;
+}
+
+::ng-deep .__scatter_chart__legend label {
+    display: flex;
+    align-items: center;;
+}

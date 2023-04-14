@@ -1,0 +1,39 @@
+<div class="search-section-wrapper">
+    <div class="search-input-wrapper">
+        <input type="text" placeholder="{{inputPlaceholder$ | async}}" class="search-input"
+               ppSearchInput
+               [searchMinLength]="SEARCH_MIN_LENGTH"
+               [useEnter]="searchUseEnter"
+               (outCancel)="onCancel()"
+               (outSearch)="onSearch($event)">
+        <button class="fas fa-search"></button>
+    </div>
+    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+</div>
+<div class="sort-option-wrapper">
+    <div class="sort-label">Sort by:</div>
+    <div class="sort-option-list-wrapper">
+        <ng-container *ngFor="let sortOption of sortOptionList">
+            <div class="sort-option" [class.active]="isActiveSortOption(sortOption.key)"
+                 (click)="onSelectSortOption(sortOption.key)">{{sortOption.display}}</div>
+        </ng-container>
+    </div>
+</div>
+<ng-container *ngIf="errorMessage || isEmpty; then guideText; else contents"></ng-container>
+<ng-template #guideText>
+    <p class="guide-text" [class.error-text]="errorMessage">{{errorMessage ? errorMessage : emptyText$ | async}}</p>
+</ng-template>
+<ng-template #contents>
+    <div class="list-wrapper">
+        <pp-server-and-agent-list
+                [funcImagePath]="funcImagePath"
+                [serverKeyList]="filteredServerKeyList"
+                [serverList]="filteredServerList"
+                [agentId]="agentId"
+                [selectedSortOptionKey]="selectedSortOptionKey"
+                (outSelectAgent)="onSelectAgent($event)">
+        </pp-server-and-agent-list>
+        <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>
+        <pp-loading [showLoading]="showLoading" [zIndex]="11"></pp-loading>
+    </div>
+</ng-template>

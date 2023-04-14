@@ -32,13 +32,7 @@
         <jdk.version>11</jdk.version>
         <jdk.home>${env.JAVA_11_HOME}</jdk.home>
 
-        <grunt.build.command>build_release_without_lint</grunt.build.command>
-
-        <!-- java back-end development option -->
-        <build.frontend.skip>false</build.frontend.skip>
-
         <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
-
         <pinpoint.web.executable.name>${project.artifactId}-boot-${project.version}</pinpoint.web.executable.name>
     </properties>
 
@@ -58,6 +52,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-hbase</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-web-frontend</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -373,111 +372,7 @@
                     <finalName>${pinpoint.web.executable.name}</finalName>
                 </configuration>
             </plugin>
-            <!-- build.frontend -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>build-frontend-source</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                            <appendAssemblyId>true</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/assembly/frontend.xml</descriptor>
-                            </descriptors>
-                            <attach>true</attach>
-                            <skipAssembly>${build.frontend.skip}</skipAssembly>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>${plugin.frontend.version}</version>
-                <configuration>
-                    <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
-                    <workingDirectory>${basedir}/src/main/angular</workingDirectory>
-                    <skip>${build.frontend.skip}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>install node and yarn</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>install-node-and-yarn</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
-                            <yarnVersion >${plugin.frontend.yarn.version}</yarnVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>yarn install</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>yarn build</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>build:real</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-    <profiles>
 
-        <profile>
-            <id>forceclean</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>node-clean</id>
-                                <phase>clean</phase>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                                <configuration>
-                                    <filesets>
-                                        <fileset>
-                                            <directory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</directory>
-                                            <includes>
-                                                <include>**</include>
-                                            </includes>
-                                        </fileset>
-                                        <fileset>
-                                            <directory>${basedir}/src/main/angular/node_modules</directory>
-                                            <includes>
-                                                <include>**</include>
-                                            </includes>
-                                        </fileset>
-                                    </filesets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

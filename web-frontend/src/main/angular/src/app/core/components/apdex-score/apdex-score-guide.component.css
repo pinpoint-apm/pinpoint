@@ -1,0 +1,122 @@
+:host {
+    display: block;
+}
+
+.title-group {
+    display: block;
+    padding: 14px 18px;
+    height: auto;
+    border-bottom: 1px solid var(--border-primary);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.desc-group {
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-primary);
+    padding: 14px 18px 7px 18px;
+    font-weight: 600;
+}
+
+.title-group .title-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.title-group .title-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.contents-group {
+    padding: 14px 14px;
+}
+
+.contents-group .category-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    padding-left: 26px;
+}
+
+.contents-group .category-item-list {
+    display: flex;
+    padding: 5px 0;
+    line-height: 20px;
+}
+
+.apdex-formula-wrapper {
+}
+
+.upper {
+    display: flex;
+    justify-content: center;
+}
+
+.lower {
+    display: flex;
+    justify-content: center;
+}
+
+.sign {
+    padding: 5px;
+}
+
+.divider {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 5px 0;
+    padding: 0;
+}
+
+.formula-elem {
+    padding: 5px;
+}
+
+.apdex-score-range {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary-lightest);
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 5px;
+    text-align: center;
+}
+
+.apdex-score-rank {
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.fas {
+    font-size: 15px;
+    margin-right: 3px;
+}
+
+.excellent {
+    color: var(--status-success);
+}
+
+.good {
+    color: var(--status-good);
+}
+
+.poor {
+    color: var(--status-warn);
+}
+
+.unacceptable {
+    color: var(--status-fail);
+}
