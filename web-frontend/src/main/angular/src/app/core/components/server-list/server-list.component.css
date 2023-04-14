@@ -1,0 +1,120 @@
+:host {
+    display: block;
+}
+
+.servers-list {
+    padding: 0 8px 0 15px;
+}
+
+.server-name {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.servers-list li {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.servers-list li {
+    margin: 15px 0 0 0;
+}
+
+.servers-list li.first-child {
+    margin: 0;
+}
+
+.servers-list li.first-child:before {
+    font-family: FontAwesome;
+    content: '\f0ae';
+    font-size: 14px;
+    margin: 0 8px 0 0;
+    color: var(--text-secondary);
+    font-weight: normal;
+}
+
+.depth-1 {
+    margin: 10px 0 0 15px;
+}
+
+.depth-1 li {
+    font-size: 12px;
+    color: var(--text-primary-lightest);
+    font-weight: 400;
+    height: 25px;
+    margin: 5px 0px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.radio-input {
+    margin: 0 5px;
+}
+
+.radio-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.depth-1 li:hover {
+    background: var(--background-hover-default);
+}
+
+.inspector-btn {
+    padding: 5px 5px;
+    font-size: 10px;
+    color: var(--text-knockout);
+    background-color: var(--primary);
+    border-radius: 2px;
+}
+
+.icon-alert {
+    height: 1em;
+    display: inline-block;
+    width: 11px;
+}
+
+.label-radio-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.btn-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.depth-1 li:hover .copy-button {
+    display: inline-block;
+}
+
+.copy-button {
+    display: none;
+    position: absolute;
+    /* right: 25px; */
+    /* right: 2px; */
+    /* top: 0px; */
+    bottom: -13px;
+    z-index: 100;
+}
+
+.copy-button:focus {
+    outline: 0;
+}
+
+.fa-copy {
+    font-size: 15px;
+    color: var(--icon-default);
+}
+
+.fa-copy:hover {
+    color: var(--icon-hover);
+}

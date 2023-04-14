@@ -1,0 +1,84 @@
+:host {
+    position: relative;
+}
+
+.l-pinpoint-user-wrapper {
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    height: 100%;
+    display: grid;
+    position: relative;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    background-color: var(--background-default);
+    grid-template-columns: auto;
+    grid-template-rows: 48px 53px calc(100% - 101px);
+}
+
+.l-pinpoint-user-title {
+    display: flex;
+    padding: 0px 15px;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.l-pinpoint-user-title button:last-child {
+    margin-left: 2px;
+}
+
+.l-pinpoint-user-search {
+    position: relative;
+    padding: 11px;
+    border-bottom: 1px solid var(--border-primary);
+    color: var(--text-primary-lightest);
+}
+
+.l-pinpoint-user-list {
+    overflow-y: auto;
+}
+
+.l-search-input {
+    width: 100%;
+    height: 100%;
+    color: var(--text-primary-lightest);
+    border: 1px solid var(--form-input-border);
+    padding: 0 28px 0 10px;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.l-search-input:focus {
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 1px 1px var(--primary);
+    outline: none;
+}
+
+.l-search-button {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    /* outline: none; */
+}
+
+.btn {
+    padding: 0 9px;
+    border-radius: 2px;
+}
+
+.l-empty-text {
+    padding: 12px 15px;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+::ng-deep .cdk-virtual-scroll-content-wrapper {
+    width: 100%;
+}

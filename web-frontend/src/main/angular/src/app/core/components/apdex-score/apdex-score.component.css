@@ -1,0 +1,33 @@
+:host {
+    font-size: 16px;
+}
+
+.title {
+    margin-right: 15px;
+    color: var(--text-primary);
+}
+
+.score {
+    font-weight: bold;
+}
+
+.empty-text {
+    font-weight: bold;
+    color: var(--text-primary-lightest);
+}
+
+.excellent {
+    color: var(--status-success);
+}
+
+.good {
+    color: var(--status-good);
+}
+
+.poor {
+    color: var(--status-warn);
+}
+
+.unacceptable {
+    color: var(--status-fail);
+}

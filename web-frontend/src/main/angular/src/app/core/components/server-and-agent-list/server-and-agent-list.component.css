@@ -1,0 +1,80 @@
+:host {
+    display: block;
+    height: 100%;
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+.l-servers-list {
+    overflow-x: hidden;
+    height: 100%;
+}
+
+.l-depth-0 .l-name-wrapper {
+    padding: 8px 10px 8px 17px;
+    display: flex;
+    align-items: center;
+}
+
+.l-name {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.l-depth-1 .l-name-wrapper {
+    margin-left: 15px;
+    font-size: 90%;
+    max-width: calc(100% - 15px);
+    position: relative;
+}
+
+.l-name-wrapper {
+    display: block;
+}
+
+.l-name-wrapper i {
+    margin-right: 4px;
+}
+
+.l-name-wrapper:hover {
+    cursor: pointer;
+    background-color: var(--background-hover-default);
+    color: var(--primary) !important;
+}
+
+.l-name-wrapper.active {
+    color: var(--primary) !important;
+}
+
+.l-icon-alert > img {
+    vertical-align: middle;
+}
+
+.l-depth-1 .l-name-wrapper:hover .copy-button {
+    display: inline-block;
+}
+
+.copy-button {
+    display: none;
+    position: absolute;
+    /* right: 25px; */
+    /* top: 0px; */
+    bottom: -5px;
+    z-index: 100;
+    /* left: 100%; */
+}
+
+.copy-button:focus {
+    outline: 0;
+}
+
+.fa-copy {
+    font-size: 15px;
+    color: var(--icon-default);
+}
+
+.fa-copy:hover {
+    color: var(--icon-hover);
+}

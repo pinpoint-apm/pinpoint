@@ -1,0 +1,45 @@
+:host {
+    display: block;
+    background-color: var(--background-layer);
+}
+
+.l-one-depth-list {
+    width: 100%;
+    margin: 0 0;
+    padding: 0 0;
+    list-style-type: none;
+}
+
+.l-one-depth-list > li {
+    border-bottom: 1px solid var(--border-primary);
+    padding: 10px;
+}
+
+.l-one-depth-list > li:last-of-type {
+    border-bottom: none;
+}
+
+li.l-selectable-command .fa-filter,
+li.l-selectable-command .fa-magic {
+    color: var(--primary);
+}
+
+li.l-selectable-command {
+    cursor: pointer;
+}
+
+li.l-selectable-command:hover {
+    background-color: var(--background-hover-secondary);
+}
+
+.l-two-depth-list {
+    padding-top: 10px;
+}
+
+.l-two-depth-list li {
+    padding: 4px;
+}
+
+.l-fas {
+    margin-right: 4px;
+}

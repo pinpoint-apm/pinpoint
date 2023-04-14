@@ -1,0 +1,70 @@
+/* nanum-gothic-regular - korean */
+@font-face {
+    font-family: 'Nanum Gothic';
+    font-style: normal;
+    font-weight: 400;
+    src: local('NanumGothic'),
+         url('nanum/nanum-gothic-v8-korean-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('nanum/nanum-gothic-v8-korean-regular.woff') format('woff'), /* Modern Browsers */
+         url('nanum/nanum-gothic-v8-korean-regular.ttf') format('truetype') /* Safari, Android, iOS */
+}
+/* nanum-gothic-700 - korean */
+@font-face {
+    font-family: 'Nanum Gothic';
+    font-style: normal;
+    font-weight: 700;
+    src: local('NanumGothic Bold'), local('NanumGothic-Bold'),
+         url('nanum/nanum-gothic-v8-korean-700.woff2') format('woff2'), /* Super Modern Browsers */
+         url('nanum/nanum-gothic-v8-korean-700.woff') format('woff'), /* Modern Browsers */
+         url('nanum/nanum-gothic-v8-korean-700.ttf') format('truetype') /* Safari, Android, iOS */
+}
+/* nanum-gothic-800 - korean */
+@font-face {
+    font-family: 'Nanum Gothic';
+    font-style: normal;
+    font-weight: 800;
+    src: local('NanumGothic ExtraBold'), local('NanumGothic-ExtraBold'),
+         url('nanum/nanum-gothic-v8-korean-800.woff2') format('woff2'), /* Super Modern Browsers */
+         url('nanum/nanum-gothic-v8-korean-800.woff') format('woff'), /* Modern Browsers */
+         url('nanum/nanum-gothic-v8-korean-800.ttf') format('truetype') /* Safari, Android, iOS */
+}
+/* open-sans-regular - latin */
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Open Sans Regular'), local('OpenSans-Regular'),
+         url('opensans/open-sans-v15-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('opensans/open-sans-v15-latin-regular.woff') format('woff'), /* Modern Browsers */
+         url('opensans/open-sans-v15-latin-regular.ttf') format('truetype') /* Safari, Android, iOS */
+}
+/* open-sans-600 - latin */
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 600;
+    src: local('Open Sans SemiBold'), local('OpenSans-SemiBold'),
+         url('opensans/open-sans-v15-latin-600.woff2') format('woff2'), /* Super Modern Browsers */
+         url('opensans/open-sans-v15-latin-600.woff') format('woff'), /* Modern Browsers */
+         url('opensans/open-sans-v15-latin-600.ttf') format('truetype') /* Safari, Android, iOS */
+}
+/* open-sans-700 - latin */
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Open Sans Bold'), local('OpenSans-Bold'),
+         url('opensans/open-sans-v15-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
+         url('opensans/open-sans-v15-latin-700.woff') format('woff'), /* Modern Browsers */
+         url('opensans/open-sans-v15-latin-700.ttf') format('truetype') /* Safari, Android, iOS */
+}
+/* open-sans-800 - latin */
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 800;
+    src: local('Open Sans ExtraBold'), local('OpenSans-ExtraBold'),
+         url('opensans/open-sans-v15-latin-800.woff2') format('woff2'), /* Super Modern Browsers */
+         url('opensans/open-sans-v15-latin-800.woff') format('woff'), /* Modern Browsers */
+         url('opensans/open-sans-v15-latin-800.ttf') format('truetype') /* Safari, Android, iOS */
+}

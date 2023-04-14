@@ -1,0 +1,42 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.l-desc-text-wrapper {
+    margin-bottom: 20px;
+}
+
+.l-desc-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.l-title {
+    height: 48px;
+    border: 1px solid var(--border-primary);
+    border-bottom: none;
+    display: flex;
+    font-size: 14px;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-default);
+}
+
+.l-contents {
+    border: 1px solid var(--border-primary);
+    display: flex;
+    position: relative;
+    background-color: var(--background-default);
+    height: calc(100% - 48px);
+}
+
+.l-content-item {
+    flex: 1;
+    border-right: 1px solid var(--border-primary);
+}
+
+.l-content-item2 {
+    flex: 1;
+}

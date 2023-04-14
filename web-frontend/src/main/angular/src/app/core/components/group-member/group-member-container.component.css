@@ -1,0 +1,46 @@
+:host {
+    position: relative;
+}
+
+.l-group-member-wrapper {
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    height: 100%;
+    display: grid;
+    position: relative;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    background-color: var(--background-default);
+    grid-template-columns: auto;
+    grid-template-rows: 48px calc(100% - 48px);
+}
+
+.l-group-member-title {
+    display: flex;
+    padding: 0px 15px;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.l-group-member-title button:last-child {
+    margin-left: 12px;
+}
+
+.l-group-member-sort-exchange {
+    color: var(--icon-default);
+    transform: rotate(90deg);
+}
+
+.l-group-member-list {
+    overflow-y: auto;
+}
+
+.l-empty-text {
+    padding: 12px 15px;
+    font-weight: normal;
+    font-size: 14px;
+}

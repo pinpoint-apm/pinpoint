@@ -50,19 +50,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
         // index.html no-cache
-        registry.addResourceHandler("/index.html").addResourceLocations(RESOURCE_LOCATION)
+        registry.addResourceHandler("/index.html")
+                .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache());
 
         // Resources that don't change well : 1 day
-        registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE).addResourceLocations(RESOURCE_LOCATION)
+        registry.addResourceHandler(LONG_TIME_AVAILABLE_RESOURCE_TYPE)
+                .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS).cachePublic());
 
         // Resources that change well : 2 minutes
-        registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE).addResourceLocations(RESOURCE_LOCATION)
+        registry.addResourceHandler(SHORT_TIME_AVAILABLE_RESOURCE_TYPE)
+                .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES).cachePublic());
 
         // default resource handler
-        registry.addResourceHandler("/**").addResourceLocations(RESOURCE_LOCATION)
+        registry.addResourceHandler("/**")
+                .addResourceLocations(RESOURCE_LOCATION)
                 .setCacheControl(CacheControl.noCache());
     }
 

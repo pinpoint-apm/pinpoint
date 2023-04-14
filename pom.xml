@@ -111,6 +111,7 @@
         <module>grpc</module>
         <module>test</module>
         <module>web</module>
+        <module>web-frontend</module>
         <module>hbase</module>
         <module>flink</module>
         <module>testcase</module>
