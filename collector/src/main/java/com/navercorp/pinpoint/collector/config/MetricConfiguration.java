@@ -26,11 +26,11 @@ public class MetricConfiguration {
 
 
     @Bean
-    public CollectorMetric collectorMetric(CollectorConfiguration collectorConfiguration,
+    public CollectorMetric collectorMetric(CollectorProperties collectorProperties,
                                            MetricRegistry metricRegistry,
                                            Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics,
                                            Optional<BulkOperationMetrics> cachedStatisticsDaoMetrics) {
-        return new CollectorMetric(collectorConfiguration, metricRegistry, hBaseAsyncOperationMetrics, cachedStatisticsDaoMetrics);
+        return new CollectorMetric(collectorProperties, metricRegistry, hBaseAsyncOperationMetrics, cachedStatisticsDaoMetrics);
     }
 
 }

@@ -19,14 +19,13 @@ package com.navercorp.pinpoint.grpc.security;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.util.Resource;
-
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
@@ -41,15 +40,15 @@ public final class SslContextFactory {
 
     private static final Logger LOGGER = LogManager.getLogger(SslContextFactory.class);
 
-    public static SslContext create(SslServerConfig serverConfig) throws SSLException {
-        Objects.requireNonNull(serverConfig, "serverConfig");
+    public static SslContext create(SslServerProperties serverProperties) throws SSLException {
+        Objects.requireNonNull(serverProperties, "serverProperties");
 
-        SslProvider sslProvider = getSslProvider(serverConfig.getSslProviderType());
+        SslProvider sslProvider = getSslProvider(serverProperties.getSslProviderType());
 
         SslContextBuilder sslContextBuilder;
         try {
-            Resource keyCertChainFileResource = serverConfig.getKeyCertChainResource();
-            Resource keyResource = serverConfig.getKeyResource();
+            Resource keyCertChainFileResource = serverProperties.getKeyCertChainResource();
+            Resource keyResource = serverProperties.getKeyResource();
 
             sslContextBuilder = SslContextBuilder.forServer(keyCertChainFileResource.getInputStream(), keyResource.getInputStream());
             SslContext sslContext = createSslContext(sslContextBuilder, sslProvider);

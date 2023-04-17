@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamProperties;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.IdleTimeoutFactory;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.RejectedExecutionListenerFactory;
@@ -47,7 +47,7 @@ public class StreamExecutorServerInterceptorFactory implements FactoryBean<Serve
 
     public StreamExecutorServerInterceptorFactory(Executor executor,
                                                   ScheduledExecutorService scheduledExecutorService,
-                                                  GrpcStreamConfiguration streamConfiguration) {
+                                                  GrpcStreamProperties streamConfiguration) {
         this.executor = Objects.requireNonNull(executor, "executor");
         this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
 

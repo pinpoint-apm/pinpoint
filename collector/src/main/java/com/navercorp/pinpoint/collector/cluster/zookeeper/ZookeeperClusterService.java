@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConne
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionRepository;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnector;
-import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
+import com.navercorp.pinpoint.collector.config.CollectorClusterProperties;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
@@ -50,7 +50,7 @@ public class ZookeeperClusterService implements ClusterService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final CollectorClusterConfig config;
+    private final CollectorClusterProperties properties;
     private final String webZNodePath;
 
     private final ClusterPointRouter clusterPointRouter;
@@ -69,11 +69,11 @@ public class ZookeeperClusterService implements ClusterService {
     // ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
     private ProfilerClusterManager profilerClusterManager;
 
-    public ZookeeperClusterService(CollectorClusterConfig config, ClusterPointRouter clusterPointRouter) {
-        this.config = Objects.requireNonNull(config, "config");
-        Assert.isTrue(config.isClusterEnable(), "clusterEnable is false");
+    public ZookeeperClusterService(CollectorClusterProperties properties, ClusterPointRouter clusterPointRouter) {
+        this.properties = Objects.requireNonNull(properties, "properties");
+        Assert.isTrue(properties.isClusterEnable(), "clusterEnable is false");
 
-        this.webZNodePath = Objects.requireNonNull(config.getWebZNodePath(), "webZNodePath");
+        this.webZNodePath = Objects.requireNonNull(properties.getWebZNodePath(), "webZNodePath");
 
         this.clusterPointRouter = Objects.requireNonNull(clusterPointRouter, "clusterPointRouter");
 
@@ -81,17 +81,17 @@ public class ZookeeperClusterService implements ClusterService {
         CollectorClusterConnectionFactory clusterConnectionFactory = new CollectorClusterConnectionFactory(serverIdentifier, clusterPointRouter, clusterPointRouter);
         CollectorClusterConnector clusterConnector = clusterConnectionFactory.createConnector();
 
-        CollectorClusterAcceptor clusterAcceptor = newCollectorClusterAcceptor(config, clusterRepository, clusterConnectionFactory);
+        CollectorClusterAcceptor clusterAcceptor = newCollectorClusterAcceptor(properties, clusterRepository, clusterConnectionFactory);
 
         this.clusterConnectionManager = new CollectorClusterConnectionManager(serverIdentifier, clusterRepository, clusterConnector, clusterAcceptor);
 
     }
 
-    private CollectorClusterAcceptor newCollectorClusterAcceptor(CollectorClusterConfig config,
+    private CollectorClusterAcceptor newCollectorClusterAcceptor(CollectorClusterProperties properties,
                                                                  CollectorClusterConnectionRepository clusterRepository,
                                                                  CollectorClusterConnectionFactory clusterConnectionFactory) {
-        if (StringUtils.isNotEmpty(config.getClusterListenIp()) && config.getClusterListenPort() > 0) {
-            InetSocketAddress bindAddress = new InetSocketAddress(config.getClusterListenIp(), config.getClusterListenPort());
+        if (StringUtils.isNotEmpty(properties.getClusterListenIp()) && properties.getClusterListenPort() > 0) {
+            InetSocketAddress bindAddress = new InetSocketAddress(properties.getClusterListenIp(), properties.getClusterListenPort());
             return clusterConnectionFactory.createAcceptor(bindAddress, clusterRepository);
         }
         return null;
@@ -108,14 +108,14 @@ public class ZookeeperClusterService implements ClusterService {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher();
-                    this.client = new CuratorZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
+                    this.client = new CuratorZookeeperClient(properties.getClusterAddress(), properties.getClusterSessionTimeout(), watcher);
                     try {
                         this.client.connect();
                     } catch (PinpointZookeeperException e) {
                         throw new RuntimeException("ZookeeperClient connect failed", e);
                     }
 
-                    final String connectedAgentZNodePath = ZKPaths.makePath(config.getCollectorZNodePath(), serverIdentifier);
+                    final String connectedAgentZNodePath = ZKPaths.makePath(properties.getCollectorZNodePath(), serverIdentifier);
 
                     this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, connectedAgentZNodePath, clusterPointRouter.getTargetClusterPointRepository());
                     this.profilerClusterManager.start();
@@ -182,7 +182,7 @@ public class ZookeeperClusterService implements ClusterService {
 
     @Override
     public boolean isEnable() {
-        return config.isClusterEnable();
+        return properties.isClusterEnable();
     }
 
     @Override

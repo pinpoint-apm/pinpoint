@@ -31,7 +31,7 @@ import java.util.Objects;
  * @author emeroad
  * @author jaehong.kim
  */
-public class CollectorConfiguration {
+public class CollectorProperties {
     private final Logger logger = LogManager.getLogger(getClass());
 
     @Value("${collector.agentEventWorker.threadSize:32}")

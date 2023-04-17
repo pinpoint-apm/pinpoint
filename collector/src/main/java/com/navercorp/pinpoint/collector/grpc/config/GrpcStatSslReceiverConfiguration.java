@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,35 +27,35 @@ import org.springframework.core.env.Environment;
  * @author Taejin Koo
  */
 @Configuration
-public class GrpcSpanSslReceiverConfigurationFactory {
+public class GrpcStatSslReceiverConfiguration {
 
-    static final String SPAN_SSL_CONFIG = "grpcSpanSslReceiverConfig";
+    static final String STAT_SSL_PROPERTIES = "grpcStatSslReceiverProperties";
 
-    public static final String BIND_ADDRESS = "collector.receiver.grpc.span.ssl.bindaddress";
+    public static final String BIND_ADDRESS = "collector.receiver.grpc.stat.ssl.bindaddress";
 
-    public GrpcSpanSslReceiverConfigurationFactory() {
+    public GrpcStatSslReceiverConfiguration() {
     }
 
     @Bean(BIND_ADDRESS)
     @ConfigurationProperties(BIND_ADDRESS)
     public BindAddress.Builder newBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();
-        builder.setPort(9443);
+        builder.setPort(9442);
         return builder;
     }
 
-    @Bean(SPAN_SSL_CONFIG)
-    public GrpcSslReceiverConfiguration newAgentReceiverConfig(
+    @Bean(STAT_SSL_PROPERTIES)
+    public GrpcSslReceiverProperties grpcStatSslReceiverProperties(
             Environment environment,
-            @Qualifier(GrpcAgentDataSslReceiverConfigurationFactory.SSL) GrpcSslConfiguration.Builder sslConfigurationBuilder) throws Exception {
+            @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) throws Exception{
 
-        boolean enable = environment.getProperty("collector.receiver.grpc.span.ssl.enable", boolean.class, false);
+        boolean enable = environment.getProperty("collector.receiver.grpc.stat.ssl.enable", boolean.class, false);
 
         BindAddress bindAddress = newBindAddressBuilder().build();
 
-        GrpcSslConfiguration grpcSslConfiguration = sslConfigurationBuilder.build();
+        GrpcSslProperties grpcSslConfiguration = sslPropertiesBuilder.build();
 
-        return new GrpcSslReceiverConfiguration(enable, bindAddress, grpcSslConfiguration);
+        return new GrpcSslReceiverProperties(enable, bindAddress, grpcSslConfiguration);
     }
 
 }

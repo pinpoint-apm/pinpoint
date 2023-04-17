@@ -25,26 +25,26 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = StatReceiverConfiguration.class)
+@ContextConfiguration(classes = StatReceiverProperties.class)
 @ExtendWith(SpringExtension.class)
 public class StatReceiverConfigurationTest {
 
     @Autowired
-    StatReceiverConfiguration configuration;
+    StatReceiverProperties properties;
 
     @Test
     public void properties() {
 
-        Assertions.assertFalse(configuration.isUdpEnable());
-        Assertions.assertEquals(configuration.getUdpBindIp(), "0.0.0.1");
-        Assertions.assertEquals(configuration.getUdpBindPort(), 39995);
-        Assertions.assertEquals(configuration.getUdpReceiveBufferSize(), 419);
-        Assertions.assertTrue(configuration.isTcpEnable());
-        Assertions.assertEquals(configuration.getTcpBindIp(), "0.0.0.2");
-        Assertions.assertEquals(configuration.getTcpBindPort(), 39996);
-        Assertions.assertEquals(configuration.getWorkerThreadSize(), 2);
-        Assertions.assertEquals(configuration.getWorkerQueueSize(), 3);
-        Assertions.assertTrue(configuration.isWorkerMonitorEnable());
+        Assertions.assertFalse(properties.isUdpEnable());
+        Assertions.assertEquals(properties.getUdpBindIp(), "0.0.0.1");
+        Assertions.assertEquals(properties.getUdpBindPort(), 39995);
+        Assertions.assertEquals(properties.getUdpReceiveBufferSize(), 419);
+        Assertions.assertTrue(properties.isTcpEnable());
+        Assertions.assertEquals(properties.getTcpBindIp(), "0.0.0.2");
+        Assertions.assertEquals(properties.getTcpBindPort(), 39996);
+        Assertions.assertEquals(properties.getWorkerThreadSize(), 2);
+        Assertions.assertEquals(properties.getWorkerQueueSize(), 3);
+        Assertions.assertTrue(properties.isWorkerMonitorEnable());
 
     }
 }

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.handler.grpc.metric;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
@@ -24,11 +24,11 @@ public class AgentUriMetricHandler implements GrpcMetricHandler {
 
     private final boolean uriStatEnable;
 
-    public AgentUriMetricHandler(CollectorConfiguration collectorConfiguration,
+    public AgentUriMetricHandler(CollectorProperties collectorProperties,
                                  GrpcAgentUriStatMapper agentUriStatMapper,
                                  AgentUriStatService agentUriStatService) {
-        Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
-        this.uriStatEnable = collectorConfiguration.isUriStatEnable();
+        Objects.requireNonNull(collectorProperties, "collectorProperties");
+        this.uriStatEnable = collectorProperties.isUriStatEnable();
 
         this.agentUriStatMapper = Objects.requireNonNull(agentUriStatMapper, "agentUriStatMapper");
         this.agentUriStatService = Objects.requireNonNull(agentUriStatService, "agentUriStatService");

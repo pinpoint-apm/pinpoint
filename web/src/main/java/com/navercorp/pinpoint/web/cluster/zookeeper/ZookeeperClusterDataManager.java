@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.cluster.ClusterId;
 import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
-import com.navercorp.pinpoint.web.config.WebClusterConfig;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
 
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.WatchedEvent;
@@ -87,20 +87,20 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
     private final PeriodicSyncTask periodicSyncTask;
 
-    public ZookeeperClusterDataManager(WebClusterConfig config) {
-        this.connectAddress = config.getClusterZookeeperAddress();
-        this.sessionTimeout = config.getClusterZookeeperSessionTimeout();
-        this.retryInterval = config.getClusterZookeeperRetryInterval();
+    public ZookeeperClusterDataManager(WebClusterProperties properties) {
+        this.connectAddress = properties.getClusterZookeeperAddress();
+        this.sessionTimeout = properties.getClusterZookeeperSessionTimeout();
+        this.retryInterval = properties.getClusterZookeeperRetryInterval();
 
-        this.webZNodePath = config.getWebZNodePath();
-        this.collectorZNodePath = config.getCollectorZNodePath();
+        this.webZNodePath = properties.getWebZNodePath();
+        this.collectorZNodePath = properties.getCollectorZNodePath();
 
-        if (config.isClusterZookeeperPeriodicSyncEnable()) {
-            this.periodicSyncTask = new PeriodicSyncTask(config.getClusterZookeeperPeriodicSyncInterval());
+        if (properties.isClusterZookeeperPeriodicSyncEnable()) {
+            this.periodicSyncTask = new PeriodicSyncTask(properties.getClusterZookeeperPeriodicSyncInterval());
         } else {
             this.periodicSyncTask = null;
         }
-        this.pullRetryIntervalTimeMillis = config.getPullRetryIntervalTimeMillis();
+        this.pullRetryIntervalTimeMillis = properties.getPullRetryIntervalTimeMillis();
     }
 
     @Override

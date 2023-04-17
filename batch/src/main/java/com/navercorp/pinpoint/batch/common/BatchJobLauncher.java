@@ -36,9 +36,9 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     private final boolean enableCleanupInactiveAgentsJob;
 
-    public BatchJobLauncher(JobLocator locator, JobLauncher launcher, BatchConfiguration batchConfiguration) {
+    public BatchJobLauncher(JobLocator locator, JobLauncher launcher, BatchProperties batchProperties) {
         super(locator, launcher);
-        this.enableCleanupInactiveAgentsJob = batchConfiguration.isEnableCleanupInactiveAgents();
+        this.enableCleanupInactiveAgentsJob = batchProperties.isEnableCleanupInactiveAgents();
     }
 
     public void alarmJob() {

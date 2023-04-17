@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
+import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -57,12 +57,12 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
     private int inactiveCount;
 
     public CleanupInactiveAgentsTasklet(
-            BatchConfiguration batchConfiguration,
+            BatchProperties batchProperties,
             AdminService adminService,
             ApplicationIndexDao applicationIndexDao
     ) {
-        Objects.requireNonNull(batchConfiguration, "batchConfiguration");
-        this.durationDays = batchConfiguration.getCleanupInactiveAgentsDurationDays();
+        Objects.requireNonNull(batchProperties, "batchProperties");
+        this.durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
         this.adminService = Objects.requireNonNull(adminService, "adminService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
     }

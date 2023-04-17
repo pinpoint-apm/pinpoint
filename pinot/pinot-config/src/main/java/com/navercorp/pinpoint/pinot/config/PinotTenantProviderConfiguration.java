@@ -16,7 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @PropertySource("classpath:/pinot/profiles/${pinpoint.profiles.active:release}/pinot-tenant.properties")
 public class PinotTenantProviderConfiguration {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(PinotTenantProviderConfiguration.class);
 
     @Bean
     public TenantProvider getTenantProvider(@Value("${pinpoint.pinot.tenantId:pinpoint}") String tenantId) {

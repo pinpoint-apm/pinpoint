@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-public class GrpcStreamConfiguration {
+public class GrpcStreamProperties {
     private final int schedulerThreadSize;
     private final int callInitRequestCount;
     private final int schedulerPeriodMillis;
@@ -25,9 +25,9 @@ public class GrpcStreamConfiguration {
     private final long idleTimeout;
     private final long throttledLoggerRatio;
 
-    GrpcStreamConfiguration(int schedulerThreadSize, int callInitRequestCount,
-                            int schedulerPeriodMillis, int schedulerRecoveryMessageCount,
-                            long idleTimeout, long throttledLoggerRatio) {
+    GrpcStreamProperties(int schedulerThreadSize, int callInitRequestCount,
+                         int schedulerPeriodMillis, int schedulerRecoveryMessageCount,
+                         long idleTimeout, long throttledLoggerRatio) {
         this.schedulerThreadSize = schedulerThreadSize;
         this.callInitRequestCount = callInitRequestCount;
         this.schedulerPeriodMillis = schedulerPeriodMillis;
@@ -121,15 +121,15 @@ public class GrpcStreamConfiguration {
             this.throttledLoggerRatio = throttledLoggerRatio;
         }
 
-        public GrpcStreamConfiguration build() {
-            return new GrpcStreamConfiguration(this.schedulerThreadSize, this.callInitRequestCount,
+        public GrpcStreamProperties build() {
+            return new GrpcStreamProperties(this.schedulerThreadSize, this.callInitRequestCount,
                     this.schedulerPeriodMillis, this.schedulerRecoveryMessageCount, this.idleTimeout, this.throttledLoggerRatio);
         }
     }
 
     @Override
     public String toString() {
-        return "StreamConfiguration{" +
+        return "GrpcStreamProperties{" +
                 "schedulerThreadSize=" + schedulerThreadSize +
                 ", callInitRequestCount=" + callInitRequestCount +
                 ", schedulerPeriodMillis=" + schedulerPeriodMillis +

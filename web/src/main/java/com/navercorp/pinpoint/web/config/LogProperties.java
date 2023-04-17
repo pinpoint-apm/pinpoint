@@ -27,8 +27,8 @@ import javax.annotation.PostConstruct;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class LogConfiguration {
-    private final Logger logger = LogManager.getLogger(LogConfiguration.class);
+public class LogProperties {
+    private final Logger logger = LogManager.getLogger(getClass());
 
     @Value("${log.enable:false}")
     private boolean logLinkEnable;

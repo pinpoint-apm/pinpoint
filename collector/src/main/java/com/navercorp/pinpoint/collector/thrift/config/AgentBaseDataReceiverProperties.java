@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.thrift.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -31,8 +31,8 @@ import javax.annotation.PostConstruct;
 /**
  * @author Taejin Koo
  */
-@Component("baseDataReceiverConfig")
-public class AgentBaseDataReceiverConfiguration {
+@Component("baseDataReceiverProperties")
+public class AgentBaseDataReceiverProperties {
     private final Logger logger = LogManager.getLogger(getClass());
 
     @Value("${collector.receiver.base.ip:0.0.0.0}")
@@ -51,7 +51,7 @@ public class AgentBaseDataReceiverConfiguration {
     private boolean workerMonitorEnable;
 
 
-    public AgentBaseDataReceiverConfiguration() {
+    public AgentBaseDataReceiverProperties() {
     }
 
 
@@ -93,13 +93,13 @@ public class AgentBaseDataReceiverConfiguration {
     }
 
     @Bean
-    public ExecutorConfiguration baseExecutorConfiguration() {
-        return new ExecutorConfiguration(workerThreadSize, workerQueueSize, workerMonitorEnable);
+    public ExecutorProperties baseExecutorProperties() {
+        return new ExecutorProperties(workerThreadSize, workerQueueSize, workerMonitorEnable);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentBaseDataReceiverConfiguration{");
+        final StringBuilder sb = new StringBuilder("AgentBaseDataReceiverProperties{");
         sb.append("bindIp='").append(bindIp).append('\'');
         sb.append(", bindPort=").append(bindPort);
         sb.append(", workerThreadSize=").append(workerThreadSize);

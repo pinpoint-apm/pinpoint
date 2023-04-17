@@ -25,21 +25,21 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = AgentBaseDataReceiverConfiguration.class)
+@ContextConfiguration(classes = AgentBaseDataReceiverProperties.class)
 @ExtendWith(SpringExtension.class)
 public class AgentBaseDataReceiverConfigurationTest {
 
     @Autowired
-    AgentBaseDataReceiverConfiguration configuration;
+    AgentBaseDataReceiverProperties properties;
 
     @Test
     public void properties() {
 
-        Assertions.assertEquals(configuration.getBindIp(), "0.0.0.2");
-        Assertions.assertEquals(configuration.getBindPort(), 39994);
-        Assertions.assertEquals(configuration.getWorkerThreadSize(), 33);
-        Assertions.assertEquals(configuration.getWorkerQueueSize(), 29);
-        Assertions.assertTrue(configuration.isWorkerMonitorEnable());
+        Assertions.assertEquals(properties.getBindIp(), "0.0.0.2");
+        Assertions.assertEquals(properties.getBindPort(), 39994);
+        Assertions.assertEquals(properties.getWorkerThreadSize(), 33);
+        Assertions.assertEquals(properties.getWorkerQueueSize(), 29);
+        Assertions.assertTrue(properties.isWorkerMonitorEnable());
 
     }
 }

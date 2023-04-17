@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.config.ScatterConfiguration;
+import com.navercorp.pinpoint.collector.config.ScatterProperties;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
@@ -64,7 +64,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
-    private final ScatterConfiguration scatterConfiguration;
+    private final ScatterProperties scatterProperties;
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
 
@@ -72,12 +72,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor rowKeyDistributor,
                                          AcceptedTimeService acceptedTimeService,
-                                         ScatterConfiguration scatterConfiguration) {
+                                         ScatterProperties scatterProperties) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.scatterConfiguration = Objects.requireNonNull(scatterConfiguration, "scatterConfiguration");
+        this.scatterProperties = Objects.requireNonNull(scatterProperties, "scatterProperties");
     }
 
     @Override
@@ -139,7 +139,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     }
 
     private byte[] createRowKey(SpanBo span, long acceptedTime) {
-        if (scatterConfiguration.getServerSideScan() == ScatterConfiguration.ServerSideScan.v2) {
+        if (scatterProperties.getServerSideScan() == ScatterProperties.ServerSideScan.v2) {
             return createRowKeyV2(span, acceptedTime);
         }
         return createRowKeyV1(span, acceptedTime);

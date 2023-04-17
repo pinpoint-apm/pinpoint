@@ -21,8 +21,7 @@ import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.security.SslContextFactory;
-import com.navercorp.pinpoint.grpc.security.SslServerConfig;
-
+import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import io.grpc.BindableService;
 import io.grpc.InternalWithLogId;
 import io.grpc.Server;
@@ -38,8 +37,8 @@ import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
@@ -78,18 +77,18 @@ public class ServerFactory {
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
     private final ServerOption serverOption;
-    private final SslServerConfig sslServerConfig;
+    private final SslServerProperties sslServerProperties;
     private ChannelzRegistry channelzRegistry;
 
     public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption) {
-        this(name, hostname, port, serverExecutor, callExecutor, serverOption, SslServerConfig.DISABLED_CONFIG);
+        this(name, hostname, port, serverExecutor, callExecutor, serverOption, SslServerProperties.DISABLED_CONFIG);
     }
 
-    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption, SslServerConfig sslServerConfig) {
+    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption, SslServerProperties sslServerProperties) {
         this.name = Objects.requireNonNull(name, "name");
         this.hostname = Objects.requireNonNull(hostname, "hostname");
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
-        this.sslServerConfig = Objects.requireNonNull(sslServerConfig, "sslServerConfig");
+        this.sslServerProperties = Objects.requireNonNull(sslServerProperties, "sslServerProperties");
         this.port = port;
 
         final ServerChannelType serverChannelType = getChannelType();
@@ -179,10 +178,10 @@ public class ServerFactory {
 
         setupServerOption(serverBuilder);
 
-        if (sslServerConfig.isEnable()) {
-            logger.debug("Enable sslConfig.({})", sslServerConfig);
+        if (sslServerProperties.isEnable()) {
+            logger.debug("Enable sslConfig.({})", sslServerProperties);
 
-            SslContext sslContext = SslContextFactory.create(sslServerConfig);
+            SslContext sslContext = SslContextFactory.create(sslServerProperties);
             serverBuilder.sslContext(sslContext);
         }
 

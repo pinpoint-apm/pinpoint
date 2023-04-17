@@ -6,8 +6,8 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 
-    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.collector.config.FlinkConfiguration" primary="true">
-        <constructor-arg index="0" ref="flinkClusterConfiguration"/>
+    <bean id="flinkProperties" class="com.navercorp.pinpoint.collector.config.FlinkProperties" primary="true">
+        <constructor-arg index="0" ref="flinkClusterProperties"/>
     </bean>
 
     <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
@@ -32,7 +32,7 @@
     </bean>
 
     <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
-        <constructor-arg index="0" ref="flinkConfiguration"/>
+        <constructor-arg index="0" ref="flinkProperties"/>
         <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
     </bean>
 </beans>

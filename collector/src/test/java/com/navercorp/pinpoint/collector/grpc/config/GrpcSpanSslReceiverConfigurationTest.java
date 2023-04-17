@@ -34,25 +34,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfigurationFactory.class, GrpcSpanSslReceiverConfigurationFactory.class})
+@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfiguration.class, GrpcSpanSslReceiverConfiguration.class})
 @ExtendWith(SpringExtension.class)
 public class GrpcSpanSslReceiverConfigurationTest {
 
     @Autowired
-    @Qualifier(GrpcSpanSslReceiverConfigurationFactory.SPAN_SSL_CONFIG)
-    private GrpcSslReceiverConfiguration configuration;
+    @Qualifier(GrpcSpanSslReceiverConfiguration.SPAN_SSL_PROPERTIES)
+    private GrpcSslReceiverProperties properties;
 
     @Test
     public void properties() {
-        assertEquals(Boolean.TRUE, configuration.isEnable());
-        BindAddress bindAddress = configuration.getBindAddress();
+        assertEquals(Boolean.TRUE, properties.isEnable());
+        BindAddress bindAddress = properties.getBindAddress();
         assertEquals("3.3.3.3", bindAddress.getIp());
         assertEquals(39443, bindAddress.getPort());
     }
 
     @Test
     public void grpcSslConfiguration() throws IOException {
-        GrpcSslConfiguration sslConfiguration = configuration.getGrpcSslConfiguration();
+        GrpcSslProperties sslConfiguration = properties.getGrpcSslProperties();
 
         assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());

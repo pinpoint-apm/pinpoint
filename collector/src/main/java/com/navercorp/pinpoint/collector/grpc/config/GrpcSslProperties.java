@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.grpc.security.SslServerConfig;
+import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
@@ -25,15 +25,15 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class GrpcSslConfiguration {
+public class GrpcSslProperties {
 
     private final boolean enable;
     private final String providerType;
     private final Resource keyResource;
     private final Resource keyCertChainResource;
 
-    private GrpcSslConfiguration(boolean enable, String providerType,
-                                 Resource keyResource, Resource keyCertChainResource) {
+    private GrpcSslProperties(boolean enable, String providerType,
+                              Resource keyResource, Resource keyCertChainResource) {
         this.enable = enable;
         this.providerType = providerType;
         this.keyResource = keyResource;
@@ -56,13 +56,12 @@ public class GrpcSslConfiguration {
         return keyCertChainResource;
     }
 
-    public SslServerConfig toSslServerConfig() {
+    public SslServerProperties toSslServerProperties() {
         if (enable) {
-            SslServerConfig sslServerConfig = new SslServerConfig(enable, providerType,
+            return new SslServerProperties(enable, providerType,
                     new SpringResource(keyResource), new SpringResource(keyCertChainResource));
-            return sslServerConfig;
         } else {
-            return SslServerConfig.DISABLED_CONFIG;
+            return SslServerProperties.DISABLED_CONFIG;
         }
     }
 
@@ -112,19 +111,19 @@ public class GrpcSslConfiguration {
             this.keyCertFilePath = keyCertFilePath;
         }
 
-        public GrpcSslConfiguration build() throws IOException {
+        public GrpcSslProperties build() throws IOException {
             if (enable) {
                 Objects.requireNonNull(providerType);
-                return new GrpcSslConfiguration(this.enable, this.providerType, this.keyFilePath, this.keyCertFilePath);
+                return new GrpcSslProperties(this.enable, this.providerType, this.keyFilePath, this.keyCertFilePath);
             } else {
-                return new GrpcSslConfiguration(this.enable, this.providerType, null, null);
+                return new GrpcSslProperties(this.enable, this.providerType, null, null);
             }
         }
     }
 
     @Override
     public String toString() {
-        return "GrpcSslConfiguration{" +
+        return "GrpcSslProperties{" +
                 "enable=" + enable +
                 ", providerType='" + providerType + '\'' +
                 ", keyResource='" + keyResource + '\'' +

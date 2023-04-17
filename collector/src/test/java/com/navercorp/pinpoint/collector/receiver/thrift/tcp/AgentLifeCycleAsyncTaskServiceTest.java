@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.handler.DirectExecutor;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.collector.service.StatisticsService;
@@ -70,7 +70,7 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     private StatisticsService statisticsService;
 
     @Mock
-    private CollectorConfiguration collectorConfiguration;
+    private CollectorProperties collectorProperties;
 
     @InjectMocks
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;

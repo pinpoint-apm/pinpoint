@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.collector.config;
 /**
  * @author emeroad
  */
-public class ExecutorConfiguration {
+public class ExecutorProperties {
     private final int threadSize;
     private final int queueSize;
     private final boolean monitorEnable;
 
-    public ExecutorConfiguration(int threadSize, int queueSize, boolean monitorEnable) {
+    public ExecutorProperties(int threadSize, int queueSize, boolean monitorEnable) {
         this.threadSize = threadSize;
         this.queueSize = queueSize;
         this.monitorEnable = monitorEnable;
@@ -78,8 +78,8 @@ public class ExecutorConfiguration {
             this.monitorEnable = monitorEnable;
         }
 
-        public ExecutorConfiguration build() {
-            return new ExecutorConfiguration(this.threadSize, this.queueSize, this.monitorEnable);
+        public ExecutorProperties build() {
+            return new ExecutorProperties(this.threadSize, this.queueSize, this.monitorEnable);
         }
     }
 

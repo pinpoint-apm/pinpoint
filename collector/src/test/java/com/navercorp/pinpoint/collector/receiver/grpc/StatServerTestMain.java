@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcStreamProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
@@ -67,19 +67,19 @@ public class StatServerTestMain {
     }
 
     private ServerServiceDefinition newStatBindableService(Executor executor) throws Exception {
-        GrpcStreamConfiguration streamConfiguration = newStreamConfiguration();
+        GrpcStreamProperties streamProperties = newStreamProperties();
 
 
         FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor,
                 Executors.newSingleThreadScheduledExecutor(),
-                streamConfiguration);
+                streamProperties);
         ServerInterceptor interceptor = interceptorFactory.getObject();
         StatService statService = new StatService(new MockDispatchHandler(), new DefaultServerRequestFactory());
         return ServerInterceptors.intercept(statService, interceptor);
     }
 
-    private GrpcStreamConfiguration newStreamConfiguration() {
-        GrpcStreamConfiguration.Builder builder = GrpcStreamConfiguration.newBuilder();
+    private GrpcStreamProperties newStreamProperties() {
+        GrpcStreamProperties.Builder builder = GrpcStreamProperties.newBuilder();
         builder.setCallInitRequestCount(100);
         builder.setSchedulerPeriodMillis(1000);
         builder.setSchedulerRecoveryMessageCount(100);

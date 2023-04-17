@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.collector.service.StatisticsService;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
@@ -43,13 +43,16 @@ public class AgentLifeCycleAsyncTaskService {
     private final AgentLifeCycleService agentLifeCycleService;
     private final StatisticsService statisticsService;
     private final ServiceTypeRegistryService registry;
-    private final CollectorConfiguration configuration;
+    private final CollectorProperties collectorProperties;
 
-    public AgentLifeCycleAsyncTaskService(AgentLifeCycleService agentLifeCycleService, StatisticsService statisticsService, ServiceTypeRegistryService registry, CollectorConfiguration configuration) {
+    public AgentLifeCycleAsyncTaskService(AgentLifeCycleService agentLifeCycleService,
+                                          StatisticsService statisticsService,
+                                          ServiceTypeRegistryService registry,
+                                          CollectorProperties collectorProperties) {
         this.agentLifeCycleService = agentLifeCycleService;
         this.statisticsService = statisticsService;
         this.registry = registry;
-        this.configuration = configuration;
+        this.collectorProperties = collectorProperties;
     }
 
     @Async("agentEventWorker")
@@ -101,7 +104,7 @@ public class AgentLifeCycleAsyncTaskService {
     }
 
     private boolean isUpdateAgentState(ServiceType serviceType) {
-        if (!configuration.isStatisticsAgentStateEnable()) {
+        if (!collectorProperties.isStatisticsAgentStateEnable()) {
             return false;
         }
         if (serviceType == null || serviceType == ServiceType.UNDEFINED) {

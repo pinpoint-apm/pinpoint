@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public class ZookeeperClusterConfiguration {
+public class ZookeeperClusterProperties {
 
     private final boolean enable;
 
@@ -36,7 +36,7 @@ public class ZookeeperClusterConfiguration {
     private final String collectorZNodePath;
     private final String flinkZNodePath;
 
-    private ZookeeperClusterConfiguration(Builder builder) {
+    private ZookeeperClusterProperties(Builder builder) {
         this.enable = builder.enable;
         this.address = builder.address;
         this.sessionTimeout = builder.sessionTimeout;
@@ -145,12 +145,12 @@ public class ZookeeperClusterConfiguration {
             this.sessionTimeout = sessionTimeout;
         }
 
-        public ZookeeperClusterConfiguration build() {
+        public ZookeeperClusterProperties build() {
             Objects.requireNonNull(address);
             PathUtils.validatePath(zNodeRoot);
             Assert.isTrue(sessionTimeout > 0, "sessionTimeout must be greater than 0");
 
-            return new ZookeeperClusterConfiguration(this);
+            return new ZookeeperClusterProperties(this);
         }
     }
 

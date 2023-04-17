@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentMetricBatchHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentMetricHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentUriMetricHandler;
@@ -144,10 +144,10 @@ public class GrpcAgentUriMetricHandlerV2Test {
         AgentMetricBatchHandler statBatchHandler = new AgentMetricBatchHandler(agentStatBatchMapper, statHandler);
 
 
-        CollectorConfiguration collectorConfiguration = mock(CollectorConfiguration.class);
-        when(collectorConfiguration.isUriStatEnable()).thenReturn(enableUriStat);
+        CollectorProperties collectorProperties = mock(CollectorProperties.class);
+        when(collectorProperties.isUriStatEnable()).thenReturn(enableUriStat);
         GrpcAgentUriStatMapper grpcAgentUriStatMapper = new GrpcAgentUriStatMapper();
-        AgentUriMetricHandler uriHandelr = new AgentUriMetricHandler(collectorConfiguration, grpcAgentUriStatMapper, agentUriStatService);
+        AgentUriMetricHandler uriHandelr = new AgentUriMetricHandler(collectorProperties, grpcAgentUriStatMapper, agentUriStatService);
 
         List<GrpcMetricHandler> handlers = List.of(statHandler, statBatchHandler, uriHandelr);
 

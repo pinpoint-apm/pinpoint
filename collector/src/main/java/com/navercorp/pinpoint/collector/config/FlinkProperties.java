@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
@@ -26,31 +26,31 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class FlinkConfiguration implements BeanNameAware {
+public class FlinkProperties implements BeanNameAware {
 
     private final Logger logger = LogManager.getLogger(getClass());
 
     private String name;
-    private final ZookeeperClusterConfiguration clusterConfiguration;
+    private final ZookeeperClusterProperties clusterProperties;
 
-    public FlinkConfiguration(ZookeeperClusterConfiguration clusterConfiguration) {
-        this.clusterConfiguration = Objects.requireNonNull(clusterConfiguration, "clusterConfiguration");
+    public FlinkProperties(ZookeeperClusterProperties clusterProperties) {
+        this.clusterProperties = Objects.requireNonNull(clusterProperties, "clusterProperties");
     }
 
     public boolean isFlinkClusterEnable() {
-        return clusterConfiguration.isEnable();
+        return clusterProperties.isEnable();
     }
 
     public String getFlinkClusterZookeeperAddress() {
-        return clusterConfiguration.getAddress();
+        return clusterProperties.getAddress();
     }
 
     public String getFlinkZNodePath() {
-        return clusterConfiguration.getFlinkZNodePath();
+        return clusterProperties.getFlinkZNodePath();
     }
 
     public int getFlinkClusterSessionTimeout() {
-        return clusterConfiguration.getSessionTimeout();
+        return clusterProperties.getSessionTimeout();
     }
 
     @Override

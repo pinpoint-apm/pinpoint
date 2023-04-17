@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.batch.flink;
 
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
+import com.navercorp.pinpoint.batch.common.BatchProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -34,17 +34,17 @@ import static org.mockito.Mockito.when;
 public class HealthCheckTaskletV2Test {
 
     @Mock
-    private BatchConfiguration batchConfiguration;
+    private BatchProperties batchProperties;
 
     @Mock
     RestTemplate restTemplate;
 
     @Test
     public void testGeneratedFlinkManagerServerApi() {
-        when(batchConfiguration.getFlinkServerList()).thenReturn(List.of("123.234.123.234"));
-        when(batchConfiguration.getFlinkRestPort()).thenReturn(1919);
+        when(batchProperties.getFlinkServerList()).thenReturn(List.of("123.234.123.234"));
+        when(batchProperties.getFlinkRestPort()).thenReturn(1919);
 
-        final HealthCheckTaskletV2 tasklet = new HealthCheckTaskletV2(batchConfiguration, restTemplate);
+        final HealthCheckTaskletV2 tasklet = new HealthCheckTaskletV2(batchProperties, restTemplate);
         final List<String> results = tasklet.generatedFlinkManagerServerApi();
         assertThat(results).hasSize(1);
         final String result = results.get(0);

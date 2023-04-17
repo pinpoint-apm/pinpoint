@@ -49,7 +49,7 @@
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
 
-    <bean id="config" class="com.navercorp.pinpoint.web.config.WebClusterConfig"/>
+    <bean id="webClusterProperties" class="com.navercorp.pinpoint.web.config.WebClusterProperties"/>
     
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>

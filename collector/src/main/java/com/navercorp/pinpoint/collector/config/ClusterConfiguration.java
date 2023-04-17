@@ -12,7 +12,7 @@ import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteCloseEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
 import com.navercorp.pinpoint.collector.manage.ClusterManager;
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterProperties;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -70,17 +70,17 @@ public class ClusterConfiguration {
     }
 
     @Bean
-    public ClusterManager clusterManager(@Qualifier("collectorClusterConfig") CollectorClusterConfig collectorClusterConfig,
+    public ClusterManager clusterManager(@Qualifier("collectorClusterProperties") CollectorClusterProperties collectorClusterProperties,
                                          ClusterPointRepository targetClusterPointRepository) {
-        return new ClusterManager(collectorClusterConfig, targetClusterPointRepository);
+        return new ClusterManager(collectorClusterProperties, targetClusterPointRepository);
     }
 
 
     @Bean
-    public CollectorClusterConfig collectorClusterConfig(
-            @Qualifier("clusterConfiguration") ZookeeperClusterConfiguration clusterConfiguration,
+    public CollectorClusterProperties collectorClusterProperties(
+            @Qualifier("clusterProperties") ZookeeperClusterProperties clusterProperties,
             @Value("${cluster.listen.ip:}") String clusterListenIp,
             @Value("${cluster.listen.port:-1}") int clusterListenPort) {
-        return new CollectorClusterConfig(clusterConfiguration, clusterListenIp, clusterListenPort);
+        return new CollectorClusterProperties(clusterProperties, clusterListenIp, clusterListenPort);
     }
 }

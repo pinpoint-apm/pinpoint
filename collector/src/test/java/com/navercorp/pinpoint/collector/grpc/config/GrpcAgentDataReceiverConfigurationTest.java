@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.junit.jupiter.api.Test;
@@ -31,12 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcAgentDataReceiverConfigurationFactory.class)
+@ContextConfiguration(classes = GrpcAgentDataReceiverConfiguration.class)
 @ExtendWith(SpringExtension.class)
 public class GrpcAgentDataReceiverConfigurationTest {
 
     @Autowired
-    private GrpcAgentDataReceiverConfiguration configuration;
+    private GrpcAgentDataReceiverProperties configuration;
 
     @Test
     public void properties() {
@@ -46,11 +46,11 @@ public class GrpcAgentDataReceiverConfigurationTest {
         assertEquals("1.1.1.1", bindAddress.getIp());
         assertEquals(1, bindAddress.getPort());
 
-        ExecutorConfiguration serverExecutor = configuration.getServerExecutor();
+        ExecutorProperties serverExecutor = configuration.getServerExecutor();
         assertEquals(10, serverExecutor.getThreadSize());
         assertEquals(11, serverExecutor.getQueueSize());
 
-        ExecutorConfiguration workerExecutor = configuration.getWorkerExecutor();
+        ExecutorProperties workerExecutor = configuration.getWorkerExecutor();
         assertEquals(20, workerExecutor.getThreadSize());
         assertEquals(21, workerExecutor.getQueueSize());
         assertEquals(Boolean.FALSE, workerExecutor.isMonitorEnable());

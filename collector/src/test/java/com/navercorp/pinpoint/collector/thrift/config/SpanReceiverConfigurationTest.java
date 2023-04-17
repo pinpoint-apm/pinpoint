@@ -27,25 +27,25 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = SpanReceiverConfiguration.class)
+@ContextConfiguration(classes = SpanReceiverProperties.class)
 @ExtendWith(SpringExtension.class)
 public class SpanReceiverConfigurationTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Autowired
-    SpanReceiverConfiguration configuration;
+    SpanReceiverProperties properties;
 
     @Test
     public void properties() {
-        Assertions.assertTrue(configuration.isUdpEnable());
-        Assertions.assertEquals(configuration.getUdpBindIp(), "0.0.0.3");
-        Assertions.assertEquals(configuration.getUdpBindPort(), 39997);
-        Assertions.assertEquals(configuration.getUdpReceiveBufferSize(), 568);
-        Assertions.assertFalse(configuration.isTcpEnable());
-        Assertions.assertEquals(configuration.getTcpBindIp(), "0.0.0.4");
-        Assertions.assertEquals(configuration.getTcpBindPort(), 39998);
-        Assertions.assertEquals(configuration.getWorkerThreadSize(), 3);
-        Assertions.assertEquals(configuration.getWorkerQueueSize(), 4);
-        Assertions.assertFalse(configuration.isWorkerMonitorEnable());
+        Assertions.assertTrue(properties.isUdpEnable());
+        Assertions.assertEquals(properties.getUdpBindIp(), "0.0.0.3");
+        Assertions.assertEquals(properties.getUdpBindPort(), 39997);
+        Assertions.assertEquals(properties.getUdpReceiveBufferSize(), 568);
+        Assertions.assertFalse(properties.isTcpEnable());
+        Assertions.assertEquals(properties.getTcpBindIp(), "0.0.0.4");
+        Assertions.assertEquals(properties.getTcpBindPort(), 39998);
+        Assertions.assertEquals(properties.getWorkerThreadSize(), 3);
+        Assertions.assertEquals(properties.getWorkerQueueSize(), 4);
+        Assertions.assertFalse(properties.isWorkerMonitorEnable());
     }
 }

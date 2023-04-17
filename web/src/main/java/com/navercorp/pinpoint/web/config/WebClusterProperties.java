@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.config;
 
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterProperties;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -31,13 +31,13 @@ import javax.annotation.PostConstruct;
 /**
  * @author koo.taejin
  */
-public class WebClusterConfig {
+public class WebClusterProperties {
 
-    private final Logger logger = LogManager.getLogger(WebClusterConfig.class);
+    private final Logger logger = LogManager.getLogger(getClass());
 
-    @Qualifier("clusterConfiguration")
+    @Qualifier("clusterProperties")
     @Autowired
-    private ZookeeperClusterConfiguration clusterConfiguration;
+    private ZookeeperClusterProperties clusterProperties;
 
     @Value("${cluster.web.tcp.hostaddress:}")
     private String hostAddress;
@@ -64,7 +64,7 @@ public class WebClusterConfig {
     public void validation() {
         if (isClusterEnable()) {
 //            assertPort(clusterTcpPort);
-            final String zookeeperAddress = clusterConfiguration.getAddress();
+            final String zookeeperAddress = clusterProperties.getAddress();
             if (StringUtils.isEmpty(zookeeperAddress)) {
                 throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + zookeeperAddress);
             }
@@ -97,7 +97,7 @@ public class WebClusterConfig {
     }
 
     public boolean isClusterEnable() {
-        return clusterConfiguration.isEnable();
+        return clusterProperties.isEnable();
     }
 
     public String getHostAddress() {
@@ -109,19 +109,19 @@ public class WebClusterConfig {
     }
 
     public String getClusterZookeeperAddress() {
-        return clusterConfiguration.getAddress();
+        return clusterProperties.getAddress();
     }
 
     public String getWebZNodePath() {
-        return clusterConfiguration.getWebZNodePath();
+        return clusterProperties.getWebZNodePath();
     }
 
     public String getCollectorZNodePath() {
-        return clusterConfiguration.getCollectorZNodePath();
+        return clusterProperties.getCollectorZNodePath();
     }
 
     public int getClusterZookeeperSessionTimeout() {
-        return clusterConfiguration.getSessionTimeout();
+        return clusterProperties.getSessionTimeout();
     }
 
     public int getClusterZookeeperRetryInterval() {
