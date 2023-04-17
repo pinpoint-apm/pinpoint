@@ -1,26 +1,27 @@
-import { SCATTER_CHART_IDENTIFIER } from "../constants/ui";
-import { DataStyleMap, LegendOption } from "../types/types";
+import { SCATTER_CHART_IDENTIFIER } from '../constants/ui';
+import { DataStyleMap, LegendOption } from '../types/types';
 
-export type LegendProps = { 
-  legendOptions: LegendOption, 
-  dataStyleMap: DataStyleMap,
+export type LegendProps = {
+  legendOptions: LegendOption;
+  dataStyleMap: DataStyleMap;
   width?: number;
-}
+};
 
 export type LegendEventTypes = 'clickLegend' | 'change';
 
 type LegendClickCallbackData = {
-  checked: string[],
-}
+  checked: string[];
+};
 
 type LegendChangeChallbackData = {
   unChecked: string[];
-} & LegendClickCallbackData
+} & LegendClickCallbackData;
 
-type LegendEventData<T extends LegendEventTypes> =
-  T extends 'clickLegend' ? LegendClickCallbackData :
-  T extends 'change' ? LegendChangeChallbackData :
-  never;
+type LegendEventData<T extends LegendEventTypes> = T extends 'clickLegend'
+  ? LegendClickCallbackData
+  : T extends 'change'
+  ? LegendChangeChallbackData
+  : never;
 
 export interface LegendEventCallback<T extends LegendEventTypes> {
   (event: MouseEvent, data: LegendEventData<T>): void;
@@ -39,11 +40,13 @@ export class Legend {
   private options;
   private dataStyleMap!: DataStyleMap;
   private containerElement: HTMLElement;
-  private legendElements: {[key: string]: HTMLDivElement} = {} 
-  private eventHandlers: LegendEventHandlers = {}
+  private legendElements: { [key: string]: HTMLDivElement } = {};
+  private eventHandlers: LegendEventHandlers = {};
   private types!: string[];
-  
+  private abortController: AbortController;
+
   constructor(rootWrapper: HTMLElement, { legendOptions, dataStyleMap, width }: LegendProps) {
+    this.abortController = new AbortController();
     this.rootWrapper = rootWrapper;
     this.options = legendOptions;
     this.containerElement = document.createElement('div');
@@ -51,13 +54,13 @@ export class Legend {
     this.rootWrapper.append(this.containerElement);
     this.setSize(width);
     this.addEventListener();
-    this.setDataStyleMap(dataStyleMap)
+    this.setDataStyleMap(dataStyleMap);
   }
 
   get container() {
-    return this.containerElement
+    return this.containerElement;
   }
-  
+
   public setSize(width?: number) {
     this.containerElement.style.width = `${width}px` || `${this.rootWrapper.clientWidth}px`;
   }
@@ -69,28 +72,33 @@ export class Legend {
   }
 
   private addEventListener = () => {
-    this.containerElement.addEventListener('click', (event) => {
-      const { target } = event;
-      if (target instanceof HTMLElement) {
-        const isInputNode = target.nodeName === 'INPUT';
+    const { signal } = this.abortController;
+    this.containerElement.addEventListener(
+      'click',
+      (event) => {
+        const { target } = event;
+        if (target instanceof HTMLElement) {
+          const isInputNode = target.nodeName === 'INPUT';
 
-        if (isInputNode) {
-          const checkedInputElements = this.containerElement.querySelectorAll('input:checked');
-          const checkedTypes = [...checkedInputElements].map(inputElement => {
-            return inputElement.getAttribute('data-name') || '';
-          })
+          if (isInputNode) {
+            const checkedInputElements = this.containerElement.querySelectorAll('input:checked');
+            const checkedTypes = [...checkedInputElements].map((inputElement) => {
+              return inputElement.getAttribute('data-name') || '';
+            });
 
-          this.eventHandlers.change?.(event, {
-            checked: checkedTypes,
-            unChecked: this.types.filter(type => !checkedTypes.includes(type)),
-          });
-          this.eventHandlers.clickLegend?.(event, {
-            checked: checkedTypes
-          });
+            this.eventHandlers.change?.(event, {
+              checked: checkedTypes,
+              unChecked: this.types.filter((type) => !checkedTypes.includes(type)),
+            });
+            this.eventHandlers.clickLegend?.(event, {
+              checked: checkedTypes,
+            });
+          }
         }
-      }
-    })
-  }
+      },
+      { signal },
+    );
+  };
 
   public onChange(callback: LegendEventCallback<'change'>) {
     this.eventHandlers['change'] = callback;
@@ -99,8 +107,8 @@ export class Legend {
   public render() {
     const options = this.options;
     const dataTypes = this.types;
-    
-    dataTypes.forEach(type => {
+
+    dataTypes.forEach((type) => {
       // wrapper div
       const legendWrapper = document.createElement('div');
       legendWrapper.className = `${Legend.LEGEND_CLASS} ${type}`;
@@ -122,7 +130,6 @@ export class Legend {
       labelElement.htmlFor = `${Legend.LEGEND_CLASS}_${type}_input`;
       labelElement.append(`${formattedLabel}`, countElement);
 
-
       // input
       const inputElement = document.createElement('input');
       inputElement.id = `${Legend.LEGEND_CLASS}_${type}_input`;
@@ -134,13 +141,13 @@ export class Legend {
 
       legendWrapper.append(markElement, labelElement, inputElement);
       this.containerElement.append(legendWrapper);
-    })
+    });
     return this;
   }
 
   public unmount() {
     const containerElement = this.containerElement;
-    while(containerElement.firstChild) {
+    while (containerElement.firstChild) {
       containerElement.removeChild(containerElement.firstChild);
     }
     return this;
@@ -159,5 +166,15 @@ export class Legend {
 
   public off(eventType: LegendEventTypes) {
     delete this.eventHandlers[eventType];
+  }
+
+  public destroy() {
+    this.abortController.abort();
+    this.unmount();
+    this.containerElement.remove();
+    const keys = Object.keys(this.eventHandlers) as LegendEventTypes[];
+    keys.forEach((key: LegendEventTypes) => {
+      this.off(key);
+    });
   }
 }

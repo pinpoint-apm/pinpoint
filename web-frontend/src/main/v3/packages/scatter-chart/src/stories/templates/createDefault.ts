@@ -1,5 +1,5 @@
-import { ScatterChart } from "../../ui";
-import { ScatterChartOption } from "../../ui/ScatterChart";
+import { ScatterChart } from '../../ui';
+import { ScatterChartOption } from '../../ui/ScatterChart';
 import data1 from '../mock/data1.json';
 
 export const newScatterChart = (wrapper: HTMLElement, option?: Partial<ScatterChartOption>) => {
@@ -12,9 +12,11 @@ export const newScatterChart = (wrapper: HTMLElement, option?: Partial<ScatterCh
           count: 5,
           format: (value) => {
             const date = new Date(value);
-            return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-          }, 
-        }
+            return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(
+              date.getSeconds(),
+            ).padStart(2, '0')}`;
+          },
+        },
       },
       y: {
         min: 0,
@@ -22,8 +24,8 @@ export const newScatterChart = (wrapper: HTMLElement, option?: Partial<ScatterCh
         tick: {
           count: 5,
           format: (value) => value.toLocaleString(),
-        }
-      }
+        },
+      },
     },
     data: [
       {
@@ -44,8 +46,8 @@ export const newScatterChart = (wrapper: HTMLElement, option?: Partial<ScatterCh
     ...option,
   });
   SC.render(data1.data);
-  return SC
-}
+  return SC;
+};
 
 export const createDefault = () => {
   const wrapper = document.createElement('div');
@@ -53,4 +55,4 @@ export const createDefault = () => {
     newScatterChart(wrapper);
   }, 500);
   return wrapper;
-}
+};

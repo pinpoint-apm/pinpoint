@@ -1,22 +1,22 @@
-import { defaultPointOption } from "../constants/options";
+import { defaultPointOption } from '../constants/options';
 
 export const drawCircle = (
-  ctx: CanvasRenderingContext2D, 
-  x: number, 
-  y: number, 
-  { 
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  {
     radius = defaultPointOption.radius!,
     fillColor = 'black',
-  }: { 
-    radius?: number,
-    fillColor?: string,
-  } = {}
+  }: {
+    radius?: number;
+    fillColor?: string;
+  } = {},
 ) => {
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, radius * Math.PI);
   ctx.fillStyle = fillColor;
   ctx.fill();
-}
+};
 
 export const drawLine = (
   ctx: CanvasRenderingContext2D,
@@ -24,18 +24,18 @@ export const drawLine = (
   fromY: number,
   toX: number,
   toY: number,
-  { 
-    color = 'black', 
-  }: { 
-    color?: string 
-  } = {}
+  {
+    color = 'black',
+  }: {
+    color?: string;
+  } = {},
 ) => {
   ctx.beginPath();
   ctx.moveTo(fromX, fromY);
   ctx.lineTo(toX, toY);
   ctx.strokeStyle = color;
   ctx.stroke();
-}
+};
 
 export const drawText = (
   ctx: CanvasRenderingContext2D,
@@ -47,19 +47,19 @@ export const drawText = (
     textAlign = 'center',
     textBaseline = 'alphabetic',
     font,
-  }: { 
-    color?: string,
-    textAlign?: CanvasTextAlign,
-    textBaseline?: CanvasTextBaseline,
-    font?: CanvasTextDrawingStyles['font']
-  } = {}
+  }: {
+    color?: string;
+    textAlign?: CanvasTextAlign;
+    textBaseline?: CanvasTextBaseline;
+    font?: CanvasTextDrawingStyles['font'];
+  } = {},
 ) => {
   font && (ctx.font = font);
-  ctx.textAlign = textAlign; 
-  ctx.textBaseline = textBaseline; 
+  ctx.textAlign = textAlign;
+  ctx.textBaseline = textBaseline;
   ctx.fillStyle = color;
   ctx.fillText(text, x, y);
-}
+};
 
 export const drawRect = (
   ctx: CanvasRenderingContext2D,
@@ -67,18 +67,18 @@ export const drawRect = (
   y: number,
   width: number,
   height: number,
-  { 
+  {
     color = 'white',
     strokeColor,
   }: {
-    color?: string,
-    strokeColor?: string,
-  } = {}
+    color?: string;
+    strokeColor?: string;
+  } = {},
 ) => {
   ctx.fillStyle = color;
   ctx.fillRect(x, y, width, height);
   if (strokeColor) {
     ctx.strokeStyle = strokeColor;
-    ctx.strokeRect(x, y, width, height);        
+    ctx.strokeRect(x, y, width, height);
   }
-}
+};
