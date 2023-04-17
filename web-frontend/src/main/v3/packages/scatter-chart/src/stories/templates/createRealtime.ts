@@ -1,4 +1,4 @@
-import { newScatterChart } from "./createDefault";
+import { newScatterChart } from './createDefault';
 import data1 from '../mock/data1.json';
 
 export const createRealtime = () => {
@@ -7,12 +7,12 @@ export const createRealtime = () => {
   btnStart.innerText = 'start realtime';
   const btnStop = document.createElement('button');
   btnStop.innerText = 'stop realtime';
-  
-  setTimeout(() => {  
+
+  setTimeout(() => {
     const SC = newScatterChart(wrapper);
-    const newData = data1.data.map(d => ({...d, x: d.x + 47335}));
-    SC.render(newData, {append: true});
-    
+    const newData = data1.data.map((d) => ({ ...d, x: d.x + 47335 }));
+    SC.render(newData, { append: true });
+
     wrapper.append(btnStart);
     wrapper.append(btnStop);
 
@@ -25,4 +25,4 @@ export const createRealtime = () => {
     });
   }, 500);
   return wrapper;
-}
+};

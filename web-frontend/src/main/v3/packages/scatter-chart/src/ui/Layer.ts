@@ -1,5 +1,5 @@
-import { LAYER_DEFAULT_PRIORITY } from "../constants/ui";
-import { getDevicePicelRatio } from "../utils/helper";
+import { LAYER_DEFAULT_PRIORITY } from '../constants/ui';
+import { getDevicePicelRatio } from '../utils/helper';
 
 export interface LayerProps {
   width?: number;
@@ -12,18 +12,20 @@ export interface LayerProps {
 export class Layer {
   private cvs: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private identifier: string = '';
+  private identifier = '';
   private display;
   private fixed;
   private priorityOrder;
   private displayPixcelRatio;
+  private abortController: AbortController;
+  protected abortSignal: AbortSignal;
 
   constructor({
-     width = 0,
-     height = 0,
-     display = true,
-     fixed = false,
-     priority = LAYER_DEFAULT_PRIORITY,
+    width = 0,
+    height = 0,
+    display = true,
+    fixed = false,
+    priority = LAYER_DEFAULT_PRIORITY,
   }: LayerProps = {}) {
     this.displayPixcelRatio = getDevicePicelRatio();
     this.display = display;
@@ -36,6 +38,8 @@ export class Layer {
     this.cvs.width = width * this.dpr;
     this.cvs.height = height * this.dpr;
     this.ctx.scale(this.dpr, this.dpr);
+    this.abortController = new AbortController();
+    this.abortSignal = this.abortController.signal;
   }
 
   private resetDpr() {
@@ -62,6 +66,12 @@ export class Layer {
 
   public clear() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  public destroy() {
+    this.cvs.width = 0;
+    this.cvs.height = 0;
+    this.abortController.abort();
   }
 
   get dpr() {
@@ -93,7 +103,7 @@ export class Layer {
   }
 
   get canvas() {
-    return this.cvs; 
+    return this.cvs;
   }
 
   get context() {
@@ -104,10 +114,12 @@ export class Layer {
     return this.display;
   }
 
-  public swapCanvasImage({width, startAt}: {width: number, startAt: number}) {   
+  public swapCanvasImage({ width, startAt }: { width: number; startAt: number }) {
     const rightImage = this.context.getImageData(
-      (startAt + width) * this.dpr, 0, 
-      this.canvas.width - (startAt + width) * this.dpr, this.canvas.height
+      (startAt + width) * this.dpr,
+      0,
+      this.canvas.width - (startAt + width) * this.dpr,
+      this.canvas.height,
     );
     this.clear();
     this.context.putImageData(rightImage, startAt * this.dpr, 0);
@@ -115,10 +127,10 @@ export class Layer {
 
   public getTextWidth(text: string) {
     const lines = `${text}`.split('\n');
-    let largestWidth = lines.reduce((width, txt) => {
+    const largestWidth = lines.reduce((width, txt) => {
       const textWidth = this.context.measureText(`${txt}`).width;
-      return width > textWidth ? width : textWidth; 
-    }, 0)
+      return width > textWidth ? width : textWidth;
+    }, 0);
     return largestWidth;
   }
 
@@ -126,13 +138,13 @@ export class Layer {
     const lines = `${text}`.split('\n');
     const totalHeight = lines.reduce((sum, txt) => {
       const metrics = this.context.measureText(`${txt}`);
-      
+
       const textAscent = metrics.fontBoundingBoxAscent || metrics.actualBoundingBoxAscent;
       const textDescent = metrics.fontBoundingBoxDescent || metrics.actualBoundingBoxDescent;
       const textHeight = textAscent + textDescent;
-      
+
       return textHeight + sum;
-    }, 0)
+    }, 0);
     return totalHeight;
   }
 }

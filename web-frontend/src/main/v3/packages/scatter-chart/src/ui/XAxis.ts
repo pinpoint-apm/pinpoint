@@ -1,19 +1,15 @@
-import { DeepNonNullable, Padding, TickOption } from "../types/types";
-import { drawLine, drawText } from "../utils/draw";
-import { Axis, AxisProps } from "./Axis";
-
-export interface XAxisProps extends AxisProps { };
+import { DeepNonNullable, Padding, TickOption } from '../types/types';
+import { drawLine, drawText } from '../utils/draw';
+import { Axis, AxisProps } from './Axis';
 
 export class XAxis extends Axis {
-  constructor({
-    ...props
-  }: XAxisProps) {
+  constructor({ ...props }: AxisProps) {
     super(props);
     this.priority = -1;
   }
 
   public setPadding(padding: Padding) {
-    super.setPadding(padding)
+    super.setPadding(padding);
     this.render();
     return this;
   }
@@ -27,7 +23,13 @@ export class XAxis extends Axis {
   public render() {
     this.clear();
     const { min, max, tick, innerPadding, strokeColor } = this;
-    const { format, count, color, width: tickWidth, strokeColor: tickStrokeColor } = tick as DeepNonNullable<TickOption>;
+    const {
+      format,
+      count,
+      color,
+      width: tickWidth,
+      strokeColor: tickStrokeColor,
+    } = tick as DeepNonNullable<TickOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
     const height = this.canvas.height / this.dpr;
@@ -45,14 +47,15 @@ export class XAxis extends Axis {
 
       lines.reverse().forEach((line, i) => {
         drawText(
-          this.context, `${line}`, 
+          this.context,
+          `${line}`,
           x,
-          height - padding.bottom + tick?.width! + textHeight + tick?.padding?.top! - i * this.getTextHeight(line),
-          { textAlign: 'center', textBaseline: 'bottom', color }
+          height - padding.bottom + tick!.width! + textHeight + tick!.padding!.top! - i * this.getTextHeight(line),
+          { textAlign: 'center', textBaseline: 'bottom', color },
         );
-      })
+      });
       drawLine(this.context, x, endY, x, endY + tickWidth, { color: tickStrokeColor });
-    })
+    });
     drawLine(this.context, startX - innerPadding, endY, endX + innerPadding, endY, { color: strokeColor });
   }
 }

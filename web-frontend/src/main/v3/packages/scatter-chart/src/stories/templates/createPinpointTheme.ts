@@ -1,4 +1,4 @@
-import { newScatterChart } from "./createDefault";
+import { newScatterChart } from './createDefault';
 import data1 from '../mock/data1.json';
 
 export const createPinpointTheme = () => {
@@ -40,12 +40,12 @@ export const createPinpointTheme = () => {
           padding: 7,
           min: 0,
           max: 1000,
-        }
-      }
-    })
+        },
+      },
+    });
     wrapper.append(btnStart);
     wrapper.append(btnStop);
-    const newData = data1.data.map(d => ({ ...d, x: d.x + 47335 }));
+    const newData = data1.data.map((d) => ({ ...d, x: d.x + 47335 }));
     SC.render(newData, { append: true });
 
     btnStart.addEventListener('click', () => {
@@ -59,11 +59,10 @@ export const createPinpointTheme = () => {
     wrapper.append(btnElement);
 
     btnElement.addEventListener('click', async () => {
-
       const image = await SC.toBase64Image();
 
       const downloadElement = document.createElement('a');
-      downloadElement.setAttribute("href", image);
+      downloadElement.setAttribute('href', image);
       downloadElement.setAttribute('download', `${1}.png`);
       wrapper.appendChild(downloadElement);
       downloadElement.click();
@@ -71,4 +70,4 @@ export const createPinpointTheme = () => {
     });
   }, 500);
   return wrapper;
-}
+};
