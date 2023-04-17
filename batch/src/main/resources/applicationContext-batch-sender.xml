@@ -5,13 +5,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
     <bean id="mailSender" class="com.navercorp.pinpoint.batch.alarm.SpringSmtpMailSender">
-        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="batchProperties"/>
         <constructor-arg ref="userGroupServiceImpl"/>
         <constructor-arg ref="javaMailSenderImpl"/>
     </bean>
 
     <bean id="webhookSender" class="com.navercorp.pinpoint.batch.alarm.WebhookSenderFactoryBean">
-        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="batchProperties"/>
         <constructor-arg ref="restTemplate" />
         <constructor-arg ref="userServiceImpl"/>
         <constructor-arg ref="webhookServiceImpl"/>

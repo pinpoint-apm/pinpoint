@@ -16,49 +16,49 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
 
-public class CollectorClusterConfig {
+public class CollectorClusterProperties {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private final ZookeeperClusterConfiguration clusterConfiguration;
+    private final ZookeeperClusterProperties clusterProperties;
 
     private final String clusterListenIp;
 
     private final int clusterListenPort;
 
 
-    public CollectorClusterConfig(ZookeeperClusterConfiguration clusterConfiguration,
-                                  String clusterListenIp,
-                                  int clusterListenPort) {
-        this.clusterConfiguration = Objects.requireNonNull(clusterConfiguration, "clusterConfiguration");
+    public CollectorClusterProperties(ZookeeperClusterProperties clusterProperties,
+                                      String clusterListenIp,
+                                      int clusterListenPort) {
+        this.clusterProperties = Objects.requireNonNull(clusterProperties, "clusterProperties");
         this.clusterListenIp = Objects.requireNonNull(clusterListenIp, "clusterListenIp");
         this.clusterListenPort = clusterListenPort;
     }
 
     public boolean isClusterEnable() {
-        return clusterConfiguration.isEnable();
+        return clusterProperties.isEnable();
     }
 
     public String getClusterAddress() {
-        return clusterConfiguration.getAddress();
+        return clusterProperties.getAddress();
     }
 
     public String getWebZNodePath() {
-        return clusterConfiguration.getWebZNodePath();
+        return clusterProperties.getWebZNodePath();
     }
 
     public String getCollectorZNodePath() {
-        return clusterConfiguration.getCollectorZNodePath();
+        return clusterProperties.getCollectorZNodePath();
     }
 
     public int getClusterSessionTimeout() {
-        return clusterConfiguration.getSessionTimeout();
+        return clusterProperties.getSessionTimeout();
     }
 
     public String getClusterListenIp() {

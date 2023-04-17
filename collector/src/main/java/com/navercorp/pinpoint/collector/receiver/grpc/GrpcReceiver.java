@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.navercorp.pinpoint.collector.grpc.config.GrpcSslConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcSslProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
-import com.navercorp.pinpoint.grpc.security.SslServerConfig;
+import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -74,7 +74,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private List<ServerTransportFilter> transportFilterList;
 
     private ServerOption serverOption;
-    private GrpcSslConfiguration grpcSslConfiguration;
+    private GrpcSslProperties grpcSslProperties;
 
     private Server server;
     private ChannelzRegistry channelzRegistry;
@@ -93,8 +93,8 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
         Objects.requireNonNull(this.serverOption, "serverOption");
 
-        if (grpcSslConfiguration != null) {
-            final SslServerConfig sslServerConfig = grpcSslConfiguration.toSslServerConfig();
+        if (grpcSslProperties != null) {
+            final SslServerProperties sslServerConfig = grpcSslProperties.toSslServerProperties();
             this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption, sslServerConfig);
         } else {
             this.serverFactory = new ServerFactory(beanName, this.bindAddress.getIp(), this.bindAddress.getPort(), this.executor, this.serverCallExecutorSupplier, serverOption);
@@ -242,8 +242,8 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.serverOption = serverOption;
     }
 
-    public void setGrpcSslConfiguration(GrpcSslConfiguration grpcSslConfiguration) {
-        this.grpcSslConfiguration = grpcSslConfiguration;
+    public void setGrpcSslProperties(GrpcSslProperties grpcSslProperties) {
+        this.grpcSslProperties = grpcSslProperties;
     }
 
     private static final Class<?>[] BINDABLESERVICE_TYPE = {BindableService.class, ServerServiceDefinition.class};

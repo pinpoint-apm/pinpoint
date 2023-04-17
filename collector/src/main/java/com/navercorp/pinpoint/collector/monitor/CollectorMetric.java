@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.JvmAttributeGaugeSet;
@@ -54,7 +54,7 @@ public class CollectorMetric {
 
     public static final String REPORTER_LOGGER_NAME = "com.navercorp.pinpoint.collector.StateReport";
 
-    private final CollectorConfiguration collectorConfiguration;
+    private final CollectorProperties collectorProperties;
 
     private final MetricRegistry metricRegistry;
 
@@ -65,11 +65,11 @@ public class CollectorMetric {
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
 
-    public CollectorMetric(CollectorConfiguration collectorConfiguration,
+    public CollectorMetric(CollectorProperties collectorProperties,
                            MetricRegistry metricRegistry,
                            Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics,
                            Optional<BulkOperationMetrics> cachedStatisticsDaoMetrics) {
-        this.collectorConfiguration = Objects.requireNonNull(collectorConfiguration, "collectorConfiguration");
+        this.collectorProperties = Objects.requireNonNull(collectorProperties, "collectorProperties");
         this.metricRegistry = Objects.requireNonNull(metricRegistry, "metricRegistry");
         this.hBaseAsyncOperationMetrics = hBaseAsyncOperationMetrics.orElse(null);
         this.bulkOperationMetrics = cachedStatisticsDaoMetrics.orElse(null);
@@ -122,9 +122,9 @@ public class CollectorMetric {
 
         reporterList.add(slf4jReporter);
 
-        if (collectorConfiguration.isMetricJmxEnable()) {
+        if (collectorProperties.isMetricJmxEnable()) {
 
-            final String metricJmxDomainName = collectorConfiguration.getMetricJmxDomainName();
+            final String metricJmxDomainName = collectorProperties.getMetricJmxDomainName();
             Assert.hasLength(metricJmxDomainName, "metricJmxDomainName must not be empty");
 
             final JmxReporter jmxReporter = createJmxReporter(metricJmxDomainName);

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
+import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -42,16 +42,16 @@ public class SpringSmtpMailSender implements MailSender {
     private final InternetAddress senderEmailAddress;
     private final JavaMailSenderImpl springMailSender;
 
-    public SpringSmtpMailSender(BatchConfiguration batchConfiguration, UserGroupService userGroupService, JavaMailSenderImpl springMailSender) {
-        Objects.requireNonNull(batchConfiguration, "batchConfiguration");
-        this.pinpointUrl = batchConfiguration.getPinpointUrl();
-        this.batchEnv = batchConfiguration.getBatchEnv();
+    public SpringSmtpMailSender(BatchProperties batchProperties, UserGroupService userGroupService, JavaMailSenderImpl springMailSender) {
+        Objects.requireNonNull(batchProperties, "batchProperties");
+        this.pinpointUrl = batchProperties.getPinpointUrl();
+        this.batchEnv = batchProperties.getBatchEnv();
 
         this.userGroupService = Objects.requireNonNull(userGroupService, "userGroupService");
         this.springMailSender = Objects.requireNonNull(springMailSender, "mailSender");
 
         try {
-            senderEmailAddress = new InternetAddress(batchConfiguration.getSenderEmailAddress());
+            senderEmailAddress = new InternetAddress(batchProperties.getSenderEmailAddress());
         } catch (AddressException e) {
             throw new RuntimeException(e);
         }

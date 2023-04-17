@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -27,27 +27,27 @@ import javax.annotation.PostConstruct;
  * @author Taejin Koo
  * @author emeroad
  */
-public class GrpcStreamReceiverConfiguration extends GrpcReceiverConfiguration {
+public class GrpcStreamReceiverProperties extends GrpcReceiverProperties {
 
 
-    private final GrpcStreamConfiguration streamConfiguration;
+    private final GrpcStreamProperties streamProperties;
 
-    public GrpcStreamReceiverConfiguration(boolean enable,
-                                           BindAddress bindAddress,
-                                           ExecutorConfiguration serverExecutor,
-                                           ExecutorConfiguration serverCallExecutor,
-                                           ExecutorConfiguration workerExecutor,
-                                           ServerOption serverOption,
-                                           GrpcStreamConfiguration streamConfiguration) {
+    public GrpcStreamReceiverProperties(boolean enable,
+                                        BindAddress bindAddress,
+                                        ExecutorProperties serverExecutor,
+                                        ExecutorProperties serverCallExecutor,
+                                        ExecutorProperties workerExecutor,
+                                        ServerOption serverOption,
+                                        GrpcStreamProperties streamProperties) {
         super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
-        this.streamConfiguration = streamConfiguration;
+        this.streamProperties = streamProperties;
     }
 
 
     @PostConstruct
     public void log() {
         super.log();
-        logger.info("streamConfiguration:{}", streamConfiguration);
+        logger.info("streamProperties:{}", streamProperties);
 
         Assert.isTrue(getServerExecutor().getThreadSize() > 0, "grpcServerExecutorThreadSize must be greater than 0");
         Assert.isTrue(getServerExecutor().getQueueSize() > 0, "grpcServerExecutorQueueSize must be greater than 0");
@@ -56,18 +56,18 @@ public class GrpcStreamReceiverConfiguration extends GrpcReceiverConfiguration {
         Assert.isTrue(getWorkerExecutor().getThreadSize() > 0, "grpcWorkerExecutorThreadSize must be greater than 0");
         Assert.isTrue(getWorkerExecutor().getQueueSize() > 0, "grpcWorkerExecutorQueueSize must be greater than 0");
 
-        Assert.isTrue(streamConfiguration.getSchedulerThreadSize() > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
+        Assert.isTrue(streamProperties.getSchedulerThreadSize() > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
 
     }
 
-    public GrpcStreamConfiguration getStreamConfiguration() {
-        return streamConfiguration;
+    public GrpcStreamProperties getStreamProperties() {
+        return streamProperties;
     }
 
     @Override
     public String toString() {
-        return "GrpcStreamReceiverConfiguration{" +
-                "streamConfiguration=" + streamConfiguration +
+        return "GrpcStreamReceiverProperties{" +
+                "streamConfiguration=" + streamProperties +
                 "} " + super.toString();
     }
 }

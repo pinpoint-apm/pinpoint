@@ -16,24 +16,89 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
 
 /**
- * Marker class for debugging
- * @author Taejin Koo
  * @author emeroad
  */
-public class GrpcSpanReceiverConfiguration extends GrpcStreamReceiverConfiguration {
+@Configuration
+public class GrpcSpanReceiverConfiguration {
 
-    public GrpcSpanReceiverConfiguration(boolean enable, BindAddress bindAddress,
-                                         ExecutorConfiguration serverExecutor,
-                                         ExecutorConfiguration serverCallExecutor,
-                                         ExecutorConfiguration workerExecutor,
-                                         ServerOption serverOption,
-                                         GrpcStreamConfiguration streamConfiguration) {
-        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
+    public static final String BIND_ADDRESS = "collector.receiver.grpc.span.bindaddress";
+
+    public static final String SERVER_EXECUTOR = "collector.receiver.grpc.span.server.executor";
+
+    public static final String SERVER_CALL_EXECUTOR = "collector.receiver.grpc.span.server-call.executor";
+
+    public static final String WORKER_EXECUTOR = "collector.receiver.grpc.span.worker.executor";
+
+    public static final String STREAM = "collector.receiver.grpc.span.stream";
+
+    public static final String SERVER_OPTION = "collector.receiver.grpc.span";
+
+    public GrpcSpanReceiverConfiguration() {
+    }
+
+    @Bean(BIND_ADDRESS)
+    @ConfigurationProperties(BIND_ADDRESS)
+    public BindAddress.Builder newBindAddressBuilder() {
+        BindAddress.Builder builder = BindAddress.newBuilder();
+        builder.setPort(9993);
+        return builder;
+    }
+
+    @Bean(SERVER_EXECUTOR)
+    @ConfigurationProperties(SERVER_EXECUTOR)
+    public ExecutorProperties.Builder newServerExecutorBuilder() {
+        return ExecutorProperties.newBuilder();
+    }
+
+    @Bean(SERVER_CALL_EXECUTOR)
+    @ConfigurationProperties(SERVER_CALL_EXECUTOR)
+    public ExecutorProperties.Builder newServerCallExecutorBuilder() {
+        return ExecutorProperties.newBuilder();
+    }
+
+    @Bean(WORKER_EXECUTOR)
+    @ConfigurationProperties(WORKER_EXECUTOR)
+    public ExecutorProperties.Builder newWorkerExecutorBuilder() {
+        return ExecutorProperties.newBuilder();
+    }
+
+    @Bean(STREAM)
+    @ConfigurationProperties(STREAM)
+    public GrpcStreamProperties.Builder newStreamConfigurationBuilder() {
+        return GrpcStreamProperties.newBuilder();
+    }
+
+    @Bean(SERVER_OPTION)
+    @ConfigurationProperties(SERVER_OPTION)
+    public GrpcPropertiesServerOptionBuilder newServerOption() {
+        // Server option
+        return new GrpcPropertiesServerOptionBuilder();
+    }
+
+    @Bean
+    public GrpcSpanReceiverProperties grpcSpanReceiverProperties(Environment environment) {
+
+        boolean enable = environment.getProperty("collector.receiver.grpc.span.enable", boolean.class, false);
+
+        ServerOption serverOption = newServerOption().build();
+
+        BindAddress bindAddress = newBindAddressBuilder().build();
+        ExecutorProperties serverExecutor = newServerExecutorBuilder().build();
+        ExecutorProperties serverCallExecutor = newServerCallExecutorBuilder().build();
+        ExecutorProperties workerExecutor = newWorkerExecutorBuilder().build();
+
+        GrpcStreamProperties streamConfiguration = newStreamConfigurationBuilder().build();
+        return new GrpcSpanReceiverProperties(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption, streamConfiguration);
     }
 
 }

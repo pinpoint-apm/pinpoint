@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.batch.flink;
 
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
+import com.navercorp.pinpoint.batch.common.BatchProperties;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.batch.core.StepContribution;
@@ -45,14 +45,14 @@ public class HealthCheckTasklet implements Tasklet {
 
     private final RestTemplate restTemplate;
 
-    private final BatchConfiguration batchConfiguration;
+    private final BatchProperties batchProperties;
 
 
-    public HealthCheckTasklet(BatchConfiguration batchConfiguration, RestTemplate restTemplate) {
+    public HealthCheckTasklet(BatchProperties batchProperties, RestTemplate restTemplate) {
         this.jobNameList = new ArrayList<>(1);
         jobNameList.add("Aggregation Stat Data");
 
-        this.batchConfiguration = Objects.requireNonNull(batchConfiguration, "batchConfiguration");
+        this.batchProperties = Objects.requireNonNull(batchProperties, "batchProperties");
         this.restTemplate = Objects.requireNonNull(restTemplate, "restTemplate");
 
     }
@@ -118,7 +118,7 @@ public class HealthCheckTasklet implements Tasklet {
 
 
     private List<String> generatedFlinkManagerServerApi() {
-        List<String> flinkServerList = batchConfiguration.getFlinkServerList();
+        List<String> flinkServerList = batchProperties.getFlinkServerList();
         List<String> urlList = new ArrayList<>(flinkServerList.size());
 
         for (String flinkServerIp : flinkServerList) {

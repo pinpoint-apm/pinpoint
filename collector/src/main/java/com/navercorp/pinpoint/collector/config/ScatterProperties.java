@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
 
 // @Experimental
-public class ScatterConfiguration {
+public class ScatterProperties {
     private final Logger logger = LogManager.getLogger(getClass());
 
     public enum ServerSideScan {

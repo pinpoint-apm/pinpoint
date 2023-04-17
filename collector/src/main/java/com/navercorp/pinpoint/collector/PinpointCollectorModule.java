@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.collector;
 
 
 import com.navercorp.pinpoint.collector.config.ClusterModule;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.config.FlinkContextModule;
 import com.navercorp.pinpoint.collector.config.MetricConfiguration;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
@@ -44,8 +44,8 @@ import org.springframework.context.annotation.ImportResource;
 public class PinpointCollectorModule {
 
     @Bean
-    public CollectorConfiguration collectorConfiguration() {
-        return new CollectorConfiguration();
+    public CollectorProperties collectorProperties() {
+        return new CollectorProperties();
     }
 
 

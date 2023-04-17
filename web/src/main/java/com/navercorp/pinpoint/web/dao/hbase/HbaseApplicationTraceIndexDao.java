@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.config.ScatterChartConfig;
+import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexMetaScatterMapper;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
@@ -72,7 +72,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
     private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
 
-    private final ScatterChartConfig scatterChartConfig;
+    private final ScatterChartProperties scatterChartProperties;
 
     private final HbaseOperations2 hbaseOperations2;
     private final TableNameProvider tableNameProvider;
@@ -89,13 +89,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
 
-    public HbaseApplicationTraceIndexDao(ScatterChartConfig scatterChartConfig,
+    public HbaseApplicationTraceIndexDao(ScatterChartProperties scatterChartProperties,
                                          HbaseOperations2 hbaseOperations2,
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> traceIndexMapper,
                                          @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor traceIdRowKeyDistributor) {
-        this.scatterChartConfig = Objects.requireNonNull(scatterChartConfig, "scatterChartConfig");
+        this.scatterChartProperties = Objects.requireNonNull(scatterChartProperties, "scatterChartProperties");
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.traceIndexMapper = Objects.requireNonNull(traceIndexMapper, "traceIndexMapper");
@@ -354,7 +354,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private Scan newFuzzyScanner(String applicationName, DragArea dragArea, Range range) {
         final Scan scan = createScan(applicationName, range, true);
-        if (scatterChartConfig.isEnableFuzzyRowFilter()) {
+        if (scatterChartProperties.isEnableFuzzyRowFilter()) {
             Filter filter = newFuzzyFilter(dragArea);
             scan.setFilter(filter);
         }

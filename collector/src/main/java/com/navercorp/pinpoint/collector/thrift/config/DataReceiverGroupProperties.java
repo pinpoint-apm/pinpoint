@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.thrift.config;
 /**
  * @author Taejin Koo
  */
-public interface DataReceiverGroupConfiguration {
+public interface DataReceiverGroupProperties {
 
     boolean isTcpEnable();
 

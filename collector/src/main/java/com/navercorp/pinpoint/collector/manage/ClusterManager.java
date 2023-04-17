@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.manage;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
+import com.navercorp.pinpoint.collector.config.CollectorClusterProperties;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
 import java.util.ArrayList;
@@ -34,9 +34,9 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
     private final boolean enableCluster;
     private final ClusterPointLocator<?> clusterPointLocator;
 
-    public ClusterManager(CollectorClusterConfig collectorClusterConfig, ClusterPointLocator<?> clusterPointLocator) {
-        Objects.requireNonNull(collectorClusterConfig, "configuration");
-        this.enableCluster = collectorClusterConfig.isClusterEnable();
+    public ClusterManager(CollectorClusterProperties collectorClusterProperties, ClusterPointLocator<?> clusterPointLocator) {
+        Objects.requireNonNull(collectorClusterProperties, "collectorClusterProperties");
+        this.enableCluster = collectorClusterProperties.isClusterEnable();
         this.clusterPointLocator = Objects.requireNonNull(clusterPointLocator, "clusterPointLocator");
     }
 

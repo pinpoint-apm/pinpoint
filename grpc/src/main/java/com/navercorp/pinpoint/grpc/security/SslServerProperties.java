@@ -24,12 +24,12 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public final class SslServerConfig {
+public final class SslServerProperties {
 
     private static final boolean DISABLED = false;
     private static final String EMPTY_STRING = "";
 
-    public static final SslServerConfig DISABLED_CONFIG = new SslServerConfig(DISABLED, EMPTY_STRING, null, null);
+    public static final SslServerProperties DISABLED_CONFIG = new SslServerProperties(DISABLED, EMPTY_STRING, null, null);
 
     private final boolean enable;
 
@@ -37,7 +37,7 @@ public final class SslServerConfig {
     private final Resource keyResource;
     private final Resource keyCertChainResource;
 
-    public SslServerConfig(boolean enable, String sslProviderType, Resource keyResource, Resource keyCertChainResource) {
+    public SslServerProperties(boolean enable, String sslProviderType, Resource keyResource, Resource keyCertChainResource) {
         this.enable = enable;
         this.sslProviderType = Objects.requireNonNull(sslProviderType, "sslProviderType");
         this.keyResource = keyResource;

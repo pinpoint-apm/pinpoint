@@ -29,12 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcStatReceiverConfigurationFactory.class)
+@ContextConfiguration(classes = GrpcStatReceiverConfiguration.class)
 @ExtendWith(SpringExtension.class)
 public class GrpcStatReceiverConfigurationTest {
 
     @Autowired
-    private GrpcStatReceiverConfiguration configuration;
+    private GrpcStatReceiverProperties configuration;
 
     @Test
     public void properties() {
@@ -45,10 +45,10 @@ public class GrpcStatReceiverConfigurationTest {
         assertEquals(2, configuration.getWorkerExecutor().getThreadSize());
         assertEquals(2, configuration.getWorkerExecutor().getQueueSize());
         assertEquals(Boolean.FALSE, configuration.getWorkerExecutor().isMonitorEnable());
-        assertEquals(2, configuration.getStreamConfiguration().getSchedulerThreadSize());
-        assertEquals(2, configuration.getStreamConfiguration().getSchedulerPeriodMillis());
-        assertEquals(2, configuration.getStreamConfiguration().getCallInitRequestCount());
-        assertEquals(2, configuration.getStreamConfiguration().getThrottledLoggerRatio());
+        assertEquals(2, configuration.getStreamProperties().getSchedulerThreadSize());
+        assertEquals(2, configuration.getStreamProperties().getSchedulerPeriodMillis());
+        assertEquals(2, configuration.getStreamProperties().getCallInitRequestCount());
+        assertEquals(2, configuration.getStreamProperties().getThrottledLoggerRatio());
 
     }
 

@@ -17,10 +17,10 @@
                         com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
     <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
-    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
+    <bean id="flinkProperties" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
     <bean class="com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration"/>
 
-    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverConfiguration"/>
+    <bean id="tcpReceiverProperties" class="com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverProperties"/>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TBaseFlatMapper"/>
 
@@ -85,29 +85,29 @@
     </bean>
 
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
-        <constructor-arg index="0" ref="flinkConfiguration"/>
+        <constructor-arg index="0" ref="flinkProperties"/>
     </bean>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 
     <bean id="addressFilter" class="com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter">
-        <constructor-arg index="0" value="#{flinkConfiguration.l4IpList}"/>
+        <constructor-arg index="0" value="#{flinkProperties.l4IpList}"/>
     </bean>
 
 
     <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
 
     <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean">
-        <property name="corePoolSize" value="#{tcpReceiverConfig.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{tcpReceiverConfig.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{tcpReceiverConfig.workerQueueSize}"/>
+        <property name="corePoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>
+        <property name="maxPoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>
+        <property name="queueCapacity" value="#{tcpReceiverProperties.workerQueueSize}"/>
         <property name="rejectedExecutionHandler" ref="discardPolicy"/>
         <property name="threadNamePrefix" value="Pinpoint-Flink-Worker-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
         <property name="preStartAllCoreThreads" value="true"/>
-        <property name="registry" value="#{tcpReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
+        <property name="registry" value="#{tcpReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
         <property name="logRate" value="1"/>
     </bean>
 
@@ -120,8 +120,8 @@
         <property name="channelFilter" ref="channelFilter"/>
     </bean>
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean" lazy-init="true">
-        <property name="bindIp" value="#{tcpReceiverConfig.bindIp}"/>
-        <property name="bindPort" value="#{tcpReceiverConfig.bindPort}"/>
+        <property name="bindIp" value="#{tcpReceiverProperties.bindIp}"/>
+        <property name="bindPort" value="#{tcpReceiverProperties.bindPort}"/>
         <property name="acceptorProvider" ref="spanAcceptorProvider"/>
         <property name="dispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <property name="executor" ref="flinkWorker"/>

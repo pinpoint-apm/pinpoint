@@ -8,7 +8,7 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <bean class="com.navercorp.pinpoint.collector.config.ScatterConfiguration"/>
+    <bean class="com.navercorp.pinpoint.collector.config.ScatterProperties"/>
 
     <!-- Manager-related Beans -->
     <!--    <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">-->
@@ -30,9 +30,9 @@
     <task:annotation-driven/>
 
     <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
-        <property name="corePoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
-        <property name="maxPoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
-        <property name="queueCapacity" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
+        <property name="corePoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
+        <property name="maxPoolSize" value="#{collectorProperties.agentEventWorkerThreadSize}"/>
+        <property name="queueCapacity" value="#{collectorProperties.agentEventWorkerQueueSize}"/>
         <property name="threadNamePrefix" value="Pinpoint-AgentEvent-Worker-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
@@ -52,7 +52,7 @@
     </util:list>
 
     <bean id="addressFilter" class="com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter">
-        <constructor-arg value="#{collectorConfiguration.l4IpList}"/>
+        <constructor-arg value="#{collectorProperties.l4IpList}"/>
     </bean>
 
 

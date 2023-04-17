@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
-import com.navercorp.pinpoint.web.config.WebClusterConfig;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,13 +40,13 @@ public class ClusterManager {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final WebClusterConfig config;
+    private final WebClusterProperties properties;
 
     private final ClusterConnectionManager clusterConnectionManager;
     private final ClusterDataManager clusterDataManager;
 
-    public ClusterManager(WebClusterConfig config, ClusterConnectionManager clusterConnectionManager, ClusterDataManager clusterDataManager) {
-        this.config = Objects.requireNonNull(config, "config");
+    public ClusterManager(WebClusterProperties properties, ClusterConnectionManager clusterConnectionManager, ClusterDataManager clusterDataManager) {
+        this.properties = Objects.requireNonNull(properties, "properties");
         this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
         this.clusterDataManager = Objects.requireNonNull(clusterDataManager, "clusterDataManager");
     }
@@ -55,7 +55,7 @@ public class ClusterManager {
     public void start() {
         logger.info("start() started.");
 
-        if (!config.isClusterEnable()) {
+        if (!properties.isClusterEnable()) {
             logger.info("start() skipped. caused:cluster option disabled.");
             return;
         }
@@ -83,7 +83,7 @@ public class ClusterManager {
     public void stop() {
         logger.info("stop() started.");
 
-        if (!config.isClusterEnable()) {
+        if (!properties.isClusterEnable()) {
             logger.info("stop() skipped. caused:cluster option disabled.");
             return;
         }
@@ -126,7 +126,7 @@ public class ClusterManager {
     }
 
     public boolean isEnabled() {
-        return config.isClusterEnable();
+        return properties.isClusterEnable();
     }
 
     public boolean isConnected(ClusterKey clusterKey) {

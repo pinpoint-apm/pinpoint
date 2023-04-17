@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.config.CollectorClusterConfig;
+import com.navercorp.pinpoint.collector.config.CollectorClusterProperties;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
@@ -30,7 +30,7 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private CollectorClusterConfig collectorClusterConfig;
+    private CollectorClusterProperties collectorClusterProperties;
     private ClusterPointRouter clusterPointRouter;
 
     private ClusterService clusterService;
@@ -40,8 +40,8 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
         return this.clusterService;
     }
 
-    public void setClusterConfig(CollectorClusterConfig collectorClusterConfig) {
-        this.collectorClusterConfig = Objects.requireNonNull(collectorClusterConfig, "clusterConfig");
+    public void setClusterProperties(CollectorClusterProperties collectorClusterProperties) {
+        this.collectorClusterProperties = Objects.requireNonNull(collectorClusterProperties, "collectorClusterProperties");
     }
 
     public void setClusterPointRouter(ClusterPointRouter clusterPointRouter) {
@@ -61,8 +61,8 @@ public class ClusterServiceFactory implements FactoryBean<ClusterService>, Initi
     }
 
     private ClusterService newClusterService() {
-        if (collectorClusterConfig.isClusterEnable()) {
-            return new ZookeeperClusterService(collectorClusterConfig, clusterPointRouter);
+        if (collectorClusterProperties.isClusterEnable()) {
+            return new ZookeeperClusterService(collectorClusterProperties, clusterPointRouter);
         }
         logger.info("pinpoint-collector cluster disable");
         return new DisableClusterService();

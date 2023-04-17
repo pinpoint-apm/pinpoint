@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
-import com.navercorp.pinpoint.batch.common.BatchConfiguration;
+import com.navercorp.pinpoint.batch.common.BatchProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,28 +33,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @TestPropertySource(locations = "classpath:batch-root.properties",
         properties = {"batch.flink.server=1,2"})
-@ContextConfiguration(classes = BatchConfiguration.class)
+@ContextConfiguration(classes = BatchProperties.class)
 @ExtendWith(SpringExtension.class)
-public class BatchConfigurationTest {
+public class BatchPropertiesTest {
 
     @Autowired
-    BatchConfiguration configuration;
+    BatchProperties properties;
 
     @Test
     public void test() {
-        assertThat(configuration)
-                .extracting(BatchConfiguration::getBatchEnv, BatchConfiguration::getFlinkServerList)
+        assertThat(properties)
+                .extracting(BatchProperties::getBatchEnv, BatchProperties::getFlinkServerList)
                 .containsExactly("release", List.of("1", "2"));
     }
 
     @Test
     public void cleanupInactiveAgentsConfigurationTest() {
-        configuration.setup();
+        properties.setup();
 
-        assertThat(configuration)
-                .extracting(BatchConfiguration::isEnableCleanupInactiveAgents,
-                        BatchConfiguration::getCleanupInactiveAgentsCron,
-                        BatchConfiguration::getCleanupInactiveAgentsDurationDays)
+        assertThat(properties)
+                .extracting(BatchProperties::isEnableCleanupInactiveAgents,
+                        BatchProperties::getCleanupInactiveAgentsCron,
+                        BatchProperties::getCleanupInactiveAgentsDurationDays)
                 .containsExactly(false, "0 0 0 29 2 ?", 30);
 
     }

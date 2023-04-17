@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.flink.config;
 
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterProperties;
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.apache.logging.log4j.LogManager;
@@ -36,9 +36,9 @@ import java.util.List;
 public class FlinkConfiguration {
     private final Logger logger = LogManager.getLogger(FlinkConfiguration.class);
 
-    @Qualifier("flinkClusterConfiguration")
+    @Qualifier("flinkClusterProperties")
     @Autowired
-    private ZookeeperClusterConfiguration clusterConfiguration;
+    private ZookeeperClusterProperties clusterProperties;
 
     @Value("${flink.cluster.zookeeper.retry.interval:60000}")
     private int flinkRetryInterval;
@@ -56,15 +56,15 @@ public class FlinkConfiguration {
     }
 
     public boolean isFlinkClusterEnable() {
-        return clusterConfiguration.isEnable();
+        return clusterProperties.isEnable();
     }
 
     public String getFlinkClusterZookeeperAddress() {
-        return clusterConfiguration.getAddress();
+        return clusterProperties.getAddress();
     }
 
     public String getFlinkZNodePath() {
-        return clusterConfiguration.getFlinkZNodePath();
+        return clusterProperties.getFlinkZNodePath();
     }
 
     public int getFlinkClusterTcpPort() {
@@ -72,7 +72,7 @@ public class FlinkConfiguration {
     }
 
     public int getFlinkClusterSessionTimeout() {
-        return clusterConfiguration.getSessionTimeout();
+        return clusterProperties.getSessionTimeout();
     }
 
     public int getFlinkRetryInterval() {

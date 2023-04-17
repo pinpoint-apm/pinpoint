@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
-import com.navercorp.pinpoint.collector.monitor.CountingRejectedExecutionHandler;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.monitor.BypassRunnableDecorator;
+import com.navercorp.pinpoint.collector.monitor.CountingRejectedExecutionHandler;
 import com.navercorp.pinpoint.collector.monitor.LoggingRejectedExecutionHandler;
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutor;
 import com.navercorp.pinpoint.collector.monitor.RejectedExecutionHandlerChain;
 import com.navercorp.pinpoint.collector.monitor.RunnableDecorator;
-
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.MetricRegistry;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -121,11 +120,11 @@ public class ExecutorFactoryBean extends org.springframework.scheduling.concurre
     }
 
 
-    public void setExecutorConfiguration(ExecutorConfiguration executorConfiguration) {
-        setCorePoolSize(executorConfiguration.getThreadSize());
-        setMaxPoolSize(executorConfiguration.getThreadSize());
-        setQueueCapacity(executorConfiguration.getQueueSize());
-        this.enableMonitoring = executorConfiguration.isMonitorEnable();
+    public void setExecutorProperties(ExecutorProperties executorProperties) {
+        setCorePoolSize(executorProperties.getThreadSize());
+        setMaxPoolSize(executorProperties.getThreadSize());
+        setQueueCapacity(executorProperties.getQueueSize());
+        this.enableMonitoring = executorProperties.isMonitorEnable();
     }
 
     public void setPreStartAllCoreThreads(boolean preStartAllCoreThreads) {

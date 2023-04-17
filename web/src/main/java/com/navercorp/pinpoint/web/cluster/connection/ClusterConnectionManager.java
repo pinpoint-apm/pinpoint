@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.web.cluster.ClusterId;
-import com.navercorp.pinpoint.web.config.WebClusterConfig;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -35,20 +35,20 @@ import java.util.Objects;
 public class ClusterConnectionManager {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final WebClusterConfig config;
+    private final WebClusterProperties properties;
 
     private ClusterAcceptor clusterAcceptor;
     private ClusterConnector clusterConnector;
 
-    public ClusterConnectionManager(WebClusterConfig config) {
-        this.config = config;
+    public ClusterConnectionManager(WebClusterProperties properties) {
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public void start() {
         logger.info("start() started.");
 
-        String hostAddress = config.getHostAddress();
-        int bindPort = config.getClusterTcpPort();
+        String hostAddress = properties.getHostAddress();
+        int bindPort = properties.getClusterTcpPort();
         if (bindPort > 0) {
             if (StringUtils.isEmpty(hostAddress)) {
                 hostAddress = getRepresentationLocalV4Ip();
@@ -58,7 +58,7 @@ public class ClusterConnectionManager {
             clusterAcceptor.start();
         }
 
-        final String clusterConnectAddress = config.getClusterConnectAddress();
+        final String clusterConnectAddress = properties.getClusterConnectAddress();
         if (StringUtils.isNotBlank(clusterConnectAddress)) {
             clusterConnector = new ClusterConnector(clusterConnectAddress);
             clusterConnector.start();

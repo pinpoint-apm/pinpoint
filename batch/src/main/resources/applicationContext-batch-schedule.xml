@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="batchConfiguration" class="com.navercorp.pinpoint.batch.common.BatchConfiguration"/>
+    <bean id="batchProperties" class="com.navercorp.pinpoint.batch.common.BatchProperties"/>
 
     <task:scheduled-tasks scheduler="scheduler">
         <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>

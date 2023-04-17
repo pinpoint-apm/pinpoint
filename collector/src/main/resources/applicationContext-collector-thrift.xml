@@ -2,13 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:component-scan
             base-package="com.navercorp.pinpoint.collector.thrift.config,
@@ -34,13 +30,13 @@
 
     <bean id="baseDataReceiverWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean"
           parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorConfiguration" ref="baseExecutorConfiguration"/>
+        <property name="executorProperties" ref="baseExecutorProperties"/>
         <property name="threadNamePrefix" value="Pinpoint-AgentBaseDataReceiver-Worker"/>
-        <property name="registry" value="#{baseDataReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
+        <property name="registry" value="#{baseDataReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.tcp.AgentBaseDataReceiver">
-        <constructor-arg ref="baseDataReceiverConfig"/>
+        <constructor-arg ref="baseDataReceiverProperties"/>
         <constructor-arg ref="baseDataReceiverWorker"/>
         <constructor-arg ref="acceptor"/>
         <constructor-arg ref="tcpDispatchHandlerFactoryBean"/>
@@ -101,24 +97,24 @@
     <!-- span receiver configuration start -->
     <bean id="spanReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean"
           parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorConfiguration" ref="spanExecutorConfiguration"/>
+        <property name="executorProperties" ref="spanExecutorConfiguration"/>
         <property name="threadNamePrefix" value="Pinpoint-Span-Worker-"/>
-        <property name="registry" value="#{spanReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
+        <property name="registry" value="#{spanReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
     <bean id="spanUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.UDPReceiverBean">
-        <property name="bindIp" value="#{spanReceiverConfig.udpBindIp}"/>
-        <property name="bindPort" value="#{spanReceiverConfig.udpBindPort}"/>
+        <property name="bindIp" value="#{spanReceiverProperties.udpBindIp}"/>
+        <property name="bindPort" value="#{spanReceiverProperties.udpBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="dispatchHandler" ref="spanDispatchHandlerFactoryBean"/>
-        <property name="udpBufferSize" value="#{spanReceiverConfig.udpReceiveBufferSize}"/>
-        <property name="reusePort" value="#{spanReceiverConfig.reusePort}"/>
-        <property name="socketCount" value="#{spanReceiverConfig.socketCount}"/>
+        <property name="udpBufferSize" value="#{spanReceiverProperties.udpReceiveBufferSize}"/>
+        <property name="reusePort" value="#{spanReceiverProperties.reusePort}"/>
+        <property name="socketCount" value="#{spanReceiverProperties.socketCount}"/>
 
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
         <property name="datagramPoolSize"
-                  value="#{ spanReceiverConfig.workerQueueSize + spanReceiverConfig.workerThreadSize }"/>
-        <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
+                  value="#{ spanReceiverProperties.workerQueueSize + spanReceiverProperties.workerThreadSize }"/>
+        <property name="enable" value="#{spanReceiverProperties.isUdpEnable()}"/>
     </bean>
 
     <bean id="spanAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
@@ -137,36 +133,36 @@
     </bean>
 
     <bean id="spanTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean">
-        <property name="bindIp" value="#{spanReceiverConfig.tcpBindIp}"/>
-        <property name="bindPort" value="#{spanReceiverConfig.tcpBindPort}"/>
+        <property name="bindIp" value="#{spanReceiverProperties.tcpBindIp}"/>
+        <property name="bindPort" value="#{spanReceiverProperties.tcpBindPort}"/>
         <property name="acceptorProvider" ref="spanAcceptorProvider"/>
         <property name="dispatchHandler" ref="spanDispatchHandlerFactoryBean"/>
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
-        <property name="enable" value="#{spanReceiverConfig.isTcpEnable()}"/>
+        <property name="enable" value="#{spanReceiverProperties.isTcpEnable()}"/>
     </bean>
     <!-- span receiver configuration end -->
 
     <!-- stat receiver configuration -->
     <bean id="statReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean"
           parent="abstractReceiverExecutorFactoryBean">
-        <property name="executorConfiguration" ref="statExecutorConfiguration"/>
+        <property name="executorProperties" ref="statExecutorConfiguration"/>
         <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
-        <property name="registry" value="#{statReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
+        <property name="registry" value="#{statReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
     <bean id="statUdpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.UDPReceiverBean">
-        <property name="bindIp" value="#{statReceiverConfig.udpBindIp}"/>
-        <property name="bindPort" value="#{statReceiverConfig.udpBindPort}"/>
+        <property name="bindIp" value="#{statReceiverProperties.udpBindIp}"/>
+        <property name="bindPort" value="#{statReceiverProperties.udpBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
-        <property name="udpBufferSize" value="#{statReceiverConfig.udpReceiveBufferSize}"/>
-        <property name="reusePort" value="#{statReceiverConfig.reusePort}"/>
-        <property name="socketCount" value="#{statReceiverConfig.socketCount}"/>
+        <property name="udpBufferSize" value="#{statReceiverProperties.udpReceiveBufferSize}"/>
+        <property name="reusePort" value="#{statReceiverProperties.reusePort}"/>
+        <property name="socketCount" value="#{statReceiverProperties.socketCount}"/>
         <!-- TCP & UDP share threadpool for stat -->
         <property name="executor" ref="statReceiverExecutor"/>
         <property name="datagramPoolSize"
-                  value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
-        <property name="enable" value="#{statReceiverConfig.isUdpEnable()}"/>
+                  value="#{ statReceiverProperties.workerQueueSize + statReceiverProperties.workerThreadSize }"/>
+        <property name="enable" value="#{statReceiverProperties.isUdpEnable()}"/>
     </bean>
 
     <bean id="statAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
@@ -185,13 +181,13 @@
     </bean>
 
     <bean id="statTcpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean">
-        <property name="bindIp" value="#{statReceiverConfig.tcpBindIp}"/>
-        <property name="bindPort" value="#{statReceiverConfig.tcpBindPort}"/>
+        <property name="bindIp" value="#{statReceiverProperties.tcpBindIp}"/>
+        <property name="bindPort" value="#{statReceiverProperties.tcpBindPort}"/>
         <property name="acceptorProvider" ref="statAcceptorProvider"/>
         <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
         <!-- TCP & UDP share threadpool for stat -->
         <property name="executor" ref="statReceiverExecutor"/>
-        <property name="enable" value="#{statReceiverConfig.isTcpEnable()}"/>
+        <property name="enable" value="#{statReceiverProperties.isTcpEnable()}"/>
     </bean>
 
 

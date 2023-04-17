@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.config;
 
 import org.springframework.beans.factory.annotation.Value;
 
-public class ScatterChartConfig {
+public class ScatterChartProperties {
 
     @Value("${web.scatter.serverside-scan.use-fuzzyrowfilter:false}")
     private boolean enableFuzzyRowFilter;

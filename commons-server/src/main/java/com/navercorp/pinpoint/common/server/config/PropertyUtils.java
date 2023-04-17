@@ -25,10 +25,10 @@ import java.util.Properties;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public final class ConfigurationUtils {
-    private static final Logger LOGGER = LogManager.getLogger(ConfigurationUtils.class);
+public final class PropertyUtils {
+    private static final Logger LOGGER = LogManager.getLogger(PropertyUtils.class);
 
-    private ConfigurationUtils() {
+    private PropertyUtils() {
     }
 
     public static String readString(Properties properties, String propertyName, String defaultValue) {

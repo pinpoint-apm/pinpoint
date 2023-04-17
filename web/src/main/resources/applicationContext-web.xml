@@ -18,15 +18,15 @@
     </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
-        <constructor-arg ref="webClusterConfig"/>
+        <constructor-arg ref="webClusterProperties"/>
     </bean>
 
     <bean id="clusterDataManager" class="com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager">
-        <constructor-arg ref="webClusterConfig"/>
+        <constructor-arg ref="webClusterProperties"/>
     </bean>
 
     <bean id="clusterManager" class="com.navercorp.pinpoint.web.cluster.ClusterManager">
-        <constructor-arg ref="webClusterConfig"/>
+        <constructor-arg ref="webClusterProperties"/>
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">

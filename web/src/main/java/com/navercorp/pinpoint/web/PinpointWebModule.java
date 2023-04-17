@@ -6,9 +6,9 @@ import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.profile.StandardEnvironmentLogger;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.config.LogConfiguration;
-import com.navercorp.pinpoint.web.config.ScatterChartConfig;
-import com.navercorp.pinpoint.web.config.WebClusterConfig;
+import com.navercorp.pinpoint.web.config.LogProperties;
+import com.navercorp.pinpoint.web.config.ScatterChartProperties;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import com.navercorp.pinpoint.web.config.WebMysqlDataSourceConfiguration;
 import com.navercorp.pinpoint.web.config.WebSocketConfig;
 import com.navercorp.pinpoint.web.frontend.FrontendConfigExportConfiguration;
@@ -59,8 +59,8 @@ import org.springframework.core.env.StandardEnvironment;
 })
 public class PinpointWebModule {
     @Bean
-    public WebClusterConfig webClusterConfig() {
-        return new WebClusterConfig();
+    public WebClusterProperties webClusterProperties() {
+        return new WebClusterProperties();
     }
 
     @Bean
@@ -69,13 +69,13 @@ public class PinpointWebModule {
     }
 
     @Bean
-    public LogConfiguration logConfiguration() {
-        return new LogConfiguration();
+    public LogProperties logProperties() {
+        return new LogProperties();
     }
 
     @Bean
-    public ScatterChartConfig scatterChartConfig() {
-        return new ScatterChartConfig();
+    public ScatterChartProperties scatterChartProperties() {
+        return new ScatterChartProperties();
     }
 
     @Bean

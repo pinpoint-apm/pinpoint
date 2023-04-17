@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,7 @@ import java.util.Objects;
  * @author Taejin Koo
  * @author emeroad
  */
-public class GrpcReceiverConfiguration {
+public class GrpcReceiverProperties {
 
     protected final Logger logger = LogManager.getLogger(getClass());
 
@@ -37,21 +37,21 @@ public class GrpcReceiverConfiguration {
 
     private final BindAddress bindAddress;
 
-    private final ExecutorConfiguration serverExecutor;
+    private final ExecutorProperties serverExecutor;
 
-    private final ExecutorConfiguration serverCallExecutor;
+    private final ExecutorProperties serverCallExecutor;
 
-    private final ExecutorConfiguration workerExecutor;
+    private final ExecutorProperties workerExecutor;
 
     private final ServerOption serverOption;
 
 
-    GrpcReceiverConfiguration(boolean enable,
-                                     BindAddress bindAddress,
-                                     ExecutorConfiguration serverExecutor,
-                                     ExecutorConfiguration serverCallExecutor,
-                                     ExecutorConfiguration workerExecutor,
-                                     ServerOption serverOption) {
+    GrpcReceiverProperties(boolean enable,
+                           BindAddress bindAddress,
+                           ExecutorProperties serverExecutor,
+                           ExecutorProperties serverCallExecutor,
+                           ExecutorProperties workerExecutor,
+                           ServerOption serverOption) {
         this.enable = enable;
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
 
@@ -80,15 +80,15 @@ public class GrpcReceiverConfiguration {
         return bindAddress;
     }
 
-    public ExecutorConfiguration getServerExecutor() {
+    public ExecutorProperties getServerExecutor() {
         return serverExecutor;
     }
 
-    public ExecutorConfiguration getServerCallExecutor() {
+    public ExecutorProperties getServerCallExecutor() {
         return serverCallExecutor;
     }
 
-    public ExecutorConfiguration getWorkerExecutor() {
+    public ExecutorProperties getWorkerExecutor() {
         return workerExecutor;
     }
 
@@ -98,7 +98,7 @@ public class GrpcReceiverConfiguration {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GrpcAgentDataReceiverConfiguration{");
+        final StringBuilder sb = new StringBuilder("GrpcAgentDataReceiverProperties{");
         sb.append("enable=").append(enable);
         sb.append(", bindAddress='").append(bindAddress).append('\'');
         sb.append(", serverExecutor=").append(serverExecutor);

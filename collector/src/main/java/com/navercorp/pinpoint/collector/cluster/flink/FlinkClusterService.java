@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.collector.cluster.flink;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterManager;
-import com.navercorp.pinpoint.collector.config.FlinkConfiguration;
+import com.navercorp.pinpoint.collector.config.FlinkProperties;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
@@ -40,23 +40,23 @@ public class FlinkClusterService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CommonStateContext serviceState;
-    private final FlinkConfiguration config;
+    private final FlinkProperties properties;
     private final FlinkClusterConnectionManager clusterConnectionManager;
     private final String pinpointFlinkClusterPath;
 
     private ZookeeperClient client;
     private ZookeeperClusterManager zookeeperClusterManager;
 
-    public FlinkClusterService(FlinkConfiguration config, FlinkClusterConnectionManager clusterConnectionManager) {
-        this.config = Objects.requireNonNull(config, "config");
+    public FlinkClusterService(FlinkProperties properties, FlinkClusterConnectionManager clusterConnectionManager) {
+        this.properties = Objects.requireNonNull(properties, "properties");
         this.serviceState = new CommonStateContext();
         this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
-        this.pinpointFlinkClusterPath = config.getFlinkZNodePath();
+        this.pinpointFlinkClusterPath = properties.getFlinkZNodePath();
     }
 
     @PostConstruct
     public void setUp() {
-        if (!config.isFlinkClusterEnable()) {
+        if (!properties.isFlinkClusterEnable()) {
             logger.info("flink cluster disable.");
             return;
         }
@@ -67,7 +67,7 @@ public class FlinkClusterService {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher(pinpointFlinkClusterPath);
-                    this.client = new CuratorZookeeperClient(config.getFlinkClusterZookeeperAddress(), config.getFlinkClusterSessionTimeout(), watcher);
+                    this.client = new CuratorZookeeperClient(properties.getFlinkClusterZookeeperAddress(), properties.getFlinkClusterSessionTimeout(), watcher);
                     try {
                         this.client.connect();
                     } catch (PinpointZookeeperException e) {
@@ -102,7 +102,7 @@ public class FlinkClusterService {
 
     @PreDestroy
     public void tearDown() {
-        if (!config.isFlinkClusterEnable()) {
+        if (!properties.isFlinkClusterEnable()) {
             logger.info("flink cluster disable.");
             return;
         }

@@ -16,25 +16,77 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.config.ExecutorConfiguration;
+import com.navercorp.pinpoint.collector.config.ExecutorProperties;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 /**
- * Marker class for debugging
- * @author Taejin Koo
  * @author emeroad
  */
-public class GrpcAgentDataReceiverConfiguration extends GrpcReceiverConfiguration {
+@Configuration
+public class GrpcAgentDataReceiverConfiguration {
 
+    public static final String BIND_ADDRESS = "collector.receiver.grpc.agent.bindaddress";
 
-    public GrpcAgentDataReceiverConfiguration(boolean enable,
-                                              BindAddress bindAddress,
-                                              ExecutorConfiguration serverExecutor,
-                                              ExecutorConfiguration serverCallExecutor,
-                                              ExecutorConfiguration workerExecutor,
-                                              ServerOption serverOption) {
-        super(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
+    public static final String SERVER_EXECUTOR = "collector.receiver.grpc.agent.server.executor";
+
+    public static final String SERVER_CALL_EXECUTOR = "collector.receiver.grpc.agent.server-call.executor";
+
+    public static final String WORKER_EXECUTOR = "collector.receiver.grpc.agent.worker.executor";
+
+    public static final String SERVER_OPTION = "collector.receiver.grpc.agent";
+
+    public GrpcAgentDataReceiverConfiguration() {
+    }
+
+    @Bean(BIND_ADDRESS)
+    @ConfigurationProperties(BIND_ADDRESS)
+    public BindAddress.Builder newBindAddressBuilder() {
+        BindAddress.Builder builder = BindAddress.newBuilder();
+        builder.setPort(9991);
+        return builder;
+    }
+
+    @Bean(SERVER_EXECUTOR)
+    @ConfigurationProperties(SERVER_EXECUTOR)
+    public ExecutorProperties.Builder newServerExecutorBuilder() {
+        return ExecutorProperties.newBuilder();
+    }
+
+    @Bean(SERVER_CALL_EXECUTOR)
+    @ConfigurationProperties(SERVER_CALL_EXECUTOR)
+    public ExecutorProperties.Builder newServerCallExecutorBuilder() {
+        return ExecutorProperties.newBuilder();
+    }
+
+    @Bean(WORKER_EXECUTOR)
+    @ConfigurationProperties(WORKER_EXECUTOR)
+    public ExecutorProperties.Builder newWorkerExecutorBuilder() {
+        return ExecutorProperties.newBuilder();
+    }
+
+    @Bean(SERVER_OPTION)
+    @ConfigurationProperties(SERVER_OPTION)
+    public GrpcPropertiesServerOptionBuilder newServerOption() {
+        // Server option
+        return new GrpcPropertiesServerOptionBuilder();
+    }
+
+    @Bean
+    public GrpcAgentDataReceiverProperties grpcAgentReceiverProperties(Environment environment) {
+        boolean enable = environment.getProperty("collector.receiver.grpc.agent.enable", boolean.class, false);
+
+        ServerOption serverOption = newServerOption().build();
+        BindAddress bindAddress = newBindAddressBuilder().build();
+        ExecutorProperties serverExecutor = newServerExecutorBuilder().build();
+        ExecutorProperties serverCallExecutor = newServerCallExecutorBuilder().build();
+        ExecutorProperties workerExecutor = newWorkerExecutorBuilder().build();
+
+        return new GrpcAgentDataReceiverProperties(enable, bindAddress, serverExecutor, serverCallExecutor, workerExecutor, serverOption);
     }
 
 }

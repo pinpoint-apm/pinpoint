@@ -33,12 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcAgentDataSslReceiverConfigurationFactory.class)
+@ContextConfiguration(classes = GrpcAgentDataSslReceiverConfiguration.class)
 @ExtendWith(SpringExtension.class)
 public class GrpcAgentDataSslReceiverConfigurationTest {
 
     @Autowired
-    private GrpcSslReceiverConfiguration configuration;
+    private GrpcSslReceiverProperties configuration;
 
     @Test
     public void properties() {
@@ -50,7 +50,7 @@ public class GrpcAgentDataSslReceiverConfigurationTest {
 
     @Test
     public void grpcSslConfiguration() throws IOException {
-        GrpcSslConfiguration sslConfiguration = configuration.getGrpcSslConfiguration();
+        GrpcSslProperties sslConfiguration = configuration.getGrpcSslProperties();
 
         assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());

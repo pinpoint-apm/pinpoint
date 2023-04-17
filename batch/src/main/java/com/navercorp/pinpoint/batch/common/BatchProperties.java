@@ -30,9 +30,9 @@ import java.util.List;
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
 @Component
-public class BatchConfiguration {
+public class BatchProperties {
 
-    private final Logger logger = LogManager.getLogger(BatchConfiguration.class);
+    private final Logger logger = LogManager.getLogger(BatchProperties.class);
 
     @Value("${alarm.mail.server.url}")
     private String emailServerUrl;

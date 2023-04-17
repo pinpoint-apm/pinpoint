@@ -22,15 +22,14 @@ import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
-import com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverConfiguration;
+import com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-
-import org.apache.thrift.TBase;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -51,7 +50,7 @@ public class AgentBaseDataReceiver {
 
     private final PinpointServerAcceptor acceptor;
 
-    private final AgentBaseDataReceiverConfiguration configuration;
+    private final AgentBaseDataReceiverProperties properties;
 
     private final ClusterService clusterService;
 
@@ -73,19 +72,19 @@ public class AgentBaseDataReceiver {
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
+    public AgentBaseDataReceiver(AgentBaseDataReceiverProperties properties, Executor executor, PinpointServerAcceptor acceptor,
                                  DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
-        this(configuration, executor, acceptor, dispatchHandler, null);
+        this(properties, executor, acceptor, dispatchHandler, null);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
+    public AgentBaseDataReceiver(AgentBaseDataReceiverProperties properties, Executor executor, PinpointServerAcceptor acceptor,
                                  DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ClusterService service) {
-        this(configuration, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
+        this(properties, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor,
+    public AgentBaseDataReceiver(AgentBaseDataReceiverProperties properties, Executor executor, PinpointServerAcceptor acceptor,
                                  TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ClusterService service) {
-        this.configuration = Objects.requireNonNull(configuration, "config");
+        this.properties = Objects.requireNonNull(properties, "properties");
         this.executor = Objects.requireNonNull(executor, "executor");
         this.acceptor = Objects.requireNonNull(acceptor, "acceptor");
 
@@ -114,7 +113,7 @@ public class AgentBaseDataReceiver {
                 agentEventAsyncTaskService, agentLifeCycleAsyncTaskService,
                 channelPropertiesFactory);
         acceptor.setMessageListenerFactory(messageListenerFactory);
-        acceptor.bind(configuration.getBindIp(), configuration.getBindPort());
+        acceptor.bind(properties.getBindIp(), properties.getBindPort());
 
         if (logger.isInfoEnabled()) {
             logger.info("start() completed");

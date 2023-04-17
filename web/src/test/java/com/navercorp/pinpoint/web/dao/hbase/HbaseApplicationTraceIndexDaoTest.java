@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.config.ScatterChartConfig;
+import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
@@ -76,8 +76,8 @@ public class HbaseApplicationTraceIndexDaoTest {
     @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
-        ScatterChartConfig scatterChartConfig = new ScatterChartConfig();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartConfig, hbaseOperations2, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations2, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
     @AfterEach

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager;
-import com.navercorp.pinpoint.web.config.WebClusterConfig;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.logging.log4j.LogManager;
@@ -86,29 +86,29 @@ public class ClusterTest {
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
         ts = createZookeeperServer(zookeeperPort);
 
-        WebClusterConfig config = mock(WebClusterConfig.class);
-        when(config.isClusterEnable()).thenReturn(true);
-        when(config.getHostAddress()).thenReturn(DEFAULT_IP);
-        when(config.getClusterZookeeperAddress()).thenReturn(zookeeperAddress);
-        when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
-        when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
-        when(config.getWebZNodePath()).
+        WebClusterProperties properties = mock(WebClusterProperties.class);
+        when(properties.isClusterEnable()).thenReturn(true);
+        when(properties.getHostAddress()).thenReturn(DEFAULT_IP);
+        when(properties.getClusterZookeeperAddress()).thenReturn(zookeeperAddress);
+        when(properties.getClusterZookeeperRetryInterval()).thenReturn(60000);
+        when(properties.getClusterZookeeperSessionTimeout()).thenReturn(3000);
+        when(properties.getWebZNodePath()).
                 thenReturn(ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.WEB_LEAF_PATH));
-        when(config.getCollectorZNodePath()).
+        when(properties.getCollectorZNodePath()).
                 thenReturn(ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH));
 
         acceptorPort = SocketUtils.findAvailableTcpPort(zookeeperPort);
         String acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
-        when(config.getClusterTcpPort()).thenReturn(acceptorPort);
+        when(properties.getClusterTcpPort()).thenReturn(acceptorPort);
 
         CLUSTER_NODE_PATH
                 = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.WEB_LEAF_PATH, acceptorAddress);
         LOGGER.debug("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
 
-        clusterConnectionManager = new ClusterConnectionManager(config);
+        clusterConnectionManager = new ClusterConnectionManager(properties);
         clusterConnectionManager.start();
 
-        clusterDataManager = new ZookeeperClusterDataManager(config);
+        clusterDataManager = new ZookeeperClusterDataManager(properties);
         clusterDataManager.start();
 
         List<String> localV4IpList = NetUtils.getLocalV4IpList();

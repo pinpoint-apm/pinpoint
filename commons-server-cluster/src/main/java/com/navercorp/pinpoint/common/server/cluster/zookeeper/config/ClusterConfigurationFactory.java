@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper.config;
 
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClusterProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -46,57 +46,57 @@ public class ClusterConfigurationFactory {
 
     @Bean(FLINK_CLUSTER)
     @ConfigurationProperties(prefix = FLINK_CLUSTER)
-    public ClusterEnable newFlinkConfigurationEnable() {
+    public ClusterEnable newFlinkClusterEnable() {
         return new ClusterEnable();
     }
 
     @Bean(FLINK_SPAN_STAT_CLUSTER)
     @ConfigurationProperties(prefix = FLINK_SPAN_STAT_CLUSTER)
-    public ClusterEnable newFlinkSpanStatConfigurationEnable() {
+    public ClusterEnable newFlinkSpanStatClusterEnable() {
         return new ClusterEnable();
     }
 
 
     @Bean(DEFAULT_CLUSTER_ZOOKEEPER)
     @ConfigurationProperties(prefix = DEFAULT_CLUSTER_ZOOKEEPER)
-    public ZookeeperClusterConfiguration.Builder newDefaultConfigurationBuilder() {
-        return ZookeeperClusterConfiguration.newBuilder();
+    public ZookeeperClusterProperties.Builder newDefaultPropertiesBuilder() {
+        return ZookeeperClusterProperties.newBuilder();
     }
 
     @Bean(FLINK_CLUSTER_ZOOKEEPER)
     @ConfigurationProperties(prefix = FLINK_CLUSTER_ZOOKEEPER)
-    public ZookeeperClusterConfiguration.Builder newFlinkConfigurationBuilder() {
-        return ZookeeperClusterConfiguration.newBuilder();
+    public ZookeeperClusterProperties.Builder newFlinkPropertiesBuilder() {
+        return ZookeeperClusterProperties.newBuilder();
     }
 
     @Bean(SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER)
     @ConfigurationProperties(prefix = SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER)
-    public ZookeeperClusterConfiguration.Builder newFlinkSpanStatConfigurationBuilder() {
-        return ZookeeperClusterConfiguration.newBuilder();
+    public ZookeeperClusterProperties.Builder newFlinkSpanStatPropertiesBuilder() {
+        return ZookeeperClusterProperties.newBuilder();
     }
 
     @Bean
-    public ZookeeperClusterConfiguration clusterConfiguration() {
+    public ZookeeperClusterProperties clusterProperties() {
         ClusterEnable clusterEnable = newDefaultConfigurationEnable();
-        ZookeeperClusterConfiguration.Builder builder = newDefaultConfigurationBuilder();
-        return createConfiguration(clusterEnable, builder);
+        ZookeeperClusterProperties.Builder builder = newDefaultPropertiesBuilder();
+        return createProperties(clusterEnable, builder);
     }
 
     @Bean
-    public ZookeeperClusterConfiguration flinkClusterConfiguration() {
-        ClusterEnable clusterEnable = newFlinkConfigurationEnable();
-        ZookeeperClusterConfiguration.Builder builder = newFlinkConfigurationBuilder();
-        return createConfiguration(clusterEnable, builder);
+    public ZookeeperClusterProperties flinkClusterProperties() {
+        ClusterEnable clusterEnable = newFlinkClusterEnable();
+        ZookeeperClusterProperties.Builder builder = newFlinkPropertiesBuilder();
+        return createProperties(clusterEnable, builder);
     }
 
     @Bean
-    public ZookeeperClusterConfiguration flinkSpanStatClusterConfiguration() {
-        ClusterEnable clusterEnable = newFlinkSpanStatConfigurationEnable();
-        ZookeeperClusterConfiguration.Builder builder = newFlinkSpanStatConfigurationBuilder();
-        return createConfiguration(clusterEnable, builder);
+    public ZookeeperClusterProperties flinkSpanStatClusterProperties() {
+        ClusterEnable clusterEnable = newFlinkSpanStatClusterEnable();
+        ZookeeperClusterProperties.Builder builder = newFlinkSpanStatPropertiesBuilder();
+        return createProperties(clusterEnable, builder);
     }
 
-    private ZookeeperClusterConfiguration createConfiguration(ClusterEnable clusterEnable, ZookeeperClusterConfiguration.Builder builder) {
+    private ZookeeperClusterProperties createProperties(ClusterEnable clusterEnable, ZookeeperClusterProperties.Builder builder) {
         builder.setEnable(clusterEnable.isEnable());
 
         return builder.build();

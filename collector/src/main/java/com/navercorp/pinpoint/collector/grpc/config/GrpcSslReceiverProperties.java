@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
@@ -28,17 +27,17 @@ import java.util.Objects;
  * @author Taejin Koo
  * @author emeroad
  */
-public class GrpcSslReceiverConfiguration {
+public class GrpcSslReceiverProperties {
 
     protected final Logger logger = LogManager.getLogger(getClass());
 
     private final boolean enable;
     private final BindAddress bindAddress;
-    private final GrpcSslConfiguration grpcSslConfiguration;
+    private final GrpcSslProperties grpcSslConfiguration;
 
-    GrpcSslReceiverConfiguration(boolean enable,
-                                 BindAddress bindAddress,
-                                 GrpcSslConfiguration grpcSslConfiguration) {
+    GrpcSslReceiverProperties(boolean enable,
+                              BindAddress bindAddress,
+                              GrpcSslProperties grpcSslConfiguration) {
         this.enable = enable;
 
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
@@ -60,17 +59,15 @@ public class GrpcSslReceiverConfiguration {
         return bindAddress;
     }
 
-    public GrpcSslConfiguration getGrpcSslConfiguration() {
+    public GrpcSslProperties getGrpcSslProperties() {
         return grpcSslConfiguration;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GrpcSslReceiverConfiguration{");
-        sb.append("enable=").append(enable);
-        sb.append(", bindAddress=").append(bindAddress);
-        sb.append(", grpcSslConfiguration=").append(grpcSslConfiguration);
-        sb.append('}');
-        return sb.toString();
+        return "GrpcSslReceiverProperties{" + "enable=" + enable +
+                ", bindAddress=" + bindAddress +
+                ", grpcSslConfiguration=" + grpcSslConfiguration +
+                '}';
     }
 }
