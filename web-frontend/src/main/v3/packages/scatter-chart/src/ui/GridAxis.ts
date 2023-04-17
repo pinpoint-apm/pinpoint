@@ -1,8 +1,8 @@
-import { CONTAINER_PADDING } from "../constants/ui";
-import { DeepNonNullable, GridOption, Padding, TickOption } from "../types/types";
-import { drawLine } from "../utils/draw";
-import { Axis } from "./Axis";
-import { Layer, LayerProps } from "./Layer";
+import { CONTAINER_PADDING } from '../constants/ui';
+import { DeepNonNullable, GridOption, Padding, TickOption } from '../types/types';
+import { drawLine } from '../utils/draw';
+import { Axis } from './Axis';
+import { Layer, LayerProps } from './Layer';
 
 export interface GridAxisProps extends LayerProps {
   // xTickCount?: number;
@@ -10,8 +10,8 @@ export interface GridAxisProps extends LayerProps {
   xAxis: Axis;
   yAxis: Axis;
   padding?: DeepNonNullable<Padding>;
-  option?: GridOption,
-};
+  option?: GridOption;
+}
 
 export class GridAxis extends Layer {
   xAxis;
@@ -19,13 +19,7 @@ export class GridAxis extends Layer {
   option;
   padding;
 
-  constructor({
-    xAxis,
-    yAxis,
-    option,
-    padding,
-    ...props
-  }: GridAxisProps) {
+  constructor({ xAxis, yAxis, option, padding, ...props }: GridAxisProps) {
     super(props);
     this.xAxis = xAxis;
     this.yAxis = yAxis;
@@ -51,13 +45,13 @@ export class GridAxis extends Layer {
     const startX = padding.left + this.xAxis.innerPadding;
     const startY = padding.top;
     const endX = width - padding.right - this.xAxis.innerPadding;
-    const endY = height - padding.bottom; 
+    const endY = height - padding.bottom;
     const wGap = (endX - startX) / (count - 1);
 
-    [...Array(count)].forEach((_ , i) => {
+    [...Array(count)].forEach((_, i) => {
       const x = wGap * i + startX;
       drawLine(this.context, x, startY, x, endY + tickWidth, { color: strokeColor });
-    })
+    });
   }
 
   private renderYGrid() {
@@ -66,7 +60,7 @@ export class GridAxis extends Layer {
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
     const height = this.canvas.height / this.dpr;
-    
+
     const startX = padding.left;
     const startY = padding.top + this.yAxis.innerPadding;
     const endX = width - padding.right + this.yAxis.innerPadding;
@@ -76,16 +70,16 @@ export class GridAxis extends Layer {
     [...Array(count)].forEach((_, i) => {
       const y = hGap * i + startY;
       drawLine(this.context, startX - tickWidth, y, endX, y, { color: strokeColor });
-    })
+    });
   }
 
   public render() {
     this.clear();
     this.renderXGrid();
-    this.renderYGrid();    
+    this.renderYGrid();
   }
-  
-  public setSize(width: number, height: number){
+
+  public setSize(width: number, height: number) {
     super.setSize(width, height);
     this.render();
     return this;

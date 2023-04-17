@@ -1,29 +1,28 @@
 export type DeepNonNullable<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
-}
+};
 
 export type ScatterDataType = {
   x: number;
   y: number;
   type?: string;
   hidden?: boolean;
-}
+};
 
 type DataStyle = {
-  legend: string,
-  point: string,
-  radius: number,
-}
+  legend: string;
+  point: string;
+  radius: number;
+};
 
 export type DataStyleMap = {
-  [key: string]: DataStyle
-}
-
+  [key: string]: DataStyle;
+};
 
 export type Coord = {
   x: number;
   y: number;
-}
+};
 
 export type Padding = {
   top?: number;
@@ -96,4 +95,3 @@ export interface RenderOption {
   append?: boolean;
   drawOutOfRange?: boolean;
 }
-

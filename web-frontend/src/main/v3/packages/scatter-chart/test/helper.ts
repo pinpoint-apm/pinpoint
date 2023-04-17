@@ -1,5 +1,5 @@
-import { ScatterChart } from "../src";
-import { ScatterChartOption } from "../src/ui/ScatterChart";
+import { ScatterChart } from '../src';
+import { ScatterChartOption } from '../src/ui/ScatterChart';
 
 export class ScatterChartTestHelper extends ScatterChart {
   constructor(wrapper: HTMLElement, options: ScatterChartOption) {
@@ -25,7 +25,7 @@ export class ScatterChartTestHelper extends ScatterChart {
   getLegend() {
     return this.legend;
   }
-  
+
   getGuide() {
     return this.guide;
   }
@@ -42,15 +42,15 @@ export const initOption = {
       max: 1669103509335,
       tick: {
         count: 5,
-      }
+      },
     },
     y: {
       min: 0,
       max: 10000,
       tick: {
         count: 5,
-      }
-    }
+      },
+    },
   },
   data: [
     {
@@ -64,4 +64,24 @@ export const initOption = {
       priority: 1,
     },
   ],
+};
+
+export const simulateDrag = (canvas: HTMLCanvasElement, startX: number, startY: number, endX: number, endY: number) => {
+  const mouseDownEvent = new MouseEvent('mousedown', {
+    clientX: startX,
+    clientY: startY,
+  });
+  canvas.dispatchEvent(mouseDownEvent);
+
+  const mouseMoveEvent = new MouseEvent('mousemove', {
+    clientX: endX,
+    clientY: endY,
+  });
+  canvas.dispatchEvent(mouseMoveEvent);
+
+  const mouseUpEvent = new MouseEvent('mouseup', {
+    clientX: endX,
+    clientY: endY,
+  });
+  canvas.dispatchEvent(mouseUpEvent);
 };

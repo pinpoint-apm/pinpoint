@@ -1,12 +1,12 @@
-import { AXIS_DEFAULT_FORMAT } from "../constants/options";
-import { AXIS_DEFAULT_TICK_COUNT, AXIS_INNER_PADDING, COLOR_STROKE, CONTAINER_PADDING } from "../constants/ui";
-import { Padding, AxisOption, DeepNonNullable } from "../types/types";
-import { Layer, LayerProps } from "./Layer";
+import { AXIS_DEFAULT_FORMAT } from '../constants/options';
+import { AXIS_DEFAULT_TICK_COUNT, AXIS_INNER_PADDING, COLOR_STROKE, CONTAINER_PADDING } from '../constants/ui';
+import { Padding, AxisOption, DeepNonNullable } from '../types/types';
+import { Layer, LayerProps } from './Layer';
 
 export interface AxisProps extends LayerProps {
   option?: AxisOption;
   padding?: DeepNonNullable<Padding>;
-};
+}
 
 export class Axis extends Layer {
   min: AxisOption['min'];
@@ -16,11 +16,7 @@ export class Axis extends Layer {
   strokeColor: AxisOption['strokeColor'];
   padding: DeepNonNullable<Padding>;
 
-  constructor({
-    option,
-    padding,
-    ...props
-  }: AxisProps) {
+  constructor({ option, padding, ...props }: AxisProps) {
     super(props);
     this.min = option?.min ?? 0;
     this.max = option?.max ?? 1;
@@ -37,7 +33,7 @@ export class Axis extends Layer {
     this.innerPadding = option?.padding ?? this.innerPadding;
     this.strokeColor = option?.strokeColor || this.strokeColor;
     this.tick = { ...this.tick, ...option?.tick };
-    const font = option?.tick?.font || this.tick.font
+    const font = option?.tick?.font || this.tick.font;
     font && (this.context.font = font);
     return this;
   }

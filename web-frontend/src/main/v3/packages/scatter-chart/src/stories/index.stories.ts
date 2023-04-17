@@ -2,6 +2,7 @@ import { createAppendDatas } from './templates/createAppendDatas';
 import { createCaptureIamge } from './templates/createCaptureImage';
 import { createCustomizeTheme } from './templates/createCustomizeTheme';
 import { createDefault } from './templates/createDefault';
+import { createDestroy } from './templates/createDestroy';
 import { createInteractions } from './templates/createInteractions';
 import { createPinpointTheme } from './templates/createPinpointTheme';
 import { createRealtime } from './templates/createRealtime';
@@ -51,3 +52,6 @@ export const CustomizeTheme = TemplateCustomizeTheme.bind({});
 
 const TemplatePinpointTheme = () => createPinpointTheme();
 export const PinpointTheme = TemplatePinpointTheme.bind({});
+
+const TemplateDestroy = () => createDestroy();
+export const Destroy = TemplateDestroy.bind({});

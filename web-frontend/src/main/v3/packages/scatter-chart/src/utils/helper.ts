@@ -1,11 +1,11 @@
-import { AXIS_DEFAULT_TICK_COUNT } from "../constants/ui";
-import { AxisOption } from "../types/types";
+import { AXIS_DEFAULT_TICK_COUNT } from '../constants/ui';
+import { AxisOption } from '../types/types';
 
 export const getDevicePicelRatio = () => {
   const dpr = window?.devicePixelRatio || 2;
 
   return dpr;
-}
+};
 
 export const getTickTexts = ({ min, max, tick }: AxisOption) => {
   const tickCount = tick?.count || AXIS_DEFAULT_TICK_COUNT;
@@ -16,7 +16,7 @@ export const getTickTexts = ({ min, max, tick }: AxisOption) => {
 
     return `${result}`;
   });
-}
+};
 
 export const getLongestText = (texts: string[], measurer: (t: string) => number) => {
   const text = texts.reduce((prev: string, curr: string) => {
@@ -27,12 +27,18 @@ export const getLongestText = (texts: string[], measurer: (t: string) => number)
   }, '0');
 
   return measurer(text);
-}
+};
 
 export const getSafeDrawImageArgs = (
   canvas: HTMLCanvasElement,
-  sx: number, sy: number, sw: number, sh: number,
-  dx: number, dy: number, dw: number, dh: number
+  sx: number,
+  sy: number,
+  sw: number,
+  sh: number,
+  dx: number,
+  dy: number,
+  dw: number,
+  dh: number,
 ): [HTMLCanvasElement, number, number, number, number, number, number, number, number] => {
   const { width, height } = canvas;
 
@@ -65,9 +71,9 @@ export const getSafeDrawImageArgs = (
     y1,
     x2 - x1,
     y2 - y1,
-    sx < 0 ? dx - (sx * w_ratio) : dx,
-    sy < 0 ? dy - (sy * h_ratio) : dy,
+    sx < 0 ? dx - sx * w_ratio : dx,
+    sy < 0 ? dy - sy * h_ratio : dy,
     (x2 - x1) * w_ratio,
-    (y2 - y1) * h_ratio
+    (y2 - y1) * h_ratio,
   ];
-}
+};
