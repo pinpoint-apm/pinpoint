@@ -596,7 +596,7 @@ export class ScatterChart {
     this.render([]);
   }
 
-  public getOptions() {
+  public getOption() {
     return this.options;
   }
 

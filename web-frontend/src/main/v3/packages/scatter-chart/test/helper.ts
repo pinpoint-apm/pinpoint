@@ -6,10 +6,6 @@ export class ScatterChartTestHelper extends ScatterChart {
     super(wrapper, options);
   }
 
-  getOptions() {
-    return this.options;
-  }
-
   getXAxis() {
     return this.xAxis;
   }
