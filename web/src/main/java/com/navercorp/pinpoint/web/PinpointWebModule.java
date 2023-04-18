@@ -10,7 +10,6 @@ import com.navercorp.pinpoint.web.config.LogProperties;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import com.navercorp.pinpoint.web.config.WebMysqlDataSourceConfiguration;
-import com.navercorp.pinpoint.web.config.WebSocketConfig;
 import com.navercorp.pinpoint.web.frontend.FrontendConfigExportConfiguration;
 import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
@@ -28,7 +27,6 @@ import org.springframework.core.env.StandardEnvironment;
         "classpath:servlet-context-web.xml",
 
         "classpath:applicationContext-web-dao-config.xml",
-        "classpath:applicationContext-web-websocket.xml"
 })
 @Import({
         WebAppPropertySources.class,
@@ -37,13 +35,12 @@ import org.springframework.core.env.StandardEnvironment;
 
         WebServerConfig.class,
         WebMvcConfig.class,
+        WebSocketConfig.class,
         WebMysqlDataSourceConfiguration.class,
         ClusterConfigurationFactory.class,
         CacheConfiguration.class,
 
         WebHbaseModule.class,
-
-        WebSocketConfig.class,
 
         InstallModule.class,
         WebhookModule.class,

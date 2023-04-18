@@ -14,50 +14,53 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.config;
+package com.navercorp.pinpoint.web.websocket;
 
 
-import com.navercorp.pinpoint.web.websocket.CustomHandshakeInterceptor;
-import com.navercorp.pinpoint.web.websocket.DefaultWebSocketHandlerDecoratorFactory;
-import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
-import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
-import com.navercorp.pinpoint.web.websocket.WebSocketSessionContextPrepareHandshakeInterceptor;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
-@Configuration
-@EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer {
+public class PinpointWebSocketConfigurer implements WebSocketConfigurer {
 
     private static final String[] DEFAULT_ALLOWED_ORIGIN = new String[0];
 
     private static final String WEBSOCKET_SUFFIX = ".pinpointws";
 
-    @Autowired
-    private PinpointWebSocketHandlerManager handlerRepository;
+    private final PinpointWebSocketHandlerManager handlerRepository;
+    private final ConfigProperties configProperties;
+    private final WebSocketHandlerDecoratorFactory webSocketHandlerDecoratorFactory;
+    private final CustomHandshakeInterceptor customHandshakeInterceptor;
 
-    @Autowired
-    private ConfigProperties configProperties;
-
-    @Autowired(required = false)
-    private WebSocketHandlerDecoratorFactory webSocketHandlerDecoratorFactory = new DefaultWebSocketHandlerDecoratorFactory();
-
-    @Autowired(required = false)
-    private CustomHandshakeInterceptor customHandshakeInterceptor = null;
+    public PinpointWebSocketConfigurer(
+            PinpointWebSocketHandlerManager handlerRepository,
+            ConfigProperties configProperties,
+            @Autowired(required = false) WebSocketHandlerDecoratorFactory webSocketHandlerDecoratorFactory,
+            @Autowired(required = false) CustomHandshakeInterceptor customHandshakeInterceptor
+    ) {
+        this.handlerRepository = Objects.requireNonNull(handlerRepository, "handlerRepository");
+        this.configProperties = Objects.requireNonNull(configProperties, "configProperties");
+        this.webSocketHandlerDecoratorFactory = Objects.requireNonNullElseGet(
+                webSocketHandlerDecoratorFactory,
+                () -> new DefaultWebSocketHandlerDecoratorFactory()
+        );
+        this.customHandshakeInterceptor = customHandshakeInterceptor;
+    }
 
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
         final String[] allowedOriginArray = getAllowedOriginArray(configProperties.getWebSocketAllowedOrigins());
 
         for (PinpointWebSocketHandler handler : handlerRepository.getWebSocketHandlerRepository()) {
