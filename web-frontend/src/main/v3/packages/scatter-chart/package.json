@@ -4,7 +4,7 @@
   "description": "Open-source scatter-chart library written in pure JS based on canvas api, Specifically designed for visualizing request and response patterns over time",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web/src/main/web-frontend/packages/scatter-chart/README.md"
+    "url": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web-frontend/src/main/v3/packages/scatter-chart/README.md"
   },
   "author": {
     "name": "NAVER"

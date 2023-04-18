@@ -2,7 +2,7 @@
   "name": "@pinpoint-fe/server-map",
   "version": "0.0.0",
   "description": "Open-source network-map library, specifically for application topology, written in React.js",
-  "repository": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web/src/main/web-frontend/packages/server-map/README.md",
+  "repository": "https://github.com/pinpoint-apm/pinpoint/blob/frontend-v3/web-frontend/src/main/v3/packages/server-map/README.md",
   "author": "NAVER",
   "license": "Apache-2.0",
   "main": "./dist/index.js",
