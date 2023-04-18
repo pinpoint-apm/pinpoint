@@ -23,14 +23,14 @@ describe('Test for Axis', () => {
 
     // then
     // axis x
-    expect(SC.getOptions().axis.x).toEqual(
+    expect(SC.getOption().axis.x).toEqual(
       expect.objectContaining({
         ...initOption.axis.x,
         tick: expect.objectContaining(initOption.axis.x.tick),
       }),
     );
     // axis y
-    expect(SC.getOptions().axis.y).toEqual(
+    expect(SC.getOption().axis.y).toEqual(
       expect.objectContaining({
         ...initOption.axis.y,
         tick: expect.objectContaining(initOption.axis.y.tick),
@@ -70,14 +70,14 @@ describe('Test for Axis', () => {
 
     // then
     // axis x
-    expect(SC.getOptions().axis.x).toEqual(
+    expect(SC.getOption().axis.x).toEqual(
       expect.objectContaining({
         ...x,
         tick: expect.objectContaining(x.tick),
       }),
     );
     // axis y
-    expect(SC.getOptions().axis.y).toEqual(
+    expect(SC.getOption().axis.y).toEqual(
       expect.objectContaining({
         ...y,
         tick: expect.objectContaining(y.tick),
