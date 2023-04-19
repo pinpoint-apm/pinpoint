@@ -116,6 +116,8 @@
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="executorProperties" value="#{grpcAgentReceiverProperties.serverExecutor}"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Server-"/>
+        <property name="registry" ref="metricRegistry"/>
+        <property name="logRate" value="100"/>
     </bean>
 
     <bean id="grpcAgentServerCallExecutor" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
