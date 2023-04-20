@@ -22,22 +22,28 @@ import com.navercorp.pinpoint.login.basic.service.BasicLoginService;
 import com.navercorp.pinpoint.login.basic.service.JwtRequestFilter;
 import com.navercorp.pinpoint.login.basic.service.PreAuthenticationCheckFilter;
 import com.navercorp.pinpoint.login.basic.service.SaveJwtTokenAuthenticationSuccessHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
 import java.util.Objects;
+
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * @author Taejin Koo
@@ -45,8 +51,8 @@ import java.util.Objects;
 @Configuration
 @EnableWebSecurity
 @Import(BasicLoginConfiguration.class)
-@Profile("basicLogin")
-public class PinpointBasicLoginConfig extends WebSecurityConfigurerAdapter {
+@ConditionalOnProperty(name = "pinpoint.modules.web.login", havingValue = "basicLogin")
+public class PinpointBasicLoginConfig {
 
     private final BasicLoginService basicLoginService;
 
@@ -54,14 +60,18 @@ public class PinpointBasicLoginConfig extends WebSecurityConfigurerAdapter {
         this.basicLoginService = Objects.requireNonNull(basicLoginService, "basicLoginService");
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
+
         auth.eraseCredentials(false);
         auth.userDetailsService(basicLoginService.getUserDetailsService());
+        return auth.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         // for common
         http
                 .csrf().disable()
@@ -76,17 +86,18 @@ public class PinpointBasicLoginConfig extends WebSecurityConfigurerAdapter {
                 .deleteCookies(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME);
 
         // for admin
-        http.authorizeRequests().antMatchers("/admin/**").hasRole("ADMIN")
+        http.authorizeHttpRequests().requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
                 .and()
                 .exceptionHandling()
                 .accessDeniedPage(BasicLoginConstants.URI_NOT_AUTHORIZED);
 
         // for user
-        http.authorizeRequests().anyRequest().authenticated();
+        http.authorizeHttpRequests().anyRequest().authenticated();
 
         http.addFilterBefore(new JwtRequestFilter(basicLoginService), UsernamePasswordAuthenticationFilter.class);
 
         http.addFilterBefore(new PreAuthenticationCheckFilter(), DefaultLoginPageGeneratingFilter.class);
+        return http.build();
     }
 
     @Bean
@@ -94,10 +105,4 @@ public class PinpointBasicLoginConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-} 
+}
