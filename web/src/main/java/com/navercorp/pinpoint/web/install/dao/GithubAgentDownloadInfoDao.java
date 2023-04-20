@@ -42,7 +42,7 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
 
     private static final Pattern STABLE_VERSION_PATTERN = Pattern.compile(IdValidateUtils.STABLE_VERSION_PATTERN_VALUE);
     private static final ParameterizedTypeReference<List<GithubAgentDownloadInfo>> responseType
-            = new ParameterizedTypeReference<List<GithubAgentDownloadInfo>>() {};
+            = new ParameterizedTypeReference<>() {};
 
     private final RestTemplate restTemplate;
 

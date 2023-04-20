@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDao;
-import com.navercorp.pinpoint.web.install.dao.AgentDownloadInfoDaoFactoryBean;
 import com.navercorp.pinpoint.web.install.dao.GithubAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.dao.MemoryAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.install.model.GithubAgentDownloadInfo;
@@ -34,6 +33,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Taejin Koo
@@ -45,40 +45,30 @@ public class AgentDownloadInfoTest {
     RestTemplate restTemplate = new RestTemplate();
 
     @Test
-    void factoryTest1() throws Exception {
-        AgentDownloadInfoDaoFactoryBean factoryBean = new AgentDownloadInfoDaoFactoryBean();
-        factoryBean.setVersion(version);
-        factoryBean.setDownloadUrl(downloadUrl);
-        factoryBean.setRestTemplate(restTemplate);
+    void factoryTest1() {
+        InstallModule module = new InstallModule();
 
-        AgentDownloadInfoDao dao = factoryBean.getObject();
+        AgentDownloadInfoDao dao = module.urlAgentDownloadInfoDao(version, downloadUrl);
         assertThat(dao).isInstanceOf(MemoryAgentDownloadInfoDao.class);
         assertEquals(version, dao.getDownloadInfoList().get(0).getVersion());
         assertEquals(downloadUrl, dao.getDownloadInfoList().get(0).getDownloadUrl());
     }
 
     @Test
-    void factoryTest2() throws Exception {
-        AgentDownloadInfoDaoFactoryBean factoryBean = new AgentDownloadInfoDaoFactoryBean();
-        factoryBean.setVersion(version);
-        factoryBean.setDownloadUrl("");
-        factoryBean.setRestTemplate(restTemplate);
+    void factoryTest2() {
+        InstallModule module = new InstallModule();
 
-        AgentDownloadInfoDao dao = factoryBean.getObject();
-        assertThat(dao).isInstanceOf(GithubAgentDownloadInfoDao.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> module.urlAgentDownloadInfoDao(version, ""));
     }
 
     @Test
-    void factoryTest3() throws Exception {
-        AgentDownloadInfoDaoFactoryBean factoryBean = new AgentDownloadInfoDaoFactoryBean();
-        factoryBean.setVersion("    ");
-        factoryBean.setDownloadUrl(downloadUrl);
-        factoryBean.setRestTemplate(restTemplate);
+    void factoryTest3() {
+        InstallModule module = new InstallModule();
 
-        AgentDownloadInfoDao dao = factoryBean.getObject();
+        AgentDownloadInfoDao dao = module.githubAgentDownloadInfoDao(restTemplate);
         assertThat(dao).isInstanceOf(GithubAgentDownloadInfoDao.class);
     }
-
 
     @Test
     void defaultTest() throws Exception {
