@@ -14,5 +14,10 @@ server:
     whitelabel:
       enabled: true
 
-# github or url
-pinpoint.modules.web.install.type: github
+pinpoint.modules.web:
+    # github or url
+    install.type: github
+    # basicLogin
+    login:
+
+
