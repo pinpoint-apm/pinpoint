@@ -88,6 +88,10 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
                 this.addSubscribeForInstance();
                 this.addSubscribeForService();
                 this.addToWindow();
+
+                if (this.mode === 'realtime') {
+                    this.scatterChartInstance.reset(this.application, this.agent, this.fromX, this.toX, this.mode);
+                }
             } else {
                 if (changes['timezone'] && changes['timezone'].currentValue) {
                     this.scatterChartInstance.setTimezone(this.timezone);
