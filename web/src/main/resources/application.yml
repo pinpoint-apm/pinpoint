@@ -13,3 +13,6 @@ server:
     include-stacktrace: always
     whitelabel:
       enabled: true
+
+# github or url
+pinpoint.modules.web.install.type: github
