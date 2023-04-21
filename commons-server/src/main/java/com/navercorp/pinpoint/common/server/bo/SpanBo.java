@@ -29,7 +29,7 @@ public class SpanBo implements Event, BasicSpan {
     // version 0 means that the type of prefix's size is int
     private byte version = 0;
 
-//  private AgentKeyBo agentKeyBo;
+    //  private AgentKeyBo agentKeyBo;
     private String agentId;
     private String agentName;
     private String applicationId;
@@ -64,7 +64,7 @@ public class SpanBo implements Event, BasicSpan {
     private int exceptionId;
     private String exceptionMessage;
     private String exceptionClass;
-    
+
     private Short applicationServiceType;
 
     private String acceptorHost;
@@ -266,7 +266,7 @@ public class SpanBo implements Event, BasicSpan {
     public void setServiceType(short serviceType) {
         this.serviceType = serviceType;
     }
-    
+
     public int getErrCode() {
         return errCode;
     }
@@ -329,9 +329,9 @@ public class SpanBo implements Event, BasicSpan {
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
     }
-    
+
     public void setApplicationServiceType(Short applicationServiceType) {
-        this.applicationServiceType  = applicationServiceType;
+        this.applicationServiceType = applicationServiceType;
     }
 
     public boolean hasApplicationServiceType() {
@@ -363,8 +363,8 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     /**
-     * @see com.navercorp.pinpoint.common.trace.LoggingInfo
      * @return loggingInfo key
+     * @see com.navercorp.pinpoint.common.trace.LoggingInfo
      */
     public byte getLoggingTransactionInfo() {
         return loggingTransactionInfo;
@@ -377,41 +377,38 @@ public class SpanBo implements Event, BasicSpan {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpanBo{");
-        sb.append("version=").append(version);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", applicationId='").append(applicationId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", transactionId=").append(transactionId);
-        sb.append(", spanId=").append(spanId);
-        sb.append(", parentSpanId=").append(parentSpanId);
-        sb.append(", parentApplicationId='").append(parentApplicationId).append('\'');
-        sb.append(", parentApplicationServiceType=").append(parentApplicationServiceType);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", elapsed=").append(elapsed);
-        sb.append(", rpc='").append(rpc).append('\'');
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", endPoint='").append(endPoint).append('\'');
-        sb.append(", apiId=").append(apiId);
-        sb.append(", annotationBoList=").append(annotationBoList);
-        sb.append(", flag=").append(flag);
-        sb.append(", errCode=").append(errCode);
-        sb.append(", spanEventBoList=").append(spanEventBoList);
-        sb.append(", spanChunkBoList=").append(spanChunkBoList);
-        sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
-        sb.append(", hasException=").append(hasException);
-        if (hasException) {
-            sb.append(", exceptionId=").append(exceptionId);
-            sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
-        }
-        sb.append(", exceptionClass='").append(exceptionClass).append('\'');
-        sb.append(", applicationServiceType=").append(applicationServiceType);
-        sb.append(", acceptorHost='").append(acceptorHost).append('\'');
-        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
-        sb.append(", loggingTransactionInfo=").append(loggingTransactionInfo);
-        sb.append('}');
-        return sb.toString();
+        return "SpanBo{" +
+                "version=" + version +
+                ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", transactionId=" + transactionId +
+                ", spanId=" + spanId +
+                ", parentSpanId=" + parentSpanId +
+                ", parentApplicationId='" + parentApplicationId + '\'' +
+                ", parentApplicationServiceType=" + parentApplicationServiceType +
+                ", startTime=" + startTime +
+                ", elapsed=" + elapsed +
+                ", rpc='" + rpc + '\'' +
+                ", serviceType=" + serviceType +
+                ", endPoint='" + endPoint + '\'' +
+                ", apiId=" + apiId +
+                ", annotationBoList=" + annotationBoList +
+                ", flag=" + flag +
+                ", errCode=" + errCode +
+                ", spanEventBoList=" + spanEventBoList +
+                ", spanChunkBoList=" + spanChunkBoList +
+                ", collectorAcceptTime=" + collectorAcceptTime +
+                ", hasException=" + hasException +
+                ", exceptionId=" + exceptionId +
+                ", exceptionMessage='" + exceptionMessage + '\'' +
+                ", exceptionClass='" + exceptionClass + '\'' +
+                ", applicationServiceType=" + applicationServiceType +
+                ", acceptorHost='" + acceptorHost + '\'' +
+                ", remoteAddr='" + remoteAddr + '\'' +
+                ", loggingTransactionInfo=" + loggingTransactionInfo +
+                '}';
     }
 
     public static class Builder {

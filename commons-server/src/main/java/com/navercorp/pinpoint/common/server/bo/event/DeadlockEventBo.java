@@ -37,9 +37,8 @@ public class DeadlockEventBo extends AgentEventBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DeadlockEventBo{");
-        sb.append("deadlockBo=").append(deadlockBo);
-        sb.append('}');
-        return sb.toString();
+        return "DeadlockEventBo{" +
+                "deadlockBo=" + deadlockBo +
+                '}';
     }
 }

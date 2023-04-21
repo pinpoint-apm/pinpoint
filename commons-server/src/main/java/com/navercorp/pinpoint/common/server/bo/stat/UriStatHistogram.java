@@ -78,11 +78,10 @@ public class UriStatHistogram {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("UriStatHistogram{");
-        sb.append("total=").append(total);
-        sb.append(", max=").append(max);
-        sb.append(", timestampHistogram=").append(Arrays.toString(timestampHistogram));
-        sb.append('}');
-        return sb.toString();
+        return "UriStatHistogram{" +
+                "total=" + total +
+                ", max=" + max +
+                ", timestampHistogram=" + Arrays.toString(timestampHistogram) +
+                '}';
     }
 }

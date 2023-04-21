@@ -39,10 +39,9 @@ public class MonitorInfoBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MonitorInfoBo{");
-        sb.append("stackDepth=").append(stackDepth);
-        sb.append(", stackFrame='").append(stackFrame).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "MonitorInfoBo{" +
+                "stackDepth=" + stackDepth +
+                ", stackFrame='" + stackFrame + '\'' +
+                '}';
     }
 }

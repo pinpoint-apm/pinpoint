@@ -48,10 +48,9 @@ public class DeadlockBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DeadlockBo{");
-        sb.append("deadlockedThreadCount=").append(deadlockedThreadCount);
-        sb.append(", threadDumpBoList=").append(threadDumpBoList);
-        sb.append('}');
-        return sb.toString();
+        return "DeadlockBo{" +
+                "deadlockedThreadCount=" + deadlockedThreadCount +
+                ", threadDumpBoList=" + threadDumpBoList +
+                '}';
     }
 }

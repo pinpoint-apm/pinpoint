@@ -92,14 +92,13 @@ public class AgentLifeCycleBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentLifeCycleBo{");
-        sb.append("version=").append(this.getVersion());
-        sb.append(", agentId='").append(this.getAgentId()).append('\'');
-        sb.append(", startTimestamp=").append(this.getStartTimestamp());
-        sb.append(", eventTimestamp=").append(this.getEventTimestamp());
-        sb.append(", eventIdentifier=").append(this.eventIdentifier);
-        sb.append(", state=").append(this.agentLifeCycleState);
-        return sb.toString();
+        return "AgentLifeCycleBo{" +
+                "version=" + version +
+                ", agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", eventTimestamp=" + eventTimestamp +
+                ", eventIdentifier=" + eventIdentifier +
+                ", agentLifeCycleState=" + agentLifeCycleState +
+                '}';
     }
-
 }

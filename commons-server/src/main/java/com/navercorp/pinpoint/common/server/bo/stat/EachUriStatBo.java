@@ -82,11 +82,11 @@ public class EachUriStatBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("EachUriStatBo{");
-        sb.append(", uri='").append(uri).append('\'');
-        sb.append(", totalHistogram=").append(totalHistogram);
-        sb.append(", failedHistogram=").append(failedHistogram);
-        sb.append('}');
-        return sb.toString();
+        return "EachUriStatBo{" +
+                "uri='" + uri + '\'' +
+                ", totalHistogram=" + totalHistogram +
+                ", failedHistogram=" + failedHistogram +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }
