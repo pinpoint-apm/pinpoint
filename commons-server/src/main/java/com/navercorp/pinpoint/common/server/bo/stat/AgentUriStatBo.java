@@ -108,14 +108,12 @@ public class AgentUriStatBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentUriStatBo{");
-        sb.append("serviceName='").append(serviceName).append('\'');
-        sb.append(", applicationName=").append(applicationName);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", bucketVersion=").append(bucketVersion);
-        sb.append(", eachUriStatBoList=").append(eachUriStatBoList);
-        sb.append('}');
-        return sb.toString();
+        return "AgentUriStatBo{" +
+                "serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", bucketVersion=" + bucketVersion +
+                ", eachUriStatBoList=" + eachUriStatBoList +
+                '}';
     }
-
 }

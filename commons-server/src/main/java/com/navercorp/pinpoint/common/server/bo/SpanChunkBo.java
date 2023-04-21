@@ -197,6 +197,7 @@ public class SpanChunkBo implements BasicSpan {
         return "SpanChunkBo{" +
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
@@ -207,7 +208,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
                 ", localAsyncId=" + localAsyncId +
-                ", keyTIme=" + keyTime +
+                ", keyTime=" + keyTime +
                 '}';
     }
 }

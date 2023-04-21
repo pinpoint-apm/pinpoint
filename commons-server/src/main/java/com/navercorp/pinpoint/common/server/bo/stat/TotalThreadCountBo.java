@@ -51,12 +51,11 @@ public class TotalThreadCountBo implements AgentStatDataPoint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TotalThreadCountBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", totalThreadCount=").append(totalThreadCount);
-        sb.append('}');
-        return sb.toString();
+        return "TotalThreadCountBo{" +
+                "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", timestamp=" + timestamp +
+                ", totalThreadCount=" + totalThreadCount +
+                '}';
     }
 }

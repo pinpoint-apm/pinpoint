@@ -147,9 +147,9 @@ public class GrpcAgentUriMetricHandlerV2Test {
         CollectorProperties collectorProperties = mock(CollectorProperties.class);
         when(collectorProperties.isUriStatEnable()).thenReturn(enableUriStat);
         GrpcAgentUriStatMapper grpcAgentUriStatMapper = new GrpcAgentUriStatMapper();
-        AgentUriMetricHandler uriHandelr = new AgentUriMetricHandler(collectorProperties, grpcAgentUriStatMapper, agentUriStatService);
+        AgentUriMetricHandler uriHandler = new AgentUriMetricHandler(collectorProperties, grpcAgentUriStatMapper, agentUriStatService);
 
-        List<GrpcMetricHandler> handlers = List.of(statHandler, statBatchHandler, uriHandelr);
+        List<GrpcMetricHandler> handlers = List.of(statHandler, statBatchHandler, uriHandler);
 
         return new GrpcAgentStatHandlerV2(handlers);
     }

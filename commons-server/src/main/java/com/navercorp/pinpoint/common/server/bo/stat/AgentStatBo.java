@@ -245,22 +245,21 @@ public class AgentStatBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentStatBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", jvmGcBos=").append(jvmGcBos);
-        sb.append(", jvmGcDetailedBos=").append(jvmGcDetailedBos);
-        sb.append(", cpuLoadBos=").append(cpuLoadBos);
-        sb.append(", transactionBos=").append(transactionBos);
-        sb.append(", activeTraceBos=").append(activeTraceBos);
-        sb.append(", dataSourceListBos=").append(dataSourceListBos);
-        sb.append(", responseTimeBos=").append(responseTimeBos);
-        sb.append(", deadlockThreadCountBos=").append(deadlockThreadCountBos);
-        sb.append(", fileDescriptorBos=").append(fileDescriptorBos);
-        sb.append(", directBufferBos=").append(directBufferBos);
-        sb.append(", totalThreadCountBos=").append(totalThreadCountBos);
-        sb.append(", loadedClassBos=").append(loadedClassBos);
-        sb.append('}');
-        return sb.toString();
+        return "AgentStatBo{" +
+                "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", jvmGcBos=" + jvmGcBos +
+                ", jvmGcDetailedBos=" + jvmGcDetailedBos +
+                ", cpuLoadBos=" + cpuLoadBos +
+                ", transactionBos=" + transactionBos +
+                ", activeTraceBos=" + activeTraceBos +
+                ", dataSourceListBos=" + dataSourceListBos +
+                ", responseTimeBos=" + responseTimeBos +
+                ", deadlockThreadCountBos=" + deadlockThreadCountBos +
+                ", fileDescriptorBos=" + fileDescriptorBos +
+                ", directBufferBos=" + directBufferBos +
+                ", totalThreadCountBos=" + totalThreadCountBos +
+                ", loadedClassBos=" + loadedClassBos +
+                '}';
     }
-
 }

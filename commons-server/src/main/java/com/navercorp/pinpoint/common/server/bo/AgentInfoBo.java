@@ -180,22 +180,24 @@ public class AgentInfoBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentInfoBo{");
-        sb.append("hostName='").append(hostName).append('\'');
-        sb.append(", ip='").append(ip).append('\'');
-        sb.append(", ports='").append(ports).append('\'');
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", serviceTypeCode=").append(serviceTypeCode);
-        sb.append(", pid=").append(pid);
-        sb.append(", vmVersion=").append(vmVersion).append('\'');
-        sb.append(", agentVersion='").append(agentVersion).append('\'');
-        sb.append(", startTime=").append(startTime);
-        sb.append(", endTimeStamp=").append(endTimeStamp);
-        sb.append(", endStatus=").append(endStatus);
-        sb.append('}');
-        return sb.toString();
+        return "AgentInfoBo{" +
+                "hostName='" + hostName + '\'' +
+                ", ip='" + ip + '\'' +
+                ", ports='" + ports + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", serviceTypeCode=" + serviceTypeCode +
+                ", pid=" + pid +
+                ", vmVersion='" + vmVersion + '\'' +
+                ", agentVersion='" + agentVersion + '\'' +
+                ", startTime=" + startTime +
+                ", endTimeStamp=" + endTimeStamp +
+                ", endStatus=" + endStatus +
+                ", container=" + container +
+                ", serverMetaData=" + serverMetaData +
+                ", jvmInfo=" + jvmInfo +
+                '}';
     }
 
     public static class Builder {

@@ -156,18 +156,16 @@ public class DataSourceBo implements AgentStatDataPoint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DataSourceBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", id=").append(id);
-        sb.append(", serviceTypeCode=").append(serviceTypeCode);
-        sb.append(", databaseName='").append(databaseName).append('\'');
-        sb.append(", jdbcUrl='").append(jdbcUrl).append('\'');
-        sb.append(", activeConnectionSize=").append(activeConnectionSize);
-        sb.append(", maxConnectionSize=").append(maxConnectionSize);
-        sb.append('}');
-        return sb.toString();
+        return "DataSourceBo{" +
+                "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", timestamp=" + timestamp +
+                ", id=" + id +
+                ", serviceTypeCode=" + serviceTypeCode +
+                ", databaseName='" + databaseName + '\'' +
+                ", jdbcUrl='" + jdbcUrl + '\'' +
+                ", activeConnectionSize=" + activeConnectionSize +
+                ", maxConnectionSize=" + maxConnectionSize +
+                '}';
     }
-
 }

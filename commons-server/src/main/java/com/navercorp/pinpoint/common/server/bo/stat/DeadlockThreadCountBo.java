@@ -74,13 +74,11 @@ public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DeadlockThreadCountBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", deadlockedThreadCount=").append(deadlockedThreadCount);
-        sb.append('}');
-        return sb.toString();
+        return "DeadlockThreadCountBo{" +
+                "agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", timestamp=" + timestamp +
+                ", deadlockedThreadCount=" + deadlockedThreadCount +
+                '}';
     }
-
 }
