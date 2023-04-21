@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.slf4j.Log4jMarkerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -138,7 +139,8 @@ public class CollectorMetric {
         builder.convertRatesTo(TimeUnit.SECONDS);
         builder.convertDurationsTo(TimeUnit.MILLISECONDS);
 
-        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory();
+        Log4jMarkerFactory log4jMarkerFactory = new Log4jMarkerFactory();
+        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory(log4jMarkerFactory);
 
         final org.slf4j.Logger reporterLogger = log4jLoggerFactory.getLogger(REPORTER_LOGGER_NAME);
         builder.outputTo(reporterLogger);
