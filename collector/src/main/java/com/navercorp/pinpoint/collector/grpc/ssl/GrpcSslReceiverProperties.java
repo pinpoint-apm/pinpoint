@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.apache.logging.log4j.LogManager;
@@ -31,14 +31,11 @@ public class GrpcSslReceiverProperties {
 
     protected final Logger logger = LogManager.getLogger(getClass());
 
-    private final boolean enable;
     private final BindAddress bindAddress;
     private final GrpcSslProperties grpcSslConfiguration;
 
-    GrpcSslReceiverProperties(boolean enable,
-                              BindAddress bindAddress,
+    GrpcSslReceiverProperties(BindAddress bindAddress,
                               GrpcSslProperties grpcSslConfiguration) {
-        this.enable = enable;
 
         this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
         this.grpcSslConfiguration = Objects.requireNonNull(grpcSslConfiguration, "grpcSslConfiguration");
@@ -46,13 +43,8 @@ public class GrpcSslReceiverProperties {
 
     @PostConstruct
     public void log() {
-        this.logger.info("enable:{}", this.enable);
         this.logger.info("bindAddress:{}", bindAddress);
         this.logger.info("grpcSslConfiguration:{}", grpcSslConfiguration);
-    }
-
-    public boolean isEnable() {
-        return enable;
     }
 
     public BindAddress getBindAddress() {
@@ -65,8 +57,8 @@ public class GrpcSslReceiverProperties {
 
     @Override
     public String toString() {
-        return "GrpcSslReceiverProperties{" + "enable=" + enable +
-                ", bindAddress=" + bindAddress +
+        return "GrpcSslReceiverProperties{" +
+                "bindAddress=" + bindAddress +
                 ", grpcSslConfiguration=" + grpcSslConfiguration +
                 '}';
     }

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc.ssl;
 
+import com.navercorp.pinpoint.collector.grpc.config.SpringResource;
 import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import org.springframework.core.io.Resource;
 
@@ -27,21 +28,15 @@ import java.util.Objects;
  */
 public class GrpcSslProperties {
 
-    private final boolean enable;
     private final String providerType;
     private final Resource keyResource;
     private final Resource keyCertChainResource;
 
-    private GrpcSslProperties(boolean enable, String providerType,
+    private GrpcSslProperties(String providerType,
                               Resource keyResource, Resource keyCertChainResource) {
-        this.enable = enable;
         this.providerType = providerType;
-        this.keyResource = keyResource;
-        this.keyCertChainResource = keyCertChainResource;
-    }
-
-    public boolean isEnable() {
-        return enable;
+        this.keyResource = Objects.requireNonNull(keyResource, "keyResource");
+        this.keyCertChainResource = Objects.requireNonNull(keyCertChainResource, "keyCertChainResource");
     }
 
     public String getProviderType() {
@@ -57,12 +52,9 @@ public class GrpcSslProperties {
     }
 
     public SslServerProperties toSslServerProperties() {
-        if (enable) {
-            return new SslServerProperties(enable, providerType,
-                    new SpringResource(keyResource), new SpringResource(keyCertChainResource));
-        } else {
-            return SslServerProperties.DISABLED_CONFIG;
-        }
+        SpringResource keyResource = new SpringResource(this.keyResource);
+        SpringResource keyCertChainResource = new SpringResource(this.keyCertChainResource);
+        return new SslServerProperties(providerType, keyResource, keyCertChainResource);
     }
 
     public static Builder newBuilder() {
@@ -71,20 +63,11 @@ public class GrpcSslProperties {
 
     public static class Builder {
 
-        private boolean enable;
         private String providerType;
         private Resource keyFilePath;
         private Resource keyCertFilePath;
 
         private Builder() {
-        }
-
-        public boolean isEnable() {
-            return enable;
-        }
-
-        public void setEnable(boolean enable) {
-            this.enable = enable;
         }
 
         public String getProviderType() {
@@ -112,20 +95,17 @@ public class GrpcSslProperties {
         }
 
         public GrpcSslProperties build() throws IOException {
-            if (enable) {
-                Objects.requireNonNull(providerType);
-                return new GrpcSslProperties(this.enable, this.providerType, this.keyFilePath, this.keyCertFilePath);
-            } else {
-                return new GrpcSslProperties(this.enable, this.providerType, null, null);
-            }
+            Objects.requireNonNull(providerType, "providerType");
+            Objects.requireNonNull(keyFilePath, "keyFilePath does not exists");
+            Objects.requireNonNull(keyCertFilePath, "keyCertFilePath does not exists");
+            return new GrpcSslProperties(this.providerType, this.keyFilePath, this.keyCertFilePath);
         }
     }
 
     @Override
     public String toString() {
         return "GrpcSslProperties{" +
-                "enable=" + enable +
-                ", providerType='" + providerType + '\'' +
+                "providerType='" + providerType + '\'' +
                 ", keyResource='" + keyResource + '\'' +
                 ", keyCertChainResource='" + keyCertChainResource + '\'' +
                 '}';

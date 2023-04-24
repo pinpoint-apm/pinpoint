@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,27 +33,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfiguration.class, GrpcStatSslReceiverConfiguration.class})
+@ContextConfiguration(classes = GrpcAgentDataSslReceiverConfiguration.class)
 @ExtendWith(SpringExtension.class)
-public class GrpcStatSslReceiverConfigurationTest {
+public class GrpcAgentDataSslReceiverConfigurationTest {
 
     @Autowired
-    @Qualifier(GrpcStatSslReceiverConfiguration.STAT_SSL_PROPERTIES)
     private GrpcSslReceiverProperties configuration;
 
     @Test
     public void properties() {
-        assertEquals(Boolean.FALSE, configuration.isEnable());
         BindAddress bindAddress = configuration.getBindAddress();
-        assertEquals("2.2.2.2", bindAddress.getIp());
-        assertEquals(29442, bindAddress.getPort());
+        assertEquals("1.1.1.1", bindAddress.getIp());
+        assertEquals(19441, bindAddress.getPort());
     }
 
     @Test
     public void grpcSslConfiguration() throws IOException {
         GrpcSslProperties sslConfiguration = configuration.getGrpcSslProperties();
 
-        assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());
 
         Resource keyFileUrl = sslConfiguration.getKeyResource();
