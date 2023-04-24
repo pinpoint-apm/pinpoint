@@ -17,7 +17,7 @@
                         com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
     <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
-    <bean id="flinkProperties" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
+    <bean id="flinkProperties" class="com.navercorp.pinpoint.flink.config.FlinkProperties"/>
     <bean class="com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration"/>
 
     <bean id="tcpReceiverProperties" class="com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverProperties"/>
