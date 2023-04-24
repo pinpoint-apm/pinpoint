@@ -26,27 +26,16 @@ import java.util.Objects;
  */
 public final class SslServerProperties {
 
-    private static final boolean DISABLED = false;
-    private static final String EMPTY_STRING = "";
-
-    public static final SslServerProperties DISABLED_CONFIG = new SslServerProperties(DISABLED, EMPTY_STRING, null, null);
-
-    private final boolean enable;
-
     private final String sslProviderType;
     private final Resource keyResource;
     private final Resource keyCertChainResource;
 
-    public SslServerProperties(boolean enable, String sslProviderType, Resource keyResource, Resource keyCertChainResource) {
-        this.enable = enable;
+    public SslServerProperties(String sslProviderType, Resource keyResource, Resource keyCertChainResource) {
         this.sslProviderType = Objects.requireNonNull(sslProviderType, "sslProviderType");
         this.keyResource = keyResource;
         this.keyCertChainResource = keyCertChainResource;
     }
 
-    public boolean isEnable() {
-        return enable;
-    }
 
     public String getSslProviderType() {
         return sslProviderType;
@@ -63,8 +52,7 @@ public final class SslServerProperties {
     @Override
     public String toString() {
         return "SslServerConfig{" +
-                "enable=" + enable +
-                ", sslProviderType='" + sslProviderType + '\'' +
+                "sslProviderType='" + sslProviderType + '\'' +
                 ", keyFileUrl='" + keyResource + '\'' +
                 ", keyCertChainFileUrl='" + keyCertChainResource + '\'' +
                 '}';

@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 /**
  * @author Taejin Koo
  */
 @Configuration
 public class GrpcSpanSslReceiverConfiguration {
-
-    static final String SPAN_SSL_PROPERTIES = "grpcSpanSslReceiverProperties";
 
     public static final String BIND_ADDRESS = "collector.receiver.grpc.span.ssl.bindaddress";
 
@@ -44,18 +41,17 @@ public class GrpcSpanSslReceiverConfiguration {
         return builder;
     }
 
-    @Bean(SPAN_SSL_PROPERTIES)
+    @Bean
     public GrpcSslReceiverProperties grpcSpanSslReceiverProperties(
-            Environment environment,
             @Qualifier(GrpcAgentDataSslReceiverConfiguration.SSL) GrpcSslProperties.Builder sslPropertiesBuilder) throws Exception {
-
-        boolean enable = environment.getProperty("collector.receiver.grpc.span.ssl.enable", boolean.class, false);
 
         BindAddress bindAddress = newBindAddressBuilder().build();
 
         GrpcSslProperties grpcSslConfiguration = sslPropertiesBuilder.build();
 
-        return new GrpcSslReceiverProperties(enable, bindAddress, grpcSslConfiguration);
+        return new GrpcSslReceiverProperties(bindAddress, grpcSslConfiguration);
     }
+
+    
 
 }

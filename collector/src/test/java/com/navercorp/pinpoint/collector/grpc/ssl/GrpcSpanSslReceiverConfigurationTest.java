@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,26 +34,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcAgentDataSslReceiverConfiguration.class)
+@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfiguration.class, GrpcSpanSslReceiverConfiguration.class})
 @ExtendWith(SpringExtension.class)
-public class GrpcAgentDataSslReceiverConfigurationTest {
+public class GrpcSpanSslReceiverConfigurationTest {
 
     @Autowired
-    private GrpcSslReceiverProperties configuration;
+    @Qualifier("grpcSpanSslReceiverProperties")
+    private GrpcSslReceiverProperties properties;
 
     @Test
     public void properties() {
-        assertEquals(Boolean.TRUE, configuration.isEnable());
-        BindAddress bindAddress = configuration.getBindAddress();
-        assertEquals("1.1.1.1", bindAddress.getIp());
-        assertEquals(19441, bindAddress.getPort());
+        BindAddress bindAddress = properties.getBindAddress();
+        assertEquals("3.3.3.3", bindAddress.getIp());
+        assertEquals(39443, bindAddress.getPort());
     }
 
     @Test
     public void grpcSslConfiguration() throws IOException {
-        GrpcSslProperties sslConfiguration = configuration.getGrpcSslProperties();
+        GrpcSslProperties sslConfiguration = properties.getGrpcSslProperties();
 
-        assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());
 
         Resource keyFileUrl = sslConfiguration.getKeyResource();

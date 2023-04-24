@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
-import com.navercorp.pinpoint.grpc.security.SslContextFactory;
-import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import io.grpc.BindableService;
 import io.grpc.InternalWithLogId;
 import io.grpc.Server;
@@ -77,18 +75,25 @@ public class ServerFactory {
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
     private final ServerOption serverOption;
-    private final SslServerProperties sslServerProperties;
+    private final SslContext sslContext;
     private ChannelzRegistry channelzRegistry;
 
-    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption) {
-        this(name, hostname, port, serverExecutor, callExecutor, serverOption, SslServerProperties.DISABLED_CONFIG);
+    public ServerFactory(String name, String hostname, int port,
+                         Executor serverExecutor,
+                         ServerCallExecutorSupplier callExecutor,
+                         ServerOption serverOption) {
+        this(name, hostname, port, serverExecutor, callExecutor, serverOption, null);
     }
 
-    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerCallExecutorSupplier callExecutor, ServerOption serverOption, SslServerProperties sslServerProperties) {
+    public ServerFactory(String name, String hostname, int port,
+                         Executor serverExecutor,
+                         ServerCallExecutorSupplier callExecutor,
+                         ServerOption serverOption,
+                         SslContext sslContext) {
         this.name = Objects.requireNonNull(name, "name");
         this.hostname = Objects.requireNonNull(hostname, "hostname");
         this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
-        this.sslServerProperties = Objects.requireNonNull(sslServerProperties, "sslServerProperties");
+
         this.port = port;
 
         final ServerChannelType serverChannelType = getChannelType();
@@ -101,6 +106,8 @@ public class ServerFactory {
 
         this.serverExecutor = Objects.requireNonNull(serverExecutor, "serverExecutor");
         this.callExecutor = callExecutor;
+
+        this.sslContext = sslContext;
     }
 
     private ServerChannelType getChannelType() {
@@ -178,10 +185,7 @@ public class ServerFactory {
 
         setupServerOption(serverBuilder);
 
-        if (sslServerProperties.isEnable()) {
-            logger.debug("Enable sslConfig.({})", sslServerProperties);
-
-            SslContext sslContext = SslContextFactory.create(sslServerProperties);
+        if (sslContext != null) {
             serverBuilder.sslContext(sslContext);
         }
 

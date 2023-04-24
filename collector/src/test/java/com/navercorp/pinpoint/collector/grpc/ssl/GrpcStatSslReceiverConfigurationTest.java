@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.grpc.config;
+package com.navercorp.pinpoint.collector.grpc.ssl;
 
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import org.junit.jupiter.api.Test;
@@ -34,27 +34,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfiguration.class, GrpcSpanSslReceiverConfiguration.class})
+@ContextConfiguration(classes = {GrpcAgentDataSslReceiverConfiguration.class, GrpcStatSslReceiverConfiguration.class})
 @ExtendWith(SpringExtension.class)
-public class GrpcSpanSslReceiverConfigurationTest {
+public class GrpcStatSslReceiverConfigurationTest {
 
     @Autowired
-    @Qualifier(GrpcSpanSslReceiverConfiguration.SPAN_SSL_PROPERTIES)
-    private GrpcSslReceiverProperties properties;
+    @Qualifier("grpcStatSslReceiverProperties")
+    private GrpcSslReceiverProperties configuration;
 
     @Test
     public void properties() {
-        assertEquals(Boolean.TRUE, properties.isEnable());
-        BindAddress bindAddress = properties.getBindAddress();
-        assertEquals("3.3.3.3", bindAddress.getIp());
-        assertEquals(39443, bindAddress.getPort());
+        BindAddress bindAddress = configuration.getBindAddress();
+        assertEquals("2.2.2.2", bindAddress.getIp());
+        assertEquals(29442, bindAddress.getPort());
     }
 
     @Test
     public void grpcSslConfiguration() throws IOException {
-        GrpcSslProperties sslConfiguration = properties.getGrpcSslProperties();
+        GrpcSslProperties sslConfiguration = configuration.getGrpcSslProperties();
 
-        assertEquals(Boolean.TRUE, sslConfiguration.isEnable());
         assertEquals("jdk", sslConfiguration.getProviderType());
 
         Resource keyFileUrl = sslConfiguration.getKeyResource();
