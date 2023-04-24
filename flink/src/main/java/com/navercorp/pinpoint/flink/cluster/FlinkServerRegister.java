@@ -20,21 +20,20 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperCl
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
+import com.navercorp.pinpoint.flink.config.FlinkProperties;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.zookeeper.PushZnodeJob;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManagerHelper;
-
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -60,18 +59,18 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
 
     private Timer timer;
 
-    public FlinkServerRegister(FlinkConfiguration flinkConfiguration) {
-        Objects.requireNonNull(flinkConfiguration, "flinkConfiguration");
-        this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
-        this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
-        this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
-        this.zookeeperPath = flinkConfiguration.getFlinkZNodePath();
+    public FlinkServerRegister(FlinkProperties flinkProperties) {
+        Objects.requireNonNull(flinkProperties, "flinkConfiguration");
+        this.clusterEnable = flinkProperties.isFlinkClusterEnable();
+        this.connectAddress = flinkProperties.getFlinkClusterZookeeperAddress();
+        this.sessionTimeout = flinkProperties.getFlinkClusterSessionTimeout();
+        this.zookeeperPath = flinkProperties.getFlinkZNodePath();
 
-        String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkConfiguration.getFlinkClusterTcpPort();
+        String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkProperties.getFlinkClusterTcpPort();
         String zNodeFullPath = ZKPaths.makePath(zookeeperPath, zNodeName);
 
         CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, new byte[0]);
-        int retryInterval = flinkConfiguration.getFlinkRetryInterval();
+        int retryInterval = flinkProperties.getFlinkRetryInterval();
         this.pushFlinkNodeJob = new PushFlinkNodeJob(createNodeMessage, retryInterval);
     }
 

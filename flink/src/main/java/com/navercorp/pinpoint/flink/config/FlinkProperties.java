@@ -33,8 +33,8 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class FlinkConfiguration {
-    private final Logger logger = LogManager.getLogger(FlinkConfiguration.class);
+public class FlinkProperties {
+    private final Logger logger = LogManager.getLogger(FlinkProperties.class);
 
     @Qualifier("flinkClusterProperties")
     @Autowired
@@ -52,7 +52,7 @@ public class FlinkConfiguration {
     @Value("${collector.l4.ip:}")
     private String[] l4IpList = new String[0];
 
-    public FlinkConfiguration() {
+    public FlinkProperties() {
     }
 
     public boolean isFlinkClusterEnable() {

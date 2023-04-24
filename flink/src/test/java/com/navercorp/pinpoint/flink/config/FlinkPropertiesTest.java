@@ -27,15 +27,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@ContextConfiguration(classes = {FlinkConfiguration.class, ClusterConfigurationFactory.class})
+@ContextConfiguration(classes = { FlinkProperties.class, ClusterConfigurationFactory.class})
 @ExtendWith(SpringExtension.class)
 public class FlinkPropertiesTest {
     @Autowired
-    private FlinkConfiguration flinkConfiguration;
+    private FlinkProperties flinkProperties;
 
     @Test
     public void log() {
-        flinkConfiguration.log();
+        flinkProperties.log();
     }
 
 }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.flink;
 import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.cluster.FlinkServerRegister;
-import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
+import com.navercorp.pinpoint.flink.config.FlinkProperties;
 import com.navercorp.pinpoint.flink.dao.hbase.ApplicationMetricDao;
 import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao;
 import com.navercorp.pinpoint.flink.dao.hbase.StatisticsDaoInterceptor;
@@ -56,7 +56,7 @@ public class Bootstrap {
     private final ClassPathXmlApplicationContext applicationContext;
 
     private final TBaseFlatMapper tbaseFlatMapper;
-    private final FlinkConfiguration flinkConfiguration;
+    private final FlinkProperties flinkProperties;
     private final TcpDispatchHandler tcpDispatchHandler;
     private final TcpSourceFunction tcpSourceFunction;
     private final ApplicationCache applicationCache;
@@ -72,7 +72,7 @@ public class Bootstrap {
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-flink.xml");
 
         tbaseFlatMapper = applicationContext.getBean("tbaseFlatMapper", TBaseFlatMapper.class);
-        flinkConfiguration = applicationContext.getBean("flinkConfiguration", FlinkConfiguration.class);
+        flinkProperties = applicationContext.getBean("flinkProperties", FlinkProperties.class);
         tcpDispatchHandler = applicationContext.getBean("tcpDispatchHandler", TcpDispatchHandler.class);
         tcpSourceFunction = applicationContext.getBean("tcpSourceFunction", TcpSourceFunction.class);
         applicationCache = applicationContext.getBean("applicationCache", ApplicationCache.class);
@@ -131,12 +131,12 @@ public class Bootstrap {
         return applicationCache;
     }
 
-    public FlinkConfiguration getFlinkConfiguration() {
-        return flinkConfiguration;
+    public FlinkProperties getFlinkProperties() {
+        return flinkProperties;
     }
 
     public StreamExecutionEnvironment createStreamExecutionEnvironment() {
-        if (flinkConfiguration.isLocalforFlinkStreamExecutionEnvironment()) {
+        if (flinkProperties.isLocalforFlinkStreamExecutionEnvironment()) {
             LocalStreamEnvironment localEnvironment = StreamExecutionEnvironment.createLocalEnvironment();
             localEnvironment.setParallelism(1);
             return localEnvironment;
