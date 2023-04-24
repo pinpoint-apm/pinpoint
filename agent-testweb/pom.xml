@@ -80,6 +80,7 @@
         <module>kafka-streams-testweb</module>
         <module>cassandra3-plugin-testweb</module>
         <module>cassandra4-plugin-testweb</module>
+        <module>agent-proxy-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

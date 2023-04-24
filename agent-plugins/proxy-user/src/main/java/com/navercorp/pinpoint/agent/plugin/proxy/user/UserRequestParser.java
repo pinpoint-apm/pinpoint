@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserRequestParser implements ProxyRequestParser {
+    static final String PREFIX_RECEIVED = "t=";
+    static final String PREFIX_DURATION = "D=";
+
     private List<String> headerNameList = Collections.emptyList();
 
     @Override
@@ -44,61 +47,100 @@ public class UserRequestParser implements ProxyRequestParser {
         if (profilerConfig == null) {
             return;
         }
-        this.headerNameList = profilerConfig.readList(UserRequestConstants.USER_PROXY_HEADER_NAME_LIST);
+        headerNameList = profilerConfig.readList(UserRequestConstants.USER_PROXY_HEADER_NAME_LIST);
     }
 
     @Override
     public ProxyRequestHeader parseHeader(String name, String value) {
         final ProxyRequestHeaderBuilder header = new ProxyRequestHeaderBuilder();
         header.setApp(name);
-        for (String token : StringUtils.tokenizeToStringList(value, " ")) {
-            if (token.startsWith("t=")) {
-                final long receivedTimeMillis = toReceivedTimeMillis(token.substring(2));
-                if (receivedTimeMillis > 0) {
-                    header.setReceivedTimeMillis(receivedTimeMillis);
-                    header.setValid(true);
-                } else {
-                    header.setValid(false);
-                    header.setCause("invalid received time");
-                    return header.build();
-                }
-            } else if (token.startsWith("D=")) {
-                final long durationTimeMicroseconds = toDurationTimeMicros(token.substring(2));
-                if (durationTimeMicroseconds > 0) {
-                    header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
-                }
+
+        final List<String> tokenList = StringUtils.tokenizeToStringList(value, " ");
+        final String receivedTimeValue = findValue(tokenList, PREFIX_RECEIVED);
+        if (receivedTimeValue != null) {
+            final long receivedTimeMillis = toReceivedTimeMillis(receivedTimeValue);
+            if (receivedTimeMillis > 0) {
+                header.setReceivedTimeMillis(receivedTimeMillis);
+                header.setValid(true);
+            } else {
+                header.setValid(false);
+                header.setCause("invalid received time");
+                return header.build();
+            }
+        } else {
+            header.setValid(false);
+            header.setCause("not found received time");
+            return header.build();
+        }
+        final String durationTimeValue = findValue(tokenList, PREFIX_DURATION);
+        if (durationTimeValue != null) {
+            final long durationTimeMicroseconds = toDurationTimeMicros(durationTimeValue);
+            if (durationTimeMicroseconds > 0) {
+                header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
             }
         }
 
         return header.build();
     }
 
-    public long toReceivedTimeMillis(final String value) {
+    String findValue(List<String> tokenList, String prefix) {
+        for (String token : tokenList) {
+            if (token.startsWith(prefix)) {
+                return token.substring(prefix.length());
+            }
+        }
+        return null;
+    }
+
+    long toReceivedTimeMillis(final String value) {
         if (value == null) {
             return 0;
         }
 
         final int length = value.length();
+        if (length < 13) {
+            return 0;
+        }
 
+        if (length >= 16) {
+            // apache - microseconds
+            return NumberUtils.parseLong(value.substring(0, length - 3), 0);
+        }
         final int millisPosition = value.lastIndexOf('.');
         if (millisPosition != -1) {
-            if (length - millisPosition != 4) {
+            // nginx - seconds.milliseconds
+            // e.g. 1504230492.763
+            if (millisPosition < 10 || length - millisPosition != 4) {
                 // invalid format.
                 return 0;
             }
-            String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+            final String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
             return NumberUtils.parseLong(strValue, 0);
-        }else {
-            return NumberUtils.parseLong(value, 0);
         }
+        // app - milliseconds
+        return NumberUtils.parseLong(value, 0);
     }
 
-    public int toDurationTimeMicros(final String value) {
+    int toDurationTimeMicros(final String value) {
         if (value == null) {
             return 0;
         }
 
-        // to microseconds.
-        return NumberUtils.parseInteger(value, 0);
+        final int length = value.length();
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) {
+            // nginx
+            // e.g. 0.000
+            if (length - millisPosition != 4) {
+                // invalid format.
+                return 0;
+            }
+            final String strValue = value.substring(0, millisPosition) + value.substring(millisPosition + 1);
+            return NumberUtils.parseInteger(strValue, 0) * 1000;
+        } else {
+            // apache, app
+            // to microseconds.
+            return NumberUtils.parseInteger(value, 0);
+        }
     }
 }
