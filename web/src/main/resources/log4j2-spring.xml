@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="default_logging_dir">logs</Property>
+        <Property name="logging_dir">${sys:logging.file.path:-${default_logging_dir}}</Property>
+
+        <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
+        <Select>
+            <SpringProfile name="local">
+                <Property name="backupsize">1GB</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg{nolookups}%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg{nolookups}%n</Property>
+                <Property name="accumulated_file_size">1GB</Property>
+                <Property name="accumulated_file_count">50</Property>
+                <Property name="logger_level">DEBUG</Property>
+            </SpringProfile>
+            <SpringProfile name="release">
+                <Property name="backupsize">100GB</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan} -- %msg{nolookups}%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg{nolookups}%n</Property>
+                <Property name="accumulated_file_size">2000GB</Property>
+                <Property name="accumulated_file_count">100</Property>
+                <Property name="logger_level">INFO</Property>
+            </SpringProfile>
+            <DefaultArbiter>
+                <Property name="backupsize">1GB</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg{nolookups}%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg{nolookups}%n</Property>
+                <Property name="accumulated_file_size">1GB</Property>
+                <Property name="accumulated_file_count">50</Property>
+                <Property name="logger_level">DEBUG</Property>
+            </DefaultArbiter>
+        </Select>
+     </Properties>
+
+    <Appenders>
+        <Select>
+            <SpringProfile name="local">
+                <Console name="console" target="system_out">
+                    <PatternLayout pattern="${console_message_pattern}"/>
+                </Console>
+            </SpringProfile>
+            <SpringProfile name="release">
+                <Console name="console" target="system_out">
+                    <PatternLayout pattern="${file_message_pattern}"/>
+                </Console>
+            </SpringProfile>
+            <DefaultArbiter>
+                <Console name="console" target="system_out">
+                    <PatternLayout pattern="${console_message_pattern}"/>
+                </Console>
+            </DefaultArbiter>
+        </Select>
+
+        <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-web.log"
+                     filepattern="${logging_dir}/pinpoint-web-${rolling-date-format}-%i.log"  >
+            <PatternLayout>
+                <Pattern>${file_message_pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${backupsize}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20">
+                <Delete basePath="${logging_dir}/" maxDepth="1">
+                    <IfFileName glob="pinpoint-web-*-*.log">
+                        <IfAny>
+                            <IfAccumulatedFileSize exceeds="${accumulated_file_size}" />
+                            <IfAccumulatedFileCount exceeds="${accumulated_file_count}" />
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.navercorp.pinpoint" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.filter" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <!-- zk cluster logger
+        <Logger name="com.navercorp.pinpoint.web.cluster" level="DEBUG" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        -->
+
+        <Logger name="com.navercorp.pinpoint.web.controller" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.applicationmap" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.mapper" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.service" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.dao" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.web.mapper.ApiMetaDataMapper" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.mybatis" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.apache.zookeeper" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.apache.hadoop.hbase" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.hadoop.ipc" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.hadoop" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

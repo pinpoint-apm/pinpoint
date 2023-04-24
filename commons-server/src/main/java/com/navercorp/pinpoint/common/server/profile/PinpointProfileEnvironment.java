@@ -37,7 +37,7 @@ public class PinpointProfileEnvironment {
         logger.info(String.format("%s=%s", PINPOINT_ACTIVE_PROFILE, pinpointProfile));
 
         Pair<String, String> profile = ImmutablePair.of(PINPOINT_ACTIVE_PROFILE, pinpointProfile);
-        Pair<String, String> log4j2Path = log4j2Path(pinpointProfile);
+        Pair<String, String> log4j2Path = log4j2Path();
 
         Properties properties = merge(profile, log4j2Path);
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -77,8 +77,8 @@ public class PinpointProfileEnvironment {
         return activeProfiles[0];
     }
 
-    private Pair<String, String> log4j2Path(String pinpointActiveProfile) {
-        String logConfig = String.format("classpath:profiles/%s/log4j2.xml", pinpointActiveProfile);
+    private Pair<String, String> log4j2Path() {
+        String logConfig = "classpath:log4j2-spring.xml";
 
         return ImmutablePair.of("logging.config", logConfig);
     }
