@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
-import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
@@ -43,8 +42,9 @@ import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
-import org.apache.logging.log4j.Logger;
+import io.netty.handler.ssl.SslContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +69,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private final ActiveTraceRepository activeTraceRepository;
 
     private List<ClientInterceptor> clientInterceptorList;
+    private final Provider<SslContext> sslContextProvider;
 
     @Inject
     public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
@@ -77,7 +78,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
                                        Provider<ReconnectExecutor> reconnectExecutor,
                                        ScheduledExecutorService retransmissionExecutor,
                                        NameResolverProvider nameResolverProvider,
-                                       ActiveTraceRepository activeTraceRepository) {
+                                       ActiveTraceRepository activeTraceRepository,
+                                       Provider<SslContext> sslContextProvider) {
         this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
@@ -88,6 +90,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
 
         this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
         this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
+
+        this.sslContextProvider = Objects.requireNonNull(sslContextProvider, "sslContextProvider");
     }
 
     @Inject(optional = true)
@@ -141,8 +145,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         channelFactoryBuilder.setClientOption(clientOption);
 
         if (sslEnable) {
-            SslOption sslOption = grpcTransportConfig.getSslOption();
-            channelFactoryBuilder.setSslOption(sslOption);
+            SslContext sslContext = sslContextProvider.get();
+            channelFactoryBuilder.setSslContext(sslContext);
         }
 
         return channelFactoryBuilder;

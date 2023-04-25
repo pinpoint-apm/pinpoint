@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
-import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardClientInterceptor;
 import com.navercorp.pinpoint.grpc.client.interceptor.DiscardEventListener;
 import com.navercorp.pinpoint.grpc.client.interceptor.LoggingDiscardEventListener;
@@ -43,6 +42,7 @@ import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledRepor
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzReporter;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
+import io.netty.handler.ssl.SslContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,6 +64,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
     private final ChannelzScheduledReporter reporter;
 
     private List<ClientInterceptor> clientInterceptorList;
+    private final Provider<SslContext> sslContextProvider;
 
     public static final String SPAN_CHANNELZ = "com.navercorp.pinpoint.metric.SpanChannel";
 
@@ -72,7 +73,9 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
                                       @SpanDataSender MessageConverter<SpanType, GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
-                                      NameResolverProvider nameResolverProvider, ChannelzScheduledReporter reporter) {
+                                      NameResolverProvider nameResolverProvider,
+                                      ChannelzScheduledReporter reporter,
+                                      Provider<SslContext> sslContextProvider) {
         this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
@@ -81,6 +84,7 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
 
         this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
         this.reporter = Objects.requireNonNull(reporter, "reporter");
+        this.sslContextProvider = Objects.requireNonNull(sslContextProvider, "sslContextProvider");
     }
 
     @Inject(optional = true)
@@ -143,8 +147,8 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
         channelFactoryBuilder.setClientOption(clientOption);
 
         if (sslEnable) {
-            SslOption sslOption = grpcTransportConfig.getSslOption();
-            channelFactoryBuilder.setSslOption(sslOption);
+            SslContext sslContext = sslContextProvider.get();
+            channelFactoryBuilder.setSslContext(sslContext);
         }
 
         return channelFactoryBuilder;

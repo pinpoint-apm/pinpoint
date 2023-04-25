@@ -168,8 +168,7 @@ public class GrpcTransportConfig {
         this.spanClientOption = readSpanClientOption(properties);
 
         // Ssl
-        SslOption sslOption = readSslOption(properties);
-        this.sslOption = sslOption;
+        this.sslOption = readSslOption(properties);
     }
 
     private ClientOption readAgentClientOption(final Properties properties) {
