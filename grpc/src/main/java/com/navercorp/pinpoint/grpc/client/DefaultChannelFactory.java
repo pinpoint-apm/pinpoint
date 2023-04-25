@@ -154,7 +154,8 @@ public class DefaultChannelFactory implements ChannelFactory {
         if (sslClientConfig.isEnable()) {
             SslContext sslContext = null;
             try {
-                sslContext = SslContextFactory.create(sslClientConfig);
+                SslContextFactory factory = new SslContextFactory(sslClientConfig.getSslProviderType());
+                sslContext = factory.forClient(sslClientConfig);
             } catch (SSLException e) {
                 throw new SecurityException(e);
             }
