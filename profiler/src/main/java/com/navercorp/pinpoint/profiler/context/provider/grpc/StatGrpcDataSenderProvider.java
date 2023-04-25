@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.config.ClientOption;
-import com.navercorp.pinpoint.grpc.client.config.SslOption;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -35,8 +34,9 @@ import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.StatGrpcDataSender;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
-import org.apache.logging.log4j.Logger;
+import io.netty.handler.ssl.SslContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -55,18 +55,21 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<MetricTyp
     private final NameResolverProvider nameResolverProvider;
 
     private List<ClientInterceptor> clientInterceptorList;
+    private final Provider<SslContext> sslContextProvider;
 
     @Inject
     public StatGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
                                       @StatDataSender MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
-                                      NameResolverProvider nameResolverProvider) {
+                                      NameResolverProvider nameResolverProvider,
+                                      Provider<SslContext> sslContextProvider) {
         this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "profilerConfig");
         this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
         this.headerFactory = Objects.requireNonNull(headerFactory, "agentHeaderFactory");
         this.reconnectExecutorProvider = Objects.requireNonNull(reconnectExecutor, "reconnectExecutorProvider");
         this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
+        this.sslContextProvider = Objects.requireNonNull(sslContextProvider, "sslContextProvider");
     }
 
     @Inject(optional = true)
@@ -109,9 +112,10 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<MetricTyp
         channelFactoryBuilder.setClientOption(clientOption);
 
         if (sslEnable) {
-            SslOption sslOption = grpcTransportConfig.getSslOption();
-            channelFactoryBuilder.setSslOption(sslOption);
+            SslContext sslContext = sslContextProvider.get();
+            channelFactoryBuilder.setSslContext(sslContext);
         }
+
 
         return channelFactoryBuilder;
     }

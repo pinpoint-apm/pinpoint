@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.grpc.security;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.grpc.util.Resource;
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -39,7 +38,7 @@ import java.util.Objects;
  */
 public final class SslContextFactory {
 
-    private static final Logger LOGGER = LogManager.getLogger(SslContextFactory.class);
+    private final Logger LOGGER = LogManager.getLogger(SslContextFactory.class);
 
     private final SslProvider sslProvider;
 
@@ -66,38 +65,38 @@ public final class SslContextFactory {
         }
     }
 
-    public SslContext forClient(SslClientConfig clientConfig) throws SSLException {
-        Objects.requireNonNull(clientConfig, "clientConfig");
-
-        if (!clientConfig.isEnable()) {
-            throw new IllegalArgumentException("sslConfig is disabled.");
-        }
+    public SslContext forClient(InputStream trustCertCollectionInputStream) throws SSLException {
+        Objects.requireNonNull(trustCertCollectionInputStream, "trustCertCollectionInputStream");
 
         try {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
 
-            Resource trustCertResource = clientConfig.getTrustCertResource();
-            if (trustCertResource != null) {
-                sslContextBuilder.trustManager(trustCertResource.getInputStream());
-            } else {
-                // Loads default Root CA certificates (generally, from JAVA_HOME/lib/cacerts)
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                trustManagerFactory.init((KeyStore)null);
-                sslContextBuilder.trustManager(trustManagerFactory);
-            }
-            
-            SslProvider sslProvider = getSslProvider(clientConfig.getSslProviderType());
-            SslContext sslContext = createSslContext(sslContextBuilder, sslProvider);
-
-            assertValidCipherSuite(sslContext);
-
-            return sslContext;
+            sslContextBuilder.trustManager(trustCertCollectionInputStream);
+            return createSslContext(sslContextBuilder, sslProvider);
         } catch (SSLException e) {
             throw e;
         } catch (Exception e) {
             throw new SSLException(e);
         }
     }
+
+    public SslContext forClient() throws SSLException {
+        try {
+            SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
+
+            // Loads default Root CA certificates (generally, from JAVA_HOME/lib/cacerts)
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore)null);
+            sslContextBuilder.trustManager(trustManagerFactory);
+
+            return createSslContext(sslContextBuilder, sslProvider);
+        } catch (SSLException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SSLException(e);
+        }
+    }
+
 
     private SslContext createSslContext(SslContextBuilder sslContextBuilder, SslProvider sslProvider) throws SSLException {
         sslContextBuilder.sslProvider(sslProvider);

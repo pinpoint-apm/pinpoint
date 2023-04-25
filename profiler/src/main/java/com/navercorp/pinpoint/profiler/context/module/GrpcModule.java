@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorPr
 import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectExecutorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectSchedulerProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.SSLContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -55,6 +56,7 @@ import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledRepor
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzScheduledReporter;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.NameResolverProvider;
+import io.netty.handler.ssl.SslContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -93,6 +95,8 @@ public class GrpcModule extends PrivateModule {
         bind(ScheduledExecutorService.class).toProvider(ReconnectSchedulerProvider.class).in(Scopes.SINGLETON);
 
         registerGrpcProviders(grpcTransportConfig);
+
+        bind(SslContext.class).toProvider(SSLContextProvider.class).in(Scopes.SINGLETON);
 
         // not singleton
         bind(ReconnectExecutor.class).toProvider(ReconnectExecutorProvider.class);
