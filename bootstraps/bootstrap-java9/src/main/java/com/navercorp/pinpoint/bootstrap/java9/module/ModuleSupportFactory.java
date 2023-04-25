@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import java.lang.instrument.Instrumentation;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,16 +26,6 @@ public class ModuleSupportFactory {
     }
 
     public ModuleSupport newModuleSupport(Instrumentation instrumentation) {
-        // Dynamic changes are required?
-        // move to pinpoint.config?
-        List<String> allowedProviders = Arrays.asList(
-                "io.grpc.NameResolverProvider",
-                "com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataProvider",
-                "com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider",
-                "io.grpc.ManagedChannelProvider",
-                "io.grpc.LoadBalancerProvider"
-        );
-
-        return new ModuleSupport(instrumentation, allowedProviders);
+        return new ModuleSupport(instrumentation);
     }
 }

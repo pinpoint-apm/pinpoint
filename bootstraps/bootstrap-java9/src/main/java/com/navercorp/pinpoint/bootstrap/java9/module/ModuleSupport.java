@@ -18,14 +18,11 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
-import com.navercorp.pinpoint.bootstrap.module.Providers;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,15 +37,14 @@ public class ModuleSupport {
 
     private final JavaModule javaBaseModule;
     private final JavaModule bootstrapModule;
-    private final List<String> allowedProviders;
 
-    ModuleSupport(Instrumentation instrumentation, List<String> allowedProviders) {
+    ModuleSupport(Instrumentation instrumentation) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
-        this.allowedProviders = Objects.requireNonNull(allowedProviders, "allowedProviders");
         this.javaBaseModule = wrapJavaModule(Object.class);
         this.bootstrapModule = wrapJavaModule(this.getClass());
     }
 
+    @SuppressWarnings("unused") // Used implicitly
     public void setup() {
         // pinpoint module name : unnamed
         JavaModule bootstrapModule = getBootstrapModule();
@@ -65,8 +61,8 @@ public class ModuleSupport {
 
     }
 
+    @SuppressWarnings("unused") // Used implicitly
     public void defineAgentModule(ClassLoader classLoader, URL[] jarFileList) {
-
         final JavaModule agentModule = newAgentModule(classLoader, jarFileList);
 
         prepareAgentModule(classLoader, agentModule);
@@ -92,7 +88,7 @@ public class ModuleSupport {
 
     private JavaModule newAgentModule(ClassLoader classLoader, URL[] jarFileList) {
         ModuleBuilder moduleBuilder = new ModuleBuilder();
-        final Module agentModule = moduleBuilder.defineModule("pinpoint.agent", classLoader, jarFileList);
+        final Module agentModule = moduleBuilder.defineModule(classLoader.getName(), classLoader, jarFileList);
         return wrapJavaModule(agentModule);
     }
 
@@ -229,32 +225,6 @@ public class ModuleSupport {
         final String watchEventServiceName = "org.apache.logging.log4j.core.util.WatchEventService";
         Class<?> watchEventServiceClazz = forName(watchEventServiceName, classLoader);
         agentModule.addUses(watchEventServiceClazz);
-
-        List<Providers> providersList = agentModule.getProviders();
-        for (Providers providers : providersList) {
-            final String service = providers.getService();
-            if (isAllowedProvider(service)) {
-                logger.info("load provider:" + providers);
-                Class<?> serviceClass = forName(providers.getService(), classLoader);
-                List<Class<?>> providerClassList = loadProviderClassList(providers.getProviders(), classLoader);
-                agentModule.addProvides(serviceClass, providerClassList);
-            } else {
-                logger.info("discard provider:" + providers);
-            }
-        }
-    }
-
-    public boolean isAllowedProvider(String serviceName) {
-        return allowedProviders.contains(serviceName);
-    }
-
-    private List<Class<?>> loadProviderClassList(List<String> classNameList, ClassLoader classLoader) {
-        List<Class<?>> providerClassList = new ArrayList<>();
-        for (String providerClassName : classNameList) {
-            Class<?> providerClass = forName(providerClassName, classLoader);
-            providerClassList.add(providerClass);
-        }
-        return providerClassList;
     }
 
     private Class<?> forName(String className, ClassLoader classLoader) {
@@ -281,7 +251,7 @@ public class ModuleSupport {
 //        throw new ModuleException(moduleName + " not found");
     }
 
-    private JavaModule wrapJavaModule(Class clazz) {
+    private JavaModule wrapJavaModule(Class<?> clazz) {
         return new Java9Module(instrumentation, clazz.getModule());
     }
 
