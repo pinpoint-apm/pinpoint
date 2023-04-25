@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.grpc.ssl;
 
-import com.navercorp.pinpoint.collector.grpc.config.SpringResource;
-import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
@@ -51,11 +49,6 @@ public class GrpcSslProperties {
         return keyCertChainResource;
     }
 
-    public SslServerProperties toSslServerProperties() {
-        SpringResource keyResource = new SpringResource(this.keyResource);
-        SpringResource keyCertChainResource = new SpringResource(this.keyCertChainResource);
-        return new SslServerProperties(providerType, keyResource, keyCertChainResource);
-    }
 
     public static Builder newBuilder() {
         return new Builder();

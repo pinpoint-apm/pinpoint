@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.security.SslContextFactory;
-import com.navercorp.pinpoint.grpc.security.SslServerProperties;
 import io.grpc.ServerCallExecutorSupplier;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
@@ -20,6 +19,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -91,15 +92,23 @@ public class GrpcSslModule {
         receiver.setServerInterceptorList(serverInterceptorList);
         receiver.setChannelzRegistry(channelzRegistry);
 
-        SslContext sslContext = newSslContext(properties);
+        SslContext sslContext = newSslContext(properties.getGrpcSslProperties());
         receiver.setSslContext(sslContext);
         return receiver;
     }
 
-    private SslContext newSslContext(GrpcSslReceiverProperties properties) throws SSLException {
-        final SslServerProperties sslServerConfig = properties.getGrpcSslProperties().toSslServerProperties();
-        logger.debug("Enable sslConfig.({})", sslServerConfig);
-        return SslContextFactory.create(sslServerConfig);
+    private SslContext newSslContext(GrpcSslProperties properties) throws SSLException {
+        logger.debug("Enable sslConfig.({})", properties);
+
+        try {
+            InputStream keyChain = properties.getKeyCertChainResource().getInputStream();
+            InputStream key = properties.getKeyResource().getInputStream();
+            SslContextFactory factory = new SslContextFactory(properties.getProviderType());
+            return factory.forServer(keyChain, key);
+        } catch (IOException e) {
+            throw new SSLException(e);
+        }
     }
+
 
 }
