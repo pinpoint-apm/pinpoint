@@ -56,6 +56,18 @@ public class Java9ClassLoader extends URLClassLoader {
     }
 
     @Override
+    protected Class<?> findClass(String moduleName, String name) {
+        if (getName().equals(moduleName)) {
+            try {
+                return this.findClass(name);
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public InputStream getResourceAsStream(String name) {
         return super.getResourceAsStream(name);
     }
