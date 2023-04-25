@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,19 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;
 import com.navercorp.pinpoint.metric.common.model.MetricTagKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostExclusionDao;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricHostInfoDao;
 import com.navercorp.pinpoint.metric.web.mapping.Field;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,29 +43,50 @@ import java.util.Objects;
  */
 @Service
 public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoService {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 100);
 
     private final SystemMetricHostInfoDao systemMetricHostInfoDao;
     private final YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager;
+    private final SystemMetricHostExclusionDao systemMetricHostExclusionDao;
 
     public SystemMetricHostInfoServiceImpl(SystemMetricHostInfoDao systemMetricHostInfoDao,
-                                           YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager) {
+                                           YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
+                                           SystemMetricHostExclusionDao systemMetricHostExclusionDao) {
         this.systemMetricHostInfoDao = Objects.requireNonNull(systemMetricHostInfoDao, "systemMetricHostInfoDao");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
+        this.systemMetricHostExclusionDao = Objects.requireNonNull(systemMetricHostExclusionDao, "systemMetricHostExclusionDao");
     }
 
     @Override
-    public List<String> getHostGroupNameList(String tenantId) {
+    public List<String> getHostGroupNameList(String tenantId, boolean showAll) {
         List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId);
-        hostGroupNameList.sort(Comparator.naturalOrder());
+        if (!showAll){
+            try {
+                List<String> excludedHostGroupList = systemMetricHostExclusionDao.selectExcludedHostGroupNameList();
+                hostGroupNameList.removeAll(excludedHostGroupList);
+            } catch (Exception e) {
+                throttledLogger.warn("error getting excludedHostGroupNameList", e);
+            }
+        }
 
+        hostGroupNameList.sort(Comparator.naturalOrder());
         return hostGroupNameList;
     }
 
     @Override
-    public List<String> getHostList(String tenantId, String hostGroupName) {
+    public List<String> getHostList(String tenantId, String hostGroupName, boolean showAll) {
         List<String> hostList = systemMetricHostInfoDao.selectHostList(tenantId, hostGroupName);
-        hostList.sort(Comparator.naturalOrder());
+        if (!showAll) {
+            try {
+                List<String> excludedHostList = systemMetricHostExclusionDao.selectExcludedHostNameList(hostGroupName);
+                hostList.removeAll(excludedHostList);
+            } catch (Exception e) {
+                throttledLogger.warn("error getting excludedHostNameList", e);
+            }
+        }
 
+        hostList.sort(Comparator.naturalOrder());
         return hostList;
     }
 

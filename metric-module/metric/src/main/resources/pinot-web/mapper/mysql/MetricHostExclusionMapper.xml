@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.metric.web.dao.mysql.MysqlSystemMetricHostExclusionDao">
+
+    <select id="selectExcludedHostGroupNames" resultType="string">
+        SELECT hostGroupName
+        FROM system_metric_host_group_exclusion
+    </select>
+
+    <insert id="insertHostGroupExclusion" parameterType="string">
+        INSERT INTO system_metric_host_group_exclusion (hostGroupName)
+        VALUES (#{hostGroupName})
+    </insert>
+
+    <delete id="deleteHostGroupExclusion" parameterType="string">
+        DELETE
+        FROM system_metric_host_group_exclusion
+        WHERE hostGroupName = #{hostGroupName}
+    </delete>
+
+    <select id="selectExcludedHostNames" parameterType="string" resultType="string">
+        SELECT hostName
+        FROM system_metric_host_exclusion
+        WHERE hostGroupName = #{hostGroupName}
+    </select>
+
+    <insert id="insertHostExclusion" parameterType="HostExclusionSearchKey">
+        INSERT INTO system_metric_host_exclusion (hostGroupName, hostName)
+        VALUES (#{hostGroupName}, #{hostName})
+    </insert>
+
+    <delete id="deleteHostExclusion" parameterType="HostExclusionSearchKey">
+        DELETE
+        FROM system_metric_host_exclusion
+        WHERE hostGroupName = #{hostGroupName}
+            AND hostName = #{hostName}
+    </delete>
+
+    <select id="selectGroupNamesFromHostExclusion" resultType="string">
+        SELECT DISTINCT hostGroupName
+        FROM system_metric_host_exclusion
+    </select>
+
+    <delete id="deleteHostExclusions" parameterType="string">
+        DELETE
+        FROM system_metric_host_exclusion
+        WHERE hostGroupName = #{hostGroupName}
+    </delete>
+</mapper>
