@@ -165,11 +165,13 @@ public class SpanAligner {
         }
         int size = nodeList.size();
         if (size > 1) {
+            boolean result = false;
             for (Node node : nodeList) {
                 if (putNodeToLink(link, node, true)) {
-                    return true;
+                    result = true;
                 }
             }
+            return result;
         } else if (size == 1) {
             Node node = nodeList.get(0);
             if (putNodeToLink(link, node, false)) {

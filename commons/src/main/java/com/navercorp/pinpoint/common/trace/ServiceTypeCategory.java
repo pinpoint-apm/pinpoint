@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,10 +28,13 @@ public enum ServiceTypeCategory {
     SERVER((short)1000, (short)1999),
     DATABASE((short)2000, (short)2999),
     LIBRARY((short)5000, (short)7999),
-    CACHE_LIBRARY((short)8000, (short)8999, BaseHistogramSchema.FAST_SCHEMA),
+    CACHE_LIBRARY((short)8000, (short)8299, BaseHistogramSchema.FAST_SCHEMA),
+    MESSAGE_BROKER((short)8300, (short)8799),
+    HBASE((short)8800, (short)8899),
+    CACHE_LIBRARY_SANDBOX((short)8900, (short)8999, BaseHistogramSchema.FAST_SCHEMA),
     RPC((short)9000, (short)9999);
-   
-    
+
+
     private final short minCode;
     private final short maxCode;
     private final HistogramSchema histogramSchema;
@@ -41,17 +44,17 @@ public enum ServiceTypeCategory {
     ServiceTypeCategory(short minCode, short maxCode) {
         this(minCode, maxCode, BaseHistogramSchema.NORMAL_SCHEMA);
     }
-    
+
     ServiceTypeCategory(short minCode, short maxCode, HistogramSchema histogramSchema) {
         this.minCode = minCode;
         this.maxCode = maxCode;
         this.histogramSchema = Objects.requireNonNull(histogramSchema, "histogramSchema");
     }
-    
+
     public boolean contains(short code) {
-        return minCode <= code && code <= maxCode; 
+        return minCode <= code && code <= maxCode;
     }
-    
+
     public boolean contains(ServiceType type) {
         return contains(type.getCode());
     }
