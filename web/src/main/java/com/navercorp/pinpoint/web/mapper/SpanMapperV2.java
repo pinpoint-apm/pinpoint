@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
+import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.LRUCache;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -53,6 +54,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 /**
  * @author emeroad
  * @author Taejin Koo
@@ -208,22 +210,24 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
             AgentKey agentKey = newAgentKey(spanChunkBo);
             List<SpanBo> matchedSpanBoList = spanMap.get(agentKey);
             if (CollectionUtils.hasLength(matchedSpanBoList)) {
-                final int spanIdCollisionSize = matchedSpanBoList.size();
-                if (spanIdCollisionSize > 1) {
-                    // exceptional case dump
-                    logger.warn("spanIdCollision {}", matchedSpanBoList);
-                }
-
                 int agentLevelCollisionCount = 0;
+                final int spanIdCollisionSize = matchedSpanBoList.size();
+                boolean ignoreCollision = false;
                 for (SpanBo spanBo : matchedSpanBoList) {
+                    if (ServiceTypeCategory.MESSAGE_BROKER.contains(spanBo.getServiceType())) {
+                        ignoreCollision = true;
+                    }
                     if (isChildSpanChunk(spanBo, spanChunkBo)) {
                         spanBo.addSpanChunkBo(spanChunkBo);
                         agentLevelCollisionCount++;
                     }
                 }
-                if (agentLevelCollisionCount > 1) {
-                    // exceptional case dump
-                    logger.warn("agentLevelCollision {}", matchedSpanBoList);
+
+                if (Boolean.FALSE == ignoreCollision) {
+                    if (agentLevelCollisionCount > 1 || spanIdCollisionSize > 1) {
+                        // exceptional case dump
+                        logger.warn("Collision agentLevel={}, spanId={}, matchedSpanBoList={}", agentLevelCollisionCount, spanIdCollisionSize, matchedSpanBoList);
+                    }
                 }
             } else {
                 if (logger.isInfoEnabled()) {

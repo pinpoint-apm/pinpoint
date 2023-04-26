@@ -106,10 +106,11 @@ public class LinkedCallTree implements CallTree {
         CallTreeNode originalNode = originalCallTree.getRoot();
         CallTreeNode newCallTreeNode = new CallTreeNode(this.root, originalNode.getAlign());
 
-        CallTreeNode child = originalNode.getChild();
-        newCallTreeNode.setChild(child);
-
-        child.setParent(newCallTreeNode);
+        if (originalNode.hasChild()) {
+            CallTreeNode child = originalNode.getChild();
+            newCallTreeNode.setChild(child);
+            child.setParent(newCallTreeNode);
+        }
 
         return newCallTreeNode;
     }

@@ -189,7 +189,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  *
  * <h3>Library Sandbox (7500 ~ 7999)</h3>
  *
- * <h3>Cache & File Library (8000 ~ 8899) Fast Histogram</h3>
+ * <h3>Cache & File Library (8000 ~ 8299) Fast Histogram</h3>
  * <table>
  * <tr><td>8050</td><td>MEMCACHED</td></tr>
  * <tr><td>8051</td><td>MEMCACHED_FUTURE_GET</td></tr>
@@ -208,12 +208,20 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8280</td><td><i>ETCD</i></td></tr>
+ * </table>
+ *
+ * <h3>Message Broker Library (8300 ~ 8799)</h3>
+ * <table>
  * <tr><td>8300</td><td>RABBITMQ</td></tr>
  * <tr><td>8310</td><td><i>ACTIVEMQ_CLIENT</i></td></tr>
  * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8660</td><td><i>KAFKA_CLIENT</i></td></tr>
  * <tr><td>8661</td><td><i>KAFKA_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8662</td><td><i>KAFKA_STREAMS</i></td></tr>
+ * </table>
+ *
+ * <h3>HBase Library (8800 ~ 8899)</h3>
+ * <table>
  * <tr><td>8800</td><td>HBASE_CLIENT</td></tr>
  * <tr><td>8801</td><td><i>HBASE_CLIENT_ADMIN</i></td></tr>
  * <tr><td>8802</td><td><i>HBASE_CLIENT_TABLE</i></td></tr>
