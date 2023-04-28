@@ -33,7 +33,7 @@ public class DependencyResolverFactory {
     private final RepositorySystemSession session;
 
     public DependencyResolverFactory() {
-        this(true, Collections.EMPTY_MAP);
+        this(true, Collections.emptyMap());
     }
 
     public DependencyResolverFactory(Map<String, Object> sessionConfig) {
