@@ -16,34 +16,35 @@
 
 package com.navercorp.pinpoint.plugin.lettuce;
 
-import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.junit.Assume;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.Properties;
 
 public class RedisServer implements SharedTestLifeCycle {
-    private final Logger logger = LogManager.getLogger(getClass());
-
-    private redis.embedded.RedisServer redisServer;
+    private GenericContainer<?> redisServer;
 
     @Override
     public Properties beforeAll() {
-        final int port = SocketUtils.findAvailableTcpPort(1000, 2000);
-        redisServer = new redis.embedded.RedisServer(port);
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
 
+        this.redisServer = new GenericContainer<>(DockerImageName.parse("redis:5.0.14-alpine"))
+                        .withExposedPorts(6379);
         redisServer.start();
 
         Properties properties = new Properties();
-        properties.setProperty("PORT", String.valueOf(port));
+        properties.setProperty("HOST", redisServer.getHost());
+        properties.setProperty("PORT", String.valueOf(redisServer.getMappedPort(6379)));
         return properties;
     }
 
     @Override
     public void afterAll() {
         if (redisServer != null) {
-            redisServer.stop();
+            redisServer.close();
         }
     }
 }

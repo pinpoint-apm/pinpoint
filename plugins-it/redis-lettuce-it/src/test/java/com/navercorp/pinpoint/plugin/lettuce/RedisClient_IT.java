@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.lettuce;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
-import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
@@ -31,7 +30,6 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import io.lettuce.core.AbstractRedisAsyncCommands;
-import io.lettuce.core.RedisAsyncCommandsImpl;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -53,14 +51,14 @@ import java.util.concurrent.TimeUnit;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-redis-lettuce-plugin")
 @Dependency({"io.lettuce:lettuce-core:[5.0,]",
         "org.latencyutils:LatencyUtils:[2.0.3]",
-        "it.ozimov:embedded-redis:[0.7.3]",
-        PluginITConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+        PluginITConstants.VERSION, TestcontainersOption.TEST_CONTAINER})
 @SharedTestLifeCycleClass(RedisServer.class)
 public class RedisClient_IT {
     private static final String SERVICE_TYPE_REDIS_LETTUCE = "REDIS_LETTUCE";
 
     private final Logger logger = LogManager.getLogger(getClass());
 
+    private static String host;
     private static int port;
     private static RedisClient redisClient;
 
@@ -68,11 +66,14 @@ public class RedisClient_IT {
     public static void setBeforeAllResult(Properties beforeAllResult) {
         final String value = beforeAllResult.getProperty("PORT");
         port = Integer.parseInt(value);
+        host = beforeAllResult.getProperty("HOST");
+
     }
 
     @BeforeClass
-    public static void beforeClass() throws Exception {
-        redisClient = RedisClient.create("redis://localhost:" + port);
+    public static void beforeClass() {
+        String url = String.format("redis://%s:%s", host, port);
+        redisClient = RedisClient.create(url);
     }
 
     @Test
