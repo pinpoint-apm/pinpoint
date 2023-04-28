@@ -38,7 +38,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.SocketUtils;
+import org.springframework.test.util.TestSocketUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -82,7 +82,7 @@ public class ClusterTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        int zookeeperPort = SocketUtils.findAvailableTcpPort(28000);
+        int zookeeperPort = TestSocketUtils.findAvailableTcpPort();
         zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
         ts = createZookeeperServer(zookeeperPort);
 
@@ -97,7 +97,7 @@ public class ClusterTest {
         when(properties.getCollectorZNodePath()).
                 thenReturn(ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH));
 
-        acceptorPort = SocketUtils.findAvailableTcpPort(zookeeperPort);
+        acceptorPort = TestSocketUtils.findAvailableTcpPort();
         String acceptorAddress = DEFAULT_IP + ":" + acceptorPort;
         when(properties.getClusterTcpPort()).thenReturn(acceptorPort);
 

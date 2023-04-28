@@ -44,7 +44,7 @@ import org.apache.thrift.TBase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.util.SocketUtils;
+import org.springframework.test.util.TestSocketUtils;
 
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
@@ -243,11 +243,11 @@ public class DataReceiverGroupTest {
 
         when(properties.isTcpEnable()).thenReturn(tcpEnable);
         when(properties.getTcpBindIp()).thenReturn("0.0.0.0");
-        when(properties.getTcpBindPort()).thenReturn(SocketUtils.findAvailableTcpPort(19099));
+        when(properties.getTcpBindPort()).thenReturn(TestSocketUtils.findAvailableTcpPort());
 
         when(properties.isUdpEnable()).thenReturn(udpEnable);
         when(properties.getUdpBindIp()).thenReturn("0.0.0.0");
-        when(properties.getUdpBindPort()).thenReturn(SocketUtils.findAvailableTcpPort(29099));
+        when(properties.getUdpBindPort()).thenReturn(TestSocketUtils.findAvailableTcpPort());
         when(properties.getUdpReceiveBufferSize()).thenReturn(65535);
 
         when(properties.getWorkerThreadSize()).thenReturn(2);

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.TestSocketUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -55,7 +55,7 @@ public class ConnectionTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        zookeeperPort = SocketUtils.findAvailableTcpPort();
+        zookeeperPort = TestSocketUtils.findAvailableTcpPort();
         ts = createTestingServer();
     }
 
