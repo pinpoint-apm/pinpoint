@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.plugin.grpc;
 
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.examples.manualflowcontrol.HelloReply;

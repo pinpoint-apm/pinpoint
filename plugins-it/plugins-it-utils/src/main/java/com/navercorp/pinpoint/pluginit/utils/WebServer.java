@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.pluginit.utils;
 
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import fi.iki.elonen.NanoHTTPD;
 
 import java.io.IOException;

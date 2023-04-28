@@ -29,7 +29,7 @@ import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.SocketUtils;
+import org.springframework.test.util.TestSocketUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -44,7 +44,7 @@ import java.util.concurrent.Executors;
 @Disabled
 public class NettyUdpReceiverTest {
 
-    public static final int PORT = SocketUtils.findAvailableUdpPort(30011);
+    public static final int PORT = TestSocketUtils.findAvailableTcpPort();
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CountDownLatch latch = new CountDownLatch(1);

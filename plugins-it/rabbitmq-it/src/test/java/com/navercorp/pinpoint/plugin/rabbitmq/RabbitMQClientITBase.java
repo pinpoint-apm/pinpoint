@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.rabbitmq;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
-import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.Before;
 

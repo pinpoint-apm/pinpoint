@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.rabbitmq.util;
 
-import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import com.rabbitmq.client.LongString;
 import com.rabbitmq.client.SaslConfig;
 import com.rabbitmq.client.SaslMechanism;
