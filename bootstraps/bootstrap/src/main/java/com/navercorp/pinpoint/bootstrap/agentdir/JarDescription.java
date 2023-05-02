@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
  */
 public class JarDescription {
 
-    static final String VERSION_PATTERN = "(-[0-9]+\\.[0-9]+\\.[0-9]+((\\-SNAPSHOT)|(-RC[0-9]+))?)?";
-    static final String SIMPLE_PATTERN = "-x.x.x(-SNAPSHOT)(-RCx)";
+    static final String VERSION_PATTERN = "(-[0-9]+\\.[0-9]+\\.[0-9]+((\\-SNAPSHOT)|(-RC[0-9]+)|(-p[0-9]+))?)?";
+    static final String SIMPLE_PATTERN = "-x.x.x(-SNAPSHOT)(-RCx)(-px)";
 
     private final String prefix;
     private final boolean required;
