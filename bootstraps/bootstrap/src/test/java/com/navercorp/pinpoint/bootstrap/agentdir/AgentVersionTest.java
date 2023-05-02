@@ -42,7 +42,7 @@ public class AgentVersionTest {
         assertVersion("-1.6.0-RC0");
         assertVersion("-1.6.0-RC11");
 
-
+        assertVersion("-2.5.1-p1");
     }
 
     @Test
