@@ -2,3 +2,11 @@
 
 server:
   port: 18080
+
+logging:
+  level:
+    root: info
+
+springdoc:
+  swagger-ui:
+    path: /

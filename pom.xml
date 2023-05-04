@@ -229,6 +229,8 @@
         <plugin.frontend.node.version>v16.17.1</plugin.frontend.node.version>
         <plugin.frontend.yarn.version>v1.22.19</plugin.frontend.yarn.version>
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
+
+        <spring-boot-maven-plugin.attatch>false</spring-boot-maven-plugin.attatch>
     </properties>
 
     <dependencies>
@@ -1696,6 +1698,7 @@
             <properties>
                 <env>local</env>
                 <spring.profiles.active>local</spring.profiles.active>
+                <spring-boot-maven-plugin.attatch>false</spring-boot-maven-plugin.attatch>
             </properties>
         </profile>
         <!-- for Release -->
@@ -1707,6 +1710,7 @@
             <properties>
                 <env>release</env>
                 <spring.profiles.active>release</spring.profiles.active>
+                <spring-boot-maven-plugin.attatch>true</spring-boot-maven-plugin.attatch>
             </properties>
         </profile>
 

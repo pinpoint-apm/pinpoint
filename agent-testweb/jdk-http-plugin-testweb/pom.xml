@@ -16,8 +16,6 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
-
-        <pinpoint.server.port>18443</pinpoint.server.port>
     </properties>
 
     <dependencies>
