@@ -16,7 +16,7 @@
             </SpringProfile>
             <SpringProfile name="release">
                 <Property name="backupsize">100GB</Property>
-                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan} -- %msg{nolookups}%n</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg{nolookups}%n</Property>
                 <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg{nolookups}%n</Property>
                 <Property name="accumulated_file_size">2000GB</Property>
                 <Property name="accumulated_file_count">100</Property>
@@ -24,8 +24,8 @@
             </SpringProfile>
             <DefaultArbiter>
                 <Property name="backupsize">1GB</Property>
-                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg{nolookups}%n</Property>
-                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg{nolookups}%n</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg{nolookups}%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg{nolookups}%n</Property>
                 <Property name="accumulated_file_size">1GB</Property>
                 <Property name="accumulated_file_count">50</Property>
                 <Property name="logger_level">DEBUG</Property>
