@@ -121,4 +121,13 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>jdk17</id>
+            <modules>
+                <module>spring-boot3-testweb</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
