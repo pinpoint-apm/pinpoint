@@ -99,24 +99,26 @@
     </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>${spring-boot-build-skip}</skip>
-                    <executable>true</executable>
-                    <attach>${spring-boot-maven-plugin.attatch}</attach>
-                    <classifier>exec</classifier>
-                    <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
-                    <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <skip>${spring-boot-build-skip}</skip>
+                        <executable>true</executable>
+                        <attach>${spring-boot-maven-plugin.attatch}</attach>
+                        <classifier>exec</classifier>
+                        <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
+                        <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
 
-                    <commandlineArguments>
-                    </commandlineArguments>
+                        <commandlineArguments>
+                        </commandlineArguments>
 
-                    <fork>true</fork>
-                </configuration>
-            </plugin>
-        </plugins>
+                        <fork>true</fork>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
