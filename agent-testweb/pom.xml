@@ -127,6 +127,7 @@
             <id>jdk17</id>
             <modules>
                 <module>spring-boot3-testweb</module>
+                <module>spring-boot3-webflux-plugin-testweb</module>
             </modules>
         </profile>
     </profiles>
