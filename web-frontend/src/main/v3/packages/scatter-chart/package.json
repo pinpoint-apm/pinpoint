@@ -1,6 +1,6 @@
 {
   "name": "@pinpoint-fe/scatter-chart",
-  "version": "1.4.1",
+  "version": "1.5.0-rc.1",
   "description": "Open-source scatter-chart library written in pure JS based on canvas api, Specifically designed for visualizing request and response patterns over time",
   "repository": {
     "type": "git",

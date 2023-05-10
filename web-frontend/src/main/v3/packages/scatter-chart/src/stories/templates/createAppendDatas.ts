@@ -1,5 +1,5 @@
-import { ScatterChart } from '../../ui';
 import { newScatterChart } from './createDefault';
+import data1 from '../mock/data1.json';
 import data2 from '../mock/data2.json';
 import data3 from '../mock/data3.json';
 import data4 from '../mock/data4.json';
@@ -10,6 +10,7 @@ export const createAppendDatas = () => {
   const datas = [data2, data3, data4, data5];
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
+    SC.render(data1.data);
     SC.setOption({ axis: { x: { min: 1669103462000, max: 1669103762000 } } });
 
     const btn2 = document.createElement('button');

@@ -45,14 +45,14 @@ export const newScatterChart = (wrapper: HTMLElement, option?: Partial<ScatterCh
     },
     ...option,
   });
-  SC.render(data1.data);
   return SC;
 };
 
 export const createDefault = () => {
   const wrapper = document.createElement('div');
   setTimeout(() => {
-    newScatterChart(wrapper);
+    const SC = newScatterChart(wrapper);
+    SC.render(data1.data);
   }, 500);
   return wrapper;
 };

@@ -1,3 +1,4 @@
+import data1 from '../mock/data1.json';
 import { newScatterChart } from './createDefault';
 
 const getMinMaxSettingElements = (title: string, defaultMinMax = { defaultMin: 0, defaultMax: 10000 }) => {
@@ -30,6 +31,7 @@ export const createSetOption = () => {
 
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
+    SC.render(data1.data, { append: true });
     const XAxisSetter = getMinMaxSettingElements('X Axis');
     const YAxisSetter = getMinMaxSettingElements('Y Axis', { defaultMin: 10, defaultMax: 2500 });
     const checkBoxElement = document.createElement('input');

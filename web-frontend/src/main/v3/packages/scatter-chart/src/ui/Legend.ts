@@ -108,6 +108,7 @@ export class Legend {
     const options = this.options;
     const dataTypes = this.types;
 
+    this.containerElement.style.visibility = 'visible';
     dataTypes.forEach((type) => {
       // wrapper div
       const legendWrapper = document.createElement('div');

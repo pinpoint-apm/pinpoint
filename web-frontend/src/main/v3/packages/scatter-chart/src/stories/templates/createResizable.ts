@@ -1,3 +1,4 @@
+import data1 from '../mock/data1.json';
 import { newScatterChart } from './createDefault';
 
 export const createResizable = () => {
@@ -9,6 +10,7 @@ export const createResizable = () => {
 
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
+    SC.render(data1.data, { append: true });
     SC.on('resize', (_, { width, height }) => {
       alert(`resize() triggered, width is ${width}, height is ${height}`);
     });

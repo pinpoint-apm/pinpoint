@@ -8,6 +8,8 @@ import { createPinpointTheme } from './templates/createPinpointTheme';
 import { createRealtime } from './templates/createRealtime';
 import { createResizable } from './templates/createResizable';
 import { createSetOption } from './templates/createSetOption';
+import { createMultipleCharts } from './templates/createMultipleCharts';
+import { createHideLegend } from './templates/createHideLegend';
 
 // More on default export: https://storybook.js.org/docs/html/writing-stories/introduction#default-export
 export default {
@@ -28,6 +30,9 @@ export default {
 // More on component templates: https://storybook.js.org/docs/html/writing-stories/introduction#using-args
 const TemplateDefault = () => createDefault();
 export const Defatult = TemplateDefault.bind({});
+
+const TemplateHideLegend = () => createHideLegend();
+export const HideLegend = TemplateHideLegend.bind({});
 
 const TemplateInteractions = () => createInteractions();
 export const Interactions = TemplateInteractions.bind({});
@@ -55,3 +60,6 @@ export const PinpointTheme = TemplatePinpointTheme.bind({});
 
 const TemplateDestroy = () => createDestroy();
 export const Destroy = TemplateDestroy.bind({});
+
+const TemplateMultipleCharts = () => createMultipleCharts();
+export const MultipleCharts = TemplateMultipleCharts.bind({});
