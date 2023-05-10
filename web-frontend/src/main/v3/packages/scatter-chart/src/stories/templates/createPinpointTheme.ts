@@ -46,6 +46,7 @@ export const createPinpointTheme = () => {
     wrapper.append(btnStart);
     wrapper.append(btnStop);
     const newData = data1.data.map((d) => ({ ...d, x: d.x + 47335 }));
+    SC.render(data1.data, { append: true });
     SC.render(newData, { append: true });
 
     btnStart.addEventListener('click', () => {

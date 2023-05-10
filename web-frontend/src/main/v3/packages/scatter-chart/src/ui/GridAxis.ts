@@ -36,7 +36,7 @@ export class GridAxis extends Layer {
   }
 
   private renderXGrid() {
-    const { count, width: tickWidth } = this.xAxis.tick as DeepNonNullable<TickOption>;
+    const { count } = this.xAxis.tick as DeepNonNullable<TickOption>;
     const { strokeColor } = this.option as DeepNonNullable<GridOption>;
     const padding = this.padding;
     const width = this.canvas.width / this.dpr;
@@ -50,7 +50,7 @@ export class GridAxis extends Layer {
 
     [...Array(count)].forEach((_, i) => {
       const x = wGap * i + startX;
-      drawLine(this.context, x, startY, x, endY + tickWidth, { color: strokeColor });
+      drawLine(this.context, x, startY, x, endY, { color: strokeColor });
     });
   }
 

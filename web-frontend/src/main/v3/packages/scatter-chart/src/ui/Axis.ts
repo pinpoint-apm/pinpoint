@@ -27,7 +27,7 @@ export class Axis extends Layer {
     option?.tick?.font && (this.context.font = option?.tick?.font);
   }
 
-  public setOption(option: AxisOption) {
+  public setOption(option?: Partial<AxisOption>) {
     this.min = option?.min ?? this.min;
     this.max = option?.max ?? this.max;
     this.innerPadding = option?.padding ?? this.innerPadding;
@@ -46,5 +46,15 @@ export class Axis extends Layer {
   public setSize(...args: Parameters<Layer['setSize']>) {
     super.setSize(...args);
     return this;
+  }
+
+  public getOption(): AxisOption {
+    return {
+      min: this.min,
+      max: this.max,
+      tick: this.tick,
+      padding: this.innerPadding,
+      strokeColor: this.strokeColor,
+    };
   }
 }

@@ -82,3 +82,28 @@ export const drawRect = (
     ctx.strokeRect(x, y, width, height);
   }
 };
+
+export const drawArea = (
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  height: number,
+  {
+    color = 'black',
+  }: {
+    color?: string;
+  } = {},
+) => {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x1, height);
+  ctx.lineTo(x2, height);
+  ctx.lineTo(x2, y2);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+};

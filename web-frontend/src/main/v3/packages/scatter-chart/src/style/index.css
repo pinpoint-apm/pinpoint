@@ -1,8 +1,8 @@
 .__scatter_chart__legend_container {
   display: flex;
-  padding-top: 10px;
-  padding-bottom: 5px;
   justify-content: space-around;
+  /* -webkit-transform: translateZ(0);
+  transform: translateZ(0); */
 }
 .__scatter_chart__legend {
   display: flex;

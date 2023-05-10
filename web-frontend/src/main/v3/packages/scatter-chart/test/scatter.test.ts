@@ -58,7 +58,7 @@ describe('Test for Scatter', () => {
       SC.on('click', onClick);
 
       // when
-      fireEvent.click(SC.getGuide().canvas);
+      fireEvent.click(SC.getGuide()!.canvas);
 
       // then
       expect(onClick).toHaveBeenCalled();
@@ -71,7 +71,7 @@ describe('Test for Scatter', () => {
       SC.on('dragEnd', onDragEnd);
 
       // when
-      simulateDrag(SC.getGuide().canvas, 0, 0, 100, 100);
+      simulateDrag(SC.getGuide()!.canvas, 0, 0, 100, 100);
 
       // then
       expect(onDragEnd).toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe('Test for Scatter', () => {
       SC.on('clickLegend', onClick);
 
       // when
-      const inputElement = SC.getLegend().container.getElementsByTagName('input')[0];
+      const inputElement = SC.getLegend()!.container.getElementsByTagName('input')[0];
       fireEvent.click(inputElement);
 
       // then
@@ -123,7 +123,7 @@ describe('Test for Scatter', () => {
 
       // when
       SC.resize(100, 100);
-      fireEvent.click(SC.getGuide().canvas);
+      fireEvent.click(SC.getGuide()!.canvas);
 
       // then
       expect(onClick).not.toHaveBeenCalled();

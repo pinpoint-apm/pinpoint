@@ -11,6 +11,7 @@ export const createRealtime = () => {
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
     const newData = data1.data.map((d) => ({ ...d, x: d.x + 47335 }));
+    SC.render(data1.data, { append: true });
     SC.render(newData, { append: true });
 
     wrapper.append(btnStart);

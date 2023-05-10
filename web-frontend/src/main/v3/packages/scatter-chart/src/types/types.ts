@@ -9,9 +9,12 @@ export type ScatterDataType = {
   hidden?: boolean;
 };
 
+type Shape = 'point' | 'area';
+
 type DataStyle = {
+  shape: Shape;
+  color: string;
   legend: string;
-  point: string;
   radius: number;
 };
 
@@ -39,6 +42,7 @@ export interface AxisOption {
   padding?: number;
   strokeColor?: string;
   tick?: TickOption;
+  width?: number;
 }
 
 export interface TickOption {
@@ -57,12 +61,14 @@ export interface DataOption {
   priority?: number;
   radius?: number;
   opacity?: number;
+  shape?: Shape;
 }
 
 export interface LegendOption {
   disableCheckbox?: boolean;
   formatLabel?: FormatType<string>;
   formatValue?: FormatType<number>;
+  hidden?: boolean;
 }
 
 export interface PointOption {
@@ -71,6 +77,7 @@ export interface PointOption {
 }
 
 export interface GuideOption {
+  hidden?: boolean;
   color?: string;
   strokeColor?: string;
   backgroundColor?: string;

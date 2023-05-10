@@ -1,0 +1,1352 @@
+[
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532197132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532198132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532199132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532200132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532201132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532202132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532203132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532204132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532205132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532206132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532207132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532208132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532209132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532210132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532211132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532212132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532213132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532214133,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532215132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532216132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532217132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532218132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532219132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532220132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532221132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532222132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    "type": "RESPONSE",
+    "command": "activeThreadCount",
+    "result": {
+      "timeStamp": 1683532223132,
+      "applicationName": "sample-application",
+      "activeThreadCounts": {
+        "alpha": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        "bravo": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "charlie": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "delta": {
+          "code": 0,
+          "message": "OK",
+          "status": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  }
+]

@@ -11,6 +11,6 @@
   ],
   "compilerOptions": {
     "target": "ES6",
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   }
 }

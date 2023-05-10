@@ -1,3 +1,4 @@
+import data1 from '../mock/data1.json';
 import { newScatterChart } from './createDefault';
 
 export const createInteractions = () => {
@@ -7,6 +8,7 @@ export const createInteractions = () => {
 
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
+    SC.render(data1.data);
     SC.on('click', (_, { x, y }) => {
       alert(`x: ${x}, y: ${y}`);
     });

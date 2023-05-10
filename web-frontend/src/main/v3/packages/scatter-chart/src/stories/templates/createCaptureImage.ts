@@ -1,3 +1,4 @@
+import data1 from '../mock/data1.json';
 import { newScatterChart } from './createDefault';
 
 export const createCaptureIamge = () => {
@@ -7,6 +8,7 @@ export const createCaptureIamge = () => {
 
   setTimeout(() => {
     const SC = newScatterChart(wrapper);
+    SC.render(data1.data);
     wrapper.append(btnElement);
 
     btnElement.addEventListener('click', async () => {

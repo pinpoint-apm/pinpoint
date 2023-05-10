@@ -19,17 +19,10 @@ import {
 } from '../types/types';
 import { Layer } from './Layer';
 import { Viewport, ViewportEventCallback, ViewportEventTypes } from './Viewport';
-import { drawCircle, drawRect } from '../utils/draw';
+import { drawArea, drawCircle, drawRect } from '../utils/draw';
 import { YAxis } from './YAxis';
 import { XAxis } from './XAxis';
-import {
-  COLORS,
-  CONTAINER_HEIGHT,
-  CONTAINER_PADDING,
-  CONTAINER_WIDTH,
-  LAYER_DEFAULT_PRIORITY,
-  SCATTER_CHART_IDENTIFIER,
-} from '../constants/ui';
+import { COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY } from '../constants/ui';
 import { GridAxis } from './GridAxis';
 import { Legend, LegendEventCallback, LegendEventTypes } from './Legend';
 import { Guide, GuideEventCallback, GuideEventTypes } from './Guide';
@@ -86,8 +79,8 @@ export class ScatterChart {
   protected xAxis!: XAxis;
   protected yAxis!: YAxis;
   protected gridAxis!: GridAxis;
-  protected legend!: Legend;
-  protected guide!: Guide;
+  protected legend?: Legend;
+  protected guide?: Guide;
   protected data: ScatterDataType[] = [];
   private datas: { [key: string]: Coord[] } = {};
   private rootContainer;
@@ -175,7 +168,8 @@ export class ScatterChart {
   }
 
   private setPadding() {
-    const { x: xAxisOption, y: yAxisOptoin } = this.options.axis;
+    const xAxisOption = this.xAxis.getOption();
+    const yAxisOptoin = this.yAxis.getOption();
     const xTicks = getTickTexts(xAxisOption);
     const yTicks = getTickTexts(yAxisOptoin);
     const maxXTickTextWidth = getLongestText(xTicks, (t) => this.xAxis.getTextWidth(t));
@@ -223,18 +217,20 @@ export class ScatterChart {
   }
 
   private setGuide() {
-    this.guide = new Guide(this.viewport.containerElement, {
-      width: this.width,
-      height: this.height,
-      padding: this.options.padding,
-      xAxis: this.xAxis,
-      yAxis: this.yAxis,
-      ratio: {
-        x: this.xRatio,
-        y: this.yRatio,
-      },
-      option: this.options.guide!,
-    });
+    if (!this.options.guide.hidden) {
+      this.guide = new Guide(this.viewport.containerElement, {
+        width: this.width,
+        height: this.height,
+        padding: this.options.padding,
+        xAxis: this.xAxis,
+        yAxis: this.yAxis,
+        ratio: {
+          x: this.xRatio,
+          y: this.yRatio,
+        },
+        option: this.options.guide!,
+      });
+    }
   }
 
   private setLayers() {
@@ -270,7 +266,8 @@ export class ScatterChart {
       return {
         ...prev,
         [curr.type]: {
-          point: color,
+          shape: curr.shape || 'point',
+          color: color,
           legend: ogColor,
           radius: curr.radius || this.options.point.radius,
         },
@@ -279,18 +276,20 @@ export class ScatterChart {
   };
 
   private setLegends() {
-    this.legend = new Legend(this.rootContainer, {
-      dataStyleMap: this.dataStyleMap,
-      legendOptions: this.options!.legend!,
-    });
+    if (!this.options.legend.hidden) {
+      this.legend = new Legend(this.rootContainer, {
+        dataStyleMap: this.dataStyleMap,
+        legendOptions: this.options!.legend!,
+      });
 
-    this.legend.onChange((_, { checked, unChecked }) => {
-      checked.forEach((type) => this.viewport.showLayer(type));
-      unChecked.forEach((type) => this.viewport.hideLayer(type));
-      this.shoot();
-    });
+      this.legend.onChange((_, { checked, unChecked }) => {
+        checked.forEach((type) => this.viewport.showLayer(type));
+        unChecked.forEach((type) => this.viewport.hideLayer(type));
+        this.shoot();
+      });
 
-    this.legend.render();
+      this.legend.render();
+    }
   }
 
   private setLegendCount({
@@ -313,7 +312,7 @@ export class ScatterChart {
         }
         return acc;
       }, 0) || 0;
-    this.legend.setLegendCount(type, count);
+    this.legend?.setLegendCount(type, count);
   }
 
   private shoot() {
@@ -354,7 +353,7 @@ export class ScatterChart {
           drawOutOfRange: this.options.render.drawOutOfRange,
         });
       });
-      this.guide.updateMinX(Math.abs(this.coordX) / this.xRatio + this.realtimeAxisMinX);
+      this.guide?.updateMinX(Math.abs(this.coordX) / this.xRatio + this.realtimeAxisMinX);
       this.realtimeCycle = 0;
     }
 
@@ -373,6 +372,7 @@ export class ScatterChart {
           max: this.realtimeAxisMaxX,
         })
         .render();
+
       Object.values(this.dataLayers).forEach((layer) => {
         if (!layer.isFixed) {
           layer.swapCanvasImage({
@@ -390,7 +390,7 @@ export class ScatterChart {
     this.options.data = [...this.options.data, { type }];
     this.setDataStyle(this.options.data);
     this.setLayer(type, styleWidth, styleHeight, LAYER_DEFAULT_PRIORITY);
-    this.legend.unmount().setDataStyleMap(this.dataStyleMap).render();
+    this.legend?.unmount().setDataStyleMap(this.dataStyleMap).render();
   };
 
   public render(data: ScatterDataType[], option?: RenderOption) {
@@ -410,7 +410,8 @@ export class ScatterChart {
 
     data.forEach(({ x, y, type, hidden }) => {
       const legend = type ? type : 'unknown';
-      const radius = this.dataStyleMap[legend]?.radius;
+      const dataStyle = this.dataStyleMap[legend];
+      const radius = dataStyle?.radius;
       if (!this.dataLayers[legend]) {
         this.addNewDataType(legend);
       }
@@ -431,11 +432,36 @@ export class ScatterChart {
             ? styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (this.yAxis.max - this.yAxis.min)
             : styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (y - this.yAxis.min);
 
-        !hidden &&
-          drawCircle(this.dataLayers[legend].context, xCoordinate, yCoordinate, {
-            fillColor: this.dataStyleMap[legend]?.point,
-            radius: radius,
-          });
+        if (!hidden) {
+          if (dataStyle.shape === 'point') {
+            drawCircle(this.dataLayers[legend].context, xCoordinate, yCoordinate, {
+              fillColor: dataStyle?.color,
+              radius: radius,
+            });
+          } else if (dataStyle.shape === 'area') {
+            const dataLength = this.datas[legend].length;
+            if (dataLength > 1) {
+              const startData = this.datas[legend][dataLength - 2];
+              const xCoordinateStart =
+                this.xRatio * (startData.x - this.xAxis.min) + padding.left + this.xAxis.innerPadding;
+              const yCoordinateStart =
+                styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (startData.y - this.yAxis.min);
+              const ctx = this.dataLayers[legend].context;
+
+              drawArea(
+                ctx,
+                xCoordinateStart,
+                yCoordinateStart,
+                xCoordinate,
+                yCoordinate,
+                styleHeight - padding.bottom - this.yAxis.innerPadding,
+                {
+                  color: dataStyle.color,
+                },
+              );
+            }
+          }
+        }
       }
     });
 
@@ -462,21 +488,21 @@ export class ScatterChart {
     callback: (event: MouseEvent, data: EventData<EventCallback<T>>) => void,
   ) {
     if (eventType === 'clickLegend') {
-      this.legend.on(eventType, callback as LegendEventCallback<LegendEventTypes>);
+      this.legend?.on(eventType, callback as LegendEventCallback<LegendEventTypes>);
     } else if (eventType === 'resize') {
       this.viewport.on(eventType, callback as unknown as ViewportEventCallback<ViewportEventTypes>);
     } else {
-      this.guide.on(eventType, callback as GuideEventCallback<GuideEventTypes>);
+      this.guide?.on(eventType, callback as GuideEventCallback<GuideEventTypes>);
     }
   }
 
   public off<T extends ScatterChartEventsTypes>(eventType: T) {
     if (eventType === 'clickLegend') {
-      this.legend.off(eventType);
+      this.legend?.off(eventType);
     } else if (eventType === 'resize') {
       this.viewport.off(eventType);
     } else {
-      this.guide.off(eventType);
+      this.guide?.off(eventType);
     }
   }
 
@@ -491,7 +517,7 @@ export class ScatterChart {
     this.xAxis.setSize(w, h);
     this.yAxis.setSize(w, h);
     this.gridAxis.setSize(w, h);
-    this.guide.setOptions({
+    this.guide?.setOptions({
       width: w,
       height: h,
       xAxis: this.xAxis,
@@ -499,7 +525,7 @@ export class ScatterChart {
       ratio: { x: this.xRatio, y: this.yRatio },
     });
     Object.values(this.dataLayers).forEach((layer) => layer.setSize(w, h));
-    this.legend.setSize(w);
+    this.legend?.setSize(w);
     this.render(this.data);
   }
 
@@ -513,12 +539,12 @@ export class ScatterChart {
     };
     render?: RenderOption;
   }) {
-    this.setOptions(merge(this.options, { axis, render }));
-    this.xAxis.setOption(this.options.axis.x);
-    this.yAxis.setOption(this.options.axis.y);
+    this.setOptions(merge(this.options, { render }));
+    this.xAxis.setOption(axis?.x);
+    this.yAxis.setOption(axis?.y);
     this.setPadding();
     this.setRatio();
-    this.guide.setOptions({
+    this.guide?.setOptions({
       xAxis: this.xAxis,
       yAxis: this.yAxis,
       padding: this.options.padding,
@@ -543,14 +569,13 @@ export class ScatterChart {
 
   public startRealtime(duration: number) {
     if (this.reqAnimation) return;
-    const axisOptions = this.options.axis;
+    const xAxisOption = this.xAxis.getOption();
     const realtimeWidth =
       this.width * ScatterChart.REALTIME_MULTIPLE -
       (this.options.padding.left + this.options.padding.right + this.xAxis.innerPadding * 2) *
         (ScatterChart.REALTIME_MULTIPLE - 1);
-    this.realtimeAxisMinX = axisOptions.x.min;
-    this.realtimeAxisMaxX =
-      (axisOptions.x.max - axisOptions.x.min) * ScatterChart.REALTIME_MULTIPLE + axisOptions.x.min;
+    this.realtimeAxisMinX = xAxisOption.min;
+    this.realtimeAxisMaxX = (xAxisOption.max - xAxisOption.min) * ScatterChart.REALTIME_MULTIPLE + xAxisOption.min;
     this.coordX = -this.xAxis.innerPadding;
 
     this.xAxis
@@ -559,7 +584,7 @@ export class ScatterChart {
         min: this.realtimeAxisMinX,
         max: this.realtimeAxisMaxX,
         tick: {
-          count: axisOptions.x.tick!.count! * ScatterChart.REALTIME_MULTIPLE - (ScatterChart.REALTIME_MULTIPLE - 1),
+          count: xAxisOption.tick!.count! * ScatterChart.REALTIME_MULTIPLE - (ScatterChart.REALTIME_MULTIPLE - 1),
         },
       })
       .render();
@@ -575,17 +600,28 @@ export class ScatterChart {
   }
 
   public stopRealtime() {
+    if (!this.reqAnimation) return;
+
     cancelAnimationFrame(this.reqAnimation);
-    const axisOptions = this.options.axis;
+    const xAxisOption = this.xAxis.getOption();
     this.reqAnimation = 0;
     this.coordX = 0;
     this.t0 = 0;
 
-    this.xAxis.setSize(this.width, this.height).setOption(axisOptions.x).render();
-    this.realtimeAxisMinX = axisOptions.x.min;
-    this.realtimeAxisMaxX = axisOptions.x.max;
+    this.xAxis
+      .setSize(this.width, this.height)
+      .setOption(
+        merge({}, xAxisOption, {
+          tick: {
+            count: (xAxisOption.tick!.count! + (ScatterChart.REALTIME_MULTIPLE - 1)) / ScatterChart.REALTIME_MULTIPLE,
+          },
+        }),
+      )
+      .render();
+    this.realtimeAxisMinX = xAxisOption.min;
+    this.realtimeAxisMaxX = xAxisOption.max;
 
-    this.guide.setOptions({ xAxis: this.xAxis });
+    this.guide?.setOptions({ xAxis: this.xAxis });
 
     this.gridAxis.setSize(this.width, this.height).render();
 
@@ -597,12 +633,18 @@ export class ScatterChart {
   }
 
   public getOption() {
-    return this.options;
+    return {
+      ...this.options,
+      axis: {
+        x: this.xAxis.getOption(),
+        y: this.yAxis.getOption(),
+      },
+    };
   }
 
   public destroy() {
-    this.guide.destroy();
     this.viewport.destroy();
-    this.legend.destroy();
+    this.guide?.destroy();
+    this.legend?.destroy();
   }
 }
