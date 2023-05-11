@@ -49,6 +49,9 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     @Autowired(required = false)
     private HbaseSecurityInterceptor hbaseSecurityInterceptor = new EmptyHbaseSecurityInterceptor();
 
+    @Autowired(required = false)
+    private HadoopResourceCleanerRegistry cleaner;
+
     private final boolean warmUp;
     private final HbaseTable[] warmUpExclusive = {HbaseTable.AGENT_URI_STAT};
     private final Configuration configuration;
@@ -71,6 +74,10 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        if (this.cleaner != null) {
+            this.cleaner.register(configuration);
+        }
+
         hbaseSecurityInterceptor.process(configuration);
         try {
             if (executorService == null) {
@@ -129,6 +136,10 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
             } catch (IOException e) {
                 logger.warn("Hbase Connection.close() error: " + e.getMessage(), e);
             }
+        }
+
+        if (this.cleaner != null) {
+            this.cleaner.clean();
         }
     }
 }

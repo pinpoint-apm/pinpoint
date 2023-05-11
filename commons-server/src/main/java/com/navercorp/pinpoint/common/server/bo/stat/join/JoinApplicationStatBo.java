@@ -134,17 +134,17 @@ public class JoinApplicationStatBo implements JoinStatBo {
         }
 
         private <T extends JoinStatBo> void join(Function<JoinApplicationStatBo, List<T>> fieldSupplier,
-                                                    MappingFunction<T> joinStatBoTrasform) {
+                                                    MappingFunction<T> joinStatBoTransform) {
             Map<Long, List<T>> joinMap = join(fieldSupplier);
-            map(joinMap, joinStatBoTrasform);
+            map(joinMap, joinStatBoTransform);
         }
 
-        private <T extends JoinStatBo> void map(Map<Long, List<T>> joinMap, MappingFunction<T> joinStatBoTrasform) {
+        private <T extends JoinStatBo> void map(Map<Long, List<T>> joinMap, MappingFunction<T> joinStatBoTransform) {
             for (Map.Entry<Long, List<T>> entry : joinMap.entrySet()) {
                 final Long key = entry.getKey();
                 final List<T> statData = entry.getValue();
 
-                joinStatBoTrasform.apply(builder, statData, key);
+                joinStatBoTransform.apply(builder, statData, key);
             }
         }
 
