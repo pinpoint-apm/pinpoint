@@ -36,6 +36,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceCont
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
@@ -109,6 +110,25 @@ public class Bootstrap {
         }
 
         return instance;
+    }
+
+    public static void close() {
+        synchronized(Bootstrap.class) {
+            if (instance == null) {
+                logger.warn("Invalid attempt of closing bootstrap: bootstrap is not initialized yet");
+                return;
+            }
+            logger.info("Closing bootstrap: {}", instance);
+            final ApplicationContext applicationContext = instance.getApplicationContext();
+            if (applicationContext instanceof ConfigurableApplicationContext) {
+                logger.info("Closing an instance of ConfigurableApplicationContext: {}", applicationContext);
+                ((ConfigurableApplicationContext) applicationContext).close();
+            } else {
+                logger.warn("Invalid type of applicationContext was found: {}", applicationContext);
+            }
+            instance = null;
+            logger.info("Closed bootstrap: {}", instance);
+        }
     }
 
     public ApplicationContext getApplicationContext() {

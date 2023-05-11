@@ -20,10 +20,8 @@ import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.common.ExecutionConfig.GlobalJobParameters;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author minwoo.jung
@@ -52,10 +50,6 @@ public class TcpSourceFunction extends RichParallelSourceFunction<RawData> {
     @Override
     public void cancel() {
         logger.info("cancel TcpSourceFunction.");
-
-        ApplicationContext applicationContext = Bootstrap.getInstance(globalJobParameters.toMap()).getApplicationContext();
-        if (applicationContext != null) {
-            ((ConfigurableApplicationContext) applicationContext).close();
-        }
+        Bootstrap.close();
     }
 }

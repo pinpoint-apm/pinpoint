@@ -37,7 +37,7 @@ import org.jboss.netty.util.Timer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.List;
+import java.net.InetAddress;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -97,9 +97,12 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         }
 
         // local ip addresses with all LOOPBACK addresses removed
-        List<String> ipList = NetUtils.getLocalV4IpList();
-        if (!ipList.isEmpty()) {
-            return ipList.get(0);
+        for (final String candidate: NetUtils.getLocalV4IpList()) {
+            try {
+                if (InetAddress.getByName(candidate).isReachable(5)) {
+                    return candidate;
+                }
+            } catch (Exception ignored) {}
         }
 
         return NetUtils.LOOPBACK_ADDRESS_V4;

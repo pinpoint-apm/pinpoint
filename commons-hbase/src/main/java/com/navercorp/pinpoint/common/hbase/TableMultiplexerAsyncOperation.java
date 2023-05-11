@@ -18,14 +18,13 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HTableMultiplexer;
 import org.apache.hadoop.hbase.client.Put;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -37,8 +36,8 @@ public class TableMultiplexerAsyncOperation implements HBaseAsyncOperation {
     private final LongAdder opsCount = new LongAdder();
     private final LongAdder opsRejectCount = new LongAdder();
 
-    public TableMultiplexerAsyncOperation(Connection connection, Configuration conf, int perRegionServerBufferQueueSize) {
-        this.hTableMultiplexer = new HTableMultiplexer(connection, conf, perRegionServerBufferQueueSize);
+    public TableMultiplexerAsyncOperation(HTableMultiplexer hTableMultiplexer) {
+        this.hTableMultiplexer = Objects.requireNonNull(hTableMultiplexer, "hTableMultiplexer");
     }
 
     @Override
