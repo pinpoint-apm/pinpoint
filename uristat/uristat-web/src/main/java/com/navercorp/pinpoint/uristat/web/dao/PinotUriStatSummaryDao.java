@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.uristat.web.dao;
 
-import com.navercorp.pinpoint.uristat.web.model.UriStatHistogram;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
-import com.navercorp.pinpoint.uristat.web.util.UriStatQueryParameter;
+import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -29,56 +28,36 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
-public class PinotUriStatDao implements UriStatDao {
+public class PinotUriStatSummaryDao implements UriStatSummaryDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final String NAMESPACE = PinotUriStatDao.class.getName() + ".";
+    private static final String NAMESPACE = PinotUriStatSummaryDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
-    public PinotUriStatDao(@Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
+    public PinotUriStatSummaryDao(@Qualifier("uriStatPinotSessionTemplate") SqlSessionTemplate sqlPinotSessionTemplate) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
     }
 
     @Override
-    public List<UriStatHistogram> getUriStatApplication(UriStatQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectTotalUriStatApplication", queryParameter);
-    }
-
-    @Override
-    public List<UriStatHistogram> getUriStatAgent(UriStatQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectTotalUriStatAgentId", queryParameter);
-    }
-
-    @Override
-    public List<UriStatHistogram> getFailedUriStatApplication(UriStatQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectFailedUriStatApplication", queryParameter);
-    }
-
-    @Override
-    public List<UriStatHistogram> getFailedUriStatAgent(UriStatQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectFailedUriStatAgentId", queryParameter);
-    }
-
-    @Override
-    public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatQueryParameter queryParameter) {
+    public List<UriStatSummary> getUriStatApplicationPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "uriStatApplicationSummary", queryParameter);
     }
 
     @Override
-    public List<UriStatSummary> getUriStatAgentPagedSummary(UriStatQueryParameter queryParameter) {
+    public List<UriStatSummary> getUriStatAgentPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "uriStatAgentSummary", queryParameter);
     }
 
     @Override
     @Deprecated
-    public List<UriStatSummary> getUriStatApplicationSummary(UriStatQueryParameter queryParameter) {
+    public List<UriStatSummary> getUriStatApplicationSummary(UriStatSummaryQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "top50UriStatApplication", queryParameter);
     }
 
     @Override
     @Deprecated
-    public List<UriStatSummary> getUriStatAgentSummary(UriStatQueryParameter queryParameter) {
+    public List<UriStatSummary> getUriStatAgentSummary(UriStatSummaryQueryParameter queryParameter) {
         return sqlPinotSessionTemplate.selectList(NAMESPACE + "top50UriStatAgent", queryParameter);
     }
 
