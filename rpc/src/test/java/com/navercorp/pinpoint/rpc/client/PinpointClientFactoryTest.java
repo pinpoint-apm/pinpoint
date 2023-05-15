@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
@@ -40,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -225,14 +225,15 @@ public class PinpointClientFactoryTest {
 
                 PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
 
-                List<Future<ResponseMessage>> futureList = new ArrayList<>();
+                List<CompletableFuture<ResponseMessage>> futureList = new ArrayList<>();
                 for (int i = 0; i < 30; i++) {
-                    Future<ResponseMessage> requestFuture = client.request(new byte[20]);
+                    CompletableFuture<ResponseMessage> requestFuture = client.request(new byte[20]);
                     futureList.add(requestFuture);
                 }
 
-                for (Future<?> future : futureList) {
-                    future.getResult();
+                CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]));
+                for (CompletableFuture<?> future : futureList) {
+                    future.get(3000, TimeUnit.MILLISECONDS);
                 }
 
                 PinpointRPCTestUtils.close(client);

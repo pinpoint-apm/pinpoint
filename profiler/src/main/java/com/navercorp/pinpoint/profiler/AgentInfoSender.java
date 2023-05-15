@@ -16,22 +16,23 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -175,22 +176,13 @@ public class AgentInfoSender {
         private boolean sendAgentInfo() {
             try {
                 AgentInfo agentInfo = agentInfoFactory.createAgentInfo();
-                final DefaultFuture<ResponseMessage> future = new DefaultFuture<>();
 
                 logger.info("Sending AgentInfo {}", agentInfo);
-                dataSender.request(agentInfo, new ResponseMessageFutureListener(future));
-                if (!future.await()) {
-                    logger.warn("request timed out while waiting for response.");
-                    return false;
-                }
-                if (!future.isSuccess()) {
-                    Throwable t = future.getCause();
-                    logger.warn("request failed.", t);
-                    return false;
-                }
-                ResponseMessage responseMessage = future.getResult();
+                ResponseFutureListener<ResponseMessage, Throwable> listener = new ResponseFutureListener<>();
+                dataSender.request(agentInfo, listener);
+                ResponseMessage responseMessage = listener.getResponseFuture().get(3000, TimeUnit.MILLISECONDS);
                 if (responseMessage == null) {
-                    logger.warn("result not set.");
+                    logger.warn("result not set");
                     return false;
                 }
                 final ResultResponse result = messageConverter.toMessage(responseMessage);
@@ -198,10 +190,19 @@ public class AgentInfoSender {
                     logger.warn("request unsuccessful. Cause : {}", result.getMessage());
                 }
                 return result.isSuccess();
-            } catch (Exception e) {
-                logger.warn("failed to send agent info.", e);
+            } catch (ExecutionException ex) {
+                logError(ex.getCause());
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                logError(ex);
+            } catch (TimeoutException ex) {
+                logError(ex);
             }
             return false;
+        }
+
+        private void logError(Throwable cause) {
+            logger.warn("failed to send agent info", cause);
         }
     }
 

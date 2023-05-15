@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * @author emeroad
@@ -31,15 +33,15 @@ public interface PinpointClient extends PinpointSocket {
         because reconnectEventListener's constructor contains Dummy and can't be access through setter,
         guarantee it is not null.
     */
-    boolean addPinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener);
+    boolean addPinpointClientReconnectEventListener(Consumer<PinpointClient> eventListener);
 
-    boolean removePinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener);
+    boolean removePinpointClientReconnectEventListener(Consumer<PinpointClient> eventListener);
 
     void reconnectSocketHandler(PinpointClientHandler pinpointClientHandler);
 
     void sendSync(byte[] bytes) ;
 
-    Future<?> sendAsync(byte[] bytes);
+    CompletableFuture<Void> sendAsync(byte[] bytes);
 
     /**
      * write ping packet on tcp channel

@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+
+import java.util.function.BiConsumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,11 +30,11 @@ public final class RequestMessageFactory {
     }
 
     public static <T> RequestMessage<T> request(T message, int retryCount) {
-        return new RetryRequestMessage<>(message, retryCount);
+        return new RetryRequestMessage<>(message, retryCount, null);
     }
 
-    public static <T> RequestMessage<T> request(T message, FutureListener<ResponseMessage> futureListener) {
-        return new ListenerableRequestMessage<>(message, futureListener);
+    public static <T> RequestMessage<T> request(T message, int retryCount, BiConsumer<ResponseMessage, Throwable> futureListener) {
+        return new RetryRequestMessage<>(message, retryCount, futureListener);
     }
 
 }

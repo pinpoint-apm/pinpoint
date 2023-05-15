@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
+
+import java.util.function.BiConsumer;
 
 
 /**
@@ -55,17 +55,7 @@ public class EmptyDataSender<T> implements EnhancedDataSender<T> {
 
 
     @Override
-    public boolean request(T data, FutureListener<ResponseMessage> listener) {
-        return false;
-    }
-
-    @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        return false;
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
+    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
         return false;
     }
 

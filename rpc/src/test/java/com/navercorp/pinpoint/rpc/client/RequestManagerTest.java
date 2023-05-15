@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author emeroad
@@ -63,13 +63,20 @@ public class RequestManagerTest {
     @Test
     public void testRegisterRequest() throws Exception {
         final int requestId = requestManager.nextRequestId();
-        final Future<ResponseMessage> future = requestManager.register(requestId, 50);
+        final CompletableFuture<ResponseMessage> future = requestManager.register(requestId, 50);
 
-        assertTrue(future.await(200));
-        assertTrue(future.isReady());
-        assertFalse(future.isSuccess());
-        assertThat(future.getCause().getMessage()).contains("timeout");
-        logger.debug(future.getCause().getMessage());
+        try {
+            future.get(3000, TimeUnit.MILLISECONDS);
+            Assertions.fail();
+        } catch (InterruptedException e) {
+            Assertions.fail();
+        } catch (TimeoutException | ExecutionException ex) {
+            Throwable th = ex;
+            if (ex instanceof ExecutionException) {
+                th = ex.getCause();
+            }
+            assertThat(th.getMessage()).contains("Timeout");
+        }
     }
 
 
@@ -77,10 +84,10 @@ public class RequestManagerTest {
     public void testRemoveMessageFuture() throws Exception {
         int requestId = requestManager.nextRequestId();
 
-        DefaultFuture<ResponseMessage> future = requestManager.register(requestId, 2000);
-        future.setFailure(new RuntimeException());
+        CompletableFuture<ResponseMessage> future = requestManager.register(requestId, 2000);
+        future.completeExceptionally(new RuntimeException());
 
-        Future<ResponseMessage> nullFuture = requestManager.removeMessageFuture(requestId);
+        CompletableFuture<ResponseMessage> nullFuture = requestManager.removeMessageFuture(requestId);
         assertNull(nullFuture);
     }
 

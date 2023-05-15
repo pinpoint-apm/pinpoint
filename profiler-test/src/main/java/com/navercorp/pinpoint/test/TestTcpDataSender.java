@@ -20,9 +20,7 @@ import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.test.util.BiHashMap;
 import com.navercorp.pinpoint.test.util.Pair;
 
@@ -33,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 
 /**
  * @author Jongho Moon
@@ -140,20 +139,11 @@ public class TestTcpDataSender implements EnhancedDataSender<MetaDataType> {
     }
 
     @Override
-    public boolean request(MetaDataType data, FutureListener<ResponseMessage> listener) {
+    public boolean request(MetaDataType data, BiConsumer<ResponseMessage, Throwable> listener) {
         addData(data);
         return true;
     }
 
-    @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        return false;
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        return false;
-    }
 
     public String getApiDescription(int id) {
         return syncGet(apiIdMap, id);
