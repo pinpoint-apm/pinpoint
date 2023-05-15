@@ -42,9 +42,9 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         this.values = Collections.emptyList();
     }
 
-    public UriStatGroup(String uri, int dataSize, TimeWindow timeWindow, List<UriStatHistogram> uriStats) {
+    public UriStatGroup(String uri, int dataSize, TimeWindow timeWindow, List<UriStatChartValue> uriStats, List<String> fieldNames) {
         this.uri = uri;
-        this.values = UriStatValue.createValueList(dataSize, timeWindow, uriStats);
+        this.values = UriStatValue.createChartValueList(dataSize, timeWindow, uriStats, fieldNames);
     }
 
     @Override
@@ -58,35 +58,43 @@ public class UriStatGroup implements TimeseriesValueGroupView {
     }
 
     public static class UriStatValue implements TimeSeriesValueView {
-        private static final String FIELD_PREFIX = "histogram";
         private final String fieldName;
-        private final List<Integer> values;
+        private final List<Double> values;
 
-        public static List<TimeSeriesValueView> createValueList(int dataSize, TimeWindow timeWindow,  List<UriStatHistogram> uriStats) {
+        private static Double nullToNegativeOne(Double d) {
+            if (d == null) {
+                return Double.valueOf(-1);
+            } else {
+                return d;
+            }
+        }
+
+        public static List<TimeSeriesValueView> createChartValueList(int dataSize, TimeWindow timeWindow, List<UriStatChartValue> uriStats, List<String> fieldNames) {
             Objects.requireNonNull(uriStats);
 
             List<TimeSeriesValueView> values = new ArrayList<>();
 
-            final int bucketSize = uriStats.get(0).getHistogram().length;
+            final int bucketSize = uriStats.get(0).getValues().size();
 
             for (int histogramIndex = 0 ; histogramIndex < bucketSize; histogramIndex++) {
-                int[] filledData = new int[dataSize];
+                Double[] filledData = new Double[dataSize];
 
-                for (UriStatHistogram uriStat : uriStats) {
+                for (UriStatChartValue uriStat : uriStats) {
                     int filledIndex = timeWindow.getWindowIndex(uriStat.getTimestamp());
-                    if (filledData[filledIndex] != 0) {
+                    if ((filledData[filledIndex] != null) && (filledData[filledIndex] != 0)) {
                         throw new RuntimeException("Uri stat timestamp mismatch.");
                     }
-                    filledData[filledIndex] = uriStat.getHistogram()[histogramIndex];
+                    filledData[filledIndex] = uriStat.getValues().get(histogramIndex);
                 }
-                values.add(new UriStatValue(FIELD_PREFIX + histogramIndex, filledData));
+                List<Double> adjusted = Arrays.stream(filledData).map(UriStatValue::nullToNegativeOne).collect(Collectors.toList());
+                values.add(new UriStatValue(fieldNames.get(histogramIndex), adjusted));
             }
             return values;
         }
 
-        public UriStatValue(String fieldName, int[] uriStats) {
+        public UriStatValue(String fieldName, List<Double> uriStats) {
             this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
-            this.values = Arrays.stream(uriStats).boxed().collect(Collectors.toList());
+            this.values = Objects.requireNonNull(uriStats, "uriStats");
         }
 
         @Override
@@ -101,7 +109,7 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         }
 
         @Override
-        public List<Integer> getValues() {
+        public List<Double> getValues() {
             return values;
         }
     }
