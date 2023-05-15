@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
@@ -28,6 +26,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 
 import java.net.SocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
@@ -63,13 +62,13 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     }
 
     @Override
-    public Future sendAsync(byte[] bytes) {
+    public CompletableFuture<Void> sendAsync(byte[] bytes) {
         return reconnectFailureFuture();
     }
 
-    private DefaultFuture<ResponseMessage> reconnectFailureFuture() {
-        DefaultFuture<ResponseMessage> reconnect = new DefaultFuture<ResponseMessage>();
-        reconnect.setFailure(newReconnectException());
+    private <T> CompletableFuture<T> reconnectFailureFuture() {
+        CompletableFuture<T> reconnect = new CompletableFuture<>();
+        reconnect.completeExceptionally(newReconnectException());
         return reconnect;
     }
 
@@ -87,7 +86,7 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     }
 
     @Override
-    public Future<ResponseMessage> request(byte[] bytes) {
+    public CompletableFuture<ResponseMessage> request(byte[] bytes) {
         return reconnectFailureFuture();
     }
 

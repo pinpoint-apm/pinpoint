@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.function.BiConsumer;
 
 
 /**
@@ -58,20 +57,8 @@ public class LoggingDataSender<T> implements EnhancedDataSender<T> {
 
 
     @Override
-    public boolean request(T data, FutureListener<ResponseMessage> listener) {
+    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
         logger.info("request tBase:{} FutureListener:{}", data, listener);
-        return false;
-    }
-
-    @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        logger.info("addReconnectEventListener eventListener:{}", eventListener);
-        return false;
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        logger.info("removeReconnectEventListener eventListener:{}", eventListener);
         return false;
     }
 

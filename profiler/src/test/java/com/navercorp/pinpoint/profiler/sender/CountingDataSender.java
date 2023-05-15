@@ -19,12 +19,10 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 /**
  * @author emeroad
@@ -53,19 +51,10 @@ public class CountingDataSender implements EnhancedDataSender<SpanType> {
     }
 
     @Override
-    public boolean request(SpanType data, FutureListener<ResponseMessage> listener) {
+    public boolean request(SpanType data, BiConsumer<ResponseMessage, Throwable> listener) {
         return false;
     }
 
-    @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        return false;
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        return false;
-    }
 
     @Override
     public boolean send(SpanType data) {

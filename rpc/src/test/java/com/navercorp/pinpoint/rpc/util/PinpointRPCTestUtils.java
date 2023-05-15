@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
@@ -27,13 +27,17 @@ import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public final class PinpointRPCTestUtils {
     
@@ -70,15 +74,32 @@ public final class PinpointRPCTestUtils {
     }
 
     public static byte[] request(PinpointSocket writableServer, byte[] message) {
-        Future<ResponseMessage> future = writableServer.request(message);
-        future.await();
-        return future.getResult().getMessage();
+        CompletableFuture<ResponseMessage> future = writableServer.request(message);
+
+        ResponseMessage responseMessage = getResponseMessage(future);
+        return responseMessage.getMessage();
     }
 
     public static byte[] request(PinpointClient client, byte[] message) {
-        Future<ResponseMessage> future = client.request(message);
-        future.await();
-        return future.getResult().getMessage();
+        CompletableFuture<ResponseMessage> future = client.request(message);
+
+        ResponseMessage responseMessage = getResponseMessage(future);
+        return responseMessage.getMessage();
+    }
+
+    private static ResponseMessage getResponseMessage(CompletableFuture<ResponseMessage> future) {
+        try {
+            return future.get(3000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | TimeoutException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof PinpointSocketException) {
+                PinpointSocketException pse = (PinpointSocketException) cause;
+                throw pse;
+            }
+            throw new RuntimeException(e);
+        }
     }
 
     public static void close(PinpointClient client, PinpointClient... clients) {

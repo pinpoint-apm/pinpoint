@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
@@ -35,9 +34,9 @@ import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import org.apache.thrift.TBase;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,6 +46,10 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author Taejin Koo
@@ -158,7 +161,7 @@ public class ClusterPointController {
     private CheckConnectionStatusResult request(GrpcAgentConnection grpcAgentConnection, int checkCount) {
         logger.info("Ping  message will be sent. collector => {}.", grpcAgentConnection.getDestClusterKey());
 
-        Future<ResponseMessage> response = null;
+        CompletableFuture<ResponseMessage> response = null;
         try {
             response = request0(grpcAgentConnection, checkCount);
         } catch (StatusRuntimeException e) {
@@ -173,15 +176,8 @@ public class ClusterPointController {
             clearConnection(grpcAgentConnection);
             return CheckConnectionStatusResult.FAIL_AND_CLEAR_CONNECTION;
         }
-
-        if (!response.isSuccess()) {
-            Throwable cause = response.getCause();
-            logger.warn("Failed while request message. message:{}", cause.getMessage(), cause);
-            return CheckConnectionStatusResult.FAIL;
-        }
-
         try {
-            ResponseMessage result = response.getResult();
+            ResponseMessage result = response.get(3000, TimeUnit.MILLISECONDS);
             Message<TBase<?, ?>> deserialize = tBaseDeserializer.deserialize(result.getMessage());
 
             TBase<?, ?> data = deserialize.getData();
@@ -191,9 +187,11 @@ public class ClusterPointController {
                 }
             }
             logger.warn("Receive unexpected response data.  data:{}", data);
-        } catch (Exception e) {
-            logger.warn("Exception occurred while handles response message. message:{}", e.getMessage(), e);
+        } catch (Exception cause) {
+            logger.warn("Failed while request message. message:{}", cause.getMessage(), cause);
+            return CheckConnectionStatusResult.FAIL;
         }
+
         return CheckConnectionStatusResult.FAIL;
     }
 
@@ -204,12 +202,19 @@ public class ClusterPointController {
 
     // If the occur excption in connection, do not retry
     // Multiple attempts only at timeout
-    private Future<ResponseMessage> request0(GrpcAgentConnection grpcAgentConnection, int maxCount) {
+    private CompletableFuture<ResponseMessage> request0(GrpcAgentConnection grpcAgentConnection, int maxCount) {
         for (int i = 0; i < maxCount; i++) {
-            Future<ResponseMessage> responseFuture = grpcAgentConnection.request(CONNECTION_CHECK_COMMAND);
-            boolean await = responseFuture.await();
-            if (await) {
+            CompletableFuture<ResponseMessage> responseFuture = grpcAgentConnection.request(CONNECTION_CHECK_COMMAND);
+            try {
+                responseFuture.get(3000, TimeUnit.MILLISECONDS);
                 return responseFuture;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new PinpointSocketException(e);
+            } catch (ExecutionException e) {
+                throw new PinpointSocketException(e.getCause());
+            } catch (TimeoutException e) {
+                throw new PinpointSocketException(e);
             }
         }
 

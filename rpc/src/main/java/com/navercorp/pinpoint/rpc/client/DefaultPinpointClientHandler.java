@@ -16,11 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.util.Objects;
-import com.navercorp.pinpoint.rpc.ChannelWriteCompleteListenableFuture;
-import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -46,8 +41,10 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.Futures;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelFuture;
@@ -61,11 +58,11 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -265,11 +262,9 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     @Override
-    public Future sendAsync(byte[] bytes) {
+    public CompletableFuture<Void> sendAsync(byte[] bytes) {
         ChannelFuture channelFuture = send0(bytes);
-        final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(clientOption.getWriteTimeoutMillis());
-        channelFuture.addListener(future);
-        return future;
+        return Futures.ioWriteFuture(channelFuture);
     }
 
     @Override
@@ -337,20 +332,21 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         return write0(send);
     }
 
-    public Future<ResponseMessage> request(byte[] bytes) {
+    public CompletableFuture<ResponseMessage> request(byte[] bytes) {
         Objects.requireNonNull(bytes, "bytes");
 
         final boolean isEnable = state.isEnableCommunication();
         if (!isEnable) {
-            DefaultFuture<ResponseMessage> closedException = new DefaultFuture<>();
-            closedException.setFailure(new PinpointSocketException("invalid state:" + state.getCurrentStateCode() + " channel:" + channel));
+            CompletableFuture<ResponseMessage> closedException = new CompletableFuture<>();
+            closedException.completeExceptionally(new PinpointSocketException("invalid state:" + state.getCurrentStateCode() + " channel:" + channel));
             return closedException;
         }
         final int requestId = this.requestManager.nextRequestId();
         final RequestPacket request = new RequestPacket(requestId, bytes);
-        final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request.getRequestId(), clientOption.getRequestTimeoutMillis());
+        final CompletableFuture<ResponseMessage> messageFuture = this.requestManager.register(request.getRequestId(), clientOption.getRequestTimeoutMillis());
 
-        write0(request, messageFuture);
+        write0(request, Futures.writeFailListener(messageFuture));
+
         return messageFuture;
     }
 

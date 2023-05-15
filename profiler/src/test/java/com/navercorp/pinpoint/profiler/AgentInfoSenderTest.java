@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
@@ -73,6 +72,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,7 +103,7 @@ public class AgentInfoSenderTest {
 
     }
 
-    private EnhancedDataSender<MetaDataType> newTcpDataSender(PinpointClientFactory clientFactory, int port) {
+    private TcpDataSender<MetaDataType> newTcpDataSender(PinpointClientFactory clientFactory, int port) {
         MessageConverter<MetaDataType, TBase<?, ?>> messageConverter
                 = new MetadataMessageConverter(agentInformation.getApplicationName(), agentInformation.getAgentId(), agentInformation.getStartTime());
         MessageSerializer<MetaDataType, byte[]> messageSerializer = new ThriftMessageSerializer<>(messageConverter);
@@ -221,10 +221,10 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
 
-        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(socketFactory, bindPort);
-        dataSender.addReconnectEventListener(new PinpointClientReconnectEventListener() {
+        TcpDataSender<MetaDataType> dataSender = newTcpDataSender(socketFactory, bindPort);
+        dataSender.addEventListener(new Consumer<PinpointClient>() {
             @Override
-            public void reconnectPerformed(PinpointClient client) {
+            public void accept(PinpointClient client) {
                 agentReconnectLatch.countDown();
             }
         });
@@ -286,10 +286,10 @@ public class AgentInfoSenderTest {
         int bindPort = testPinpointServerAcceptor.bind();
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        EnhancedDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, bindPort);
-        dataSender.addReconnectEventListener(new PinpointClientReconnectEventListener() {
+        TcpDataSender<MetaDataType> dataSender = newTcpDataSender(clientFactory, bindPort);
+        dataSender.addEventListener(new Consumer<PinpointClient>() {
             @Override
-            public void reconnectPerformed(PinpointClient client) {
+            public void accept(PinpointClient client) {
                 reconnectCount.incrementAndGet();
                 try {
                     reconnectEventBarrier.await();

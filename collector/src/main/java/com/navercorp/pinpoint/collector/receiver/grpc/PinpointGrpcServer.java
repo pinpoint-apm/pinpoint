@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
@@ -27,8 +29,6 @@ import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.profiler.context.thrift.CommandGrpcToThriftMessageConverter;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
@@ -46,21 +46,19 @@ import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-
-import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -135,7 +133,7 @@ public class PinpointGrpcServer {
         return result;
     }
 
-    public Future<ResponseMessage> request(GeneratedMessageV3 message) {
+    public CompletableFuture<ResponseMessage> request(GeneratedMessageV3 message) {
         if (!state.checkState(SocketStateCode.RUN_DUPLEX)) {
             return createFailedFuture(new IllegalStateException("failed to request message. caused:illegal State"));
         }
@@ -145,7 +143,7 @@ public class PinpointGrpcServer {
             return createFailedFuture(new PinpointSocketException(TRouteResult.NOT_SUPPORTED_REQUEST.name()));
         }
 
-        DefaultFuture<ResponseMessage> future = requestManager.register(request.getRequestId());
+        CompletableFuture<ResponseMessage> future = requestManager.register(request.getRequestId());
         requestObserver.onNext(request);
         return future;
     }
@@ -346,9 +344,9 @@ public class PinpointGrpcServer {
     }
 
     private void setFailMessageToFuture(int responseId, String message) {
-        DefaultFuture<ResponseMessage> future = requestManager.removeMessageFuture(responseId);
+        CompletableFuture<ResponseMessage> future = requestManager.removeMessageFuture(responseId);
         if (future != null) {
-            future.setFailure(new PinpointSocketException(message));
+            future.completeExceptionally(new PinpointSocketException(message));
         }
     }
 
@@ -364,9 +362,9 @@ public class PinpointGrpcServer {
         return clusterKey;
     }
 
-    public Future<ResponseMessage> createFailedFuture(Exception failException) {
-        DefaultFuture<ResponseMessage> failedFuture = new DefaultFuture<>();
-        failedFuture.setFailure(failException);
+    public CompletableFuture<ResponseMessage> createFailedFuture(Exception failException) {
+        CompletableFuture<ResponseMessage> failedFuture = new CompletableFuture<>();
+        failedFuture.completeExceptionally(failException);
         return failedFuture;
     }
 }

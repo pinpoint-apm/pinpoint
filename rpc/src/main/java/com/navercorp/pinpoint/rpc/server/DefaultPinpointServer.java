@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
@@ -46,13 +44,14 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.Futures;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -61,6 +60,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -193,7 +193,7 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public Future<ResponseMessage> request(byte[] payload) {
+    public CompletableFuture<ResponseMessage> request(byte[] payload) {
         Objects.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());
@@ -201,8 +201,9 @@ public class DefaultPinpointServer implements PinpointServer {
 
         final int requestId = this.requestManager.nextRequestId();
         RequestPacket requestPacket = new RequestPacket(requestId, payload);
-        ChannelWriteFailListenableFuture<ResponseMessage> responseFuture = this.requestManager.register(requestPacket.getRequestId());
-        write0(requestPacket, responseFuture);
+        CompletableFuture<ResponseMessage> responseFuture = this.requestManager.register(requestPacket.getRequestId());
+        write0(requestPacket, Futures.writeFailListener(responseFuture));
+
         return responseFuture;
     }
 

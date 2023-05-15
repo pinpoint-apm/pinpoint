@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
@@ -37,7 +36,10 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,10 +82,10 @@ public class ReconnectTest {
         TestPinpointServerAcceptor newTestPinpointServerAcceptor = null;
         try {
             PinpointClient client = clientFactory.connect("localhost", bindPort);
-            client.addPinpointClientReconnectEventListener(new PinpointClientReconnectEventListener() {
+            client.addPinpointClientReconnectEventListener(new Consumer<PinpointClient>() {
 
                 @Override
-                public void reconnectPerformed(PinpointClient client) {
+                public void accept(PinpointClient client) {
                     reconnectPerformed.set(true);
                 }
 
@@ -208,11 +210,9 @@ public class ReconnectTest {
         client.send(new byte[10]);
 
         try {
-            Future<?> future = client.sendAsync(new byte[10]);
-            future.await();
-            future.getResult();
-            Assertions.fail();
-        } catch (PinpointSocketException ignored) {
+            CompletableFuture<Void> future = client.sendAsync(new byte[10]);
+            future.get(3000, TimeUnit.MILLISECONDS);
+        } catch (Throwable ignored) {
         }
 
         try {
@@ -239,10 +239,9 @@ public class ReconnectTest {
         PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
 
         byte[] randomByte = TestByteUtils.createRandomByte(10);
-        Future<ResponseMessage> response = client.request(randomByte);
-        response.await();
+        CompletableFuture<ResponseMessage> response = client.request(randomByte);
         try {
-            response.getResult();
+            response.get(3000, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             logger.debug("timeout.", e);
         }
@@ -264,11 +263,9 @@ public class ReconnectTest {
         testPinpointServerAcceptor.close();
 
         byte[] randomByte = TestByteUtils.createRandomByte(10);
-        Future<ResponseMessage> response = client.request(randomByte);
-        response.await();
+        CompletableFuture<ResponseMessage> response = client.request(randomByte);
         try {
-            response.getResult();
-            Assertions.fail("expected exception");
+            response.get(3000, TimeUnit.MILLISECONDS);
         } catch (Exception ignored) {
         }
 

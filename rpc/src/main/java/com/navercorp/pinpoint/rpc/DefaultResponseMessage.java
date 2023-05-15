@@ -16,10 +16,20 @@
 
 package com.navercorp.pinpoint.rpc;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
-public interface FailureEventHandler {
+public class DefaultResponseMessage implements ResponseMessage {
+    private final byte[] message;
 
-    boolean fireFailure();
+    public DefaultResponseMessage(byte[] message) {
+        this.message = Objects.requireNonNull(message, "message");
+    }
+
+    @Override
+    public byte[] getMessage() {
+        return message;
+    }
 }

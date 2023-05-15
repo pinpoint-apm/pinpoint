@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
@@ -57,7 +56,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -192,7 +194,7 @@ public class AgentServiceImpl implements AgentService {
         TCommandTransfer transferObject = createCommandTransferObject(clusterKey, payload);
         List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
 
-        Future<ResponseMessage> future = null;
+        CompletableFuture<ResponseMessage> future = null;
         if (CollectionUtils.nullSafeSize(socketList) == 1) {
             PinpointSocket socket = socketList.get(0);
             future = socket.request(serializeRequest(transferObject));
@@ -224,14 +226,14 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, byte[] payload, long timeout)
             throws TException {
-        Map<ClusterKey, Future<ResponseMessage>> futureMap = new HashMap<>();
+        Map<ClusterKey, CompletableFuture<ResponseMessage>> futureMap = new HashMap<>();
         for (ClusterKey clusterKey : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(clusterKey, payload);
             List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
 
             if (CollectionUtils.nullSafeSize(socketList) == 1) {
                 PinpointSocket socket = socketList.get(0);
-                Future<ResponseMessage> future = socket.request(serializeRequest(transferObject));
+                CompletableFuture<ResponseMessage> future = socket.request(serializeRequest(transferObject));
                 futureMap.put(clusterKey, future);
             } else {
                 futureMap.put(clusterKey, null);
@@ -241,9 +243,9 @@ public class AgentServiceImpl implements AgentService {
         long startTime = System.currentTimeMillis();
 
         Map<ClusterKey, PinpointRouteResponse> result = new HashMap<>();
-        for (Map.Entry<ClusterKey, Future<ResponseMessage>> futureEntry : futureMap.entrySet()) {
+        for (Map.Entry<ClusterKey, CompletableFuture<ResponseMessage>> futureEntry : futureMap.entrySet()) {
             ClusterKey clusterKey = futureEntry.getKey();
-            Future<ResponseMessage> future = futureEntry.getValue();
+            CompletableFuture<ResponseMessage> future = futureEntry.getValue();
             PinpointRouteResponse response = getResponse(future, getTimeoutMillis(startTime, timeout));
             result.put(clusterKey, response);
         }
@@ -348,17 +350,16 @@ public class AgentServiceImpl implements AgentService {
         return transferObject;
     }
 
-    private PinpointRouteResponse getResponse(Future<ResponseMessage> future, long timeout) {
+    private PinpointRouteResponse getResponse(CompletableFuture<ResponseMessage> future, long timeout) {
         if (future == null) {
             return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
         }
-
-        boolean completed = future.await(timeout);
-        if (completed) {
-            DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());
-            response.parse(commandDeserializerFactory);
-            return response;
-        } else {
+        try {
+            ResponseMessage responseMessage = future.get(timeout, TimeUnit.MILLISECONDS);
+            return new DefaultPinpointRouteResponse(responseMessage.getMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN, null);
+        } catch (TimeoutException e) {
             return new FailedPinpointRouteResponse(TRouteResult.TIMEOUT, null);
         }
     }

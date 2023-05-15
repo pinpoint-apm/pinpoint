@@ -16,23 +16,13 @@
 
 package com.navercorp.pinpoint.rpc;
 
-import java.util.Objects;
-
 /**
  * @author emeroad
  */
-public class ResponseMessage implements Message {
-    private byte[] message;
+public interface ResponseMessage {
+    byte[] getMessage();
 
-    public ResponseMessage() {
-    }
-
-    public void setMessage(byte[] message) {
-        this.message = Objects.requireNonNull(message, "message");
-    }
-
-    @Override
-    public byte[] getMessage() {
-        return message;
+    static ResponseMessage wrap(byte[] message) {
+        return new DefaultResponseMessage(message);
     }
 }

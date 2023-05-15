@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
+
+import java.util.function.BiConsumer;
 
 
 /**
@@ -27,10 +27,10 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 public interface EnhancedDataSender<T> extends DataSender<T> {
 
     boolean request(T data);
-    boolean request(T data, int retry);
-    boolean request(T data, FutureListener<ResponseMessage> listener);
 
-    boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener);
-    boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener);
+    boolean request(T data, int retry);
+
+    boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener);
+
 
 }

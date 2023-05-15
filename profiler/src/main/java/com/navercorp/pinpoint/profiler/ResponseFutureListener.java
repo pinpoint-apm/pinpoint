@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc;
+package com.navercorp.pinpoint.profiler;
 
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
-/**
- * @author emeroad
- */
-public class ChannelWriteFailListenableFuture<T> extends DefaultFuture<T> implements ChannelFutureListener {
+public class ResponseFutureListener<T, U  extends Throwable> implements BiConsumer<T, U> {
 
-    public ChannelWriteFailListenableFuture() {
-        super(3000);
+    private final CompletableFuture<T> future;
+
+    public ResponseFutureListener() {
+        this.future = new CompletableFuture<>();
     }
-
-    public ChannelWriteFailListenableFuture(long timeoutMillis) {
-        super(timeoutMillis);
-    }
-
 
     @Override
-    public void operationComplete(ChannelFuture future) throws Exception {
-        if (!future.isSuccess()) {
-            // io write fail
-            this.setFailure(future.getCause());
+    public void accept(T message, U th) {
+        if (message != null) {
+            future.complete(message);
+        } else {
+            future.completeExceptionally(th);
         }
+    }
+
+    public CompletableFuture<T> getResponseFuture() {
+        return future;
     }
 }

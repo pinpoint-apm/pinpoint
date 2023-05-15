@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -27,6 +26,7 @@ import org.apache.thrift.TBase;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author koo.taejin
@@ -61,7 +61,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
     }
 
     @Override
-    public Future<ResponseMessage> request(byte[] payload) {
+    public CompletableFuture<ResponseMessage> request(byte[] payload) {
         return pinpointServer.request(payload);
     }
 

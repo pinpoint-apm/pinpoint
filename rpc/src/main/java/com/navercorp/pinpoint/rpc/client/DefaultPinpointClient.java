@@ -16,22 +16,21 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.util.Objects;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,7 +42,7 @@ public class DefaultPinpointClient implements PinpointClient {
 
     private volatile boolean closed;
 
-    private final List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<>();
+    private final List<Consumer<PinpointClient>> reconnectEventListeners = new CopyOnWriteArrayList<>();
 
      public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
         this.pinpointClientHandler = Objects.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
@@ -72,7 +71,7 @@ public class DefaultPinpointClient implements PinpointClient {
         guarantee it is not null.
     */
     @Override
-    public boolean addPinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
+    public boolean addPinpointClientReconnectEventListener(Consumer<PinpointClient> eventListener) {
         if (eventListener == null) {
             return false;
         }
@@ -81,7 +80,7 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
-    public boolean removePinpointClientReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
+    public boolean removePinpointClientReconnectEventListener(Consumer<PinpointClient> eventListener) {
         if (eventListener == null) {
             return false;
         }
@@ -90,8 +89,8 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     private void notifyReconnectEvent() {
-        for (PinpointClientReconnectEventListener eachListener : this.reconnectEventListeners) {
-            eachListener.reconnectPerformed(this);
+        for (Consumer<PinpointClient> eachListener : this.reconnectEventListeners) {
+            eachListener.accept(this);
         }
     }
 
@@ -102,7 +101,7 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
-    public Future<?> sendAsync(byte[] bytes) {
+    public CompletableFuture<Void> sendAsync(byte[] bytes) {
         ensureOpen();
         return pinpointClientHandler.sendAsync(bytes);
     }
@@ -114,7 +113,7 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
-    public Future<ResponseMessage> request(byte[] bytes) {
+    public CompletableFuture<ResponseMessage> request(byte[] bytes) {
         if (pinpointClientHandler == null) {
             return returnFailureFuture();
         }
@@ -159,9 +158,9 @@ public class DefaultPinpointClient implements PinpointClient {
         return pinpointClientHandler.getRemoteClusterOption();
     }
 
-    private Future<ResponseMessage> returnFailureFuture() {
-        DefaultFuture<ResponseMessage> future = new DefaultFuture<>();
-        future.setFailure(new PinpointSocketException("pinpointClientHandler is null"));
+    private CompletableFuture<ResponseMessage> returnFailureFuture() {
+        CompletableFuture<ResponseMessage> future = new CompletableFuture<>();
+        future.completeExceptionally(new PinpointSocketException("pinpointClientHandler is null"));
         return future;
     }
 

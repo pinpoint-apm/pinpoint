@@ -27,10 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
 import io.grpc.stub.StreamObserver;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -40,6 +37,7 @@ import io.netty.util.TimerTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 /**
  * @author jaehong.kim
@@ -97,23 +95,13 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
     }
 
     @Override
-    public boolean request(T data, FutureListener<ResponseMessage> listener) {
+    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
         throw new UnsupportedOperationException("unsupported operation request(data, listener)");
     }
 
     @Override
     public boolean send(T data) {
         throw new UnsupportedOperationException("unsupported operation send(data)");
-    }
-
-    @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        throw new UnsupportedOperationException("unsupported operation addReconnectEventListener(eventListener)");
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        throw new UnsupportedOperationException("unsupported operation removeReconnectEventListener(eventListener)");
     }
 
     @Override
