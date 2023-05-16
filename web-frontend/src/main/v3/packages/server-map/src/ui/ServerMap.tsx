@@ -6,6 +6,9 @@ import { Node, Edge, MergedNode, MergedEdge } from '../types';
 import { getServerMapData } from '../core/merge';
 import { getServerMapStyle, getTheme } from '../constants/style/theme-helper';
 import { ServerMapTheme } from '../constants/style/theme';
+import { keyBy } from 'lodash';
+
+cytoscape.use(dagre);
 
 type ClickEventHandler<T> = (param: {
   data?: T;
@@ -13,7 +16,8 @@ type ClickEventHandler<T> = (param: {
   position: cytoscape.Position;
 }) => void;
 
-export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
+export interface ServerMapProps
+  extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
   data: {
     nodes: Node[];
     edges: Edge[];
@@ -39,63 +43,124 @@ export const ServerMap = ({
   className,
   style,
 }: ServerMapProps) => {
-  const container = React.useRef<HTMLDivElement>(null);
-  const graph = React.useRef<cytoscape.Core>();
-  const layout = React.useRef<cytoscape.Layouts>();
-
-  const processedData = getServerMapData(data);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const baseNodeIdRef = React.useRef<string>();
+  const cyRef = React.useRef<cytoscape.Core>();
+  const layoutRef = React.useRef<cytoscape.Layouts>();
   const serverMapTheme = getTheme(customTheme);
-  const serverMapStyle = getServerMapStyle({
-    theme: serverMapTheme,
-    edgeLabelRenderer: renderEdgeLabel,
-    nodeLabelRenderer: renderNodeLabel,
-  });
-
-  const newCytoInstance = () => {
-    graph.current = cytoscape({
-      zoom: 1,
-      minZoom: 0.1,
-      maxZoom: 3,
-      wheelSensitivity: 0.2,
-      container: container.current,
-      style: [...serverMapStyle],
-    });
-  };
 
   React.useEffect(() => {
-    if (!container.current) {
-      return;
-    }
-    try {
-      if (!graph.current) {
-        cytoscape.use(dagre);
-        newCytoInstance();
-      }
-    } catch (error) {
-      console.error(error);
-    }
     return () => {
-      graph.current && graph.current.destroy();
+      cyRef?.current?.destroy();
     };
   }, []);
 
   React.useEffect(() => {
-    if (graph.current && data?.nodes?.length > 0) {
-      if (layout.current) {
-        layout.current.stop();
-        graph.current.destroy();
-      }
-      newCytoInstance();
-      graph.current.add(processedData);
-      addEventListener();
+    baseNodeIdRef.current = baseNodeId;
 
-      layout.current = graph.current.elements().makeLayout({
-        name: 'dagre',
-        fit: false,
-        rankDir: 'LR',
-        rankSep: 200,
-      } as DagreLayoutOptions);
-      layout.current.run();
+    if (cyRef.current) {
+      layoutRef.current?.removeAllListeners();
+      layoutRef.current?.stop();
+      layoutRef.current = undefined;
+      cyRef.current.removeData();
+      cyRef.current.removeAllListeners();
+      cyRef.current.destroy();
+      cyRef.current = undefined;
+    }
+
+    cyRef.current = cytoscape({
+      zoom: 1,
+      minZoom: 0.1,
+      maxZoom: 3,
+      wheelSensitivity: 0.2,
+      container: containerRef.current,
+    });
+    cyRef.current.style(
+      getServerMapStyle({
+        cy: cyRef.current,
+        theme: serverMapTheme,
+        edgeLabelRenderer: renderEdgeLabel,
+        nodeLabelRenderer: renderNodeLabel,
+      })
+    );
+
+    addEventListener();
+  }, [baseNodeId]);
+
+  React.useEffect(() => {
+    const cy = cyRef.current;
+    if (cy) {
+      cy.style(
+        getServerMapStyle({
+          cy,
+          theme: serverMapTheme,
+          edgeLabelRenderer: renderEdgeLabel,
+          nodeLabelRenderer: renderNodeLabel,
+        })
+      );
+    }
+  }, [renderNodeLabel, renderEdgeLabel]);
+
+  React.useEffect(() => {
+    if (data) {
+      const cy = cyRef.current;
+      if (cy) {
+        const newData = getServerMapData(data);
+
+        console.time();
+        cy.batch(() => {
+          cy.removeData();
+          cy.data(keyBy(newData, 'data.id'));
+
+          const currentNodes = cy.nodes();
+          const currentEdges = cy.edges();
+
+          currentNodes.forEach((node) => {
+            const nodeData = node.data();
+
+            if (!cy.data()[nodeData.id]) {
+              node.remove();
+            }
+          });
+
+          currentEdges.forEach((edge) => {
+            const edgeData = edge.data();
+
+            if (!cy.data()[edgeData.id]) {
+              edge.remove();
+            }
+          });
+
+          const removedNodes = cy.nodes();
+          const removedEdges = cy.edges();
+
+          newData.forEach(({ data }) => {
+            if ((data as Edge).source) {
+              // edge
+              if (!removedEdges.some((edges) => edges.data().id === data.id)) {
+                cy.add({ data });
+              }
+            } else {
+              //node
+              if (!removedNodes.some((node) => node.data().id === data.id)) {
+                // newNodeIds.push(data.id);
+                cy.add({ data });
+              }
+            }
+          });
+        });
+
+        if (!layoutRef.current) {
+          layoutRef.current = cy?.layout({
+            name: 'dagre',
+            fit: false,
+            rankDir: 'LR',
+            rankSep: 200,
+          } as DagreLayoutOptions);
+          layoutRef.current.run();
+        }
+        console.timeEnd();
+      }
     }
   }, [data]);
 
@@ -111,15 +176,14 @@ export const ServerMap = ({
     onClickBackground?.(param);
   };
 
-  const addEventListener = () => {
-    const cy = graph?.current;
+  const addEventListener = React.useCallback(() => {
+    const cy = cyRef?.current;
 
     if (cy) {
-      const mainNode = cy.getElementById(baseNodeId);
       cy.on('layoutready', () => {
-        mainNode.style(serverMapTheme.node?.main!);
-        mainNode.style(serverMapTheme.node?.highlight!);
-        mainNode.connectedEdges().style(serverMapTheme.edge?.highlight!);
+        highlightNode(cy.getElementById(baseNodeId));
+        const mainNode = cy.getElementById(baseNodeId);
+        cy.resize();
         cy.center(mainNode);
       })
         .on('tap', ({ target, originalEvent }) => {
@@ -135,11 +199,7 @@ export const ServerMap = ({
               position,
             });
           } else if (target.isNode()) {
-            cy.nodes().style(serverMapTheme.node?.default!);
-            cy.edges().style(serverMapTheme.edge?.default!);
-            cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
-            target.style(serverMapTheme.node?.highlight);
-            target.connectedEdges().style(serverMapTheme.edge?.highlight);
+            highlightNode(target);
 
             handleClickNode({
               eventType,
@@ -147,13 +207,7 @@ export const ServerMap = ({
               data: target.data(),
             });
           } else if (target.isEdge()) {
-            cy.nodes().style(serverMapTheme.node?.default!);
-            cy.edges().style(serverMapTheme.edge?.default!);
-            cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
-            target
-              .connectedNodes()
-              .style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
-            target.style(serverMapTheme.edge?.highlight);
+            hightlightEdge(target);
 
             handleClickLink({
               eventType,
@@ -189,9 +243,34 @@ export const ServerMap = ({
           }
         });
     }
+  }, [onClickNode, onClickEdge, onClickBackground]);
+
+  const highlightNode = (target: cytoscape.CollectionReturnValue) => {
+    const cy = cyRef.current!;
+    cy.nodes().style(serverMapTheme.node?.default!);
+    cy.edges().style(serverMapTheme.edge?.default!);
+    cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
+    target.style(serverMapTheme.node?.highlight!);
+    target.connectedEdges().style(serverMapTheme.edge?.highlight!);
+  };
+
+  const hightlightEdge = (target: cytoscape.CollectionReturnValue) => {
+    const cy = cyRef.current!;
+
+    cy.nodes().style(serverMapTheme.node?.default!);
+    cy.edges().style(serverMapTheme.edge?.default!);
+    cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
+    target
+      .connectedNodes()
+      .style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
+    target.style(serverMapTheme.edge?.highlight!);
   };
 
   return (
-    <div style={{width: '100%', height: '100%', overflow: 'hidden', ...style}} className={className} ref={container} />
+    <div
+      style={{ width: '100%', height: '100%', overflow: 'hidden', ...style }}
+      className={className}
+      ref={containerRef}
+    />
   );
 };

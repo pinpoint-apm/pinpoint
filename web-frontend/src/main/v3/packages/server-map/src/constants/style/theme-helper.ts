@@ -4,15 +4,17 @@ import { ServerMapProps } from '../../ui';
 import { defaultTheme, ServerMapTheme } from './theme';
 
 export const getTheme = (theme: ServerMapTheme) => {
-  return _.merge(defaultTheme, theme);
-}
+  return _.merge({}, defaultTheme, theme);
+};
 
 export const getServerMapStyle = ({
+  cy,
   theme,
   edgeLabelRenderer,
   nodeLabelRenderer,
 }: {
-  theme: ServerMapTheme,
+  cy: cytoscape.Core;
+  theme: ServerMapTheme;
   edgeLabelRenderer?: ServerMapProps['renderEdgeLabel'];
   nodeLabelRenderer?: ServerMapProps['renderNodeLabel'];
 }) => {
@@ -21,10 +23,16 @@ export const getServerMapStyle = ({
       selector: 'node',
       style: {
         ...theme.node?.default,
-        'width': 100,
-        'height': 100,
-        'label': (el: cytoscape.NodeCollection) => nodeLabelRenderer?.(el.data()) || el.data('label'),
-        'background-image': (ele: cytoscape.NodeCollection) => ele.data('imgArr'),
+        width: 100,
+        height: 100,
+        label: (el: cytoscape.NodeCollection) => {
+          const nodeData = cy.data(el.data()?.id)?.data;
+          return nodeLabelRenderer?.(nodeData) || nodeData?.label || '';
+        },
+        'background-image': (el: cytoscape.NodeCollection) => {
+          const nodeData = cy.data(el.data()?.id)?.data;
+          return nodeData?.imgArr;
+        },
         'background-fit': 'contain' as cytoscape.Css.PropertyValueNode<'contain'>,
         'background-offset-y': '-5px',
       },
@@ -33,14 +41,17 @@ export const getServerMapStyle = ({
       selector: 'edge',
       style: {
         ...theme.edge?.default,
-        'label': (el: cytoscape.EdgeCollection) => edgeLabelRenderer?.(el.data()) || '',
-      }
+        label: (el: cytoscape.EdgeCollection) => {
+          const edgeData = cy.data(el.data()?.id)?.data;
+          return edgeLabelRenderer?.(edgeData) || '';
+        },
+      },
     },
     {
       selector: 'edge:loop',
       style: {
         ...theme.edge?.loop,
-      }
+      },
     },
-  ]
-}
+  ];
+};
