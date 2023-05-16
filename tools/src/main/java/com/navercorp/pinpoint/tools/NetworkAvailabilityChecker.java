@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
@@ -30,8 +29,6 @@ import com.navercorp.pinpoint.tools.network.UDPChecker;
 import com.navercorp.pinpoint.tools.network.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.tools.network.thrift.ThriftTransportConfig;
 import org.apache.thrift.TException;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +40,6 @@ import java.util.Properties;
  * @author netspider
  */
 public class NetworkAvailabilityChecker {
-
-    private static final Logger LOGGER = LogManager.getLogger(NetworkAvailabilityChecker.class);
 
     private static final String SEPARATOR = File.separator;
 
@@ -134,8 +129,7 @@ public class NetworkAvailabilityChecker {
     }
 
     private static String getActiveProfile(Properties defaultProperties) {
-        String profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
-        return profile;
+        return defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, "release");
     }
 
     private static void loadFileProperties(Properties properties, String filePath) {
