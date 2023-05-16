@@ -46,4 +46,8 @@ public interface Shared {
     void setStatusCode(int statusCode);
 
     int getStatusCode();
+
+    void maskExceptionFlag(boolean flag);
+
+    boolean isException();
 }

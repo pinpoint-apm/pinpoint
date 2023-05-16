@@ -21,24 +21,12 @@ import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
-import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.AsyncId;
-import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
-import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
-import com.navercorp.pinpoint.profiler.context.Span;
-import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.*;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
-import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 
 import java.nio.ByteBuffer;
@@ -79,7 +67,39 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
             final Span span = (Span) message;
             return buildTSpan(span);
         }
+        if (message instanceof SpanWebInfo) {
+            final SpanWebInfo spanWebInfo = (SpanWebInfo) message;
+            return buildTSpanWebInfo(spanWebInfo);
+        }
         return null;
+    }
+
+    private TBase<?, ?> buildTSpanWebInfo(SpanWebInfo spanWebInfo) {
+        final TSpanWebInfo tSpanWebInfo = new TSpanWebInfo();
+
+        tSpanWebInfo.setApplicationName(applicationName);
+        tSpanWebInfo.setAgentId(agentId);
+        tSpanWebInfo.setAgentStartTime(agentStartTime);
+
+        final TraceRoot traceRoot = spanWebInfo.getTraceRoot();
+        final TraceId traceId = traceRoot.getTraceId();
+        final ByteBuffer transactionId = transactionIdEncoder.encodeTransactionId(traceId);
+        tSpanWebInfo.setTransactionId(transactionId);
+        tSpanWebInfo.setSpanId(traceId.getSpanId());
+        tSpanWebInfo.setParentSpanId(traceId.getParentSpanId());
+        WebInfo webInfo = spanWebInfo.getWebInfo();
+        tSpanWebInfo.setRequestBody(webInfo.getRequestBody().toString());
+        tSpanWebInfo.setRequestHeader(webInfo.getRequestHeader().toString());
+        tSpanWebInfo.setResponseBody(webInfo.getResponseBody().toString());
+        tSpanWebInfo.setResponseHeader(webInfo.getResponseHeader().toString());
+        tSpanWebInfo.setRequestUrl(webInfo.getRequestUrl());
+        tSpanWebInfo.setStatus(webInfo.getStatus());
+        tSpanWebInfo.setWebBodyStrategy(webInfo.getWebBodyStrategy());
+        tSpanWebInfo.setRequestMethod(webInfo.getRequestMethod());
+        tSpanWebInfo.setStatusCode(webInfo.getStatusCode());
+        tSpanWebInfo.setElapsedTime(webInfo.getElapsedTime());
+        tSpanWebInfo.setParentApplicationName(webInfo.getParentApplicationName());
+        return tSpanWebInfo;
     }
 
 

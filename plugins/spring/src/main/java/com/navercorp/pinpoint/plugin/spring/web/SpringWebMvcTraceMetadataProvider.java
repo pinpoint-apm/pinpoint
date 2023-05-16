@@ -30,6 +30,7 @@ public class SpringWebMvcTraceMetadataProvider implements TraceMetadataProvider 
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(SpringWebMvcConstants.SPRING_MVC);
+        context.addServiceType(SpringWebMvcConstants.BODY_OBTAIN_SERVICE_TYPE);
     }
 
 }

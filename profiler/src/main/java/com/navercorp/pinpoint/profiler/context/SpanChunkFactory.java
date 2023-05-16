@@ -23,4 +23,6 @@ import java.util.List;
  */
 public interface SpanChunkFactory {
     SpanChunk newSpanChunk(List<SpanEvent> spanEventList);
+
+    SpanWebInfo newSpanWebInfo(WebInfo webInfo);
 }

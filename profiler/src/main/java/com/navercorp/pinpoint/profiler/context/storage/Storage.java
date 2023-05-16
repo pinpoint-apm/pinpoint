@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.WebInfo;
 
 /**
  * @author emeroad
@@ -40,4 +41,10 @@ public interface Storage {
     void flush();
 
     void close();
+
+    /**
+     * 报文发送
+     * @param span
+     */
+    void sendWebInfo(Span span);
 }

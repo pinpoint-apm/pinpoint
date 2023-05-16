@@ -27,8 +27,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.RequestBodyObtainInterceptor;
+import com.navercorp.pinpoint.plugin.spring.web.interceptor.ResponseBodyObtainInterceptor;
 
 
 /**
@@ -43,6 +46,12 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
     public void setup(ProfilerPluginSetupContext context) {
         transformTemplate.transform("org.springframework.web.servlet.FrameworkServlet", FrameworkServletTransform.class);
 
+        // =============================================================================================
+
+        // 注册报文采集拦截器
+        transformTemplate.transform("org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor", RequestBodyResolverTransform.class);
+        transformTemplate.transform("org.springframework.web.method.support.InvocableHandlerMethod", ResponseBodyResolverTransform.class);
+        // =============================================================================================
     }
 
     public static class FrameworkServletTransform implements TransformCallback {
@@ -60,6 +69,47 @@ public class SpringWebMvcPlugin implements ProfilerPlugin, TransformTemplateAwar
             return target.toBytecode();
         }
     }
+
+    public static class RequestBodyResolverTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add server metadata
+            InstrumentMethod startInternalEditor = target.getDeclaredMethod("readWithMessageConverters",
+                    "org.springframework.web.context.request.NativeWebRequest",
+                    "org.springframework.core.MethodParameter",
+                    "java.lang.reflect.Type");
+            if (startInternalEditor != null) {
+                startInternalEditor.addScopedInterceptor(RequestBodyObtainInterceptor.class, SpringWebMvcConstants.BODY_OBTAIN_SCOPE, ExecutionPolicy.ALWAYS);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class ResponseBodyResolverTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add server metadata
+//            InstrumentMethod startInternalEditor = target.getDeclaredMethod("doInvoke",
+//                    "java.lang.Object[]");
+
+            InstrumentMethod startInternalEditor = target.getDeclaredMethod("invokeForRequest",
+                    "org.springframework.web.context.request.NativeWebRequest",
+                    "org.springframework.web.method.support.ModelAndViewContainer",
+                    "java.lang.Object[]");
+
+
+            if (startInternalEditor != null) {
+                startInternalEditor.addScopedInterceptor(ResponseBodyObtainInterceptor.class, SpringWebMvcConstants.BODY_OBTAIN_SCOPE, ExecutionPolicy.ALWAYS);
+            }
+            return target.toBytecode();
+        }
+    }
+
+
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

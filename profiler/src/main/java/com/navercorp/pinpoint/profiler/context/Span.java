@@ -52,6 +52,21 @@ public class Span extends DefaultFrameAttachment {
 
     private IntStringValue exceptionInfo; // optional
 
+    private WebInfo webInfo;
+
+
+    public WebInfo getWebInfo() {
+        if (null == webInfo) {
+            webInfo = new WebInfo();
+        }
+        return webInfo;
+    }
+
+    public void setWebInfo(WebInfo webInfo) {
+        this.webInfo = webInfo;
+    }
+
+
 
     public Span(final TraceRoot traceRoot) {
         if (traceRoot == null) {
@@ -214,6 +229,7 @@ public class Span extends DefaultFrameAttachment {
                 ", acceptorHost='" + acceptorHost + '\'' +
                 ", apiId=" + apiId +
                 ", exceptionInfo=" + exceptionInfo +
+                ", webInfo=" + webInfo +
                 "} " + super.toString();
     }
 }

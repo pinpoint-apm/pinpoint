@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.spring.web;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+
+import java.util.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,4 +31,21 @@ public final class SpringWebMvcConstants {
     }
 
     public static final ServiceType SPRING_MVC = ServiceTypeFactory.of(5051, "SPRING_MVC", "SPRING");
+
+    public static final ServiceType BODY_OBTAIN_SERVICE_TYPE = ServiceTypeFactory.of(5088, "SPRING_OBTAIN", "SPRING_OBTAIN");
+
+    public static final String BODY_OBTAIN_SCOPE = "BodyObtainScope";
+
+    public static final String PRE_HANDLE_SCOPE = "PreHandleScope";
+
+    public static final List<String> TRACE_METHODS = Collections.unmodifiableList(unmodifiableList());
+
+    private static List<String> unmodifiableList() {
+        List<String> list = new ArrayList<String>(4);
+        list.add("GET");
+        list.add("POST");
+        list.add("PUT");
+        list.add("DELETE");
+        return list;
+    }
 }

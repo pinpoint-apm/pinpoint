@@ -37,10 +37,19 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     private final ProfilerConfig profilerConfig;
     private final DataSender spanDataSender;
 
+    /**
+     * 报文异常判断相关
+     */
+    private final boolean responseJudge;
+    private final String responseJudgeSign;
+    private final String responseJudgeCode;
     @Inject
     public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
         this.spanDataSender = Assert.requireNonNull(spanDataSender, "spanDataSender");
+        this.responseJudge = profilerConfig.getThriftTransportConfig().isResponseJudge();
+        this.responseJudgeSign = profilerConfig.getThriftTransportConfig().getResponseJudgeSign();
+        this.responseJudgeCode = profilerConfig.getThriftTransportConfig().getResponseJudgeCode();
     }
 
     @Override
@@ -55,9 +64,9 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
     private StorageFactory newStorageFactory() {
         if (profilerConfig.isIoBufferingEnable()) {
             int ioBufferingBufferSize = this.profilerConfig.getIoBufferingBufferSize();
-            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender);
+            return new BufferedStorageFactory(ioBufferingBufferSize, this.spanDataSender, this.responseJudge, this.responseJudgeSign, this.responseJudgeCode);
         } else {
-            return new BufferedStorageFactory(Integer.MAX_VALUE, this.spanDataSender);
+            return new BufferedStorageFactory(Integer.MAX_VALUE, this.spanDataSender, this.responseJudge, this.responseJudgeSign, this.responseJudgeCode);
         }
     }
 

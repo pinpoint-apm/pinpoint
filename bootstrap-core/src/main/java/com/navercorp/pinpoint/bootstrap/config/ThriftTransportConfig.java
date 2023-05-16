@@ -93,4 +93,13 @@ public interface ThriftTransportConfig {
 
     int getStatDataSenderChunkSize();
 
+
+    /**
+     * 报文异常判断相关
+     */
+    boolean isResponseJudge();
+
+    String getResponseJudgeSign();
+
+    String getResponseJudgeCode();
 }
