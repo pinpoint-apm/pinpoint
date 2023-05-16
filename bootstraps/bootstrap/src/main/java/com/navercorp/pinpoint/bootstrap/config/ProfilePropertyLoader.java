@@ -60,14 +60,18 @@ class ProfilePropertyLoader implements PropertyLoader {
     /**
      * <pre>Configuration order</pre>
      *
-     * <p> Same order as Spring-Boot
-     * <p> https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html
+     * <p> Same order as Spring-Boot </p>
+     * <p>
+     *     <a href="https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html">
+     *         boot-features-external-config
+     *     </a>
+     * </p>
      * <ol>
-     * <li>Java System properties
-     * <li>OS environment variables
-     * <li>agent external configuration
-     * <li>agent profile configuration /profiles/${profile}/pinpoint.config
-     * <li>agent config /pinpoint-env.config
+     *     <li>Java System properties</li>
+     *     <li>OS environment variables</li>
+     *     <li>agent external configuration</li>
+     *     <li>agent profile configuration /profiles/${profile}/pinpoint.config</li>
+     *     <li>agent config /pinpoint-env.config</li>
      * </ol>
      */
     @Override
@@ -135,8 +139,16 @@ class ProfilePropertyLoader implements PropertyLoader {
             profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY);
         }
         if (profile == null) {
-            // default profile
-            profile = Profiles.DEFAULT_ACTIVE_PROFILE;
+            final String profileCandidates = javaSystemProperty.getProperty(
+                    Profiles.ACTIVE_PROFILE_CANDIDATES_KEY,
+                    defaultProperties.getProperty(
+                            Profiles.ACTIVE_PROFILE_CANDIDATES_KEY,
+                            Profiles.DEFAULT_ACTIVE_PROFILE_CANDIDATES
+                    )
+            );
+            throw new RuntimeException("Failed to detect pinpoint profile. Please add -D" +
+                    Profiles.ACTIVE_PROFILE_KEY +
+                    "=<profile> to VM option. Valid profiles are \"" + profileCandidates + "\"");
         }
 
         // prevent directory traversal attack
