@@ -19,16 +19,7 @@ package com.navercorp.pinpoint.thrift.io;
 import com.navercorp.pinpoint.io.util.BodyFactory;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
-import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
-import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.thrift.dto.*;
 
 import org.apache.thrift.TBase;
 
@@ -69,6 +60,8 @@ public class DefaultTBaseLocator {
 
     public static final short CHUNK = 400;
 
+    public static final short SPAN_WEB_INFO = 410;
+
     private static final TypeLocator<TBase<?, ?>> typeLocator = build();
 
     public static TypeLocator<TBase<?, ?>>build() {
@@ -83,6 +76,13 @@ public class DefaultTBaseLocator {
             @Override
             public TBase<?, ?> getObject() {
                 return new TSpan();
+            }
+        });
+
+        builder.addBodyFactory(SPAN_WEB_INFO, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
+                return new TSpanWebInfo();
             }
         });
 

@@ -75,6 +75,13 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private static final String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK = "16m";
     private String tcpDataSenderPinpointClientWriteBufferLowWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK;
 
+
+    /**
+     * 报文异常判断配置
+     */
+    private boolean responseJudge = false;
+    private String responseJudgeSign = "status";
+    private String responseJudgeCode = "0000";
     public DefaultThriftTransportConfig() {
     }
 
@@ -120,6 +127,9 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
         this.tcpDataSenderPinpointClientHandshakeInterval = profilerConfig.readLong("profiler.tcpdatasender.client.handshake.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL);
         this.tcpDataSenderPinpointClientWriteBufferHighWaterMark = profilerConfig.readString("profiler.tcpdatasender.client.write.buffer.highwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK);
         this.tcpDataSenderPinpointClientWriteBufferLowWaterMark = profilerConfig.readString("profiler.tcpdatasender.client.write.buffer.lowwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK);
+        this.responseJudge = profilerConfig.readBoolean("profiler.spring.web.body.response.judge.enable", false);
+        this.responseJudgeSign = profilerConfig.readString("profiler.spring.web.body.response.judge.sign", "status");
+        this.responseJudgeCode = profilerConfig.readString("profiler.spring.web.body.response.judge.code", "0000");
     }
 
     @Override
@@ -293,6 +303,23 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     }
 
     @Override
+    public boolean isResponseJudge() {
+        return responseJudge;
+    }
+
+    @Override
+    public String getResponseJudgeSign() {
+        return responseJudgeSign;
+    }
+
+    @Override
+    public String getResponseJudgeCode() {
+        return responseJudgeCode;
+    }
+
+
+
+    @Override
     public String toString() {
         return "DefaultThriftTransportConfig{" +
                 "collectorSpanServerIp='" + collectorSpanServerIp + '\'' +
@@ -327,8 +354,11 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
                 ", tcpDataSenderPinpointClientReconnectInterval=" + tcpDataSenderPinpointClientReconnectInterval +
                 ", tcpDataSenderPinpointClientPingInterval=" + tcpDataSenderPinpointClientPingInterval +
                 ", tcpDataSenderPinpointClientHandshakeInterval=" + tcpDataSenderPinpointClientHandshakeInterval +
-                ", tcpDataSenderPinpointClientWriteBufferHighWaterMark=" + tcpDataSenderPinpointClientWriteBufferHighWaterMark +
-                ", tcpDataSenderPinpointClientWriteBufferLowWaterMark=" + tcpDataSenderPinpointClientWriteBufferLowWaterMark +
+                ", tcpDataSenderPinpointClientWriteBufferHighWaterMark='" + tcpDataSenderPinpointClientWriteBufferHighWaterMark + '\'' +
+                ", tcpDataSenderPinpointClientWriteBufferLowWaterMark='" + tcpDataSenderPinpointClientWriteBufferLowWaterMark + '\'' +
+                ", responseJudge=" + responseJudge +
+                ", responseJudgeSign='" + responseJudgeSign + '\'' +
+                ", responseJudgeCode='" + responseJudgeCode + '\'' +
                 '}';
     }
 }

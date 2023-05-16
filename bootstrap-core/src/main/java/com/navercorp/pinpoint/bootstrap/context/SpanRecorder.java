@@ -53,4 +53,30 @@ public interface SpanRecorder extends FrameAttachment {
     void recordLogging(LoggingInfo loggingInfo);
 
     void recordStatusCode(int statusCode);
+
+    void recordWebInfoRequestUrl(String requestUrl);
+
+    void recordWebInfoRequestBody(Object requestBody);
+
+    void recordWebInfoRequestHeader(Object requestHeader);
+
+    void recordWebInfoResponseBody(Object responseBody);
+
+    void recordWebInfoResponseHeader(Object responseHeader);
+
+    void recordWebInfoRequestMethod(String requestMethod);
+
+    void recordWebInfoStatusCode(int statusCode);
+
+    /**
+     * 判断是否已经进行了请求体的采集
+     * @return
+     */
+    boolean requestBodyTraced();
+
+    /**
+     * 记录报文采样策略
+     * @param strategy
+     */
+    void recordWebInfoStrategy(byte strategy);
 }

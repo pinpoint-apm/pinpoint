@@ -98,4 +98,15 @@ public interface TraceContext {
 
     JdbcContext getJdbcContext();
 
+    /**
+     * 是否做报文采集
+     * @return
+     */
+    boolean bodyObtainEnable();
+
+    /**
+     * 报文采样策略
+     * @return
+     */
+    byte bodyObtainStrategy();
 }

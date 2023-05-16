@@ -59,6 +59,19 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JdbcContext jdbcContext;
 
+    /**
+     * 报文采集开关
+     */
+    private final boolean bodyObtainEnable;
+
+
+    /**
+     * 报文采集策略
+     *  0 代表全量采集；1 代表正常报文按照采样率，异常报文全量采集；2 代表报文采集按照采样率来走
+     */
+    private final byte bodyObtainStrategy;
+
+
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
@@ -81,6 +94,8 @@ public class DefaultTraceContext implements TraceContext {
         this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
+        this.bodyObtainEnable = profilerConfig.readBoolean("profiler.spring.web.body", false);
+        this.bodyObtainStrategy = (byte) profilerConfig.readInt("profiler.spring.web.body.strategy", 2);
     }
 
     /**
@@ -239,4 +254,13 @@ public class DefaultTraceContext implements TraceContext {
         return jdbcContext;
     }
 
+    @Override
+    public boolean bodyObtainEnable() {
+        return bodyObtainEnable;
+    }
+
+    @Override
+    public byte bodyObtainStrategy() {
+        return bodyObtainStrategy;
+    }
 }

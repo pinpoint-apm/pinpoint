@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.jetty.JettyConfiguration;
@@ -33,6 +34,10 @@ import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Chaein Jung
@@ -43,6 +48,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
 
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
+    private final TraceContext traceContext;
 
     private final MethodDescriptor methodDescriptor;
     private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
@@ -55,6 +61,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         requestRequestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestRequestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
         this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JettyConstants.JETTY, traceContext, requestRequestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+        this.traceContext = traceContext;
     }
 
     abstract HttpServletRequest toHttpServletRequest(Object[] args);
@@ -90,17 +97,56 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         try {
             final HttpServletRequest request = toHttpServletRequest(args);
             final HttpServletResponse response = toHttpServletResponse(args);
+            final int statusCode = getStatusCode(response);
             if (request.getDispatcherType() == DispatcherType.ASYNC || request.getDispatcherType() == DispatcherType.ERROR) {
                 if (isDebug) {
                     logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
                 }
                 return;
             }
-            final int statusCode = getStatusCode(response);
+
+            Trace trace = traceContext.currentTraceObject();
+            if (null != trace) {
+                recorderWebInfo(trace, request, response, statusCode);
+
+            } else if (traceContext.bodyObtainEnable() && traceContext.bodyObtainStrategy() <  PinpointConstants.STRATEGY_2) {
+                // 此处代表被采样率过滤掉的trace，同时采样策略需要采集此部分调用报文
+                Trace rawTraceObject = traceContext.currentRawTraceObject();
+                if (null != rawTraceObject) {
+                    recorderWebInfo(rawTraceObject, request, response, statusCode);
+                }
+
+            }
+
             this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
+            }
+        }
+    }
+
+    /**
+     * 采集报文信息
+     *
+     * @param trace
+     * @param request
+     * @param response
+     * @param statusCode
+     */
+    private void recorderWebInfo(Trace trace, HttpServletRequest request, HttpServletResponse response, int statusCode) {
+        try {
+            SpanRecorder spanRecorder = trace.getSpanRecorder();
+            if (null != spanRecorder) {
+                // 采集请求/响应头==========================
+                if (traceContext.bodyObtainEnable()) {
+                    headerObtain(request, response, spanRecorder, statusCode);
+                }
+                // =========================================
+            }
+        } catch (Throwable t) {
+            if (isInfo) {
+                logger.info("采集报文报错，异常信息：", t);
             }
         }
     }
@@ -111,5 +157,51 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         } catch (Exception ignored) {
         }
         return 0;
+    }
+
+    /**
+     * 采集请求头、响应头、请求url
+     *
+     * @param request      请求
+     * @param response     响应
+     * @param spanRecorder 采集器
+     * @param statusCode
+     */
+    private void headerObtain(HttpServletRequest request, HttpServletResponse response, SpanRecorder spanRecorder, int statusCode) {
+
+        // 赋值采样策略
+        spanRecorder.recordWebInfoStrategy(traceContext.bodyObtainStrategy());
+
+        // 采集请求方式
+        spanRecorder.recordWebInfoRequestMethod(request.getMethod());
+
+        // 采集响应码
+        spanRecorder.recordWebInfoStatusCode(statusCode);
+
+        // 采集请求url
+        spanRecorder.recordWebInfoRequestUrl(request.getRequestURL().toString());
+
+        Enumeration<String> requestHeaderNames = request.getHeaderNames();
+        Collection<String> responseHeaderNames = response.getHeaderNames();
+        Map<String, String> requestHeaders = new HashMap<String, String>(16);
+        while (requestHeaderNames.hasMoreElements()) {
+            String name = requestHeaderNames.nextElement();
+            String value = request.getHeader(name);
+            requestHeaders.put(name, value);
+        }
+        // 采集请求头
+        if (!requestHeaders.isEmpty()) {
+            spanRecorder.recordWebInfoRequestHeader(requestHeaders);
+
+        }
+        if (!responseHeaderNames.isEmpty()) {
+            Map<String, String> responseHeaders = new HashMap<String, String>(responseHeaderNames.size());
+            for (String responseHeaderName : responseHeaderNames) {
+                String value = response.getHeader(responseHeaderName);
+                responseHeaders.put(responseHeaderName, value);
+            }
+            // 采集响应头
+            spanRecorder.recordWebInfoResponseHeader(responseHeaders);
+        }
     }
 }

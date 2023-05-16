@@ -160,6 +160,51 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     }
 
     @Override
+    public void recordWebInfoRequestUrl(String requestUrl) {
+
+    }
+
+    @Override
+    public void recordWebInfoRequestBody(Object requestBody) {
+
+    }
+
+    @Override
+    public void recordWebInfoRequestHeader(Object requestHeader) {
+
+    }
+
+    @Override
+    public void recordWebInfoResponseBody(Object responseBody) {
+
+    }
+
+    @Override
+    public void recordWebInfoResponseHeader(Object responseHeader) {
+
+    }
+
+    @Override
+    public void recordWebInfoRequestMethod(String requestMethod) {
+
+    }
+
+    @Override
+    public void recordWebInfoStatusCode(int statusCode) {
+
+    }
+
+    @Override
+    public boolean requestBodyTraced() {
+        return true;
+    }
+
+    @Override
+    public void recordWebInfoStrategy(byte strategy) {
+
+    }
+
+    @Override
     public Object attachFrameObject(Object frameObject) {
         return null;
     }
