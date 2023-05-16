@@ -45,6 +45,8 @@ public class DefaultShared implements Shared {
 
     private volatile int statusCode;
 
+    private volatile boolean exceptionFlag;
+
     @Override
     public void maskErrorCode(int errorCode) {
 //        synchronized (this) {
@@ -121,5 +123,15 @@ public class DefaultShared implements Shared {
     @Override
     public int getStatusCode() {
         return this.statusCode;
+    }
+
+    @Override
+    public void maskExceptionFlag(boolean flag) {
+        this.exceptionFlag = flag;
+    }
+
+    @Override
+    public boolean isException() {
+        return exceptionFlag;
     }
 }

@@ -133,6 +133,7 @@
     <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler">
         <constructor-arg ref="thriftSpanHandler"/>
         <constructor-arg ref="thriftSpanChunkHandler"/>
+        <constructor-arg ref="thriftSpanWebInfoHandler"/>
     </bean>
     <bean id="spanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="spanDispatchHandler"/>

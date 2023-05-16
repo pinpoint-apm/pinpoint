@@ -38,4 +38,9 @@ public class AsyncSpanChunkFactory implements SpanChunkFactory {
     public SpanChunk newSpanChunk(List<SpanEvent> spanEventList) {
         return new DefaultAsyncSpanChunk(traceRoot, spanEventList, localAsyncId);
     }
+
+    @Override
+    public SpanWebInfo newSpanWebInfo(WebInfo webInfo) {
+        return new SpanWebInfo(traceRoot, webInfo);
+    }
 }

@@ -32,11 +32,20 @@ public class SpanDispatchHandler implements DispatchHandler {
     private final SimpleHandler spanDataHandler;
 
     private final SimpleHandler spanChunkHandler;
-    
+
+    private final SimpleHandler spanWebInfoHandler;
+
+
+    public SpanDispatchHandler(SimpleHandler spanDataHandler, SimpleHandler spanChunkHandler, SimpleHandler spanWebInfoHandler) {
+        this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
+        this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
+        this.spanWebInfoHandler = Objects.requireNonNull(spanWebInfoHandler, "spanWebInfoHandler");
+    }
 
     public SpanDispatchHandler(SimpleHandler spanDataHandler, SimpleHandler spanChunkHandler) {
         this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
         this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
+        this.spanWebInfoHandler = null;
     }
 
     private SimpleHandler getSimpleHandler(Header header) {
@@ -46,6 +55,8 @@ public class SpanDispatchHandler implements DispatchHandler {
                 return spanDataHandler;
             case DefaultTBaseLocator.SPANCHUNK:
                 return spanChunkHandler;
+            case DefaultTBaseLocator.SPAN_WEB_INFO:
+                return spanWebInfoHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }

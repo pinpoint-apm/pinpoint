@@ -28,15 +28,25 @@ public class BufferedStorageFactory implements StorageFactory {
     private final DataSender dataSender;
     private final int ioBufferingBufferSize;
 
-    public BufferedStorageFactory(int ioBufferingBufferSize, DataSender dataSender) {
+    /**
+     * 报文异常判断相关
+     */
+    private final boolean responseJudge;
+    private final String responseJudgeSign;
+    private final String responseJudgeCode;
+
+    public BufferedStorageFactory(int ioBufferingBufferSize, DataSender dataSender, boolean responseJudge, String responseJudgeSign, String responseJudgeCode) {
         this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
         this.ioBufferingBufferSize = ioBufferingBufferSize;
+        this.responseJudge = responseJudge;
+        this.responseJudgeSign = responseJudgeSign;
+        this.responseJudgeCode = responseJudgeCode;
     }
 
 
     @Override
     public Storage createStorage(SpanChunkFactory spanChunkFactory) {
-        Storage storage = new BufferedStorage(spanChunkFactory, this.dataSender, this.ioBufferingBufferSize);
+        Storage storage = new BufferedStorage(spanChunkFactory, this.dataSender, this.ioBufferingBufferSize, this.responseJudge, this.responseJudgeSign, this.responseJudgeCode);
         return storage;
     }
 

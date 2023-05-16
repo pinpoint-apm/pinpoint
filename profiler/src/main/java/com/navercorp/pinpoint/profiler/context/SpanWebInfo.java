@@ -17,28 +17,41 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * 存放请求/响应报文、url、头信息的span扩展块
+ *
+ * @author wangj881
  */
-public class DefaultSpanChunkFactory implements SpanChunkFactory {
+public class SpanWebInfo extends DefaultFrameAttachment {
 
     private final TraceRoot traceRoot;
 
-    public DefaultSpanChunkFactory(TraceRoot traceRoot) {
+    private final WebInfo webInfo;
+
+    public SpanWebInfo(TraceRoot traceRoot, WebInfo webInfo) {
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.webInfo = Assert.requireNonNull(webInfo, "webInfo");
+    }
+
+    public TraceRoot getTraceRoot() {
+        return traceRoot;
+    }
+
+    public WebInfo getWebInfo() {
+        return webInfo;
     }
 
     @Override
-    public SpanChunk newSpanChunk(List<SpanEvent> spanEventList) {
-        return new DefaultSpanChunk(traceRoot, spanEventList);
-    }
-
-    @Override
-    public SpanWebInfo newSpanWebInfo(WebInfo webInfo) {
-        return new SpanWebInfo(traceRoot, webInfo);
+    public String toString() {
+        return "SpanWebInfo{" +
+                "traceRoot=" + traceRoot +
+                ", webInfo=" + webInfo +
+                '}';
     }
 }

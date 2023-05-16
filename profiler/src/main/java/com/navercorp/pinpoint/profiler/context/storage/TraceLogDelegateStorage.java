@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.WebInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,4 +64,10 @@ public class TraceLogDelegateStorage implements Storage {
     public void close() {
         this.delegate.close();
     }
+
+    @Override
+    public void sendWebInfo(Span span) {
+
+    }
+
 }
