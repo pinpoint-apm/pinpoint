@@ -7,20 +7,24 @@ export interface Node {
     good: number;
     slow: number;
     bad: number;
+    [key: string]: any;
   };
-  shouldNotMerge?: () => boolean
+  shouldNotMerge?: () => boolean;
 }
 
 export interface Edge {
   id: string;
   source: string;
   target: string;
+  transactionInfo?: {
+    [key: string]: any;
+  };
 }
 
 export interface MergedNode extends Node {
-  nodes?: Node[]
+  nodes?: Node[];
 }
 
 export interface MergedEdge extends Edge {
-  edges?: Edge[]
+  edges?: Edge[];
 }
