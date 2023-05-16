@@ -5,12 +5,16 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-spring-plugin</artifactId>
     <name>pinpoint-spring-plugin</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <spring.version>${spring4.version}</spring.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -29,35 +33,34 @@
             <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!--        web相关-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <scope>provided</scope>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Pinpoint-Plugin-Package-Class-Requirements>com.navercorp.pinpoint.plugin.spring.web.javax:javax.servlet.http.HttpServletRequest, com.navercorp.pinpoint.plugin.spring.web.jakarta:jakarta.servlet.http.HttpServletRequest</Pinpoint-Plugin-Package-Class-Requirements>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

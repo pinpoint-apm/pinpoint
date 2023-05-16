@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerOption;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.web.util.WebUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class ClusterAcceptor implements ClusterConnectionProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String bindHost;
     private final int bindPort;

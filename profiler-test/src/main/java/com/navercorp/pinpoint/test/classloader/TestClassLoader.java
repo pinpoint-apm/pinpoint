@@ -17,28 +17,27 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.InstanceTransformCallbackProvider;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerDelegate;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.plugin.TransformCallbackProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -56,7 +55,7 @@ public class TestClassLoader extends TransformClassLoader {
     private final InstrumentContext instrumentContext;
 
     public TestClassLoader(DefaultApplicationContext applicationContext) {
-        Assert.requireNonNull(applicationContext, "applicationContext");
+        Objects.requireNonNull(applicationContext, "applicationContext");
 
         this.applicationContext = applicationContext;
         this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
@@ -65,21 +64,20 @@ public class TestClassLoader extends TransformClassLoader {
         this.instrumentContext = new PluginInstrumentContext(applicationContext.getProfilerConfig(), applicationContext.getInstrumentEngine(),
                 applicationContext.getDynamicTransformTrigger(), classInjector, classFileTransformerLoader);
 
-        this.delegateClass = new ArrayList<String>();
+        this.delegateClass = new ArrayList<>();
     }
 
 
     public void addDelegateClass(String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
+
         this.delegateClass.add(className);
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine("findClass className:{}" + name);
+            logger.fine("findClass className:" + name);
         }
         return super.findClass(name);
     }
@@ -103,7 +101,7 @@ public class TestClassLoader extends TransformClassLoader {
 
     public void addTransformer(final String targetClassName, final TransformCallback transformer) {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine("addTransformer targetClassName:{}" + targetClassName + " callback:{}" + transformer);
+            logger.fine("addTransformer targetClassName:" + targetClassName + " callback:" + transformer);
         }
         final Matcher matcher = Matchers.newClassNameMatcher(targetClassName);
         final TransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformer);
@@ -122,7 +120,7 @@ public class TestClassLoader extends TransformClassLoader {
     @Override
     protected Class<?> loadClassByDelegation(String name) throws ClassNotFoundException {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine("loadClassByDelegation className:{}" + name);
+            logger.fine("loadClassByDelegation className:" + name);
         }
         return super.loadClassByDelegation(name);
     }

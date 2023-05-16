@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -32,11 +33,11 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
  */
 public class TestSpanStorageFactory implements StorageFactory {
 
-    private final DataSender dataSender;
+    private final DataSender<SpanType> dataSender;
 
     @Inject
-    public TestSpanStorageFactory(@SpanDataSender DataSender dataSender) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
+    public TestSpanStorageFactory(@SpanDataSender DataSender<SpanType> dataSender) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
     }
 
     @Override

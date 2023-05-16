@@ -1,20 +1,21 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.Objects;
 
 public class DefaultIgnoreErrorHandler implements IgnoreErrorHandler {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     // for debug
     private final String errorHandlerName;
     private final ThrowableMatcher throwableMatcher;
     private final MessageMatcher messageMatcher;
 
     public DefaultIgnoreErrorHandler(String errorHandlerName, ThrowableMatcher throwableMatcher, MessageMatcher messageMatcher) {
-        this.errorHandlerName = Assert.requireNonNull(errorHandlerName, "errorHandlerName");
-        this.throwableMatcher = Assert.requireNonNull(throwableMatcher, "throwableMatcher");
-        this.messageMatcher = Assert.requireNonNull(messageMatcher, "messageMatcher");
+        this.errorHandlerName = Objects.requireNonNull(errorHandlerName, "errorHandlerName");
+        this.throwableMatcher = Objects.requireNonNull(throwableMatcher, "throwableMatcher");
+        this.messageMatcher = Objects.requireNonNull(messageMatcher, "messageMatcher");
     }
 
     @Override
@@ -26,7 +27,7 @@ public class DefaultIgnoreErrorHandler implements IgnoreErrorHandler {
         if (throwableMatcher.match(thClass)) {
             if (messageMatcher.match(th.getMessage())) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Ignore Exception th:{} handler:{},", th.toString(), this);
+                    logger.debug("Ignore Exception th:{} handler:{},", th, this);
                 }
                 return true;
             }

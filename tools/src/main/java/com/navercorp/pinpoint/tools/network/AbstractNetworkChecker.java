@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class AbstractNetworkChecker implements NetworkChecker {
 
     private static final String WHITE_SPACE = "    "; // 4space
-    private static final String LINE_SEPARATOR = "\r\n";
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     private final String testName;
 
@@ -43,7 +43,7 @@ public abstract class AbstractNetworkChecker implements NetworkChecker {
             report.append(createReport(ipAddress, check));
         }
 
-        System.out.println(report.toString());
+        System.out.println(report);
 
     }
 
@@ -59,12 +59,11 @@ public abstract class AbstractNetworkChecker implements NetworkChecker {
             report.append(createReport(ipAddress, check));
         }
 
-        System.out.println(report.toString());
+        System.out.println(report);
     }
 
     private String getHostName(InetSocketAddress hostAddress) {
-        String hostName = hostAddress.getHostName();
-        return hostName;
+        return hostAddress.getHostName();
     }
 
     private String createReport(InetSocketAddress socketAddress, boolean check) {

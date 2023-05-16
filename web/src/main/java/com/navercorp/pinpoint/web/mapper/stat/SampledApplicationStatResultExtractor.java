@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSamplingHandler;
@@ -30,13 +31,14 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class SampledApplicationStatResultExtractor implements ResultsExtractor<List<AggregationStatData>> {
+public class SampledApplicationStatResultExtractor<IN extends JoinStatBo, OUT extends AggregationStatData>
+        implements ResultsExtractor<List<OUT>> {
 
     private final TimeWindow timeWindow;
-    private final ApplicationStatMapper rowMapper;
-    private final ApplicationStatSampler sampler;
+    private final RowMapper<List<IN>> rowMapper;
+    private final ApplicationStatSampler<IN, OUT> sampler;
 
-    public SampledApplicationStatResultExtractor(TimeWindow timeWindow, ApplicationStatMapper rowMapper, ApplicationStatSampler sampler) {
+    public SampledApplicationStatResultExtractor(TimeWindow timeWindow, RowMapper<List<IN>> rowMapper, ApplicationStatSampler<IN, OUT> sampler) {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
@@ -46,11 +48,11 @@ public class SampledApplicationStatResultExtractor implements ResultsExtractor<L
     }
 
     @Override
-    public List<AggregationStatData> extractData(ResultScanner results) throws Exception {
+    public List<OUT> extractData(ResultScanner results) throws Exception {
         int rowNum = 0;
-        ApplicationStatSamplingHandler samplingHandler = new EagerSamplingHandler(timeWindow, sampler);
+        ApplicationStatSamplingHandler<IN, OUT> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (Result result : results) {
-            for (JoinStatBo dataPoint : this.rowMapper.mapRow(result, rowNum++)) {
+            for (IN dataPoint : this.rowMapper.mapRow(result, rowNum++)) {
                 samplingHandler.addDataPoint(dataPoint);
             }
         }

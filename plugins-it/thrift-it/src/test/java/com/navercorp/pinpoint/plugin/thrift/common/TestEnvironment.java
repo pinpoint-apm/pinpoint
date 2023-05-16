@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.thrift.common;
 
 import java.net.InetSocketAddress;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
@@ -36,7 +37,7 @@ public class TestEnvironment {
 
     private final String serverHost = SERVER_HOST;
     private final String serverIp = SERVER_IP;
-    private final int port = MIN_SERVER_PORT + (int)(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT) + 1);
+    private final int port = SocketUtils.findAvailableTcpPort(10000, 19999);
     private final String httpPath = HTTP_PATH;
     private final String httpUrl = "http://" + serverHost + ":" + port + httpPath;
     private final InetSocketAddress serverAddress = new InetSocketAddress(SERVER_IP, this.port);

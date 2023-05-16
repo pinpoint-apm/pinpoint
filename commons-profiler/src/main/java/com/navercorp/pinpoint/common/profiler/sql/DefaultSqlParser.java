@@ -112,7 +112,7 @@ public class DefaultSqlParser implements SqlParser {
                     if (lookAhead1(sql, i) == '\'') {
                         normalized.append("''");
                         // no need to add parameter to output as $ is not converted
-                        i += 2;
+                        i += 1;
                         break;
                     } else {
                         change = true;
@@ -476,7 +476,7 @@ public class DefaultSqlParser implements SqlParser {
             return sql;
         }
 
-        final Queue<String> bindValueQueue = new LinkedList<String>(bindValues);
+        final Queue<String> bindValueQueue = new LinkedList<>(bindValues);
         final int length = sql.length();
         final StringBuilder result = new StringBuilder(length + 16);
 

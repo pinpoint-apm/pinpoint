@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConfig;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
@@ -92,7 +93,7 @@ public class CxfClientInvokeSyncMethodInterceptor implements AroundInterceptor {
     }
 
     private Object[] getParameters(String operation, Object[] args) {
-        Object[] orgParams = (args[2] == null) ? null : (Object[]) args[2];
+        Object[] orgParams = ArrayArgumentUtils.getArgument(args, 2, Object[].class);
         if (orgParams == null) {
             return null;
         }

@@ -15,26 +15,26 @@
  */
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author minwoo.jung
  */
-public abstract class SendDataToFlinkService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class SendDataToFlinkService {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private volatile List<FlinkTcpDataSender> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
+    private volatile List<TcpDataSender<TBase<?, ?>>> dataSenderList = new ArrayList<>();
     private final AtomicInteger callCount = new AtomicInteger(1);
 
     protected void sendData(TBase<?, ?> data) {
-        FlinkTcpDataSender tcpDataSender = roundRobinTcpDataSender();
+        TcpDataSender<TBase<?, ?>> tcpDataSender = roundRobinTcpDataSender();
         if (tcpDataSender == null) {
             logger.warn("not send flink server. Because FlinkTcpDataSender is null.");
             return;
@@ -50,21 +50,17 @@ public abstract class SendDataToFlinkService {
         }
     }
 
-    private FlinkTcpDataSender roundRobinTcpDataSender() {
-        if (flinkTcpDataSenderList.isEmpty()) {
+    private TcpDataSender<TBase<?, ?>> roundRobinTcpDataSender() {
+        final List<TcpDataSender<TBase<?, ?>>> copyList = this.dataSenderList;
+        if (copyList.isEmpty()) {
             return null;
         }
 
-        int count = callCount.getAndIncrement();
-        int tcpDataSenderIndex = count % flinkTcpDataSenderList.size();
-
-        if (tcpDataSenderIndex < 0) {
-            tcpDataSenderIndex = tcpDataSenderIndex * -1;
-            callCount.set(0);
-        }
+        int count = Math.abs(callCount.getAndIncrement());
+        int tcpDataSenderIndex = count % copyList.size();
 
         try {
-            return flinkTcpDataSenderList.get(tcpDataSenderIndex);
+            return copyList.get(tcpDataSenderIndex);
         } catch (Exception e) {
             logger.warn("not get FlinkTcpDataSender", e);
         }
@@ -72,7 +68,7 @@ public abstract class SendDataToFlinkService {
         return null;
     }
 
-    public void replaceFlinkTcpDataSenderList(List<FlinkTcpDataSender> flinkTcpDataSenderList) {
-        this.flinkTcpDataSenderList = new CopyOnWriteArrayList<FlinkTcpDataSender>(flinkTcpDataSenderList);
+    public void replaceFlinkTcpDataSenderList(List<TcpDataSender<TBase<?, ?>>> flinkTcpDataSenderList) {
+        this.dataSenderList = new ArrayList<>(flinkTcpDataSenderList);
     }
 }

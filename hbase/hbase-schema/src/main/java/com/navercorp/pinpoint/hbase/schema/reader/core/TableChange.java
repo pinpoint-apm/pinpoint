@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.hbase.schema.reader.core;
 
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +35,7 @@ public abstract class TableChange implements Change {
             String name,
             TableConfiguration tableConfiguration,
             List<ColumnFamilyChange> columnFamilyChanges) {
-        if (StringUtils.isEmpty(name)) {
-            throw new IllegalArgumentException("name must not be empty");
-        }
+        Assert.hasLength(name, "name must not be empty");
         this.name = name;
         this.tableConfiguration = Objects.requireNonNull(tableConfiguration, "tableConfiguration");
         this.columnFamilyChanges = Objects.requireNonNull(columnFamilyChanges, "columnFamilyChanges");

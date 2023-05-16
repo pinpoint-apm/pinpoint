@@ -1,0 +1,22 @@
+# Defined in commandlineArgument of agent-test pom.xml
+
+server:
+  port: 18080
+
+springdoc:
+  swagger-ui:
+    path: /
+
+logging:
+  level:
+    reactor.netty.http.client: debug
+    org.springframework.cloud.gateway.filter.ratelimit: debug
+
+spring:
+  redis:
+    cluster:
+      nodes:
+        - localhost:18001
+        - localhost:18002
+        - localhost:18003
+

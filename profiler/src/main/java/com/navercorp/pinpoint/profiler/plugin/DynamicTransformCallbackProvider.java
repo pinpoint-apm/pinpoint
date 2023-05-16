@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 import java.lang.reflect.Constructor;
@@ -32,13 +32,13 @@ public class DynamicTransformCallbackProvider implements TransformCallbackProvid
     private final Class<?>[] parameterTypes;
 
     public DynamicTransformCallbackProvider(String transformCallbackClassName) {
-        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
+        this.transformCallbackClassName = Objects.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         this.parameters = null;
         this.parameterTypes = null;
     }
 
     public DynamicTransformCallbackProvider(String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes) {
-        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
+        this.transformCallbackClassName = Objects.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         this.parameters = parameters;
         this.parameterTypes = parameterTypes;
     }

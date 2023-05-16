@@ -38,13 +38,9 @@ public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContex
         traceContext.cacheApi(HYSTRIX_COMMAND_TIMEOUT_TIMER_METHOD_DESCRIPTOR);
     }
 
+    // BEFORE
     @Override
-    protected AsyncContext getAsyncContext(Object target) {
-        return getAsyncContext(target, null);
-    }
-
-    @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args) {
+    public AsyncContext getAsyncContext(Object target, Object[] args) {
         if (target instanceof EnclosingInstanceAccessor) {
             return AsyncContextAccessorUtils.getAsyncContext(((EnclosingInstanceAccessor) target)._$PINPOINT$_getEnclosingInstance());
         }
@@ -52,11 +48,20 @@ public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContex
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    }
+
+    // AFTER
+    @Override
+    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
+        if (target instanceof EnclosingInstanceAccessor) {
+            return AsyncContextAccessorUtils.getAsyncContext(((EnclosingInstanceAccessor) target)._$PINPOINT$_getEnclosingInstance());
+        }
+        return null;
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_COMMAND_TIMEOUT_TIMER_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);

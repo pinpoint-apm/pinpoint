@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author jaehong.kim
@@ -31,7 +32,7 @@ import static org.junit.Assert.*;
 public class InternalClassMetadataReaderTest {
 
     @Test
-    public void getInternalClassMetadata() throws Exception {
+    public void getInternalClassMetadata() {
         final Class<?> clazz = String.class;
         final byte[] classBinary = BytecodeUtils.getClassFile(ClassLoaderUtils.getDefaultClassLoader(), clazz.getName());
 
@@ -40,9 +41,9 @@ public class InternalClassMetadataReaderTest {
         assertEquals(JavaAssistUtils.javaNameToJvmName(clazz.getName()), classMetadata.getClassInternalName());
 
         // interfaces
-        for (Class interfacez : clazz.getInterfaces()) {
+        for (Class<?> interfacez : clazz.getInterfaces()) {
             final String interfaceInternalName = JavaAssistUtils.javaNameToJvmName(interfacez.getName());
-            Assert.assertTrue(classMetadata.getInterfaceInternalNames().contains(interfaceInternalName));
+            assertThat(classMetadata.getInterfaceInternalNames()).contains(interfaceInternalName);
         }
 
         // super
@@ -51,12 +52,12 @@ public class InternalClassMetadataReaderTest {
         // annotations
         for (Annotation annotation : clazz.getAnnotations()) {
             final String annotationInternalName = JavaAssistUtils.javaNameToJvmName(annotation.annotationType().getName());
-            Assert.assertTrue(classMetadata.getAnnotationInternalNames().contains(annotationInternalName));
+            assertThat(classMetadata.getAnnotationInternalNames()).contains(annotationInternalName);
         }
     }
 
     @Test
-    public void SuperIsNull() throws Exception {
+    public void SuperIsNull() {
         final Class<?> clazz = Object.class;
         final byte[] classBinary = BytecodeUtils.getClassFile(ClassLoaderUtils.getDefaultClassLoader(), clazz.getName());
         InternalClassMetadata classMetadata = InternalClassMetadataReader.readInternalClassMetadata(classBinary);

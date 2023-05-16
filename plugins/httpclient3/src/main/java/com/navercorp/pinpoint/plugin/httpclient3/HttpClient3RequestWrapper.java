@@ -20,12 +20,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.protocol.Protocol;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -41,7 +42,7 @@ public class HttpClient3RequestWrapper implements ClientRequestWrapper {
     private final HttpConnection httpConnection;
 
     public HttpClient3RequestWrapper(final HttpMethod httpMethod, final HttpConnection httpConnection) {
-        this.httpMethod = Assert.requireNonNull(httpMethod, "httpMethod");
+        this.httpMethod = Objects.requireNonNull(httpMethod, "httpMethod");
         this.httpConnection = httpConnection;
     }
 

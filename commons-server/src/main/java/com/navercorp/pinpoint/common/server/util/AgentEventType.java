@@ -26,7 +26,10 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.*;
+import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.AGENT_LIFECYCLE;
+import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.DURATIONAL;
+import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.THREAD_DUMP;
+import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.USER_REQUEST;
 
 /**
  * @author HyunGil Jeong
@@ -97,17 +100,8 @@ public enum AgentEventType {
         return null;
     }
 
-    /**
-     * typo API
-     * @deprecated Since 1.7.0. Use {@link #getTypesByCategory}
-     */
-    @Deprecated
-    public static Set<AgentEventType> getTypesByCatgory(AgentEventTypeCategory category) {
-        return getTypesByCategory(category);
-    }
-
     public static Set<AgentEventType> getTypesByCategory(AgentEventTypeCategory category) {
-        final Set<AgentEventType> eventTypes = new HashSet<AgentEventType>();
+        final Set<AgentEventType> eventTypes = new HashSet<>();
         for (AgentEventType eventType : AGENT_EVENT_TYPE) {
             if (eventType.category.contains(category)) {
                 eventTypes.add(eventType);

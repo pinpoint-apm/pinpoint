@@ -16,56 +16,56 @@
 
 package com.navercorp.pinpoint.common.plugin.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class HostAndPortTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void testToHostAndPortString() throws Exception {
+    public void testToHostAndPortString() {
         String hostAndPortString = HostAndPort.toHostAndPortString("127.0.1.1", 80);
-        Assert.assertEquals("127.0.1.1:80", hostAndPortString);
+        Assertions.assertEquals("127.0.1.1:80", hostAndPortString);
     }
 
     @Test
-    public void testToHostAndPortString_defaultPort() throws Exception {
+    public void testToHostAndPortString_defaultPort() {
         String hostAndPortString = HostAndPort.toHostAndPortString("127.0.1.1", HostAndPort.NO_PORT);
-        Assert.assertEquals("127.0.1.1", hostAndPortString);
+        Assertions.assertEquals("127.0.1.1", hostAndPortString);
     }
 
 
     @Test
-    public void testIsValidPort() throws Exception {
+    public void testIsValidPort() {
 
-        Assert.assertTrue(HostAndPort.isValidPort(0));
-        Assert.assertTrue(HostAndPort.isValidPort(8080));
-        Assert.assertTrue(HostAndPort.isValidPort(65535));
+        Assertions.assertTrue(HostAndPort.isValidPort(0));
+        Assertions.assertTrue(HostAndPort.isValidPort(8080));
+        Assertions.assertTrue(HostAndPort.isValidPort(65535));
 
-        Assert.assertFalse(HostAndPort.isValidPort(-1));
+        Assertions.assertFalse(HostAndPort.isValidPort(-1));
     }
 
     @Test
-    public void testGetPortOrNoPort() throws Exception {
+    public void testGetPortOrNoPort() {
 
-        Assert.assertEquals(HostAndPort.getPortOrNoPort(1), 1);
+        Assertions.assertEquals(HostAndPort.getPortOrNoPort(1), 1);
 
-        Assert.assertEquals(HostAndPort.getPortOrNoPort(-65535), -1);
-        Assert.assertEquals(HostAndPort.getPortOrNoPort(-1), -1);
+        Assertions.assertEquals(HostAndPort.getPortOrNoPort(-65535), -1);
+        Assertions.assertEquals(HostAndPort.getPortOrNoPort(-1), -1);
     }
 
     @Test
-    public void testGetValidPortOrNoPort() throws Exception {
+    public void testGetValidPortOrNoPort() {
 
-        Assert.assertEquals(HostAndPort.getValidPortOrNoPort(70000), -1);
+        Assertions.assertEquals(HostAndPort.getValidPortOrNoPort(70000), -1);
 
-        Assert.assertEquals(HostAndPort.getValidPortOrNoPort(-65535), -1);
-        Assert.assertEquals(HostAndPort.getValidPortOrNoPort(-1), -1);
+        Assertions.assertEquals(HostAndPort.getValidPortOrNoPort(-65535), -1);
+        Assertions.assertEquals(HostAndPort.getValidPortOrNoPort(-1), -1);
     }
 }

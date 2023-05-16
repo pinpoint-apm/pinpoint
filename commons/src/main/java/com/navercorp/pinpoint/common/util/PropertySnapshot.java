@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,9 +31,8 @@ public class PropertySnapshot implements SimpleProperty {
     }
 
     private Properties copy(Properties properties) {
-        if (properties == null) {
-            throw new NullPointerException("properties must not be null");
-        }
+        Objects.requireNonNull(properties, "properties");
+
         final Set<String> keys = properties.stringPropertyNames();
         final Properties copy = new Properties();
         for (String key : keys) {

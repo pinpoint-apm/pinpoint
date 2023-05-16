@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.hbase.manager;
 
 import com.navercorp.pinpoint.hbase.manager.logging.Markers;
 import com.navercorp.pinpoint.hbase.manager.task.HelpTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,7 +34,7 @@ import java.util.Collections;
         "com.navercorp.pinpoint.hbase.schema"})
 public class HbaseSchemaManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HbaseSchemaManager.class);
+    private static final Logger LOGGER = LogManager.getLogger(HbaseSchemaManager.class);
 
     public static void main(String[] args) {
         ProgramCommand programCommand = ProgramCommand.parseArgs(args);

@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
 import java.util.Random;
 
 /**
@@ -27,14 +26,12 @@ import java.util.Random;
  */
 public class ByteSizeUnitTest {
 
-    private final ByteSizeUnit[] byteSizeUnitSet = EnumSet.allOf(ByteSizeUnit.class).toArray(new ByteSizeUnit[0]);
-
     @Test
     public void sizeTest() {
-        Assert.assertTrue(ByteSizeUnit.KILO_BYTES.getUnitSize() > ByteSizeUnit.BYTES.getUnitSize());
-        Assert.assertTrue(ByteSizeUnit.MEGA_BYTES.getUnitSize() > ByteSizeUnit.KILO_BYTES.getUnitSize());
-        Assert.assertTrue(ByteSizeUnit.GIGA_BYTES.getUnitSize() > ByteSizeUnit.MEGA_BYTES.getUnitSize());
-        Assert.assertTrue(ByteSizeUnit.TERA_BYTES.getUnitSize() > ByteSizeUnit.GIGA_BYTES.getUnitSize());
+        Assertions.assertTrue(ByteSizeUnit.KILO_BYTES.getUnitSize() > ByteSizeUnit.BYTES.getUnitSize());
+        Assertions.assertTrue(ByteSizeUnit.MEGA_BYTES.getUnitSize() > ByteSizeUnit.KILO_BYTES.getUnitSize());
+        Assertions.assertTrue(ByteSizeUnit.GIGA_BYTES.getUnitSize() > ByteSizeUnit.MEGA_BYTES.getUnitSize());
+        Assertions.assertTrue(ByteSizeUnit.TERA_BYTES.getUnitSize() > ByteSizeUnit.GIGA_BYTES.getUnitSize());
     }
 
     @Test
@@ -85,12 +82,12 @@ public class ByteSizeUnitTest {
         long result6 = ByteSizeUnit.getByteSize(value6);
         long result7 = byteSizeUnit.toBytesSize(Long.parseLong(value, 10));
 
-        Assert.assertEquals(result1, result2);
-        Assert.assertEquals(result1, result3);
-        Assert.assertEquals(result1, result4);
-        Assert.assertEquals(result1, result5);
-        Assert.assertEquals(result1, result6);
-        Assert.assertEquals(result1, result7);
+        Assertions.assertEquals(result1, result2);
+        Assertions.assertEquals(result1, result3);
+        Assertions.assertEquals(result1, result4);
+        Assertions.assertEquals(result1, result5);
+        Assertions.assertEquals(result1, result6);
+        Assertions.assertEquals(result1, result7);
     }
 
     @Test
@@ -101,12 +98,14 @@ public class ByteSizeUnitTest {
         byteSizeUnit.toBytesSize(maxSize);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void maxUnitFailTest() {
-        ByteSizeUnit byteSizeUnit = getRandomByteSizeUnit(ByteSizeUnit.BYTES);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ByteSizeUnit byteSizeUnit = getRandomByteSizeUnit(ByteSizeUnit.BYTES);
 
-        long maxSize = byteSizeUnit.getMaxSize();
-        byteSizeUnit.toBytesSize(maxSize + 1);
+            long maxSize = byteSizeUnit.getMaxSize();
+            byteSizeUnit.toBytesSize(maxSize + 1);
+        });
     }
 
     private ByteSizeUnit getRandomByteSizeUnit(ByteSizeUnit exceptValue) {
@@ -137,11 +136,9 @@ public class ByteSizeUnitTest {
     }
 
     private void expectedThrowExceptionTest(String value) {
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             ByteSizeUnit.getByteSize(value);
-            Assert.fail(value);
-        } catch (Exception e) {
-        }
+        });
     }
 
 

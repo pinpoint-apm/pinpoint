@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.okhttp;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,9 +25,9 @@ import org.junit.Test;
 public class EndPointUtilsTest {
     @Test
     public void getPort() throws Exception {
-        Assert.assertEquals(EndPointUtils.getPort(-1, 80), -1);
-        Assert.assertEquals(EndPointUtils.getPort(80, 80), -1);
-        Assert.assertEquals(EndPointUtils.getPort(80, 8080), 80);
+        Assertions.assertEquals(EndPointUtils.getPort(-1, 80), -1);
+        Assertions.assertEquals(EndPointUtils.getPort(80, 80), -1);
+        Assertions.assertEquals(EndPointUtils.getPort(80, 8080), 80);
     }
 
 }

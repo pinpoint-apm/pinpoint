@@ -67,7 +67,7 @@ public class InformixJdbcUrlParser implements JdbcUrlParserV2 {
         maker.after(INFORMIX_URL_PREFIX);
 
         String hostAndPort = maker.after("//").before('/').value();
-        List<String> hostList = new ArrayList<String>(1);
+        List<String> hostList = new ArrayList<>(1);
         hostList.add(hostAndPort);
 
         String databaseId = maker.next().after("/").before(':').value();

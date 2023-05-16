@@ -1,0 +1,56 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.l-transaction-view-top {
+    height: 100%;
+    display: flex;
+}
+.l-left-section, .l-right-section {
+    width: 50%;
+    height: 100%;
+    padding: 5px 25px
+}
+.l-left-section {
+    background-color: var(--background-default);
+}
+.l-tab-menu-list {
+    border-bottom: 1px solid var(--border-primary);
+}
+.l-tab-menu-list:after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0;
+    visibility: hidden;
+    clear: both;
+}
+.l-tab-menu-list-item {
+    float: left;
+}
+.l-tab-menu-list-item a {
+    cursor: pointer;
+    display:inline-block;
+    font-size: 13px;
+    color: var(--text-primary-lightest);
+    padding: 14px 15px;
+    border: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    line-height: 1em;
+}
+.l-tab-menu-list-item:hover a {
+    border-color: var(--border-primary) var(--border-primary) var(--border-knockout);
+}
+.active a {
+    color: var(--text-knockout);
+    background: var(--primary);
+}
+.active a:hover {
+    border-color: transparent;
+}
+.l-right-section {
+    position: relative;
+    background-color: var(--background-primary);
+}

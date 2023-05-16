@@ -1,0 +1,57 @@
+{
+  "schemaName": "systemMetricDouble",
+  "dimensionFieldSpecs": [
+    {
+      "name": "tenantId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "hostGroupName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "hostName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "fieldName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "tags",
+      "dataType": "STRING",
+      "singleValueField": false,
+      "defaultNullValue": "null"
+    },
+    {
+      "name": "version",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "fieldValue",
+      "dataType": "DOUBLE",
+      "defaultNullValue": -1.0
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "eventTime",
+      "dataType": "TIMESTAMP",
+      "format" : "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

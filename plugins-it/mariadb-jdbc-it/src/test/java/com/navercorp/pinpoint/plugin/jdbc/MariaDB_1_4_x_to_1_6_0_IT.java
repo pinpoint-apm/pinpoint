@@ -23,11 +23,14 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,10 +46,12 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(7)
+@JvmVersion(8)
+@PinpointLogLocationConfig(".")
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.4.min,1.6.min)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
-        JDBCTestConstants.VERSION})
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.4.min,1.6.min)",
+        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+@SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
@@ -70,7 +75,7 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbStatement#executeQuery(String)
         Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
@@ -87,7 +92,7 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareStatement(String)
         Method prepareStatement = jdbcApi.getConnection().getPrepareStatement();
@@ -108,7 +113,7 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareCall(String)
         Method prepareCall = jdbcApi.getConnection().getPrepareCall();

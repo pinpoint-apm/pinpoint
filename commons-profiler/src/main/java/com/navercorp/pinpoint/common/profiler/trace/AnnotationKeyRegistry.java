@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -38,17 +39,16 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
 
     private final IntHashMap<AnnotationKey> apiErrorLookupTable;
 
-    private AnnotationKeyRegistry(HashMap<Integer, AnnotationKey> buildMap) {
-        if (buildMap == null) {
-            throw new NullPointerException("buildMap");
-        }
+    private AnnotationKeyRegistry(Map<Integer, AnnotationKey> buildMap) {
+        Objects.requireNonNull(buildMap, "buildMap");
+
         this.codeLookupTable = IntHashMapUtils.copy(buildMap);
         this.nameLookupTable = buildNameTable(buildMap.values());
         this.apiErrorLookupTable = buildApiMetaDataError(buildMap.values());
     }
 
     private Map<String, AnnotationKey> buildNameTable(Collection<AnnotationKey> buildMap) {
-        final HashMap<String, AnnotationKey> nameLookupTable = new HashMap<String, AnnotationKey>();
+        final Map<String, AnnotationKey> nameLookupTable = new HashMap<>();
         for (AnnotationKey annotationKey : buildMap) {
             final AnnotationKey exist = nameLookupTable.put(annotationKey.getName(), annotationKey);
             if (exist != null) {
@@ -63,7 +63,7 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
     }
 
     private IntHashMap<AnnotationKey> buildApiMetaDataError(Collection<AnnotationKey> buildMap) {
-        final IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
+        final IntHashMap<AnnotationKey> table = new IntHashMap<>();
 
         for (AnnotationKey annotationKey : buildMap) {
             if (annotationKey.isErrorApiMetadata()) {
@@ -98,12 +98,11 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
 
     static class Builder {
 
-        private final HashMap<Integer, AnnotationKey> buildMap = new HashMap<Integer, AnnotationKey>();
+        private final Map<Integer, AnnotationKey> buildMap = new HashMap<>();
 
         void addAnnotationKey(AnnotationKey annotationKey) {
-            if (annotationKey == null) {
-                throw new NullPointerException("annotationKey");
-            }
+            Objects.requireNonNull(annotationKey, "annotationKey");
+
             int code = annotationKey.getCode();
             final AnnotationKey exist = this.buildMap.put(code, annotationKey);
             if (exist != null) {

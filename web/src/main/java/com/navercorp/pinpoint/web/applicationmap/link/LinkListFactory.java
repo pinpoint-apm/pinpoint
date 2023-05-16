@@ -16,23 +16,22 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author HyunGil Jeong
  */
 public class LinkListFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(LinkListFactory.class);
+    private static final Logger logger = LogManager.getLogger(LinkListFactory.class);
 
     public static LinkList createLinkList(LinkType linkType, NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, Range range) {
         // don't change

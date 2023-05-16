@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import org.apache.thrift.TBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 

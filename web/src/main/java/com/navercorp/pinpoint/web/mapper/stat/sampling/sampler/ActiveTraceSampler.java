@@ -21,16 +21,16 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.TitledAgentStatPoint;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.function.ToIntFunction;
 
@@ -39,8 +39,6 @@ import java.util.function.ToIntFunction;
  */
 @Component
 public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, SampledActiveTrace> {
-
-    private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledActiveTrace.UNCOLLECTED_COUNT);
 
     @Override
     public SampledActiveTrace sampleDataPoints(int timeWindowIndex, long timestamp, List<ActiveTraceBo> dataPoints, ActiveTraceBo previousDataPoint) {
@@ -89,13 +87,16 @@ public class ActiveTraceSampler implements AgentStatSampler<ActiveTraceBo, Sampl
         if (CollectionUtils.isEmpty(values)) {
             return SampledActiveTrace.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
+        IntSummaryStatistics stats = values.stream()
+                .mapToInt(Integer::intValue)
+                .summaryStatistics();
+        double avg = Precision.round(stats.getAverage(), 1);
         return new TitledAgentStatPoint<>(
                 title,
                 timestamp,
-                INTEGER_DOWN_SAMPLER.sampleMin(values),
-                INTEGER_DOWN_SAMPLER.sampleMax(values),
-                INTEGER_DOWN_SAMPLER.sampleAvg(values, 1),
-                INTEGER_DOWN_SAMPLER.sampleSum(values));
+                stats.getMin(),
+                stats.getMax(),
+                avg,
+                (int) stats.getSum());
     }
 }

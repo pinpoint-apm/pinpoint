@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.ValueEncoding
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -34,8 +32,8 @@ import java.util.Set;
  * @author HyunGil Jeong
  */
 public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
-    NONE(new ValueEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER)),
-    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER));
+    NONE(new ValueEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER)),
+    REPEAT_COUNT(new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER));
 
     private final EncodingStrategy<Short> delegate;
     private static final Set<UnsignedShortEncodingStrategy> UNSIGNED_SHORT_ENCODING_STRATEGY = EnumSet.allOf(UnsignedShortEncodingStrategy.class);
@@ -93,7 +91,7 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
 
             private static final int SHORT_BYTE_SIZE = 2;
 
-            private final List<Short> values = new ArrayList<Short>();
+            private final List<Short> values = new ArrayList<>();
             private short previousValue = 0;
 
             private int byteSizeValue = 0;
@@ -120,15 +118,15 @@ public enum UnsignedShortEncodingStrategy implements EncodingStrategy<Short> {
                     this.byteSizeRepeatCount += BytesUtils.computeVar32Size(this.repeatedValueCount);
                 }
                 EncodingStrategy<Short> bestStrategy;
-                int minimumNumBytesUsed = Collections.min(Arrays.asList(
+                int minimumNumBytesUsed = Math.min(
                         this.byteSizeValue,
-                        this.byteSizeRepeatCount));
+                        this.byteSizeRepeatCount);
                 if (this.byteSizeValue == minimumNumBytesUsed) {
                     bestStrategy = NONE;
                 } else {
                     bestStrategy = REPEAT_COUNT;
                 }
-                List<Short> values = new ArrayList<Short>(this.values);
+                List<Short> values = new ArrayList<>(this.values);
                 this.values.clear();
                 return new Analyzer(bestStrategy, values);
             }

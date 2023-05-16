@@ -26,6 +26,7 @@ import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.service.TestSenderServ
 import org.junit.Assert;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,9 +43,8 @@ public class SpringAmqpRabbitTestRunner {
     private final String remoteAddress;
 
     public SpringAmqpRabbitTestRunner(TestApplicationContext context) {
-        if (context == null) {
-            throw new NullPointerException("context");
-        }
+        Objects.requireNonNull(context, "context");
+
         this.testSenderService = context.getTestSenderService();
         this.testMessageHolder = context.getTestMessageHolder();
         this.testReceiverService = context.getTestReceiverService();

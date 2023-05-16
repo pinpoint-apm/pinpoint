@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatService<T extends AgentStatDataPoint> {
+
+public interface AgentStatService<T extends AgentStatDataPoint> extends ChartTypeSupport {
     List<T> selectAgentStatList(String agentId, Range range);
 }

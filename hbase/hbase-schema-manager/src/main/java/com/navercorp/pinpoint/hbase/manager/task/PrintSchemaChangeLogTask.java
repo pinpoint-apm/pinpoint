@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.hbase.manager.task;
 import com.navercorp.pinpoint.hbase.manager.XmlFormatter;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
 import com.navercorp.pinpoint.hbase.schema.service.HbaseSchemaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class PrintSchemaChangeLogTask implements HbaseSchemaManagerTask {
 
     private static final String LINE_BREAK = System.lineSeparator();
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseSchemaService hbaseSchemaService;
     private final XmlFormatter xmlFormatter;

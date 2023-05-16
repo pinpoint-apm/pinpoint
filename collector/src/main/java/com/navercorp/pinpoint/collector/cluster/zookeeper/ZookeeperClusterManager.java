@@ -21,17 +21,17 @@ import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.AddressParser;
 import com.navercorp.pinpoint.collector.util.MultipleAddress;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonState;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.curator.utils.ZKPaths;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ZookeeperClusterManager {
     // it is okay for the collector to retry indefinitely, as long as RETRY_INTERVAL is set reasonably
     private static final int DEFAULT_RETRY_INTERVAL = 60000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GetAndRegisterTask getAndRegisterTask = new GetAndRegisterTask();
     private final StopTask stopTask = new StopTask();
@@ -123,7 +123,7 @@ public class ZookeeperClusterManager {
         if (!(this.workerState.changeStateDestroying())) {
             CommonState state = this.workerState.getCurrentState();
 
-            logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+            logger.info("{} already {}.", this.getClass().getSimpleName(), state);
             return;
         }
 
@@ -138,13 +138,12 @@ public class ZookeeperClusterManager {
             logger.warn("Insert stopTask failed.");
         }
 
-        boolean interrupted = false;
         while (this.workerThread.isAlive()) {
             this.workerThread.interrupt();
             try {
-                this.workerThread.join(100L);
+                this.workerThread.join(3000L);
             } catch (InterruptedException e) {
-                interrupted = true;
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -164,7 +163,7 @@ public class ZookeeperClusterManager {
             }
         } else {
             CommonState state = this.workerState.getCurrentState();
-            logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
+            logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state);
         }
     }
 
@@ -214,7 +213,6 @@ public class ZookeeperClusterManager {
 
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     class GetAndRegisterTask implements Task {
 
         @SuppressWarnings("SuspiciousMethodCalls")
@@ -252,7 +250,7 @@ public class ZookeeperClusterManager {
             return needNotRetry;
         }
 
-        private List<Address> getTargetAddressList(String parentPath) throws PinpointZookeeperException, InterruptedException {
+        private List<Address> getTargetAddressList(String parentPath) throws PinpointZookeeperException {
             List<Address> result = new ArrayList<>();
 
             List<String> childNodeList = client.getChildNodeList(parentPath, true);
@@ -261,7 +259,7 @@ public class ZookeeperClusterManager {
                 for (String childNodeName : childNodeList) {
                     String fullPath = ZKPaths.makePath(parentPath, childNodeName);
                     byte[] data = client.getData(fullPath);
-                    String nodeContents = StringUtils.toString(data);
+                    String nodeContents = BytesUtils.toString(data);
 
                     String[] nodeAddresses = nodeContents.split("\r\n");
 
@@ -278,7 +276,7 @@ public class ZookeeperClusterManager {
                 logger.warn("Failed to process getting detail address. message:{}", e.getMessage(), e);
             }
 
-            return AddressParser.parseAddressLIst(childNodeList);
+            return AddressParser.parseAddressList(childNodeList);
         }
 
         private List<String> createHostList(String[] hostAddresses, String representativeHostAddress) {

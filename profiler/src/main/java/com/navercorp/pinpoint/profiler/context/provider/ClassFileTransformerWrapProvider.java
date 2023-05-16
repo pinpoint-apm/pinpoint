@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
+import java.util.Objects;
+import com.navercorp.pinpoint.profiler.transformer.ClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -32,14 +32,14 @@ import java.lang.instrument.ClassFileTransformer;
  * @author Woonduk Kang(emeroad)
  */
 public class ClassFileTransformerWrapProvider implements Provider<ClassFileTransformer> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ProfilerConfig profilerConfig;
     private final Provider<ClassFileTransformerDispatcher> classFileTransformerDispatcherProvider;
 
     @Inject
     public ClassFileTransformerWrapProvider(ProfilerConfig profilerConfig, Provider<ClassFileTransformerDispatcher> classFileTransformerDispatcherProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.classFileTransformerDispatcherProvider = Assert.requireNonNull(classFileTransformerDispatcherProvider, "classFileTransformerDispatcherProvider");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.classFileTransformerDispatcherProvider = Objects.requireNonNull(classFileTransformerDispatcherProvider, "classFileTransformerDispatcherProvider");
     }
 
 

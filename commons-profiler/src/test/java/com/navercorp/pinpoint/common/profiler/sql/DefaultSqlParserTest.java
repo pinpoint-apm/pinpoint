@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.profiler.sql;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ import java.util.List;
  */
 public class DefaultSqlParserTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
@@ -47,15 +46,6 @@ public class DefaultSqlParserTest {
         String s2 = parsingResult2.getNormalizedSql();
         logger.debug(s2);
 
-        logger.debug("{}", (char) -1);
-        String str = "s";
-        logger.debug("{}", str.codePointAt(0));
-        logger.debug("{}", (int) str.charAt(0));
-        logger.debug("high:{}", Character.MAX_HIGH_SURROGATE);
-        logger.debug("low:{}", Character.MIN_LOW_SURROGATE);
-        logger.debug("{}", (int) Character.MIN_LOW_SURROGATE);
-        logger.debug("{}", (int) Character.MAX_HIGH_SURROGATE);
-
         NormalizedSql parsingResult3 = sqlParser.normalizedSql("''");
         String s3 = parsingResult3.getNormalizedSql();
         logger.debug("s3:{}", s3);
@@ -69,48 +59,36 @@ public class DefaultSqlParserTest {
 
     @Test
     public void complex() {
-
         assertEqual("select * from table a = 1 and b=50 and c=? and d='11'",
                 "select * from table a = 0# and b=1# and c=? and d='2$'", "1,50,11");
-
         assertEqual("select * from table a = -1 and b=-50 and c=? and d='-11'",
                 "select * from table a = -0# and b=-1# and c=? and d='2$'", "1,50,-11");
-
         assertEqual("select * from table a = +1 and b=+50 and c=? and d='+11'",
                 "select * from table a = +0# and b=+1# and c=? and d='2$'", "1,50,+11");
-
         assertEqual("select * from table a = 1/*test*/ and b=50/*test*/ and c=? and d='11'",
                 "select * from table a = 0#/*test*/ and b=1#/*test*/ and c=? and d='2$'", "1,50,11");
-
         assertEqual("select ZIPCODE,CITY from ZIPCODE");
         assertEqual("select a.ZIPCODE,a.CITY from ZIPCODE as a");
         assertEqual("select ZIPCODE,123 from ZIPCODE",
                 "select ZIPCODE,0# from ZIPCODE", "123");
-
         assertEqual("SELECT * from table a=123 and b='abc' and c=1-3",
                 "SELECT * from table a=0# and b='1$' and c=2#-3#", "123,abc,1,3");
-
         assertEqual("SYSTEM_RANGE(1, 10)",
                 "SYSTEM_RANGE(0#, 1#)", "1,10");
-
     }
 
     @Test
     public void etcState() {
-
         assertEqual("test.abc", "test.abc", "");
         assertEqual("test.abc123", "test.abc123", "");
         assertEqual("test.123", "test.123", "");
-
     }
 
     @Test
     public void objectEquals() {
-
         assertEqualObject("test.abc");
         assertEqualObject("test.abc123");
         assertEqualObject("test.123");
-
     }
 
 
@@ -151,9 +129,7 @@ public class DefaultSqlParserTest {
         assertEqual("1.23E", "0#", "1.23E");
         // just converting numbers as it is too much work to find out if '-' represents a negative number, or is part of the SQL expression
         assertEqual("1.4e-10", "0#-1#", "1.4e,10");
-
     }
-
 
     @Test
     public void singleLineCommentState() {
@@ -168,7 +144,6 @@ public class DefaultSqlParserTest {
         assertEqual("--test\n123 test", "--test\n0# test", "123");
     }
 
-
     @Test
     public void multiLineCommentState() {
         assertEqual("/**/", "/**/", "");
@@ -176,9 +151,7 @@ public class DefaultSqlParserTest {
         assertEqual("/* */abc", "/* */abc", "");
         assertEqual("/* * */", "/* * */", "");
         assertEqual("/* * */", "/* * */", "");
-
         assertEqual("/* abc", "/* abc", "");
-
         assertEqual("select * from table", "select * from table", "");
     }
 
@@ -188,10 +161,7 @@ public class DefaultSqlParserTest {
         assertEqual("'abc'", "'0$'", "abc");
         assertEqual("'a''bc'", "'0$'", "a''bc");
         assertEqual("'a' 'bc'", "'0$' '1$'", "a,bc");
-
         assertEqual("'a''bc' 'a''bc'", "'0$' '1$'", "a''bc,a''bc");
-
-
         assertEqual("select * from table where a='a'", "select * from table where a='0$'", "a");
     }
 
@@ -207,28 +177,43 @@ public class DefaultSqlParserTest {
         assertEqual("/* 'test' */", "/* 'test' */", "");
         assertEqual("/* 'test'' */", "/* 'test'' */", "");
         assertEqual("/* '' */", "/* '' */");
-
         assertEqual("/*  */ 123 */", "/*  */ 0# */", "123");
-
         assertEqual("' /* */'", "'0$'", " /* */");
-
     }
 
     @Test
     public void separatorTest() {
-
         assertEqual("1234 456,7", "0# 1#,2#", "1234,456,7");
-
         assertEqual("'1234 456,7'", "'0$'", "1234 456,,7");
-
         assertEqual("'1234''456,7'", "'0$'", "1234''456,,7");
         NormalizedSql parsingResult2 = this.sqlParser.normalizedSql("'1234''456,7'");
         logger.debug("{}", parsingResult2);
-
         // for string token
         assertEqual("'1234' '456,7'", "'0$' '1$'", "1234,456,,7");
     }
 
+    @Test
+    public void emptyChar() {
+        assertEqual("select u.user_no as userNo,ifnull(s.equipment,'') as equipment,ifnull(s.gender, '0') as gender from user u left join supply s on u.user_no = s.user_no where u.user_no = ?",
+                "select u.user_no as userNo,ifnull(s.equipment,'') as equipment,ifnull(s.gender, '0$') as gender from user u left join supply s on u.user_no = s.user_no where u.user_no = ?",
+                "0");
+        assertEqual("select u.user_no as userNo,ifnull(s.equipment,'test_str') as equipment,ifnull(s.gender, '0') as gender from user u left join supply s on u.user_no = s.user_no where u.user_no != ''",
+                "select u.user_no as userNo,ifnull(s.equipment,'0$') as equipment,ifnull(s.gender, '1$') as gender from user u left join supply s on u.user_no = s.user_no where u.user_no != ''",
+                "test_str,0");
+        assertEqual("select concat ('hello,', u.name, ?)as hello, u.user_no as userNo from user u where 1 = 1 and u.user_no = '10010'",
+                "select concat ('0$', u.name, ?)as hello, u.user_no as userNo from user u where 1# = 2# and u.user_no = '3$'", "hello,,,1,1,10010");
+        assertEqual("select concat ('hello,', u.name, ' ')as hello, u.user_no as userNo from user u where 1 = 1 and u.user_no != ''",
+                "select concat ('0$', u.name, '1$')as hello, u.user_no as userNo from user u where 2# = 3# and u.user_no != ''", "hello,,, ,1,1");
+        assertEqual("select concat ('hello,', u.name, 'zhangsan')as hello, u.user_no as userNo from user u where 1 = 1 and u.user_no != '' and u.age > 20",
+                "select concat ('0$', u.name, '1$')as hello, u.user_no as userNo from user u where 2# = 3# and u.user_no != '' and u.age > 4#",
+                "hello,,,zhangsan,1,1,20");
+        assertEqual("select concat ('pinpoint,', u.name, (select s.user_no from user s where s.user_no = '8888'))as hello, u.user_no as userNo from user u where 1 = 1 and u.habit != '2768' and u.age > 20",
+                "select concat ('0$', u.name, (select s.user_no from user s where s.user_no = '1$'))as hello, u.user_no as userNo from user u where 2# = 3# and u.habit != '4$' and u.age > 5#",
+                "pinpoint,,,8888,1,1,2768,20");
+        assertEqual("SELECT n.order_logistics_id, MAX(IF(IFNULL(n.id, '') != '', '2', '0')) AS is_ts FROM t_e_shipping_note n WHERE IFNULL(n.delflag, '') <> '1' AND IFNULL(n.document_require, '0') = '2' GROUP BY n.order_logistics_id",
+                "SELECT n.order_logistics_id, MAX(IF(IFNULL(n.id, '') != '', '0$', '1$')) AS is_ts FROM t_e_shipping_note n WHERE IFNULL(n.delflag, '') <> '2$' AND IFNULL(n.document_require, '3$') = '4$' GROUP BY n.order_logistics_id",
+                "2,0,1,0,2");
+    }
 
     @Test
     public void combineTest() {
@@ -240,15 +225,11 @@ public class DefaultSqlParserTest {
     @Test
     public void combineErrorTest() {
         assertCombineErrorCase("123 10#", "0# 10#", "123,345");
-
         assertCombineErrorCase("1 3 10#", "0# 2# 10#", "1,2,3");
-
         assertCombineErrorCase("1 2 3", "0# 2 3", "1,2,3");
         assertCombineErrorCase("1 2 10", "0# 2 10", "1,2,3");
         assertCombineErrorCase("1 2 201", "0# 2 201", "1,2,3");
-
         assertCombineErrorCase("1 2 11", "0# 2 10#", "1,2,3,4,5,6,7,8,9,10,11");
-
     }
 
     @Test
@@ -259,60 +240,60 @@ public class DefaultSqlParserTest {
         String expected = "select * from table a = 1 and b=50 and c='foo' and d='11'";
         List<String> bindValues = parameterParser.parseOutputParameter("foo");
         String result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table a = ? and b=? and c=? and d=?";
         expected = "select * from table a = '1' and b='50' and c=' foo ' and d='11'";
         bindValues = parameterParser.parseOutputParameter("1,50, foo ,11");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table id = \"foo ? bar\" and number=?";
         expected = "select * from table id = \"foo ? bar\" and number='99'";
         bindValues = parameterParser.parseOutputParameter("99");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table id = 'hi ? name''s foo' and number=?";
         expected = "select * from table id = 'hi ? name's foo' and number='99'";
         bindValues = parameterParser.parseOutputParameter("99");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         // check comment
         sql = "/** comment ? */ select * from table id = ?";
         expected = "/** comment ? */ select * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select /*! STRAIGHT_JOIN ? */ * from table id = ?";
         expected = "select /*! STRAIGHT_JOIN ? */ * from table id = 'foo,bar'";
         bindValues = parameterParser.parseOutputParameter("foo,,bar");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
 
         sql = "select * from table id = ?; -- This ? comment";
         expected = "select * from table id = 'foo'; -- This ? comment";
         bindValues = parameterParser.parseOutputParameter("foo");
         result = sqlParser.combineBindValues(sql, bindValues);
-        Assert.assertEquals(expected, result);
+        Assertions.assertEquals(expected, result);
     }
 
     private void assertCombine(String result, String sql, String outputParams) {
         List<String> output = this.outputParameterParser.parseOutputParameter(outputParams);
 
         NormalizedSql parsingResult = this.sqlParser.normalizedSql(result);
-        Assert.assertEquals("sql", parsingResult.getNormalizedSql(), sql);
+        Assertions.assertEquals(parsingResult.getNormalizedSql(), sql, "sql");
         String combine = this.sqlParser.combineOutputParams(sql, output);
-        Assert.assertEquals("combine", result, combine);
+        Assertions.assertEquals(result, combine, "combine");
     }
 
     private void assertCombineErrorCase(String expectedError, String sql, String outputParams) {
         List<String> output = this.outputParameterParser.parseOutputParameter(outputParams);
 //        ParsingResult parsingResult = this.sqlParser.normalizedSql(result);
         String combine = this.sqlParser.combineOutputParams(sql, output);
-        Assert.assertEquals("combine", expectedError, combine);
+        Assertions.assertEquals(expectedError, combine, "combine");
     }
 
 
@@ -320,7 +301,7 @@ public class DefaultSqlParserTest {
         NormalizedSql parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assert.assertEquals(expected, normalizedSql);
+            Assertions.assertEquals(expected, normalizedSql);
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
@@ -331,7 +312,7 @@ public class DefaultSqlParserTest {
         NormalizedSql parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assert.assertEquals(actual, normalizedSql);
+            Assertions.assertEquals(actual, normalizedSql);
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
@@ -346,25 +327,24 @@ public class DefaultSqlParserTest {
         String s = sqlParser.combineOutputParams(normalizedSql, outputParams);
         logger.debug("combine:" + s);
         try {
-            Assert.assertEquals("normalizedSql check", actual, normalizedSql);
+            Assertions.assertEquals(actual, normalizedSql, "normalizedSql check");
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }
 
-        Assert.assertEquals("outputParam check", outputExpected, parsingResult.getParseParameter());
+        Assertions.assertEquals(outputExpected, parsingResult.getParseParameter(), "outputParam check");
     }
 
     private void assertEqualObject(String expected) {
         NormalizedSql parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assert.assertEquals("normalizedSql check", expected, normalizedSql);
-            Assert.assertSame(expected, normalizedSql);
+            Assertions.assertEquals(expected, normalizedSql, "normalizedSql check");
+            Assertions.assertSame(expected, normalizedSql);
         } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }
-
     }
 }

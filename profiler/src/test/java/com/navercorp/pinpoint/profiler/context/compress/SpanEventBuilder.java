@@ -30,11 +30,11 @@ public class SpanEventBuilder {
     private long starttime = 0;
     private long starttimeMultiplier = 1;
 
-    private List<SpanEvent> spanEventList = new ArrayList<SpanEvent>();
+    private List<SpanEvent> spanEventList = new ArrayList<>();
 
     public void addSpanEvent() {
         SpanEvent spanEvent = new SpanEvent();
-        spanEvent.setSequence((short) nextSequence());
+        spanEvent.setSequence(nextSequence());
         spanEvent.setStartTime(nextStartTime());
         spanEventList.add(spanEvent);
 

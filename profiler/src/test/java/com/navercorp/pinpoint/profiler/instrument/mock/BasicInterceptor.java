@@ -57,25 +57,25 @@ public class BasicInterceptor implements AroundInterceptor5 {
 
     @Override
     public void before(Object target, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
-        this.before = true;
-        this.beforeTarget = target;
-        this.beforeArg0 = arg0;
-        this.beforeArg1 = arg1;
-        this.beforeArg2 = arg2;
-        this.beforeArg3 = arg3;
-        this.beforeArg4 = arg4;
+        before = true;
+        beforeTarget = target;
+        beforeArg0 = arg0;
+        beforeArg1 = arg1;
+        beforeArg2 = arg2;
+        beforeArg3 = arg3;
+        beforeArg4 = arg4;
     }
 
     @Override
     public void after(Object target, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object result, Throwable throwable) {
-        this.after = true;
-        this.afterTarget = target;
-        this.afterArg0 = arg0;
-        this.afterArg1 = arg1;
-        this.afterArg2 = arg2;
-        this.afterArg3 = arg3;
-        this.afterArg4 = arg4;
-        this.result = result;
-        this.throwable = throwable;
+        after = true;
+        afterTarget = target;
+        afterArg0 = arg0;
+        afterArg1 = arg1;
+        afterArg2 = arg2;
+        afterArg3 = arg3;
+        afterArg4 = arg4;
+        BasicInterceptor.result = result;
+        BasicInterceptor.throwable = throwable;
     }
 }

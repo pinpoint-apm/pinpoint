@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jdbc;
 
 import com.navercorp.pinpoint.pluginit.jdbc.AbstractJDBCDriverClass;
 
+import java.net.URL;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -53,10 +54,28 @@ public class MariaDB_1_6_x_DriverClass extends AbstractJDBCDriverClass {
     @Override
     public Class<PreparedStatement> getPreparedStatement() {
         if (type == PreparedStatementType.Server) {
-            return forName("org.mariadb.jdbc.MariaDbPreparedStatementServer");
+//            https://github.com/mariadb-corporation/mariadb-connector-j/tree/1.7.5/src/main/java/org/mariadb/jdbc
+            final String v175ClassName = "org.mariadb.jdbc.ServerSidePreparedStatement";
+            final URL v175 = this.classLoader.getResource(toJvmClassName(v175ClassName));
+            if (v175 != null) {
+                return forName(v175ClassName);
+            } else {
+                return forName("org.mariadb.jdbc.MariaDbPreparedStatementServer");
+            }
         } else  {
-            return forName("org.mariadb.jdbc.MariaDbPreparedStatementClient");
+//            https://github.com/mariadb-corporation/mariadb-connector-j/tree/1.7.5/src/main/java/org/mariadb/jdbc
+            final String v175ClassName = "org.mariadb.jdbc.ClientSidePreparedStatement";
+            final URL v175 = this.classLoader.getResource(toJvmClassName(v175ClassName));
+            if (v175 != null) {
+                return forName(v175ClassName);
+            } else {
+                return forName("org.mariadb.jdbc.MariaDbPreparedStatementClient");
+            }
         }
+    }
+
+    private String toJvmClassName(String className) {
+        return className.replace('.', '/').concat(".class");
     }
 
     @Override

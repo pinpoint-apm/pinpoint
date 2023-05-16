@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <title>PINPOINT</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="assets/fonts/fontawesome-free-5.0.10/css/fontawesome-all.min.css" />
+    <style>
+        * {
+            margin:0;
+            padding:0;
+            text-decoration:none;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-size: 14px;
+            line-height: 1.42857143;
+        }
+
+        .page-header {
+            width: 100%;
+            height: 50px;
+            background-color: #408dd4;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            margin-left: 20px;
+        }
+
+        .contents-section {
+            margin-top: 200px;
+            width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bug-icon {
+            font-size: 50px;
+            color: #a94442;
+        }
+
+        .contents-header {
+            padding: 10px 15px;
+        }
+
+        .contents-header-text {
+            display: inline-block;
+            color: #a94442;
+            font-size: 30px;
+            margin-left: 3px;
+        }
+
+        .contents-body {
+            padding: 15px;
+            font-size: 19px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<header class="page-header">
+    <img class="logo" src="/assets/img/logo.png" width="116" height="18">
+</header>
+
+<section class="contents-section">
+    <header class="contents-header">
+        <span class="bug-icon fas fa-exclamation-triangle"></span>
+        <h3 class="contents-header-text"></h3>
+    </header>
+    <p class="contents-body"></p>
+</section>
+<script>
+    const titleElem = document.querySelector('.contents-header-text');
+    const bodyElem = document.querySelector('.contents-body');
+    const userLang = window.navigator.language; // ko or else
+
+    if (userLang.includes('ko')) {
+        titleElem.textContent = '접근 권한이 없습니다.';
+        bodyElem.innerHTML = `업무상 접근이 필요한 경우, 관리자에게 문의하세요.`;
+    } else {
+        titleElem.textContent = 'You are not authorized.';
+        bodyElem.innerHTML = `Please ask your administrator for access.`;
+    }
+</script>
+</body>
+</html>

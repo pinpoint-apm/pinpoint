@@ -31,10 +31,10 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.utility.DockerMachineClient;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -52,14 +52,15 @@ import java.util.Properties;
 @JunitAgentConfigPath("pinpoint-mssql.config")
 public class MSSSqlConnectionIT extends BasePinpointTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(MSSSqlConnectionIT.class);
+    private static final Logger logger = LogManager.getLogger(MSSSqlConnectionIT.class);
 
     private static JDBCDriverClass driverClass;
-    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger);
+    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+
         mssqlserver.start();
 
         driverClass = new MSSqlJDBCDriverClass();

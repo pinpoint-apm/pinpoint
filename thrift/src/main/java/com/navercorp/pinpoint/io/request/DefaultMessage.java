@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.io.request;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -28,15 +30,8 @@ public class DefaultMessage<T> implements Message<T> {
     private final T data;
 
     public DefaultMessage(Header header, HeaderEntity headerEntity, T data) {
-        if (header == null) {
-            throw new NullPointerException("header");
-        }
-        if (headerEntity == null) {
-            throw new NullPointerException("headerEntity");
-        }
-
-        this.header = header;
-        this.headerEntity = headerEntity;
+        this.header = Objects.requireNonNull(header, "header");
+        this.headerEntity = Objects.requireNonNull(headerEntity, "headerEntity");
         this.data = data;
     }
 

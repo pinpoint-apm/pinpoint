@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,50 +32,54 @@ public class JavaAssistUtilsTest {
 
     private static final String TEST_CLASS_NAME = "com.navercorp.pinpoint.profiler.util.JavaAssistUtilsTest";
 
-    private final Logger logger = LoggerFactory.getLogger(JavaAssistUtilsTest.class.getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test
     public void javaArraySize() {
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize(""), 0);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("[]"), 1);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("[][][]"), 3);
+        Assertions.assertEquals(0, JavaAssistUtils.getJavaObjectArraySize(""));
+        Assertions.assertEquals(1, JavaAssistUtils.getJavaObjectArraySize("[]"));
+        Assertions.assertEquals(3, JavaAssistUtils.getJavaObjectArraySize("[][][]"));
 
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int"), 0);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int[]"), 1);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int[][][]"), 3);
+        Assertions.assertEquals(0, JavaAssistUtils.getJavaObjectArraySize("int"));
+        Assertions.assertEquals(1, JavaAssistUtils.getJavaObjectArraySize("int[]"));
+        Assertions.assertEquals(3, JavaAssistUtils.getJavaObjectArraySize("int[][][]"));
 
+        Assertions.assertEquals(0, JavaAssistUtils.getJavaObjectArraySize("java.lang.String"));
+        Assertions.assertEquals(2, JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"));
+    }
 
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String"), 0);
-        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"), 2);
+    @Test
+    public void javaArraySize_invalid() {
+        Assertions.assertEquals(2, JavaAssistUtils.getJavaObjectArraySize("[]test[][]"));
     }
 
     @Test
     public void javaClassNameToObjectName() {
         // primitives
-        Assert.assertEquals("boolean", JavaAssistUtils.javaClassNameToObjectName(boolean.class.getName()));
-        Assert.assertEquals("byte", JavaAssistUtils.javaClassNameToObjectName(byte.class.getName()));
-        Assert.assertEquals("char", JavaAssistUtils.javaClassNameToObjectName(char.class.getName()));
-        Assert.assertEquals("double", JavaAssistUtils.javaClassNameToObjectName(double.class.getName()));
-        Assert.assertEquals("float", JavaAssistUtils.javaClassNameToObjectName(float.class.getName()));
-        Assert.assertEquals("int", JavaAssistUtils.javaClassNameToObjectName(int.class.getName()));
-        Assert.assertEquals("short", JavaAssistUtils.javaClassNameToObjectName(short.class.getName()));
+        Assertions.assertEquals("boolean", JavaAssistUtils.javaClassNameToObjectName(boolean.class.getName()));
+        Assertions.assertEquals("byte", JavaAssistUtils.javaClassNameToObjectName(byte.class.getName()));
+        Assertions.assertEquals("char", JavaAssistUtils.javaClassNameToObjectName(char.class.getName()));
+        Assertions.assertEquals("double", JavaAssistUtils.javaClassNameToObjectName(double.class.getName()));
+        Assertions.assertEquals("float", JavaAssistUtils.javaClassNameToObjectName(float.class.getName()));
+        Assertions.assertEquals("int", JavaAssistUtils.javaClassNameToObjectName(int.class.getName()));
+        Assertions.assertEquals("short", JavaAssistUtils.javaClassNameToObjectName(short.class.getName()));
 
         // wrappers
-        Assert.assertEquals("java.lang.Integer", JavaAssistUtils.javaClassNameToObjectName(Integer.class.getName()));
-        Assert.assertEquals("java.lang.String", JavaAssistUtils.javaClassNameToObjectName(String.class.getName()));
+        Assertions.assertEquals("java.lang.Integer", JavaAssistUtils.javaClassNameToObjectName(Integer.class.getName()));
+        Assertions.assertEquals("java.lang.String", JavaAssistUtils.javaClassNameToObjectName(String.class.getName()));
 
         // classes
-        Assert.assertEquals("java.util.List", JavaAssistUtils.javaClassNameToObjectName(List.class.getName()));
-        Assert.assertEquals("java.util.ArrayList", JavaAssistUtils.javaClassNameToObjectName(new ArrayList<Integer>().getClass().getName()));
+        Assertions.assertEquals("java.util.List", JavaAssistUtils.javaClassNameToObjectName(List.class.getName()));
+        Assertions.assertEquals("java.util.ArrayList", JavaAssistUtils.javaClassNameToObjectName(ArrayList.class.getName()));
 
         // arrays
-        Assert.assertEquals("boolean[]", JavaAssistUtils.javaClassNameToObjectName(boolean[].class.getName()));
-        Assert.assertEquals("byte[]", JavaAssistUtils.javaClassNameToObjectName(byte[].class.getName()));
-        Assert.assertEquals("java.lang.String[]", JavaAssistUtils.javaClassNameToObjectName(String[].class.getName()));
+        Assertions.assertEquals("boolean[]", JavaAssistUtils.javaClassNameToObjectName(boolean[].class.getName()));
+        Assertions.assertEquals("byte[]", JavaAssistUtils.javaClassNameToObjectName(byte[].class.getName()));
+        Assertions.assertEquals("java.lang.String[]", JavaAssistUtils.javaClassNameToObjectName(String[].class.getName()));
 
         // inner/nested classes
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 this.getClass().getName() + "$1",
                 JavaAssistUtils.javaClassNameToObjectName(new Comparable<Long>() {
                     @Override
@@ -90,119 +94,166 @@ public class JavaAssistUtilsTest {
             }
         }
         SomeComparable inner = new SomeComparable();
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 this.getClass().getName() + "$1SomeComparable",
                 JavaAssistUtils.javaClassNameToObjectName(inner.getClass().getName())); // assume nothing else is defined in this class
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 this.getClass().getName() + "$1SomeComparable[]",
-                JavaAssistUtils.javaClassNameToObjectName(new SomeComparable[] {inner}.getClass().getName()));
-        Assert.assertEquals("java.util.Map$Entry", JavaAssistUtils.javaClassNameToObjectName(Map.Entry.class.getName()));
-        Assert.assertEquals("java.util.Map$Entry[]", JavaAssistUtils.javaClassNameToObjectName(Map.Entry[].class.getName()));
+                JavaAssistUtils.javaClassNameToObjectName(SomeComparable[].class.getName()));
+        Assertions.assertEquals("java.util.Map$Entry", JavaAssistUtils.javaClassNameToObjectName(Map.Entry.class.getName()));
+        Assertions.assertEquals("java.util.Map$Entry[]", JavaAssistUtils.javaClassNameToObjectName(Map.Entry[].class.getName()));
     }
 
 
     @Test
     public void toJvmSignature() {
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature("int"), "I");
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature("int[]"), "[I");
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature("int[][][]"), "[[[I");
+        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("int"), "I");
+        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("int[]"), "[I");
+        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("int[][][]"), "[[[I");
 
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature("void"), "V");
+        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("void"), "V");
 
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String"), "Ljava/lang/String;");
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String[][]"), "[[Ljava/lang/String;");
+        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String"), "Ljava/lang/String;");
+        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String[][]"), "[[Ljava/lang/String;");
 
-        try {
-            Assert.assertEquals(JavaAssistUtils.toJvmSignature(""), "");
-            Assert.fail("empty string");
-        } catch (Exception ignore) {
-        }
+        Assertions.assertThrows(Exception.class, () -> {
+            JavaAssistUtils.toJvmSignature("");
+        });
 
-        try {
-            Assert.assertEquals(JavaAssistUtils.toJvmSignature(null), null);
-            Assert.fail("null");
-        } catch (Exception ignore) {
-        }
+        Assertions.assertThrows(Exception.class, () -> {
+            JavaAssistUtils.toJvmSignature(null);
+        });
     }
 
     @Test
-     public void javaTypeToJvmSignature() {
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}), "()");
+    public void javaTypeToJvmSignature() {
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}), "()");
 
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}), "(I)");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}), "(ID)");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature( new String[]{"byte", "float", "short"}), "(BFS)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}), "(I)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}), "(ID)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"byte", "float", "short"}), "(BFS)");
 
 
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}), "(Ljava/lang/String;)");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}), "(Ljava/lang/String;J)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}), "(Ljava/lang/String;)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}), "(Ljava/lang/String;J)");
 
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}), "(JLjava/lang/Object;Z)");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}), "(CJLjava/lang/Object;Z)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}), "(JLjava/lang/Object;Z)");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}), "(CJLjava/lang/Object;Z)");
     }
 
     @Test
     public void javaTypeToJvmSignatureReturnType() {
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}, "void"), "()V");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}, "void"), "()V");
 
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}, "int"), "(I)I");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}, "double"), "(ID)D");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature( new String[]{"byte", "float", "short"}, "float"), "(BFS)F");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}, "int"), "(I)I");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}, "double"), "(ID)D");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"byte", "float", "short"}, "float"), "(BFS)F");
 
 
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}, "java.lang.String"), "(Ljava/lang/String;)Ljava/lang/String;");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}, "long"), "(Ljava/lang/String;J)J");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}, "java.lang.String"), "(Ljava/lang/String;)Ljava/lang/String;");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}, "long"), "(Ljava/lang/String;J)J");
 
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}, "boolean"), "(JLjava/lang/Object;Z)Z");
-        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}, "java.lang.Object"), "(CJLjava/lang/Object;Z)Ljava/lang/Object;");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}, "boolean"), "(JLjava/lang/Object;Z)Z");
+        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}, "java.lang.Object"), "(CJLjava/lang/Object;Z)Ljava/lang/Object;");
     }
 
 
     @Test
-    public void testParseParameterDescriptor() throws Exception {
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
+    public void testParseParameterDescriptor() {
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(I)I"), new String[]{"int"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(ID)I"), new String[]{"int", "double"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(BFS)I"), new String[]{"byte", "float", "short"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(I)I"), new String[]{"int"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(ID)I"), new String[]{"int", "double"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(BFS)I"), new String[]{"byte", "float", "short"});
 
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;)I"), new String[]{"java.lang.String"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;J)I"), new String[]{"java.lang.String", "long"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;)I"), new String[]{"java.lang.String"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;J)I"), new String[]{"java.lang.String", "long"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(JLjava/lang/Object;Z)I"), new String[]{"long", "java.lang.Object", "boolean"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(CJLjava/lang/Object;Z)I"), new String[]{"char", "long", "java.lang.Object", "boolean"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(JLjava/lang/Object;Z)I"), new String[]{"long", "java.lang.Object", "boolean"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(CJLjava/lang/Object;Z)I"), new String[]{"char", "long", "java.lang.Object", "boolean"});
 
     }
 
     @Test
-    public void testParseParameterDescriptor_array() throws Exception {
+    public void testParseParameterDescriptor_array() {
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([I)I"), new String[]{"int[]"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([IJ)I"), new String[]{"int[]", "long"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([J[I)I"), new String[]{"long[]", "int[]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([I)I"), new String[]{"int[]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([IJ)I"), new String[]{"int[]", "long"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([J[I)I"), new String[]{"long[]", "int[]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([Ljava/lang/String;)"), new String[]{"java.lang.String[]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([Ljava/lang/String;)"), new String[]{"java.lang.String[]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;[[J)"), new String[]{"java.lang.String", "long[][]"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/Object;[[Ljava/lang/String;)"), new String[]{"java.lang.Object", "java.lang.String[][]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;[[J)"), new String[]{"java.lang.String", "long[][]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/Object;[[Ljava/lang/String;)"), new String[]{"java.lang.Object", "java.lang.String[][]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[Ljava/lang/String;)"), new String[]{"java.lang.String[][][]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[Ljava/lang/String;)"), new String[]{"java.lang.String[][][]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[I)"), new String[]{"int[][][]"});
+        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[I)"), new String[]{"int[][][]"});
     }
 
 
     @Test
-    public void testGetParameterDescription2() throws Exception {
+    public void testGetParameterDescription2() {
+        @SuppressWarnings("deprecation")
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{String.class, Integer.class});
-        logger.debug(clsDescription);
-        Assert.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
+        Assertions.assertEquals("(java.lang.String, java.lang.Integer)", clsDescription);
     }
 
     @Test
-    public void testJavaClassNameToJvmResourceName() throws Exception {
-        Assert.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java.lang.String"));
+    public void testJavaClassNameToJvmResourceName1() {
+        Assertions.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java.lang.String"));
+    }
+
+    @Test
+    public void testJavaClassNameToJvmResourceName2() {
+        Assertions.assertEquals("java/lang/String.class", JavaAssistUtils.javaClassNameToJvmResourceName("java/lang/String"));
+    }
+
+    @Test
+    public void testToPinpointParameterType() {
+        int[][] stringArray = new int[0][0];
+        String parameterType = JavaAssistUtils.toPinpointParameterType(stringArray.getClass());
+        Assertions.assertEquals("int[][]", parameterType);
+    }
+
+    @Test
+    public void javaClassNameToVariableName1() {
+        String variableName = JavaAssistUtils.javaClassNameToVariableName("Test$CgLib");
+        Assertions.assertEquals("Test_CgLib", variableName);
+    }
+
+    @Test
+    public void javaClassNameToVariableName2() {
+        String variableName = JavaAssistUtils.javaClassNameToVariableName("Test$$CgLib");
+        Assertions.assertEquals("Test__CgLib", variableName);
+    }
+
+    @Test
+    public void javaClassNameToVariableName3() {
+        String variableName = JavaAssistUtils.javaClassNameToVariableName("Test$");
+        Assertions.assertEquals("Test_", variableName);
+    }
+
+    @Test
+    public void javaClassNameToVariableName_same_ref() {
+        String className = "Test";
+        String variableName = JavaAssistUtils.javaClassNameToVariableName(className);
+        Assertions.assertSame(className, variableName);
+    }
+
+    @Test
+    public void getParameterDescription() {
+        String[] parameters = {"a", "b"};
+        String variableName = JavaAssistUtils.getParameterDescription(parameters);
+        Assertions.assertEquals("(a, b)", variableName);
+    }
+
+    @Test
+    public void getParameterDescription_single() {
+        String[] parameters = {"a"};
+        String variableName = JavaAssistUtils.getParameterDescription(parameters);
+        Assertions.assertEquals("(a)", variableName);
     }
 
 }

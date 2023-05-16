@@ -17,12 +17,11 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,22 +29,24 @@ import java.lang.reflect.Method;
 public class TypeUtilsTest {
     @Test
     public void testGetWrapperOf() {
-        Assert.assertSame(TypeUtils.getWrapperOf(boolean.class), Boolean.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(byte.class), Byte.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(char.class), Character.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(short.class), Short.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(int.class), Integer.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(long.class), Long.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(boolean.class), Boolean.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(byte.class), Byte.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(char.class), Character.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(short.class), Short.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(int.class), Integer.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(long.class), Long.class);
 
-        Assert.assertSame(TypeUtils.getWrapperOf(float.class), Float.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(float.class), Float.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(double.class), Double.class);
-        Assert.assertSame(TypeUtils.getWrapperOf(void.class), Void.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(float.class), Float.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(float.class), Float.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(double.class), Double.class);
+        Assertions.assertSame(TypeUtils.getWrapperOf(void.class), Void.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetWrapperOf_unknown_type() {
-        TypeUtils.getWrapperOf(this.getClass());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            TypeUtils.getWrapperOf(this.getClass());
+        });
     }
 
     @Test
@@ -54,7 +55,7 @@ public class TypeUtilsTest {
         Annotation[] annotations = method.getAnnotations();
 
         Test annotation = TypeUtils.findAnnotation(annotations, Test.class);
-        Assert.assertEquals(annotation.annotationType(), Test.class);
+        Assertions.assertEquals(annotation.annotationType(), Test.class);
 
     }
 }

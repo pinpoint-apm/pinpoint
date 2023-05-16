@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,7 +27,7 @@ import java.net.UnknownHostException;
  *
  */
 public class InetAddressUtilsTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void test() throws UnknownHostException {
@@ -36,7 +36,7 @@ public class InetAddressUtilsTest {
         logger.debug("{}", byName);
         logger.debug("{}", byName.getAddress().length);
 
-        InetAddress ipv4= InetAddress.getByName("127.0.0.1");
+        InetAddress ipv4 = InetAddress.getByName("127.0.0.1");
         logger.debug("{}", ipv4);
     }
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift.common.server;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.client.EchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.ServerContext;
@@ -88,9 +89,9 @@ public abstract class ThriftEchoTestServer<T extends TServer> implements EchoTes
 
     protected abstract void verifyServerTraces(PluginTestVerifier verifier) throws Exception;
 
-    public abstract SyncEchoTestClient getSynchronousClient() throws TTransportException;
+    public abstract EchoTestClient getSynchronousClient() throws Exception;
 
-    public abstract AsyncEchoTestClient getAsynchronousClient() throws IOException;
+    public abstract EchoTestClient getAsynchronousClient() throws Exception;
 
 
     private class WaitToServeHandler implements TServerEventHandler {

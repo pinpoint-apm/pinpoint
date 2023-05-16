@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mybatis.MyBatisConstants;
+import com.navercorp.pinpoint.plugin.mybatis.MyBatisPluginConfig;
 
 
 /**
@@ -29,8 +30,12 @@ import com.navercorp.pinpoint.plugin.mybatis.MyBatisConstants;
  */
 public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
+    private final boolean markError;
+
     public SqlSessionOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
+        MyBatisPluginConfig config = new MyBatisPluginConfig(context.getProfilerConfig());
+        this.markError = config.isMarkError();
     }
 
     @Override
@@ -40,11 +45,12 @@ public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterce
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
-            Throwable throwable) {
+                                  Throwable throwable) {
         recorder.recordServiceType(MyBatisConstants.MYBATIS);
-        recorder.recordException(throwable);
-        if (ArrayUtils.hasLength(args)) {
-            recorder.recordApiCachedString(getMethodDescriptor(), (String)args[0], 0);
+        recorder.recordException(markError, throwable);
+        final String arg = ArrayArgumentUtils.getArgument(args, 0, String.class);
+        if (arg != null) {
+            recorder.recordApiCachedString(getMethodDescriptor(), arg, 0);
         } else {
             recorder.recordApi(getMethodDescriptor());
         }

@@ -16,15 +16,20 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.util.TestSocketUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -36,17 +41,18 @@ import java.util.concurrent.Executors;
 /**
  * @author emeroad
  */
-@Ignore
+@Disabled
 public class NettyUdpReceiverTest {
 
-    public static final int PORT = SocketUtils.findAvailableUdpPort(30011);
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public static final int PORT = TestSocketUtils.findAvailableTcpPort();
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CountDownLatch latch = new CountDownLatch(1);
+
     /*
-    * netty io thread is single-threaded even for udp.
-    * this is for running multiple workers.
-    * */
+     * netty io thread is single-threaded even for udp.
+     * this is for running multiple workers.
+     * */
     @Test
     public void server() throws IOException, InterruptedException {
 
@@ -73,7 +79,7 @@ public class NettyUdpReceiverTest {
 //                @Override
 //                public void run() {
 //                    try {
-                        start();
+        start();
 //                    } catch (IOException e) {
 //                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 //                    }
@@ -91,7 +97,7 @@ public class NettyUdpReceiverTest {
         DatagramSocket so = new DatagramSocket();
         so.connect(new InetSocketAddress("127.0.0.1", PORT));
         int count = 1000;
-        for (int i = 0 ; i< count; i++) {
+        for (int i = 0; i < count; i++) {
             byte[] bytes = new byte[100];
             DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
             so.send(datagramPacket);
@@ -113,7 +119,7 @@ public class NettyUdpReceiverTest {
                         logger.debug("sleep:{}", name);
                         Thread.sleep(10000);
 //                        if (!name.equals("New I/O worker #1")) {
-                            logger.debug("messageReceived thread-{} message:", Thread.currentThread().getName());
+                        logger.debug("messageReceived thread-{} message:", Thread.currentThread().getName());
 //                        }
                     }
                 });

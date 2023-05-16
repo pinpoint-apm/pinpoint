@@ -25,6 +25,6 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
  */
 public interface HandshakerHandler {
     
-    HandshakeResponseCode handleHandshake(Map properties);
+    HandshakeResponseCode handleHandshake(Map<?, ?> properties);
 
 }

@@ -19,14 +19,16 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +36,9 @@ import java.util.Objects;
 
 @Service
 public class TraceService {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
+
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 10000);
 
     private final TraceDao traceDao;
 
@@ -46,8 +50,11 @@ public class TraceService {
 
     private final ServiceTypeRegistryService registry;
 
-    public TraceService(TraceDao traceDao, ApplicationTraceIndexDao applicationTraceIndexDao, HostApplicationMapDao hostApplicationMapDao,
-                        StatisticsService statisticsService, ServiceTypeRegistryService registry) {
+    public TraceService(TraceDao traceDao,
+                        ApplicationTraceIndexDao applicationTraceIndexDao,
+                        HostApplicationMapDao hostApplicationMapDao,
+                        StatisticsService statisticsService,
+                        ServiceTypeRegistryService registry) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
@@ -177,7 +184,7 @@ public class TraceService {
         statisticsService.updateResponseTime(span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
-            logger.warn("ambiguous span found(bug). span:{}", span);
+            logger.info("ambiguous span found(bug). span:{}", span);
         }
     }
 
@@ -210,7 +217,7 @@ public class TraceService {
                 continue;
             }
 
-            final String spanEventApplicationName = spanEvent.getDestinationId();
+            final String spanEventApplicationName = normalize(spanEvent.getDestinationId(), spanEventType);
             final String spanEventEndPoint = spanEvent.getEndPoint();
 
             // if terminal update statistics
@@ -218,7 +225,8 @@ public class TraceService {
             final boolean hasException = spanEvent.hasException();
 
             if (applicationId == null || spanEventApplicationName == null) {
-                logger.warn("Failed to insert statistics. Cause:SpanEvent has invalid format.(application:{}/{}[{}], spanEventApplication:{}[{}])",
+                throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format." +
+                                "(application:{}/{}[{}], spanEventApplication:{}[{}])",
                         applicationId, agentId, applicationServiceType, spanEventApplicationName, spanEventType);
                 continue;
             }
@@ -232,6 +240,16 @@ public class TraceService {
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
+    }
+
+    private String normalize(String spanEventApplicationName, ServiceType spanEventType) {
+        if (spanEventType.getCategory() == ServiceTypeCategory.DATABASE) {
+            // empty database id
+            if (spanEventApplicationName == null) {
+                return "UNKNOWN_DATABASE";
+            }
+        }
+        return spanEventApplicationName;
     }
 
     private boolean isAlias(ServiceType spanEventType, SpanEventBo forDebugEvent) {

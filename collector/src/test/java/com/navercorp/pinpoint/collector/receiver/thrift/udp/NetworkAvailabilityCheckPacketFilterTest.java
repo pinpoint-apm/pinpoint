@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -35,20 +35,20 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class NetworkAvailabilityCheckPacketFilterTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private TBaseFilter<? super SocketAddress> filter;
     private DatagramSocket senderSocket;
     private DatagramSocket receiverSocket;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         filter = new NetworkAvailabilityCheckPacketFilter();
         senderSocket = new DatagramSocket(0);
         receiverSocket = new DatagramSocket(0);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try {
             senderSocket.close();
@@ -66,22 +66,22 @@ public class NetworkAvailabilityCheckPacketFilterTest {
         SocketAddress localSocketAddress = senderSocket.getLocalSocketAddress();
         logger.debug("localSocket:{}", localSocketAddress);
 
-        NetworkAvailabilityCheckPacket  packet = new NetworkAvailabilityCheckPacket();
+        NetworkAvailabilityCheckPacket packet = new NetworkAvailabilityCheckPacket();
         SocketAddress inetSocketAddress = new InetSocketAddress("localhost", senderSocket.getLocalPort());
         boolean skipResult = filter.filter(receiverSocket, packet, inetSocketAddress);
 
-        Assert.assertEquals(skipResult, TBaseFilter.BREAK);
+        Assertions.assertEquals(skipResult, TBaseFilter.BREAK);
 
         DatagramPacket receivePacket = new DatagramPacket(new byte[100], 100);
         senderSocket.receive(receivePacket);
 
-        Assert.assertEquals(receivePacket.getLength(), NetworkAvailabilityCheckPacket.DATA_OK.length);
-        Assert.assertArrayEquals(Arrays.copyOf(receivePacket.getData(), NetworkAvailabilityCheckPacket.DATA_OK.length), NetworkAvailabilityCheckPacket.DATA_OK);
+        Assertions.assertEquals(receivePacket.getLength(), NetworkAvailabilityCheckPacket.DATA_OK.length);
+        Assertions.assertArrayEquals(Arrays.copyOf(receivePacket.getData(), NetworkAvailabilityCheckPacket.DATA_OK.length), NetworkAvailabilityCheckPacket.DATA_OK);
     }
 
 
     @Test
-    public void testFilter_Continue() throws Exception {
+    public void testFilter_Continue() {
 
         SocketAddress localSocketAddress = senderSocket.getLocalSocketAddress();
         logger.debug("localSocket:{}", localSocketAddress);
@@ -89,7 +89,7 @@ public class NetworkAvailabilityCheckPacketFilterTest {
         TSpan skip = new TSpan();
         boolean skipResult = filter.filter(receiverSocket, skip, null);
 
-        Assert.assertEquals(skipResult, TBaseFilter.CONTINUE);
+        Assertions.assertEquals(skipResult, TBaseFilter.CONTINUE);
 
 
     }

@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class RedissonMethodNameFilters {
 
-    private static final Set<String> DEFAULT_EXCLUDE_METHOD_NAMES = new HashSet<String>(Arrays.asList("clone", "equals", "finalize", "getClass", "hashCode", "notify", "notifyAll", "toString", "wait"));
+    private static final Set<String> DEFAULT_EXCLUDE_METHOD_NAMES = new HashSet<>(Arrays.asList("clone", "equals", "finalize", "getClass", "hashCode", "notify", "notifyAll", "toString", "wait"));
 
     private RedissonMethodNameFilters() {
     }
@@ -39,7 +39,7 @@ public class RedissonMethodNameFilters {
     }
 
     private static final class DefaultMethodFilter implements MethodFilter {
-        private final Set<String> excludeMethodNames = new HashSet<String>();
+        private final Set<String> excludeMethodNames = new HashSet<>();
 
         public DefaultMethodFilter(final String... methodNames) {
             this.excludeMethodNames.addAll(Arrays.asList(methodNames));

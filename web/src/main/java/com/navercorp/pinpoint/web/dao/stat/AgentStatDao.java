@@ -19,12 +19,15 @@ package com.navercorp.pinpoint.web.dao.stat;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.web.service.stat.ChartTypeSupport;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author HyunGil Jeong
  */
-public interface AgentStatDao<T extends AgentStatDataPoint> {
+@Repository
+public interface AgentStatDao<T extends AgentStatDataPoint> extends ChartTypeSupport {
 
     List<T> getAgentStatList(String agentId, Range range);
 

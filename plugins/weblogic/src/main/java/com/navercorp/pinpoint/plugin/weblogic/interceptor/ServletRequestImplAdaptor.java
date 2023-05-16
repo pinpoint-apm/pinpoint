@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import weblogic.servlet.internal.ServletRequestImpl;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @author jaehong.kim
  */
@@ -30,6 +33,13 @@ public class ServletRequestImplAdaptor implements RequestAdaptor<ServletRequestI
     }
 
     @Override
+    public Collection<String> getHeaderNames(ServletRequestImpl request) {
+        //todo to be replaced with Weblogic ServletRequestImpl request
+        //throw new UnsupportedOperationException("not implemented yet!");
+        return Collections.emptyList();
+    }
+
+    @Override
     public String getRpcName(ServletRequestImpl request) {
         return request.getRequestURI();
     }
@@ -37,8 +47,7 @@ public class ServletRequestImplAdaptor implements RequestAdaptor<ServletRequestI
     @Override
     public String getEndPoint(ServletRequestImpl request) {
         final int port = request.getServerPort();
-        final String endPoint = request.getServerName() + ":" + port;
-        return endPoint;
+        return request.getServerName() + ":" + port;
     }
 
     @Override

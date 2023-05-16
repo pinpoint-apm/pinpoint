@@ -16,29 +16,31 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 /**
  * @author netspider
  * @author emeroad
  * @author jaehong.kim
  */
-public final class DefaultTrace implements Trace {
+public class DefaultTrace implements Trace {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private static final boolean isDebug = logger.isDebugEnabled();
+    protected final Logger logger = LogManager.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     private final CallStack<SpanEvent> callStack;
 
@@ -52,21 +54,28 @@ public final class DefaultTrace implements Trace {
     private DefaultTraceScopePool scopePool;
 
     private final Span span;
-    private final ActiveTraceHandle activeTraceHandle;
 
+    private final CloseListener closeListener;
 
-    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
-                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
+                        SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
+        this(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
+    }
 
-        this.span = Assert.requireNonNull(span, "span");
-        this.callStack = Assert.requireNonNull(callStack, "callStack");
-        this.storage = Assert.requireNonNull(storage, "storage");
-        Assert.isTrue(sampling, "sampling must be true");
+    public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage,
+                        SpanRecorder spanRecorder,
+                        WrappedSpanEventRecorder wrappedSpanEventRecorder,
+                        CloseListener closeListener) {
 
-        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
-        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
+        this.span = Objects.requireNonNull(span, "span");
+        this.callStack = Objects.requireNonNull(callStack, "callStack");
+        this.storage = Objects.requireNonNull(storage, "storage");
 
-        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle");
+        this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
+        this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
+
+        this.closeListener = closeListener;
+
         setCurrentThread();
     }
 
@@ -101,8 +110,7 @@ public final class DefaultTrace implements Trace {
             if (logger.isWarnEnabled()) {
                 stackDump("already closed trace");
             }
-            final SpanEvent dummy = dummySpanEvent();
-            return dummy;
+            return dummySpanEvent();
         }
         // Set properties for the case when stackFrame is not used as part of Span.
         final SpanEvent spanEvent = newSpanEvent(stackId);
@@ -112,7 +120,7 @@ public final class DefaultTrace implements Trace {
 
     private void stackDump(String caused) {
         PinpointException exception = new PinpointException(caused);
-        logger.warn("[DefaultTrace] Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
+        logger.warn("Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
     }
 
     @Override
@@ -150,6 +158,7 @@ public final class DefaultTrace implements Trace {
                 stackDump("not matched stack id. expected=" + stackId + ", current=" + spanEvent.getStackId());
             }
         }
+
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
         }
@@ -183,22 +192,15 @@ public final class DefaultTrace implements Trace {
             if (span.isTimeRecording()) {
                 span.markAfterTime(afterTime);
             }
-            logSpan(span);
+            logSpan();
         }
 
         this.storage.close();
-
-        purgeActiveTrace(afterTime);
+        this.closeListener.close(afterTime);
     }
 
-    private void purgeActiveTrace(long currentTime) {
-        final ActiveTraceHandle copy = this.activeTraceHandle;
-        if (copy != null) {
-            copy.purge(currentTime);
-        }
-    }
 
-    void flush() {
+    protected void flush() {
         this.storage.flush();
         this.closed = true;
     }
@@ -237,8 +239,8 @@ public final class DefaultTrace implements Trace {
         this.storage.store(spanEvent);
     }
 
-    private void logSpan(Span span) {
-        this.storage.store(span);
+    private void logSpan() {
+        this.storage.store(this.span);
     }
 
     @Override
@@ -271,7 +273,7 @@ public final class DefaultTrace implements Trace {
     }
 
     private SpanEvent newSpanEvent(int stackId) {
-        final SpanEvent spanEvent = callStack.getFactory().newInstance();
+        final SpanEvent spanEvent = callStack.newInstance();
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         return spanEvent;
@@ -279,12 +281,12 @@ public final class DefaultTrace implements Trace {
 
     @VisibleForTesting
     SpanEvent dummySpanEvent() {
-        return callStack.getFactory().dummyInstance();
+        return callStack.disableInstance();
     }
 
     @VisibleForTesting
     boolean isDummySpanEvent(final SpanEvent spanEvent) {
-        return callStack.getFactory().isDummy(spanEvent);
+        return callStack.isDisable(spanEvent);
     }
 
     @Override
@@ -313,10 +315,11 @@ public final class DefaultTrace implements Trace {
         return scopePool.add(name);
     }
 
+
     @Override
     public String toString() {
         return "DefaultTrace{" +
-                ", traceRoot=" + getTraceRoot() +
-        '}';
+                "traceRoot=" + getTraceRoot() +
+                '}';
     }
 }

@@ -1,0 +1,28 @@
+<ul class="l-servers-list l-depth-0">
+    <li *ngFor="let server of serverList">
+        <div [attr.title]="server.groupName" class="l-server-name-wrapper l-name-wrapper"
+             [class.active]="isActive(serverDiv)" (click)="toggleMenu(server.groupName)" #serverDiv>
+            <span class="l-name">
+                <i class="fas fa-server"></i> {{server.groupName}}
+            </span>
+            <i class="fas fa-angle-right" [@rightDown]="getCollapsedState(server.groupName)"></i>
+        </div>
+        <ul class="l-agent-list l-depth-1" [@collapseSpread]="getCollapsedState(server.groupName)">
+            <li class="l-agent" *ngFor="let agent of server.instancesList" (click)="onSelectAgent(agent.agentId)"
+                [attr.title]="agent.agentName || agent.agentId">
+                <div class="l-agent-name-wrapper l-name-wrapper" [class.active]="agent.agentId === agentId">
+                    <span class="l-name" #labelWrapper>
+                        <i class="fas fa-hdd"></i>
+                        <span class="agent-label" #label>{{getAgentLabel(agent)}}</span>
+                    </span>
+                    <button type="button" class="copy-button" [style.left]="getLeftPosition(labelWrapper, label)"
+                            (click)="onClickCopy($event, getAgentLabel(agent))">
+                        <span class="far fa-copy" title="Copy to Clipboard"></span>
+                    </button>
+                    <span class="l-icon-alert" *ngIf="agent.status.state.code !== 100"><img
+                            [src]="getIconPath(agent.status.state.code)"></span>
+                </div>
+            </li>
+        </ul>
+    </li>
+</ul>

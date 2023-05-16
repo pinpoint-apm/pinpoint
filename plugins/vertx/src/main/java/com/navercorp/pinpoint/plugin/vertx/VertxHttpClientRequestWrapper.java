@@ -16,25 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
+
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
  * @author jaehong.kim
  */
 public class VertxHttpClientRequestWrapper implements ClientRequestWrapper {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
     private final HttpRequest httpRequest;
     private final String host;
 
-
     public VertxHttpClientRequestWrapper(final HttpRequest httpRequest, final String host) {
-        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest");
+        this.httpRequest = Objects.requireNonNull(httpRequest, "httpRequest");
         this.host = host;
     }
 
@@ -49,8 +45,19 @@ public class VertxHttpClientRequestWrapper implements ClientRequestWrapper {
 
     @Override
     public String getUrl() {
-        return this.httpRequest.uri();
+        return getHttpUrl(this.host, this.httpRequest.uri());
     }
 
+    private static String getHttpUrl(final String host, final String uri) {
+        if (host == null) {
+            return null;
+        }
 
+        final StringBuilder sb = new StringBuilder();
+        sb.append(host);
+        if (uri != null) {
+            sb.append(uri);
+        }
+        return sb.toString();
+    }
 }

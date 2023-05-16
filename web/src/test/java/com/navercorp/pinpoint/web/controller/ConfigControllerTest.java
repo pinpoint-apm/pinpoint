@@ -15,41 +15,40 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
-import static org.hamcrest.Matchers.hasKey;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.web.dao.UserDao;
+import com.navercorp.pinpoint.web.vo.User;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.vo.User;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.navercorp.pinpoint.web.TestTraceUtils.hasKey;
 
 /**
  * @author minwoo.jung
  */
-@Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
+@Disabled
+@ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
+@ContextConfiguration(locations = {"classpath:servlet-context-web.xml", "classpath:applicationContext-web.xml"})
 public class ConfigControllerTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     @Autowired
     private WebApplicationContext wac;
     
@@ -60,13 +59,13 @@ public class ConfigControllerTest {
     
     private static final  User user = new User("naver01", "min", "pinpoint", 82, "010", "min@naver0.com");
 
-    @Before
+    @BeforeEach
     public void before() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         this.userDao.insertUser(user);
     }
     
-    @After
+    @AfterEach
     public void after() {
         this.userDao.deleteUser(user.getUserId());
     }
@@ -74,7 +73,7 @@ public class ConfigControllerTest {
 
     @Test
     public void configuration() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON).header("SSO_USER", "naver01"))
+        MvcResult result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON))
                                         .andExpect(status().isOk())
                                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                                         .andExpect(jsonPath("$", hasKey("showActiveThread")))

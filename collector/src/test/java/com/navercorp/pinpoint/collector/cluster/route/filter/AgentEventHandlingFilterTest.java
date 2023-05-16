@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
@@ -34,14 +33,15 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import org.apache.thrift.TBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -51,10 +51,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class AgentEventHandlingFilterTest {
-
-    @Mock
-    private PinpointServer pinpointServer;
 
     @Mock
     private AgentEventDao agentEventDao;
@@ -71,14 +69,14 @@ public class AgentEventHandlingFilterTest {
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    public void beforeEach() {
         agentEventHandlingFilter = new AgentEventHandlingFilter(agentEventService, deserializerFactory);
     }
 
+
     @Test
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void handler_should_handle_serialization_of_request_events() throws Exception {
         // given
         final AgentEventType expectedEventType = AgentEventType.USER_THREAD_DUMP;
@@ -98,7 +96,7 @@ public class AgentEventHandlingFilterTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
-        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), HeaderEntity.EMPTY_HEADER_ENTITY, expectedThreadDumpResponse);
+        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short) 1000), HeaderEntity.EMPTY_HEADER_ENTITY, expectedThreadDumpResponse);
         when(deserializer.deserialize(expectedThreadDumpResponseBody)).thenReturn(message);
         // when
         this.agentEventHandlingFilter.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
@@ -113,7 +111,7 @@ public class AgentEventHandlingFilterTest {
     }
 
     @Test
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void handler_should_ignore_request_events_with_unsupported_message_types() throws Exception {
         // given
         final TCommandEcho mismatchingResponse = new TCommandEcho();
@@ -132,7 +130,7 @@ public class AgentEventHandlingFilterTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
-        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short)1000), HeaderEntity.EMPTY_HEADER_ENTITY, mismatchingResponse);
+        Message<TBase<?, ?>> message = new DefaultMessage<>(new HeaderV1((short) 1000), HeaderEntity.EMPTY_HEADER_ENTITY, mismatchingResponse);
         when(deserializer.deserialize(mismatchingResponseBody)).thenReturn(message);
         // when
         this.agentEventHandlingFilter.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);

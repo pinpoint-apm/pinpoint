@@ -16,32 +16,16 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class MavenCentral {
     public static final String MAVEN_CENTRAL_SECURE = "https://repo.maven.apache.org/maven2";
 
-    /*
-     * for jdk 6, 7
-     * Central 501 HTTPS Required
-     * https://support.sonatype.com/hc/en-us/articles/360041287334
-     * Discontinued support for TLSv1.1 and below
-     * https://central.sonatype.org/articles/2018/May/04/discontinued-support-for-tlsv11-and-below/
-     * */
-    public static final String MAVEN_CENTRAL_INSECURE = "http://insecure.repo1.maven.org/maven2/";
-    
     private MavenCentral() {
     }
 
     public static String getAddress() {
-        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_8)) {
-            return MAVEN_CENTRAL_SECURE;
-        } else {
-            return MAVEN_CENTRAL_INSECURE;
-        }
+        return MAVEN_CENTRAL_SECURE;
     }
 }

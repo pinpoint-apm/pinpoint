@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author jaehong.kim
  */
-public class IntBooleanIntBooleanValue {
+public class IntBooleanIntBooleanValue implements DataType {
     private final int intValue1;
     private final boolean booleanValue1;
     private final int intValue2;
@@ -46,5 +46,37 @@ public class IntBooleanIntBooleanValue {
 
     public boolean isBooleanValue2() {
         return booleanValue2;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IntBooleanIntBooleanValue that = (IntBooleanIntBooleanValue) o;
+
+        if (intValue1 != that.intValue1) return false;
+        if (booleanValue1 != that.booleanValue1) return false;
+        if (intValue2 != that.intValue2) return false;
+        return booleanValue2 == that.booleanValue2;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = intValue1;
+        result = 31 * result + (booleanValue1 ? 1 : 0);
+        result = 31 * result + intValue2;
+        result = 31 * result + (booleanValue2 ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "IntBooleanIntBooleanValue{" +
+                "intValue1=" + intValue1 +
+                ", booleanValue1=" + booleanValue1 +
+                ", intValue2=" + intValue2 +
+                ", booleanValue2=" + booleanValue2 +
+                '}';
     }
 }

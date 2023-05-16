@@ -1,0 +1,47 @@
+{
+  "schemaName": "systemMetricTag",
+  "dimensionFieldSpecs": [
+    {
+      "name": "tenantId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "hostGroupName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "hostName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "metricName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "fieldName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "tags",
+      "dataType": "STRING",
+      "defaultNullValue": "{}"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "saveTime",
+      "dataType": "TIMESTAMP",
+      "format" : "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ],
+  "primaryKeyColumns": [
+    "tenantId","serviceName", "hostGroupName", "hostName", "metricName", "fieldName", "tags"
+  ]
+}

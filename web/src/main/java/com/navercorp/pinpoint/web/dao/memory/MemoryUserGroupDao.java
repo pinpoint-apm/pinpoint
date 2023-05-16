@@ -15,24 +15,21 @@
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
+import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author minwoo.jung
@@ -43,15 +40,18 @@ public class MemoryUserGroupDao implements UserGroupDao {
     private final Map<String, UserGroup> userGroups = new ConcurrentHashMap<>();
     private final Map<String, UserGroupMember> userGroupMembers = new ConcurrentHashMap<>();
     
-    private final AtomicInteger userGroupNumGenerator  = new AtomicInteger();
-    private final AtomicInteger userGroupMemNumGenerator  = new AtomicInteger();
+    private final IdGenerator userGroupNumGenerator  = new IdGenerator();
+    private final IdGenerator userGroupMemNumGenerator  = new IdGenerator();
     
-    @Autowired
-    UserDao userDao;
-    
+    private final UserDao userDao;
+
+    public MemoryUserGroupDao(UserDao userDao) {
+        this.userDao = Objects.requireNonNull(userDao, "userDao");
+    }
+
     @Override
     public String createUserGroup(UserGroup userGroup) {
-        String userGroupNumber = String.valueOf(userGroupNumGenerator.getAndIncrement());
+        String userGroupNumber = userGroupNumGenerator.getId();
         userGroup.setNumber(userGroupNumber);
         userGroups.put(userGroupNumber, userGroup);
         return userGroup.getNumber();
@@ -73,7 +73,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
         
-        List<UserGroup> groups = new LinkedList<>();
+        List<UserGroup> groups = new ArrayList<>();
         for(UserGroup userGroup : userGroups.values()) {
             if (userGroupNames.contains(userGroup.getId())) {
                 groups.add(userGroup);
@@ -113,7 +113,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public void insertMember(UserGroupMember userGroupMember) {
-        String memberNum = String.valueOf(userGroupMemNumGenerator.getAndIncrement());
+        String memberNum = userGroupMemNumGenerator.getId();
         userGroupMember.setNumber(memberNum);
         userGroupMembers.put(memberNum, userGroupMember);
     }
@@ -130,7 +130,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public List<UserGroupMember> selectMember(String userGroupId) {
-        List<UserGroupMember> userGroupMemberList = new LinkedList<>();
+        List<UserGroupMember> userGroupMemberList = new ArrayList<>();
         
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getUserGroupId().equals(userGroupId)) {
@@ -160,7 +160,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public List<String> selectPhoneNumberOfMember(String userGroupId) {
-        List<UserGroupMember> userGroupMemberList = new LinkedList<>();
+        List<UserGroupMember> userGroupMemberList = new ArrayList<>();
         
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getUserGroupId().equals(userGroupId)) {
@@ -168,7 +168,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
         
-        List<String> phoneNumbers = new LinkedList<>();
+        List<String> phoneNumbers = new ArrayList<>();
         
         for (UserGroupMember member : userGroupMemberList) {
             User user = userDao.selectUserByUserId(member.getMemberId());
@@ -180,7 +180,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
 
     @Override
     public List<String> selectEmailOfMember(String userGroupId) {
-        List<UserGroupMember> userGroupMemberList = new LinkedList<>();
+        List<UserGroupMember> userGroupMemberList = new ArrayList<>();
         
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getUserGroupId().equals(userGroupId)) {
@@ -188,7 +188,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
         
-        List<String> emails = new LinkedList<>();
+        List<String> emails = new ArrayList<>();
         
         for (UserGroupMember member : userGroupMemberList) {
             User user = userDao.selectUserByUserId(member.getMemberId());
@@ -215,8 +215,18 @@ public class MemoryUserGroupDao implements UserGroupDao {
     }
 
     @Override
+    public boolean isExistUserGroupMember(UserGroupMember userGroupMember) {
+        for (UserGroupMember member : userGroupMembers.values()) {
+            if (member.getUserGroupId().equals(userGroupMember.getUserGroupId()) &&
+                member.getMemberId().equals(userGroupMember.getMemberId()))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
-        List<UserGroupMember> userGroupMemberList = new LinkedList<>();
+        List<UserGroupMember> userGroupMemberList = new ArrayList<>();
 
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getUserGroupId().equals(userGroupId)) {
@@ -224,7 +234,7 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
 
-        List<UserPhoneInfo> userPhoneInfoList  = new LinkedList<>();
+        List<UserPhoneInfo> userPhoneInfoList  = new ArrayList<>();
 
         for (UserGroupMember member : userGroupMemberList) {
             User user = userDao.selectUserByUserId(member.getMemberId());

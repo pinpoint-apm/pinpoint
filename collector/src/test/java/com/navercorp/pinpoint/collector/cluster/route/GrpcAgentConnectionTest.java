@@ -18,18 +18,18 @@ package com.navercorp.pinpoint.collector.cluster.route;
 
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -40,40 +40,43 @@ public class GrpcAgentConnectionTest {
     public void requestTest() {
         PinpointGrpcServer mockGrpcServer = Mockito.mock(PinpointGrpcServer.class);
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(mockGrpcServer, supportCommandList);
 
         boolean supportCommand = grpcAgentConnection.isSupportCommand(TCommandType.TRANSFER.getBodyFactory().getObject());
-        Assert.assertFalse(supportCommand);
+        Assertions.assertFalse(supportCommand);
 
         supportCommand = grpcAgentConnection.isSupportCommand(TCommandType.RESULT.getBodyFactory().getObject());
-        Assert.assertFalse(supportCommand);
+        Assertions.assertFalse(supportCommand);
 
         supportCommand = grpcAgentConnection.isSupportCommand(TCommandType.ECHO.getBodyFactory().getObject());
-        Assert.assertTrue(supportCommand);
+        Assertions.assertTrue(supportCommand);
 
-        Future<ResponseMessage> future = grpcAgentConnection.request(new TResult());
-        Assert.assertFalse(future.isSuccess());
-        Assert.assertNotNull(future.getCause());
+        final CompletableFuture<ResponseMessage> future = grpcAgentConnection.request(new TResult());
 
+        Assertions.assertThrows(Exception.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                future.get(3000, TimeUnit.MILLISECONDS);
+            }
+        });
         TCommandEcho commandEcho = new TCommandEcho("hello");
         // check to pass validation
-        future = grpcAgentConnection.request(commandEcho);
-        Assert.assertNull(future);
+        final CompletableFuture<ResponseMessage> future2 = grpcAgentConnection.request(commandEcho);
+        Assertions.assertNull(future2);
     }
 
     @Test
     public void equalsTest() {
         PinpointGrpcServer mockGrpcServer1 = Mockito.mock(PinpointGrpcServer.class);
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(mockGrpcServer1, supportCommandList);
 
-        Assert.assertEquals(grpcAgentConnection, grpcAgentConnection);
-        Assert.assertEquals(grpcAgentConnection, new GrpcAgentConnection(mockGrpcServer1, supportCommandList));
+        Assertions.assertEquals(grpcAgentConnection, new GrpcAgentConnection(mockGrpcServer1, supportCommandList));
 
         PinpointGrpcServer mockGrpcServer2 = Mockito.mock(PinpointGrpcServer.class);
-        Assert.assertNotEquals(grpcAgentConnection, new GrpcAgentConnection(mockGrpcServer2, supportCommandList));
+        Assertions.assertNotEquals(grpcAgentConnection, new GrpcAgentConnection(mockGrpcServer2, supportCommandList));
     }
 
 }

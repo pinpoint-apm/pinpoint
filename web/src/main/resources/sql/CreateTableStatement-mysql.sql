@@ -39,6 +39,7 @@ CREATE TABLE `alarm_rule` (
   `user_group_id` VARCHAR(30) NOT NULL,
   `sms_send` CHAR(1) DEFAULT NULL,
   `email_send` CHAR(1) DEFAULT NULL,
+  `webhook_send` CHAR(1) DEFAULT NULL,
   `notes` VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY (`rule_id`)
 );
@@ -60,4 +61,20 @@ CREATE TABLE `agent_statistics` (
   `agent_count` INT(10) UNSIGNED NOT NULL,
   `date_val`DATETIME NOT NULL,
   PRIMARY KEY (`date_val`)
+);
+
+CREATE TABLE `webhook` (
+  `webhook_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `alias` VARCHAR(256) NULL,
+  `url` VARCHAR(256) NOT NULL,
+  `application_id` VARCHAR(45) NULL,
+  `service_name` VARCHAR(45) NULL,
+  PRIMARY KEY (`webhook_id`)
+);
+
+CREATE TABLE `webhook_send` (
+  `webhook_send_info_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `webhook_id` INT UNSIGNED NOT NULL,
+  `rule_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`webhook_send_info_id`)
 );

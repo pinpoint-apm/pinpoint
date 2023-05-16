@@ -16,39 +16,40 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
  */
 public class AutomaticBufferTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Random random = new Random();
 
     @Test
-    public void testPutPrefixedBytes() throws Exception {
+    public void testPutPrefixedBytes() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putInt(1);
         byte[] buf = buffer.getBuffer();
-        Assert.assertEquals(buf.length, 4);
-        Assert.assertEquals(1, BytesUtils.bytesToInt(buf, 0));
+        assertThat(buf).hasSize(4);
+        Assertions.assertEquals(1, BytesUtils.bytesToInt(buf, 0));
     }
 
 
     @Test
-    public void testPadBytes() throws Exception {
+    public void testPadBytes() {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
         Buffer buffer = new AutomaticBuffer(10);
@@ -59,29 +60,25 @@ public class AutomaticBufferTest {
         buffer.putPadBytes(test, TOTAL_LENGTH);
 
         byte[] result = buffer.getBuffer();
-        org.junit.Assert.assertEquals(result.length, TOTAL_LENGTH);
-        org.junit.Assert.assertTrue("check data", Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)));
+        assertThat(result).hasSize(TOTAL_LENGTH);
+        Assertions.assertArrayEquals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE), "check data");
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        org.junit.Assert.assertTrue("check pad", Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)));
+        Assertions.assertArrayEquals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH), "check pad");
 
     }
 
     @Test
-    public void testPadBytes_Error() throws Exception {
+    public void testPadBytes_Error() {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_1.putPadBytes(new byte[11], 10);
-            Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
-        }
+        });
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
-        try {
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
             buffer1_2.putPadBytes(new byte[20], 10);
-            Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
-        }
+        });
 
         Buffer buffer2 = new AutomaticBuffer(32);
         buffer2.putPadBytes(new byte[10], 10);
@@ -93,54 +90,50 @@ public class AutomaticBufferTest {
 
 
     @Test
-    public void testPadString() throws Exception {
+    public void testPadString() {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
         int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
         Buffer buffer = new AutomaticBuffer(32);
-        String test = StringUtils.repeat('a', TEST_SIZE);
+        String test = StringUtils.repeat("a", TEST_SIZE);
 
         buffer.putPadString(test, TOTAL_LENGTH);
 
         byte[] result = buffer.getBuffer();
         String decodedString = new String(result);
         String trimString = decodedString.trim();
-        Assert.assertEquals(result.length, TOTAL_LENGTH);
+        assertThat(result).hasSize(TOTAL_LENGTH);
 
-        Assert.assertEquals("check data", test, trimString);
+        Assertions.assertEquals(test, trimString, "check data");
 
-        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, Charsets.UTF_8);
+        String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, StandardCharsets.UTF_8);
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        org.junit.Assert.assertEquals("check pad", padString, new String(padBytes, Charsets.UTF_8));
+        Assertions.assertEquals(padString, new String(padBytes, StandardCharsets.UTF_8), "check pad");
 
     }
 
     @Test
-    public void testPadString_Error() throws Exception {
+    public void testPadString_Error() {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
-        try {
-            buffer1_1.putPadString(StringUtils.repeat('a', 11), 10);
-            Assert.fail("error");
-        } catch (IndexOutOfBoundsException ignore) {
-        }
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
+        });
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
-        try {
-            buffer1_2.putPadString(StringUtils.repeat('a', 20), 10);
-            Assert.fail("error");
-        } catch (Exception ignore) {
-        }
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
+        });
 
         Buffer buffer2 = new AutomaticBuffer(32);
-        buffer2.putPadString(StringUtils.repeat('a', 10), 10);
+        buffer2.putPadString(StringUtils.repeat("a", 10), 10);
 
         Buffer buffer3 = new AutomaticBuffer(5);
-        buffer3.putPadString(StringUtils.repeat('a', 10), 10);
+        buffer3.putPadString(StringUtils.repeat("a", 10), 10);
     }
 
     @Test
-    public void testPut2PrefixedBytes() throws Exception {
+    public void testPut2PrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPut2PrefixedBytes(bytes1);
 
@@ -152,12 +145,10 @@ public class AutomaticBufferTest {
 
         checkPut2PrefixedBytes(null);
 
-        try {
-            byte[] bytes4 = new byte[Short.MAX_VALUE+1];
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            byte[] bytes4 = new byte[Short.MAX_VALUE + 1];
             checkPut2PrefixedBytes(bytes4);
-            Assert.fail("too large bytes");
-        } catch (IndexOutOfBoundsException ignore) {
-        }
+        });
     }
 
     private void checkPut2PrefixedBytes(byte[] bytes) {
@@ -165,11 +156,11 @@ public class AutomaticBufferTest {
         buffer.put2PrefixedBytes(bytes);
 
         Buffer copy = new FixedBuffer(buffer.getBuffer());
-        Assert.assertArrayEquals(bytes, copy.read2PrefixedBytes());
+        assertThat(bytes).isEqualTo(copy.read2PrefixedBytes());
     }
 
     @Test
-    public void testPut4PrefixedBytes() throws Exception {
+    public void testPut4PrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPut4PrefixedBytes(bytes1);
 
@@ -185,34 +176,33 @@ public class AutomaticBufferTest {
         buffer.put4PrefixedBytes(bytes);
 
         Buffer copy = new FixedBuffer(buffer.getBuffer());
-        Assert.assertArrayEquals(bytes, copy.read4PrefixedBytes());
+        assertThat(bytes).isEqualTo(copy.read4PrefixedBytes());
     }
 
     @Test
-    public void testPutPrefixedBytesCheckRange() throws Exception {
+    public void testPutPrefixedBytesCheckRange() {
         Buffer buffer = new AutomaticBuffer(1);
         buffer.putPrefixedString(null);
         byte[] internalBuffer = buffer.getInternalBuffer();
-        Assert.assertEquals(1, internalBuffer.length);
+        assertThat(internalBuffer).hasSize(1);
     }
 
 
-
     @Test
-    public void testCurrentTime() throws InterruptedException {
+    public void testCurrentTime() {
         Buffer buffer = new AutomaticBuffer(32);
 
         long l = System.currentTimeMillis();
         buffer.putSVLong(l);
         logger.trace("currentTime size:{}", buffer.getOffset());
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readSVLong(), l);
+        Assertions.assertEquals(buffer.readSVLong(), l);
 
 
     }
 
     @Test
-     public void testPutVInt() throws Exception {
+    public void testPutVInt() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putVInt(Integer.MAX_VALUE);
         buffer.putVInt(Integer.MIN_VALUE);
@@ -221,15 +211,15 @@ public class AutomaticBufferTest {
         buffer.putVInt(12345);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readVInt(), Integer.MAX_VALUE);
-        Assert.assertEquals(buffer.readVInt(), Integer.MIN_VALUE);
-        Assert.assertEquals(buffer.readVInt(), 0);
-        Assert.assertEquals(buffer.readVInt(), 1);
-        Assert.assertEquals(buffer.readVInt(), 12345);
+        Assertions.assertEquals(buffer.readVInt(), Integer.MAX_VALUE);
+        Assertions.assertEquals(buffer.readVInt(), Integer.MIN_VALUE);
+        Assertions.assertEquals(buffer.readVInt(), 0);
+        Assertions.assertEquals(buffer.readVInt(), 1);
+        Assertions.assertEquals(buffer.readVInt(), 12345);
     }
 
     @Test
-    public void testPutVLong() throws Exception {
+    public void testPutVLong() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putVLong(Long.MAX_VALUE);
         buffer.putVLong(Long.MIN_VALUE);
@@ -238,15 +228,15 @@ public class AutomaticBufferTest {
         buffer.putVLong(12345L);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readVLong(), Long.MAX_VALUE);
-        Assert.assertEquals(buffer.readVLong(), Long.MIN_VALUE);
-        Assert.assertEquals(buffer.readVLong(), 0L);
-        Assert.assertEquals(buffer.readVLong(), 1L);
-        Assert.assertEquals(buffer.readVLong(), 12345L);
+        Assertions.assertEquals(buffer.readVLong(), Long.MAX_VALUE);
+        Assertions.assertEquals(buffer.readVLong(), Long.MIN_VALUE);
+        Assertions.assertEquals(buffer.readVLong(), 0L);
+        Assertions.assertEquals(buffer.readVLong(), 1L);
+        Assertions.assertEquals(buffer.readVLong(), 12345L);
     }
 
     @Test
-    public void testPutSVLong() throws Exception {
+    public void testPutSVLong() {
         Buffer buffer = new AutomaticBuffer(32);
         buffer.putSVLong(Long.MAX_VALUE);
         buffer.putSVLong(Long.MIN_VALUE);
@@ -255,15 +245,15 @@ public class AutomaticBufferTest {
         buffer.putSVLong(12345L);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readSVLong(), Long.MAX_VALUE);
-        Assert.assertEquals(buffer.readSVLong(), Long.MIN_VALUE);
-        Assert.assertEquals(buffer.readSVLong(), 0L);
-        Assert.assertEquals(buffer.readSVLong(), 1L);
-        Assert.assertEquals(buffer.readSVLong(), 12345L);
+        Assertions.assertEquals(buffer.readSVLong(), Long.MAX_VALUE);
+        Assertions.assertEquals(buffer.readSVLong(), Long.MIN_VALUE);
+        Assertions.assertEquals(buffer.readSVLong(), 0L);
+        Assertions.assertEquals(buffer.readSVLong(), 1L);
+        Assertions.assertEquals(buffer.readSVLong(), 12345L);
     }
 
     @Test
-    public void testPutSVInt() throws Exception {
+    public void testPutSVInt() {
         Buffer buffer = new AutomaticBuffer(32);
         buffer.putSVInt(Integer.MAX_VALUE);
         buffer.putSVInt(Integer.MIN_VALUE);
@@ -272,95 +262,95 @@ public class AutomaticBufferTest {
         buffer.putSVInt(12345);
 
         buffer.setOffset(0);
-        Assert.assertEquals(buffer.readSVInt(), Integer.MAX_VALUE);
-        Assert.assertEquals(buffer.readSVInt(), Integer.MIN_VALUE);
-        Assert.assertEquals(buffer.readSVInt(), 0);
-        Assert.assertEquals(buffer.readSVInt(), 1);
-        Assert.assertEquals(buffer.readSVInt(), 12345);
+        Assertions.assertEquals(buffer.readSVInt(), Integer.MAX_VALUE);
+        Assertions.assertEquals(buffer.readSVInt(), Integer.MIN_VALUE);
+        Assertions.assertEquals(buffer.readSVInt(), 0);
+        Assertions.assertEquals(buffer.readSVInt(), 1);
+        Assertions.assertEquals(buffer.readSVInt(), 12345);
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPut() {
         Buffer buffer = new AutomaticBuffer(0);
         buffer.putInt(1);
         buffer.putLong(1L);
         buffer.putPrefixedBytes(new byte[10]);
-        buffer.putByte((byte)1);
+        buffer.putByte((byte) 1);
 
 
     }
 
     @Test
-    public void testUdp() throws Exception {
+    public void testUdp() {
         // Signature:Header{signature=85, version=100, type=28704}
         Buffer buffer = new AutomaticBuffer(10);
         // l4 Udp check payload
-        buffer.putByte((byte)85);
+        buffer.putByte((byte) 85);
         buffer.putByte((byte) 100);
-        buffer.putShort((short)28704);
+        buffer.putShort((short) 28704);
 
         Buffer read = new FixedBuffer(buffer.getBuffer());
-        logger.debug("{}", (char)read.readByte());
-        logger.debug("{}", (char)read.readByte());
-        logger.debug("{}", (char)read.readByte());
-        logger.debug("{}", (char)read.readByte());
+        logger.debug("{}", (char) read.readByte());
+        logger.debug("{}", (char) read.readByte());
+        logger.debug("{}", (char) read.readByte());
+        logger.debug("{}", (char) read.readByte());
 
     }
 
     @Test
-    public void testRemaining() throws Exception {
+    public void testRemaining() {
         final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
         Buffer buffer = new AutomaticBuffer(bytes);
-        Assert.assertEquals(buffer.remaining(), 4);
-        Assert.assertTrue(buffer.hasRemaining());
+        Assertions.assertEquals(buffer.remaining(), 4);
+        Assertions.assertTrue(buffer.hasRemaining());
 
         buffer.putInt(1234);
-        Assert.assertEquals(buffer.remaining(), 0);
-        Assert.assertFalse(buffer.hasRemaining());
+        Assertions.assertEquals(buffer.remaining(), 0);
+        Assertions.assertFalse(buffer.hasRemaining());
 
         // auto expanded buffer size
-        buffer.putShort((short)12);
+        buffer.putShort((short) 12);
         // remaining size increment is right operation??
-        Assert.assertTrue(buffer.remaining() > 0);
-        Assert.assertTrue(buffer.hasRemaining());
+        Assertions.assertTrue(buffer.remaining() > 0);
+        Assertions.assertTrue(buffer.hasRemaining());
 
     }
 
 
     @Test
-    public void testExpendMultiplier_2multiplier() throws Exception {
+    public void testExpendMultiplier_2multiplier() {
         int bufferSize = 4;
         Buffer buffer = new AutomaticBuffer(bufferSize);
 
         buffer.putBytes(new byte[8]);
         logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
-        Assert.assertEquals(buffer.getInternalBuffer().length, 8);
+        assertThat(buffer.getInternalBuffer()).hasSize(8);
 
         buffer.putBytes(new byte[8]);
 
         logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
-        Assert.assertEquals(buffer.getInternalBuffer().length, 16);
+        assertThat(buffer.getInternalBuffer()).hasSize(16);
 
 
         buffer.putBytes(new byte[8]);
         logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
-        Assert.assertEquals(buffer.getInternalBuffer().length, 32);
+        assertThat(buffer.getInternalBuffer()).hasSize(32);
     }
 
     @Test
-    public void testExpendMultiplier_4multiplier() throws Exception {
+    public void testExpendMultiplier_4multiplier() {
         int bufferSize = 4;
         Buffer buffer = new AutomaticBuffer(bufferSize);
 
-        buffer.putBytes(new byte[5*4]);
+        buffer.putBytes(new byte[5 * 4]);
 
         logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
-        Assert.assertEquals(buffer.getInternalBuffer().length, 32);
+        assertThat(buffer.getInternalBuffer()).hasSize(32);
 
-        buffer.putBytes(new byte[8*4]);
+        buffer.putBytes(new byte[8 * 4]);
 
         logger.debug("bufferSize:{} offset:{}", buffer.getInternalBuffer().length, buffer.getOffset());
-        Assert.assertEquals(buffer.getInternalBuffer().length, 64);
+        assertThat(buffer.getInternalBuffer()).hasSize(64);
 
 
     }

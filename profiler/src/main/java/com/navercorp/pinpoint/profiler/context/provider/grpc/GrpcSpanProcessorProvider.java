@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
-import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.compress.GrpcSpanProcessorV2;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+
+import java.util.Objects;
 
 public class GrpcSpanProcessorProvider implements Provider<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> {
 
@@ -31,7 +32,7 @@ public class GrpcSpanProcessorProvider implements Provider<SpanProcessor<PSpan.B
 
     @Inject
     public GrpcSpanProcessorProvider(TraceDataFormatVersion version) {
-        this.version = Assert.requireNonNull(version, "version");
+        this.version = Objects.requireNonNull(version, "version");
     }
 
     @Override

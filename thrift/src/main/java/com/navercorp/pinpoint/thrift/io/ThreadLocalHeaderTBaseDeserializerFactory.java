@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -31,10 +33,7 @@ public class ThreadLocalHeaderTBaseDeserializerFactory<E> implements Deserialize
     private final DeserializerFactory<E> factory;
 
     public ThreadLocalHeaderTBaseDeserializerFactory(DeserializerFactory<E> factory) {
-        if (factory == null) {
-            throw new NullPointerException("factory");
-        }
-        this.factory = factory;
+        this.factory = Objects.requireNonNull(factory, "factory");
     }
 
     @Override

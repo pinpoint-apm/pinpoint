@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
@@ -33,20 +34,10 @@ public class InvokeCodeGenerator {
     protected final int interceptorId;
 
     public InvokeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService) {
-        if (interceptorDefinition == null) {
-            throw new NullPointerException("interceptorDefinition");
-        }
-        if (targetMethod == null) {
-            throw new NullPointerException("targetMethod");
-        }
-        if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService");
-        }
-
-        this.interceptorDefinition = interceptorDefinition;
-        this.targetMethod = targetMethod;
         this.interceptorId = interceptorId;
-        this.apiMetaDataService = apiMetaDataService;
+        this.interceptorDefinition = Objects.requireNonNull(interceptorDefinition, "interceptorDefinition");
+        this.targetMethod = Objects.requireNonNull(targetMethod, "targetMethod");
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
 
     }
 

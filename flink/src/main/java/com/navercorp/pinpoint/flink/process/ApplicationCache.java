@@ -15,19 +15,17 @@
  */
 package com.navercorp.pinpoint.flink.process;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.AgentInfoBoMapper;
+import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Objects;
@@ -38,43 +36,45 @@ import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENTINFO_IN
  * @author minwoo.jung
  */
 public class ApplicationCache {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String SPEL_KEY = "#application.getAgentId() + '.' + #application.getAgentStartTime()";
     public static final String NOT_FOUND_APP_ID = "notFoundId";
 
-    private final transient AgentInfoMapper agentInfoMapper = new AgentInfoMapper();
+    private final transient AgentInfoBoMapper agentInfoMapper = new AgentInfoBoMapper();
 
     private final transient HbaseTemplate2 hbaseTemplate2;
 
     private final transient TableNameProvider tableNameProvider;
+
+    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
     public ApplicationCache(HbaseTemplate2 hbaseTemplate2, TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
-    @Cacheable(value="applicationId", key=SPEL_KEY)
+    @Cacheable(cacheNames = "applicationId", key = SPEL_KEY, cacheManager = FlinkCacheConfiguration.APPLICATION_ID_CACHE_NAME)
     public String findApplicationId(ApplicationKey application) {
         final String agentId = application.getAgentId();
         final long agentStartTimestamp = application.getAgentStartTime();
-        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(Bytes.toBytes(agentId), HbaseTableConstatns.AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(agentStartTimestamp));
+        final byte[] rowKey = rowKeyEncoder.encodeRowKey(agentId, agentStartTimestamp);
 
         Get get = new Get(rowKey);
 
         get.addColumn(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
-        AgentInfo agentInfo = null;
+        AgentInfoBo agentInfo = null;
         try {
             TableName tableName = tableNameProvider.getTableName(AGENTINFO_INFO.getTable());
             agentInfo = hbaseTemplate2.get(tableName, get, agentInfoMapper);
         } catch (Exception e) {
-            logger.error("can't found application id({})", agentId, e);
+            logger.error("can't found application id({}). {}", agentId, e.getMessage());
         }
 
         return getApplicationId(agentInfo, agentId);
     }
 
-    private String getApplicationId(AgentInfo agentInfo, String agentId) {
+    private String getApplicationId(AgentInfoBo agentInfo, String agentId) {
         if (agentInfo == null) {
             logger.warn("can't found application id : {}", agentId);
             return NOT_FOUND_APP_ID;
@@ -121,9 +121,9 @@ public class ApplicationCache {
         @Override
         public String toString() {
             return "ApplicationKey{" +
-                "agentId='" + agentId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                '}';
+                    "agentId='" + agentId + '\'' +
+                    ", agentStartTime=" + agentStartTime +
+                    '}';
         }
     }
 }

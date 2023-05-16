@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactor
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.EndPointUtils;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientConstants;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
@@ -70,7 +71,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         final NingAsyncHttpClientPluginConfig config = new NingAsyncHttpClientPluginConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<Request> clientRequestAdaptor = new NingAsyncHttpClientRequestAdaptorV1();
-        this.clientRequestRecorder = new ClientRequestRecorder<Request>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
 
         CookieExtractor<Request> cookieExtractor = NingCookieExtractorV1.INSTANCE;
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
@@ -79,7 +80,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(config.getHttpDumpConfig(), entityExtractor);
 
         ClientHeaderAdaptor<Request> clientHeaderAdaptor = new RequestHeaderAdaptorV1();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<Request>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -93,16 +94,14 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (!validate(args)) {
+        Request httpRequest = getHttpReqeust(args);
+        if (httpRequest == null) {
             return;
         }
 
-        final Request httpRequest = (Request) args[0];
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            if (httpRequest != null) {
-                this.requestTraceWriter.write(httpRequest);
-            }
+            this.requestTraceWriter.write(httpRequest);
             return;
         }
 
@@ -112,10 +111,8 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
 
-        if (httpRequest != null) {
-            String host = getHost(httpRequest);
-            requestTraceWriter.write(httpRequest, nextId, host);
-        }
+        String host = getHost(httpRequest);
+        requestTraceWriter.write(httpRequest, nextId, host);
     }
 
     private String getHost(Request httpRequest) {
@@ -134,19 +131,20 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (!validate(args)) {
+        Request httpReqeust = getHttpReqeust(args);
+        if (httpReqeust == null) {
             return;
         }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final Request httpRequest = (Request) args[0];
-            if (httpRequest != null) {
-                // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                this.clientRequestRecorder.record(recorder, httpRequest, throwable);
-                this.cookieRecorder.record(recorder, httpRequest, throwable);
-                this.entityRecorder.record(recorder, httpRequest, throwable);
-            }
+
+            // Accessing httpRequest here not BEFORE() because it can cause side effect.
+            this.clientRequestRecorder.record(recorder, httpRequest, throwable);
+            this.cookieRecorder.record(recorder, httpRequest, throwable);
+            this.entityRecorder.record(recorder, httpRequest, throwable);
+
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
         } finally {
@@ -154,14 +152,14 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
         }
     }
 
-    private boolean validate(final Object[] args) {
-        if (args == null || args.length == 0 || !(args[0] instanceof Request)) {
+    private Request getHttpReqeust(final Object[] args) {
+        final Request request = ArrayArgumentUtils.getArgument(args, 0, Request.class);
+        if (request == null) {
             if (isDebug) {
                 logger.debug("Invalid args[0] object. args={}.", args);
             }
-            return false;
         }
 
-        return true;
+        return request;
     }
 }

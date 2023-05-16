@@ -1,0 +1,48 @@
+<!-- <ng-container *ngIf="data"> -->
+    <div class="url-info-table table">
+        <div class="url-info-header">
+            <div class="url-info-row header-row">
+                <ng-container *ngFor="let column of columnList">
+                    <!-- TODO: any way to bind class without overide? -->
+                    <div class={{column.headerClassName}}>
+                        <span class="header-label-wrapper" (click)="onClickSort(column.key)">
+                            {{column.headerLabel}}
+                            <ng-container *ngIf="isSortActive(column.key)">
+                                <button class="sort-btn">
+                                    <i [class]="getSortIconClass()"></i>
+                                </button>
+                            </ng-container>
+                        </span>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+        <div class="url-info-body" #urlInfoTableBody>
+            <ng-container *ngIf="isEmpty; else contents">
+                <div class="url-info-row empty">
+                    <div class="url-info-cell empty">{{emptyMessage}}</div>
+                </div>
+            </ng-container>
+            <ng-template #contents>
+                <div 
+                    class="url-info-row"
+                    *ngFor="let urlInfo of data; let i = index"
+                    [id]="urlInfo.uri"
+                    (click)="onSelectUrlInfo(urlInfo.uri)"
+                    [class.active]="isSelectedUrl(urlInfo.uri)"
+                >
+                <!-- TODO: Refactor it based on columnList -->
+                    <div class="url-info-cell index-cell">{{i + 1}}</div>
+                    <div class="url-info-cell url-cell">{{urlInfo.uri}}</div>
+                    <div class="url-info-cell total-count-cell">
+                        <div class="ratio-bar" [style.background]="getRatioBackgroundColor(urlInfo.totalCount)">{{urlInfo.totalCount | number}}</div>
+                    </div>
+                    <div class="url-info-cell failure-count-cell">{{urlInfo.failureCount | number}}</div>
+                    <div class="url-info-cell apdex-cell">{{getFormattedApdexScore(urlInfo.apdex)}}</div>
+                    <div class="url-info-cell avg-cell">{{urlInfo.avgTimeMs | number: '1.0-0'}}</div>
+                    <div class="url-info-cell max-cell">{{urlInfo.maxTimeMs | number: '1.0-0'}}</div>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+<!-- </ng-container> -->

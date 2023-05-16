@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -35,8 +36,10 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -57,6 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author emeroad
  * @author HyunGil Jeong
  * @author minwoo.jung
+ * @author Taejin Koo
  */
 public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, InitializingBean, DisposableBean {
 
@@ -65,8 +69,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     private static final long DEFAULT_DESTORY_TIMEOUT = 2000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean debugEnabled = this.logger.isDebugEnabled();
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AtomicBoolean isClose = new AtomicBoolean(false);
 
@@ -172,46 +175,15 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T find(TableName tableName, String family, final ResultsExtractor<T> action) {
-        Scan scan = new Scan();
-        scan.addFamily(family.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
-    public <T> T find(TableName tableName, String family, String qualifier, final ResultsExtractor<T> action) {
-        Scan scan = new Scan();
-        scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
     public <T> T find(TableName tableName, final Scan scan, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
-                final ResultScanner scanner = table.getScanner(scan);
-                try {
+                try (ResultScanner scanner = table.getScanner(scan)) {
                     return action.extractData(scanner);
-                } finally {
-                    scanner.close();
                 }
             }
         });
-    }
-
-    @Override
-    public <T> List<T> find(TableName tableName, String family, final RowMapper<T> action) {
-        Scan scan = new Scan();
-        scan.addFamily(family.getBytes(getCharset()));
-        return find(tableName, scan, action);
-    }
-
-    @Override
-    public <T> List<T> find(TableName tableName, String family, String qualifier, final RowMapper<T> action) {
-        Scan scan = new Scan();
-        scan.addColumn(family.getBytes(getCharset()), qualifier.getBytes(getCharset()));
-        return find(tableName, scan, action);
     }
 
     @Override
@@ -220,52 +192,26 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     @Override
-    public <T> T get(TableName tableName, String rowName, final RowMapper<T> mapper) {
-        return get(tableName, rowName, null, null, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, String rowName, String familyName, final RowMapper<T> mapper) {
-        return get(tableName, rowName, familyName, null, mapper);
-    }
-
-    @Override
-    public <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
-        return execute(tableName, new TableCallback<T>() {
-            @Override
-            public T doInTable(Table table) throws Throwable {
-                Get get = new Get(rowName.getBytes(getCharset()));
-                if (familyName != null) {
-                    byte[] family = familyName.getBytes(getCharset());
-
-                    if (qualifier != null) {
-                        get.addColumn(family, qualifier.getBytes(getCharset()));
-                    } else {
-                        get.addFamily(family);
-                    }
-                }
-                Result result = table.get(get);
-                return mapper.mapRow(result, 0);
-            }
-        });
-    }
-
-    @Override
     public <T> T get(TableName tableName, byte[] rowName, RowMapper<T> mapper) {
-        return get(tableName, rowName, null, null, mapper);
+        return get0(tableName, rowName, null, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, byte[] rowName, byte[] familyName, RowMapper<T> mapper) {
-        return get(tableName, rowName, familyName, null, mapper);
+        return get0(tableName, rowName, familyName, null, mapper);
     }
 
     @Override
     public <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
+        return get0(tableName, rowName, familyName, qualifier, mapper);
+    }
+
+    private <T> T get0(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
                 Get get = new Get(rowName);
+
                 if (familyName != null) {
                     if (qualifier != null) {
                         get.addColumn(familyName, qualifier);
@@ -273,11 +219,13 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                         get.addFamily(familyName);
                     }
                 }
+
                 Result result = table.get(get);
                 return mapper.mapRow(result, 0);
             }
         });
     }
+
 
     @Override
     public <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper) {
@@ -361,6 +309,47 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                 return null;
             }
         });
+    }
+
+    /**
+     * Atomically checks if a row/family/qualifier value matches the expected
+     * value. If it does, it adds the put.  If the passed value is null, the check
+     * is for the lack of column (ie: non-existence)
+     *
+     * @param tableName  target table
+     * @param rowName       to check
+     * @param familyName    column family to check
+     * @param qualifier column qualifier to check
+     * @param compareOp comparison operator to use
+     * @param value     the expected value
+     * @param put       data to put if check succeeds
+     * @return true if the new put was executed, false otherwise
+     */
+    @Override
+    public boolean checkAndPut(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Put put) {
+        return (boolean) execute(tableName, new TableCallback() {
+            @Override
+            public Object doInTable(Table table) throws Throwable {
+                try {
+                    return table.checkAndPut(rowName, familyName, qualifier, compareOp, value, put);
+                } catch (IOException e) {
+                    return Boolean.FALSE;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void maxColumnValue(TableName tableName, byte[] rowName, byte[] familyName, byte[] qualifier, long value) {
+        byte[] valBytes = Bytes.toBytes(value);
+        Put put = new Put(rowName);
+        put.addColumn(familyName, qualifier, valBytes);
+        //check for existence and put for the first time
+        boolean success = checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.EQUAL, null, put);
+        if (!success) {
+            //check for max and put for update
+            checkAndPut(tableName, rowName, familyName, qualifier, CompareFilter.CompareOp.GREATER, valBytes, put);
+        }
     }
 
     @Override
@@ -449,12 +438,9 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             public List<T> doInTable(Table table) throws Throwable {
                 List<T> result = new ArrayList<>(scanList.size());
                 for (Scan scan : scanList) {
-                    final ResultScanner scanner = table.getScanner(scan);
-                    try {
+                    try (ResultScanner scanner = table.getScanner(scan)) {
                         T t = action.extractData(scanner);
                         result.add(t);
-                    } finally {
-                        scanner.close();
                     }
                 }
                 return result;
@@ -482,18 +468,15 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                     return execute(tableName, new TableCallback<T>() {
                         @Override
                         public T doInTable(Table table) throws Throwable {
-                            final ResultScanner scanner = table.getScanner(scan);
-                            try {
+                            try (ResultScanner scanner = table.getScanner(scan)) {
                                 return action.extractData(scanner);
-                            } finally {
-                                scanner.close();
                             }
                         }
                     });
                 }
             });
         }
-        List<List<Callable<T>>> callablePartitions = Lists.partition(callables, this.maxThreadsPerParallelScan);
+        List<List<Callable<T>>> callablePartitions = ListUtils.partition(callables, this.maxThreadsPerParallelScan);
         for (List<Callable<T>> callablePartition : callablePartitions) {
             try {
                 List<Future<T>> futures = this.executor.invokeAll(callablePartition);
@@ -546,20 +529,19 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             @Override
             public T doInTable(Table table) throws Throwable {
                 StopWatch watch = null;
+                final boolean debugEnabled = logger.isDebugEnabled();
                 if (debugEnabled) {
                     watch = new StopWatch();
                     watch.start();
                 }
                 final ResultScanner[] splitScanners = splitScan(table, scan, rowKeyDistributor);
-                final ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners);
-                if (debugEnabled) {
-                    logger.debug("DistributedScanner createTime: {}ms", watch.stop());
-                    watch.start();
-                }
-                try {
+                try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
+                    if (debugEnabled) {
+                        logger.debug("DistributedScanner createTime: {}ms", watch.stop());
+                        watch.start();
+                    }
                     return action.extractData(scanner);
                 } finally {
-                    scanner.close();
                     if (debugEnabled) {
                         logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
                     }
@@ -610,10 +592,14 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
+    }
+
+    private int getThreadsUsedNum(int numParallelThreads) {
+        return Math.min(numParallelThreads, this.maxThreadsPerParallelScan);
     }
 
     @Override
@@ -622,7 +608,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
@@ -634,7 +620,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
@@ -646,7 +632,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, action, numThreadsUsed);
         }
     }
@@ -655,19 +641,18 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
         assertAccessAvailable();
         try {
             StopWatch watch = null;
+            final boolean debugEnabled = logger.isDebugEnabled();
             if (debugEnabled) {
                 watch = new StopWatch();
                 watch.start();
             }
-            ParallelResultScanner scanner = new ParallelResultScanner(tableName, this, this.executor, scan, rowKeyDistributor, numParallelThreads);
-            if (debugEnabled) {
-                logger.debug("ParallelDistributedScanner createTime: {}ms", watch.stop());
-                watch.start();
-            }
-            try {
+            try (ParallelResultScanner scanner = new ParallelResultScanner(tableName, this, this.executor, scan, rowKeyDistributor, numParallelThreads)) {
+                if (debugEnabled) {
+                    logger.debug("ParallelDistributedScanner createTime: {}ms", watch.stop());
+                    watch.start();
+                }
                 return action.extractData(scanner);
             } finally {
-                scanner.close();
                 if (debugEnabled) {
                     logger.debug("ParallelDistributedScanner scanTime: {}ms", watch.stop());
                 }

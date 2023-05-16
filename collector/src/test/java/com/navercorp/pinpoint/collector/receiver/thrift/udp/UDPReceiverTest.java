@@ -21,19 +21,20 @@ import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
+import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.util.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
+import org.springframework.test.util.TestSocketUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.CountDownLatch;
@@ -49,46 +50,47 @@ import static org.mockito.Mockito.when;
  * @author emeroad
  */
 public class UDPReceiverTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String ADDRESS = "127.0.0.1";
-    private static final int PORT = SocketUtils.findAvailableUdpPort(10999);
+    private int port;
 
-    private final PacketHandler loggingPacketHandler = new PacketHandler() {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final PacketHandler<DatagramPacket> loggingPacketHandler = new PacketHandler<>() {
+        private final Logger logger = LogManager.getLogger(this.getClass());
+
         @Override
-        public void receive(DatagramSocket localSocket, Object packet) {
-            logger.info("receive localSocket:{} packet:{}", localSocket, packet);
+        public void receive(DatagramSocket localSocket, PooledObject<DatagramPacket> packet) {
+            logger.info("receive localSocket:{} packet:{}", localSocket, packet.getObject());
         }
     };
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        this.port = TestSocketUtils.findAvailableTcpPort();
+    }
 
     @Test
     public void startStop() {
         UDPReceiver receiver = null;
 
-        InetSocketAddress bindAddress = new InetSocketAddress(ADDRESS, PORT);
+        InetSocketAddress bindAddress = new InetSocketAddress(ADDRESS, port);
 
         Executor executor = MoreExecutors.directExecutor();
-        PacketHandlerFactory packetHandlerFactory = mock(PacketHandlerFactory.class);
+        PacketHandlerFactory<DatagramPacket> packetHandlerFactory = mock(PacketHandlerFactory.class);
         when(packetHandlerFactory.createPacketHandler()).thenReturn(loggingPacketHandler);
         try {
             ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
             ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, 10);
-            receiver = new UDPReceiver("test", packetHandlerFactory, executor, 8, bindAddress, pool);
+            ReusePortSocketOptionApplier socketOptionApplier = ReusePortSocketOptionApplier.create(false, 1);
+            receiver = new UDPReceiver("test", packetHandlerFactory, executor, 8, bindAddress, socketOptionApplier, pool);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage(), e);
         } finally {
             if (receiver != null) {
                 receiver.shutdown();
             }
         }
-    }
-
-    @Test
-    public void hostNullCheck() {
-        InetSocketAddress address = new InetSocketAddress((InetAddress) null, PORT);
-        logger.debug(address.toString());
     }
 
     @Test
@@ -108,17 +110,10 @@ public class UDPReceiverTest {
         DatagramPacket datagramPacket = new DatagramPacket(new byte[0], 0, 0);
 
         DatagramSocket datagramSocket = new DatagramSocket();
-        datagramSocket.connect(new InetSocketAddress(ADDRESS, PORT));
+        datagramSocket.connect(new InetSocketAddress(ADDRESS, port));
 
         datagramSocket.send(datagramPacket);
         datagramSocket.close();
-    }
-
-    private final AtomicInteger zeroPacketCounter = new AtomicInteger();
-    void interceptValidatePacket(DatagramPacket packet) {
-        if (packet.getLength() == 0) {
-            zeroPacketCounter.incrementAndGet();
-        }
     }
 
     @Test
@@ -126,42 +121,59 @@ public class UDPReceiverTest {
         UDPReceiver receiver = null;
         DatagramSocket datagramSocket = null;
 
+        CountDownLatch zeroLengthLatch = new CountDownLatch(1);
         CountDownLatch latch = new CountDownLatch(1);
         Executor mockExecutor = mockDispatchWorker(latch);
 
-        PacketHandlerFactory packetHandlerFactory = mock(PacketHandlerFactory.class);
+        PacketHandlerFactory<DatagramPacket> packetHandlerFactory = mock(PacketHandlerFactory.class);
         when(packetHandlerFactory.createPacketHandler()).thenReturn(loggingPacketHandler);
 
+        final AtomicInteger zeroPacketCounter = new AtomicInteger();
+
         try {
-            InetSocketAddress bindAddress = new InetSocketAddress(ADDRESS, PORT);
+            InetSocketAddress bindAddress = new InetSocketAddress(ADDRESS, port);
             ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
             ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, 10);
-            receiver = new UDPReceiver("test", packetHandlerFactory, mockExecutor, 8, bindAddress, pool) {
+            ReusePortSocketOptionApplier socketOptionApplier = ReusePortSocketOptionApplier.create(false, 1);
+            receiver = new UDPReceiver("test", packetHandlerFactory, mockExecutor, 8, bindAddress, socketOptionApplier, pool) {
                 @Override
                 boolean validatePacket(DatagramPacket packet) {
-                    interceptValidatePacket(packet);
+                    if (packet.getLength() == 0) {
+                        zeroLengthLatch.countDown();
+                        zeroPacketCounter.incrementAndGet();
+                    }
                     return super.validatePacket(packet);
                 }
             };
             receiver.start();
 
             datagramSocket = new DatagramSocket();
-            datagramSocket.connect(new InetSocketAddress(ADDRESS, PORT));
+            InetSocketAddress addr = new InetSocketAddress(ADDRESS, port);
 
-            datagramSocket.send(new DatagramPacket(new byte[0], 0));
-            datagramSocket.send(new DatagramPacket(new byte[1], 1));
+            datagramSocket.send(new DatagramPacket(new byte[0], 0, addr));
+            awaitLatch(zeroLengthLatch);
 
-            Assert.assertTrue(latch.await(30000, TimeUnit.MILLISECONDS));
-            Assert.assertEquals(zeroPacketCounter.get(), 1);
+            datagramSocket.send(new DatagramPacket(new byte[1], 1, addr));
+
+            Assertions.assertTrue(awaitLatch(latch));
+            Assertions.assertEquals(1, zeroPacketCounter.get());
             Mockito.verify(mockExecutor).execute(any(Runnable.class));
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage(), e);
         } finally {
             if (receiver != null) {
                 receiver.shutdown();
             }
             IOUtils.closeQuietly((Closeable) datagramSocket);
+        }
+    }
+
+    private boolean awaitLatch(CountDownLatch zeroLengthLatch) {
+        try {
+            return zeroLengthLatch.await(3000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

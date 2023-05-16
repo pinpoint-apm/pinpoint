@@ -17,28 +17,24 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandle;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 final class Java9DefineClass implements DefineClass {
-    private static final Object OBJECT = JavaLangAccessHelper.getJavaLangAccessObject();
-    private static final MethodHandle DEFINE_CLASS_METHOD_HANDLE = JavaLangAccessHelper.getDefineClassMethodHandle();
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
-    public final Class<?> defineClass(ClassLoader classLoader, String name, byte[] bytes) {
+    public Class<?> defineClass(ClassLoader classLoader, String name, byte[] bytes) {
         if (logger.isDebugEnabled()) {
             logger.debug("define class:{} cl:{}", name, classLoader);
         }
-
+        final JavaLangAccess javaLangAccess = JavaLangAccessHelper.getJavaLangAccess();
         try {
-            return (Class<?>) DEFINE_CLASS_METHOD_HANDLE.invoke(OBJECT, classLoader, name, bytes, null, null);
+            return javaLangAccess.defineClass(classLoader, name, bytes, null, null);
         } catch (Throwable e) {
             logger.warn("{} define fail cl:{} Caused by:{}", name, classLoader, e.getMessage(), e);
             throw new RuntimeException(name + " define fail Caused by:" + e.getMessage(), e);

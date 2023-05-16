@@ -23,9 +23,10 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -47,67 +48,77 @@ public class DispatchHandlerTest {
     @Mock
     private AcceptedTimeService acceptedTimeService;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    private AutoCloseable openMocks;
+
+    @BeforeEach
+    public void beforeEach() {
+        openMocks = MockitoAnnotations.openMocks(this);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @AfterEach
+    public void afterEach() throws Exception {
+        openMocks.close();
+    }
+
+    @Test
     public void throwExceptionTest1() {
-        ServerRequest request = mock(ServerRequest.class);
-        when(request.getData()).thenReturn(null);
-        testDispatchHandler.dispatchSendMessage(request);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            ServerRequest<TBase<?, ?>> request = mock(ServerRequest.class);
+            when(request.getData()).thenReturn(null);
+            testDispatchHandler.dispatchSendMessage(request);
+        });
     }
 
     @Test
     public void dispatchSendMessageTest() {
-        ServerRequest serverRequest = mock(ServerRequest.class);
-        when(serverRequest.getData()).thenReturn(new TResult());
+        ServerRequest<TBase<?, ?>> serverRequest = mock(ServerRequest.class);
+        when(serverRequest.getData()).thenReturn((TBase) new TResult());
         testDispatchHandler.dispatchSendMessage(serverRequest);
 
-        Assert.assertTrue(TEST_SIMPLE_HANDLER.getExecutedCount() > 0);
+        Assertions.assertTrue(TEST_SIMPLE_HANDLER.getExecutedCount() > 0);
     }
 
     @Test
     public void dispatchRequestMessageTest() {
-        ServerRequest request = mock(ServerRequest.class);
-        when(request.getData()).thenReturn(new TResult());
+        ServerRequest<TBase<?, ?>> request = mock(ServerRequest.class);
+        when(request.getData()).thenReturn((TBase) new TResult());
 
-        ServerResponse response = mock(ServerResponse.class);
+        ServerResponse<TBase<?, ?>> response = mock(ServerResponse.class);
         testDispatchHandler.dispatchRequestMessage(request, response);
 
-        Assert.assertTrue(TEST_REQUEST_HANDLER.getExecutedCount() > 0);
+        Assertions.assertTrue(TEST_REQUEST_HANDLER.getExecutedCount() > 0);
     }
 
-    private static class TestDispatchHandler implements DispatchHandler {
+    private static class TestDispatchHandler implements DispatchHandler<TBase<?, ?>, TBase<?, ?>> {
 
         @Override
-        public void dispatchSendMessage(ServerRequest serverRequest) {
-            SimpleHandler simpleHandler = getSimpleHandler(serverRequest);
+        public void dispatchSendMessage(ServerRequest<TBase<?, ?>> serverRequest) {
+            SimpleHandler<TBase<?, ?>> simpleHandler = getSimpleHandler(serverRequest);
             simpleHandler.handleSimple(serverRequest);
         }
 
+
         @Override
-        public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
-            RequestResponseHandler requestResponseHandler = getRequestResponseHandler(serverRequest);
+        public void dispatchRequestMessage(ServerRequest<TBase<?, ?>> serverRequest,
+                                           ServerResponse<TBase<?, ?>> serverResponse) {
+            RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> requestResponseHandler = getRequestResponseHandler(serverRequest);
             requestResponseHandler.handleRequest(serverRequest, serverResponse);
         }
 
-        private RequestResponseHandler getRequestResponseHandler(ServerRequest serverRequest) {
-            final Object data = serverRequest.getData();
+        private RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> getRequestResponseHandler(ServerRequest<? extends TBase<?, ?>> serverRequest) {
             return TEST_REQUEST_HANDLER;
         }
 
-        private SimpleHandler getSimpleHandler(ServerRequest serverRequest) {
-            final Object data = serverRequest.getData();
+        private SimpleHandler<TBase<?, ?>> getSimpleHandler(ServerRequest<? extends TBase<?, ?>> serverRequest) {
+            final TBase<?, ?> data = serverRequest.getData();
             if (data instanceof TBase<?, ?>) {
-                return getSimpleHandler((TBase<?, ?>) data);
+                return getSimpleHandler(data);
             }
 
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
 
-        private SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
+        private SimpleHandler<TBase<?, ?>> getSimpleHandler(TBase<?, ?> tBase) {
             if (tBase == null) {
                 return null;
             }
@@ -117,19 +128,15 @@ public class DispatchHandlerTest {
 
     }
 
-    private static class TestSimpleHandler implements SimpleHandler {
+    private static class TestSimpleHandler implements SimpleHandler<TBase<?, ?>> {
 
         private int executedCount = 0;
 
 
         @Override
-        public void handleSimple(ServerRequest serverRequest) {
-            final Object data = serverRequest.getData();
-            if (data instanceof TBase<?, ?>) {
-                executedCount++;
-            } else {
-                throw new UnsupportedOperationException(serverRequest.getClass() + "is not support type : " + serverRequest);
-            }
+        public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
+            final TBase<?, ?> data = serverRequest.getData();
+            executedCount++;
         }
 
         public int getExecutedCount() {
@@ -138,21 +145,22 @@ public class DispatchHandlerTest {
 
     }
 
-    private static class TestRequestHandler implements RequestResponseHandler {
+    private static class TestRequestHandler implements RequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
         private int executedCount = 0;
 
         @Override
-        public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
+        public void handleRequest(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
             executedCount++;
-            TResult tResult = new TResult();
-            serverResponse.write(tResult);
+
+            serverResponse.write(new TResult());
         }
 
 
         public int getExecutedCount() {
             return executedCount;
         }
+
 
     }
 

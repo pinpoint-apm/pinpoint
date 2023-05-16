@@ -1,0 +1,9 @@
+<ng-container *ngIf="apdexScore">
+    <div class="helper-viewer-exclude apdex-score-wrapper" (click)="onShowHelp($event)">
+        <pp-apdex-score
+                [isEmpty]="isEmpty"
+                [score]="apdexScore">
+        </pp-apdex-score>
+        <button class="fas fa-question-circle"></button>
+    </div>
+</ng-container>

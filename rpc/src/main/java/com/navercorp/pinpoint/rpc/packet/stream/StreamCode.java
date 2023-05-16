@@ -51,6 +51,8 @@ public enum StreamCode {
     CONNECTION_TIMEOUT((short) 152),
     CONNECTION_UNSUPPORT((short) 153),
 
+    CONNECTION_DUPLICATED((short) 154),
+
     ROUTE_ERROR((short)160);
 
     private final short value;
@@ -83,7 +85,7 @@ public enum StreamCode {
     }
 
     private static IntHashMap<StreamCode> initializeCodeMapping() {
-        IntHashMap<StreamCode> codeMap = new IntHashMap<StreamCode>();
+        IntHashMap<StreamCode> codeMap = new IntHashMap<>();
         for (StreamCode streamCode : StreamCode.values()) {
             codeMap.put(streamCode.value, streamCode);
         }

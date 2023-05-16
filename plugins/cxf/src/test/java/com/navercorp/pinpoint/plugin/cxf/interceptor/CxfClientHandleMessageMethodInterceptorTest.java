@@ -7,11 +7,10 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CxfClientHandleMessageMethodInterceptorTest {
 
     @Mock
@@ -45,7 +44,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     private SpanEventRecorder recorder;
 
     @Test
-    public void test1() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void test1() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
@@ -53,7 +53,7 @@ public class CxfClientHandleMessageMethodInterceptorTest {
         doReturn(recorder).when(trace).traceBlockBegin();
 
         Object target = new Object();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<>();
         map.put("org.apache.cxf.message.Message.ENDPOINT_ADDRESS", "http://foo.com/getFoo");
         map.put("org.apache.cxf.request.uri", "http://foo.com/getFoo");
         map.put("org.apache.cxf.request.method", "POST");
@@ -71,7 +71,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     }
 
     @Test
-    public void test2() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void test2() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentTraceObject();
 
@@ -85,7 +86,8 @@ public class CxfClientHandleMessageMethodInterceptorTest {
     }
 
     @Test
-    public void test3() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void test3() {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
@@ -93,7 +95,7 @@ public class CxfClientHandleMessageMethodInterceptorTest {
         doReturn(recorder).when(trace).traceBlockBegin();
 
         Object target = new Object();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<>();
         map.put("org.apache.cxf.message.Message.ENDPOINT_ADDRESS", "http://foo.com/getFoo");
         Object[] args = new Object[]{map};
 

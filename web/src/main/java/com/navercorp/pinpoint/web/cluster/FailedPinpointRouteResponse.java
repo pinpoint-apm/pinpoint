@@ -25,9 +25,9 @@ import org.apache.thrift.TBase;
 public class FailedPinpointRouteResponse implements PinpointRouteResponse {
 
     private final TRouteResult routeResult;
-    private final TBase response;
+    private final TBase<?, ?> response;
 
-    public FailedPinpointRouteResponse(TRouteResult routeResult, TBase response) {
+    public FailedPinpointRouteResponse(TRouteResult routeResult, TBase<?, ?> response) {
         this.routeResult = routeResult;
         this.response = response;
     }
@@ -38,7 +38,7 @@ public class FailedPinpointRouteResponse implements PinpointRouteResponse {
     }
 
     @Override
-    public TBase getResponse() {
+    public TBase<?, ?> getResponse() {
         return response;
     }
 
@@ -48,7 +48,7 @@ public class FailedPinpointRouteResponse implements PinpointRouteResponse {
     }
 
     @Override
-    public <R extends TBase> R getResponse(Class<R> clazz) {
+    public <R extends TBase<?, ?>> R getResponse(Class<R> clazz) {
         if (clazz.isInstance(response)) {
             return (R) response;
         }
@@ -57,7 +57,7 @@ public class FailedPinpointRouteResponse implements PinpointRouteResponse {
     }
 
     @Override
-    public <R extends TBase> R getResponse(Class<R> clazz, R defaultValue) {
+    public <R extends TBase<?, ?>> R getResponse(Class<R> clazz, R defaultValue) {
         if (clazz.isInstance(response)) {
             return (R) response;
         }

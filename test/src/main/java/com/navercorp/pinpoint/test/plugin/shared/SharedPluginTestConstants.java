@@ -25,6 +25,10 @@ public class SharedPluginTestConstants {
 
     public static final String TEST_CLAZZ_NAME = "testClazzName";
 
+    public static final String TEST_LOGGER = "testLoggerEnable";
+
     public static final String MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS = "mavenDependencyResolverClassPaths";
+
+    public static final String TEST_REPOSITORY_URLS = "repositoryUrls";
 
 }

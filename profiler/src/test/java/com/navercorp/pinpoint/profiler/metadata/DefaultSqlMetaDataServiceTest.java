@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -32,9 +33,9 @@ import static org.mockito.Mockito.verify;
 public class DefaultSqlMetaDataServiceTest {
 
     @Test
-    public void cacheSql() throws Exception {
-        final EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> sqlCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer(), 100);
+    public void cacheSql() {
+        final EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
+        SimpleCache<String> sqlCache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(), 100);
         final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService(dataSender, sqlCache);
 
         final String sql = "select * from A";
@@ -42,11 +43,11 @@ public class DefaultSqlMetaDataServiceTest {
 
         boolean newValue = sqlMetaDataService.cacheSql(parsingResult);
 
-        Assert.assertTrue(newValue);
-        verify(dataSender, times(1)).request(any(SqlMetaData.class));
+        Assertions.assertTrue(newValue);
+        verify(dataSender).request(any(SqlMetaData.class));
 
         boolean notNewValue = sqlMetaDataService.cacheSql(parsingResult);
-        Assert.assertFalse(notNewValue);
-        verify(dataSender, times(1)).request(any(SqlMetaData.class));
+        Assertions.assertFalse(notNewValue);
+        verify(dataSender).request(any(SqlMetaData.class));
     }
 }

@@ -14,20 +14,21 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import java.util.Properties;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTargetScope;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jongho Moon
@@ -35,7 +36,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
  */
 public class TargetBeanFilterTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testClassLoadedByBootClassLoader() {
@@ -43,7 +44,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -62,7 +63,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -87,7 +88,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 7 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "antstyle:F.A*");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 8 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "antstyle:.G*");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -128,7 +129,7 @@ public class TargetBeanFilterTest {
     private void assertClassNamePattern(final String pattern) {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, pattern);
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -140,7 +141,7 @@ public class TargetBeanFilterTest {
     public void annotation() {
         Properties properties = new Properties();
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -156,7 +157,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -172,7 +173,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 1 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -190,7 +191,7 @@ public class TargetBeanFilterTest {
 
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -206,7 +207,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -228,7 +229,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target.*");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -248,7 +249,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target0");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 
@@ -271,7 +272,7 @@ public class TargetBeanFilterTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX, "Target0");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Controller");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         TargetBeanFilter filter = TargetBeanFilter.of(config);
         filter.clear();
 

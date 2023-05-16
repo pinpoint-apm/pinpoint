@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
@@ -39,9 +39,9 @@ public class DetailedJvmGcMetricCollector implements AgentStatMetricCollector<Jv
             BasicJvmGcMetricCollector jvmGcMetricCollector,
             DetailedMemoryMetric detailedMemoryMetric,
             DetailedGarbageCollectorMetric detailedGarbageCollectorMetric) {
-        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
-        this.detailedMemoryMetric = Assert.requireNonNull(detailedMemoryMetric, "detailedMemoryMetric");
-        this.detailedGarbageCollectorMetric = Assert.requireNonNull(detailedGarbageCollectorMetric, "detailedGarbageCollectorMetric");
+        this.jvmGcMetricCollector = Objects.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
+        this.detailedMemoryMetric = Objects.requireNonNull(detailedMemoryMetric, "detailedMemoryMetric");
+        this.detailedGarbageCollectorMetric = Objects.requireNonNull(detailedGarbageCollectorMetric, "detailedGarbageCollectorMetric");
     }
 
 

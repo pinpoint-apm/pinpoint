@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCommandType;
@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.receiver.ProfilerSimpleCommandService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -36,21 +36,19 @@ import java.util.TimerTask;
 /**
  * @author Taejin Koo
  */
-public class GrpcActiveThreadCountService implements ProfilerSimpleCommandService<PCmdRequest>, Closeable {
+public class GrpcActiveThreadCountService implements ProfilerGrpcCommandService, Closeable {
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrpcActiveThreadCountService.class);
+    private static final Logger LOGGER = LogManager.getLogger(GrpcActiveThreadCountService.class);
     private final boolean isDebug = LOGGER.isDebugEnabled();
 
-    private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub;
     private final ActiveTraceRepository activeTraceRepository;
 
     private final GrpcStreamService grpcStreamService = new GrpcStreamService("ActiveThreadCountService", DEFAULT_FLUSH_DELAY);
 
-    public GrpcActiveThreadCountService(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub, ActiveTraceRepository activeTraceRepository) {
-        this.profilerCommandServiceStub = Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+    public GrpcActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
+        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     @Override
@@ -59,7 +57,7 @@ public class GrpcActiveThreadCountService implements ProfilerSimpleCommandServic
     }
 
     @Override
-    public void simpleCommandService(PCmdRequest request) {
+    public void handle(PCmdRequest request, ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
         ActiveThreadCountStreamSocket activeThreadCountStreamSocket = new ActiveThreadCountStreamSocket(request.getRequestId(), grpcStreamService);
         profilerCommandServiceStub.commandStreamActiveThreadCount(activeThreadCountStreamSocket.getResponseObserver());
 

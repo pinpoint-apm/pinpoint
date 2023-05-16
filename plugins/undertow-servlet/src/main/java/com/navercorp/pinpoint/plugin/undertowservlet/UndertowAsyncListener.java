@@ -31,9 +31,8 @@ import java.io.IOException;
  * @author jaehong.kim
  */
 public class UndertowAsyncListener implements AsyncListener {
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private final AsyncListenerInterceptorHelper asyncListenerInterceptorHelper;
 
@@ -48,9 +47,7 @@ public class UndertowAsyncListener implements AsyncListener {
         }
 
         if (asyncEvent == null) {
-            if (isInfo) {
-                logger.info("Invalid event. event is null");
-            }
+            logger.info("Invalid event. event is null");
             return;
         }
 
@@ -58,9 +55,7 @@ public class UndertowAsyncListener implements AsyncListener {
             final int statusCode = getStatusCode(asyncEvent);
             this.asyncListenerInterceptorHelper.complete(asyncEvent.getThrowable(), statusCode);
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to async event handle. event={}", asyncEvent, t);
-            }
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
         }
     }
 
@@ -91,18 +86,14 @@ public class UndertowAsyncListener implements AsyncListener {
         }
 
         if (asyncEvent == null) {
-            if (isInfo) {
-                logger.info("Invalid event. event is null");
-            }
+            logger.info("Invalid event. event is null");
             return;
         }
 
         try {
             this.asyncListenerInterceptorHelper.error(asyncEvent.getThrowable());
         } catch (Throwable t) {
-            if (isInfo) {
-                logger.info("Failed to async event handle. event={}", asyncEvent, t);
-            }
+            logger.info("Failed to async event handle. event={}", asyncEvent, t);
         }
     }
 

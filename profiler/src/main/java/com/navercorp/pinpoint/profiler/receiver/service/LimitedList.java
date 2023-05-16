@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.util.Assert;
 
+import java.util.Objects;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,12 +31,12 @@ import java.util.Queue;
  */
 class LimitedList<E> implements Collection<E> {
     private final int maxSize;
-    private Comparator<E> comparator;
+    private final Comparator<E> comparator;
     private final Queue<E> queue;
 
     public LimitedList(int maxSize, Comparator<E> comparator) {
         Assert.isTrue(maxSize > 0, "maxSize must not be negative");
-        this.comparator = Assert.requireNonNull(comparator, "comparator");
+        this.comparator = Objects.requireNonNull(comparator, "comparator");
 
         this.maxSize = maxSize;
         this.queue = new PriorityQueue<E>(maxSize, comparator);

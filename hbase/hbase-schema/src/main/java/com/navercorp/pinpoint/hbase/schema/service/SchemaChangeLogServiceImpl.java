@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.core.CheckSum;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,9 +129,7 @@ public class SchemaChangeLogServiceImpl implements SchemaChangeLogService {
 
     @Override
     public SchemaChangeLog getSchemaChangeLog(String namespace, String id) {
-        if (StringUtils.isEmpty(id)) {
-            throw new IllegalArgumentException("Change set id must not be empty");
-        }
+        Assert.hasLength(id, "namespace must not be empty");
         return schemaChangeLogDao.getChangeLog(namespace, id);
     }
 

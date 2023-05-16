@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import io.lettuce.core.RedisURI;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -58,24 +59,15 @@ public class RedisClientConstructorInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length < 2 || args[1] == null) {
-            if (isDebug) {
-                logger.debug("Invalid arguments. Null or not found args({}).", args);
-            }
+        if (ArrayUtils.getLength(args) < 2 || args[1] == null) {
             return false;
         }
 
         if (!(target instanceof EndPointAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", EndPointAccessor.class.getName());
-            }
             return false;
         }
 
         if (!(args[1] instanceof RedisURI)) {
-            if (isDebug) {
-                logger.debug("Invalid args[1] object. args[1]={}", args[1]);
-            }
             return false;
         }
         return true;

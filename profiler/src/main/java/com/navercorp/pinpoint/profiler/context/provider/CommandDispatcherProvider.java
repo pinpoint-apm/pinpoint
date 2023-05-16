@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
@@ -32,14 +32,13 @@ import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
  */
 public class CommandDispatcherProvider implements Provider<CommandDispatcher> {
 
-    private final ProfilerConfig profilerConfig;
+    private final ThriftTransportConfig thriftTransportConfig;
     private final ActiveTraceRepository activeTraceRepository;
 
     @Inject
-    public CommandDispatcherProvider(ProfilerConfig profilerConfig, Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-
-        Assert.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider");
+    public CommandDispatcherProvider(ThriftTransportConfig thriftTransportConfig, Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        Objects.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider");
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
     }
 
@@ -48,7 +47,7 @@ public class CommandDispatcherProvider implements Provider<CommandDispatcher> {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new EchoService());
         if (activeTraceRepository != null) {
-            ActiveThreadService activeThreadService = new ActiveThreadService(profilerConfig, activeTraceRepository);
+            ActiveThreadService activeThreadService = new ActiveThreadService(thriftTransportConfig, activeTraceRepository);
             builder.addService(activeThreadService);
         }
 

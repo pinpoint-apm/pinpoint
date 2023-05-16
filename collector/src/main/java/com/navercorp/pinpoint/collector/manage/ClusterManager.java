@@ -17,10 +17,10 @@
 
 package com.navercorp.pinpoint.collector.manage;
 
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorClusterProperties;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +32,11 @@ import java.util.Objects;
 public class ClusterManager extends AbstractCollectorManager implements ClusterManagerMBean {
 
     private final boolean enableCluster;
-    private final ClusterPointLocator clusterPointLocator;
+    private final ClusterPointLocator<?> clusterPointLocator;
 
-    public ClusterManager(CollectorConfiguration configuration, ClusterPointLocator clusterPointLocator) {
-        Objects.requireNonNull(configuration, "configuration");
-        this.enableCluster = configuration.isClusterEnable();
+    public ClusterManager(CollectorClusterProperties collectorClusterProperties, ClusterPointLocator<?> clusterPointLocator) {
+        Objects.requireNonNull(collectorClusterProperties, "collectorClusterProperties");
+        this.enableCluster = collectorClusterProperties.isClusterEnable();
         this.clusterPointLocator = Objects.requireNonNull(clusterPointLocator, "clusterPointLocator");
     }
 
@@ -49,10 +49,10 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
     public List<String> getConnectedAgentList() {
         List<String> result = new ArrayList<>();
 
-        List<ClusterPoint> clusterPointList = clusterPointLocator.getClusterPointList();
-        for (ClusterPoint clusterPoint : clusterPointList) {
-            AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
-            result.add(destAgentInfo.getAgentKey());
+        List<? extends ClusterPoint<?>> clusterPointList = clusterPointLocator.getClusterPointList();
+        for (ClusterPoint<?> clusterPoint : clusterPointList) {
+            ClusterKey destClusterKey = clusterPoint.getDestClusterKey();
+            result.add(destClusterKey.format());
         }
 
         return result;

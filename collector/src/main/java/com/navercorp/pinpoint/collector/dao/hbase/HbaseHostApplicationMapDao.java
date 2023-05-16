@@ -16,23 +16,22 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -45,11 +44,12 @@ import java.util.Objects;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+    private static final HbaseColumnFamily.HostStatMap DESCRIPTOR = HbaseColumnFamily.HOST_APPLICATION_MAP_VER2_MAP;
 
     private final HbaseOperations2 hbaseTemplate;
 
-    private final TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor;
+    private final TableNameProvider tableNameProvider;
 
     private final AcceptedTimeService acceptedTimeService;
 
@@ -60,13 +60,14 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
+
     public HbaseHostApplicationMapDao(HbaseOperations2 hbaseTemplate,
-                                      TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor,
+                                      TableNameProvider tableNameProvider,
                                       @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor,
                                       AcceptedTimeService acceptedTimeService,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
@@ -110,12 +111,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
-        TableName hostApplicationMapTableName = descriptor.getTableName();
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         try {
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, DESCRIPTOR.getName(), columnName, null);
         } catch (Exception ex) {
             logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, DESCRIPTOR.getName(), columnName, null);
         }
     }
 
@@ -139,13 +140,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
-        final int SIZE = HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + 2 + 8;
+        final int SIZE = HbaseTableConstants.APPLICATION_NAME_MAX_LEN + 2 + 8;
         final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
-        rowKeyBuffer.putPadString(parentApplicationName, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
+        rowKeyBuffer.putPadString(parentApplicationName, HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         rowKeyBuffer.putShort(parentServiceType);
         rowKeyBuffer.putLong(TimeUtils.reverseTimeMillis(statisticsRowSlot));
         // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
-//        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstatns.AGENT_NAME_MAX_LEN);
+//        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstants.AGENT_NAME_MAX_LEN);
         return rowKeyBuffer.getBuffer();
     }
 

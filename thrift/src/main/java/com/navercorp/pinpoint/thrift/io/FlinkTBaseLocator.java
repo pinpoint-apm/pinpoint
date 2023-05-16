@@ -45,7 +45,7 @@ public class FlinkTBaseLocator {
 
     private TypeLocator<TBase<?, ?>> newTypeLocator() {
         HeaderFactory headerFactory = new FlinkHeaderFactory();
-        TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<TBase<?, ?>>(headerFactory);
+        TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<>(headerFactory);
         typeLocatorBuilder.addBodyFactory(AGENT_STAT_BATCH, new BodyFactory<TBase<?, ?>>() {
             @Override
             public TBase<?, ?> getObject() {

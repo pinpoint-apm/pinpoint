@@ -16,32 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
-import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
+import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
+import io.grpc.stub.StreamObserver;
 import org.jboss.netty.buffer.ChannelBuffers;
 
 import java.util.concurrent.ScheduledExecutorService;
-
-import com.google.protobuf.GeneratedMessageV3;
-import io.grpc.stub.StreamObserver;
+import java.util.function.BiConsumer;
 
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataSender<Object> {
+public class AgentGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
 
     static {
         // preClassLoad
@@ -50,7 +46,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
 
     private final AgentGrpc.AgentStub agentInfoStub;
     private final AgentGrpc.AgentStub agentPingStub;
-    private GrpcCommandService grpcCommandService;
+    private final GrpcCommandService grpcCommandService;
 
     private final ReconnectExecutor reconnectExecutor;
 
@@ -58,11 +54,11 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
     private final Reconnector reconnector;
 
     public AgentGrpcDataSender(String host, int port, int executorQueueSize,
-                               MessageConverter<GeneratedMessageV3> messageConverter,
+                               MessageConverter<T, GeneratedMessageV3> messageConverter,
                                ReconnectExecutor reconnectExecutor,
                                final ScheduledExecutorService retransmissionExecutor,
                                ChannelFactory channelFactory,
-                               ActiveTraceRepository activeTraceRepository) {
+                               ProfilerCommandServiceLocator profilerCommandServiceLocator) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.agentInfoStub = AgentGrpc.newStub(managedChannel);
@@ -70,7 +66,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
 
         this.reconnectExecutor = reconnectExecutor;
         CommandServiceStubFactory commandServiceStubFactory = new CommandServiceStubFactory(managedChannel);
-        this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, activeTraceRepository);
+        this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, profilerCommandServiceLocator);
         {
             final Runnable reconnectJob = new Runnable() {
                 @Override
@@ -96,17 +92,17 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
     }
 
     @Override
-    public boolean request(Object data) {
+    public boolean request(T data) {
         throw new UnsupportedOperationException("unsupported operation request(data)");
     }
 
     @Override
-    public boolean request(Object data, int retryCount) {
+    public boolean request(T data, int retryCount) {
         throw new UnsupportedOperationException("unsupported operation request(data, retryCount)");
     }
 
     @Override
-    public boolean request(Object data, final FutureListener listener) {
+    public boolean request(T data, final BiConsumer<ResponseMessage, Throwable> listener) {
         final GeneratedMessageV3 message = this.messageConverter.toMessage(data);
         if (!(message instanceof PAgentInfo)) {
             throw new IllegalArgumentException("unsupported message " + data);
@@ -147,37 +143,23 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
         this.release();
     }
 
-    @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        throw new UnsupportedOperationException("unsupported operation addReconnectEventListener(eventListener)");
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        throw new UnsupportedOperationException("unsupported operation removeReconnectEventListener(eventListener)");
-    }
 
     private static class FutureListenerStreamObserver implements StreamObserver<PResult> {
-        private final FutureListener listener;
+        private final BiConsumer<ResponseMessage, Throwable> listener;
 
-        private FutureListenerStreamObserver(FutureListener listener) {
+        private FutureListenerStreamObserver(BiConsumer<ResponseMessage, Throwable> listener) {
             this.listener = listener;
         }
 
         @Override
         public void onNext(PResult result) {
-            final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
-            final ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setMessage(result.toByteArray());
-            future.setResult(responseMessage);
-            future.setListener(listener);
+            final ResponseMessage response = ResponseMessage.wrap(result.toByteArray());
+            listener.accept(response, null);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
-            future.setFailure(throwable);
-            future.setListener(listener);
+            listener.accept(null, throwable);
         }
 
         @Override

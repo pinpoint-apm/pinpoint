@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 /**
  * @author jaehong.kim
  */
-public class JvmGcTypeThriftMessageConverter implements MessageConverter<TJvmGcType> {
+public class JvmGcTypeThriftMessageConverter implements MessageConverter<Object, TJvmGcType> {
 
     @Override
     public TJvmGcType toMessage(Object message) {

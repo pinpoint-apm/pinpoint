@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,13 +30,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
  * @author HyunGil Jeong
  */
 public class RowKeyMerge {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final byte[] family;
 
     public RowKeyMerge(HbaseColumnFamily columnFamily) {
@@ -44,9 +45,8 @@ public class RowKeyMerge {
     }
 
     public RowKeyMerge(byte[] family) {
-        if (family == null) {
-            throw new NullPointerException("family");
-        }
+        Objects.requireNonNull(family, "family");
+
         this.family = Arrays.copyOf(family, family.length);
     }
 

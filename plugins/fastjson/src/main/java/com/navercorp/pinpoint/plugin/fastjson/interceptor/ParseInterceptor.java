@@ -18,6 +18,8 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ContentLength;
 import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
 
 /**
@@ -28,6 +30,7 @@ import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
  * @since 2017/07/17
  */
 public class ParseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+    private final ContentLength contentLength;
 
     /**
      * Instantiates a new Parse interceptor.
@@ -37,6 +40,14 @@ public class ParseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin 
      */
     public ParseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
+        this.contentLength = newContentLength();
+    }
+
+    private ContentLength newContentLength() {
+        ContentLength.Builder builder = ContentLength.newBuilder();
+        builder.addContentType(String.class);
+        builder.addContentType(byte[].class);
+        return builder.build();
     }
 
     @Override
@@ -49,12 +60,10 @@ public class ParseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin 
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 
-        if (args[0] != null) {
-            if (args[0] instanceof String) {
-                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-            } else if (args[0] instanceof byte[]) {
-                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) args[0]).length);
-            }
+        Object arg = ArrayUtils.get(args, 0);
+        int length = contentLength.getLength(arg);
+        if (length != ContentLength.NOT_EXIST) {
+            recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, length);
         }
     }
 

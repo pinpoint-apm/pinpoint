@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public class SpanEventBo implements Event {
 
-   // version 0 means that the type of prefix's size is int
+    // version 0 means that the type of prefix's size is int
 
     private byte version = 0;
 
@@ -33,7 +34,7 @@ public class SpanEventBo implements Event {
     private int startElapsed;
     private int endElapsed;
 
-//    private String rpc;
+    // private String rpc;
     private short serviceType;
 
     private String destinationId;
@@ -58,7 +59,7 @@ public class SpanEventBo implements Event {
     private int asyncId = -1;
     @Deprecated
     private short asyncSequence = -1;
-    
+
     public SpanEventBo() {
     }
 
@@ -165,11 +166,11 @@ public class SpanEventBo implements Event {
         }
         this.annotationBoList = annotationList;
     }
-    
+
     public boolean isAsync() {
         return this.asyncId != -1;
     }
-    
+
     public boolean hasException() {
         return hasException;
     }
@@ -227,57 +228,131 @@ public class SpanEventBo implements Event {
     }
 
     private boolean isDeprecatedAsyncFieldsSet() {
-        if (asyncId != -1 || asyncSequence != -1) {
-            return true;
-        }
-
-        return false;
+        return asyncId != -1 || asyncSequence != -1;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{version=");
-        builder.append(version);
-        builder.append(", sequence=");
-        builder.append(sequence);
-        builder.append(", startElapsed=");
-        builder.append(startElapsed);
-        builder.append(", endElapsed=");
-        builder.append(endElapsed);
-        builder.append(", serviceType=");
-        builder.append(serviceType);
-        builder.append(", destinationId=");
-        builder.append(destinationId);
-        builder.append(", endPoint=");
-        builder.append(endPoint);
-        builder.append(", apiId=");
-        builder.append(apiId);
-        builder.append(", annotationBoList=");
-        builder.append(annotationBoList);
-        builder.append(", depth=");
-        builder.append(depth);
-        builder.append(", nextSpanId=");
-        builder.append(nextSpanId);
-        builder.append(", hasException=");
-        builder.append(hasException);
-        if (hasException) {
-            builder.append(", exceptionId=");
-            builder.append(exceptionId);
-            builder.append(", exceptionMessage=");
-            builder.append(exceptionMessage);
+        return "SpanEventBo{" +
+                "version=" + version +
+                ", sequence=" + sequence +
+                ", startElapsed=" + startElapsed +
+                ", endElapsed=" + endElapsed +
+                ", serviceType=" + serviceType +
+                ", destinationId='" + destinationId + '\'' +
+                ", endPoint='" + endPoint + '\'' +
+                ", apiId=" + apiId +
+                ", annotationBoList=" + annotationBoList +
+                ", depth=" + depth +
+                ", nextSpanId=" + nextSpanId +
+                ", hasException=" + hasException +
+                ", exceptionId=" + exceptionId +
+                ", exceptionMessage='" + exceptionMessage + '\'' +
+                ", exceptionClass='" + exceptionClass + '\'' +
+                ", nextAsyncId=" + nextAsyncId +
+                ", asyncId=" + asyncId +
+                ", asyncSequence=" + asyncSequence +
+                '}';
+    }
+
+    public static class Builder {
+        private int version = 0;
+
+        private short sequence;
+
+        private int startElapsed;
+        private int endElapsed;
+
+        //    private String rpc;
+        private short serviceType;
+
+        private String destinationId;
+        private String endPoint;
+        private int apiId;
+
+        private List<AnnotationBo> annotationBoList = new ArrayList<>();
+
+        private int depth = -1;
+        private long nextSpanId = -1;
+
+        private int nextAsyncId = -1;
+
+        public Builder setVersion(int version) {
+            this.version = version;
+            return this;
         }
-        builder.append(", exceptionClass=");
-        builder.append(exceptionClass);
-        builder.append(", nextAsyncId=");
-        builder.append(nextAsyncId);
-        if (isDeprecatedAsyncFieldsSet()) {
-            builder.append(", asyncId=");
-            builder.append(asyncId);
-            builder.append(", asyncSequence=");
-            builder.append(asyncSequence);
+
+        public Builder setSequence(short sequence) {
+            this.sequence = sequence;
+            return this;
         }
-        builder.append("}");
-        return builder.toString();
+
+        public Builder setStartElapsed(int startElapsed) {
+            this.startElapsed = startElapsed;
+            return this;
+        }
+
+        public Builder setEndElapsed(int endElapsed) {
+            this.endElapsed = endElapsed;
+            return this;
+        }
+
+        public Builder setServiceType(short serviceType) {
+            this.serviceType = serviceType;
+            return this;
+        }
+
+        public Builder setDestinationId(String destinationId) {
+            this.destinationId = destinationId;
+            return this;
+        }
+
+        public Builder setEndPoint(String endPoint) {
+            this.endPoint = endPoint;
+            return this;
+        }
+
+        public Builder setApiId(int apiId) {
+            this.apiId = apiId;
+            return this;
+        }
+
+        public Builder addAnnotationBo(AnnotationBo e) {
+            this.annotationBoList.add(e);
+            return this;
+        }
+
+        public Builder setDepth(int depth) {
+            this.depth = depth;
+            return this;
+        }
+
+        public Builder setNextSpanId(long nextSpanId) {
+            this.nextSpanId = nextSpanId;
+            return this;
+        }
+
+        public Builder setNextAsyncId(int nextAsyncId) {
+            this.nextAsyncId = nextAsyncId;
+            return this;
+        }
+
+        public SpanEventBo build() {
+            SpanEventBo result = new SpanEventBo();
+            result.setVersion((byte) this.version);
+            result.setSequence(this.sequence);
+            result.setStartElapsed(this.startElapsed);
+            result.setEndElapsed(this.endElapsed);
+            result.setServiceType(this.serviceType);
+            result.setDestinationId(this.destinationId);
+            result.setEndPoint(this.endPoint);
+            result.setApiId(this.apiId);
+            result.setAnnotationBoList(this.annotationBoList);
+            result.setDepth(this.depth);
+            result.setNextSpanId(this.nextSpanId);
+            result.setNextAsyncId(this.nextAsyncId);
+            return result;
+        }
+
     }
 }

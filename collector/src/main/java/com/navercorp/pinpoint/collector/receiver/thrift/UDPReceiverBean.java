@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.BaseUDPHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.NetworkAvailabilityCheckPacketFilter;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.PacketHandlerFactory;
-import com.navercorp.pinpoint.collector.receiver.thrift.udp.ReusePortSocketOptionHolder;
+import com.navercorp.pinpoint.collector.receiver.thrift.udp.ReusePortSocketOptionApplier;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.TBaseFilter;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.TBaseFilterChain;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.UDPReceiver;
@@ -29,14 +29,14 @@ import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-
+import org.apache.thrift.TBase;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
-import java.util.Collections;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -59,7 +59,7 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
     private UDPReceiver udpReceiver;
     private Executor executor;
 
-    private DispatchHandler dispatchHandler;
+    private DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler;
     private AddressFilter addressFilter;
     private int datagramPoolSize = 1024 * 4;
 
@@ -80,29 +80,25 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
     }
 
 
-    private UDPReceiver createUdpReceiver(String name, String bindIp, int port, int udpBufferSize, Executor executor, DispatchHandler dispatchHandler, AddressFilter ignoreAddressFilter) {
-        TBaseFilterChain filterChain = newTBaseFilterChain();
-        @SuppressWarnings("unchecked")
-        PacketHandlerFactory<DatagramPacket> packetHandlerFactory = new BaseUDPHandlerFactory<DatagramPacket>(dispatchHandler, filterChain, ignoreAddressFilter);
+    private UDPReceiver createUdpReceiver(String name, String bindIp, int port, int udpBufferSize, Executor executor,
+                                          DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, AddressFilter ignoreAddressFilter) {
+        TBaseFilter<SocketAddress> filter = newTBaseFilter();
+
+        PacketHandlerFactory<DatagramPacket> packetHandlerFactory = new BaseUDPHandlerFactory<>(dispatchHandler, filter, ignoreAddressFilter);
 
         InetSocketAddress bindAddress = new InetSocketAddress(bindIp, port);
 
         ObjectPoolFactory<DatagramPacket> packetFactory = new DatagramPacketFactory();
         ObjectPool<DatagramPacket> pool = new DefaultObjectPool<>(packetFactory, datagramPoolSize);
 
-        if (reusePort) {
-            ReusePortSocketOptionHolder reusePortSocketOption = ReusePortSocketOptionHolder.create(socketCount);
-            return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, reusePortSocketOption, pool);
-        } else {
-            return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, pool);
-        }
+
+        ReusePortSocketOptionApplier reusePortSocketOption = ReusePortSocketOptionApplier.create(reusePort, socketCount);
+        return new UDPReceiver(name, packetHandlerFactory, executor, udpBufferSize, bindAddress, reusePortSocketOption, pool);
     }
 
-    private TBaseFilterChain newTBaseFilterChain() {
-        List<TBaseFilter> tBaseFilters = Collections.singletonList(new NetworkAvailabilityCheckPacketFilter());
-        @SuppressWarnings("unchecked")
-        TBaseFilterChain tBaseFilterChain = new TBaseFilterChain(tBaseFilters);
-        return tBaseFilterChain;
+    private TBaseFilter<SocketAddress> newTBaseFilter() {
+        TBaseFilter<SocketAddress> filter = new NetworkAvailabilityCheckPacketFilter<>();
+        return new TBaseFilterChain<>(List.of(filter));
     }
 
     @Override
@@ -119,7 +115,7 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
         this.executor = Objects.requireNonNull(executor, "executor");
     }
 
-    public void setDispatchHandler(DispatchHandler dispatchHandler) {
+    public void setDispatchHandler(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 

@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHis
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.EmptyServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
@@ -31,12 +31,12 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.server.util.time.Range;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -47,7 +47,7 @@ import java.util.Objects;
  */
 public class ApplicationMapBuilder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Range range;
 
@@ -57,9 +57,10 @@ public class ApplicationMapBuilder {
     private NodeType nodeType;
     private LinkType linkType;
     private NodeHistogramFactory nodeHistogramFactory;
-    private ServerInstanceListFactory serverInstanceListFactory;
+    private ServerGroupListFactory serverGroupListFactory;
 
-    public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory, ServerInfoAppenderFactory serverInfoAppenderFactory) {
+    public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory,
+                                 ServerInfoAppenderFactory serverInfoAppenderFactory) {
         this.range = Objects.requireNonNull(range, "range");
         this.nodeHistogramAppenderFactory = Objects.requireNonNull(nodeHistogramAppenderFactory, "nodeHistogramAppenderFactory");
         this.serverInfoAppenderFactory = Objects.requireNonNull(serverInfoAppenderFactory, "serverInfoAppenderFactory");
@@ -80,12 +81,12 @@ public class ApplicationMapBuilder {
         return this;
     }
 
-    public ApplicationMapBuilder includeServerInfo(ServerInstanceListFactory serverInstanceListFactory) {
-        this.serverInstanceListFactory = serverInstanceListFactory;
+    public ApplicationMapBuilder includeServerInfo(ServerGroupListFactory serverGroupListFactory) {
+        this.serverGroupListFactory = serverGroupListFactory;
         return this;
     }
 
-    public ApplicationMap build(Application application) {
+    public ApplicationMap build(Application application, long timeoutMillis) {
         logger.info("Building empty application map");
 
         NodeList nodeList = new NodeList();
@@ -97,10 +98,10 @@ public class ApplicationMapBuilder {
         }
 
         Node node = new Node(nodeType, application);
-        if (serverInstanceListFactory != null) {
-            ServerInstanceList runningInstances = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
+        if (serverGroupListFactory != null) {
+            ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getToInstant());
             if (runningInstances.getInstanceCount() > 0) {
-                node.setServerInstanceList(runningInstances);
+                node.setServerGroupList(runningInstances);
                 nodeList.addNode(node);
             }
         }
@@ -110,15 +111,14 @@ public class ApplicationMapBuilder {
             nodeHistogramFactory = new EmptyNodeHistogramFactory();
         }
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList, timeoutMillis);
 
         return new DefaultApplicationMap(range, nodeList, emptyLinkList);
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap) {
-        if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap");
-        }
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
+        Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
+
         logger.info("Building application map");
 
         NodeType nodeType = this.nodeType;
@@ -138,16 +138,45 @@ public class ApplicationMapBuilder {
         if (nodeHistogramFactory == null) {
             nodeHistogramFactory = new EmptyNodeHistogramFactory();
         }
-        NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList);
 
-        ServerInstanceListFactory serverInstanceListFactory = this.serverInstanceListFactory;
-        if (serverInstanceListFactory == null) {
-            serverInstanceListFactory = new EmptyServerInstanceListFactory();
+        NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
+        final TimeoutWatcher timeoutWatcher = new TimeoutWatcher(timeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, timeoutWatcher.remainingTimeMillis());
+
+        ServerGroupListFactory serverGroupListFactory = this.serverGroupListFactory;
+        if (serverGroupListFactory == null) {
+            serverGroupListFactory = new EmptyServerGroupListFactory();
         }
-        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverGroupListFactory);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutWatcher.remainingTimeMillis());
 
         return new DefaultApplicationMap(range, nodeList, linkList);
+    }
+
+    private static class TimeoutWatcher {
+        private static final int INFINITY_TIME = -1;
+        private final long timeoutMillis;
+        private final long startTimeMillis;
+
+        public TimeoutWatcher(long timeoutMillis) {
+            if (timeoutMillis <= 0) {
+                this.timeoutMillis = INFINITY_TIME;
+            } else {
+                this.timeoutMillis = timeoutMillis;
+            }
+            this.startTimeMillis = System.currentTimeMillis();
+        }
+
+        public long remainingTimeMillis() {
+            if (timeoutMillis == INFINITY_TIME) {
+                return INFINITY_TIME;
+            }
+
+            long elapsedTimeMillis = System.currentTimeMillis() - this.startTimeMillis;
+            if (this.timeoutMillis <= elapsedTimeMillis) {
+                return 0;
+            }
+            return this.timeoutMillis - elapsedTimeMillis;
+        }
     }
 }

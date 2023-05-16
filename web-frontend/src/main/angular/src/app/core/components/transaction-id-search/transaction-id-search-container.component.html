@@ -1,0 +1,14 @@
+<div class="l-wrapper" (clickOutside)="onClickOutside()" [exclude]="'.l-concised-search-button'">
+    <input
+        type="text"
+        ppSearchInput
+        placeholder="search pTxId"
+        class="l-search-input"
+        [useEnter]="searchUseEnter"
+        (outSearch)="onSearchId($event)"
+        #searchInput>
+    <button class="l-search-button fas fa-search" (click)="onSearchId(searchInput.value.trim())"></button>
+    <ng-container *ngIf="coord">
+        <div class="l-tooltip-caret" #tooltipCaret [style.left]="calculateTooltipCaretLeft(tooltipCaret)"></div>
+    </ng-container> 
+</div>

@@ -47,7 +47,7 @@ import com.ning.http.client.Response;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ "com.ning:async-http-client:[1.7.24],[1.8.16,1.8.999)",
         WebServer.VERSION, PluginITConstants.VERSION})
-@JvmVersion(7)
+@JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-ning-asynchttpclient-plugin"})
 public class NingAsyncHttpClientIT {
 

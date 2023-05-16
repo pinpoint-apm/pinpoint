@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.profiler.context.provider;
 
 
-import com.google.inject.Provider;
-
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.EmptyActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.module.config.TraceAgentActiveThread;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
+
+import java.util.Objects;
 
 
 /**
@@ -33,13 +33,13 @@ import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeColle
  */
 public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceRepository> {
 
-    private boolean isTraceAgentActiveThread;
+    private final boolean isTraceAgentActiveThread;
     private final ResponseTimeCollector responseTimeCollector;
 
     @Inject
     public ActiveTraceRepositoryProvider(@TraceAgentActiveThread boolean isTraceAgentActiveThread, ResponseTimeCollector responseTimeCollector) {
         this.isTraceAgentActiveThread = isTraceAgentActiveThread;
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
+        this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
 
     }
 

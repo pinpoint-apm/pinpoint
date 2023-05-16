@@ -20,11 +20,11 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.*;
 
@@ -32,7 +32,7 @@ import java.util.*;
  * @author emeroad
  */
 public class ApplicationTimeHistogramBuilder {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Application application;
     private final Range range;
@@ -47,9 +47,7 @@ public class ApplicationTimeHistogramBuilder {
     }
 
     public ApplicationTimeHistogram build(List<ResponseTime> responseHistogramList) {
-        if (responseHistogramList == null) {
-            throw new NullPointerException("responseHistogramList");
-        }
+        Objects.requireNonNull(responseHistogramList, "responseHistogramList");
 
         Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<>();
 

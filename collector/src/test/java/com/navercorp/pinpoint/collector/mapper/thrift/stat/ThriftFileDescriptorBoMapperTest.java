@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Roy Kim
@@ -40,7 +40,7 @@ public class ThriftFileDescriptorBoMapperTest extends ThriftBoMapperTestBase<TFi
 
     @Override
     protected void verify(TFileDescriptor original, FileDescriptorBo mappedStatDataPoint) {
-        Assert.assertEquals("openFileDescriptorCount", original.getOpenFileDescriptorCount(), mappedStatDataPoint.getOpenFileDescriptorCount(), 0);
+        Assertions.assertEquals(original.getOpenFileDescriptorCount(), mappedStatDataPoint.getOpenFileDescriptorCount(), 0, "openFileDescriptorCount");
     }
 
 }

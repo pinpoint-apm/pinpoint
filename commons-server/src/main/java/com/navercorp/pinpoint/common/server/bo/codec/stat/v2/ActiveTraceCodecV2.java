@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedShort
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,10 +37,9 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("activeTraceCodecV2")
+@Component
 public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
 
-    @Autowired
     public ActiveTraceCodecV2(AgentStatDataPointCodec codec) {
         super(new ActiveTraceCodecFactory(codec));
     }

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackChecker;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.security.ProtectionDomain;
 
@@ -37,8 +37,8 @@ public class GuardInstrumentor implements Instrumentor {
     private boolean closed = false;
 
     public GuardInstrumentor(ProfilerConfig profilerConfig, InstrumentContext instrumentContext) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     @Override
@@ -92,7 +92,7 @@ public class GuardInstrumentor implements Instrumentor {
     @Override
     public void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallback) {
         checkOpen();
-        Assert.requireNonNull(transformCallback, "transformCallback");
+        Objects.requireNonNull(transformCallback, "transformCallback");
         TransformCallbackChecker.validate(transformCallback);
 
         final String transformCallbackClassName = transformCallback.getName();

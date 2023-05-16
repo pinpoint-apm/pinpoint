@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
@@ -31,14 +31,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DeadlockMonitorTask implements Runnable {
 
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DeadlockThreadRegistry deadlockThreadRegistry;
     private final long intervalMillis;
 
-    private AtomicBoolean stop = new AtomicBoolean(false);
+    private final AtomicBoolean stop = new AtomicBoolean(false);
 
     public DeadlockMonitorTask(DeadlockThreadRegistry deadlockThreadRegistry, long intervalMillis) {
         this.deadlockThreadRegistry = deadlockThreadRegistry;
@@ -162,7 +162,7 @@ public class DeadlockMonitorTask implements Runnable {
         if (!Thread.interrupted()) {
             try {
                 Thread.sleep(intervalMillis);
-            } catch (InterruptedException ignore) {
+            } catch (InterruptedException ignored) {
                 // It only exhaust time to wait using interrupt.
                 // The end of the job is confirmed by using the stop field.
             }

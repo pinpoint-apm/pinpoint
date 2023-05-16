@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.plugin.thrift.it.synchronous;
 
 import static org.junit.Assert.assertEquals;
 
+import com.navercorp.pinpoint.plugin.thrift.common.client.EchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.server.ThriftEchoTestServer;
+import com.navercorp.pinpoint.plugin.thrift.it.ThriftVersion;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.apache.thrift.server.TThreadPoolServer;
@@ -43,7 +45,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "org.apache.thrift:libthrift:[0.9.1,)",
+@Dependency({ ThriftVersion.VERSION_0_09,
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-thrift-plugin"})
 public class ThriftThreadPoolServerIT extends EchoTestRunner<ThriftEchoTestServer<TThreadPoolServer>> {
@@ -59,7 +61,7 @@ public class ThriftThreadPoolServerIT extends EchoTestRunner<ThriftEchoTestServe
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final SyncEchoTestClient client = getServer().getSynchronousClient();
+        final EchoTestClient client = getServer().getSynchronousClient();
         final String result = invokeAndVerify(client, expectedMessage);
         // Then
         assertEquals(expectedMessage, result);

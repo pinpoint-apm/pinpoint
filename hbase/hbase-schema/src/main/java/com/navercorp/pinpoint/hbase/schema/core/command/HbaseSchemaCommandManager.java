@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.hbase.schema.core.command;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeType;
@@ -25,7 +26,6 @@ import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,11 +52,7 @@ public class HbaseSchemaCommandManager {
     }
 
     public HbaseSchemaCommandManager(String namespace, String compression, List<HTableDescriptor> currentHtds) {
-        if (StringUtils.isEmpty(namespace)) {
-            this.namespace = NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR;
-        } else {
-            this.namespace = namespace;
-        }
+        this.namespace = StringUtils.defaultIfEmpty(namespace, NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR);
         this.compressionAlgorithm = getCompressionAlgorithm(compression);
         for (HTableDescriptor htd : filterTablesByNamespace(currentHtds)) {
             tableCommandMap.put(htd.getTableName(), new ModifyTableCommand(htd, this.compressionAlgorithm));
@@ -94,9 +91,8 @@ public class HbaseSchemaCommandManager {
     }
 
     public void applyChangeSet(ChangeSet changeSet) {
-        if (changeSet == null) {
-            throw new NullPointerException("changeSet");
-        }
+        Objects.requireNonNull(changeSet, "changeSet");
+
         List<TableChange> tableChanges = changeSet.getTableChanges();
         try {
             for (TableChange tableChange : tableChanges) {

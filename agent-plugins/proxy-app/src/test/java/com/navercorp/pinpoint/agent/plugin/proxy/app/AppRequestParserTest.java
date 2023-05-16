@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.agent.plugin.proxy.app;
 
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -27,15 +29,24 @@ import static org.junit.Assert.*;
 public class AppRequestParserTest {
 
     @Test
-    public void parseApp() throws Exception {
+    public void parseApp() {
         AppRequestParser parser = new AppRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
         String value = "t=" + currentTimeMillis;
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
         assertEquals(-1, proxyHttpHeader.getIdlePercent());
         assertEquals(-1, proxyHttpHeader.getBusyPercent());
+    }
+
+    @Test
+    public void parseAppInvalid() throws Exception {
+        AppRequestParser parser = new AppRequestParser();
+        final long currentTimeMillis = System.currentTimeMillis();
+        String value = "t=" + currentTimeMillis + "app=jndi:xxx";
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
+        assertFalse(proxyHttpHeader.isValid());
     }
 }

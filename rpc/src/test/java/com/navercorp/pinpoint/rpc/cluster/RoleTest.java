@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.cluster;
 
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,7 +25,7 @@ import org.junit.Test;
 public class RoleTest {
     @Test
     public void getValue() throws Exception {
-        Assert.assertEquals(Role.getValue("ROUTER"), Role.ROUTER);
+        Assertions.assertEquals(Role.getValue("ROUTER"), Role.ROUTER);
     }
 
 }

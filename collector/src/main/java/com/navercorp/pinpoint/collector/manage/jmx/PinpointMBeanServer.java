@@ -24,8 +24,8 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.collector.manage.CollectorManager;
 
@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.collector.manage.CollectorManager;
  */
 public final class PinpointMBeanServer {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     
     private final MBeanServer mBeanServer;
     private final Map<String, CollectorManager> pinpointMBeanHolder;

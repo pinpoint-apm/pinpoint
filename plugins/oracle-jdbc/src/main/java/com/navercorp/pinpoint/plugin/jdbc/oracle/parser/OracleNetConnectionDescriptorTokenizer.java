@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -49,17 +50,14 @@ public class OracleNetConnectionDescriptorTokenizer {
     public static final int TYPE_EOF = -1;
     public static final Token TOKEN_EOF_OBJECT = new Token("EOF", TYPE_EOF);
 
-    private final List<Token> tokenList = new ArrayList<Token>();
+    private final List<Token> tokenList = new ArrayList<>();
     private int tokenPosition = 0;
 
     private final String connectionString;
     private int position = 0;
 
     public OracleNetConnectionDescriptorTokenizer(String connectionString) {
-        if (connectionString == null) {
-            throw new NullPointerException("connectionString");
-        }
-        this.connectionString = connectionString;
+        this.connectionString = Objects.requireNonNull(connectionString, "connectionString");
     }
 
     public void parse() {

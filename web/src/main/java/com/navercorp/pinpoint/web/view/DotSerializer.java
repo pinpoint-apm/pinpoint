@@ -34,7 +34,7 @@ public class DotSerializer extends JsonSerializer<Dot> {
         jgen.writeNumber(dot.getAcceptedTime());
         jgen.writeNumber(dot.getElapsedTime());
         jgen.writeString(dot.getTransactionIdAsString());
-        jgen.writeNumber(dot.getSimpleExceptionCode());
+        jgen.writeNumber(dot.getStatus().getCode());
         jgen.writeEndArray();
     }
 }

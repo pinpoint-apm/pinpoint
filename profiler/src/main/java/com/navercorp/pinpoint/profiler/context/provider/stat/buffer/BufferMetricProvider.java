@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.buffer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
 
@@ -33,7 +31,7 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
 
     private static final String BUFFER_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.buffer.DefaultBufferMetric";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Inject
     public BufferMetricProvider() {
@@ -41,13 +39,6 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
 
     @Override
     public BufferMetric get() {
-
-        final JvmVersion jvmVersion = JvmUtils.getVersion();
-        if (!jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
-            logger.debug("Unsupported JVM version. {}", jvmVersion);
-            return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
-        }
-
         BufferMetric bufferMetric = createBufferMetric(BUFFER_METRIC);
         logger.info("loaded : {}", bufferMetric);
         return bufferMetric;
@@ -63,7 +54,7 @@ public class BufferMetricProvider implements Provider<BufferMetric> {
             Constructor<BufferMetric> bufferMetricConstructor = bufferMetricClass.getConstructor();
             return bufferMetricConstructor.newInstance();
         } catch (Exception e) {
-            logger.warn("BufferMetric initialize fail: {}", classToLoad, e);
+            logger.warn("BufferMetric initialize fail: {}", classToLoad);
             return BufferMetric.UNSUPPORTED_BUFFER_METRIC;
         }
     }

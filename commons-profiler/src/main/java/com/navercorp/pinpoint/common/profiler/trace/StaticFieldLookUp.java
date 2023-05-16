@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.common.profiler.trace;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -45,7 +44,7 @@ public class StaticFieldLookUp<T> {
         private final T[] excludeTypeList;
 
         public ExcludeFilter(T[] excludeTypeList) {
-            this.excludeTypeList = Assert.requireNonNull(excludeTypeList, "excludeTypeList");
+            this.excludeTypeList = Objects.requireNonNull(excludeTypeList, "excludeTypeList");
         }
 
         @Override
@@ -63,14 +62,13 @@ public class StaticFieldLookUp<T> {
     private final Class<T> findClazz;
 
     public StaticFieldLookUp(Class<?> targetClazz, Class<T> findClazz) {
-        this.targetClazz = Assert.requireNonNull(targetClazz, "targetClazz");
-        this.findClazz = Assert.requireNonNull(findClazz, "findClazz");
+        this.targetClazz = Objects.requireNonNull(targetClazz, "targetClazz");
+        this.findClazz = Objects.requireNonNull(findClazz, "findClazz");
     }
 
     public List<T> lookup(Filter<T> filter) {
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
+        Objects.requireNonNull(filter, "filter");
+
         final List<T> lookup = new ArrayList<T>();
 
         Field[] declaredFields = targetClazz.getDeclaredFields();
@@ -84,10 +82,10 @@ public class StaticFieldLookUp<T> {
             if (!field.getType().equals(findClazz)) {
                 continue;
             }
-            final Object filedObject = getObject(field);
+            final Object fieldObject = getObject(field);
 
-            if (findClazz.isInstance(filedObject)) {
-                T type = findClazz.cast(filedObject);
+            if (findClazz.isInstance(fieldObject)) {
+                T type = findClazz.cast(fieldObject);
                 if (filter.filter(type) == Filter.FILTERED) {
                     continue;
                 }

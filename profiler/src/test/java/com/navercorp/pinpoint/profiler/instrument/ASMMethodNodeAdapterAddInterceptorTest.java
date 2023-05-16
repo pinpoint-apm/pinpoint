@@ -28,11 +28,11 @@ import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -44,10 +44,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
     private final static InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
@@ -55,17 +57,17 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
     private ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         interceptorRegistryBinder.bind();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         interceptorRegistryBinder.unbind();
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         this.classLoader = ASMClassNodeLoader.getClassLoader();
     }
@@ -94,7 +96,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         addInterceptor(interceptorId, BasicInterceptor.class);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void addExceptionInterceptor() throws Exception {
         ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
@@ -103,7 +105,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         addInterceptor(interceptorId, ExceptionHandleAroundInterceptor.class);
     }
 
-    private void addInterceptor(int interceptorId, Class interceptorClass) throws Exception {
+    private void addInterceptor(int interceptorId, Class<?> interceptorClass) throws Exception {
         // method
         checkMethod(interceptorId, interceptorClass);
 
@@ -124,11 +126,11 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         checkExtends(interceptorId, interceptorClass);
     }
 
-    private void checkMethod(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkMethod(int interceptorId, Class<?> interceptorClass) throws Exception {
         // method
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.MethodClass", interceptorClass);
 
-        Class[] parameterTypes = new Class[0];
+        Class<?>[] parameterTypes = new Class[0];
         Object[] args = new Object[0];
         invokeMethod(clazz, "publicMethod", interceptorClass, parameterTypes, args, null, false);
         invokeMethod(clazz, "publicStaticMethod", interceptorClass, parameterTypes, args, null, false);
@@ -139,7 +141,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "publicStaticFinalSynchronizedMethod", interceptorClass, parameterTypes, args, null, false);
     }
 
-    private void checkConstructor(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkConstructor(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorClass", interceptorClass);
 
         invokeMethod(clazz, "<init>", interceptorClass, new Class[0], new Object[0], null, false);
@@ -204,7 +206,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class, byte.class, Object.class, Enum.class, char.class, float.class, long.class}, new Object[]{"foo", 1, Byte.parseByte("0"), new Object(), BaseEnum.AGENT, 'a', 1.1f, 1l}, null, false);
     }
 
-    private void checkArguments(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkArguments(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass", interceptorClass);
 
         invokeMethod(clazz, "arg", interceptorClass, new Class[0], new Object[0], null, false);
@@ -241,7 +243,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "argInterface", interceptorClass, new Class[]{Map.class, Map.class, Map.class}, new Object[]{new HashMap(), new HashMap<String, String>(), new HashMap<Object, Object>()}, null, false);
     }
 
-    private void checkReturn(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkReturn(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass", interceptorClass);
 
         invokeMethod(clazz, "voidType", interceptorClass, new Class[0], new Object[0], null, false);
@@ -259,7 +261,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "returnEnum", interceptorClass, new Class[0], new Object[0], BaseEnum.AGENT, false);
     }
 
-    private void checkMethodException(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkMethodException(int interceptorId, Class<?> interceptorClass) throws Exception {
         Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ExceptionClass", interceptorClass);
 
         invokeMethod(clazz, "throwable", interceptorClass, new Class[]{}, new Object[]{}, null, true);
@@ -270,17 +272,17 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "condition", interceptorClass, new Class[]{}, new Object[]{}, null, true);
     }
 
-    private void checkConstructorException(int interceptorId, Class interceptorClass) throws Exception {
-        Class clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorExceptionClass", interceptorClass);
+    private void checkConstructorException(int interceptorId, Class<?> interceptorClass) throws Exception {
+        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorExceptionClass", interceptorClass);
 
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class}, new Object[]{"foo", 0}, null, true);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{Boolean.class}, new Object[]{Boolean.TRUE}, null, true);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{Boolean.class}, new Object[]{Boolean.FALSE}, null, false);
     }
 
-    private void checkExtends(int interceptorId, Class interceptorClass) throws Exception {
+    private void checkExtends(int interceptorId, Class<?> interceptorClass) throws Exception {
         addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorParentClass", interceptorClass);
-        Class clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", interceptorClass);
+        Class<?> clazz = addInterceptor(interceptorId, "com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", interceptorClass);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{}, new Object[]{}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class}, new Object[]{"foo"}, null, false);
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{String.class, int.class}, new Object[]{"foo", 1}, null, false);
@@ -288,14 +290,14 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         invokeMethod(clazz, "<init>", interceptorClass, new Class[]{int.class}, new Object[]{1}, null, false);
     }
 
-    private void invokeMethod(final Class<?> clazz, final String methodName, final Class interceptorClass, final Class[] parameterTypes, final Object[] args, final Object returnValue, final boolean throwable) throws Exception {
+    private void invokeMethod(final Class<?> clazz, final String methodName, final Class<?> interceptorClass, final Class<?>[] parameterTypes, final Object[] args, final Object returnValue, final boolean throwable) throws Exception {
         ArgsArrayInterceptor.clear();
         StaticInterceptor.clear();
         ApiIdAwareInterceptor.clear();
         BasicInterceptor.clear();
         ExceptionInterceptor.clear();
 
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
         Method method = null;
         if (methodName.equals("<init>")) {
             constructor = clazz.getConstructor(parameterTypes);
@@ -325,64 +327,64 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
         final String name = clazz.getName() + "." + methodName;
         if (interceptorClass == ArgsArrayInterceptor.class) {
-            assertEquals(name, true, ArgsArrayInterceptor.before);
-            assertEquals(name, true, ArgsArrayInterceptor.after);
+            assertTrue(ArgsArrayInterceptor.before, name);
+            assertTrue(ArgsArrayInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, ArgsArrayInterceptor.beforeTarget);
-                assertNull(name, ArgsArrayInterceptor.afterTarget);
+                assertNull(ArgsArrayInterceptor.beforeTarget, name);
+                assertNull(ArgsArrayInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, ArgsArrayInterceptor.beforeTarget);
-                assertNotNull(name, ArgsArrayInterceptor.afterTarget);
+                assertNotNull(ArgsArrayInterceptor.beforeTarget, name);
+                assertNotNull(ArgsArrayInterceptor.afterTarget, name);
             }
-            assertEquals(name, ArgsArrayInterceptor.beforeTarget, ArgsArrayInterceptor.afterTarget);
+            assertEquals(ArgsArrayInterceptor.beforeTarget, ArgsArrayInterceptor.afterTarget, name);
 
-            if(ArgsArrayInterceptor.beforeArgs != null) {
-                assertEquals(name, args.length, ArgsArrayInterceptor.beforeArgs.length);
+            if (ArgsArrayInterceptor.beforeArgs != null) {
+                assertThat(args).as(name).containsExactly(ArgsArrayInterceptor.beforeArgs);
             }
 
-            if(ArgsArrayInterceptor.afterArgs != null) {
-                assertEquals(name, args.length, ArgsArrayInterceptor.afterArgs.length);
+            if (ArgsArrayInterceptor.afterArgs != null) {
+                assertThat(args).as(name).containsExactly(ArgsArrayInterceptor.afterArgs);
             }
-            assertEquals(name, returnValue, ArgsArrayInterceptor.result);
+            assertEquals(returnValue, ArgsArrayInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, ArgsArrayInterceptor.throwable);
+                assertNotNull(ArgsArrayInterceptor.throwable, name);
             }
         } else if (interceptorClass == ExceptionInterceptor.class) {
-            assertEquals(name, true, ExceptionInterceptor.before);
-            assertEquals(name, true, ExceptionInterceptor.after);
+            assertTrue(ExceptionInterceptor.before, name);
+            assertTrue(ExceptionInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, ExceptionInterceptor.beforeTarget);
-                assertNull(name, ExceptionInterceptor.afterTarget);
+                assertNull(ExceptionInterceptor.beforeTarget, name);
+                assertNull(ExceptionInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, ExceptionInterceptor.beforeTarget);
-                assertNotNull(name, ExceptionInterceptor.afterTarget);
+                assertNotNull(ExceptionInterceptor.beforeTarget, name);
+                assertNotNull(ExceptionInterceptor.afterTarget, name);
             }
-            assertEquals(name, ExceptionInterceptor.beforeTarget, ExceptionInterceptor.afterTarget);
+            assertEquals(ExceptionInterceptor.beforeTarget, ExceptionInterceptor.afterTarget, name);
 
-            if(ExceptionInterceptor.beforeArgs != null) {
-                assertEquals(name, args.length, ExceptionInterceptor.beforeArgs.length);
-            }
-
-            if(ExceptionInterceptor.afterArgs != null) {
-                assertEquals(name, args.length, ExceptionInterceptor.afterArgs.length);
+            if (ExceptionInterceptor.beforeArgs != null) {
+                assertThat(args).as(name).containsExactly(ExceptionInterceptor.beforeArgs);
             }
 
-            assertEquals(name, returnValue, ExceptionInterceptor.result);
+            if (ExceptionInterceptor.afterArgs != null) {
+                assertThat(args).as(name).containsExactly(ExceptionInterceptor.afterArgs);
+            }
+
+            assertEquals(returnValue, ExceptionInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, ExceptionInterceptor.throwable);
+                assertNotNull(ExceptionInterceptor.throwable, name);
             }
         } else if (interceptorClass == StaticInterceptor.class) {
-            assertEquals(true, StaticInterceptor.before);
-            assertEquals(true, StaticInterceptor.after);
+            assertTrue(StaticInterceptor.before);
+            assertTrue(StaticInterceptor.after);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, StaticInterceptor.beforeTarget);
-                assertNull(name, StaticInterceptor.afterTarget);
+                assertNull(StaticInterceptor.beforeTarget, name);
+                assertNull(StaticInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, StaticInterceptor.beforeTarget);
-                assertNotNull(name, StaticInterceptor.afterTarget);
+                assertNotNull(StaticInterceptor.beforeTarget, name);
+                assertNotNull(StaticInterceptor.afterTarget, name);
             }
             assertEquals(StaticInterceptor.beforeTarget, StaticInterceptor.afterTarget);
 
@@ -393,58 +395,58 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertNotNull(StaticInterceptor.afterMethodName);
             assertNotNull(StaticInterceptor.afterParameterDescription);
 
-            if(StaticInterceptor.beforeArgs != null) {
-                assertEquals(args.length, StaticInterceptor.beforeArgs.length);
+            if (StaticInterceptor.beforeArgs != null) {
+                assertThat(args).as(name).containsExactly(StaticInterceptor.beforeArgs);
             }
 
-            if(StaticInterceptor.afterArgs != null) {
-                assertEquals(args.length, StaticInterceptor.afterArgs.length);
+            if (StaticInterceptor.afterArgs != null) {
+                assertThat(args).as(name).containsExactly(StaticInterceptor.afterArgs);
             }
 
             assertEquals(returnValue, StaticInterceptor.result);
             if (throwable) {
-                assertNotNull(name, StaticInterceptor.throwable);
+                assertNotNull(StaticInterceptor.throwable, name);
             }
         } else if (interceptorClass == ApiIdAwareInterceptor.class) {
-            assertEquals(name, true, ApiIdAwareInterceptor.before);
-            assertEquals(name, true, ApiIdAwareInterceptor.after);
+            assertTrue(ApiIdAwareInterceptor.before, name);
+            assertTrue(ApiIdAwareInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, ApiIdAwareInterceptor.beforeTarget);
-                assertNull(name, ApiIdAwareInterceptor.afterTarget);
+                assertNull(ApiIdAwareInterceptor.beforeTarget, name);
+                assertNull(ApiIdAwareInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, ApiIdAwareInterceptor.beforeTarget);
-                assertNotNull(name, ApiIdAwareInterceptor.afterTarget);
+                assertNotNull(ApiIdAwareInterceptor.beforeTarget, name);
+                assertNotNull(ApiIdAwareInterceptor.afterTarget, name);
             }
-            assertEquals(name, ApiIdAwareInterceptor.beforeTarget, ApiIdAwareInterceptor.afterTarget);
+            assertEquals(ApiIdAwareInterceptor.beforeTarget, ApiIdAwareInterceptor.afterTarget, name);
 
             assertEquals(99, ApiIdAwareInterceptor.beforeApiId);
             assertEquals(99, ApiIdAwareInterceptor.afterApiId);
 
-            if(ApiIdAwareInterceptor.beforeArgs != null) {
-                assertEquals(name, args.length, ApiIdAwareInterceptor.beforeArgs.length);
+            if (ApiIdAwareInterceptor.beforeArgs != null) {
+                assertThat(args).as(name).containsExactly(ApiIdAwareInterceptor.beforeArgs);
             }
 
-            if(ApiIdAwareInterceptor.afterArgs != null) {
-                assertEquals(name, args.length, ApiIdAwareInterceptor.afterArgs.length);
+            if (ApiIdAwareInterceptor.afterArgs != null) {
+                assertThat(args).as(name).containsExactly(ApiIdAwareInterceptor.afterArgs);
             }
 
-            assertEquals(name, returnValue, ApiIdAwareInterceptor.result);
+            assertEquals(returnValue, ApiIdAwareInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, ApiIdAwareInterceptor.throwable);
+                assertNotNull(ApiIdAwareInterceptor.throwable, name);
             }
         } else if (interceptorClass == BasicInterceptor.class) {
-            assertEquals(name, true, BasicInterceptor.before);
-            assertEquals(name, true, BasicInterceptor.after);
+            assertTrue(BasicInterceptor.before, name);
+            assertTrue(BasicInterceptor.after, name);
 
             if (method != null && Modifier.isStatic(method.getModifiers())) {
-                assertNull(name, BasicInterceptor.beforeTarget);
-                assertNull(name, BasicInterceptor.afterTarget);
+                assertNull(BasicInterceptor.beforeTarget, name);
+                assertNull(BasicInterceptor.afterTarget, name);
             } else if (method != null) {
-                assertNotNull(name, BasicInterceptor.beforeTarget);
-                assertNotNull(name, BasicInterceptor.afterTarget);
+                assertNotNull(BasicInterceptor.beforeTarget, name);
+                assertNotNull(BasicInterceptor.afterTarget, name);
             }
-            assertEquals(name, BasicInterceptor.beforeTarget, BasicInterceptor.afterTarget);
+            assertEquals(BasicInterceptor.beforeTarget, BasicInterceptor.afterTarget, name);
 
 
             if (args != null && args.length >= 1) {
@@ -471,14 +473,14 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 assertEquals(args[4], BasicInterceptor.afterArg4);
             }
 
-            assertEquals(name, returnValue, BasicInterceptor.result);
+            assertEquals(returnValue, BasicInterceptor.result, name);
             if (throwable) {
-                assertNotNull(name, BasicInterceptor.throwable);
+                assertNotNull(BasicInterceptor.throwable, name);
             }
         }
     }
 
-    private Class addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
+    private Class<?> addInterceptor(final int interceptorId, final String targetClassName, final Class<?> interceptorClass) {
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(interceptorClass);
         try {
             classLoader.setTrace(false);

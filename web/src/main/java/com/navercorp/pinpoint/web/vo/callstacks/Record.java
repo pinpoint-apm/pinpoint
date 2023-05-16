@@ -47,7 +47,9 @@ public interface Record {
 
     long getGap();
 
-    String getAgent();
+    String getAgentId();
+
+    String getAgentName();
 
     String getApplicationName();
 
@@ -80,4 +82,8 @@ public interface Record {
     MethodTypeEnum getMethodTypeEnum();
 
     boolean isAuthorized();
+
+    int getLineNumber();
+
+    String getLocation();
 }

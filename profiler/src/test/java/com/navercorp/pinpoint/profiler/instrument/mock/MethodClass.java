@@ -38,7 +38,7 @@ public class MethodClass {
     public final void publicFinalMethod() {
     }
 
-    public static final void publicStaticFinalMethod() {
+    public static void publicStaticFinalMethod() {
     }
 
     public synchronized void publicSynchronizedMethod() {
@@ -47,21 +47,21 @@ public class MethodClass {
     public static synchronized void publicStaticSynchronizedMethod() {
     }
 
-    public static final synchronized void publicStaticFinalSynchronizedMethod() {
+    public static synchronized void publicStaticFinalSynchronizedMethod() {
     }
 
     public native void publicNativeMethod();
 
     public static native void publicStaticNativeMethod();
 
-    public static final native void publicStaticFinalNativeMethod();
+    public static native void publicStaticFinalNativeMethod();
 
-    public static final synchronized native void publicStaticFinalSynchronizedNativeMethod();
+    public static synchronized native void publicStaticFinalSynchronizedNativeMethod();
 
     public strictfp void publicMethod1() {
     }
 
-    public strictfp static final void publicStrictfpStaticFinalMethod() {
+    public strictfp static void publicStrictfpStaticFinalMethod() {
     }
 
     public strictfp synchronized void publicStrictfpSynchronizedMethod() {
@@ -70,6 +70,6 @@ public class MethodClass {
     public strictfp static synchronized void publicStrictfpStaticSynchronizedMethod() {
     }
 
-    public strictfp static final synchronized void publicStrictfpStaticFinalSynchronizedMethod() {
+    public strictfp static synchronized void publicStrictfpStaticFinalSynchronizedMethod() {
     }
 }

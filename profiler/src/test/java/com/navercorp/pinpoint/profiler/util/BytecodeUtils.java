@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * // TODO duplicate BytecodeUtils : com.navercorp.pinpoint.test.util.BytecodeUtils
@@ -33,9 +34,7 @@ public final class BytecodeUtils {
         if (classLoader == null) {
             classLoader = ClassLoader.getSystemClassLoader();
         }
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         final String classInternalName = JavaAssistUtils.javaClassNameToJvmResourceName(className);
         final InputStream is = classLoader.getResourceAsStream(classInternalName);

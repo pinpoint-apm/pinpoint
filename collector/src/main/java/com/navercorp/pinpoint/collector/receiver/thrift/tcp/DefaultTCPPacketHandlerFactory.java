@@ -25,30 +25,27 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
 
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory {
-
-    private static final int DEFAULT_UDP_STREAM_MAX_SIZE = HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE;
+public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> {
 
     private SerializerFactory<HeaderTBaseSerializer> serializerFactory;
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
-
     public DefaultTCPPacketHandlerFactory() {
     }
 
-
     public void setSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
-        this.serializerFactory = serializerFactory;
+        this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory");
     }
 
     public void setDeserializerFactory(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
-        this.deserializerFactory = deserializerFactory;
+        this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory");
     }
 
     private DeserializerFactory<HeaderTBaseDeserializer> defaultDeserializerFactory() {
@@ -57,13 +54,13 @@ public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory {
     }
 
     private SerializerFactory<HeaderTBaseSerializer> defaultSerializerFactory() {
-        final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, DEFAULT_UDP_STREAM_MAX_SIZE);
+        final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory();
         return new ThreadLocalHeaderTBaseSerializerFactory<>(serializerFactory);
     }
 
 
     @Override
-    public TCPPacketHandler build(DispatchHandler dispatchHandler) {
+    public TCPPacketHandler build(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
 
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
 

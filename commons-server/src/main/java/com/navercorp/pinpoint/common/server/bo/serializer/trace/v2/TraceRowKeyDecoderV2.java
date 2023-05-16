@@ -21,13 +21,15 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 @Component
 public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
 
-    public static final int AGENT_NAME_MAX_LEN = TraceRowKeyEncoderV2.AGENT_NAME_MAX_LEN;
+    public static final int AGENT_ID_MAX_LEN = TraceRowKeyEncoderV2.AGENT_ID_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = TraceRowKeyEncoderV2.DISTRIBUTE_HASH_SIZE;
 
     private final int distributeHashSize;
@@ -44,18 +46,16 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
 
     @Override
     public TransactionId decodeRowKey(byte[] rowkey) {
-        if (rowkey == null) {
-            throw new NullPointerException("rowkey");
-        }
+        Objects.requireNonNull(rowkey, "rowkey");
 
         return readTransactionId(rowkey, distributeHashSize);
     }
 
     private TransactionId readTransactionId(byte[] rowKey, int offset) {
 
-        String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, AGENT_NAME_MAX_LEN);
-        long agentStartTime = BytesUtils.bytesToLong(rowKey, offset + AGENT_NAME_MAX_LEN);
-        long transactionSequence = BytesUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_NAME_MAX_LEN);
+        String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, AGENT_ID_MAX_LEN);
+        long agentStartTime = BytesUtils.bytesToLong(rowKey, offset + AGENT_ID_MAX_LEN);
+        long transactionSequence = BytesUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_ID_MAX_LEN);
 
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }

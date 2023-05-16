@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.internal.ExponentialBackoffPolicy;
 
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,7 @@ public class ExponentialBackoffReconnectJob implements ReconnectJob {
     }
 
     public ExponentialBackoffReconnectJob(Runnable runnable, long maxBackOffNanos) {
-        this.runnable = Assert.requireNonNull(runnable, "runnable");
+        this.runnable = Objects.requireNonNull(runnable, "runnable");
 
         Assert.isTrue(maxBackOffNanos > 0, "maxBackOffNanos > 0");
         this.maxBackOffNanos = getMaxBackOffNanos(maxBackOffNanos);

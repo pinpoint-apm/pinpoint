@@ -33,6 +33,7 @@ public enum ActiveThreadCountErrorType {
     TIMEOUT((short) 211, "TIMEOUT", TRouteResult.TIMEOUT.name()),
 
     NOT_FOUND((short) -1, "NOT FOUND", StreamCode.CONNECTION_NOT_FOUND.name()),
+    FOUND_DUPLICATED_AGENT((short) -1, "FOUND DUPLICATED AGENT", StreamCode.CONNECTION_DUPLICATED.name()),
     CLUSTER_CHANNEL_CLOSED((short) -1, "CLUSTER CHANNEL CLOSED", StreamCode.STATE_CLOSED.name()),
     PINPOINT_INTERNAL_ERROR((short) -1, "PINPOINT INTERNAL ERROR");
 

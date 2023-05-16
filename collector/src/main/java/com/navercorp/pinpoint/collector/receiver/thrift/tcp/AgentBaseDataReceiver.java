@@ -17,19 +17,19 @@
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHandler;
+import com.navercorp.pinpoint.collector.cluster.ClusterService;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -46,17 +46,17 @@ import java.util.concurrent.Executor;
  */
 public class AgentBaseDataReceiver {
 
-    private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiver.class);
+    private final Logger logger = LogManager.getLogger(AgentBaseDataReceiver.class);
 
     private final PinpointServerAcceptor acceptor;
 
-    private final AgentBaseDataReceiverConfiguration configuration;
+    private final AgentBaseDataReceiverProperties properties;
 
-    private final ZookeeperClusterService clusterService;
+    private final ClusterService clusterService;
 
     private final Executor executor;
 
-    private final TCPPacketHandlerFactory tcpPacketHandlerFactory;
+    private final TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory;
 
     private final TCPPacketHandler tcpPacketHandler;
 
@@ -72,16 +72,19 @@ public class AgentBaseDataReceiver {
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler) {
-        this(configuration, executor, acceptor, dispatchHandler, null);
+    public AgentBaseDataReceiver(AgentBaseDataReceiverProperties properties, Executor executor, PinpointServerAcceptor acceptor,
+                                 DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
+        this(properties, executor, acceptor, dispatchHandler, null);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
-        this(configuration, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
+    public AgentBaseDataReceiver(AgentBaseDataReceiverProperties properties, Executor executor, PinpointServerAcceptor acceptor,
+                                 DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ClusterService service) {
+        this(properties, executor, acceptor, new DefaultTCPPacketHandlerFactory(), dispatchHandler, service);
     }
 
-    public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, TCPPacketHandlerFactory tcpPacketHandlerFactory, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
-        this.configuration = Objects.requireNonNull(configuration, "config");
+    public AgentBaseDataReceiver(AgentBaseDataReceiverProperties properties, Executor executor, PinpointServerAcceptor acceptor,
+                                 TCPPacketHandlerFactory<TBase<?, ?>, TBase<?, ?>> tcpPacketHandlerFactory, DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, ClusterService service) {
+        this.properties = Objects.requireNonNull(properties, "properties");
         this.executor = Objects.requireNonNull(executor, "executor");
         this.acceptor = Objects.requireNonNull(acceptor, "acceptor");
 
@@ -90,7 +93,7 @@ public class AgentBaseDataReceiver {
         this.clusterService = service;
     }
 
-    private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler) {
+    private TCPPacketHandler wrapDispatchHandler(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         return tcpPacketHandlerFactory.build(dispatchHandler);
     }
@@ -110,7 +113,7 @@ public class AgentBaseDataReceiver {
                 agentEventAsyncTaskService, agentLifeCycleAsyncTaskService,
                 channelPropertiesFactory);
         acceptor.setMessageListenerFactory(messageListenerFactory);
-        acceptor.bind(configuration.getBindIp(), configuration.getBindPort());
+        acceptor.bind(properties.getBindIp(), properties.getBindPort());
 
         if (logger.isInfoEnabled()) {
             logger.info("start() completed");

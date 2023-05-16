@@ -16,20 +16,23 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 
-import com.navercorp.pinpoint.rpc.FutureListener;
+import java.util.function.BiConsumer;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RetryRequestMessage<T> implements RequestMessage<T> {
+class RetryRequestMessage<T> implements RequestMessage<T> {
     private final T message;
     private final int retryCount;
+    private final BiConsumer<ResponseMessage, Throwable> futureListener;
 
 
-    RetryRequestMessage(T message, int retryCount) {
+    RetryRequestMessage(T message, int retryCount, BiConsumer<ResponseMessage, Throwable> futureListener) {
         this.message = message;
         this.retryCount = retryCount;
+        this.futureListener = futureListener;
     }
 
 
@@ -44,7 +47,7 @@ public class RetryRequestMessage<T> implements RequestMessage<T> {
     }
 
     @Override
-    public FutureListener getFutureListener() {
-        return null;
+    public BiConsumer<ResponseMessage, Throwable> getFutureListener() {
+        return futureListener;
     }
 }

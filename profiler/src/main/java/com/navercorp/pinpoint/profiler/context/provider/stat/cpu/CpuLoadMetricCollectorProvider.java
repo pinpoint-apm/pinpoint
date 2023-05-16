@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.cpu;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.DefaultCpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -34,7 +35,7 @@ public class CpuLoadMetricCollectorProvider implements Provider<AgentStatMetricC
 
     @Inject
     public CpuLoadMetricCollectorProvider(CpuLoadMetric cpuLoadMetric) {
-        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric");
+        this.cpuLoadMetric = Objects.requireNonNull(cpuLoadMetric, "cpuLoadMetric");
     }
 
     @Override

@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -48,11 +48,11 @@ public class SimpleOrderedThreadPoolTest {
         threadPool.shutdown();
         threadPool.awaitTermination(10000, TimeUnit.MILLISECONDS);
 
-        Assert.assertEquals(latch.getCount(), 0);
+        Assertions.assertEquals(latch.getCount(), 0);
     }
 
     public class TestHashSelectorRunnable implements Runnable, SimpleOrderedThreadPool.HashSelector {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
         private final int selectKey;
         private final CountDownLatch latch;
 

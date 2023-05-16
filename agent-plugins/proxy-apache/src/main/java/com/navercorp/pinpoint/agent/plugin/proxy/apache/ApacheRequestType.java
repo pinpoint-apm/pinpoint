@@ -28,12 +28,23 @@ public class ApacheRequestType implements ProxyRequestType {
     }
 
     @Override
+    @Deprecated
     public String getDisplayName() {
+        return getDisplayName("");
+    }
+
+    @Override
+    public String getDisplayName(String name) {
         return "PROXY(APACHE)";
     }
 
     @Override
     public int getCode() {
         return 3;
+    }
+
+    @Override
+    public boolean useApp() {
+        return false;
     }
 }

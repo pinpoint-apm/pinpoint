@@ -34,4 +34,6 @@ public final class VertxConstants {
 
     public static final String HTTP_CLIENT_REQUEST_SCOPE = "HttpClientRequestScope";
     public static final String HTTP_CLIENT_CREATE_REQUEST_SCOPE = "HttpClientCreateRequestScope";
+
+    public static final String[] VERTX_URI_MAPPING_CONTEXT_KEYS = {"pinpoint.metric.uri-template"};
 }

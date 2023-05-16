@@ -21,51 +21,52 @@ import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHan
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import org.apache.curator.utils.ZKPaths;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
-import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
  */
 public class ZookeeperJobWorkerTest {
 
-    private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-    private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
-
     private static final String IDENTIFIER = "ZookeeperJobWorkerTest";
-    private static final String PATH = "/pinpoint-cluster/collector/" + IDENTIFIER;
+    private static final String PATH =
+            ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, IDENTIFIER);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
+
+    private ConditionFactory awaitility() {
+        return Awaitility.await()
+                .pollDelay(50, TimeUnit.MILLISECONDS)
+                .timeout(3000, TimeUnit.MILLISECONDS);
+    }
 
     @Test
     public void test1() throws Exception {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -78,7 +79,7 @@ public class ZookeeperJobWorkerTest {
             }
 
             waitZookeeperServerData(random, zookeeperClient);
-            Assert.assertEquals(random, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).hasSize(random);
         } finally {
             manager.stop();
         }
@@ -89,7 +90,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -98,11 +99,11 @@ public class ZookeeperJobWorkerTest {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
             clusterPointStateChangedEventHandler.stateUpdated(mockServer, SocketStateCode.RUN_DUPLEX);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).hasSize(1);
 
             clusterPointStateChangedEventHandler.stateUpdated(mockServer, SocketStateCode.CLOSED_BY_CLIENT);
             waitZookeeperServerData(0, zookeeperClient);
-            Assert.assertEquals(0, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).isEmpty();
         } finally {
             manager.stop();
         }
@@ -113,7 +114,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -122,26 +123,26 @@ public class ZookeeperJobWorkerTest {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
             clusterPointStateChangedEventHandler.stateUpdated(mockServer, SocketStateCode.RUN_DUPLEX);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).hasSize(1);
 
             zookeeperClient.createPath(PATH);
             CreateNodeMessage createNodeMessage = new CreateNodeMessage(PATH, new byte[0]);
             try {
                 zookeeperClient.createOrSetNode(createNodeMessage);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
             try {
                 zookeeperClient.createOrSetNode(createNodeMessage);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
             waitZookeeperServerData(0, zookeeperClient);
-            Assert.assertEquals(0, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).isEmpty();
 
             manager.refresh();
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).hasSize(1);
         } finally {
             manager.stop();
         }
@@ -152,7 +153,7 @@ public class ZookeeperJobWorkerTest {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient(true);
         zookeeperClient.connect();
 
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, PATH, new ClusterPointRepository<>());
         manager.start();
 
         ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
@@ -165,11 +166,11 @@ public class ZookeeperJobWorkerTest {
             clusterPointStateChangedEventHandler.stateUpdated(mockServer2, SocketStateCode.RUN_DUPLEX);
 
             waitZookeeperServerData(2, zookeeperClient);
-            Assert.assertEquals(2, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).hasSize(2);
 
             clusterPointStateChangedEventHandler.stateUpdated(mockServer1, SocketStateCode.CLOSED_BY_SERVER);
             waitZookeeperServerData(1, zookeeperClient);
-            Assert.assertEquals(1, manager.getClusterData().size());
+            assertThat(manager.getClusterData()).hasSize(1);
         } finally {
             manager.stop();
         }
@@ -194,29 +195,17 @@ public class ZookeeperJobWorkerTest {
         return decodeServerData(clusterString);
     }
 
-    private List<String> decodeServerData(String serverData) throws PinpointZookeeperException, InterruptedException {
+    private List<String> decodeServerData(String serverData) {
         if (serverData == null) {
             return Collections.emptyList();
         }
 
         final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(serverData, "\r\n");
-        return Arrays.asList(tokenArray);
+        return List.of(tokenArray);
     }
 
     private void waitZookeeperServerData(final int expectedServerDataCount, final InMemoryZookeeperClient zookeeperClient) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                try {
-                    return expectedServerDataCount == getServerData(zookeeperClient).size();
-                } catch (Exception e) {
-                    logger.warn(e.getMessage(), e);
-                }
-                return false;
-            }
-        });
-
-        Assert.assertTrue(pass);
+        awaitility()
+                .untilAsserted(() -> assertThat(getServerData(zookeeperClient)).hasSize(expectedServerDataCount));
     }
-
 }

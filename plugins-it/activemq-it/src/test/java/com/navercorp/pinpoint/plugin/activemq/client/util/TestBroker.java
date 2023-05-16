@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,12 +34,10 @@ import java.util.Set;
  */
 public class TestBroker {
 
-    public static final String DEFAULT_BROKER_URL = "tcp://127.0.0.1:61616";
-
     private final String brokerName;
     private final BrokerService brokerService;
     private final Map<String, ActiveMQConnectionFactory> connectionFactories;
-    private final Map<String, ActiveMQConnection> connections = new HashMap<String, ActiveMQConnection>();
+    private final Map<String, ActiveMQConnection> connections = new HashMap<>();
 
     private TestBroker(String brokerName, BrokerService brokerService, Map<String, ActiveMQConnectionFactory> connectionFactories) throws Exception {
         this.brokerName = brokerName;
@@ -50,7 +49,7 @@ public class TestBroker {
         return this.brokerName;
     }
 
-    ActiveMQConnection getConnection(String connectUri) throws JMSException {
+    ActiveMQConnection getConnection(String connectUri) {
         if (!this.connections.containsKey(connectUri)) {
             throw new IllegalArgumentException("Connection for connectUri [" + connectUri + "] does not exist");
         }
@@ -84,14 +83,11 @@ public class TestBroker {
     public static class TestBrokerBuilder {
 
         private final String brokerName;
-        private final Set<String> connectors = new HashSet<String>();
-        private final Set<String> networkConnectors = new HashSet<String>();
+        private final Set<String> connectors = new HashSet<>();
+        private final Set<String> networkConnectors = new HashSet<>();
 
         public TestBrokerBuilder(String brokerName) {
-            if (brokerName == null) {
-                throw new NullPointerException("brokerName must not be empty");
-            }
-            this.brokerName = brokerName;
+            this.brokerName = Objects.requireNonNull(brokerName, "brokerName");
         }
 
         public TestBrokerBuilder addConnector(String bindAddress) {
@@ -106,13 +102,13 @@ public class TestBroker {
 
         public TestBroker build() throws Exception {
             if (this.connectors.isEmpty()) {
-                this.connectors.add(DEFAULT_BROKER_URL);
+                throw new IllegalStateException("bindAddress is empty");
             }
             BrokerService brokerService = new BrokerService();
             brokerService.setBrokerName(this.brokerName);
             brokerService.setPersistent(false);
             brokerService.setUseJmx(false);
-            Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<String, ActiveMQConnectionFactory>();
+            Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<>();
             for (String bindAddress : this.connectors) {
                 TransportConnector connector = brokerService.addConnector(bindAddress);
                 connectionFactories.put(bindAddress, new ActiveMQConnectionFactory(connector.getConnectUri()));

@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.profiler.context.javamodule;
 
 import com.navercorp.pinpoint.common.util.ClassUtils;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,6 +31,6 @@ public class PackageUtilsTest {
         String internalName = ClassUtils.toInternalName(this.getClass().getName());
         String packageName = PackageUtils.getPackageNameFromInternalName(internalName);
 
-        Assert.assertEquals("com.navercorp.pinpoint.profiler.context.javamodule", packageName);
+        Assertions.assertEquals("com.navercorp.pinpoint.profiler.context.javamodule", packageName);
     }
 }

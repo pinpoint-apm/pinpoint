@@ -18,12 +18,10 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.MultipleAddress;
-
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,20 +39,22 @@ public class ClusterAddressProviderTest {
             InetSocketAddress current = multiAddressProvider.resolve();
 
             if (current == null || current.equals(prev)) {
-                Assert.fail();
+                Assertions.fail();
             }
             prev = current;
         }
     }
 
     private Address createMultipleAddress() {
-        List<String> hostAddresses = Arrays.asList("127.0.0.0", "127.0.0.1", "0.0.0.0");
+        List<String> hostAddresses = List.of("127.0.0.0", "127.0.0.1", "0.0.0.0");
         return new MultipleAddress(hostAddresses, 9994);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void failedToCreateTest() {
-        ClusterAddressProvider multiAddressProvider = new ClusterAddressProvider(null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            ClusterAddressProvider multiAddressProvider = new ClusterAddressProvider(null);
+        });
     }
 
 }

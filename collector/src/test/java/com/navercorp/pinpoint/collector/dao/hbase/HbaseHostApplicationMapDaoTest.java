@@ -18,37 +18,35 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HbaseHostApplicationMapDaoTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TimeSlot timeSlot = new DefaultTimeSlot();
 
     @Test
-    public void testCreateRowKey() throws Exception {
+    public void testCreateRowKey() {
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
         byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0("parentApp", ServiceType.STAND_ALONE.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);
-        String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
+        String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         short code = readBuffer.readShort();
         long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());
 
-        Assert.assertEquals("applicationName check",appName, "parentApp");
-        Assert.assertEquals("serviceType check", code, ServiceType.STAND_ALONE.getCode());
-        Assert.assertEquals("time check", statisticsRowSlot, time);
+        Assertions.assertEquals(appName, "parentApp", "applicationName check");
+        Assertions.assertEquals(code, ServiceType.STAND_ALONE.getCode(), "serviceType check");
+        Assertions.assertEquals(statisticsRowSlot, time, "time check");
     }
 }

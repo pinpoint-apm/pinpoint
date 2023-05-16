@@ -1,0 +1,23 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: release
+
+server:
+  port: 8080
+  error:
+    include-exception: true
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
+    whitelabel:
+      enabled: true
+
+pinpoint.modules.web:
+    # github or url
+    install.type: github
+    # basicLogin
+    login:
+
+

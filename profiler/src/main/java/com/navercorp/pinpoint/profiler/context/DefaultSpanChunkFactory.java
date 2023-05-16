@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class DefaultSpanChunkFactory implements SpanChunkFactory {
     private final TraceRoot traceRoot;
 
     public DefaultSpanChunkFactory(TraceRoot traceRoot) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
     }
 
     @Override

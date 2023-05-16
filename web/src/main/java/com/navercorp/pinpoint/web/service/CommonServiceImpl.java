@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * @author netspider
+ * @author yjqg6666
  */
 @Service
 public class CommonServiceImpl implements CommonService {
@@ -40,4 +41,5 @@ public class CommonServiceImpl implements CommonService {
     public List<Application> selectAllApplicationNames() {
         return applicationIndexDao.selectAllApplicationNames();
     }
+
 }

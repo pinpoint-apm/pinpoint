@@ -16,22 +16,23 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
-import java.util.HashSet;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
+import com.navercorp.pinpoint.web.vo.Application;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.Set;
 
-import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.vo.Application;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class AcceptApplicationLocalCacheTest {
 
+    AcceptApplication localhost = new AcceptApplication("localhost:8080", new Application("LOCALHOST", ServiceType.STAND_ALONE));
 
     @Test
-    public void testFind() throws Exception {
+    public void testFind() {
         AcceptApplicationLocalCache cache = new AcceptApplicationLocalCache();
 
         Application tomcat = new Application("Tomcat", ServiceType.STAND_ALONE);
@@ -44,29 +45,22 @@ public class AcceptApplicationLocalCacheTest {
 
         // found
         Set<AcceptApplication> acceptApplications = cache.get(rpc);
-        Assert.assertEquals(acceptApplications.size(), 1);
-        Assert.assertEquals(acceptApplications.iterator().next(), localhost);
+        assertThat(acceptApplications).hasSize(1);
+        Assertions.assertEquals(acceptApplications.iterator().next(), localhost);
 
         // not found
         Set<AcceptApplication> unknown = cache.get(new RpcApplication("unknown:8080", tomcat));
-        Assert.assertTrue(unknown.isEmpty());
-        Assert.assertFalse(unknown.iterator().hasNext());
+        assertThat(unknown).isEmpty();
+        Assertions.assertFalse(unknown.iterator().hasNext());
 
     }
 
-    AcceptApplication localhost = new AcceptApplication("localhost:8080", new Application("LOCALHOST", ServiceType.STAND_ALONE));
 
     private Set<AcceptApplication> createAcceptApplication() {
         AcceptApplication naver = new AcceptApplication("www.naver.com", new Application("Naver", ServiceType.STAND_ALONE));
         AcceptApplication daum = new AcceptApplication("www.daum.com", new Application("Daum", ServiceType.STAND_ALONE));
         AcceptApplication nate = new AcceptApplication("www.nate.com", new Application("Nate", ServiceType.STAND_ALONE));
 
-        Set<AcceptApplication> result = new HashSet<AcceptApplication>();
-        result.add(naver);
-        result.add(daum);
-        result.add(nate);
-        result.add(localhost);
-
-        return result;
+        return Set.of(naver, daum, nate, localhost);
     }
 }

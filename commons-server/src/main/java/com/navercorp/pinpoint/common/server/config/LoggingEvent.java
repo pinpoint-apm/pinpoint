@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.config;
 
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.lang.reflect.Field;

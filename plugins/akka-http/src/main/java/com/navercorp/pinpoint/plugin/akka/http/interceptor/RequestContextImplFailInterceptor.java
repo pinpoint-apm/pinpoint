@@ -16,34 +16,30 @@
 
 package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.akka.http.AkkaHttpConstants;
 
 public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndPointInterceptor {
-
-    private final PLogger logger = PLoggerFactory.getLogger(RequestContextImplFailInterceptor.class);
 
     public RequestContextImplFailInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        if (ArrayUtils.getLength(args) > 0 && args[0] instanceof Throwable) {
-            recorder.recordException((Throwable) args[0]);
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
+        if (th != null) {
+            recorder.recordException(th);
         }
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
-
 }

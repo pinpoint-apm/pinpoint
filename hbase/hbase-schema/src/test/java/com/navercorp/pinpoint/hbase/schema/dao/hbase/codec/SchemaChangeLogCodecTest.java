@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.hbase.schema.dao.hbase.codec;
 
 import com.navercorp.pinpoint.hbase.schema.core.CheckSum;
 import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -47,10 +46,11 @@ public class SchemaChangeLogCodecTest {
                 .build();
         byte[] serialized = schemaChangeLogCodec.writeData(schemaChangeLog);
         SchemaChangeLog deserialized = schemaChangeLogCodec.readData(serialized);
-        assertThat(deserialized.getId(), is(schemaChangeLog.getId()));
-        assertThat(deserialized.getExecTimestamp(), is(schemaChangeLog.getExecTimestamp()));
-        assertThat(deserialized.getExecOrder(), is(schemaChangeLog.getExecOrder()));
-        assertThat(deserialized.getCheckSum(), is(schemaChangeLog.getCheckSum()));
-        assertThat(deserialized.getValue(), is(schemaChangeLog.getValue()));
+
+        assertThat(deserialized.getId()).isEqualTo(schemaChangeLog.getId());
+        assertThat(deserialized.getExecTimestamp()).isEqualTo(schemaChangeLog.getExecTimestamp());
+        assertThat(deserialized.getExecOrder()).isEqualTo(schemaChangeLog.getExecOrder());
+        assertThat(deserialized.getCheckSum()).isEqualTo(schemaChangeLog.getCheckSum());
+        assertThat(deserialized.getValue()).isEqualTo(schemaChangeLog.getValue());
     }
 }

@@ -51,7 +51,7 @@ import java.util.concurrent.Executor;
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-google-httpclient-plugin")
 // guava dependency issue
 // google-http-client 1.26.0 does not include repackaged guava
-@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,1.27.0]", "com.google.guava:guava:20.0",
+@Dependency({ "com.google.http-client:google-http-client:[1.40.0,]", "com.google.guava:guava:20.0",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class HttpRequestIT {
 

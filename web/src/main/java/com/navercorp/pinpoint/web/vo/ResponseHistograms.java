@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -51,9 +53,8 @@ public class ResponseHistograms {
         private final Map<Long, Map<Application, ResponseTime>> responseTimeApplicationMap = new HashMap<>();
 
         public Builder(Range range) {
-            if (range == null) {
-                throw new NullPointerException("range");
-            }
+            Objects.requireNonNull(range, "range");
+
             // don't sample for now
             this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         }

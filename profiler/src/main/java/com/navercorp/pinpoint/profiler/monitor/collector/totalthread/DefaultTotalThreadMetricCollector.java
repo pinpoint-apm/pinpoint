@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.totalthread;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
@@ -25,7 +25,7 @@ public class DefaultTotalThreadMetricCollector implements AgentStatMetricCollect
     private final TotalThreadMetric totalThreadMetric;
 
     public DefaultTotalThreadMetricCollector(TotalThreadMetric totalThreadMetric) {
-        this.totalThreadMetric = Assert.requireNonNull(totalThreadMetric, "totalThreadMetric");
+        this.totalThreadMetric = Objects.requireNonNull(totalThreadMetric, "totalThreadMetric");
     }
 
     @Override

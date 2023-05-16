@@ -29,20 +29,20 @@ public class ExceptionInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        this.before = true;
-        this.beforeTarget = target;
-        this.beforeArgs = args;
+        before = true;
+        beforeTarget = target;
+        beforeArgs = args;
 
         throw new RuntimeException("before exception");
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        this.after = true;
-        this.afterTarget = target;
-        this.afterArgs = args;
-        this.result = result;
-        this.throwable = throwable;
+        after = true;
+        afterTarget = target;
+        afterArgs = args;
+        ExceptionInterceptor.result = result;
+        ExceptionInterceptor.throwable = throwable;
 
         throw new RuntimeException("after exception");
     }

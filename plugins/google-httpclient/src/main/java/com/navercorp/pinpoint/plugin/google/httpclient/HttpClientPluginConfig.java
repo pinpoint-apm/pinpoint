@@ -18,16 +18,20 @@ package com.navercorp.pinpoint.plugin.google.httpclient;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class HttpClientPluginConfig {
 
+    private final boolean enable;
     private final boolean async;
 
     public HttpClientPluginConfig(ProfilerConfig src) {
+        enable = src.readBoolean("profiler.google.httpclient.enable", true);
         async = src.readBoolean("profiler.google.httpclient.async", true);
+    }
+
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isAsync() {
@@ -36,10 +40,9 @@ public class HttpClientPluginConfig {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{async=");
-        builder.append(async);
-        builder.append("}");
-        return builder.toString();
+        return "HttpClientPluginConfig{" +
+                "enable=" + enable +
+                ", async=" + async +
+                '}';
     }
 }

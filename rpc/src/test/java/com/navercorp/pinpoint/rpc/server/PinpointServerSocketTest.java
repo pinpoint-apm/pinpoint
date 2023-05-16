@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.DiscardServerHandler;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
 

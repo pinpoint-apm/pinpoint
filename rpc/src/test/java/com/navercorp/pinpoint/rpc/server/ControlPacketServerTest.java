@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.client.TestRawSocket;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -45,8 +45,8 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(testRawSocket);
 
-            int code= sendAndReceiveRegisterPacket(testRawSocket);
-            Assert.assertEquals(2, code);
+            int code = sendAndReceiveRegisterPacket(testRawSocket);
+            Assertions.assertEquals(2, code);
 
             sendAndReceiveSimplePacket(testRawSocket);
         } finally {
@@ -67,8 +67,8 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(testRawSocket);
 
-            int code= sendAndReceiveRegisterPacket(testRawSocket, PinpointRPCTestUtils.getParams());
-            Assert.assertEquals(0, code);
+            int code = sendAndReceiveRegisterPacket(testRawSocket, PinpointRPCTestUtils.getParams());
+            Assertions.assertEquals(0, code);
 
             sendAndReceiveSimplePacket(testRawSocket);
         } finally {
@@ -87,10 +87,10 @@ public class ControlPacketServerTest {
         try {
             testRawSocket.connect(bindPort);
             int code = sendAndReceiveRegisterPacket(testRawSocket);
-            Assert.assertEquals(2, code);
+            Assertions.assertEquals(2, code);
 
             code = sendAndReceiveRegisterPacket(testRawSocket);
-            Assert.assertEquals(2, code);
+            Assertions.assertEquals(2, code);
 
             sendAndReceiveSimplePacket(testRawSocket);
         } finally {
@@ -113,12 +113,12 @@ public class ControlPacketServerTest {
             sendAndReceiveSimplePacket(testRawSocket);
 
             int code = sendAndReceiveRegisterPacket(testRawSocket, PinpointRPCTestUtils.getParams());
-            Assert.assertEquals(0, code);
+            Assertions.assertEquals(0, code);
 
             sendAndReceiveSimplePacket(testRawSocket);
 
             code = sendAndReceiveRegisterPacket(testRawSocket, PinpointRPCTestUtils.getParams());
-            Assert.assertEquals(1, code);
+            Assertions.assertEquals(1, code);
 
             sendAndReceiveSimplePacket(testRawSocket);
         } finally {
@@ -139,7 +139,7 @@ public class ControlPacketServerTest {
 
     private void sendAndReceiveSimplePacket(TestRawSocket testRawSocket) throws ProtocolException, IOException {
         testRawSocket.sendRequestPacket();
-        Assert.assertNotNull(testRawSocket.readResponsePacket(3000));
+        Assertions.assertNotNull(testRawSocket.readResponsePacket(3000));
     }
 
 }

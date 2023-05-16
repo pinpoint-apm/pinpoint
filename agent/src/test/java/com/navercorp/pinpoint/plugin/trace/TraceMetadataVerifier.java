@@ -28,29 +28,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
  */
 class TraceMetadataVerifier {
 
-    private final Map<Short, List<String>> serviceTypeNamesByCode = new TreeMap<Short, List<String>>();
-    private final Map<String, List<Short>> serviceTypeCodesByName = new TreeMap<String, List<Short>>();
-    private final List<ServiceType> serviceTypeList = new ArrayList<ServiceType>();
-    private final Map<Integer, List<String>> annotationKeyNamesByCode = new TreeMap<Integer, List<String>>();
+    private final Map<Short, List<String>> serviceTypeNamesByCode = new TreeMap<>();
+    private final Map<String, List<Short>> serviceTypeCodesByName = new TreeMap<>();
+    private final List<ServiceType> serviceTypeList = new ArrayList<>();
+    private final Map<Integer, List<String>> annotationKeyNamesByCode = new TreeMap<>();
 
     private final TraceMetadataVerifierSetupContext traceMetadataSetupContext;
 
     TraceMetadataVerifier() {
-        StaticFieldLookUp<ServiceType> staticServiceTypes = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
+        StaticFieldLookUp<ServiceType> staticServiceTypes = new StaticFieldLookUp<>(ServiceType.class, ServiceType.class);
         for (ServiceType staticServiceType : staticServiceTypes.lookup()) {
             addServiceType(staticServiceType);
         }
-        StaticFieldLookUp<AnnotationKey> staticAnnotationKeys = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
+        StaticFieldLookUp<AnnotationKey> staticAnnotationKeys = new StaticFieldLookUp<>(AnnotationKey.class, AnnotationKey.class);
         for (AnnotationKey staticAnnotationKey : staticAnnotationKeys.lookup()) {
             addAnnotationKey(staticAnnotationKey);
         }
@@ -63,28 +60,16 @@ class TraceMetadataVerifier {
         Short serviceTypeCode = serviceType.getCode();
         String serviceTypeName = serviceType.getName();
 
-        List<String> serviceTypeNames = serviceTypeNamesByCode.get(serviceTypeCode);
-        if (serviceTypeNames == null) {
-            serviceTypeNames = new ArrayList<String>();
-            serviceTypeNamesByCode.put(serviceTypeCode, serviceTypeNames);
-        }
+        List<String> serviceTypeNames = serviceTypeNamesByCode.computeIfAbsent(serviceTypeCode, k -> new ArrayList<>());
         serviceTypeNames.add(serviceTypeName);
 
-        List<Short> serviceTypeCodes = serviceTypeCodesByName.get(serviceTypeName);
-        if (serviceTypeCodes == null) {
-            serviceTypeCodes = new ArrayList<Short>();
-            serviceTypeCodesByName.put(serviceTypeName, serviceTypeCodes);
-        }
+        List<Short> serviceTypeCodes = serviceTypeCodesByName.computeIfAbsent(serviceTypeName, k -> new ArrayList<>());
         serviceTypeCodes.add(serviceTypeCode);
     }
 
     private void addAnnotationKey(AnnotationKey annotationKey) {
         Integer annotationKeyCode = annotationKey.getCode();
-        List<String> annotationKeyNames = annotationKeyNamesByCode.get(annotationKeyCode);
-        if (annotationKeyNames == null) {
-            annotationKeyNames = new ArrayList<String>();
-            annotationKeyNamesByCode.put(annotationKeyCode, annotationKeyNames);
-        }
+        List<String> annotationKeyNames = annotationKeyNamesByCode.computeIfAbsent(annotationKeyCode, k -> new ArrayList<>());
         String annotationKeyName = annotationKey.getName();
         annotationKeyNames.add(annotationKeyName);
     }
@@ -94,35 +79,41 @@ class TraceMetadataVerifier {
     }
 
     void verifyServiceTypes(ErrorCollector collector) {
-        collector.checkThat("No service types registered by code.", traceMetadataSetupContext.dynamicServiceTypes, is(not(empty())));
+        collector.checkSucceeds(() -> assertThat(traceMetadataSetupContext.dynamicServiceTypes)
+                .isNotEmpty()
+                .overridingErrorMessage("No service types registered by code.")
+        );
         for (Map.Entry<Short, List<String>> e : serviceTypeNamesByCode.entrySet()) {
             Short serviceTypeCode = e.getKey();
             List<String> serviceTypeNames = e.getValue();
-            collector.checkThat("Duplicate ServiceType names. Code : " + serviceTypeCode + ", names : " + serviceTypeNames,
-                    serviceTypeNames, hasSize(1));
+            collector.checkSucceeds(() -> assertThat(serviceTypeNames)
+                    .hasSize(1)
+                    .overridingErrorMessage("Duplicate ServiceType names. Code : " + serviceTypeCode + ", names : " + serviceTypeNames)
+            );
         }
         for (Map.Entry<String, List<Short>> e : serviceTypeCodesByName.entrySet()) {
             String serviceTypeName = e.getKey();
             List<Short> serviceTypeCodes = e.getValue();
-            collector.checkThat("Duplicate ServiceType codes. Name : " + serviceTypeName + ", codes : " + serviceTypeCodes,
-                    serviceTypeCodes, hasSize(1));
+            collector.checkSucceeds(() -> assertThat(serviceTypeCodes)
+                    .hasSize(1)
+                    .overridingErrorMessage("Duplicate ServiceType codes. Name : " + serviceTypeName + ", codes : " + serviceTypeCodes)
+            );
         }
 
         for(ServiceType serviceType : serviceTypeList){
-            if(serviceType.isAlias()){
-                collector.checkThat("ServiceType's code with ALIAS should be in range of RPC", true, is(serviceType.isRpcClient()));
-                collector.checkThat("ServiceType with ALIAS should NOT have RECORD_STATISTICS", true, is(not(serviceType.isRecordStatistics())));
+            if (serviceType.isAlias()) {
+                collector.checkSucceeds(() -> assertThat(serviceType.isRpcClient()).isTrue().overridingErrorMessage("ServiceType's code with ALIAS should be in range of RPC"));
+                collector.checkSucceeds(() -> assertThat(serviceType.isRecordStatistics()).isFalse().overridingErrorMessage("ServiceType with ALIAS should NOT have RECORD_STATISTICS"));
             }
         }
     }
 
     void verifyAnnotationKeys(ErrorCollector collector) {
-        collector.checkThat("No annotation keys registered.", traceMetadataSetupContext.dynamicAnnotationKeys, is(not(empty())));
+        collector.checkSucceeds(() -> assertThat(traceMetadataSetupContext.dynamicAnnotationKeys).isNotEmpty().overridingErrorMessage("No annotation keys registered."));
         for (Map.Entry<Integer, List<String>> e : annotationKeyNamesByCode.entrySet()) {
             Integer annotationKeyCode = e.getKey();
             List<String> annotationKeyNames = e.getValue();
-            collector.checkThat("Duplicate annotation keys. Code : " + annotationKeyCode + ", names : " + annotationKeyNames,
-                    annotationKeyNames, hasSize(1));
+            collector.checkSucceeds(() -> assertThat(annotationKeyNames).hasSize(1).overridingErrorMessage("Duplicate annotation keys. Code : " + annotationKeyCode + ", names : " + annotationKeyNames));
         }
     }
 
@@ -132,8 +123,8 @@ class TraceMetadataVerifier {
         private final List<AnnotationKey> dynamicAnnotationKeys;
 
         private TraceMetadataVerifierSetupContext() {
-            this.dynamicServiceTypes = new ArrayList<ServiceType>();
-            this.dynamicAnnotationKeys = new ArrayList<AnnotationKey>();
+            this.dynamicServiceTypes = new ArrayList<>();
+            this.dynamicAnnotationKeys = new ArrayList<>();
         }
 
         @Override

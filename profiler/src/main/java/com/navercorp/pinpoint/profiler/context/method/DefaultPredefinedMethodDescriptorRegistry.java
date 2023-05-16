@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.profiler.context.method;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,7 +34,7 @@ public class DefaultPredefinedMethodDescriptorRegistry implements PredefinedMeth
 
     @Inject
     public DefaultPredefinedMethodDescriptorRegistry(ApiMetaDataService apiMetaDataService) {
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
 
         registryMethodDescriptor();
     }

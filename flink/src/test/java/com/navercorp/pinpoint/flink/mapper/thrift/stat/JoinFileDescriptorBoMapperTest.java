@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFFileDescriptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Roy Kim
@@ -44,9 +44,9 @@ public class JoinFileDescriptorBoMapperTest {
         assertNotNull(joinFileDescriptorBo);
         assertEquals(joinFileDescriptorBo.getId(), "testAgent");
         assertEquals(joinFileDescriptorBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 10, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 10, 0);
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getAvg(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMin(), 10, 0);
+        assertEquals(joinFileDescriptorBo.getOpenFdCountJoinValue().getMax(), 10, 0);
     }
 
     @Test

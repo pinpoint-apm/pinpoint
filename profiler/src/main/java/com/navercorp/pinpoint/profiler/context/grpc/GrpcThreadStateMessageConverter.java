@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 /**
  * @author jaehong.kim
  */
-public class GrpcThreadStateMessageConverter implements MessageConverter<PThreadState> {
+public class GrpcThreadStateMessageConverter implements MessageConverter<Object, PThreadState> {
     @Override
     public PThreadState toMessage(Object message) {
         if (message instanceof Thread.State) {

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.packet;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -27,10 +29,7 @@ public abstract class BasicPacket implements Packet {
     }
 
     public BasicPacket(byte[] payload) {
-        if (payload == null) {
-            throw new NullPointerException("payload");
-        }
-        this.payload = payload;
+        this.payload = Objects.requireNonNull(payload, "payload");
     }
 
     public byte[] getPayload() {

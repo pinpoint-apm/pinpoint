@@ -1,5 +1,4 @@
 ## Undertow Web Server
-* Version: 1.1
 * Since: Pinpoint 1.8.0
 * See: http://undertow.io
 * See: [WildFly Application Server - Web Server](http://wildfly.org/about)

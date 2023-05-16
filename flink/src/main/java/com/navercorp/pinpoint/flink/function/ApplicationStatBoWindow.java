@@ -19,14 +19,13 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.Bootstrap;
 import org.apache.flink.api.common.ExecutionConfig.GlobalJobParameters;
-import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,11 +34,11 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, Tuple, TimeWindow> {
+public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, JoinStatBo, Long>, Tuple3<String, JoinStatBo, Long>, String, TimeWindow> {
     public static final int WINDOW_SIZE = 10000;
     public static final int ALLOWED_LATENESS = 45000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final static Logger logger = LogManager.getLogger(ApplicationStatBoWindow.class);
 
     private transient ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
 
@@ -51,8 +50,7 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
     }
 
     @Override
-    public void apply(Tuple tuple, TimeWindow window, Iterable<Tuple3<String, JoinStatBo, Long>> values, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
-        String tupleKey = (String)tuple.getField(0);
+    public void apply(String groupingKey, TimeWindow window, Iterable<Tuple3<String, JoinStatBo, Long>> values, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
         applicationStatBoWindowInterceptor.before(values);
         try {
             JoinApplicationStatBo joinApplicationStatBo = join(values);
@@ -79,7 +77,7 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
                 return;
             }
 
-            Tuple3 resultTuple = applicationStatBoWindowInterceptor.middle(new Tuple3<>(tupleKey, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
+            Tuple3 resultTuple = applicationStatBoWindowInterceptor.middle(new Tuple3<>(groupingKey, joinApplicationStatBo, joinApplicationStatBo.getTimestamp()));
             out.collect(resultTuple);
         } catch (Exception e) {
             logger.error("window function error", e);
@@ -89,7 +87,7 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
     }
 
     private JoinApplicationStatBo join(Iterable<Tuple3<String, JoinStatBo, Long>> values) {
-        List<JoinApplicationStatBo> joinApplicaitonStatBoList = new ArrayList<JoinApplicationStatBo>();
+        List<JoinApplicationStatBo> joinApplicaitonStatBoList = new ArrayList<>();
 
         for (Tuple3<String, JoinStatBo, Long> value : values) {
             joinApplicaitonStatBoList.add((JoinApplicationStatBo) value.f1);

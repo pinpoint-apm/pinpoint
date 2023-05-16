@@ -24,13 +24,16 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.util.Timer;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -39,12 +42,12 @@ public class HealthCheckManagerTest {
 
     private static Timer timer;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         timer = TimerFactory.createHashedWheelTimer("PingPacketSenderTestTimer", 50, TimeUnit.MILLISECONDS, 512);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         if (timer != null) {
             timer.stop();

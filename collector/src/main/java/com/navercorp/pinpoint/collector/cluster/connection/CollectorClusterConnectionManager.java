@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.collector.cluster.connection;
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class CollectorClusterConnectionManager implements  ClusterConnectionManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String clusterId;
     private final CollectorClusterConnectionRepository socketRepository;

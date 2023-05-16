@@ -24,18 +24,16 @@ import com.navercorp.pinpoint.hbase.schema.domain.SchemaChangeLog;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
@@ -45,6 +43,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class HbaseSchemaServiceImplTest {
 
     @Mock
@@ -58,9 +57,9 @@ public class HbaseSchemaServiceImplTest {
 
     private HbaseSchemaService hbaseSchemaService;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+
+    @BeforeEach
+    public void beforeEach() {
         hbaseSchemaService = new HbaseSchemaServiceImpl(hbaseAdminOperation, schemaChangeLogService, hbaseSchemaVerifier);
     }
 
@@ -70,7 +69,7 @@ public class HbaseSchemaServiceImplTest {
         when(schemaChangeLogService.isAvailable(namespace)).thenReturn(false);
 
         boolean initialized = hbaseSchemaService.init(namespace);
-        assertThat(initialized, is(true));
+        assertThat(initialized).isTrue();
         verify(schemaChangeLogService, atLeastOnce()).init(anyString());
     }
 
@@ -80,39 +79,39 @@ public class HbaseSchemaServiceImplTest {
         when(schemaChangeLogService.isAvailable(namespace)).thenReturn(true);
 
         boolean initialized = hbaseSchemaService.init(namespace);
-        assertThat(initialized, is(false));
+        assertThat(initialized).isFalse();
         verify(schemaChangeLogService, never()).init(anyString());
     }
 
     @Test
     public void getSchemaStatus_noTables() {
         final String namespace = "namespace";
-        final List<ChangeSet> changeSets = Arrays.asList(newChangeSet("id1", "value1"));
+        final List<ChangeSet> changeSets = List.of(newChangeSet("id1", "value1"));
         when(schemaChangeLogService.isAvailable(namespace)).thenReturn(false);
 
         HbaseSchemaStatus schemaStatus = hbaseSchemaService.getSchemaStatus(namespace, changeSets);
-        Assert.assertThat(schemaStatus, is(HbaseSchemaStatus.NONE));
+        assertThat(schemaStatus).isEqualTo(HbaseSchemaStatus.NONE);
     }
 
     @Test
     public void getSchemaStatus_noSchemaChangeLogs() {
         final String namespace = "namespace";
-        final List<ChangeSet> changeSets = Arrays.asList(newChangeSet("id1", "value1"));
+        final List<ChangeSet> changeSets = List.of(newChangeSet("id1", "value1"));
         when(schemaChangeLogService.isAvailable(namespace)).thenReturn(true);
         when(schemaChangeLogService.getSchemaChangeLogs(namespace)).thenReturn(Collections.emptyList());
 
         HbaseSchemaStatus schemaStatus = hbaseSchemaService.getSchemaStatus(namespace, changeSets);
-        Assert.assertThat(schemaStatus, is(HbaseSchemaStatus.NONE));
+        assertThat(schemaStatus).isEqualTo(HbaseSchemaStatus.NONE);
     }
 
     @Test
     public void getSchemaStatus_invalidSchemaChangeLogs() {
         final String namespace = "namespace";
-        final List<ChangeSet> changeSets = Arrays.asList(
+        final List<ChangeSet> changeSets = List.of(
                 newChangeSet("id1", "value1"),
                 newChangeSet("id2", "value2"),
                 newChangeSet("id3", "value3"));
-        final List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(
+        final List<SchemaChangeLog> schemaChangeLogs = List.of(
                 newSchemaChangeLog("id1", "value2", 2),
                 newSchemaChangeLog("id2", "value1", 1),
                 newSchemaChangeLog("someOtherId", "value3", 3));
@@ -120,17 +119,17 @@ public class HbaseSchemaServiceImplTest {
         when(schemaChangeLogService.getSchemaChangeLogs(namespace)).thenReturn(schemaChangeLogs);
 
         HbaseSchemaStatus schemaStatus = hbaseSchemaService.getSchemaStatus(namespace, changeSets);
-        Assert.assertThat(schemaStatus, is(HbaseSchemaStatus.INVALID));
+        assertThat(schemaStatus).isEqualTo(HbaseSchemaStatus.INVALID);
     }
 
     @Test
     public void getSchemaStatus_validSchemaChangeLogs() {
         final String namespace = "namespace";
-        final List<ChangeSet> changeSets = Arrays.asList(
+        final List<ChangeSet> changeSets = List.of(
                 newChangeSet("id1", "value1"),
                 newChangeSet("id2", "value2"),
                 newChangeSet("id3", "value3"));
-        final List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(
+        final List<SchemaChangeLog> schemaChangeLogs = List.of(
                 newSchemaChangeLog("id1", "value1", 1),
                 newSchemaChangeLog("id2", "value2", 2),
                 newSchemaChangeLog("id3", "value3", 3));
@@ -138,24 +137,24 @@ public class HbaseSchemaServiceImplTest {
         when(schemaChangeLogService.getSchemaChangeLogs(namespace)).thenReturn(schemaChangeLogs);
 
         HbaseSchemaStatus schemaStatus = hbaseSchemaService.getSchemaStatus(namespace, changeSets);
-        Assert.assertThat(schemaStatus, is(HbaseSchemaStatus.VALID));
+        assertThat(schemaStatus).isEqualTo(HbaseSchemaStatus.VALID);
     }
 
     @Test
     public void getSchemaStatus_validButNeedUpdateSchemaChangeLogs() {
         final String namespace = "namespace";
-        final List<ChangeSet> changeSets = Arrays.asList(
+        final List<ChangeSet> changeSets = List.of(
                 newChangeSet("id1", "value1"),
                 newChangeSet("id2", "value2"),
                 newChangeSet("id3", "value3"));
-        final List<SchemaChangeLog> schemaChangeLogs = Arrays.asList(
+        final List<SchemaChangeLog> schemaChangeLogs = List.of(
                 newSchemaChangeLog("id1", "value1", 1),
                 newSchemaChangeLog("id2", "value2", 2));
         when(schemaChangeLogService.isAvailable(namespace)).thenReturn(true);
         when(schemaChangeLogService.getSchemaChangeLogs(namespace)).thenReturn(schemaChangeLogs);
 
         HbaseSchemaStatus schemaStatus = hbaseSchemaService.getSchemaStatus(namespace, changeSets);
-        Assert.assertThat(schemaStatus, is(HbaseSchemaStatus.VALID_OUT_OF_DATE));
+        assertThat(schemaStatus).isEqualTo(HbaseSchemaStatus.VALID_OUT_OF_DATE);
     }
 
     private ChangeSet newChangeSet(String id, String value) {
@@ -163,7 +162,7 @@ public class HbaseSchemaServiceImplTest {
     }
 
     private ChangeSet newChangeSet(String id, String value, TableChange... tableChanges) {
-        return new ChangeSet(id, value, Arrays.asList(tableChanges));
+        return new ChangeSet(id, value, List.of(tableChanges));
     }
 
     private SchemaChangeLog newSchemaChangeLog(String id, String value, int execOrder) {

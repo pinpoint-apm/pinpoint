@@ -18,21 +18,20 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.instrument.DefaultEngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 
 import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.ScopeFactory;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.Instrumentation;
 
@@ -41,31 +40,31 @@ import java.lang.instrument.Instrumentation;
  */
 public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ProfilerConfig profilerConfig;
+    private final InstrumentConfig instrumentConfig;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
     private final ObjectBinderFactory objectBinderFactory;
     private final Instrumentation instrumentation;
 
     @Inject
-    public InstrumentEngineProvider(ProfilerConfig profilerConfig,
+    public InstrumentEngineProvider(InstrumentConfig instrumentConfig,
                                     Instrumentation instrumentation,
                                     ObjectBinderFactory objectBinderFactory,
                                     InterceptorRegistryBinder interceptorRegistryBinder,
                                     Provider<ApiMetaDataService> apiMetaDataServiceProvider) {
 
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.objectBinderFactory = Assert.requireNonNull(objectBinderFactory, "objectBinderFactory");
-        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+        this.instrumentConfig = Objects.requireNonNull(instrumentConfig, "instrumentConfig");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.objectBinderFactory = Objects.requireNonNull(objectBinderFactory, "objectBinderFactory");
+        this.interceptorRegistryBinder = Objects.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
+        this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
     }
 
     public InstrumentEngine get() {
-        final String instrumentEngine = profilerConfig.getProfileInstrumentEngine().toUpperCase();
-        if (DefaultProfilerConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
+        final String instrumentEngine = instrumentConfig.getProfileInstrumentEngine().toUpperCase();
+        if (InstrumentConfig.INSTRUMENT_ENGINE_ASM.equals(instrumentEngine)) {
             logger.info("ASM InstrumentEngine");
 
             // WARNING must be singleton

@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,25 +30,25 @@ import java.util.Properties;
  */
 public class PropertyRollbackTemplate {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Properties properties;
-    private final List<ExecuteContext<String>> contexts = new ArrayList<ExecuteContext<String>>();
+    private final List<ExecuteContext<String>> contexts = new ArrayList<>();
 
     public PropertyRollbackTemplate(Properties properties) {
-        this.properties = Assert.requireNonNull(properties, "properties");
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     public void addKey(String key, String value) {
-        final ExecuteContext<String> context = new ExecuteContext<String>(key, value);
+        final ExecuteContext<String> context = new ExecuteContext<>(key, value);
         contexts.add(context);
     }
 
     public <V> void execute(Runnable runnable) {
-        Assert.requireNonNull(runnable, "runnable");
+        Objects.requireNonNull(runnable, "runnable");
 
         // before
-        final List<BeforeState<String>> beforeStates = new ArrayList<BeforeState<String>>(contexts.size());
+        final List<BeforeState<String>> beforeStates = new ArrayList<>(contexts.size());
         for (ExecuteContext<String> context : contexts) {
             final BeforeState<String> beforeState = context.prepare(properties);
             beforeStates.add(beforeState);
@@ -79,8 +79,8 @@ public class PropertyRollbackTemplate {
 
 
         private ExecuteContext(String key, V value) {
-            this.key = Assert.requireNonNull(key, "key");
-            this.value = Assert.requireNonNull(value, "value");
+            this.key = Objects.requireNonNull(key, "key");
+            this.value = Objects.requireNonNull(value, "value");
         }
 
         private BeforeState<String> prepare(Properties properties) {
@@ -88,7 +88,7 @@ public class PropertyRollbackTemplate {
             final String backupValue = properties.getProperty(this.key, null);
             logger.debug("prepare put key:{} value:{}", this.key, this.value);
             properties.put(this.key, this.value);
-            return new BeforeState<String>(hasValue, backupValue);
+            return new BeforeState<>(hasValue, backupValue);
         }
 
         private void rollback(Properties properties, BeforeState<String> beforeState) {

@@ -22,10 +22,18 @@ import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,24 +56,25 @@ public class ApplicationContextHandler {
     }
 
     private OrderedSpanRecorder findRecorder(Injector injector) {
-        Key<DataSender> dataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
-        DataSender dataSender = injector.getInstance(dataSenderKey);
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        Key<DataSender<SpanType>> spanDataSenderKey = Key.get(spanDataSenderType, SpanDataSender.class);
+        DataSender<SpanType> dataSender = injector.getInstance(spanDataSenderKey);
         if (dataSender instanceof ListenableDataSender) {
-            ListenableDataSender listenableDataSender = (ListenableDataSender) dataSender;
-            ListenableDataSender.Listener listener = listenableDataSender.getListener();
+            ListenableDataSender<SpanType> listenableDataSender = (ListenableDataSender<SpanType>) dataSender;
+            ListenableDataSender.Listener<SpanType> listener = listenableDataSender.getListener();
             if (listener instanceof OrderedSpanRecorder) {
                 return (OrderedSpanRecorder) listener;
             }
         }
 
-        throw new IllegalStateException("unexpected datasender:" + dataSender);
+        throw new IllegalStateException("unexpected dataSender:" + dataSender);
     }
 
     private TestTcpDataSender findTestTcpDataSender(Injector injector) {
-        TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
         };
-        Key<EnhancedDataSender<Object>> dataSenderKey = Key.get(dataSenderTypeLiteral);
-        EnhancedDataSender dataSender = injector.getInstance(dataSenderKey);
+        Key<EnhancedDataSender<MetaDataType>> dataSenderKey = Key.get(dataSenderTypeLiteral);
+        EnhancedDataSender<MetaDataType> dataSender = injector.getInstance(dataSenderKey);
         if (dataSender instanceof TestTcpDataSender) {
             return (TestTcpDataSender) dataSender;
         }
@@ -83,6 +92,32 @@ public class ApplicationContextHandler {
     private ServiceTypeRegistryService findServiceTypeRegistry(Injector injector) {
         return injector.getInstance(ServiceTypeRegistryService.class);
     }
+
+
+    public List<String> getExecutedMethod() {
+        List<String> list = new ArrayList<>();
+        for (SpanType item : orderedSpanRecorder) {
+            if (item instanceof Span) {
+                Span span = (Span) item;
+                List<SpanEvent> spanEventList = span.getSpanEventList();
+                addApiDescription(list, spanEventList);
+            } else if (item instanceof SpanChunk) {
+                SpanChunk spanChunk = (SpanChunk) item;
+                List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
+                addApiDescription(list, spanEventList);
+            }
+        }
+        return list;
+    }
+
+    private void addApiDescription(List<String> list, List<SpanEvent> spanEventList) {
+        for (SpanEvent spanEvent : spanEventList) {
+            int apiId = spanEvent.getApiId();
+            String apiDescription = this.tcpDataSender.getApiDescription(apiId);
+            list.add(apiDescription);
+        }
+    }
+
 
     public OrderedSpanRecorder getOrderedSpanRecorder() {
         return orderedSpanRecorder;

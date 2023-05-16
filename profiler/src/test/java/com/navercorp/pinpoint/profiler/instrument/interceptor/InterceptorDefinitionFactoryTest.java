@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -31,31 +30,32 @@ import java.lang.reflect.Method;
  */
 public class InterceptorDefinitionFactoryTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Test
-    public void testGetInterceptorType_BasicType() throws Exception {
+    public void testGetInterceptorType_BasicType() {
         InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
 
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
 
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor0.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor1.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor2.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor3.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor4.class).getCaptureType(), CaptureType.AROUND);
-        Assert.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor5.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor0.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor1.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor2.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor3.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor4.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(AroundInterceptor5.class).getCaptureType(), CaptureType.AROUND);
 
-        Assert.assertSame(typeDetector.createInterceptorDefinition(StaticAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(StaticAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
 
-        Assert.assertSame(typeDetector.createInterceptorDefinition(ApiIdAwareAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(ApiIdAwareAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
     }
 
 
     @Test
-    public void testGetInterceptorType_Inherited() throws Exception {
+    public void testGetInterceptorType_Inherited() {
         InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
 
-        Assert.assertSame(typeDetector.createInterceptorDefinition(InheritedAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
+        Assertions.assertSame(typeDetector.createInterceptorDefinition(InheritedAroundInterceptor.class).getCaptureType(), CaptureType.AROUND);
     }
 
     @Test
@@ -69,15 +69,17 @@ public class InterceptorDefinitionFactoryTest {
     }
 
 
-    @Test(expected = RuntimeException.class)
-    public void testGetType_Error() throws Exception {
-        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
-        typeDetector.createInterceptorDefinition(Interceptor.class);
+    @Test
+    public void testGetType_Error() {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
+            typeDetector.createInterceptorDefinition(Interceptor.class);
+        });
     }
 
 
     @Test
-    public void testGetInterceptorCaptureType() throws Exception {
+    public void testGetInterceptorCaptureType() {
         InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
         final InterceptorDefinition before = interceptorDefinitionFactory.createInterceptorDefinition(TestBeforeInterceptor.class);
@@ -94,20 +96,20 @@ public class InterceptorDefinitionFactoryTest {
     }
 
     private void assertInterceptorType(InterceptorDefinition interceptor, CaptureType aroundType, String beforeName, String afterName) {
-        Assert.assertSame("Type", aroundType, aroundType);
+        Assertions.assertSame(aroundType, aroundType, "Type");
 
         if (beforeName == null) {
-            Assert.assertNull("before is null", interceptor.getBeforeMethod());
+            Assertions.assertNull(interceptor.getBeforeMethod(), "before is null");
         } else {
-            Assert.assertNotNull("after is not null", interceptor.getBeforeMethod());
-            Assert.assertEquals("check beforeName", interceptor.getBeforeMethod().getName(), beforeName);
+            Assertions.assertNotNull(interceptor.getBeforeMethod(), "after is not null");
+            Assertions.assertEquals(interceptor.getBeforeMethod().getName(), beforeName, "check beforeName");
         }
 
         if (afterName == null) {
-            Assert.assertNull("after is null", interceptor.getAfterMethod());
+            Assertions.assertNull(interceptor.getAfterMethod(), "after is null");
         } else {
-            Assert.assertNotNull("after is not null", interceptor.getAfterMethod());
-            Assert.assertEquals("check afterName", interceptor.getAfterMethod().getName(), afterName);
+            Assertions.assertNotNull(interceptor.getAfterMethod(), "after is not null");
+            Assertions.assertEquals(interceptor.getAfterMethod().getName(), afterName, "check afterName");
         }
     }
 
@@ -118,6 +120,7 @@ public class InterceptorDefinitionFactoryTest {
         public void before(Object target, Object[] args) {
 
         }
+
         @IgnoreMethod
         @Override
         public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -156,6 +159,7 @@ public class InterceptorDefinitionFactoryTest {
         public void before(Object target, Object[] args) {
 
         }
+
         @IgnoreMethod
         @Override
         public void after(Object target, Object[] args, Object result, Throwable throwable) {

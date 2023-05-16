@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -48,8 +48,8 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -63,9 +63,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class PinpointServerAcceptor implements PinpointServerConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final int WORKER_COUNT = CpuUtils.workerCount();
+    private static final int WORKER_COUNT = CpuUtils.cpuCount();
 
     private volatile boolean released;
 
@@ -81,7 +81,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     private ServerMessageListenerFactory messageListenerFactory = new LoggingServerMessageListenerFactory();
 
     private ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = ServerStreamChannelMessageHandler.DISABLED_INSTANCE;
-    private final List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
+    private final List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<>();
 
     private final Timer healthCheckTimer;
     private final HealthCheckManager healthCheckManager;
@@ -117,7 +117,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         setOptions(bootstrap);
         this.bootstrap = bootstrap;
 
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
+        this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
         logger.info("serverOption : {}", serverOption);
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
@@ -125,9 +125,9 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
-        this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter");
+        this.channelConnectedFilter = Objects.requireNonNull(channelConnectedFilter, "channelConnectedFilter");
 
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
+        this.pipelineFactory = Objects.requireNonNull(pipelineFactory, "pipelineFactory");
         addPipeline(bootstrap, pipelineFactory);
     }
 
@@ -172,15 +172,14 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     @VisibleForTesting
     void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
-        if (channelPipelineFactory == null) {
-            throw new NullPointerException("channelPipelineFactory");
-        }
+        Objects.requireNonNull(channelPipelineFactory, "channelPipelineFactory");
+
         bootstrap.setPipelineFactory(channelPipelineFactory);
     }
 
     @VisibleForTesting
     public void setMessageHandler(final ChannelHandler messageHandler) {
-        Assert.requireNonNull(messageHandler, "messageHandler");
+        Objects.requireNonNull(messageHandler, "messageHandler");
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
@@ -223,7 +222,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setMessageListenerFactory(ServerMessageListenerFactory messageListenerFactory) {
-        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory");
+        this.messageListenerFactory = Objects.requireNonNull(messageListenerFactory, "messageListenerFactory");
     }
 
     @Override
@@ -232,7 +231,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void addStateChangeEventHandler(ServerStateChangeEventHandler stateChangeEventHandler) {
-        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
+        Objects.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
 
         this.stateChangeEventHandler.add(stateChangeEventHandler);
     }
@@ -243,7 +242,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
+        this.serverStreamChannelMessageHandler = Objects.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
     }
 
     @Override
@@ -293,7 +292,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
     
     public List<PinpointSocket> getWritableSocketList() {
-        List<PinpointSocket> pinpointServerList = new ArrayList<PinpointSocket>();
+        List<PinpointSocket> pinpointServerList = new ArrayList<>();
 
         for (Channel channel : channelGroup) {
             DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
@@ -309,7 +308,6 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         @Override
         public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             final Channel channel = e.getChannel();
-            logger.info("channelConnected started. channel:{}", channel);
 
             if (released) {
                 logger.warn("already released. channel:{}", channel);
@@ -327,6 +325,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
                 logger.debug("channelConnected() channel discard. {}", channel);
                 return;
             }
+
+            logger.info("channelConnected started. channel:{}", channel);
 
             DefaultPinpointServer pinpointServer = createPinpointServer(channel);
             

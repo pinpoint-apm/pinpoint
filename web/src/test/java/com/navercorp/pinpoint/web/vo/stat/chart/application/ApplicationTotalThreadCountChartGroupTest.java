@@ -16,58 +16,57 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ApplicationTotalThreadCountChartGroupTest {
     @Test
     public void createApplicationTotalThreadCountChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
-        List<AggreJoinTotalThreadCountBo> aggreJoinTotalThreadCountBoList = new ArrayList<>(5);
-        AggreJoinTotalThreadCountBo aggreJoinFileDescriptorBo1 = new AggreJoinTotalThreadCountBo("testApp", time, 11, 20, "agent1_1", 60, "agent1_2");
-        AggreJoinTotalThreadCountBo aggreJoinFileDescriptorBo2 = new AggreJoinTotalThreadCountBo("testApp", time - 60000, 22, 10, "agent2_1", 52, "agent2_2");
-        AggreJoinTotalThreadCountBo aggreJoinFileDescriptorBo3 = new AggreJoinTotalThreadCountBo("testApp", time - 120000, 33, 9, "agent3_1", 39, "agent3_2");
-        AggreJoinTotalThreadCountBo aggreJoinFileDescriptorBo4 = new AggreJoinTotalThreadCountBo("testApp", time - 180000, 44, 25, "agent4_1", 42, "agent4_2");
-        AggreJoinTotalThreadCountBo aggreJoinFileDescriptorBo5 = new AggreJoinTotalThreadCountBo("testApp", time - 240000, 55, 54, "agent5_1", 55, "agent5_2");
-        aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo1);
-        aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo2);
-        aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo3);
-        aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo4);
-        aggreJoinTotalThreadCountBoList.add(aggreJoinFileDescriptorBo5);
+        List<AggreJoinTotalThreadCountBo> aggreJoinTotalThreadCountBoList = List.of(
+                new AggreJoinTotalThreadCountBo("testApp", time, 11, 20, "agent1_1", 60, "agent1_2"),
+                new AggreJoinTotalThreadCountBo("testApp", time - 60000, 22, 10, "agent2_1", 52, "agent2_2"),
+                new AggreJoinTotalThreadCountBo("testApp", time - 120000, 33, 9, "agent3_1", 39, "agent3_2"),
+                new AggreJoinTotalThreadCountBo("testApp", time - 180000, 44, 25, "agent4_1", 42, "agent4_2"),
+                new AggreJoinTotalThreadCountBo("testApp", time - 240000, 55, 54, "agent5_1", 55, "agent5_2")
+        );
 
-        StatChartGroup applicationTotalThreadCountChartGroup = new ApplicationTotalThreadCountChart.ApplicationTotalThreadCountChartGroup(timeWindow, aggreJoinTotalThreadCountBoList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationTotalThreadCountChartGroup.getCharts();
-        assertEquals(1, charts.size());
+        ChartGroupBuilder<AggreJoinTotalThreadCountBo, ApplicationStatPoint<Long>> builder = ApplicationTotalThreadCountChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Long>> group = builder.build(timeWindow, aggreJoinTotalThreadCountBoList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Long>>> charts = group.getCharts();
+        assertThat(charts).hasSize(1);
 
-        Chart totalThreadCountChart = charts.get(ApplicationTotalThreadCountChart.ApplicationTotalThreadCountChartGroup.TotalThreadCountChartType.TOTAL_THREAD_COUNT);
-        List<Point> totalThreadCountChartPoints = totalThreadCountChart.getPoints();
-        assertEquals(5, totalThreadCountChartPoints.size());
+        Chart<ApplicationStatPoint<Long>> totalThreadCountChart = charts.get(ApplicationTotalThreadCountChart.TotalThreadCountChartType.TOTAL_THREAD_COUNT);
+        List<ApplicationStatPoint<Long>> totalThreadCountChartPoints = totalThreadCountChart.getPoints();
+        assertThat(totalThreadCountChartPoints).hasSize(5);
         int index = totalThreadCountChartPoints.size();
 
-        for (Point point : totalThreadCountChartPoints) {
-            testTotalThreadCount((TotalThreadCountPoint)point, aggreJoinTotalThreadCountBoList.get(--index));
+        for (ApplicationStatPoint<Long> point : totalThreadCountChartPoints) {
+            testTotalThreadCount(point, aggreJoinTotalThreadCountBoList.get(--index));
         }
     }
 
-    private void testTotalThreadCount(TotalThreadCountPoint point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
+    private void testTotalThreadCount(ApplicationStatPoint<Long> point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
         assertEquals(point.getXVal(), totalThreadCountBo.getTimestamp());
-        assertEquals(point.getYValForAvg(), totalThreadCountBo.getAvgTotalThreadCount(), 0);
-        assertEquals(point.getYValForMin(), totalThreadCountBo.getMinTotalThreadCount(), 0);
-        assertEquals(point.getYValForMax(), totalThreadCountBo.getMaxTotalThreadCount(), 0);
-        assertEquals(point.getAgentIdForMin(), totalThreadCountBo.getMinTotalThreadCountAgentId());
-        assertEquals(point.getAgentIdForMax(), totalThreadCountBo.getMaxTotalThreadCountAgentId());
+        final JoinLongFieldBo totalThreadCountJoinValue = totalThreadCountBo.getTotalThreadCountJoinValue();
+        assertEquals(point.getYValForAvg(), totalThreadCountJoinValue.getAvg(), 0);
+        assertEquals(point.getYValForMin(), totalThreadCountJoinValue.getMin(), 0);
+        assertEquals(point.getYValForMax(), totalThreadCountJoinValue.getMax(), 0);
+        assertEquals(point.getAgentIdForMin(), totalThreadCountJoinValue.getMinAgentId());
+        assertEquals(point.getAgentIdForMax(), totalThreadCountJoinValue.getMaxAgentId());
     }
 }

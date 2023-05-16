@@ -17,15 +17,19 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class RangeFactory {
-    @Autowired
-    private TimeSlot timeSlot;
+    private final TimeSlot timeSlot;
+
+    public RangeFactory(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
+    }
 
     /**
      * Create minute-based reversed Range for statistics
@@ -34,14 +38,13 @@ public class RangeFactory {
      * @return
      */
     public Range createStatisticsRange(Range range) {
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(range, "range");
+
         // HBase scanner does not include endTime when scanning, so 1 is usually added to the endTime.
         // In this case, the Range is reversed, so we instead subtract 1 from the startTime.
         final long startTime = timeSlot.getTimeSlot(range.getFrom()) - 1;
         final long endTime = timeSlot.getTimeSlot(range.getTo());
-        return Range.createUncheckedRange(startTime, endTime);
+        return Range.newUncheckedRange(startTime, endTime);
     }
 
 }

@@ -42,16 +42,16 @@ public enum HandshakePropertyType {
 
 
     private final String name;
-    private final Class clazzType;
+    private final Class<?> clazzType;
     private final boolean isRequired;
 
     private static final Set<HandshakePropertyType> HANDSHAKE_PROPERTY_TYPE = EnumSet.allOf(HandshakePropertyType.class);
 
-    HandshakePropertyType(String name, Class clazzType) {
+    HandshakePropertyType(String name, Class<?> clazzType) {
         this(name, clazzType, true);
     }
 
-    HandshakePropertyType(String name, Class clazzType, boolean isRequired) {
+    HandshakePropertyType(String name, Class<?> clazzType, boolean isRequired) {
         this.name = name;
         this.clazzType = clazzType;
         this.isRequired = isRequired;
@@ -61,7 +61,7 @@ public enum HandshakePropertyType {
         return name;
     }
 
-    public Class getClazzType() {
+    public Class<?> getClazzType() {
         return clazzType;
     }
 

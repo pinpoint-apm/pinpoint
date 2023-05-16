@@ -50,6 +50,10 @@ public class HttpClient3Plugin implements ProfilerPlugin, TransformTemplateAware
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(context.getConfig());
+        if(Boolean.FALSE == config.isEnable()) {
+            logger.info("{} disabled '{}'", this.getClass().getSimpleName(), "profiler.apache.httpclient3.enable=false");
+            return;
+        }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // apache http client 3

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -23,20 +24,16 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class AgentTimeHistogramBuilder {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Application application;
     private final Range range;
@@ -48,6 +45,11 @@ public class AgentTimeHistogramBuilder {
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
+    public AgentTimeHistogramBuilder(Application application, Range range, TimeWindow window) {
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
+        this.window = Objects.requireNonNull(window, "window");
+    }
 
     public AgentTimeHistogram build(List<ResponseTime> responseHistogramList) {
         AgentHistogramList agentHistogramList = new AgentHistogramList(application, responseHistogramList);
@@ -55,16 +57,14 @@ public class AgentTimeHistogramBuilder {
     }
 
     public AgentTimeHistogram buildSource(LinkCallDataMap linkCallDataMap) {
-        if (linkCallDataMap == null) {
-            throw new NullPointerException("linkCallDataMap");
-        }
+        Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
+
         return build(linkCallDataMap.getSourceList());
     }
 
     public AgentTimeHistogram buildTarget(LinkCallDataMap linkCallDataMap) {
-        if (linkCallDataMap == null) {
-            throw new NullPointerException("linkCallDataMap");
-        }
+        Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
+
         return build(linkCallDataMap.getTargetList());
     }
 
@@ -95,7 +95,7 @@ public class AgentTimeHistogramBuilder {
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
-                final Long time = window.refineTimestamp(timeHistogram.getTimeStamp());
+                final long time = window.refineTimestamp(timeHistogram.getTimeStamp());
                 Application agentId = agentHistogram.getAgentId();
                 TimeHistogram windowHistogram = new TimeHistogram(timeHistogram.getHistogramSchema(), time);
                 windowHistogram.add(timeHistogram);

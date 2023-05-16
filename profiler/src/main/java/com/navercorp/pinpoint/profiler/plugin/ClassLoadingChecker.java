@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -24,12 +25,11 @@ import java.util.Set;
  */
 public class ClassLoadingChecker {
 
-    private final Set<String> loadClass = new HashSet<String>();
+    private final Set<String> loadClass = new HashSet<>();
 
     public boolean isFirstLoad(String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
+
         if (this.loadClass.add(className)) {
             // first load
             return true;

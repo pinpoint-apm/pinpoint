@@ -15,11 +15,15 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient3;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -31,11 +35,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-
 /**
  * @author jaehong.kim
  */
@@ -45,17 +44,27 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({ "commons-httpclient:commons-httpclient:[3.0],[3.0.1],[3.1]", WebServer.VERSION, PluginITConstants.VERSION})
 public class HttpClientIT {
 
-    private static com.navercorp.pinpoint.pluginit.utils.WebServer webServer;
+    public static WebServer webServer;
 
     @BeforeClass
-    public static void BeforeClass() throws Exception {
+    public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
+
     }
 
     @AfterClass
-    public static void AfterClass() {
+    public static void afterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
     }
+
+    public String getAddress() {
+        return webServer.getCallHttpUrl();
+    }
+
+    public static String getHostPort() {
+        return webServer.getHostAndPort();
+    }
+
 
     private static final long CONNECTION_TIMEOUT = 10000;
     private static final int SO_TIMEOUT = 10000;
@@ -66,7 +75,7 @@ public class HttpClientIT {
         client.getParams().setConnectionManagerTimeout(CONNECTION_TIMEOUT);
         client.getParams().setSoTimeout(SO_TIMEOUT);
 
-        GetMethod method = new GetMethod(webServer.getCallHttpUrl());
+        GetMethod method = new GetMethod(getAddress());
 
         // Provide custom retry handler is necessary
         method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));

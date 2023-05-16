@@ -16,16 +16,19 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 
 /**
  * @author Taejin Koo
  */
 public interface PinpointWebSocketHandlerWorker {
 
-    void start(AgentInfo agentInfo);
+    StreamChannel connect(ClusterKey clusterKey);
 
-    boolean reactive(AgentInfo agentInfo);
+    void active(StreamChannel streamChannel, long waitTimeout);
+
+    boolean reactive(ClusterKey clusterKey);
 
     void stop();
 

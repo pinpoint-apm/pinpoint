@@ -23,14 +23,12 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCode
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -44,11 +42,11 @@ public class ResponseTimeCodecTest {
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
         final ResponseTimeCodec responseTimeCodec = new ResponseTimeCodec(agentStatDataPointCodec);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
-        final List<JoinStatBo> joinResponseTimeBoList = createJoinResponseTimeBoList(currentTime);
+        final List<JoinResponseTimeBo> joinResponseTimeBoList = createJoinResponseTimeBoList(currentTime);
         encodedValueBuffer.putByte(responseTimeCodec.getVersion());
         responseTimeCodec.encodeValues(encodedValueBuffer, joinResponseTimeBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -57,27 +55,21 @@ public class ResponseTimeCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), responseTimeCodec.getVersion());
-        List<JoinStatBo> decodedJoinResponseTimeBoList = responseTimeCodec.decodeValues(valueBuffer, decodingContext);
-        for (int i = 0 ; i < decodedJoinResponseTimeBoList.size(); i++) {
-            assertTrue(decodedJoinResponseTimeBoList.get(i).equals(joinResponseTimeBoList.get(i)));
+        List<JoinResponseTimeBo> decodedJoinResponseTimeBoList = responseTimeCodec.decodeValues(valueBuffer, decodingContext);
+        for (int i = 0; i < decodedJoinResponseTimeBoList.size(); i++) {
+            assertEquals(decodedJoinResponseTimeBoList.get(i), joinResponseTimeBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinResponseTimeBoList(long currentTime) {
+    private List<JoinResponseTimeBo> createJoinResponseTimeBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinStatBo> joinResponseTimeBoList = new ArrayList<JoinStatBo>();
-        JoinResponseTimeBo joinResponseTimeBo1 = new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2");
-        JoinResponseTimeBo joinResponseTimeBo2 = new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2");
-        JoinResponseTimeBo joinResponseTimeBo3 = new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2");
-        JoinResponseTimeBo joinResponseTimeBo4 = new JoinResponseTimeBo(id, currentTime + 15000, 5000, 20, "app_4_1", 8000, "app_4_2");
-        JoinResponseTimeBo joinResponseTimeBo5 = new JoinResponseTimeBo(id, currentTime + 20000, 1000, 10, "app_5_1", 6600, "app_5_2");
-        joinResponseTimeBoList.add(joinResponseTimeBo1);
-        joinResponseTimeBoList.add(joinResponseTimeBo2);
-        joinResponseTimeBoList.add(joinResponseTimeBo3);
-        joinResponseTimeBoList.add(joinResponseTimeBo4);
-        joinResponseTimeBoList.add(joinResponseTimeBo5);
-
-        return joinResponseTimeBoList;
+        return List.of(
+                new JoinResponseTimeBo(id, currentTime, 3000, 2, "app_1_1", 6000, "app_1_2"),
+                new JoinResponseTimeBo(id, currentTime + 5000, 4000, 200, "app_2_1", 9000, "app_2_2"),
+                new JoinResponseTimeBo(id, currentTime + 10000, 2000, 20, "app_3_1", 7000, "app_3_2"),
+                new JoinResponseTimeBo(id, currentTime + 15000, 5000, 20, "app_4_1", 8000, "app_4_2"),
+                new JoinResponseTimeBo(id, currentTime + 20000, 1000, 10, "app_5_1", 6600, "app_5_2")
+        );
     }
 
 }

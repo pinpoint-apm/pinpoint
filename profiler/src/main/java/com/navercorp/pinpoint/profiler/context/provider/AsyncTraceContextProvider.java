@@ -18,34 +18,27 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
-import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncTraceContext;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class AsyncTraceContextProvider implements Provider<AsyncTraceContext> {
 
-
-    private Provider<BaseTraceFactory> baseTraceFactoryProvider;
-    private final Binder<Trace> binder;
+    private final Provider<BaseTraceFactory> baseTraceFactoryProvider;
 
     @Inject
-    public AsyncTraceContextProvider(Binder<Trace> binder) {
-        this.binder = Assert.requireNonNull(binder, "binder");
+    public AsyncTraceContextProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider) {
+        this.baseTraceFactoryProvider = Objects.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
     }
 
-    @Inject
-    public void setBaseTraceFactoryProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider) {
-        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
-    }
 
     @Override
     public AsyncTraceContext get() {
-        return new DefaultAsyncTraceContext(baseTraceFactoryProvider,  binder);
+        return new DefaultAsyncTraceContext(baseTraceFactoryProvider);
     }
 }

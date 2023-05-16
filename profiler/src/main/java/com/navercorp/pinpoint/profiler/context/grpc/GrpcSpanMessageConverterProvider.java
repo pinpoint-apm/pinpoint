@@ -18,22 +18,22 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
-
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcSpanMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
+public class GrpcSpanMessageConverterProvider implements Provider<MessageConverter<SpanType, GeneratedMessageV3>> {
 
     private final String agentId;
     private final short applicationServiceTypeCode;
@@ -43,13 +43,13 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
     @Inject
     public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
-        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor");
+        this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
     }
 
     @Override
-    public MessageConverter<GeneratedMessageV3> get() {
+    public MessageConverter<SpanType, GeneratedMessageV3> get() {
         return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor);
     }
 }

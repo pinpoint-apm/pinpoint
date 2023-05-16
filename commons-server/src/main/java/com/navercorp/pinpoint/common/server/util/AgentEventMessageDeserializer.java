@@ -27,11 +27,13 @@ import org.apache.thrift.TException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  * @deprecated Only AgentEventBo.version is 0
  */
+@Deprecated
 public class AgentEventMessageDeserializer {
 
     private final List<DeserializerFactory<HeaderTBaseDeserializer>> deserializerFactoryList;
@@ -45,9 +47,8 @@ public class AgentEventMessageDeserializer {
     }
 
     public Object deserialize(AgentEventType agentEventType, byte[] eventBody) throws UnsupportedEncodingException {
-        if (agentEventType == null) {
-            throw new NullPointerException("agentEventType");
-        }
+        Objects.requireNonNull(agentEventType, "agentEventType");
+
         Class<?> eventMessageType = agentEventType.getMessageType();
         if (eventMessageType == Void.class) {
             return null;
@@ -57,7 +58,7 @@ public class AgentEventMessageDeserializer {
                 try {
                     Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(eventBody, deserializerFactory);
                     return deserialize.getData();
-                } catch (TException e) {
+                } catch (TException ignored) {
                     // ignore
                 }
             }

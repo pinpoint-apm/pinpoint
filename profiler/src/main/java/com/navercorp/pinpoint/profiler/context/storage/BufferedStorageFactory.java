@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
@@ -25,28 +26,18 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
  */
 public class BufferedStorageFactory implements StorageFactory {
 
-    private final DataSender dataSender;
+    private final DataSender<SpanType> dataSender;
     private final int ioBufferingBufferSize;
 
-    /**
-     * 报文异常判断相关
-     */
-    private final boolean responseJudge;
-    private final String responseJudgeSign;
-    private final String responseJudgeCode;
-
-    public BufferedStorageFactory(int ioBufferingBufferSize, DataSender dataSender, boolean responseJudge, String responseJudgeSign, String responseJudgeCode) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
+    public BufferedStorageFactory(int ioBufferingBufferSize, DataSender<SpanType> dataSender) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.ioBufferingBufferSize = ioBufferingBufferSize;
-        this.responseJudge = responseJudge;
-        this.responseJudgeSign = responseJudgeSign;
-        this.responseJudgeCode = responseJudgeCode;
     }
 
 
     @Override
     public Storage createStorage(SpanChunkFactory spanChunkFactory) {
-        Storage storage = new BufferedStorage(spanChunkFactory, this.dataSender, this.ioBufferingBufferSize, this.responseJudge, this.responseJudgeSign, this.responseJudgeCode);
+        Storage storage = new BufferedStorage(spanChunkFactory, this.dataSender, this.ioBufferingBufferSize);
         return storage;
     }
 

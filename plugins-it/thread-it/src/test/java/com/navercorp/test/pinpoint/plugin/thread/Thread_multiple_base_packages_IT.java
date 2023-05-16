@@ -70,6 +70,8 @@ public class Thread_multiple_base_packages_IT {
         verifier.verifyTrace(event(THREAD_ASYNC, MockCallable.class.getConstructor(String.class)));
         verifier.verifyTrace(event("ASYNC", "Asynchronous Invocation"));
         verifier.verifyTrace(event(THREAD_ASYNC, MockCallable.class.getMethod("call")));
+
+        executorService.shutdown();
     }
 
 }

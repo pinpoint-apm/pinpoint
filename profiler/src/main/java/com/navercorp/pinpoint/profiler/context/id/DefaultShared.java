@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.id;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -25,12 +25,17 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultShared implements Shared {
+    private static final Logger logger = LogManager.getLogger(DefaultShared.class);
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> END_POINT_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "endPoint");
 
     private static final AtomicReferenceFieldUpdater<DefaultShared, String> RPC_UPDATER
             = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "rpc");
+
+    private static final AtomicReferenceFieldUpdater<DefaultShared, String> URL_TEMPLATE_UPDATER
+            = AtomicReferenceFieldUpdater.newUpdater(DefaultShared.class, String.class, "uriTemplate");
 
     private volatile int errorCode;
     private volatile byte loggingInfo;
@@ -45,7 +50,7 @@ public class DefaultShared implements Shared {
 
     private volatile int statusCode;
 
-    private volatile boolean exceptionFlag;
+    private volatile String uriTemplate = null;
 
     @Override
     public void maskErrorCode(int errorCode) {
@@ -79,7 +84,6 @@ public class DefaultShared implements Shared {
     public void setEndPoint(String endPoint) {
         final boolean updated = END_POINT_UPDATER.compareAndSet(this, null, endPoint);
         if (!updated) {
-            final Logger logger = LoggerFactory.getLogger(this.getClass());
             // for debug
             logger.debug("already set EndPoint {}", endPoint);
         }
@@ -94,7 +98,6 @@ public class DefaultShared implements Shared {
     public void setRpcName(String rpc) {
         final boolean updated = RPC_UPDATER.compareAndSet(this, null, rpc);
         if (!updated) {
-            final Logger logger = LoggerFactory.getLogger(this.getClass());
             // for debug
             logger.debug("already set Rpc {}", rpc);
         }
@@ -126,12 +129,31 @@ public class DefaultShared implements Shared {
     }
 
     @Override
-    public void maskExceptionFlag(boolean flag) {
-        this.exceptionFlag = flag;
+    public boolean setUriTemplate(String uriTemplate) {
+        final boolean successful = URL_TEMPLATE_UPDATER.compareAndSet(this, null, uriTemplate);
+        if (successful) {
+            if (isDebug) {
+                logger.debug("Record uriTemplate={}", uriTemplate);
+            }
+        }
+        return successful;
     }
 
     @Override
-    public boolean isException() {
-        return exceptionFlag;
+    public boolean setUriTemplate(String uriTemplate, boolean force) {
+        if (force) {
+            URL_TEMPLATE_UPDATER.set(this, uriTemplate);
+            if (isDebug) {
+                logger.debug("Record uriTemplate={}", uriTemplate);
+            }
+            return true;
+        } else {
+            return setUriTemplate(uriTemplate);
+        }
+    }
+
+    @Override
+    public String getUriTemplate() {
+        return uriTemplate;
     }
 }

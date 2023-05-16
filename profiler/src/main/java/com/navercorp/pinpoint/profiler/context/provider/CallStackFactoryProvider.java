@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV1;
 import com.navercorp.pinpoint.profiler.context.CallStackFactoryV2;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,24 +34,26 @@ public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanE
 
     private final TraceDataFormatVersion version;
     private final int callStackMaxDepth;
-
+    private final int callStackMaxSequence;
+    private final int callStackOverflowLogRation;
 
     @Inject
-    public CallStackFactoryProvider(@Named("profiler.callstack.max.depth") int callStackMaxDepth,
+    public CallStackFactoryProvider(InstrumentConfig instrumentConfig,
                                     TraceDataFormatVersion version) {
-        this.version = Assert.requireNonNull(version, "version");
-        this.callStackMaxDepth = callStackMaxDepth;
+        this.version = Objects.requireNonNull(version, "version");
+        this.callStackMaxDepth = instrumentConfig.getCallStackMaxDepth();
+        this.callStackMaxSequence = instrumentConfig.getCallStackMaxSequence();
+        this.callStackOverflowLogRation = instrumentConfig.getCallStackOverflowLogRation();
     }
 
     @Override
     public CallStackFactory<SpanEvent> get() {
         if (version == TraceDataFormatVersion.V2) {
-            return new CallStackFactoryV2(callStackMaxDepth);
+            return new CallStackFactoryV2(callStackMaxDepth, callStackMaxSequence, callStackOverflowLogRation);
         }
         if (version == TraceDataFormatVersion.V1) {
-            return new CallStackFactoryV1(callStackMaxDepth);
+            return new CallStackFactoryV1(callStackMaxDepth, callStackMaxSequence, callStackOverflowLogRation);
         }
         throw new UnsupportedOperationException("unknown version :" + version);
     }
-
 }

@@ -16,84 +16,43 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
-public class ApplicationTransactionChart implements StatChart {
+public class ApplicationTransactionChart extends DefaultApplicationChart<AggreJoinTransactionBo, Double> {
 
-    private final ApplicationTransactionChartGroup applicationTransactionChartGroup;
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+            = new DoubleApplicationStatPoint.UncollectedCreator(JoinTransactionBo.UNCOLLECTED_VALUE);
 
-    public ApplicationTransactionChart(TimeWindow timeWindow, List<AggreJoinTransactionBo> aggreJoinTransactionBoList) {
-        this.applicationTransactionChartGroup = new ApplicationTransactionChartGroup(timeWindow, aggreJoinTransactionBoList);
+    public enum TransactionChartType implements StatChartGroup.ApplicationChartType {
+        TRANSACTION_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return applicationTransactionChartGroup;
+    private static final ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinTransactionBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(TransactionChartType.TRANSACTION_COUNT, ApplicationTransactionChart::newTransactionPoint);
+        return builder;
     }
 
-    public static class ApplicationTransactionChartGroup implements StatChartGroup {
-
-        private static final TransactionPoint.UncollectedTransactionPointCreator UNCOLLECTED_TRANSACTION_POINT = new TransactionPoint.UncollectedTransactionPointCreator();
-
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> transactionChartMap;
-
-        public enum TransactionChartType implements ApplicationChartType {
-            TRANSACTION_COUNT
-        }
-
-        public ApplicationTransactionChartGroup(TimeWindow timeWindow, List<AggreJoinTransactionBo> aggreJoinTransactionBoList) {
-            this.timeWindow = timeWindow;
-            this.transactionChartMap = newChart(aggreJoinTransactionBoList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinTransactionBo> joinTransactionBoList) {
-
-            TimeSeriesChartBuilder<TransactionPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TRANSACTION_POINT);
-            Chart<TransactionPoint> chart = chartBuilder.build(joinTransactionBoList, this::newTransactionPoint);
-
-            return Collections.singletonMap(TransactionChartType.TRANSACTION_COUNT, chart);
-        }
-
-
-        private TransactionPoint newTransactionPoint(AggreJoinTransactionBo transaction) {
-            double minTotalCount = calculateTPS(transaction.getMinTotalCount(), transaction.getCollectInterval());
-            double maxTotalCount = calculateTPS(transaction.getMaxTotalCount(), transaction.getCollectInterval());
-            double totalCount = calculateTPS(transaction.getTotalCount(), transaction.getCollectInterval());
-            return new TransactionPoint(transaction.getTimestamp(), minTotalCount, transaction.getMinTotalCountAgentId(), maxTotalCount, transaction.getMaxTotalCountAgentId(), totalCount);
-        }
-
-        private double calculateTPS(double value, long timeMs) {
-            if (value <= 0) {
-                return value;
-            }
-
-            return BigDecimal.valueOf(value / (timeMs / 1000D)).setScale(1, RoundingMode.HALF_UP).doubleValue();
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.transactionChartMap;
-        }
+    public ApplicationTransactionChart(TimeWindow timeWindow, List<AggreJoinTransactionBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Double> newTransactionPoint(AggreJoinTransactionBo transaction) {
+        final JoinLongFieldBo totalCountJoinValue = transaction.getTotalCountJoinValue();
+        return new DoubleApplicationStatPoint(transaction.getTimestamp(), (double)totalCountJoinValue.getMin(), totalCountJoinValue.getMinAgentId(), (double)totalCountJoinValue.getMax(), totalCountJoinValue.getMaxAgentId(), (double)totalCountJoinValue.getAvg());
+    }
+
 }

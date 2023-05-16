@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 
 import java.util.List;
 
@@ -31,8 +31,6 @@ public interface ActiveTraceRepository {
 
     List<Long> getThreadIdList();
 
-    ActiveTraceHandle register(TraceRoot traceRoot);
-
-    ActiveTraceHandle register(long localTransactionId, long startTime, long threadId);
+    ActiveTraceHandle register(LocalTraceRoot traceRoot);
 
 }

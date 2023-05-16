@@ -25,21 +25,21 @@ public interface ArithmeticOperation<T extends Number> {
     T xor(T a, T b);
     T zero();
 
-    ArithmeticOperation<Short> SHORT_OPERATIONS = new ArithmeticOperation<Short>() {
+    ArithmeticOperation<Short> SHORT_OPERATIONS = new ArithmeticOperation<>() {
 
         @Override
         public Short add(Short a, Short b) {
-            return (short) (a.shortValue() + b.shortValue());
+            return (short) (a + b);
         }
 
         @Override
         public Short diff(Short a, Short b) {
-            return (short) (a.shortValue() - b.shortValue());
+            return (short) (a - b);
         }
 
         @Override
         public Short xor(Short a, Short b) {
-            return (short) (a.shortValue() ^ b.shortValue());
+            return (short) (a ^ b);
         }
 
         @Override
@@ -48,21 +48,21 @@ public interface ArithmeticOperation<T extends Number> {
         }
     };
 
-    ArithmeticOperation<Integer> INTEGER_OPERATIONS = new ArithmeticOperation<Integer>() {
+    ArithmeticOperation<Integer> INTEGER_OPERATIONS = new ArithmeticOperation<>() {
 
         @Override
         public Integer add(Integer a, Integer b) {
-            return a.intValue() + b.intValue();
+            return a + b;
         }
 
         @Override
         public Integer diff(Integer a, Integer b) {
-            return a.intValue() - b.intValue();
+            return a - b;
         }
 
         @Override
         public Integer xor(Integer a, Integer b) {
-            return a.intValue() ^ b.intValue();
+            return a ^ b;
         }
 
         @Override
@@ -71,21 +71,21 @@ public interface ArithmeticOperation<T extends Number> {
         }
     };
 
-    ArithmeticOperation<Long> LONG_OPERATIONS = new ArithmeticOperation<Long>() {
+    ArithmeticOperation<Long> LONG_OPERATIONS = new ArithmeticOperation<>() {
 
         @Override
         public Long add(Long a, Long b) {
-            return a.longValue() + b.longValue();
+            return a + b;
         }
 
         @Override
         public Long diff(Long a, Long b) {
-            return a.longValue() - b.longValue();
+            return a - b;
         }
 
         @Override
         public Long xor(Long a, Long b) {
-            return a.longValue() ^ b.longValue();
+            return a ^ b;
         }
 
         @Override

@@ -19,36 +19,43 @@ package com.navercorp.pinpoint.collector.manage.jmx;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.navercorp.pinpoint.collector.manage.ClusterManager;
 import com.navercorp.pinpoint.collector.manage.CollectorManager;
 import com.navercorp.pinpoint.collector.manage.HBaseManager;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 /**
  * @author Taejin Koo
  */
 public class JMXCollectorManagerList {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Value("${collector.admin.api.jmx.active:false}")
-    private boolean isActive;
 
-    @Autowired
-    private HandlerManager handlerManager;
+    private final boolean isActive;
 
-    @Autowired
-    private ClusterManager clusterManager;
+    private final HandlerManager handlerManager;
 
-    @Autowired
-    private HBaseManager hBaseManager;
+    private final ClusterManager clusterManager;
+
+    private final HBaseManager hBaseManager;
+
+    public JMXCollectorManagerList(@Value("${collector.admin.api.jmx.active:false}") boolean isActive,
+                                   HandlerManager handlerManager,
+                                   ClusterManager clusterManager,
+                                   HBaseManager hBaseManager) {
+        this.isActive = isActive;
+        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
+        this.clusterManager = Objects.requireNonNull(clusterManager, "clusterManager");
+        this.hBaseManager = Objects.requireNonNull(hBaseManager, "hBaseManager");
+    }
 
     public List<CollectorManager> getSupportList() {
         if (!isActive) {
@@ -58,9 +65,9 @@ public class JMXCollectorManagerList {
         
         List<CollectorManager> supportManagerList = new ArrayList<>();
 
-        ListUtils.addIfValueNotNull(supportManagerList, handlerManager);
-        ListUtils.addIfValueNotNull(supportManagerList, clusterManager);
-        ListUtils.addIfValueNotNull(supportManagerList, hBaseManager);
+        CollectionUtils.addIgnoreNull(supportManagerList, handlerManager);
+        CollectionUtils.addIgnoreNull(supportManagerList, clusterManager);
+        CollectionUtils.addIgnoreNull(supportManagerList, hBaseManager);
 
         return supportManagerList;
     }

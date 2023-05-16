@@ -18,16 +18,15 @@ package com.navercorp.pinpoint.plugin.cxf;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -47,28 +46,31 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.0.0][3.0.16][3.1.0][3.1.16],[3.2.1,)", WebServer.VERSION, PluginITConstants.VERSION})
+@Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.0.0][3.0.16][3.1.0][3.1.16],[3.2.1,3.max)", WebServer.VERSION, PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-cxf-plugin", "com.navercorp.pinpoint:pinpoint-jdk-http-plugin"})
 @PinpointConfig("cxf/pinpoint-cxf-test.config")
 public class CxfClientIT {
 
-    private static WebServer webServer;
+    public static WebServer webServer;
 
     @BeforeClass
-    public static void BeforeClass() throws Exception {
+    public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-
     }
 
     @AfterClass
-    public static void AfterClass() {
+    public static void afterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
+    }
+
+    public String getAddress() {
+        return webServer.getCallHttpUrl();
     }
 
     @Test
     public void test() throws Exception {
 
-        String address = webServer.getCallHttpUrl();
+        String address = getAddress();
 
         String json = "{\"id\" : 12345, \"name\" : \"victor\"}";
 

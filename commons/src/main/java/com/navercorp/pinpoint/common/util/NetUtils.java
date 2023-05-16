@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -50,8 +51,8 @@ public final class NetUtils {
     private NetUtils() {
     }
 
-    public static List<InetSocketAddress> toInetSocketAddressLIst(List<String> addressList) {
-        return toHostAndPortLIst(addressList, inetSocketAddressFactory);
+    public static List<InetSocketAddress> toInetSocketAddressList(List<String> addressList) {
+        return toHostAndPortList(addressList, inetSocketAddressFactory);
     }
 
 
@@ -59,7 +60,7 @@ public final class NetUtils {
         T newInstance(String host, int port);
     }
 
-    public static <T> List<T> toHostAndPortLIst(List<String> addressList, HostAndPortFactory<T> hostAndPortFactory) {
+    public static <T> List<T> toHostAndPortList(List<String> addressList, HostAndPortFactory<T> hostAndPortFactory) {
         if (CollectionUtils.isEmpty(addressList)) {
             return Collections.emptyList();
         }
@@ -82,14 +83,14 @@ public final class NetUtils {
         if (StringUtils.isEmpty(address)) {
             return null;
         }
-        Assert.requireNonNull(hostAndPortFactory, "hostAndPortFactory");
+        Objects.requireNonNull(hostAndPortFactory, "hostAndPortFactory");
 
         final int hostIndex = address.indexOf(':');
         if (hostIndex == -1) {
             return null;
         }
         final String host = address.substring(0, hostIndex);
-        final String portString = address.substring(hostIndex +1, address.length());
+        final String portString = address.substring(hostIndex + 1);
         final int port = parseInteger(portString, HostAndPort.NO_PORT);
         return hostAndPortFactory.newInstance(host, port);
     }
@@ -116,7 +117,7 @@ public final class NetUtils {
             if (validationIpV4FormatAddress(localIp)) {
                 return localIp;
             }
-        } catch (UnknownHostException ignore) {
+        } catch (UnknownHostException ignored) {
             // skip
         }
         return LOOPBACK_ADDRESS_V4;
@@ -131,7 +132,7 @@ public final class NetUtils {
         Enumeration<NetworkInterface> interfaces = null;
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException ignore) {
+        } catch (SocketException ignored) {
             // skip
         }
 
@@ -139,7 +140,7 @@ public final class NetUtils {
             return Collections.emptyList();
         }
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         while (interfaces.hasMoreElements()) {
             NetworkInterface current = interfaces.nextElement();
             if (isSkipIp(current)) {
@@ -168,7 +169,7 @@ public final class NetUtils {
                 return true;
             }
             return false;
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             // skip
         }
         return true;
@@ -187,7 +188,7 @@ public final class NetUtils {
             return false;
         }
 
-        final String portString = address.substring(splitIndex + 1, address.length());
+        final String portString = address.substring(splitIndex + 1);
         final int port = parseInteger(portString, HostAndPort.NO_PORT);
         if (!HostAndPort.isValidPort(port)) {
             return false;
@@ -210,7 +211,7 @@ public final class NetUtils {
                 }
             }
             return true;
-        } catch (NumberFormatException ignore) {
+        } catch (NumberFormatException ignored) {
             // skip
         }
 

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.plugin.druid;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DruidDataSourceMonitorTest extends DataSourceMonitorAccessorTest {
 
@@ -10,17 +10,17 @@ public class DruidDataSourceMonitorTest extends DataSourceMonitorAccessorTest {
 
         DruidDataSourceMonitor monitor = new DruidDataSourceMonitor(new DruidDataSourceTest());
 
-        Assert.assertFalse(monitor.isDisabled());
+        Assertions.assertFalse(monitor.isDisabled());
 
         monitor.close();
 
-        Assert.assertTrue(monitor.isDisabled());
+        Assertions.assertTrue(monitor.isDisabled());
 
-        Assert.assertEquals(monitor.getServiceType(), DruidConstants.SERVICE_TYPE);
+        Assertions.assertEquals(monitor.getServiceType(), DruidConstants.SERVICE_TYPE);
 
-        Assert.assertEquals(monitor.getUrl(), null);
-        Assert.assertEquals(monitor.getActiveConnectionSize(), -1);
-        Assert.assertEquals(monitor.getMaxConnectionSize(), -1);
+        Assertions.assertEquals(monitor.getUrl(), null);
+        Assertions.assertEquals(monitor.getActiveConnectionSize(), -1);
+        Assertions.assertEquals(monitor.getMaxConnectionSize(), -1);
     }
 
 }

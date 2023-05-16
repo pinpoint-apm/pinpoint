@@ -16,14 +16,33 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.join.*;
-import com.navercorp.pinpoint.thrift.dto.flink.*;
-import org.junit.Test;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLoadedClassBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
+import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
+import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.flink.TFCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.flink.TFJvmGc;
+import com.navercorp.pinpoint.thrift.dto.flink.TFLoadedClass;
+import com.navercorp.pinpoint.thrift.dto.flink.TFResponseTime;
+import com.navercorp.pinpoint.thrift.dto.flink.TFTotalThreadCount;
+import com.navercorp.pinpoint.thrift.dto.flink.TFTransaction;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -57,9 +76,9 @@ public class JoinAgentStatBoMapperTest {
         tFCpuLoad2.setSystemCpuLoad(50);
         tFAgentStat2.setCpuLoad(tFCpuLoad2);
 
-        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
-        tFAgentStatList.add(tFAgentStat);
-        tFAgentStatList.add(tFAgentStat2);
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
@@ -68,27 +87,32 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
 
         List<JoinCpuLoadBo> joinCpuLoadBoList = joinAgentStatBo.getJoinCpuLoadBoList();
-        assertEquals(joinCpuLoadBoList.size(), 2);
+        assertThat(joinCpuLoadBoList).hasSize(2);
 
         JoinCpuLoadBo joinCpuLoadBo = joinCpuLoadBoList.get(0);
         assertEquals(joinCpuLoadBo.getId(), agentId);
         assertEquals(joinCpuLoadBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinCpuLoadBo.getJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuLoad(), 10, 0);
-        assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 30, 0);
-        assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 30, 0);
+
+        JoinDoubleFieldBo jvmCpuLoadJoinValue = joinCpuLoadBo.getJvmCpuLoadJoinValue();
+        assertEquals(jvmCpuLoadJoinValue.getAvg(), 10, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMin(), 10, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMax(), 10, 0);
+        JoinDoubleFieldBo systemCpuLoadJoinValue = joinCpuLoadBo.getSystemCpuLoadJoinValue();
+        assertEquals(systemCpuLoadJoinValue.getAvg(), 30, 0);
+        assertEquals(systemCpuLoadJoinValue.getMin(), 30, 0);
+        assertEquals(systemCpuLoadJoinValue.getMax(), 30, 0);
 
         joinCpuLoadBo = joinCpuLoadBoList.get(1);
         assertEquals(joinCpuLoadBo.getId(), agentId);
         assertEquals(joinCpuLoadBo.getTimestamp(), 1491275148454L);
-        assertEquals(joinCpuLoadBo.getJvmCpuLoad(), 20, 0);
-        assertEquals(joinCpuLoadBo.getMinJvmCpuLoad(), 20, 0);
-        assertEquals(joinCpuLoadBo.getMaxJvmCpuLoad(), 20, 0);
-        assertEquals(joinCpuLoadBo.getSystemCpuLoad(), 50, 0);
-        assertEquals(joinCpuLoadBo.getMinSystemCpuLoad(), 50, 0);
-        assertEquals(joinCpuLoadBo.getMaxSystemCpuLoad(), 50, 0);
+        jvmCpuLoadJoinValue = joinCpuLoadBo.getJvmCpuLoadJoinValue();
+        assertEquals(jvmCpuLoadJoinValue.getAvg(), 20, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMin(), 20, 0);
+        assertEquals(jvmCpuLoadJoinValue.getMax(), 20, 0);
+        systemCpuLoadJoinValue = joinCpuLoadBo.getSystemCpuLoadJoinValue();
+        assertEquals(systemCpuLoadJoinValue.getAvg(), 50, 0);
+        assertEquals(systemCpuLoadJoinValue.getMin(), 50, 0);
+        assertEquals(systemCpuLoadJoinValue.getMax(), 50, 0);
     }
 
     @Test
@@ -119,9 +143,9 @@ public class JoinAgentStatBoMapperTest {
         tFAgentStat2.setGc(tFJvmGc2);
 
 
-        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
-        tFAgentStatList.add(tFAgentStat);
-        tFAgentStatList.add(tFAgentStat2);
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
@@ -130,19 +154,19 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
 
         List<JoinMemoryBo> joinMemoryBoList = joinAgentStatBo.getJoinMemoryBoList();
-        assertEquals(joinMemoryBoList.size(), 2);
+        assertThat(joinMemoryBoList).hasSize(2);
 
         JoinMemoryBo joinMemoryBo = joinMemoryBoList.get(0);
         assertEquals(joinMemoryBo.getId(), agentId);
         assertEquals(joinMemoryBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinMemoryBo.getHeapUsed(), 1000);
-        assertEquals(joinMemoryBo.getNonHeapUsed(), 300);
+        assertEquals((long) joinMemoryBo.getHeapUsedJoinValue().getAvg(), 1000);
+        assertEquals((long) joinMemoryBo.getNonHeapUsedJoinValue().getAvg(), 300);
 
         JoinMemoryBo joinMemoryBo2 = joinMemoryBoList.get(1);
         assertEquals(joinMemoryBo2.getId(), agentId);
         assertEquals(joinMemoryBo2.getTimestamp(), 1491275148454L);
-        assertEquals(joinMemoryBo2.getHeapUsed(), 2000);
-        assertEquals(joinMemoryBo2.getNonHeapUsed(), 500);
+        assertEquals((long) joinMemoryBo2.getHeapUsedJoinValue().getAvg(), 2000);
+        assertEquals((long) joinMemoryBo2.getNonHeapUsedJoinValue().getAvg(), 500);
     }
 
     @Test
@@ -179,9 +203,9 @@ public class JoinAgentStatBoMapperTest {
         tFAgentStat2.setTransaction(tFTransaction2);
 
 
-        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
-        tFAgentStatList.add(tFAgentStat);
-        tFAgentStatList.add(tFAgentStat2);
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
@@ -190,27 +214,19 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
 
         List<JoinTransactionBo> joinTransactionBoList = joinAgentStatBo.getJoinTransactionBoList();
-        assertEquals(joinTransactionBoList.size(), 2);
+        assertThat(joinTransactionBoList).hasSize(2);
 
         JoinTransactionBo joinTransactionBo = joinTransactionBoList.get(0);
         assertEquals(joinTransactionBo.getId(), agentId);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274148454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMaxTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMaxTotalCountAgentId(), agentId);
-        assertEquals(joinTransactionBo.getMinTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMinTotalCountAgentId(), agentId);
+        assertEquals(joinTransactionBo.getTotalCountJoinValue(), new JoinLongFieldBo(24L, 24L, agentId, 24L, agentId));
 
         JoinTransactionBo joinTransactionBo2 = joinTransactionBoList.get(1);
         assertEquals(joinTransactionBo2.getId(), agentId);
         assertEquals(joinTransactionBo2.getTimestamp(), 1491275148454L);
         assertEquals(joinTransactionBo2.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo2.getTotalCount(), 124);
-        assertEquals(joinTransactionBo2.getMaxTotalCount(), 124);
-        assertEquals(joinTransactionBo2.getMaxTotalCountAgentId(), agentId);
-        assertEquals(joinTransactionBo2.getMinTotalCount(), 124);
-        assertEquals(joinTransactionBo2.getMinTotalCountAgentId(), agentId);
+        assertEquals(joinTransactionBo2.getTotalCountJoinValue(), new JoinLongFieldBo(24L, 24L, agentId, 24L, agentId));
     }
 
     @Test
@@ -227,13 +243,9 @@ public class JoinAgentStatBoMapperTest {
         tFAgentStat.setTimestamp(1491274148454L);
 
         final TFActiveTraceHistogram tFActiveTraceHistogram = new TFActiveTraceHistogram();
-        List<Integer> activeTraceCount = new ArrayList<>(4);
-        activeTraceCount.add(10);
-        activeTraceCount.add(20);
-        activeTraceCount.add(40);
-        activeTraceCount.add(50);
         tFActiveTraceHistogram.setVersion((short)2);
         tFActiveTraceHistogram.setHistogramSchemaType(1);
+        List<Integer> activeTraceCount = List.of(10, 20, 40, 50);
         tFActiveTraceHistogram.setActiveTraceCount(activeTraceCount);
 
         final TFActiveTrace tfActiveTrace = new TFActiveTrace();
@@ -246,22 +258,18 @@ public class JoinAgentStatBoMapperTest {
         tFAgentStat2.setCollectInterval(5000);
 
         final TFActiveTraceHistogram tFActiveTraceHistogram2 = new TFActiveTraceHistogram();
-        List<Integer> activeTraceCount2 = new ArrayList<>(4);
-        activeTraceCount2.add(11);
-        activeTraceCount2.add(21);
-        activeTraceCount2.add(41);
-        activeTraceCount2.add(51);
-        tFActiveTraceHistogram2.setVersion((short)2);
+        tFActiveTraceHistogram2.setVersion((short) 2);
         tFActiveTraceHistogram2.setHistogramSchemaType(1);
+        List<Integer> activeTraceCount2 = List.of(11, 21, 41, 51);
         tFActiveTraceHistogram2.setActiveTraceCount(activeTraceCount2);
 
         final TFActiveTrace tfActiveTrace2 = new TFActiveTrace();
         tfActiveTrace2.setHistogram(tFActiveTraceHistogram2);
         tFAgentStat2.setActiveTrace(tfActiveTrace2);
 
-        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
-        tFAgentStatList.add(tFAgentStat);
-        tFAgentStatList.add(tFAgentStat2);
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
@@ -270,29 +278,21 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
 
         List<JoinActiveTraceBo> joinActiveTraceBoList = joinAgentStatBo.getJoinActiveTraceBoList();
-        assertEquals(joinActiveTraceBoList.size(), 2);
+        assertThat(joinActiveTraceBoList).hasSize(2);
 
         JoinActiveTraceBo joinActiveTraceBo = joinActiveTraceBoList.get(0);
         assertEquals(joinActiveTraceBo.getId(), agentId);
         assertEquals(joinActiveTraceBo.getTimestamp(), 1491274148454L);
         assertEquals(joinActiveTraceBo.getVersion(), 2);
         assertEquals(joinActiveTraceBo.getHistogramSchemaType(), 1);
-        assertEquals(joinActiveTraceBo.getTotalCount(), 120);
-        assertEquals(joinActiveTraceBo.getMaxTotalCount(), 120);
-        assertEquals(joinActiveTraceBo.getMaxTotalCountAgentId(), agentId);
-        assertEquals(joinActiveTraceBo.getMinTotalCount(), 120);
-        assertEquals(joinActiveTraceBo.getMinTotalCountAgentId(), agentId);
+        assertEquals(joinActiveTraceBo.getTotalCountJoinValue(), new JoinIntFieldBo(120, 120, agentId, 120, agentId));
 
         JoinActiveTraceBo joinActiveTraceBo2 = joinActiveTraceBoList.get(1);
         assertEquals(joinActiveTraceBo2.getId(), agentId);
         assertEquals(joinActiveTraceBo2.getTimestamp(), 1491275148454L);
         assertEquals(joinActiveTraceBo2.getVersion(), 2);
         assertEquals(joinActiveTraceBo2.getHistogramSchemaType(), 1);
-        assertEquals(joinActiveTraceBo2.getTotalCount(), 124);
-        assertEquals(joinActiveTraceBo2.getMaxTotalCount(), 124);
-        assertEquals(joinActiveTraceBo2.getMaxTotalCountAgentId(), agentId);
-        assertEquals(joinActiveTraceBo2.getMinTotalCount(), 124);
-        assertEquals(joinActiveTraceBo2.getMinTotalCountAgentId(), agentId);
+        assertEquals(joinActiveTraceBo2.getTotalCountJoinValue(), new JoinIntFieldBo(124, 124, agentId, 124, agentId));
     }
 
     @Test
@@ -318,9 +318,9 @@ public class JoinAgentStatBoMapperTest {
         tFAgentStat2.setTimestamp(1491275148454L);
         tFAgentStat2.setResponseTime(tFResponseTime2);
 
-        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
-        tFAgentStatList.add(tFAgentStat);
-        tFAgentStatList.add(tFAgentStat2);
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
@@ -329,25 +329,17 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinAgentStatBo.getTimestamp(), 1491274148454L);
 
         List<JoinResponseTimeBo> joinResponseTimeBoList = joinAgentStatBo.getJoinResponseTimeBoList();
-        assertEquals(joinResponseTimeBoList.size(), 2);
+        assertThat(joinResponseTimeBoList).hasSize(2);
 
         JoinResponseTimeBo joinResponseTimeBo = joinResponseTimeBoList.get(0);
         assertEquals(joinResponseTimeBo.getId(), agentId);
         assertEquals(joinResponseTimeBo.getTimestamp(), 1491274148454L);
-        assertEquals(joinResponseTimeBo.getAvg(), 100);
-        assertEquals(joinResponseTimeBo.getMinAvg(), 100);
-        assertEquals(joinResponseTimeBo.getMinAvgAgentId(), agentId);
-        assertEquals(joinResponseTimeBo.getMaxAvg(), 100);
-        assertEquals(joinResponseTimeBo.getMaxAvgAgentId(), agentId);
+        assertEquals(joinResponseTimeBo.getResponseTimeJoinValue(), new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId));
 
         JoinResponseTimeBo joinResponseTimeBo2 = joinResponseTimeBoList.get(1);
         assertEquals(joinResponseTimeBo2.getId(), agentId);
         assertEquals(joinResponseTimeBo2.getTimestamp(), 1491275148454L);
-        assertEquals(joinResponseTimeBo2.getAvg(), 120);
-        assertEquals(joinResponseTimeBo2.getMinAvg(), 120);
-        assertEquals(joinResponseTimeBo2.getMinAvgAgentId(), agentId);
-        assertEquals(joinResponseTimeBo2.getMaxAvg(), 120);
-        assertEquals(joinResponseTimeBo2.getMaxAvgAgentId(), agentId);
+        assertEquals(joinResponseTimeBo2.getResponseTimeJoinValue(), new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId));
     }
 
     @Test
@@ -373,9 +365,9 @@ public class JoinAgentStatBoMapperTest {
         tFAgentStat2.setTimestamp(1491275148454L);
         tFAgentStat2.setTotalThreadCount(tfTotalThreadCount2);
 
-        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
-        tFAgentStatList.add(tFAgentStat);
-        tFAgentStatList.add(tFAgentStat2);
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
@@ -384,25 +376,67 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(1491274148454L, joinAgentStatBo.getTimestamp());
 
         List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = joinAgentStatBo.getJoinTotalThreadCountBoList();
-        assertEquals(joinTotalThreadCountBoList.size(), 2);
+        assertThat(joinTotalThreadCountBoList).hasSize(2);
 
         JoinTotalThreadCountBo joinTotalThreadCountBo = joinTotalThreadCountBoList.get(0);
         assertEquals(agentId, joinTotalThreadCountBo.getId());
         assertEquals(1491274148454L, joinTotalThreadCountBo.getTimestamp());
-        assertEquals(100, joinTotalThreadCountBo.getAvgTotalThreadCount());
-        assertEquals(100, joinTotalThreadCountBo.getMinTotalThreadCount());
-        assertEquals(agentId, joinTotalThreadCountBo.getMinTotalThreadCountAgentId());
-        assertEquals(100, joinTotalThreadCountBo.getMaxTotalThreadCount());
-        assertEquals(agentId, joinTotalThreadCountBo.getMaxTotalThreadCountAgentId());
+        assertEquals(new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId), joinTotalThreadCountBo.getTotalThreadCountJoinValue());
 
         JoinTotalThreadCountBo joinTotalThreadCountBo2 = joinTotalThreadCountBoList.get(1);
         assertEquals(agentId, joinTotalThreadCountBo2.getId());
         assertEquals(1491275148454L, joinTotalThreadCountBo2.getTimestamp());
-        assertEquals(120, joinTotalThreadCountBo2.getAvgTotalThreadCount());
-        assertEquals(120, joinTotalThreadCountBo2.getMinTotalThreadCount());
-        assertEquals(agentId, joinTotalThreadCountBo2.getMinTotalThreadCountAgentId());
-        assertEquals(120, joinTotalThreadCountBo2.getMaxTotalThreadCount());
-        assertEquals(agentId, joinTotalThreadCountBo2.getMaxTotalThreadCountAgentId());
+        assertEquals(new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId), joinTotalThreadCountBo2.getTotalThreadCountJoinValue());
     }
 
+    @Test
+    public void map7Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFLoadedClass tfLoadedClass = new TFLoadedClass();
+        tfLoadedClass.setLoadedClassCount(100);
+        tfLoadedClass.setUnloadedClassCount(100);
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+        tFAgentStat.setLoadedClass(tfLoadedClass);
+
+        final TFLoadedClass tfLoadedClass2 = new TFLoadedClass();
+        tfLoadedClass2.setLoadedClassCount(120);
+        tfLoadedClass2.setUnloadedClassCount(120);
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+        tFAgentStat2.setLoadedClass(tfLoadedClass2);
+
+        final List<TFAgentStat> tFAgentStatList = List.of(
+                tFAgentStat, tFAgentStat2
+        );
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(agentId, joinAgentStatBo.getId());
+        assertEquals(1491274138454L, joinAgentStatBo.getAgentStartTimestamp());
+        assertEquals(1491274148454L, joinAgentStatBo.getTimestamp());
+
+        List<JoinLoadedClassBo> joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
+        assertThat(joinLoadedClassBoList).hasSize(2);
+
+        JoinLoadedClassBo joinLoadedClassBo = joinLoadedClassBoList.get(0);
+        assertEquals(agentId, joinLoadedClassBo.getId());
+        assertEquals(1491274148454L, joinLoadedClassBo.getTimestamp());
+        assertEquals(new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId), joinLoadedClassBo.getLoadedClassJoinValue());
+        assertEquals(new JoinLongFieldBo(100L, 100L, agentId, 100L, agentId), joinLoadedClassBo.getUnloadedClassJoinValue());
+
+        JoinLoadedClassBo joinLoadedClassBo2 = joinLoadedClassBoList.get(1);
+        assertEquals(agentId, joinLoadedClassBo2.getId());
+        assertEquals(1491275148454L, joinLoadedClassBo2.getTimestamp());
+        assertEquals(new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId), joinLoadedClassBo2.getLoadedClassJoinValue());
+        assertEquals(new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId), joinLoadedClassBo2.getUnloadedClassJoinValue());
+    }
 }

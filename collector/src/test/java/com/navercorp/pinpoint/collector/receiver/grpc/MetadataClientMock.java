@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -38,8 +39,8 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class MetadataClientMock {
     private static final ScheduledExecutorService RECONNECT_SCHEDULER
             = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ChannelFactory channelFactory;
     private final ManagedChannel channel;
@@ -91,10 +92,10 @@ public class MetadataClientMock {
     }
 
     private ChannelFactory newChannelFactory() {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataClientMock");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
-        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+        channelFactoryBuilder.setClientOption(new ClientOption());
         return channelFactoryBuilder.build();
     }
 
@@ -179,7 +180,7 @@ public class MetadataClientMock {
     private void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
         final TimerTask timerTask = new TimerTask() {
             @Override
-            public void run(Timeout timeout) throws Exception {
+            public void run(Timeout timeout) {
                 if (timeout.cancel()) {
                     return;
                 }

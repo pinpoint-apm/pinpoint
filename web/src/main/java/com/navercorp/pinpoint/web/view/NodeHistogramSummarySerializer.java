@@ -23,7 +23,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,37 +40,42 @@ public class NodeHistogramSummarySerializer extends JsonSerializer<NodeHistogram
         jgen.writeStartObject();
         jgen.writeNumberField("currentServerTime", new ServerTime().getCurrentServerTime());
 
-        ServerInstanceList serverInstanceList = nodeHistogramSummary.getServerInstanceList();
-        jgen.writeObjectField("serverList", serverInstanceList);
+        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
+        jgen.writeObjectField("serverList", serverGroupList);
 
-        NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
-        writeHistogram(jgen, nodeHistogram);
+
+        writeHistogram(jgen, nodeHistogramSummary);
 
         jgen.writeEndObject();
     }
 
-    private void writeHistogram(JsonGenerator jgen, NodeHistogram nodeHistogram) throws IOException {
+    private void writeHistogram(JsonGenerator jgen, NodeHistogramSummary nodeHistogramSummary) throws IOException {
+        NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
+        ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(applicationHistogram);
+        jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
         if (applicationHistogram == null) {
             writeEmptyObject(jgen, "histogram");
         } else {
             jgen.writeObjectField("histogram", applicationHistogram);
         }
         Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-        if(agentHistogramMap == null) {
+        if (agentHistogramMap == null) {
             writeEmptyObject(jgen, "agentHistogram");
+            writeEmptyObject(jgen, ResponseTimeStatics.AGENT_RESPONSE_STATISTICS);
         } else {
             jgen.writeObjectField("agentHistogram", agentHistogramMap);
+            jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
         }
 
-        List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
+        List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
         if (applicationTimeSeriesHistogram == null) {
             writeEmptyArray(jgen, "timeSeriesHistogram");
         } else {
             jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
         }
 
-        AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
+        AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(nodeHistogramSummary.getTimeHistogramFormat());
         jgen.writeObject(agentTimeSeriesHistogram);
     }
 

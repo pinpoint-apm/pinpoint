@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -29,40 +31,40 @@ import java.util.Random;
 public class DefaultPluginMonitorContextTest {
 
     @Test
-    public void registerTest1() throws Exception {
+    public void registerTest1() {
 
         DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(20);
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, remainingCapacity);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         addOverDataSourceMonitor(dataSourceMonitorRegistryService);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             boolean unregister = dataSourceMonitorRegistryService.unregister(mockMonitor);
-            Assert.assertTrue(unregister);
+            Assertions.assertTrue(unregister);
         }
-        Assert.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).isEmpty();
 
     }
 
     @Test
-    public void registerTest2() throws Exception {
+    public void registerTest2() {
         DataSourceMonitorRegistryService dataSourceMonitorRegistryService = new DefaultDataSourceMonitorRegistryService(20);
         int remainingCapacity = dataSourceMonitorRegistryService.getRemainingIdNumber();
 
         MockDataSourceMonitor[] mockDataSourceMonitors = createMockDataSourceMonitor(dataSourceMonitorRegistryService, remainingCapacity);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         addOverDataSourceMonitor(dataSourceMonitorRegistryService);
-        Assert.assertEquals(remainingCapacity, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).hasSize(remainingCapacity);
 
         for (MockDataSourceMonitor mockMonitor : mockDataSourceMonitors) {
             mockMonitor.close();
         }
-        Assert.assertEquals(0, dataSourceMonitorRegistryService.getPluginMonitorWrapperList().size());
+        assertThat(dataSourceMonitorRegistryService.getPluginMonitorWrapperList()).isEmpty();
     }
 
     private MockDataSourceMonitor[] createMockDataSourceMonitor(DataSourceMonitorRegistryService dataSourceMonitorRegistry, int remainingCapacity) {
@@ -70,7 +72,7 @@ public class DefaultPluginMonitorContextTest {
         for (int i = 0; i < remainingCapacity; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor();
             boolean register = dataSourceMonitorRegistry.register(mock);
-            Assert.assertTrue(register);
+            Assertions.assertTrue(register);
             mockDataSourceMonitors[i] = mock;
         }
         return mockDataSourceMonitors;
@@ -82,7 +84,7 @@ public class DefaultPluginMonitorContextTest {
         for (int i = 0; i < additionalRegisterCount; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor();
             boolean register = dataSourceMonitorRegistry.register(mock);
-            Assert.assertFalse(register);
+            Assertions.assertFalse(register);
         }
     }
 

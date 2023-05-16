@@ -16,68 +16,75 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
  */
 public class RetryMessageTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void availableTest1() throws Exception {
+    public void availableTest1() {
         RetryMessage retryMessage = new RetryMessage(1, new byte[0]);
-        Assert.assertTrue(retryMessage.isRetryAvailable());
+        Assertions.assertTrue(retryMessage.isRetryAvailable());
 
         retryMessage.fail();
-        Assert.assertFalse(retryMessage.isRetryAvailable());
+        Assertions.assertFalse(retryMessage.isRetryAvailable());
     }
 
     @Test
-    public void availableTest2() throws Exception {
+    public void availableTest2() {
         RetryMessage retryMessage = new RetryMessage(1, 2, new byte[0]);
-        Assert.assertTrue(retryMessage.isRetryAvailable());
+        Assertions.assertTrue(retryMessage.isRetryAvailable());
 
         retryMessage.fail();
-        Assert.assertFalse(retryMessage.isRetryAvailable());
+        Assertions.assertFalse(retryMessage.isRetryAvailable());
     }
 
     @Test
-    public void availableTest3() throws Exception {
+    public void availableTest3() {
         RetryMessage retryMessage = new RetryMessage(2, 2, new byte[0]);
-        Assert.assertFalse(retryMessage.isRetryAvailable());
+        Assertions.assertFalse(retryMessage.isRetryAvailable());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void illegalArgumentTest1() {
-        RetryMessage retryMessage = new RetryMessage(-1, new byte[0]);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RetryMessage retryMessage = new RetryMessage(-1, new byte[0]);
+        });
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void illegalArgumentTest2() {
-        RetryMessage retryMessage = new RetryMessage(-1, 5, new byte[0]);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RetryMessage retryMessage = new RetryMessage(-1, 5, new byte[0]);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void illegalArgumentTest3() {
-        RetryMessage retryMessage = new RetryMessage(10, 9, new byte[0]);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RetryMessage retryMessage = new RetryMessage(10, 9, new byte[0]);
+        });
     }
 
     @Test
     public void test_toSting() {
         RetryMessage message1 = new RetryMessage(1, new byte[0]);
-        logger.debug("{}", message1.toString());
+        logger.debug("{}", message1);
 
         // check null safety
         RetryMessage message2 = new RetryMessage(1, null);
-        logger.debug("{}", message2.toString());
+        logger.debug("{}", message2);
 
         RetryMessage message3 = new RetryMessage(1, null, null);
-        logger.debug("{}", message3.toString());
+        logger.debug("{}", message3);
     }
 
 

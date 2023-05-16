@@ -1,0 +1,26 @@
+.l-content-section {
+    height: 100%;
+    position: relative;
+}
+.l-tab-menu-options {
+    display: flex;
+    flex-flow: row wrap;
+}
+.l-component-wrapper {
+    width: 100%;
+    height: calc(100% - 84px);
+    position: relative;
+}
+.l-middle-tool-box {
+    height: 54px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    position:relative;
+    background-color: var(--background-default);
+    border-bottom: 1px solid var(--border-primary);
+}
+.l-middle-tool-box, .l-middle-tool-box-tip {
+    color:var(--icon-default);
+    font-size: 18px
+}

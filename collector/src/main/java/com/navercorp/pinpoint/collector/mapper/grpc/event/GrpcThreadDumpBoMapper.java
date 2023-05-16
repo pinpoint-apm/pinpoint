@@ -22,22 +22,25 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PThreadState;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 @Component
 public class GrpcThreadDumpBoMapper {
-    @Autowired
-    private GrpcMonitorInfoBoMapper monitorInfoBoMapper;
+    private final GrpcMonitorInfoBoMapper monitorInfoBoMapper;
 
-    @Autowired
-    private GrpcThreadStateMapper threadStateMapper;
+    private final GrpcThreadStateMapper threadStateMapper;
+
+    public GrpcThreadDumpBoMapper(GrpcMonitorInfoBoMapper monitorInfoBoMapper, GrpcThreadStateMapper threadStateMapper) {
+        this.monitorInfoBoMapper = Objects.requireNonNull(monitorInfoBoMapper, "monitorInfoBoMapper");
+        this.threadStateMapper = Objects.requireNonNull(threadStateMapper, "threadStateMapper");
+    }
 
     public ThreadDumpBo map(final PThreadDump threadDump) {
         final ThreadDumpBo threadDumpBo = new ThreadDumpBo();
@@ -57,7 +60,7 @@ public class GrpcThreadDumpBoMapper {
         threadDumpBo.setThreadState(this.threadStateMapper.map(threadState));
         threadDumpBo.setStackTraceList(threadDump.getStackTraceList());
 
-        if (!CollectionUtils.isEmpty(threadDump.getLockedMonitorList())) {
+        if (CollectionUtils.hasLength(threadDump.getLockedMonitorList())) {
             final List<MonitorInfoBo> monitorInfoBoList = new ArrayList<>();
             for (PMonitorInfo monitorInfo : threadDump.getLockedMonitorList()) {
                 final MonitorInfoBo monitorInfoBo = this.monitorInfoBoMapper.map(monitorInfo);

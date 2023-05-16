@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import io.grpc.stub.ClientResponseObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<PCmdActiveThreadCountRes.Builder> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcStreamService grpcStreamService;
 
@@ -39,8 +39,8 @@ public class ActiveThreadCountStreamSocket implements GrpcProfilerStreamSocket<P
 
     public ActiveThreadCountStreamSocket(int streamObserverId, GrpcStreamService grpcStreamService) {
         this.streamObserverId = streamObserverId;
-        this.grpcStreamService = Assert.requireNonNull(grpcStreamService, "grpcStreamService");
-        this.clientResponseObserver = new PinpointClientResponseObserver<PCmdActiveThreadCountRes>(this);
+        this.grpcStreamService = Objects.requireNonNull(grpcStreamService, "grpcStreamService");
+        this.clientResponseObserver = new PinpointClientResponseObserver<>(this);
     }
 
     @Override

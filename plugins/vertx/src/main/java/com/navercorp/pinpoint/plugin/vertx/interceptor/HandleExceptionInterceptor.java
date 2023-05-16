@@ -15,7 +15,12 @@
  */
 package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHandleException;
@@ -29,7 +34,7 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
@@ -37,27 +42,29 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointInt
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
 
-        if (args != null && args.length >= 1 && args[0] instanceof Throwable) {
-            final Throwable handleException = (Throwable) args[0];
+        final Throwable handleException = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
+        if (handleException != null) {
             if (throwable != null) {
-                if (handleException != null) {
-                    // handle to two throwable(handle and catch).
-                    final StringBuilder sb = new StringBuilder(256);
-                    sb.append("handle=");
-                    sb.append(StringUtils.abbreviate(handleException.getMessage(), 120));
-                    sb.append(", catch=");
-                    sb.append(StringUtils.abbreviate(throwable.getMessage(), 120));
-                    recorder.recordException(new VertxHandleException(sb.toString()));
-                } else {
-                    // record catch exception.
-                    recorder.recordException(throwable);
-                }
+                // handle to two throwable(handle and catch).
+                String errorMessage = buildErrorMessage(handleException, throwable);
+                recorder.recordException(new VertxHandleException(errorMessage));
             } else {
-                if (handleException != null) {
-                    // record handle exception.
-                    recorder.recordException(handleException);
-                }
+                // record handle exception.
+                recorder.recordException(handleException);
             }
         }
+    }
+
+    private static String buildErrorMessage(Throwable handleException, Throwable throwable) {
+        String handlerMessage = StringUtils.abbreviate(handleException.getMessage(), 120);
+        String throwableMessage = StringUtils.abbreviate(throwable.getMessage(), 120);
+        int bufferSize = 32 + StringUtils.getLength(handlerMessage) + StringUtils.getLength(throwableMessage);
+
+        final StringBuilder sb = new StringBuilder(bufferSize);
+        sb.append("handle=");
+        sb.append(handlerMessage);
+        sb.append(", catch=");
+        sb.append(throwableMessage);
+        return sb.toString();
     }
 }

@@ -29,8 +29,8 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class TExceptionValue implements org.apache.thrift.TBase<TExceptionValue, TExceptionValue._Fields>, java.io.Serializable, Cloneable, Comparable<TExceptionValue> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TExceptionValue");

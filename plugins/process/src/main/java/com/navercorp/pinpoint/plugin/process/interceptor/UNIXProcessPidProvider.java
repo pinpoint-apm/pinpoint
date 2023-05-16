@@ -43,7 +43,7 @@ public class UNIXProcessPidProvider implements PidProvider {
             Field pid = getPidField(unixProcess);
             return pid;
         } catch (ClassNotFoundException cnf) {
-            logger.warn(PROCESS_CLASS_NAME + " not found", cnf);
+            logger.info(PROCESS_CLASS_NAME + " not found");
             return null;
         } catch (NoSuchFieldException noSuchFieldException) {
             logger.warn(PID_FIELD_NAME + " not found", noSuchFieldException);
@@ -75,7 +75,7 @@ public class UNIXProcessPidProvider implements PidProvider {
         }
         try {
             return pidField.getLong(process);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             return null;
         }
     }

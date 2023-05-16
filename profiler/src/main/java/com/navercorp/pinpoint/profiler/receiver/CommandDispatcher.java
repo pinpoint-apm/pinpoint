@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.util.Set;
@@ -44,7 +44,7 @@ import java.util.Set;
  */
 public class CommandDispatcher extends ServerStreamChannelMessageHandler implements MessageListener {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator;
 
@@ -53,7 +53,7 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
 
     @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator) {
-        this.commandServiceLocator = Assert.requireNonNull(commandServiceLocator, "commandServiceLocator");
+        this.commandServiceLocator = Objects.requireNonNull(commandServiceLocator, "commandServiceLocator");
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
             logger.debug("handleRequest request:{}, remote:{}", message, pinpointSocket.getRemoteAddress());
         }
 
-        final TBase response = processRequest(message);
+        final TBase<?, ?> response = processRequest(message);
 
         final byte[] payload = SerializationUtils.serialize(response, commandHeaderTBaseSerializerFactory, null);
         if (payload != null) {

@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -44,17 +47,17 @@ public class SpanEventFactoryTest {
     public void setSequence() {
         SpanEventFactory factory = new SpanEventFactory();
         final SpanEvent spanEvent = factory.newInstance();
-        factory.setSequence(spanEvent, (short) 999);
+        factory.setSequence(spanEvent, 999);
         assertEquals(999, spanEvent.getSequence());
     }
 
     @Test
     public void dummy() {
         SpanEventFactory factory = new SpanEventFactory();
-        final SpanEvent dummy = factory.dummyInstance();
-        assertTrue(factory.isDummy(dummy));
+        final SpanEvent dummy = factory.disableInstance();
+        assertTrue(factory.isDisable(dummy));
 
         final SpanEvent spanEvent = factory.newInstance();
-        assertFalse(factory.isDummy(spanEvent));
+        assertFalse(factory.isDisable(spanEvent));
     }
 }

@@ -33,7 +33,7 @@ public class TCommandRegistry {
         return build(version.getSupportCommandList());
     }
     public static TypeLocator<TBase<?, ?>> build(List<TCommandType> supportCommandList) {
-        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<TBase<?, ?>>();
+        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<>();
 
         for (final TCommandType commandType : supportCommandList) {
             builder.addBodyFactory(commandType.getCode(), commandType.getBodyFactory());

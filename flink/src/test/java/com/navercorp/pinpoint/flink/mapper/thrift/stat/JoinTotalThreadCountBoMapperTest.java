@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFTotalThreadCount;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class JoinTotalThreadCountBoMapperTest {
     @Test
@@ -41,11 +42,7 @@ public class JoinTotalThreadCountBoMapperTest {
         assertNotNull(joinTotalThreadCountBo);
         assertEquals(joinTotalThreadCountBo.getId(), "testAgent");
         assertEquals(joinTotalThreadCountBo.getTimestamp(), 1491274138454L);
-        assertEquals(joinTotalThreadCountBo.getAvgTotalThreadCount(), 50, 0);
-        assertEquals(joinTotalThreadCountBo.getMinTotalThreadCount(), 50, 0);
-        assertEquals(joinTotalThreadCountBo.getMaxTotalThreadCount(), 50, 0);
-        assertEquals(joinTotalThreadCountBo.getMinTotalThreadCountAgentId(), "testAgent");
-        assertEquals(joinTotalThreadCountBo.getMaxTotalThreadCountAgentId(), "testAgent");
+        assertEquals(joinTotalThreadCountBo.getTotalThreadCountJoinValue(), new JoinLongFieldBo(50L, 50L, "testAgent", 50L, "testAgent"));
     }
 
     @Test

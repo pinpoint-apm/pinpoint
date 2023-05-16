@@ -17,14 +17,15 @@
 package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import javax.inject.Provider;
+import java.util.Objects;
 
 
 /**
@@ -32,13 +33,13 @@ import javax.inject.Provider;
  */
 public class StringMetadataServiceProvider implements Provider<StringMetaDataService> {
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
-    public StringMetadataServiceProvider(@MetadataDataSender EnhancedDataSender<Object> enhancedDataSender, SimpleCacheFactory simpleCacheFactory) {
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.simpleCacheFactory = Assert.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
+    public StringMetadataServiceProvider(@MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCacheFactory simpleCacheFactory) {
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
     @Override

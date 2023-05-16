@@ -16,11 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,21 +33,21 @@ import static org.mockito.Mockito.*;
 public class DefaultStringMetaDataServiceTest {
 
     @Test
-    public void cacheString() throws Exception {
-        EnhancedDataSender<Object> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> stringCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
+    public void cacheString() {
+        EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
+        SimpleCache<String> stringCache = new SimpleCache<String>(new IdAllocator.ZigZagAllocator());
         StringMetaDataService stringMetaDataService = new DefaultStringMetaDataService(dataSender, stringCache);
 
         String str = "test";
 
         int first = stringMetaDataService.cacheString(str);
 
-        Assert.assertNotEquals("not exist", first, 0);
-        verify(dataSender, times(1)).request(any(StringMetaData.class));
+        Assertions.assertNotEquals(first, 0, "not exist");
+        verify(dataSender).request(any(StringMetaData.class));
 
         int second = stringMetaDataService.cacheString(str);
-        Assert.assertEquals("check cache", first, second);
-        verify(dataSender, times(1)).request(any(StringMetaData.class));
+        Assertions.assertEquals(first, second, "check cache");
+        verify(dataSender).request(any(StringMetaData.class));
     }
 
 }

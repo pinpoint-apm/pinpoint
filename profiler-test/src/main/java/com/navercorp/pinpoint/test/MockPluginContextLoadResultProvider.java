@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.PluginClassLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,8 +34,8 @@ public class MockPluginContextLoadResultProvider implements Provider<PluginConte
 
     @Inject
     public MockPluginContextLoadResultProvider(ProfilerPluginContextLoader profilerPluginContextLoader, @PluginClassLoader ClassLoader pluginClassLoader) {
-        this.profilerPluginContextLoader = Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginContextLoader");
-        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginLoader");
+        this.profilerPluginContextLoader = Objects.requireNonNull(profilerPluginContextLoader, "profilerPluginContextLoader");
+        this.pluginClassLoader = Objects.requireNonNull(pluginClassLoader, "pluginLoader");
     }
 
     @Override

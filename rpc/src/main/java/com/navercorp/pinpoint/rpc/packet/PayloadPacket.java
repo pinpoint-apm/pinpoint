@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.rpc.packet;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class PayloadPacket {
 
-    private static final Logger logger = LoggerFactory.getLogger(PayloadPacket.class);
+    private static final Logger logger = LogManager.getLogger(PayloadPacket.class);
 
     private static final ChannelBuffer EMPTY_BUFFER = ChannelBuffers.buffer(0);
 

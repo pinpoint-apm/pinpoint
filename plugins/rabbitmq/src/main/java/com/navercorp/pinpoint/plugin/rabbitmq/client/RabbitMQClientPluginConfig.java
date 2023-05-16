@@ -44,7 +44,7 @@ public class RabbitMQClientPluginConfig {
         if (!excludeExchange.isEmpty()) {
             this.excludeExchangeFilter = new ExcludePathFilter(excludeExchange);
         } else {
-            this.excludeExchangeFilter = new SkipFilter<String>();
+            this.excludeExchangeFilter = new SkipFilter<>();
         }
     }
 
@@ -69,12 +69,17 @@ public class RabbitMQClientPluginConfig {
     }
 
     public static boolean isExchangeExcluded(String exchange, Filter<String> filter) {
-        if (exchange == null || filter == null)
+        if (exchange == null) {
             return false;
+        }
+        if (filter == null) {
+            return false;
+        }
         try {
-            if (filter.filter(exchange))
+            if (filter.filter(exchange)) {
                 return true;
-        } catch (Exception e) {
+            }
+        } catch (Exception ignored) {
         }
 
         return false;

@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.hbase.manager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -61,10 +61,7 @@ public class ProgramOptions {
             return NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR;
         }
         String namespace = namespaces.get(0);
-        if (StringUtils.isEmpty(namespace)) {
-            return NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR;
-        }
-        return namespace;
+        return StringUtils.defaultIfEmpty(namespace, NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR);
     }
 
     private static String getCompression(ApplicationArguments args) {

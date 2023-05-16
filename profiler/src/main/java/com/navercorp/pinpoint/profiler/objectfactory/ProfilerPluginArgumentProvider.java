@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.profiler.objectfactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -37,19 +38,9 @@ public class ProfilerPluginArgumentProvider implements ArgumentProvider {
     private final InstrumentContext pluginContext;
 
     public ProfilerPluginArgumentProvider(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (pluginContext == null) {
-            throw new NullPointerException("pluginContext");
-        }
-        this.profilerConfig = profilerConfig;
-        this.traceContext = traceContext;
-        this.pluginContext = pluginContext;
-
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.pluginContext = Objects.requireNonNull(pluginContext, "pluginContext");
     }
 
     @Override

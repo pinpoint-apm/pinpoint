@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 
 /**
  * @author minwoo.jung
@@ -27,6 +28,10 @@ public class AggreJoinActiveTraceBo extends JoinActiveTraceBo implements Aggrega
 
     public AggreJoinActiveTraceBo(String id, int histogramSchemaType, short version, int totalCount, int minTotalCount, String minTotalCountAgentId, int maxTotalCount, String maxTotalCountAgentId, long timestamp) {
         super(id, histogramSchemaType, version, totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId, timestamp);
+    }
+
+    public AggreJoinActiveTraceBo(String id, int histogramSchemaType, short version, JoinIntFieldBo totalCountJoinValue, long timestamp) {
+        super(id, histogramSchemaType, version, totalCountJoinValue, timestamp);
     }
 
     public static AggreJoinActiveTraceBo createUncollectedObject(long timestamp) {

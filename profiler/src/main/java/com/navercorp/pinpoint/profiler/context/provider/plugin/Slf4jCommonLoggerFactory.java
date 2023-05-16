@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,7 +30,7 @@ public class Slf4jCommonLoggerFactory implements CommonLoggerFactory {
 
     @Override
     public CommonLogger getLogger(String loggerName) {
-        Logger logger = LoggerFactory.getLogger(loggerName);
+        Logger logger = LogManager.getLogger(loggerName);
         return new Sl4jCommonLogger(logger);
     }
 
@@ -38,10 +40,7 @@ public class Slf4jCommonLoggerFactory implements CommonLoggerFactory {
         private final Logger logger;
 
         private Sl4jCommonLogger(Logger logger) {
-            if (logger == null) {
-                throw new NullPointerException("logger");
-            }
-            this.logger = logger;
+            this.logger = Objects.requireNonNull(logger, "logger");
         }
 
         @Override

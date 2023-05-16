@@ -18,20 +18,19 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-import com.navercorp.pinpoint.common.Charsets;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
 
 /**
  * @author Jongho Moon
  *
  */
 public class PinpointPluginTestRunListener extends RunListener {
-    public static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
+    public static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
     private final PrintStream out;
 
     public PinpointPluginTestRunListener(OutputStream out) {
@@ -92,14 +91,7 @@ public class PinpointPluginTestRunListener extends RunListener {
         builder.append(JUNIT_OUTPUT_DELIMITER);
 
         for (StackTraceElement e : failure.getException().getStackTrace()) {
-            builder.append(e.getClassName());
-            builder.append(',');
-            builder.append(e.getMethodName());
-            builder.append(',');
-            builder.append(e.getFileName());
-            builder.append(',');
-            builder.append(e.getLineNumber());
-
+            ExceptionWriter.writeStackTrace(builder, e);
             builder.append(JUNIT_OUTPUT_DELIMITER);
         }
 

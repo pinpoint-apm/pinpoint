@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 /**
  * @author minwoo.jung
  */
+@Deprecated
 public class Timestamp implements AssignerWithPunctuatedWatermarks<Tuple3<String, JoinStatBo, Long>> {
 
     private static final long serialVersionUID = 1L;

@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
 
 import java.util.Arrays;
@@ -69,8 +70,7 @@ public class HbaseAdminMethodInterceptor extends SpanEventSimpleAroundIntercepto
      */
     protected String parseAttributes(Object[] args) {
 
-        if (args != null && args.length > 0) { // if has params, print all params.
-
+        if (ArrayUtils.hasLength(args)) { // if has params, print all params.
             return Arrays.toString(args);
         }
         return null;

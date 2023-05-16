@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PDeadlock;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,23 +32,27 @@ import java.util.List;
 @Component
 public class GrpcDeadlockBoMapper {
 
-    @Autowired
-    private GrpcThreadDumpBoMapper threadDumpBoMapper;
+    private final GrpcThreadDumpBoMapper threadDumpBoMapper;
+
+    public GrpcDeadlockBoMapper(GrpcThreadDumpBoMapper threadDumpBoMapper) {
+        this.threadDumpBoMapper = threadDumpBoMapper;
+    }
 
     public DeadlockBo map(final PDeadlock deadlock) {
-        final DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(deadlock.getCount());
+        List<ThreadDumpBo> threadDumpBoList = getThreadDumpList(deadlock);
+        return new DeadlockBo(deadlock.getCount(), threadDumpBoList);
+    }
 
+    private List<ThreadDumpBo> getThreadDumpList(PDeadlock deadlock) {
         final List<PThreadDump> threadDumpList = deadlock.getThreadDumpList();
         if (CollectionUtils.hasLength(threadDumpList)) {
-            final List<ThreadDumpBo> threadDumpBoList = new ArrayList<>();
+            final List<ThreadDumpBo> threadDumpBoList = new ArrayList<>(threadDumpList.size());
             for (PThreadDump threadDump : threadDumpList) {
                 final ThreadDumpBo threadDumpBo = this.threadDumpBoMapper.map(threadDump);
                 threadDumpBoList.add(threadDumpBo);
             }
-            deadlockBo.setThreadDumpBoList(threadDumpBoList);
+            return threadDumpBoList;
         }
-
-        return deadlockBo;
+        return List.of();
     }
 }

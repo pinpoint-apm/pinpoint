@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,10 +32,10 @@ public class TestParameterParserTest {
     @Test
     public void parse() {
         TestParameterParser parser = new TestParameterParser();
-        List<TestParameter> parameters = parser.parse(new String[] {"testId=dependency1"});
-        Assert.assertEquals(parameters.size(), 1);
+        List<TestParameter> parameters = parser.parse(new String[]{"testId=dependency1"});
+        assertThat(parameters).hasSize(1);
         TestParameter one = parameters.get(0);
-        Assert.assertEquals(one.getTestId(), "testId" );
-        Assert.assertEquals(one.getMavenDependencies(), "dependency1" );
+        Assertions.assertEquals(one.getTestId(), "testId" );
+        Assertions.assertEquals(one.getMavenDependencies(), Collections.singletonList("dependency1"));
     }
 }

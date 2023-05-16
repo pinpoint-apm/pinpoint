@@ -17,27 +17,25 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScope;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ScopeFactoryTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void newScopeInfo_annotation() throws Exception {
+    public void newScopeInfo_annotation() {
         InstrumentContext context = Mockito.mock(InstrumentContext.class);
         Mockito.when(context.getInterceptorScope("test")).thenReturn(new DefaultInterceptorScope("test"));
 
@@ -46,12 +44,12 @@ public class ScopeFactoryTest {
         ScopeInfo scopeInfo = scopeFactory.newScopeInfo(context, Interceptor_Annotation.class, null, null);
 
         logger.debug("scopeInfo:{}", scopeInfo);
-        Assert.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
-        Assert.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
+        Assertions.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
+        Assertions.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
     }
 
     @Test
-    public void newScopeInfo_annotation_and_policy() throws Exception {
+    public void newScopeInfo_annotation_and_policy() {
         InstrumentContext context = Mockito.mock(InstrumentContext.class);
         Mockito.when(context.getInterceptorScope("test")).thenReturn(new DefaultInterceptorScope("test"));
 
@@ -60,13 +58,13 @@ public class ScopeFactoryTest {
 
 
         logger.debug("scopeInfo:{}", scopeInfo);
-        Assert.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
-        Assert.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.ALWAYS);
+        Assertions.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
+        Assertions.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.ALWAYS);
     }
 
 
     @Test
-    public void newScopeInfo_policyIsNull() throws Exception {
+    public void newScopeInfo_policyIsNull() {
         InstrumentContext context = Mockito.mock(InstrumentContext.class);
         InterceptorScope interceptorScope = new DefaultInterceptorScope("test");
         Mockito.when(context.getInterceptorScope("test")).thenReturn(interceptorScope);
@@ -76,8 +74,8 @@ public class ScopeFactoryTest {
 
 
         logger.debug("scopeInfo:{}", scopeInfo);
-        Assert.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
-        Assert.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
+        Assertions.assertEquals(scopeInfo.getInterceptorScope().getName(), "test");
+        Assertions.assertEquals(scopeInfo.getExecutionPolicy(), ExecutionPolicy.BOUNDARY);
     }
 
     @Scope("test")

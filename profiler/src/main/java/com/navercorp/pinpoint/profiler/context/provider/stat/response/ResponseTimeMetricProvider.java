@@ -18,25 +18,26 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.response;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.DefaultResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class ResponseTimeMetricProvider implements Provider<ResponseTimeMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ResponseTimeCollector responseTimeCollector;
 
     @Inject
     public ResponseTimeMetricProvider(ResponseTimeCollector responseTimeCollector) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
+        this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
     }
 
     @Override

@@ -16,25 +16,25 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PluginPackageFilter implements ClassNameFilter {
 
-    private final List<String> packageList;
+    private final String[] packageList;
 
     public PluginPackageFilter(List<String> packageList) {
-        if (packageList == null) {
-            throw new NullPointerException("packageList");
-        }
-        this.packageList = new ArrayList<String>(packageList);
+        Objects.requireNonNull(packageList, "packageList");
+
+        this.packageList = packageList.toArray(new String[0]);
     }
 
     @Override
-    public boolean accept(String className) {
+    public boolean accept(String className, ClassLoader classLoader) {
         for (String packageName : packageList) {
             if (className.startsWith(packageName)) {
                 return ACCEPT;
@@ -46,7 +46,7 @@ public class PluginPackageFilter implements ClassNameFilter {
     @Override
     public String toString() {
         return "PluginPackageFilter{" +
-                "packageList=" + packageList +
+                "packageList=" + Arrays.toString(packageList) +
                 '}';
     }
 }

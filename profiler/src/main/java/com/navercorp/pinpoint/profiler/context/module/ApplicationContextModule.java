@@ -22,13 +22,17 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindVariableService;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.DefaultDynamicTransformerRegistry;
-import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.context.provider.BindVariableServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.UriStatStorageProvider;
+import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
+import com.navercorp.pinpoint.profiler.transformer.DefaultDynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
@@ -122,8 +126,8 @@ import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -133,7 +137,7 @@ import java.lang.instrument.ClassFileTransformer;
  * @author jaehong.kim - Add bindRequestRecorder()
  */
 public class ApplicationContextModule extends AbstractModule {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public ApplicationContextModule() {
     }
@@ -188,6 +192,10 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(JdbcContext.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
         bind(JdbcUrlParsingService.class).toProvider(JdbcUrlParsingServiceProvider.class).in(Scopes.SINGLETON);
+
+        bind(BindVariableService.class).toProvider(BindVariableServiceProvider.class).in(Scopes.SINGLETON);
+
+        bind(UriStatStorage.class).toProvider(UriStatStorageProvider.class).in(Scopes.SINGLETON);
 
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
         // ProxyRequestRecorder

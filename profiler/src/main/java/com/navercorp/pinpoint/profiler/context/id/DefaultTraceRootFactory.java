@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,15 +32,22 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     @Inject
     public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.traceIdFactory = Objects.requireNonNull(traceIdFactory, "traceIdFactory");
     }
 
     @Override
     public TraceRoot newTraceRoot(long transactionId) {
         final TraceId traceId = traceIdFactory.newTraceId(transactionId);
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
+        return TraceRoot.remote(traceId, this.agentId, startTime, transactionId);
+    }
+
+
+    @Override
+    public LocalTraceRoot newDisableTraceRoot(long transactionId) {
+        final long startTime = traceStartTime();
+        return TraceRoot.local(agentId, startTime, transactionId);
     }
 
     private long traceStartTime() {
@@ -49,10 +57,9 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     @Override
     public TraceRoot continueTraceRoot(TraceId traceId, long transactionId) {
-        if (traceId == null) {
-            throw new NullPointerException("traceId");
-        }
+        Objects.requireNonNull(traceId, "traceId");
+
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
+        return TraceRoot.remote(traceId, this.agentId, startTime, transactionId);
     }
 }

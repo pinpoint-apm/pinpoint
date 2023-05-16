@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 public class ASMMethodNodeAdapterAddDelegatorTest {
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
-    @Before
+    @BeforeEach
     public void before() {
         this.classLoader = ASMClassNodeLoader.getClassLoader();
     }
@@ -88,7 +88,7 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
     public void addDelegatorPublicArgInterfaceReturnVoidMethod() throws Exception {
         Class<?> clazz = addDelegatorMethod("com.navercorp.pinpoint.profiler.instrument.mock.DelegatorClass", "com.navercorp.pinpoint.profiler.instrument.mock.DelegatorSuperClass", "publicArgInterfaceReturnVoid");
         Method method = clazz.getDeclaredMethod("publicArgInterfaceReturnVoid", Map.class, Map.class, Map.class);
-        Map map = new HashMap();
+        Map<?, ?> map = new HashMap<>();
         method.invoke(clazz.newInstance(), map, map, map);
     }
 
@@ -101,7 +101,7 @@ public class ASMMethodNodeAdapterAddDelegatorTest {
     }
 
     private Class<?> addDelegatorMethod(final String targetClassName, final String superClassName, final String methodName) throws Exception {
-        final ClassNode superClassNode = ASMClassNodeLoader.get(superClassName);
+        final ClassNode superClassNode = classLoader.getLoader().get(superClassName);
         List<MethodNode> methodNodes = superClassNode.methods;
         final MethodNode methodNode = findMethodNode(methodName, methodNodes);
 

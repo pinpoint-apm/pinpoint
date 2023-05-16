@@ -25,23 +25,24 @@ import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.util.RandomExUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -68,7 +69,7 @@ public class SpanThriftMessageConverterTest {
 
     private Span newSpan() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
+        final TraceRoot traceRoot = TraceRoot.remote(traceId, AGENT_ID, AGENT_START_TIME, 100L);
         return new Span(traceRoot);
     }
 
@@ -78,56 +79,56 @@ public class SpanThriftMessageConverterTest {
         final Span span = newSpan();
 
         span.setStartTime(System.currentTimeMillis());
-        span.setElapsedTime(RandomUtils.nextInt(0, 100));
+        span.setElapsedTime(RandomExUtils.nextInt(0, 100));
         span.setAcceptorHost("acceptorHost");
-        span.setExceptionInfo(new IntStringValue(RandomUtils.nextInt(0, 100), "error"));
-        span.setApiId(RandomUtils.nextInt(0, 100));
-        span.setServiceType((short) RandomUtils.nextInt(0, 100));
+        span.setExceptionInfo(new IntStringValue(RandomExUtils.nextInt(0, 100), "error"));
+        span.setApiId(RandomExUtils.nextInt(0, 100));
+        span.setServiceType((short) RandomExUtils.nextInt(0, 100));
         span.setRemoteAddr("remoteAddr");
         span.setParentApplicationName("pApp");
-        span.setParentApplicationType((short) RandomUtils.nextInt(0, 100));
+        span.setParentApplicationType((short) RandomExUtils.nextInt(0, 100));
 
         final TraceRoot traceRoot = span.getTraceRoot();
         Shared shared = traceRoot.getShared();
         shared.setEndPoint("endPoint");
         shared.setRpcName("rpcName");
-        shared.setLoggingInfo((byte) RandomUtils.nextInt(0, 10));
-        shared.maskErrorCode(RandomUtils.nextInt(0, 100));
-        shared.setStatusCode(RandomUtils.nextInt(0, 100));
+        shared.setLoggingInfo((byte) RandomExUtils.nextInt(0, 10));
+        shared.maskErrorCode(RandomExUtils.nextInt(0, 100));
+        shared.setStatusCode(RandomExUtils.nextInt(0, 100));
 
-        span.addAnnotation(new Annotation(1));
+        span.addAnnotation(Annotations.of(1));
         span.setSpanEventList(Collections.singletonList(new SpanEvent()));
 
         final TSpan tSpan = messageConverter.buildTSpan(span);
 
 
-        Assert.assertEquals(span.getStartTime(), tSpan.getStartTime());
-        Assert.assertEquals(span.getElapsedTime(), tSpan.getElapsed());
-        Assert.assertEquals(span.getAcceptorHost(), tSpan.getAcceptorHost());
-        Assert.assertEquals(span.getExceptionInfo().getIntValue(), tSpan.getExceptionInfo().getIntValue());
-        Assert.assertEquals(span.getExceptionInfo().getStringValue(), tSpan.getExceptionInfo().getStringValue());
-        Assert.assertEquals(span.getApiId(), tSpan.getApiId());
-        Assert.assertEquals(span.getServiceType(), tSpan.getServiceType());
-        Assert.assertEquals(span.getRemoteAddr(), tSpan.getRemoteAddr());
-        Assert.assertEquals(span.getParentApplicationName(), tSpan.getParentApplicationName());
-        Assert.assertEquals(span.getParentApplicationType(), tSpan.getParentApplicationType());
+        assertEquals(span.getStartTime(), tSpan.getStartTime());
+        assertEquals(span.getElapsedTime(), tSpan.getElapsed());
+        assertEquals(span.getAcceptorHost(), tSpan.getAcceptorHost());
+        assertEquals(span.getExceptionInfo().getIntValue(), tSpan.getExceptionInfo().getIntValue());
+        assertEquals(span.getExceptionInfo().getStringValue(), tSpan.getExceptionInfo().getStringValue());
+        assertEquals(span.getApiId(), tSpan.getApiId());
+        assertEquals(span.getServiceType(), tSpan.getServiceType());
+        assertEquals(span.getRemoteAddr(), tSpan.getRemoteAddr());
+        assertEquals(span.getParentApplicationName(), tSpan.getParentApplicationName());
+        assertEquals(span.getParentApplicationType(), tSpan.getParentApplicationType());
 
-        Assert.assertEquals(traceRoot.getTraceId().getSpanId(), tSpan.getSpanId());
-        Assert.assertEquals(traceRoot.getShared().getEndPoint(), tSpan.getEndPoint());
-        Assert.assertEquals(traceRoot.getShared().getRpcName(), tSpan.getRpc());
-        Assert.assertEquals(traceRoot.getShared().getLoggingInfo(), tSpan.getLoggingTransactionInfo());
-        Assert.assertEquals(traceRoot.getShared().getErrorCode(), tSpan.getErr());
+        assertEquals(traceRoot.getTraceId().getSpanId(), tSpan.getSpanId());
+        assertEquals(traceRoot.getShared().getEndPoint(), tSpan.getEndPoint());
+        assertEquals(traceRoot.getShared().getRpcName(), tSpan.getRpc());
+        assertEquals(traceRoot.getShared().getLoggingInfo(), tSpan.getLoggingTransactionInfo());
+        assertEquals(traceRoot.getShared().getErrorCode(), tSpan.getErr());
 // TODO
-//        Assert.assertEquals(traceRoot.getShared().getStatusCode(),  );
-
-        Assert.assertEquals(span.getAnnotations().size(), tSpan.getAnnotations().size());
-        Assert.assertEquals(span.getSpanEventList().size(), tSpan.getSpanEventList().size());
+//        Assertions.assertEquals(traceRoot.getShared().getStatusCode(),  );
+        assertThat(span.getAnnotations()).hasSameSizeAs(tSpan.getAnnotations());
+        assertThat(span.getSpanEventList()).hasSameSizeAs(tSpan.getSpanEventList());
     }
+
 
     private SpanChunk newSpanChunk() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
-        final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
-        return new DefaultSpanChunk(traceRoot, Arrays.asList(new SpanEvent()));
+        final TraceRoot traceRoot = TraceRoot.remote(traceId, AGENT_ID, AGENT_START_TIME, 100L);
+        return new DefaultSpanChunk(traceRoot, Collections.singletonList(new SpanEvent()));
     }
 
 
@@ -138,8 +139,8 @@ public class SpanThriftMessageConverterTest {
 
         TSpanChunk tSpanChunk = messageConverter.buildTSpanChunk(spanChunk);
 
-        Assert.assertEquals(traceRoot.getTraceId().getSpanId(), tSpanChunk.getSpanId());
-        Assert.assertEquals(traceRoot.getShared().getEndPoint(), tSpanChunk.getEndPoint());
+        assertEquals(traceRoot.getTraceId().getSpanId(), tSpanChunk.getSpanId());
+        assertEquals(traceRoot.getShared().getEndPoint(), tSpanChunk.getEndPoint());
     }
 
 
@@ -148,43 +149,43 @@ public class SpanThriftMessageConverterTest {
         final long startTime = System.currentTimeMillis() - 100;
 
         SpanEvent spanEvent = new SpanEvent();
-        spanEvent.setDepth(RandomUtils.nextInt(0, 100));
-        spanEvent.setStartTime(startTime + RandomUtils.nextInt(0, 100));
-        spanEvent.setAfterTime(spanEvent.getStartTime() + RandomUtils.nextInt(5, 100));
+        spanEvent.setDepth(RandomExUtils.nextInt(0, 100));
+        spanEvent.setStartTime(startTime + RandomExUtils.nextInt(0, 100));
+        spanEvent.setAfterTime(spanEvent.getStartTime() + RandomExUtils.nextInt(5, 100));
         spanEvent.setDestinationId("destinationId");
-        spanEvent.setSequence((short) RandomUtils.nextInt(0, 100));
-        spanEvent.setNextSpanId(RandomUtils.nextInt(0, 100));
+        spanEvent.setSequence(RandomExUtils.nextInt(0, 100));
+        spanEvent.setNextSpanId(RandomExUtils.nextInt(0, 100));
 
-        spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomUtils.nextInt(0, 100)));
+        spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomExUtils.nextInt(0, 100)));
 
 
-        spanEvent.addAnnotation(new Annotation(1));
+        spanEvent.addAnnotation(Annotations.of(1));
 
         TSpanEvent tSpanEvent = messageConverter.buildTSpanEvent(spanEvent);
         spanPostProcessor.postEventProcess(Collections.singletonList(spanEvent), Collections.singletonList(tSpanEvent), startTime);
 
-        Assert.assertEquals(spanEvent.getDepth(), tSpanEvent.getDepth());
-        Assert.assertEquals(spanEvent.getStartTime(), startTime + tSpanEvent.getStartElapsed());
-        Assert.assertEquals(spanEvent.getAfterTime(), startTime + tSpanEvent.getStartElapsed() + tSpanEvent.getEndElapsed());
-        Assert.assertEquals(spanEvent.getDestinationId(), tSpanEvent.getDestinationId());
-        Assert.assertEquals(spanEvent.getSequence(), tSpanEvent.getSequence());
-        Assert.assertEquals(spanEvent.getNextSpanId(), tSpanEvent.getNextSpanId());
+        assertEquals(spanEvent.getDepth(), tSpanEvent.getDepth());
+        assertEquals(spanEvent.getStartTime(), startTime + tSpanEvent.getStartElapsed());
+        assertEquals(spanEvent.getAfterTime(), startTime + tSpanEvent.getStartElapsed() + tSpanEvent.getEndElapsed());
+        assertEquals(spanEvent.getDestinationId(), tSpanEvent.getDestinationId());
+        assertEquals(spanEvent.getSequence(), tSpanEvent.getSequence());
+        assertEquals(spanEvent.getNextSpanId(), tSpanEvent.getNextSpanId());
 
-        Assert.assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), tSpanEvent.getNextAsyncId());
+        assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), tSpanEvent.getNextAsyncId());
 
-        Assert.assertEquals(spanEvent.getAnnotations().size(), tSpanEvent.getAnnotations().size());
+        assertThat(spanEvent.getAnnotations()).hasSameSizeAs(tSpanEvent.getAnnotations());
     }
 
 
     @Test
     public void buildTAnnotation() {
-        Annotation annotation = new Annotation(RandomUtils.nextInt(0, 100), "value");
-        List<Annotation> annotations = Collections.singletonList(annotation);
+        Annotation<?> annotation = Annotations.of(RandomExUtils.nextInt(0, 100), "value");
+        List<? extends Annotation<?>> annotations = Collections.singletonList(annotation);
         List<TAnnotation> tAnnotations = messageConverter.buildTAnnotation(annotations);
 
         TAnnotation tAnnotation = tAnnotations.get(0);
-        Assert.assertEquals(annotation.getAnnotationKey(), tAnnotation.getKey());
-        Assert.assertEquals(annotation.getValue(), tAnnotation.getValue().getStringValue());
+        assertEquals(annotation.getKey(), tAnnotation.getKey());
+        assertEquals(annotation.getValue(), tAnnotation.getValue().getStringValue());
     }
 
 

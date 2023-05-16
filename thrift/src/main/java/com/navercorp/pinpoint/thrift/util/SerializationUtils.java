@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.thrift.util;
 import com.navercorp.pinpoint.io.request.Message;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -29,25 +29,25 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 
 public final class SerializationUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SerializationUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(SerializationUtils.class);
 
     private SerializationUtils() {
     }
 
-    public static byte[] serialize(TBase object, SerializerFactory<HeaderTBaseSerializer> factory) throws TException {
+    public static byte[] serialize(TBase<?, ?> object, SerializerFactory<HeaderTBaseSerializer> factory) throws TException {
         assertNotNull(factory, "SerializerFactory may note be null.");
 
         return serialize(object, factory.createSerializer());
     }
 
-    public static byte[] serialize(TBase object, HeaderTBaseSerializer serializer) throws TException {
+    public static byte[] serialize(TBase<?, ?> object, HeaderTBaseSerializer serializer) throws TException {
         assertNotNull(object, "TBase may note be null.");
         assertNotNull(serializer, "Serializer may note be null.");
 
         return serializer.serialize(object);
     }
 
-    public static byte[] serialize(TBase object, SerializerFactory<HeaderTBaseSerializer> factory, byte[] defaultValue) {
+    public static byte[] serialize(TBase<?, ?> object, SerializerFactory<HeaderTBaseSerializer> factory, byte[] defaultValue) {
         try {
             return serialize(object, factory);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public final class SerializationUtils {
         return defaultValue;
     }
 
-    public static byte[] serialize(TBase object, HeaderTBaseSerializer serializer, byte[] defaultValue) {
+    public static byte[] serialize(TBase<?, ?> object, HeaderTBaseSerializer serializer, byte[] defaultValue) {
         try {
             return serialize(object, serializer);
         } catch (Exception e) {

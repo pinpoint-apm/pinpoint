@@ -16,20 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
-import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.util.IntStringValue;
-import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.grpc.trace.PAnnotation;
-import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
-import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
-import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
-import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
+import com.navercorp.pinpoint.common.util.*;
+import com.navercorp.pinpoint.grpc.trace.*;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -57,7 +48,9 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
 
     @Override
     public Object buildCustomAnnotationValue(Object annotationValue) {
-        if (annotationValue instanceof PIntStringValue) {
+        if (annotationValue instanceof ByteString) {
+            return ((ByteString) annotationValue).toByteArray();
+        } else if (annotationValue instanceof PIntStringValue) {
             return newIntStringValue(annotationValue);
         } else if (annotationValue instanceof PIntStringStringValue) {
             return newIntStringString(annotationValue);

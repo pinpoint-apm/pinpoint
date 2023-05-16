@@ -17,9 +17,12 @@
 package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindVariableService;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.jdbc.BindValueConverter;
+import com.navercorp.pinpoint.profiler.jdbc.DefaultBindVariableService;
 
 /**
  * @author Taejin Koo
@@ -27,10 +30,22 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public final class DisabledJdbcContext implements JdbcContext {
 
     public static final DisabledJdbcContext INSTANCE = new DisabledJdbcContext();
+    private final BindVariableService bindVariableService;
+
+    public DisabledJdbcContext() {
+
+        BindValueConverter bindValueConverter = BindValueConverter.defaultBindValueConverter();
+        this.bindVariableService = new DefaultBindVariableService(bindValueConverter);
+    }
 
     @Override
     public DatabaseInfo parseJdbcUrl(ServiceType serviceType, String jdbcUrl) {
         return UnKnownDatabaseInfo.createUnknownDataBase(jdbcUrl);
+    }
+
+    @Override
+    public BindVariableService getBindVariableService() {
+        return bindVariableService;
     }
 
 }

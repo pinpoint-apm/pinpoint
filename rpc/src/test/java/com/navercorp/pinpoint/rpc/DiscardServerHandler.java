@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.rpc;
 
 
 import org.jboss.netty.channel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class DiscardServerHandler extends SimpleChannelUpstreamHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private int messageReceivedCount = 0;
 

@@ -46,6 +46,9 @@ public class DefaultTBaseLocator {
 
     public static final short AGENT_STAT_BATCH = 56;
 
+    // Only supports Grpc
+    public static final short AGENT_URI_STAT = 57;
+
     public static final short SPANCHUNK = 70;
 
     public static final short SPANEVENT = 80;
@@ -66,7 +69,7 @@ public class DefaultTBaseLocator {
 
     public static TypeLocator<TBase<?, ?>>build() {
 
-        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<TBase<?, ?>>();
+        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<>();
         addBodyFactory(builder);
         return builder.build();
     }

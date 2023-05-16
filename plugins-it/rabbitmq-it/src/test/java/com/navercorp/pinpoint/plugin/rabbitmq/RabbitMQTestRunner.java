@@ -38,6 +38,7 @@ import org.junit.Assert;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +51,7 @@ class RabbitMQTestRunner {
     private static final Random RANDOM = new Random();
 
     RabbitMQTestRunner(ConnectionFactory connectionFactory) {
-        if (connectionFactory == null) {
-            throw new NullPointerException("connectionFactory");
-        }
-        this.connectionFactory = connectionFactory;
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory");
     }
 
     private final ConnectionFactory connectionFactory;
@@ -90,10 +88,10 @@ class RabbitMQTestRunner {
 
         consumerChannel.queueDeclare(RabbitMQTestConstants.QUEUE_PUSH, false, false, false, null);
 
-        TestConsumer<String> consumer = new TestConsumer<String>(consumerChannel, MessageConverter.FOR_TEST);
+        TestConsumer<String> consumer = new TestConsumer<>(consumerChannel, MessageConverter.FOR_TEST);
         consumerChannel.basicConsume(RabbitMQTestConstants.QUEUE_PUSH, true, consumer);
 
-        List<String> actualMessages = new ArrayList<String>(numMessages);
+        List<String> actualMessages = new ArrayList<>(numMessages);
         for (int i = 0; i < numMessages; i++) {
             actualMessages.add(consumer.getMessage(10, TimeUnit.SECONDS));
         }

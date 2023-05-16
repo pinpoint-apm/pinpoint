@@ -16,20 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
+import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.javamodule.ClassFileTransformerModuleHandler;
 import com.navercorp.pinpoint.profiler.context.javamodule.JavaModuleFactoryFinder;
+import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
@@ -38,26 +46,20 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryB
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.google.inject.Stage;
-import com.google.inject.name.Names;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultApplicationContext implements ApplicationContext {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerConfig profilerConfig;
 
@@ -81,9 +83,9 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final Injector injector;
 
     public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
-        Assert.requireNonNull(agentOption, "agentOption");
-        Assert.requireNonNull(moduleFactory, "moduleFactory");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        Objects.requireNonNull(agentOption, "agentOption");
+        Objects.requireNonNull(moduleFactory, "moduleFactory");
+        Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {
@@ -181,8 +183,14 @@ public class DefaultApplicationContext implements ApplicationContext {
         return traceContext;
     }
 
-    public DataSender getSpanDataSender() {
-        Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
+    public ShutdownHookRegisterProvider getShutdownHookRegisterProvider() {
+        // lazy init
+        return injector.getInstance(ShutdownHookRegisterProvider.class);
+    }
+
+    public DataSender<SpanType> getSpanDataSender() {
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        Key<DataSender<SpanType>> spanDataSenderKey = Key.get(spanDataSenderType, SpanDataSender.class);
         return injector.getInstance(spanDataSenderKey);
     }
 

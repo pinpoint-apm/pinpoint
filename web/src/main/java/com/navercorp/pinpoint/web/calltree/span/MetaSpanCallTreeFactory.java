@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -34,21 +35,23 @@ import java.util.List;
 public class MetaSpanCallTreeFactory {
     private static final long DEFAULT_TIMEOUT_MILLISEC = 60 * 1000;
 
+    private static final String UNKNOWN_AGENT_ID = "UNKNOWN";
+    private static final String CORRUPTED_AGENT_ID = "CORRUPTED";
+    private static final long AGENT_START_TIME = 0;
+
     private long timeoutMillisec = DEFAULT_TIMEOUT_MILLISEC;
 
     public CallTree unknown(final long startTimeMillis) {
         final SpanBo rootSpan = new SpanBo();
-        rootSpan.setTransactionId(new TransactionId("UNKNOWN", 0, 0));
-        rootSpan.setAgentId("UNKNOWN");
+        rootSpan.setTransactionId(new TransactionId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
+        rootSpan.setAgentId(UNKNOWN_AGENT_ID);
         rootSpan.setApplicationId("UNKNOWN");
         rootSpan.setStartTime(startTimeMillis);
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         List<AnnotationBo> annotations = new ArrayList<>();
-        ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
-        apiMetaData.setLineNumber(-1);
-        apiMetaData.setApiInfo("Unknown");
-        apiMetaData.setMethodTypeEnum(MethodTypeEnum.WEB_REQUEST);
+        ApiMetaDataBo apiMetaData = new ApiMetaDataBo(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
+                MethodTypeEnum.WEB_REQUEST, "Unknown");
 
         final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
@@ -66,17 +69,15 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setSpanId(spanId);
         rootSpan.setStartTime(startTimeMillis);
 
-        rootSpan.setTransactionId(new TransactionId("CORRUPTED", 0, 0));
-        rootSpan.setAgentId("CORRUPTED");
+        rootSpan.setTransactionId(new TransactionId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
+        rootSpan.setAgentId(CORRUPTED_AGENT_ID);
         rootSpan.setApplicationId("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         List<AnnotationBo> annotations = new ArrayList<>();
 
-        ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
-        apiMetaData.setLineNumber(-1);
-        apiMetaData.setApiInfo("...");
-        apiMetaData.setMethodTypeEnum(MethodTypeEnum.CORRUPTED);
+        ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
+                MethodTypeEnum.CORRUPTED, "...");
 
         final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);

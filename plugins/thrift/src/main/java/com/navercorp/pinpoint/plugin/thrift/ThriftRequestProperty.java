@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.plugin.thrift;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 
-import com.navercorp.pinpoint.common.Charsets;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TField;
 import org.apache.thrift.protocol.TProtocol;
@@ -33,7 +33,7 @@ import org.apache.thrift.protocol.TType;
  */
 public class ThriftRequestProperty {
 
-    private EnumMap<ThriftHeader, Object> thriftHeaders = new EnumMap<ThriftHeader, Object>(ThriftHeader.class);
+    private EnumMap<ThriftHeader, Object> thriftHeaders = new EnumMap<>(ThriftHeader.class);
     
     // TRACE_ID
     
@@ -215,7 +215,7 @@ public class ThriftRequestProperty {
         }
     }
     
-    private static final Charset HEADER_CHARSET_ENCODING = Charsets.UTF_8;
+    private static final Charset HEADER_CHARSET_ENCODING = StandardCharsets.UTF_8;
     
     private static ByteBuffer stringToByteBuffer(String s) {
         return ByteBuffer.wrap(s.getBytes(HEADER_CHARSET_ENCODING));

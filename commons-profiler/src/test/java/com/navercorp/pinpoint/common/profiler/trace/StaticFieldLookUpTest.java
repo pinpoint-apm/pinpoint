@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.common.profiler.trace;
 
-import java.util.List;
-
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 public class StaticFieldLookUpTest {
 
@@ -31,8 +30,8 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
 
-        Assert.assertTrue(findType(lookup, ServiceType.UNKNOWN_DB));
-        Assert.assertTrue(findType(lookup, ServiceType.UNDEFINED));
+        Assertions.assertTrue(findType(lookup, ServiceType.UNKNOWN_DB));
+        Assertions.assertTrue(findType(lookup, ServiceType.UNDEFINED));
     }
 
     @Test
@@ -42,7 +41,7 @@ public class StaticFieldLookUpTest {
 
         final int SERVER_CATEGORY_MAX = 1999;
         ServiceType notExist = ServiceTypeFactory.of(SERVER_CATEGORY_MAX, "test", "test");
-        Assert.assertFalse(findType(lookup, notExist));
+        Assertions.assertFalse(findType(lookup, notExist));
     }
 
 
@@ -51,7 +50,7 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<String> staticFieldLookUp = new StaticFieldLookUp<String>(StaticFieldLookUpTestClass.class, String.class);
         List<String> lookup = staticFieldLookUp.lookup();
 
-        Assert.assertTrue(findType(lookup, StaticFieldLookUpTestClass.string1));
+        Assertions.assertTrue(findType(lookup, StaticFieldLookUpTestClass.string1));
     }
 
 
@@ -60,7 +59,7 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<String> staticFieldLookUp = new StaticFieldLookUp<String>(StaticFieldLookUpTestClass.class, String.class);
         List<String> lookup = staticFieldLookUp.lookup();
 
-        Assert.assertFalse(findType(lookup, "notExist"));
+        Assertions.assertFalse(findType(lookup, "notExist"));
     }
 
 

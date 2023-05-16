@@ -19,14 +19,12 @@ package com.navercorp.pinpoint.web.vo.timeline.inspector;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.junit.Assert;
-import org.junit.Test;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,164 +35,164 @@ public class AgentStatusTimelineTest {
     @Test
     public void nullAgentStatus() {
         // Given
-        Range timelineRange = new Range(0, 100);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(0, 100);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(0, 100, AgentState.UNKNOWN));
         // When
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, null).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void nullAgentStatus_nullAgentEvents() {
         // Given
-        Range timelineRange = new Range(0, 100);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(0, 100);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(0, 100, AgentState.UNKNOWN));
         // When
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, null).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void agentStatus() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.between(100, 200);
         AgentLifeCycleState expectedState = AgentLifeCycleState.RUNNING;
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.fromAgentLifeCycleState(expectedState)));
         // When
         AgentStatus initialStatus = createAgentStatus(50, expectedState);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void agentStatus_nullAgentEvents() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.between(100, 200);
         AgentLifeCycleState expectedState = AgentLifeCycleState.RUNNING;
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.fromAgentLifeCycleState(expectedState)));
         // When
         AgentStatus initialStatus = createAgentStatus(50, expectedState);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus, null).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void singleLifeCycle_startedBeforeTimelineStartTimestamp() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
         long agentA = 0;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 190, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void singleLifeCycle_startedAfterTimelineStartTimestamp_initialStateRunning() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 150, AgentState.RUNNING),
                 createSegment(150, 200, AgentState.RUNNING));
         // When
         long agentA = 150;
         AgentStatus initialStatus = createAgentStatus(50, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
     public void singleLifeCycle_startedAfterTimelineStartTimestamp_initialStateShutdown() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 150, AgentState.SHUTDOWN),
                 createSegment(150, 200, AgentState.RUNNING));
         // When
         long agentA = 150;
         AgentStatus initialStatus = createAgentStatus(50, AgentLifeCycleState.SHUTDOWN);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void singleLifeCycle_endedBeforeTimelineEndTimestamp() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 180, AgentState.RUNNING),
                 createSegment(180, 200, AgentState.SHUTDOWN));
         // When
         long agentA = 0;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void singleLifeCycle_disconnected() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
         long agentA = 0;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CLOSED_BY_SERVER),
                         createAgentEvent(agentA, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_disconnected() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 150, AgentState.RUNNING),
                 createSegment(150, 160, AgentState.UNKNOWN),
                 createSegment(160, 200, AgentState.RUNNING));
@@ -203,21 +201,21 @@ public class AgentStatusTimelineTest {
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_CLOSED_BY_SERVER),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_noOverlap() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 140, AgentState.RUNNING),
                 createSegment(140, 160, AgentState.SHUTDOWN),
                 createSegment(160, 200, AgentState.RUNNING));
@@ -226,21 +224,21 @@ public class AgentStatusTimelineTest {
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_noOverlap2() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 159, AgentState.RUNNING),
                 createSegment(159, 160, AgentState.SHUTDOWN),
                 createSegment(160, 200, AgentState.RUNNING));
@@ -249,21 +247,21 @@ public class AgentStatusTimelineTest {
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 159, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_noOverlap3() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 120, AgentState.SHUTDOWN),
                 createSegment(120, 140, AgentState.RUNNING),
                 createSegment(140, 160, AgentState.SHUTDOWN),
@@ -274,22 +272,22 @@ public class AgentStatusTimelineTest {
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.SHUTDOWN);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertFalse(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertFalse(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_overlap() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 180, AgentState.RUNNING),
                 createSegment(180, 200, AgentState.SHUTDOWN));
         // When
@@ -297,43 +295,43 @@ public class AgentStatusTimelineTest {
         long agentB = 120;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentB, 120, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 140, AgentEventType.AGENT_PING),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentA, 180, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_overlap2() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
         long agentA = 0;
         long agentB = 160;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 160, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentB, 180, AgentEventType.AGENT_PING)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_overlap3() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
         long agentA = 80;
@@ -341,7 +339,7 @@ public class AgentStatusTimelineTest {
         long agentC = 110;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentB, 130, AgentEventType.AGENT_PING),
                         createAgentEvent(agentC, 140, AgentEventType.AGENT_PING),
@@ -351,15 +349,15 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentC, 190, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_overlap4() {
         // Given
-        Range timelineRange = new Range(100, 200);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
+        Range timelineRange = Range.between(100, 200);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
         long agentA = 90;
@@ -368,7 +366,7 @@ public class AgentStatusTimelineTest {
         long agentD = 180;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentB, 130, AgentEventType.AGENT_CONNECTED),
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_SHUTDOWN),
@@ -378,15 +376,15 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentC, 190, AgentEventType.AGENT_SHUTDOWN)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     @Test
     public void multipleLifeCycles_mixed() {
         // Given
-        Range timelineRange = new Range(100, 300);
-        List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
+        Range timelineRange = Range.between(100, 300);
+        List<AgentStatusTimelineSegment> expectedTimelineSegments = List.of(
                 createSegment(100, 150, AgentState.RUNNING),
                 createSegment(150, 160, AgentState.UNKNOWN),
                 createSegment(160, 250, AgentState.RUNNING),
@@ -400,7 +398,7 @@ public class AgentStatusTimelineTest {
         long agentD = 260;
         AgentStatus initialStatus = createAgentStatus(90, AgentLifeCycleState.RUNNING);
         AgentStatusTimeline timeline = new AgentStatusTimelineBuilder(timelineRange, initialStatus,
-                Arrays.asList(
+                List.of(
                         createAgentEvent(agentA, 120, AgentEventType.AGENT_PING),
                         createAgentEvent(agentA, 150, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER),
                         createAgentEvent(agentB, 160, AgentEventType.AGENT_CONNECTED),
@@ -412,15 +410,12 @@ public class AgentStatusTimelineTest {
                         createAgentEvent(agentD, 290, AgentEventType.AGENT_CLOSED_BY_SERVER)
                 )).build();
         // Then
-        Assert.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
-        Assert.assertTrue(timeline.isIncludeWarning());
+        Assertions.assertEquals(expectedTimelineSegments, timeline.getTimelineSegments());
+        Assertions.assertTrue(timeline.isIncludeWarning());
     }
 
     private AgentStatus createAgentStatus(long timestamp, AgentLifeCycleState state) {
-        AgentStatus agentStatus = new AgentStatus("testAgent");
-        agentStatus.setEventTimestamp(timestamp);
-        agentStatus.setState(state);
-        return agentStatus;
+        return new AgentStatus("testAgent", state, timestamp);
     }
 
     private AgentEvent createAgentEvent(long agentStartTimestamp, long timestamp, AgentEventType agentEventType) {

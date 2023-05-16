@@ -1,13 +1,13 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 
 public class ParentClassThrowableMatcher implements ThrowableMatcher {
     private final ThrowableMatcher throwableMatcher;
 
     public ParentClassThrowableMatcher(ThrowableMatcher throwableMatcher) {
-        this.throwableMatcher = Assert.requireNonNull(throwableMatcher, "throwableMatcher");
+        this.throwableMatcher = Objects.requireNonNull(throwableMatcher, "throwableMatcher");
 
     }
 

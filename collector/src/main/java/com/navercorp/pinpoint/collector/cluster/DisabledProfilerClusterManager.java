@@ -25,11 +25,11 @@ import java.util.List;
 public class DisabledProfilerClusterManager implements ProfilerClusterManager {
 
     @Override
-    public void register(ClusterPoint targetClusterPoint) {
+    public void register(ClusterPoint<?> targetClusterPoint) {
     }
 
     @Override
-    public void unregister(ClusterPoint targetClusterPoint) {
+    public void unregister(ClusterPoint<?> targetClusterPoint) {
     }
 
     @Override

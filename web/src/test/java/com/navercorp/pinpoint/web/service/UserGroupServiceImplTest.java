@@ -22,23 +22,24 @@ import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
  * @author minwoo.jung
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserGroupServiceImplTest {
 
     @Mock
@@ -52,7 +53,7 @@ public class UserGroupServiceImplTest {
 
     UserGroupServiceImpl userGroupService;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(userInfoDecoder), alarmService, new ConfigProperties(), userService);
     }
@@ -60,60 +61,61 @@ public class UserGroupServiceImplTest {
     @Test
     public void selectPhoneNumberOfMemberTest() {
         final String groupId = "test_group";
-        List<String> phoneNumberWithHyphenList = new ArrayList<>();
-        phoneNumberWithHyphenList.add("010-1111-1111");
-        phoneNumberWithHyphenList.add("-010-2222-2222-");
+        List<String> phoneNumberWithHyphenList = List.of(
+                "010-1111-1111",
+                "010-2222-2222"
+        );
 
 
         userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.empty(), alarmService, new ConfigProperties(), userService);
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(phoneNumberWithHyphenList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
 
-        assertEquals(2, phoneNumberList.size());
-        assertEquals(phoneNumberList.get(0), "01011111111");
-        assertEquals(phoneNumberList.get(1), "01022222222");
+        assertThat(phoneNumberList).hasSize(2)
+                .containsExactly("01011111111", "01022222222");
     }
 
     @Test
     public void selectPhoneNumberOfMember2Test() {
         final String groupId = "test_group";
-        List<String> encodedPhoneNumberList = new ArrayList<>();
-        encodedPhoneNumberList.add("ASDFG@#$%T");
-        encodedPhoneNumberList.add("ASDF@#%$HG");
+        List<String> encodedPhoneNumberList = List.of(
+                "ASDFG@#$%T",
+                "ASDF@#%$HG"
+        );
 
-        List<String> decodedPhoneNumberList = new ArrayList<>();
-        decodedPhoneNumberList.add("010-1111-1111");
-        decodedPhoneNumberList.add("010-2222-2222");
-
+        List<String> decodedPhoneNumberList = List.of(
+                "010-1111-1111",
+                "010-2222-2222"
+        );
 
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(encodedPhoneNumberList);
         when(userInfoDecoder.decodePhoneNumberList(encodedPhoneNumberList)).thenReturn(decodedPhoneNumberList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
 
-        assertEquals(2, phoneNumberList.size());
-        assertEquals(phoneNumberList.get(0), "01011111111");
-        assertEquals(phoneNumberList.get(1), "01022222222");
+        assertThat(phoneNumberList).hasSize(2)
+                .containsExactly("01011111111", "01022222222");
     }
 
 
     @Test
     public void selectPhoneNumberOfMember3Test() {
         final String groupId = "test_group";
-        List<String> encodedPhoneNumberList = new ArrayList<>();
-        encodedPhoneNumberList.add("ASDFG@#$%T");
-        encodedPhoneNumberList.add("ASDF@#%$HG");
+        List<String> encodedPhoneNumberList = List.of(
+                "ASDFG@#$%T",
+                "ASDF@#%$HG"
+        );
 
-        List<String> decodedPhoneNumberList = new ArrayList<>();
-        decodedPhoneNumberList.add("01011111111");
-        decodedPhoneNumberList.add("01022222222");
+        List<String> decodedPhoneNumberList = List.of(
+                "01011111111",
+                "01022222222"
+        );
 
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(encodedPhoneNumberList);
         when(userInfoDecoder.decodePhoneNumberList(encodedPhoneNumberList)).thenReturn(decodedPhoneNumberList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
 
-        assertEquals(2, phoneNumberList.size());
-        assertEquals(phoneNumberList.get(0), "01011111111");
-        assertEquals(phoneNumberList.get(1), "01022222222");
+        assertThat(phoneNumberList).hasSize(2)
+                .containsExactly("01011111111", "01022222222");
     }
 
     @Test
@@ -122,9 +124,11 @@ public class UserGroupServiceImplTest {
         UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
 
         String groupId = "groupId";
-        List<UserPhoneInfo> userPhoneInfoList = new ArrayList<>(2);
-        userPhoneInfoList.add(new UserPhoneInfo(82, "ASDFG@#$%T"));
-        userPhoneInfoList.add(new UserPhoneInfo(82, "ASDF@#%$HG"));
+        List<UserPhoneInfo> userPhoneInfoList = List.of(
+                new UserPhoneInfo(82, "ASDFG@#$%T"),
+                new UserPhoneInfo(82, "ASDF@#%$HG"),
+                new UserPhoneInfo(82, null)
+        );
 
         when(userGroupDao.selectPhoneInfoOfMember(groupId)).thenReturn(userPhoneInfoList);
 
@@ -141,9 +145,10 @@ public class UserGroupServiceImplTest {
         UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
 
         String groupId = "groupId";
-        List<String> encodedEmailList = new ArrayList<>();
-        encodedEmailList.add("ASDFG@#$%T");
-        encodedEmailList.add("ASDF@#%$HG");
+        List<String> encodedEmailList = List.of(
+                "ASDFG@#$%T",
+                "ASDF@#%$HG"
+        );
 
         when(userGroupDao.selectEmailOfMember(groupId)).thenReturn(encodedEmailList);
 
@@ -157,33 +162,34 @@ public class UserGroupServiceImplTest {
     @Test
     public void selectEmailOfMember2Test() {
         final String groupId = "test_group";
-        List<String> encodedEmailList = new ArrayList<>();
-        encodedEmailList.add("ASDFG@#$%T");
-        encodedEmailList.add("ASDF@#%$HG");
+        List<String> encodedEmailList = List.of(
+                "ASDFG@#$%T",
+                "ASDF@#%$HG"
+        );
 
-        List<String> decodedEmailList = new ArrayList<>();
-        decodedEmailList.add("user01@navercorp.com");
-        decodedEmailList.add("user02@navercorp.com");
+        List<String> decodedEmailList = List.of(
+                "user01@navercorp.com",
+                "user02@navercorp.com"
+        );
 
         when(userGroupDao.selectEmailOfMember(groupId)).thenReturn(encodedEmailList);
         when(userInfoDecoder.decodeEmailList(encodedEmailList)).thenReturn(decodedEmailList);
         List<String> phoneNumberList = userGroupService.selectEmailOfMember(groupId);
 
-        assertEquals(2, phoneNumberList.size());
-        assertEquals(phoneNumberList.get(0), "user01@navercorp.com");
-        assertEquals(phoneNumberList.get(1), "user02@navercorp.com");
+        assertThat(phoneNumberList).hasSize(2)
+                .containsExactly("user01@navercorp.com", "user02@navercorp.com");
     }
 
     private final static String CHANGED_PHONE_NUMBER = "123-4567-8900";
     private final static String REMOVED_HYPHEN_CHANGED_PHONE_NUMBER = "12345678900";
     private final static String DECODED_EMAIL = "user@navercorp.com";
 
-    private class CustomUserInfoDecoder implements UserInfoDecoder {
+    private static class CustomUserInfoDecoder implements UserInfoDecoder {
 
         @Override
         public List<String> decodePhoneNumberList(List<String> phoneNumberList) {
             List<String> changedPhoneNumberList = new ArrayList<>(phoneNumberList.size());
-            for (int i = 0 ; i < phoneNumberList.size() ; i++) {
+            for (int i = 0; i < phoneNumberList.size(); i++) {
                 changedPhoneNumberList.add(CHANGED_PHONE_NUMBER);
             }
 
@@ -212,19 +218,18 @@ public class UserGroupServiceImplTest {
         @Override
         public User decodeUserInfo(User user) {
             if (user == null) {
-                return user;
+                return null;
             }
 
             String phoneNumber = decodePhoneNumber(user.getPhoneNumber());
             String email = decodeEmail(user.getEmail());
-            User decodedUser = new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
-            return decodedUser;
+            return new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
         }
 
         @Override
         public List<String> decodeEmailList(List<String> emailList) {
             List<String> encodedEmailList = new ArrayList<>(emailList.size());
-            for (int i = 0 ; i < emailList.size() ; i++) {
+            for (int i = 0; i < emailList.size(); i++) {
                 encodedEmailList.add(DECODED_EMAIL);
             }
 
@@ -235,7 +240,6 @@ public class UserGroupServiceImplTest {
             return DECODED_EMAIL;
         }
     }
-
 
 
 }

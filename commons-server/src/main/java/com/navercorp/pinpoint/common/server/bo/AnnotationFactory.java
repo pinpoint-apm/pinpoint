@@ -59,6 +59,7 @@ public class AnnotationFactory<T> {
         } else if (value instanceof Double) {
             return value;
         } else if (value instanceof byte[]) {
+            // not supported by protobuf
             return value;
         }
 

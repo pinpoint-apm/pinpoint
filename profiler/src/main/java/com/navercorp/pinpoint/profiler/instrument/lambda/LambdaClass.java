@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface LambdaClass {
 
-    String getUnsafeClass();
-
-    String getUnsafeMethod();
-
-    String getDelegateClass();
-
-    String getDelegateMethod();
-
-
+    List<MethodInsn> getMethodInsnList();
 }

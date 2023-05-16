@@ -16,22 +16,20 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterAcceptor;
 import com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager;
-import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,25 +38,24 @@ import java.util.Objects;
  */
 public class ClusterManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Charset charset = StandardCharsets.UTF_8;
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final WebConfig config;
+    private final WebClusterProperties properties;
 
     private final ClusterConnectionManager clusterConnectionManager;
     private final ClusterDataManager clusterDataManager;
 
-    public ClusterManager(WebConfig config, ClusterConnectionManager clusterConnectionManager, ClusterDataManager clusterDataManager) {
-        this.config = Objects.requireNonNull(config, "config");
+    public ClusterManager(WebClusterProperties properties, ClusterConnectionManager clusterConnectionManager, ClusterDataManager clusterDataManager) {
+        this.properties = Objects.requireNonNull(properties, "properties");
         this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
         this.clusterDataManager = Objects.requireNonNull(clusterDataManager, "clusterDataManager");
     }
 
     @PostConstruct
-    public void start() throws InterruptedException, IOException, KeeperException {
+    public void start() {
         logger.info("start() started.");
 
-        if (!config.isClusterEnable()) {
+        if (!properties.isClusterEnable()) {
             logger.info("start() skipped. caused:cluster option disabled.");
             return;
         }
@@ -86,7 +83,7 @@ public class ClusterManager {
     public void stop() {
         logger.info("stop() started.");
 
-        if (!config.isClusterEnable()) {
+        if (!properties.isClusterEnable()) {
             logger.info("stop() skipped. caused:cluster option disabled.");
             return;
         }
@@ -124,52 +121,49 @@ public class ClusterManager {
     }
 
     private byte[] convertIpListToBytes(List<String> ipList, String delimiter) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        Iterator<String> ipIterator = ipList.iterator();
-        while (ipIterator.hasNext()) {
-            String eachIp = ipIterator.next();
-            stringBuilder.append(eachIp);
-
-            if (ipIterator.hasNext()) {
-                stringBuilder.append(delimiter);
-            }
-        }
-
-        return stringBuilder.toString().getBytes(charset);
+        String ipListStr = String.join(delimiter, ipList);
+        return ipListStr.getBytes(StandardCharsets.UTF_8);
     }
 
-    public boolean isConnected(AgentInfo agentInfo) {
-        if (!config.isClusterEnable()) {
+    public boolean isEnabled() {
+        return properties.isClusterEnable();
+    }
+
+    public boolean isConnected(ClusterKey clusterKey) {
+        if (!isEnabled()) {
             return false;
         }
-
-        List<String> clusterIdList = clusterDataManager.getRegisteredAgentList(agentInfo);
+        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(clusterKey);
         return clusterIdList.size() == 1;
     }
 
-    public PinpointSocket getSocket(AgentInfo agentInfo) {
-        return getSocket(agentInfo.getApplicationName(), agentInfo.getAgentId(), agentInfo.getStartTimestamp());
-    }
 
-    public PinpointSocket getSocket(String applicationName, String agentId, long startTimeStamp) {
-        if (!config.isClusterEnable()) {
-            return null;
+    public List<PinpointSocket> getSocket(ClusterKey clusterKey) {
+        Objects.requireNonNull(clusterKey, "clusterKey");
+
+        if (!isEnabled()) {
+            return Collections.emptyList();
         }
 
-        List<String> clusterIdList = clusterDataManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
+        List<ClusterId> clusterIdList = clusterDataManager.getRegisteredAgentList(clusterKey);
 
-        // having duplicate AgentName registered is an exceptional case
         if (clusterIdList.isEmpty()) {
-            logger.warn("{}/{}/{} couldn't find agent.", applicationName, agentId, startTimeStamp);
-            return null;
+            logger.debug("{} couldn't find agent.", clusterKey);
+            return Collections.emptyList();
         } else if (clusterIdList.size() > 1) {
-            logger.warn("{}/{}/{} found duplicate agent {}.", applicationName, agentId, startTimeStamp, clusterIdList);
-            return null;
+            logger.debug("{} found duplicate agent {}.", clusterKey, clusterIdList);
         }
 
-        String clusterId = clusterIdList.get(0);
-        return clusterConnectionManager.getSocket(clusterId);
+        List<PinpointSocket> pinpointSocketList = new ArrayList<>(clusterIdList.size());
+        for (ClusterId clusterId : clusterIdList) {
+            PinpointSocket pinpointSocket = clusterConnectionManager.getSocket(clusterId);
+            if (pinpointSocket == null) {
+                throw new IllegalStateException("clusterId not found " + clusterId);
+            }
+            pinpointSocketList.add(pinpointSocket);
+        }
+
+        return pinpointSocketList;
     }
 
 }

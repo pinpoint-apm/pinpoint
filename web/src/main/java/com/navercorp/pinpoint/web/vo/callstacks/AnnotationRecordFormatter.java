@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
@@ -51,7 +52,7 @@ public class AnnotationRecordFormatter {
 
             final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
             final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
-            return type.getDisplayName();
+            return type.getDisplayName(value.getStringValue());
         }
         return annotationKey.getName();
     }
@@ -70,10 +71,24 @@ public class AnnotationRecordFormatter {
                 return buildHttpIoArguments(value);
             }
         }
+        // TODO complext-type formatting
+        final Object value = annotationBo.getValue();
+        if (value instanceof StringStringValue) {
+            return formatStringStringValue((StringStringValue) value);
+        }
+
         return Objects.toString(annotationBo.getValue(), "");
     }
 
+    private String formatStringStringValue(StringStringValue value) {
+        StringBuilder sb = new StringBuilder(value.getStringValue1());
+        sb.append('=');
+        sb.append(value.getStringValue2());
+        return sb.toString();
+    }
+
     String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
+        final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
         final StringBuilder sb = new StringBuilder(150);
         if (value.getLongValue() != 0) {
             sb.append(toDifferenceTimeFormat(value.getLongValue(), startTimeMillis));
@@ -90,9 +105,12 @@ public class AnnotationRecordFormatter {
             appendComma(sb);
             sb.append("busy: ").append(value.getByteValue2()).append("%");
         }
-        if (StringUtils.hasLength(value.getStringValue())) {
-            appendComma(sb);
-            sb.append("app: ").append(value.getStringValue());
+
+        if (type.useApp()) {
+            if (StringUtils.hasLength(value.getStringValue())) {
+                appendComma(sb);
+                sb.append("app: ").append(value.getStringValue());
+            }
         }
 
         return sb.toString();
@@ -162,13 +180,17 @@ public class AnnotationRecordFormatter {
         }
 
         buffer.append('(');
-        if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
-            buffer.append(DateTimeFormatUtils.formatAbsolute(proxyTimeMillis));
-        } else {
-            buffer.append(DateTimeFormatUtils.format(proxyTimeMillis));
-        }
+        buffer.append(format(proxyTimeMillis, startTimeMillis));
         buffer.append(')');
         return buffer.toString();
+    }
+
+    private String format(long proxyTimeMillis, long startTimeMillis) {
+        if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
+            return DateTimeFormatUtils.formatAbsolute(proxyTimeMillis);
+        } else {
+            return DateTimeFormatUtils.format(proxyTimeMillis);
+        }
     }
 
     String toDurationTimeFormat(final int durationTimeMicroseconds) {

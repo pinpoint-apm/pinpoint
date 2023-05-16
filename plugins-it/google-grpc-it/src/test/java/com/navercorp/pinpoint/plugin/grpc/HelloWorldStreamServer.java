@@ -16,19 +16,27 @@
 
 package com.navercorp.pinpoint.plugin.grpc;
 
-import com.navercorp.pinpoint.pluginit.utils.SocketUtils;
+import com.navercorp.pinpoint.common.util.CpuUtils;
+
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.Status;
 import io.grpc.examples.manualflowcontrol.HelloReply;
 import io.grpc.examples.manualflowcontrol.HelloRequest;
 import io.grpc.examples.manualflowcontrol.StreamingGreeterGrpc;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -45,6 +53,14 @@ public class HelloWorldStreamServer implements HelloWorldServer {
     private Server server;
 
     private int bindPort;
+
+    private final ExecutorService workerExecutor;
+    private final NioEventLoopGroup eventExecutors;
+
+    public HelloWorldStreamServer() {
+        this.workerExecutor = Executors.newCachedThreadPool();
+        this.eventExecutors = new NioEventLoopGroup(CpuUtils.cpuCount(), workerExecutor);
+    }
 
     @PostConstruct
     public void start() throws IOException {
@@ -141,14 +157,16 @@ public class HelloWorldStreamServer implements HelloWorldServer {
             }
         };
 
-        bindPort = SocketUtils.findAvailableTcpPort(27675);
+        bindPort = SocketUtils.findAvailableTcpPort(20000, 29999);
 
-        final Server server = ServerBuilder
-                .forPort(bindPort)
-                .addService(svc)
+        NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(bindPort);
+        serverBuilder.bossEventLoopGroup(eventExecutors);
+        serverBuilder.workerEventLoopGroup(eventExecutors);
+        serverBuilder.channelType(NioServerSocketChannel.class);
+        serverBuilder.addService(svc);
+        this.server = serverBuilder
                 .build()
                 .start();
-        this.server = server;
     }
 
     @Override
@@ -166,10 +184,14 @@ public class HelloWorldStreamServer implements HelloWorldServer {
     }
 
     @PreDestroy
-    public void stop() {
+    public void stop() throws InterruptedException {
         if (server != null) {
-            server.shutdown();
+            server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         }
+
+        Future<?> future = eventExecutors.shutdownGracefully(500, 500, TimeUnit.MILLISECONDS);
+        future.await(1000);
+        workerExecutor.shutdownNow();
     }
 
 

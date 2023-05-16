@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
 
 /**
@@ -35,10 +36,10 @@ public class AddOpInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        final Object serviceCodeAccessor = args[1];
-        if (target instanceof ServiceCodeAccessor && serviceCodeAccessor instanceof ServiceCodeAccessor) {
+        final ServiceCodeAccessor serviceCodeAccessor = ArrayArgumentUtils.getArgument(args, 1, ServiceCodeAccessor.class);
+        if (target instanceof ServiceCodeAccessor && serviceCodeAccessor != null) {
             String serviceCode = ((ServiceCodeAccessor) target)._$PINPOINT$_getServiceCode();
-            ((ServiceCodeAccessor) serviceCodeAccessor)._$PINPOINT$_setServiceCode(serviceCode);
+            serviceCodeAccessor._$PINPOINT$_setServiceCode(serviceCode);
         }
     }
 

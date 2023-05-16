@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.method;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -53,7 +54,7 @@ public class AsyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override

@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.datasource;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DefaultDataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -35,7 +36,7 @@ public class DataSourceMetricCollectorProvider implements Provider<AgentStatMetr
 
     @Inject
     public DataSourceMetricCollectorProvider(DataSourceMetric dataSourceMetric) {
-        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric");
+        this.dataSourceMetric = Objects.requireNonNull(dataSourceMetric, "dataSourceMetric");
     }
 
     @Override

@@ -22,40 +22,72 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.sampler.BasicTraceSampler;
 import com.navercorp.pinpoint.profiler.sampler.RateLimitTraceSampler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.profiler.sampler.SamplerType;
+import com.navercorp.pinpoint.profiler.sampler.UrlTraceSampler;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TraceSamplerProvider implements Provider<TraceSampler> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Sampler sampler;
     private final IdGenerator idGenerator;
+    private final ContextConfig contextConfig;
     private final ProfilerConfig profilerConfig;
 
     @Inject
-    public TraceSamplerProvider(ProfilerConfig profilerConfig, Sampler sampler, IdGenerator idGenerator) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.sampler = Assert.requireNonNull(sampler, "sampler");
-        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator");
+    public TraceSamplerProvider(ProfilerConfig profilerConfig, ContextConfig contextConfig, Sampler sampler, IdGenerator idGenerator) {
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.contextConfig = Objects.requireNonNull(contextConfig, "contextConfig");
+        this.sampler = Objects.requireNonNull(sampler, "sampler");
+        this.idGenerator = Objects.requireNonNull(idGenerator, "idGenerator");
     }
 
     @Override
     public TraceSampler get() {
-        logger.info("new BasicTraceSampler()");
+        final TraceSampler traceSampler = newTraceSampler(idGenerator, sampler, contextConfig.getSamplingNewThroughput(), contextConfig.getSamplingContinueThroughput());
+        final SamplerConfig samplerConfig = new SamplerConfig(profilerConfig);
+        if (Boolean.FALSE == samplerConfig.isSamplingEnable() || Boolean.FALSE == samplerConfig.isUrlSamplingEnable()) {
+            logger.info("TraceSamplerProvider {}", traceSampler);
+            return traceSampler;
+        }
+
+        final SamplerType samplerType = samplerConfig.getSamplerType();
+        final TraceSampler urlTraceSampler = newUrlSampler(traceSampler, samplerType);
+        logger.info("TraceSamplerProvider {}", urlTraceSampler);
+        return urlTraceSampler;
+    }
+
+    TraceSampler newTraceSampler(IdGenerator idGenerator, Sampler sampler, int samplingNewThroughput, int samplingContinueThroughput) {
         TraceSampler traceSampler = new BasicTraceSampler(idGenerator, sampler);
-        final int samplingNewThroughput = profilerConfig.getSamplingNewThroughput();
-        final int samplingContinueThroughput = profilerConfig.getSamplingContinueThroughput();
         if (samplingNewThroughput > 0 || samplingContinueThroughput > 0) {
             traceSampler = new RateLimitTraceSampler(samplingNewThroughput, samplingContinueThroughput, idGenerator, traceSampler);
-            logger.info("new RateLimitTraceSampler {}/{}", samplingNewThroughput, samplingContinueThroughput);
         }
         return traceSampler;
+    }
+
+    TraceSampler newUrlSampler(TraceSampler defaultTraceSampler, SamplerType samplerType) {
+        final Map<String, TraceSampler> urlMap = new LinkedHashMap<>();
+        final UrlSamplerConfig urlSamplerConfig = new UrlSamplerConfig(profilerConfig, samplerType);
+        for (Map.Entry<Integer, UrlSamplerInfo> entry : urlSamplerConfig.entryList()) {
+            final UrlSamplerInfo urlInfo = entry.getValue();
+            if (urlInfo == null || Boolean.FALSE == urlInfo.isValid()) {
+                continue;
+            }
+            final TraceSampler traceSampler = newTraceSampler(idGenerator, urlInfo.getSampler(), urlInfo.getSamplingNewThroughput(), urlInfo.getSamplingContinueThroughput());
+            urlMap.put(urlInfo.getUrlPath(), traceSampler);
+        }
+        return new UrlTraceSampler(urlMap, defaultTraceSampler);
     }
 }

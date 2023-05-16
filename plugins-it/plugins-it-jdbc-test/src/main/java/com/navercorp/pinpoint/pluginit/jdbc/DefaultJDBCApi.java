@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.pluginit.jdbc;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -25,6 +23,7 @@ import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -34,7 +33,7 @@ public class DefaultJDBCApi implements JDBCApi {
     public final JDBCDriverClass jdbcDriverClass;
 
     public DefaultJDBCApi(JDBCDriverClass jdbcDriverClass) {
-        this.jdbcDriverClass = Assert.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+        this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
     }
 
     @Override
@@ -51,7 +50,7 @@ public class DefaultJDBCApi implements JDBCApi {
         private final JDBCDriverClass jdbcDriverClass;
 
         public DefaultDriverClass(JDBCDriverClass jdbcDriverClass) {
-            this.jdbcDriverClass = Assert.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
         }
 
         protected Class<Driver> getConnection() {
@@ -75,7 +74,7 @@ public class DefaultJDBCApi implements JDBCApi {
         private final JDBCDriverClass jdbcDriverClass;
 
         public DefaultConnectionClass(JDBCDriverClass jdbcDriverClass) {
-            this.jdbcDriverClass = Assert.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
         }
 
         protected Class<Connection> getConnection() {
@@ -115,7 +114,7 @@ public class DefaultJDBCApi implements JDBCApi {
     public static class DefaultStatementClass implements StatementClass {
         final JDBCDriverClass jdbcDriverClass;
         public DefaultStatementClass(JDBCDriverClass jdbcDriverClass) {
-            this.jdbcDriverClass = Assert.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
         }
 
         protected Class<Statement> getStatement() {
@@ -143,7 +142,7 @@ public class DefaultJDBCApi implements JDBCApi {
         private final JDBCDriverClass jdbcDriverClass;
 
         public DefaultPreparedStatementClass(JDBCDriverClass jdbcDriverClass) {
-            this.jdbcDriverClass = Assert.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
         }
 
         protected Class<PreparedStatement> getPreparedStatement() {
@@ -173,7 +172,7 @@ public class DefaultJDBCApi implements JDBCApi {
         private final JDBCDriverClass jdbcDriverClass;
 
         public DefaultCallableStatementClass(JDBCDriverClass jdbcDriverClass) {
-            this.jdbcDriverClass = Assert.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
+            this.jdbcDriverClass = Objects.requireNonNull(jdbcDriverClass, "jdbcDriverClass");
         }
 
         protected Class<CallableStatement> getCallableStatement() {

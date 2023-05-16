@@ -30,14 +30,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
-import com.navercorp.pinpoint.plugin.grpc.descriptor.GrpcServerCallMethodDescritpro;
+import com.navercorp.pinpoint.plugin.grpc.descriptor.GrpcServerCallMethodDescriptor;
 
 /**
  * @author Taejin Koo
  */
 public class ServerStreamCreatedInterceptor implements AroundInterceptor {
 
-    private static final GrpcServerCallMethodDescritpro GRPC_SERVER_CALL_METHOD_DESCRIPTOR = new GrpcServerCallMethodDescritpro();
+    private static final GrpcServerCallMethodDescriptor GRPC_SERVER_CALL_METHOD_DESCRIPTOR = new GrpcServerCallMethodDescriptor();
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -53,8 +53,8 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
         this.descriptor = descriptor;
 
         final RequestAdaptor<GrpcServerStreamRequest> requestAdaptor = new GrpcServerStreamRequestAdaptor();
-        this.serverRequestRecorder = new ServerRequestRecorder<GrpcServerStreamRequest>(requestAdaptor);
-        this.requestTraceReader = new RequestTraceReader(traceContext, requestAdaptor, true);
+        this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
+        this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
 
         traceContext.cacheApi(GRPC_SERVER_CALL_METHOD_DESCRIPTOR);
     }
@@ -65,7 +65,7 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (traceContext.currentTraceObject() != null) {
+        if (currentTrace() != null) {
             return;
         }
 
@@ -75,7 +75,7 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
         }
 
         final Trace trace = createTrace(request);
-        if (trace == null || !trace.canSampled()) {
+        if (trace == null) {
             return;
         }
 
@@ -89,8 +89,12 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
         }
     }
 
+    private Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
     private Trace createTrace(final GrpcServerStreamRequest request) {
-        Trace trace = requestTraceReader.read(request);
+        final Trace trace = requestTraceReader.read(request);
         if (trace.canSampled()) {
             SpanRecorder spanRecorder = trace.getSpanRecorder();
             spanRecorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE);
@@ -108,13 +112,8 @@ public class ServerStreamCreatedInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = currentTrace();
         if (trace == null) {
-            return;
-        }
-
-        if (!trace.canSampled()) {
-            deleteTrace(trace);
             return;
         }
 

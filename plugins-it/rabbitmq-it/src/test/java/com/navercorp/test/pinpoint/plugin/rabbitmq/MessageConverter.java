@@ -17,6 +17,7 @@
 package com.navercorp.test.pinpoint.plugin.rabbitmq;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author HyunGil Jeong
@@ -28,9 +29,9 @@ public interface MessageConverter<T> {
         @Override
         public String convertMessage(byte[] messageBody) {
             try {
-                return new String(messageBody, "UTF-8");
+                return new String(messageBody, StandardCharsets.UTF_8.name());
             } catch (UnsupportedEncodingException e) {
-                return null;
+                return new String(messageBody, StandardCharsets.UTF_8);
             }
         }
     };

@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 
 import java.util.Arrays;
 
@@ -39,10 +37,9 @@ public final class CommandHeaderTBaseDeserializerFactory implements Deserializer
     public CommandHeaderTBaseDeserializerFactory() {
         TypeLocator<TBase<?, ?>> commandTbaseLocator = TCommandRegistry.build(Arrays.asList(TCommandType.values()));
 
-        TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-        HeaderTBaseDeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(protocolFactory, commandTbaseLocator);
+        HeaderTBaseDeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(commandTbaseLocator);
 
-        this.factory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(deserializerFactory);
+        this.factory = new ThreadLocalHeaderTBaseDeserializerFactory<>(deserializerFactory);
     }
 
     @Override

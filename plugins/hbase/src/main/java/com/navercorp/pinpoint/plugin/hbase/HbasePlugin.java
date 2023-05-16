@@ -15,7 +15,11 @@
 package com.navercorp.pinpoint.plugin.hbase;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -30,6 +34,7 @@ import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientMainIntercepto
 import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientMethodInterceptor;
 import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseClientRunInterceptor;
 import com.navercorp.pinpoint.plugin.hbase.interceptor.HbaseTableMethodInterceptor;
+import com.navercorp.pinpoint.plugin.hbase.interceptor.data.DataOperationType;
 
 import java.security.ProtectionDomain;
 
@@ -124,7 +129,7 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    };
+    }
 
     private void addHbaseAdminTransformer() {
 
@@ -158,8 +163,12 @@ public class HbasePlugin implements ProfilerPlugin, TransformTemplateAware {
 
             HbasePluginConfig config = new HbasePluginConfig(instrumentor.getProfilerConfig());
             final boolean paramsProfile = config.isParamsProfile();
+            final boolean tableNameProfile = config.isTableNameProfile();
+            final int hbaseVersion = HbaseVersion.getVersion(classLoader);
+            final boolean dataSizeProfile = config.isDataSizeProfile();
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(HbasePluginConstants.tableMethodNames))) {
-                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile));
+                int opType = DataOperationType.resolve(dataSizeProfile, method.getName(), method.getParameterTypes());
+                method.addInterceptor(HbaseTableMethodInterceptor.class, va(paramsProfile, tableNameProfile, hbaseVersion, opType));
             }
             return target.toBytecode();
         }

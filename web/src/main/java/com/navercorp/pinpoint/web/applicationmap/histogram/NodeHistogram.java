@@ -16,14 +16,18 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
-import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
-import com.navercorp.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * this class is a collection of
@@ -34,8 +38,6 @@ import java.util.*;
  * @author emeroad
  */
 public class NodeHistogram {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Application application;
 
@@ -98,13 +100,23 @@ public class NodeHistogram {
         return agentHistogramMap;
     }
 
-    public List<ResponseTimeViewModel> getApplicationTimeHistogram() {
-        return applicationTimeHistogram.createViewModel();
+    public Map<String, ResponseTimeStatics> getAgentResponseStatisticsMap() {
+        if (agentHistogramMap == null) {
+            return null;
+        }
+        Map<String, ResponseTimeStatics> map = new HashMap<>(agentHistogramMap.size());
+        agentHistogramMap.forEach((agentId, histogram) -> {
+            map.put(agentId, ResponseTimeStatics.fromHistogram(histogram));
+        });
+        return map;
     }
 
+    public List<TimeViewModel> getApplicationTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
+        return applicationTimeHistogram.createViewModel(timeHistogramFormat);
+    }
 
-    public AgentResponseTimeViewModelList getAgentTimeHistogram() {
-        return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel());
+    public AgentResponseTimeViewModelList getAgentTimeHistogram(TimeHistogramFormat timeHistogramFormat) {
+        return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel(timeHistogramFormat));
     }
 
     public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {

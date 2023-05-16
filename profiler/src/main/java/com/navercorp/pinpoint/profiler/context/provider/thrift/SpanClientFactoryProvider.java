@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatChannelFactory;
-import com.navercorp.pinpoint.profiler.context.module.SpanStatConnectTimer;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.util.Timer;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -38,10 +38,12 @@ public class SpanClientFactoryProvider extends AbstractClientFactoryProvider imp
     private final Provider<Timer> spanStatConnectTimer;
 
     @Inject
-    public SpanClientFactoryProvider(ThriftTransportConfig thriftTransportConfig, @SpanStatChannelFactory Provider<ChannelFactory> channelFactoryProvider, @SpanStatConnectTimer Provider<Timer> spanStatConnectTimer) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
-        this.channelFactoryProvider = Assert.requireNonNull(channelFactoryProvider, "channelFactoryProvider");
-        this.spanStatConnectTimer = Assert.requireNonNull(spanStatConnectTimer, "spanStatConnectTimer");
+    public SpanClientFactoryProvider(ThriftTransportConfig thriftTransportConfig,
+                                     @SpanStatChannelFactory Provider<ChannelFactory> channelFactoryProvider,
+                                     @SpanStatChannelFactory Provider<Timer> spanStatConnectTimer) {
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.channelFactoryProvider = Objects.requireNonNull(channelFactoryProvider, "channelFactoryProvider");
+        this.spanStatConnectTimer = Objects.requireNonNull(spanStatConnectTimer, "spanStatConnectTimer");
     }
 
     public PinpointClientFactory get() {

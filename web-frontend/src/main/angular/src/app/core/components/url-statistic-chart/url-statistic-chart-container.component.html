@@ -1,0 +1,15 @@
+<ng-container *ngIf="chartConfig">
+    <ul class="font-opensans tab-menu-list">
+        <li *ngFor="let tab of tabList" class="tab-menu-list-item" [class.active]="tab.id === activeTabId">
+            <a (click)="onTabClick(tab.id)">{{tab.display}}</a>
+        </li>
+    </ul>
+    <div class="chart-area-wrapper">
+        <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
+        <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
+        <pp-url-statistic-chart
+            [chartConfig]="chartConfig"
+            (outRendered)="onRendered()">
+        </pp-url-statistic-chart>
+    </div>
+</ng-container>

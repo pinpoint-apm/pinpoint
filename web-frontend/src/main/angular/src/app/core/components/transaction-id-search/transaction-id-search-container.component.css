@@ -1,0 +1,47 @@
+:host {
+    display: block;
+    width: 170px;
+    height: 32px;
+    position: relative;
+}
+
+.l-wrapper {
+    width: 100%;
+    height: 100%;    
+}
+
+.l-search-input {
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--form-input-border);
+    padding: 0 28px 0 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    background-color: var(--background-default);
+}
+
+.l-search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0px 1px 1px var(--primary);
+    outline: none;
+}
+
+.l-search-button {
+    position:absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    color:var(--icon-default);
+    font-size:18px;
+}
+
+.l-tooltip-caret {
+    width: 0;
+    height: 0;
+    position: absolute;
+    bottom: 100%;
+    border-bottom: 7px solid var(--border-knockout);
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+}

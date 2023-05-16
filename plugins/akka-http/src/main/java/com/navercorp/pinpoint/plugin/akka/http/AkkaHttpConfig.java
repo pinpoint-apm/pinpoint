@@ -16,27 +16,25 @@
 
 package com.navercorp.pinpoint.plugin.akka.http;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class AkkaHttpConfig {
 
+    static final String KEY_TRANSFORM_TARGET_NAME = "profiler.akka.http.transform.targetname";
+
+    private static final String KEY_TRANSFORM_PARAMETERS = "profiler.akka.http.transform.targetparameter";
     private static final String KEY_ENABLE = "profiler.akka.http.enable";
     private static final String KEY_EXCLUDEURL = "profiler.akka.http.excludeurl";
     private static final String KEY_IP_HEADER = "profiler.akka.http.realipheader";
     private static final String KEY_EXCLUDE_HTTP_METHOD = "profiler.akka.http.excludemethod";
-    static final String KEY_TRANSFORM_TARGET_NAME = "profiler.akka.http.transform.targetname";
-    static final String KEY_TRANSFORM_PARAMETERS = "profiler.akka.http.transform.targetparameter";
-
     private static final boolean DEFAULT_ENABLE = false;
     private static final String DEFAULT_TRANSFORM_TARGET_NAME = "akka.http.scaladsl.server.directives.BasicDirectives.$anonfun$mapRequestContext$2";
 
@@ -49,28 +47,16 @@ public class AkkaHttpConfig {
     private final List<String> transformParameters;
 
     public AkkaHttpConfig(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config");
+        Objects.requireNonNull(config, "config");
 
         this.enable = config.readBoolean(KEY_ENABLE, DEFAULT_ENABLE);
-
-        this.realIpHeader = config.readString(KEY_IP_HEADER, null);
-
-        final String excludeUrl = config.readString(KEY_EXCLUDEURL, "");
-        if (!excludeUrl.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(excludeUrl);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-
-        final String excludeHttpMethodType = config.readString(KEY_EXCLUDE_HTTP_METHOD, "");
-        if (!excludeHttpMethodType.isEmpty()) {
-            this.excludeHttpMethodFilter = new ExcludeMethodFilter(excludeHttpMethodType);
-        } else {
-            this.excludeHttpMethodFilter = new SkipFilter<String>();
-        }
-
         this.transformTargetName = config.readString(KEY_TRANSFORM_TARGET_NAME, DEFAULT_TRANSFORM_TARGET_NAME);
         this.transformParameters = config.readList(KEY_TRANSFORM_PARAMETERS);
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.realIpHeader = serverConfig.getRealIpHeader(KEY_IP_HEADER);
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter(KEY_EXCLUDEURL);
+        this.excludeHttpMethodFilter = serverConfig.getExcludeMethodFilter(KEY_EXCLUDE_HTTP_METHOD);
     }
 
     public boolean isEnable() {
@@ -93,7 +79,9 @@ public class AkkaHttpConfig {
         return transformTargetName;
     }
 
-    public List<String> getTransformTargetParameters() { return transformParameters; }
+    public List<String> getTransformTargetParameters() {
+        return transformParameters;
+    }
 
     @Override
     public String toString() {

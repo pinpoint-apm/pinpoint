@@ -29,6 +29,7 @@ public class SpanChunkBo implements BasicSpan {
     private byte version = 0;
 
     private String agentId;
+    private String agentName;
     private String applicationId;
     private long agentStartTime;
 
@@ -41,7 +42,7 @@ public class SpanChunkBo implements BasicSpan {
     private short serviceType;
     private Short applicationServiceType;
 
-    private final List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
+    private final List<SpanEventBo> spanEventBoList = new ArrayList<>();
 
     private long collectorAcceptTime;
 
@@ -70,6 +71,15 @@ public class SpanChunkBo implements BasicSpan {
 
     public void setAgentId(String agentId) {
         this.agentId = agentId;
+    }
+
+    @Override
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
     }
 
     @Override
@@ -187,6 +197,7 @@ public class SpanChunkBo implements BasicSpan {
         return "SpanChunkBo{" +
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
@@ -197,7 +208,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
                 ", localAsyncId=" + localAsyncId +
-                ", keyTIme=" + keyTime +
+                ", keyTime=" + keyTime +
                 '}';
     }
 }

@@ -21,58 +21,68 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
  */
 public class ProfilerCommandServiceLocatorTest {
 
-    @Test(expected = NullPointerException.class)
-    public void throwNullTest1() throws Exception {
-        ProfilerCommandService commandService = null;
+    @Test
+    public void throwNullTest1() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            ProfilerCommandService commandService = null;
 
-        ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService(commandService);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void throwNullTest2() throws Exception {
-        ProfilerCommandServiceGroup commandServiceGroup = null;
-
-        ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService(commandServiceGroup);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void throwNullTest3() throws Exception {
-        ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService((short) -1, null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void throwNullTest4() throws Exception {
-        ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
-        builder.addService(TCommandType.RESULT.getCode(), null);
+            ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
+            builder.addService(commandService);
+        });
     }
 
     @Test
-    public void returnNullTest() throws Exception {
+    public void throwNullTest2() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            ProfilerCommandServiceGroup commandServiceGroup = null;
+
+            ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
+            builder.addService(commandServiceGroup);
+        });
+    }
+
+    @Test
+    public void throwNullTest3() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
+            builder.addService((short) -1, null);
+        });
+    }
+
+    @Test
+    public void throwNullTest4() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
+            builder.addService(TCommandType.RESULT.getCode(), null);
+        });
+    }
+
+    @Test
+    public void returnNullTest() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         ProfilerCommandServiceLocator commandServiceLocator = builder.build();
 
-        Assert.assertNull(commandServiceLocator.getService((short) -1));
-        Assert.assertNull(commandServiceLocator.getSimpleService((short) -1));
-        Assert.assertNull(commandServiceLocator.getRequestService((short) -1));
-        Assert.assertNull(commandServiceLocator.getStreamService((short) -1));
+        Assertions.assertNull(commandServiceLocator.getService((short) -1));
+        Assertions.assertNull(commandServiceLocator.getSimpleService((short) -1));
+        Assertions.assertNull(commandServiceLocator.getRequestService((short) -1));
+        Assertions.assertNull(commandServiceLocator.getStreamService((short) -1));
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new EchoService());
         builder.addService(new EchoService());
@@ -80,19 +90,19 @@ public class ProfilerCommandServiceLocatorTest {
 
         short commandEcho = TCommandType.ECHO.getCode();
 
-        Assert.assertEquals(1, commandServiceLocator.getCommandServiceSize());
-        Assert.assertEquals(1, commandServiceLocator.getCommandServiceCodes().size());
-        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandEcho));
+        assertThat(commandServiceLocator.getCommandServiceSize()).isEqualTo(1);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).hasSize(1);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).contains(commandEcho);
 
-        Assert.assertNotNull(commandServiceLocator.getService(commandEcho));
-        Assert.assertNotNull(commandServiceLocator.getRequestService(commandEcho));
+        Assertions.assertNotNull(commandServiceLocator.getService(commandEcho));
+        Assertions.assertNotNull(commandServiceLocator.getRequestService(commandEcho));
 
-        Assert.assertNull(commandServiceLocator.getSimpleService(commandEcho));
-        Assert.assertNull(commandServiceLocator.getStreamService(commandEcho));
+        Assertions.assertNull(commandServiceLocator.getSimpleService(commandEcho));
+        Assertions.assertNull(commandServiceLocator.getStreamService(commandEcho));
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         ProfilerCommandLocatorBuilder builder = new ProfilerCommandLocatorBuilder();
         builder.addService(new MockCommandServiceGroup());
         DefaultProfilerCommandServiceLocator commandServiceLocator = (DefaultProfilerCommandServiceLocator) builder.build();
@@ -101,20 +111,20 @@ public class ProfilerCommandServiceLocatorTest {
 
         short commandTransfer = TCommandType.TRANSFER.getCode();
 
-        Assert.assertEquals(2, commandServiceLocator.getCommandServiceSize());
-        Assert.assertEquals(2, commandServiceLocator.getCommandServiceCodes().size());
-        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandResult));
-        Assert.assertTrue(commandServiceLocator.getCommandServiceCodes().contains(commandTransfer));
+        assertThat(commandServiceLocator.getCommandServiceSize()).isEqualTo(2);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).hasSize(2);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).contains(commandResult);
+        assertThat(commandServiceLocator.getCommandServiceCodes()).contains(commandTransfer);
 
-        Assert.assertNotNull(commandServiceLocator.getService(commandResult));
-        Assert.assertNotNull(commandServiceLocator.getSimpleService(commandResult));
-        Assert.assertNull(commandServiceLocator.getRequestService(commandResult));
-        Assert.assertNull(commandServiceLocator.getStreamService(commandResult));
+        Assertions.assertNotNull(commandServiceLocator.getService(commandResult));
+        Assertions.assertNotNull(commandServiceLocator.getSimpleService(commandResult));
+        Assertions.assertNull(commandServiceLocator.getRequestService(commandResult));
+        Assertions.assertNull(commandServiceLocator.getStreamService(commandResult));
 
-        Assert.assertNotNull(commandServiceLocator.getService(commandTransfer));
-        Assert.assertNotNull(commandServiceLocator.getStreamService(commandTransfer));
-        Assert.assertNull(commandServiceLocator.getSimpleService(commandTransfer));
-        Assert.assertNull(commandServiceLocator.getRequestService(commandTransfer));
+        Assertions.assertNotNull(commandServiceLocator.getService(commandTransfer));
+        Assertions.assertNotNull(commandServiceLocator.getStreamService(commandTransfer));
+        Assertions.assertNull(commandServiceLocator.getSimpleService(commandTransfer));
+        Assertions.assertNull(commandServiceLocator.getRequestService(commandTransfer));
     }
 
     private static class MockSimpleCommandService implements ProfilerSimpleCommandService<TBase<?, ?>> {

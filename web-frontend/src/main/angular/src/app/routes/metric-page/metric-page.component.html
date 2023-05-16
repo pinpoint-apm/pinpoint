@@ -1,0 +1,20 @@
+<ng-container *ngIf="showMetric$ | async">
+    <pp-notice-container></pp-notice-container>
+    <div class="container">
+        <pp-side-navigation-bar></pp-side-navigation-bar>
+        <div class="l-main-container">
+            <div class="l-widget-group">
+                <pp-host-group-list-container></pp-host-group-list-container>
+                <pp-period-selector-container></pp-period-selector-container>
+            </div>
+            <section *ngIf="showSideMenu" class="l-sidemenu-wrap font-opensans">
+                <div class="l-sidemenu-left">
+                    <pp-host-group-and-host-list-container></pp-host-group-and-host-list-container>            
+                </div>
+            </section>
+            <section class="l-main-section" [ngStyle]="mainSectionStyle">
+                <router-outlet></router-outlet>
+            </section>
+        </div>
+    </div>
+</ng-container>

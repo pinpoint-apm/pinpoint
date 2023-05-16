@@ -28,12 +28,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpHeaderFilter;
@@ -41,6 +44,8 @@ import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerConfig;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpServerMethodDescriptor;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -61,11 +66,15 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private final RequestTraceReader<HttpServerRequest> requestTraceReader;
     private final ParameterRecorder<HttpServerRequest> parameterRecorder;
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
 
-    public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor, final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
-        this.traceContext = traceContext;
+    private final HttpStatusCodeRecorder httpStatusCodeRecorder;
+
+    public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext,
+                                                    final MethodDescriptor methodDescriptor,
+                                                    final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.descriptor = methodDescriptor;
 
         final VertxHttpServerConfig config = new VertxHttpServerConfig(traceContext.getProfilerConfig());
@@ -74,11 +83,13 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         RequestAdaptor<HttpServerRequest> requestAdaptor = new HttpServerRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         this.parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(requestAdaptor);
         this.httpHeaderFilter = new VertxHttpHeaderFilter(config.isHidePinpointHeader());
-        this.serverRequestRecorder = new ServerRequestRecorder<HttpServerRequest>(requestAdaptor);
-        this.requestTraceReader = new RequestTraceReader<HttpServerRequest>(traceContext, requestAdaptor, true);
+        this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
+        this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, true);
         traceContext.cacheApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
+
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
     }
 
 
@@ -88,7 +99,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             logger.beforeInterceptor(target, args);
         }
 
-        if (traceContext.currentRawTraceObject() != null) {
+        if (currentTrace() != null) {
             // duplicate trace.
             return;
         }
@@ -102,9 +113,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             final HttpServerRequest request = (HttpServerRequest) args[0];
             final HttpServerResponse response = request.response();
             if (!(response instanceof AsyncContextAccessor)) {
-                if (isDebug) {
-                    logger.debug("Invalid response. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-                }
                 return;
             }
 
@@ -116,10 +124,10 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
             entryScope(trace);
             this.httpHeaderFilter.filter(request);
-
-            if (!trace.canSampled()) {
-                return;
-            }
+            // for URI-metric
+//            if (!trace.canSampled()) {
+//                return;
+//            }
 
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(VertxConstants.VERTX_HTTP_SERVER_INTERNAL);
@@ -129,34 +137,29 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
             ((AsyncContextAccessor) response)._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set closeable-AsyncContext {}", asyncContext);
+                logger.debug("Set asyncContext to request/response. asyncContext={}", asyncContext);
             }
+
         } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
-            }
+            logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
         }
     }
 
+    private Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 1) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
+        if (ArrayUtils.isEmpty(args)) {
             return false;
         }
 
-        if (!(args[0] instanceof HttpServerRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. {}.", args[0]);
-            }
+        Object arg = args[0];
+        if (!(arg instanceof HttpServerRequest)) {
             return false;
         }
 
-        if (!(args[0] instanceof AsyncContextAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-            }
+        if (!(arg instanceof AsyncContextAccessor)) {
             return false;
         }
 
@@ -170,7 +173,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = currentTrace();
         if (trace == null) {
             return;
         }
@@ -194,28 +197,35 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             return;
         }
 
-        if (!trace.canSampled()) {
-            deleteTrace(trace);
-            return;
+        final boolean validate = validate(args);
+        if (validate) {
+            final HttpServerRequest request = (HttpServerRequest) args[0];
+            HttpServerResponse response = request.response();
+            this.httpStatusCodeRecorder.record(trace.getSpanRecorder(), response.getStatusCode());
         }
+
+        // for URI-metric
+//        if (!trace.canSampled()) {
+//            deleteTrace(trace);
+//            return;
+//        }
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            if (validate(args)) {
+            if (validate) {
                 final HttpServerRequest request = (HttpServerRequest) args[0];
                 parameterRecorder.record(recorder, request, throwable);
             }
         } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER. Caused:{}", t.getMessage(), t);
-            }
+            logger.warn("AFTER. Caused:{}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
             deleteTrace(trace);
         }
     }
+
 
     private Trace createTrace(final HttpServerRequest request) {
         final String requestURI = request.path();
@@ -252,7 +262,6 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
 
-
     private boolean initScope(final Trace trace) {
         // add user scope.
         final TraceScope oldScope = trace.addScope(SCOPE_NAME);
@@ -268,40 +277,27 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     }
 
     private void entryScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            scope.tryEnter();
-            if (isDebug) {
-                logger.debug("Try enter trace scope={}", scope.getName());
-            }
+        ScopeUtils.entryScope(trace, SCOPE_NAME);
+        if (isDebug) {
+            logger.debug("Try enter trace scope={}", SCOPE_NAME);
         }
     }
 
     private boolean leaveScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                scope.leave();
-                if (isDebug) {
-                    logger.debug("Leave trace scope={}", scope.getName());
-                }
-            } else {
-                return false;
+        if (ScopeUtils.leaveScope(trace, SCOPE_NAME)) {
+            if (isDebug) {
+                logger.debug("Leave trace scope={}", SCOPE_NAME);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean hasScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null;
+        return ScopeUtils.hasScope(trace, SCOPE_NAME);
     }
 
     private boolean isEndScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        return scope != null && !scope.isActive();
+        return ScopeUtils.isEndScope(trace, SCOPE_NAME);
     }
-
-
-
 }

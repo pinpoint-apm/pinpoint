@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
@@ -32,7 +32,7 @@ public class DefaultSpanFactory implements SpanFactory {
 
     @Override
     public Span newSpan(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot");
+        Objects.requireNonNull(traceRoot, "traceRoot");
 
         final Span span = new Span(traceRoot);
 

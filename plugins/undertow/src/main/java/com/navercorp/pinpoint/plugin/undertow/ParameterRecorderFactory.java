@@ -29,10 +29,10 @@ import io.undertow.server.HttpServerExchange;
 public class ParameterRecorderFactory {
     public static ParameterRecorder<HttpServerExchange> newParameterRecorderFactory(Filter<String> excludeProfileMethodFilter, boolean traceRequestParam) {
         if (!traceRequestParam) {
-            return new DisableParameterRecorder<HttpServerExchange>();
+            return new DisableParameterRecorder<>();
         }
         ParameterExtractor<HttpServerExchange> parameterExtractor = new HttpServerExchangeParameterExtractor(64, 512);
         ParameterExtractor<HttpServerExchange> methodFilterExtractor = new MethodFilterExtractor(excludeProfileMethodFilter, parameterExtractor);
-        return new HttpParameterRecorder<HttpServerExchange>(methodFilterExtractor);
+        return new HttpParameterRecorder<>(methodFilterExtractor);
     }
 }

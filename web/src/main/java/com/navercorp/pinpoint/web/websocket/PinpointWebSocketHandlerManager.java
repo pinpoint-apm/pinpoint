@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.google.common.collect.ImmutableList;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public class PinpointWebSocketHandlerManager {
     private final List<PinpointWebSocketHandler> webSocketHandlerRepository;
 
     public PinpointWebSocketHandlerManager(List<PinpointWebSocketHandler> pinpointWebSocketHandlers) {
-        webSocketHandlerRepository = ImmutableList.copyOf(pinpointWebSocketHandlers);
+        this.webSocketHandlerRepository = new ArrayList<>(pinpointWebSocketHandlers);
     }
 
     @PostConstruct
@@ -48,7 +48,7 @@ public class PinpointWebSocketHandlerManager {
     }
 
     public List<PinpointWebSocketHandler> getWebSocketHandlerRepository() {
-        return webSocketHandlerRepository;
+        return Collections.unmodifiableList(webSocketHandlerRepository);
     }
 
 }

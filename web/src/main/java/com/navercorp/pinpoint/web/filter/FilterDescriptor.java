@@ -26,11 +26,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.navercorp.pinpoint.common.Charsets;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
@@ -100,7 +100,7 @@ public class FilterDescriptor {
         }
 
         public boolean isValid() {
-            return !StringUtils.isEmpty(applicationName) && !StringUtils.isEmpty(serviceType);
+            return StringUtils.hasLength(applicationName) && StringUtils.hasLength(serviceType);
         }
 
         @Override
@@ -178,7 +178,7 @@ public class FilterDescriptor {
 
 
         public boolean isValid() {
-            return !((fromResponseTime == null && !StringUtils.isEmpty(toResponseTime)) || (fromResponseTime != null && StringUtils.isEmpty(toResponseTime)));
+            return !((fromResponseTime == null && StringUtils.hasLength(toResponseTime)) || (fromResponseTime != null && StringUtils.isEmpty(toResponseTime)));
         }
 
         @Override
@@ -260,7 +260,9 @@ public class FilterDescriptor {
         if (urlPattern == null) {
             return null;
         }
-        return new String(Base64.decodeBase64(urlPattern), Charsets.UTF_8);
+        Base64.Decoder urlDecoder = Base64.getUrlDecoder();
+        byte[] decode = urlDecoder.decode(urlPattern);
+        return new String(decode, StandardCharsets.ISO_8859_1);
     }
 
 

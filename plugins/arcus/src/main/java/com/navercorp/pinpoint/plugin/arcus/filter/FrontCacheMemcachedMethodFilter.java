@@ -55,7 +55,7 @@ public class FrontCacheMemcachedMethodFilter implements MethodFilter {
                 "set",
                 "putFrontCache"
         };
-        Map<String, Object> rule = new HashMap<String, Object>();
+        Map<String, Object> rule = new HashMap<>();
         for (String api : apiList) {
             rule.put(api, FIND);
         }

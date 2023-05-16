@@ -16,10 +16,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
-import java.util.Map;
 
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 
@@ -30,17 +27,19 @@ public interface AlarmService {
 
     String insertRule(Rule rule);
 
+    String insertRuleWithWebhooks(Rule rule, List<String> webhookIds);
+
     void deleteRule(Rule rule);
 
     List<Rule> selectRuleByUserGroupId(String userGroupId);
 
     List<Rule> selectRuleByApplicationId(String applicationId);
 
+    List<String> selectApplicationId();
+
     void updateRule(Rule rule);
 
-    Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId);
-
-    void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker);
+    void updateRuleWithWebhooks(Rule rule, List<String> webhookIds);
 
     void deleteRuleByUserGroupId(String groupId);
 

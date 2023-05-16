@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.web.vo.User;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author minwoo.jung

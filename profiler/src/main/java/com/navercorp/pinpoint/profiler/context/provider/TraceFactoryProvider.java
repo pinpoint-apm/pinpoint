@@ -19,20 +19,16 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceFactory;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TraceFactoryProvider implements Provider<TraceFactory> {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Binder<Trace> binder;
 
@@ -42,8 +38,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     @Inject
     public TraceFactoryProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider, Binder<Trace> binder) {
 
-        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
-        this.binder = Assert.requireNonNull(binder, "binder");
+        this.baseTraceFactoryProvider = Objects.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
+        this.binder = Objects.requireNonNull(binder, "binder");
 
     }
 

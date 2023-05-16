@@ -14,10 +14,15 @@
  */
 package com.navercorp.pinpoint.plugin.cxf.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConfig;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
 
@@ -99,11 +104,8 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
     }
 
     private String getDestination(Object[] args) {
-
-        if (args[0] instanceof Map) {
-
-            Map message = (Map) args[0];
-
+        final Map<?, ?> message = getMap(args);
+        if (message != null) {
             String address = (String) message.get("org.apache.cxf.message.Message.ENDPOINT_ADDRESS");
 
             try {
@@ -111,18 +113,19 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
 
                 return url.getProtocol() + "://" + url.getAuthority();
 
-            } catch (MalformedURLException e) {
+            } catch (MalformedURLException ignored) {
             }
         }
         return null;
     }
 
+    private Map<?, ?> getMap(Object[] args) {
+        return ArrayArgumentUtils.getArgument(args, 0, Map.class);
+    }
+
     private String getHttpUri(Object[] args) {
-
-        if (args[0] instanceof Map) {
-
-            Map message = (Map) args[0];
-
+        final Map<?, ?> message = getMap(args);
+        if (message != null) {
             String httpUri = (String) message.get("org.apache.cxf.request.uri");
 
             return httpUri != null ? httpUri : "unknown";
@@ -132,11 +135,8 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
     }
 
     private String getRequestMethod(Object[] args) {
-
-        if (args[0] instanceof Map) {
-
-            Map message = (Map) args[0];
-
+        final Map<?, ?> message = getMap(args);
+        if (message != null) {
             String requestMethod = (String) message.get("org.apache.cxf.request.method");
 
             return requestMethod != null ? requestMethod : "unknown";
@@ -145,11 +145,8 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
     }
 
     private String getContentType(Object[] args) {
-
-        if (args[0] instanceof Map) {
-
-            Map message = (Map) args[0];
-
+        final Map<?, ?> message = getMap(args);
+        if (message != null) {
             String contentType = (String) message.get("Content-Type");
 
             return contentType != null ? contentType : "unknown";

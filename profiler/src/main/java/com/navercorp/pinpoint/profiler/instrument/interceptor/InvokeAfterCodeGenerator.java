@@ -14,11 +14,11 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
-import java.lang.reflect.Method;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Jongho Moon
@@ -130,14 +130,13 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
 
     private void appendCustomAfterArguments(CodeBuilder builder) {
         final Method interceptorMethod = interceptorDefinition.getAfterMethod();
-        final Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
-        
-        if (interceptorParamTypes.length == 0) {
+        if (interceptorMethod.getParameterCount() == 0) {
             return;
         }
 
         builder.append(getTarget());
 
+        final Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
         final int parameterSize = parameterBind(builder, interceptorParamTypes);
         final int bindSize = parameterSize + THIS_RETURN_EXCEPTION_SIZE;
         if (bindSize != interceptorParamTypes.length) {

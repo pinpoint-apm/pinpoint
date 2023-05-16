@@ -19,11 +19,14 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
@@ -42,7 +45,7 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
+public class MetadataMessageConverter implements MessageConverter<MetaDataType, TBase<?, ?>> {
 
     private final String applicationName;
     private final String agentId;
@@ -50,13 +53,13 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     public MetadataMessageConverter(String applicationName, String agentId, long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
     }
 
     @Override
-    public TBase<?, ?> toMessage(Object message) {
+    public TBase<?, ?> toMessage(MetaDataType message) {
         if (message instanceof AgentInfo) {
             final AgentInfo agentInfo = (AgentInfo) message;
             return convertAgentInfo(agentInfo);
@@ -81,6 +84,10 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         tAgentInfo.setHostname(agentInformation.getMachineName());
         tAgentInfo.setPorts("");
         tAgentInfo.setAgentId(agentInformation.getAgentId());
+        final String agentName = agentInformation.getAgentName();
+        if (!StringUtils.isEmpty(agentName)) {
+            tAgentInfo.setAgentName(agentName);
+        }
         tAgentInfo.setApplicationName(agentInformation.getApplicationName());
         tAgentInfo.setContainer(agentInformation.isContainer());
         tAgentInfo.setPid(agentInformation.getPid());
@@ -105,7 +112,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         final TServerMetaData tServerMetaData = new TServerMetaData();
         tServerMetaData.setServerInfo(serverMetaData.getServerInfo());
         tServerMetaData.setVmArgs(serverMetaData.getVmArgs());
-        List<TServiceInfo> tServiceInfos = new ArrayList<TServiceInfo>();
+        List<TServiceInfo> tServiceInfos = new ArrayList<>();
         for (ServiceInfo serviceInfo : serverMetaData.getServiceInfos()) {
             TServiceInfo tServiceInfo = new TServiceInfo();
             tServiceInfo.setServiceName(serviceInfo.getServiceName());

@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.profiler.instrument.lambda;
 import com.navercorp.pinpoint.bootstrap.instrument.lambda.LambdaBytecodeHandler;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+
+import org.apache.logging.log4j.LogManager;
 
 import java.security.ProtectionDomain;
 
@@ -33,27 +35,25 @@ public class DefaultLambdaBytecodeHandler implements LambdaBytecodeHandler {
     private final ClassFileTransformModuleAdaptor classFileTransformer;
 
     public DefaultLambdaBytecodeHandler(ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
-        this.classFileTransformer = Assert.requireNonNull(classFileTransformer, "classFileTransformer");
-        this.javaModuleFactory = Assert.requireNonNull(javaModuleFactory, "javaModuleFactory");
+        this.classFileTransformer = Objects.requireNonNull(classFileTransformer, "classFileTransformer");
+        this.javaModuleFactory = Objects.requireNonNull(javaModuleFactory, "javaModuleFactory");
     }
 
     @Override
     public byte[] handleLambdaBytecode(Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        try {
-            final ClassLoader classLoader = hostClass.getClassLoader();
-
-            final Object module = javaModuleFactory.getModule(hostClass);
-
-            final ProtectionDomain protectionDomain = hostClass.getProtectionDomain();
-
-            final byte[] transform = classFileTransformer.transform(module, classLoader, null, null, protectionDomain, data);
-            if (transform != null) {
-                return transform;
+        if (hostClass != null && data != null) {
+            try {
+                final ClassLoader classLoader = hostClass.getClassLoader();
+                final Object module = javaModuleFactory.getModule(hostClass);
+                final ProtectionDomain protectionDomain = hostClass.getProtectionDomain();
+                final byte[] transform = classFileTransformer.transform(module, classLoader, null, null, protectionDomain, data);
+                if (transform != null) {
+                    return transform;
+                }
+            } catch (Exception e) {
+                LogManager.getLogger(this.getClass()).warn("lambda transform fail Caused by:" + e.getMessage(), e);
             }
-            return data;
-        } catch (Exception e) {
-            LoggerFactory.getLogger(this.getClass()).warn("lambda transform fail Caused by:" + e.getMessage(), e);
-            return data;
         }
+        return data;
     }
 }

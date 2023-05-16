@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.vo.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 
 /**
@@ -27,6 +28,10 @@ public class AggreJoinMemoryBo extends JoinMemoryBo implements AggregationStatDa
 
     public AggreJoinMemoryBo(String id, long timestamp, long heapUsed, long minHeapUsed, long maxHeapUsed, String minHeapAgentId, String maxHeapAgentId, long nonHeapUsed, long minNonHeapUsed, long maxNonHeapUsed, String minNonHeapAgentId, String maxNonHeapAgentId) {
         super(id, timestamp, heapUsed, minHeapUsed, maxHeapUsed, minHeapAgentId, maxHeapAgentId, nonHeapUsed, minNonHeapUsed, maxNonHeapUsed, minNonHeapAgentId, maxNonHeapAgentId);
+    }
+
+    public AggreJoinMemoryBo(String id, long timestamp, JoinLongFieldBo heapUsedJoinValue, JoinLongFieldBo nonHeapUsedJoinValue) {
+        super(id, timestamp, heapUsedJoinValue, nonHeapUsedJoinValue);
     }
 
     public static AggreJoinMemoryBo createUncollectedObject(long timestamp) {

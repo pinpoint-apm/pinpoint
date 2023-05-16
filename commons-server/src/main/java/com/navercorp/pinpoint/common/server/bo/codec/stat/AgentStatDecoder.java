@@ -21,16 +21,19 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecoding
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentStatDecoder<T extends AgentStatDataPoint> {
 
-    private final List<AgentStatCodec<T>> codecs;
+    private final AgentStatCodec<T>[] codecs;
 
+    @SuppressWarnings("unchecked")
     public AgentStatDecoder(List<AgentStatCodec<T>> codecs) {
-        this.codecs = codecs;
+        Objects.requireNonNull(codecs, "codecs");
+        this.codecs = codecs.toArray(new AgentStatCodec[0]);
     }
 
     public long decodeQualifier(Buffer qualifierBuffer) {

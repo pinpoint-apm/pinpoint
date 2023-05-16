@@ -20,11 +20,15 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -35,38 +39,41 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final Provider<EnhancedDataSender<Object>> agentDataSenderProvider;
-    private final Provider<EnhancedDataSender<Object>> metadataDataSenderProvider;
-    private final Provider<DataSender> spanDataSenderProvider;
-    private final Provider<DataSender> statDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType>> agentDataSenderProvider;
+    private final Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider;
+    private final Provider<DataSender<SpanType>> spanDataSenderProvider;
+    private final Provider<DataSender<MetricType>> statDataSenderProvider;
 
     private final Provider<ExecutorService> dnsExecutorServiceProvider;
     private final Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider;
 
-    private EnhancedDataSender<Object> agentDataSender;
-    private EnhancedDataSender<Object> metadataDataSender;
+    private EnhancedDataSender<MetaDataType> agentDataSender;
+    private EnhancedDataSender<MetaDataType> metadataDataSender;
 
-    private DataSender spanDataSender;
-    private DataSender statDataSender;
+    private DataSender<SpanType> spanDataSender;
+    private DataSender<MetricType> statDataSender;
 
     private ExecutorService dnsExecutorService;
     private ScheduledExecutorService reconnectScheduledExecutorService;
 
+    private final ChannelzScheduledReporter reporter;
+
     @Inject
     public GrpcModuleLifeCycle(
-            @AgentDataSender Provider<EnhancedDataSender<Object>> agentDataSenderProvider,
-            @MetadataDataSender Provider<EnhancedDataSender<Object>> metadataDataSenderProvider,
-            @SpanDataSender Provider<DataSender> spanDataSenderProvider,
-            @StatDataSender Provider<DataSender> statDataSenderProvider,
+            @AgentDataSender Provider<EnhancedDataSender<MetaDataType>> agentDataSenderProvider,
+            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider,
+            @SpanDataSender Provider<DataSender<SpanType>> spanDataSenderProvider,
+            @StatDataSender Provider<DataSender<MetricType>> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider,
-            Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider
-    ) {
-        this.agentDataSenderProvider = Assert.requireNonNull(agentDataSenderProvider, "agentDataSenderProvider");
-        this.metadataDataSenderProvider = Assert.requireNonNull(metadataDataSenderProvider, "metadataDataSenderProvider");
-        this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider");
-        this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider");
-        this.dnsExecutorServiceProvider = Assert.requireNonNull(dnsExecutorServiceProvider, "dnsExecutorServiceProvider");
-        this.reconnectScheduledExecutorProvider = Assert.requireNonNull(reconnectScheduledExecutorProvider, "reconnectScheduledExecutorProvider");
+            Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider,
+            ChannelzScheduledReporter reporter) {
+        this.agentDataSenderProvider = Objects.requireNonNull(agentDataSenderProvider, "agentDataSenderProvider");
+        this.metadataDataSenderProvider = Objects.requireNonNull(metadataDataSenderProvider, "metadataDataSenderProvider");
+        this.spanDataSenderProvider = Objects.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider");
+        this.statDataSenderProvider = Objects.requireNonNull(statDataSenderProvider, "statDataSenderProvider");
+        this.dnsExecutorServiceProvider = Objects.requireNonNull(dnsExecutorServiceProvider, "dnsExecutorServiceProvider");
+        this.reconnectScheduledExecutorProvider = Objects.requireNonNull(reconnectScheduledExecutorProvider, "reconnectScheduledExecutorProvider");
+        this.reporter = Objects.requireNonNull(reporter, "reporter");
     }
 
     @Override
@@ -116,6 +123,9 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
         }
         if (reconnectScheduledExecutorService != null) {
             ExecutorUtils.shutdownExecutorService("reconnectScheduledExecutor", reconnectScheduledExecutorService);
+        }
+        if (reporter != null) {
+            reporter.stop();
         }
     }
 

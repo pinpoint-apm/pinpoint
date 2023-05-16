@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
@@ -42,23 +43,17 @@ public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInt
 
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set asyncContext {}", asyncContext);
+                logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
             }
         }
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 1) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
+        if (ArrayUtils.isEmpty(args)) {
             return false;
         }
 
         if (!(args[0] instanceof AsyncContextAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-            }
             return false;
         }
 
@@ -71,5 +66,4 @@ public class ContextImplRunOnContextInterceptor extends SpanEventSimpleAroundInt
         recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
         recorder.recordException(throwable);
     }
-
 }

@@ -35,9 +35,9 @@ public class ThreadDumpMetricSnapshot {
     private boolean inNative;
     private boolean suspended;
     private Thread.State threadState;
-    private List<String> stackTrace = new ArrayList<String>();
-    private List<MonitorInfoMetricSnapshot> lockedMonitors = new ArrayList<MonitorInfoMetricSnapshot>();
-    private List<String> lockedSynchronizers = new ArrayList<String>();
+    private List<String> stackTrace = new ArrayList<>();
+    private List<MonitorInfoMetricSnapshot> lockedMonitors = new ArrayList<>();
+    private List<String> lockedSynchronizers = new ArrayList<>();
 
     public String getThreadName() {
         return threadName;

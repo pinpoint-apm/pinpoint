@@ -15,25 +15,28 @@
  */
 package com.navercorp.pinpoint.collector.cluster.flink;
 
-import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import com.navercorp.pinpoint.collector.service.SendDataToFlinkService;
 import com.navercorp.pinpoint.collector.util.Address;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author minwoo.jung
  */
 public class TcpDataSenderRepository {
-    private final ConcurrentHashMap<Address, SenderContext> clusterConnectionRepository = new ConcurrentHashMap<>();
-    private final SendDataToFlinkService sendDataToFlinkService;
+    private final ConcurrentMap<Address, SenderContext> clusterConnectionRepository = new ConcurrentHashMap<>();
+    private final SendDataToFlinkService flinkService;
 
-    TcpDataSenderRepository(SendDataToFlinkService sendDataToFlinkService) {
-        this.sendDataToFlinkService = sendDataToFlinkService;
+    public TcpDataSenderRepository(SendDataToFlinkService flinkService) {
+        this.flinkService = Objects.requireNonNull(flinkService, "flinkService");
     }
 
     public SenderContext putIfAbsent(Address address, SenderContext senderContext) {
@@ -51,12 +54,12 @@ public class TcpDataSenderRepository {
     private void replaceDataInSendDataToFlinkService() {
         Collection<SenderContext> values = clusterConnectionRepository.values();
 
-        List<FlinkTcpDataSender> tcpDataSenderList = new ArrayList<>(values.size());
+        List<TcpDataSender<TBase<?, ?>>> tcpDataSenderList = new ArrayList<>(values.size());
         for (SenderContext senderContext : values) {
             tcpDataSenderList.add(senderContext.getFlinkTcpDataSender());
         }
 
-        sendDataToFlinkService.replaceFlinkTcpDataSenderList(tcpDataSenderList);
+        flinkService.replaceFlinkTcpDataSenderList(tcpDataSenderList);
     }
 
     public boolean containsKey(Address address) {

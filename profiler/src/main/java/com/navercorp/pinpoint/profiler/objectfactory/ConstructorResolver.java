@@ -15,20 +15,21 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
  *
  */
 public class ConstructorResolver {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Class<?> type;
     private final ArgumentsResolver argumentsResolver;
@@ -37,10 +38,7 @@ public class ConstructorResolver {
     private Object[] resolvedArguments;
 
     public ConstructorResolver(Class<?> type, ArgumentsResolver argumentsResolver) {
-        if (type == null) {
-            throw new NullPointerException("type");
-        }
-        this.type = type;
+        this.type = Objects.requireNonNull(type, "type");
         this.argumentsResolver = argumentsResolver;
     }
 
@@ -89,15 +87,7 @@ public class ConstructorResolver {
         }
     }
 
-    private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = new Comparator<Constructor<?>>() {
 
-        @Override
-        public int compare(Constructor<?> o1, Constructor<?> o2) {
-            int p1 = o1.getParameterTypes().length;
-            int p2 = o2.getParameterTypes().length;
-            
-            return (p1 < p2) ? 1 : ((p1 == p2) ? 0 : -1);
-        }
-        
-    };
+    private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = (Comparator.<Constructor<?>>comparingInt(Constructor::getParameterCount)).reversed();
+
 }

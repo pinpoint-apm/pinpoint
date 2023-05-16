@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bean1" class="com.navercorp.test.pinpoint.Bean1"/>
+    
+    <bean id="bean2" class="com.navercorp.test.pinpoint.Bean2">
+        <constructor-arg ref="model"/>
+    </bean>
+    
+    <bean id="model" class="com.navercorp.test.pinpoint.Model" scope="prototype">
+        <constructor-arg value="4"/>
+    </bean>
+    
+</beans>

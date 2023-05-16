@@ -48,6 +48,7 @@ public class GsonPlugin implements ProfilerPlugin, TransformTemplateAware {
         GsonConfig config = new GsonConfig(context.getConfig());
         if (!config.isProfile()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         transformTemplate.transform("com.google.gson.Gson", GsonTransform.class);

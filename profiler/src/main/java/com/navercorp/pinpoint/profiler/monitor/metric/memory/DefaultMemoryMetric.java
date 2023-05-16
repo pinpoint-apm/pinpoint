@@ -25,7 +25,7 @@ import java.lang.management.MemoryUsage;
  */
 public class DefaultMemoryMetric implements MemoryMetric {
 
-    private MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    private final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
 
     public DefaultMemoryMetric() {

@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 
@@ -38,10 +38,13 @@ import java.util.Arrays;
 @Component
 public class HostApplicationMapper implements RowMapper<Application> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationFactory applicationFactory;
+    private final ApplicationFactory applicationFactory;
+
+    public HostApplicationMapper(ApplicationFactory applicationFactory) {
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+    }
 
     @Override
     public Application mapRow(Result result, int rowNum) throws Exception {
@@ -50,12 +53,12 @@ public class HostApplicationMapper implements RowMapper<Application> {
         }
         byte[] value = result.value();
 
-        if (value.length != HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + 2) {
+        if (value.length != HbaseTableConstants.APPLICATION_NAME_MAX_LEN + 2) {
             logger.warn("Invalid value. {}", Arrays.toString(value));
         }
 
-        String applicationName = Bytes.toString(value, 0, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN - 1).trim();
-        short serviceTypeCode = Bytes.toShort(value, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
+        String applicationName = Bytes.toString(value, 0, HbaseTableConstants.APPLICATION_NAME_MAX_LEN - 1).trim();
+        short serviceTypeCode = Bytes.toShort(value, HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         return this.applicationFactory.createApplication(applicationName, serviceTypeCode);
     }
 }

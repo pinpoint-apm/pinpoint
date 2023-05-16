@@ -27,12 +27,13 @@ import java.util.Objects;
 public class DotGroup {
 
     private final Coordinates coordinates;
-    private final List<Dot> dotList = new ArrayList<>();
+    private final List<Dot> dotList;
 
     private Dot dotLeader;
 
     public DotGroup(Coordinates coordinates) {
         this.coordinates = Objects.requireNonNull(coordinates, "coordinates");
+        this.dotList = new ArrayList<>();
     }
 
     public Coordinates getCoordinates() {
@@ -45,14 +46,6 @@ public class DotGroup {
         if (dotLeader == null) {
             dotLeader = dot;
         }
-    }
-
-    void merge(DotGroup dotGroup) {
-        if (dotGroup == null) {
-            return;
-        }
-
-        this.dotList.addAll(dotGroup.getDotList());
     }
 
     public List<Dot> getDotList() {

@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,43 +30,70 @@ import org.junit.Test;
 public class AgentHeaderReaderTest {
 
     private static final String AGENT_ID = "agentId";
+    private static final String AGENT_NAME = "agentName";
     private static final String APPLICATION_NAME = "applicationName";
     private static final long AGENT_START_TIME = System.currentTimeMillis();
     private static final long SOCKET_ID = 1001;
+    private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
-    private HeaderReader<Header> reader = new AgentHeaderReader();
+    private final HeaderReader<Header> reader = new AgentHeaderReader("test");
 
     @Test
     public void extract() {
         Metadata metadata = newMetadata();
         Header header = reader.extract(metadata);
 
-        Assert.assertEquals(header.getAgentId(), AGENT_ID);
-        Assert.assertEquals(header.getApplicationName(), APPLICATION_NAME);
-        Assert.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
-        Assert.assertEquals(header.getSocketId(), SOCKET_ID);
+        Assertions.assertEquals(header.getAgentId(), AGENT_ID);
+        Assertions.assertEquals(header.getAgentName(), AGENT_NAME);
+        Assertions.assertEquals(header.getApplicationName(), APPLICATION_NAME);
+        Assertions.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
+        Assertions.assertEquals(header.getSocketId(), SOCKET_ID);
+        Assertions.assertEquals(header.getServiceType(), SERVICE_TYPE);
     }
 
-    @Test(expected = StatusRuntimeException.class)
+    @Test
     public void extract_fail_agentId() {
-        Metadata metadata = newMetadata();
-        metadata.put(Header.AGENT_ID_KEY, "!!agentId");
-        reader.extract(metadata);
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            Metadata metadata = newMetadata();
+            metadata.put(Header.AGENT_ID_KEY, "!!agentId");
+            reader.extract(metadata);
+        });
     }
 
-    @Test(expected = StatusRuntimeException.class)
-    public void extract_fail_applicationName() {
+    @Test
+    public void extract_fail_agentName() {
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            Metadata metadata = newMetadata();
+            metadata.put(Header.AGENT_NAME_KEY, "!!agentName");
+            reader.extract(metadata);
+        });
+    }
+
+    @Test
+    public void extract_no_agentName() {
         Metadata metadata = newMetadata();
-        metadata.put(Header.APPLICATION_NAME_KEY, "!!applicationName");
-        reader.extract(metadata);
+        metadata.remove(Header.AGENT_NAME_KEY, AGENT_NAME);
+        final Header header = reader.extract(metadata);
+        Assertions.assertNull(header.getAgentName());
+    }
+
+    @Test
+    public void extract_fail_applicationName() {
+        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+            Metadata metadata = newMetadata();
+            metadata.put(Header.APPLICATION_NAME_KEY, "!!applicationName");
+            reader.extract(metadata);
+        });
     }
 
     private Metadata newMetadata() {
         Metadata metadata = new Metadata();
         metadata.put(Header.AGENT_ID_KEY, AGENT_ID);
+        metadata.put(Header.AGENT_NAME_KEY, AGENT_NAME);
         metadata.put(Header.APPLICATION_NAME_KEY, APPLICATION_NAME);
         metadata.put(Header.AGENT_START_TIME_KEY, Long.toString(AGENT_START_TIME));
         metadata.put(Header.SOCKET_ID, Long.toString(SOCKET_ID));
+        metadata.put(Header.SERVICE_TYPE_KEY, Integer.toString(SERVICE_TYPE));
         return metadata;
     }
 }

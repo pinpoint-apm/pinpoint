@@ -1,0 +1,11 @@
+<div class="container">
+    <div class="title">Theme</div>
+    <div class="button-container">
+        <div class="button-wrapper" [class.active]="isThemeActive(refLight)"> 
+            <button #refLight class="button" (click)="onClickTheme($event)" data-theme="light-mode">Light</button>
+        </div>
+        <div class="button-wrapper" [class.active]="isThemeActive(refDark)">
+            <button #refDark class="button" (click)="onClickTheme($event)" data-theme="dark-mode">Dark</button>
+        </div>
+    </div>
+</div>

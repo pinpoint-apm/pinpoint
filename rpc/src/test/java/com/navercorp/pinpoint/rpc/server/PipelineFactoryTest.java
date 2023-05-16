@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.rpc.DiscardServerHandler;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
-import com.navercorp.pinpoint.rpc.util.IOUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -29,13 +30,14 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.springframework.util.SocketUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.Socket;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -46,7 +48,7 @@ public class PipelineFactoryTest {
 
     private static final char START_KEY = '!';
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         bindPort = SocketUtils.findAvailableTcpPort();
     }
@@ -65,30 +67,25 @@ public class PipelineFactoryTest {
             socket.getOutputStream().write((START_KEY + "Test").getBytes());
             socket.getOutputStream().flush();
 
-            boolean await = TestAwaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return discardServerHandler.getMessageReceivedCount() == 1;
-                }
-            }, 10, 100);
-            Assert.assertTrue(await);
+            assertMessageReceivedCount(1, discardServerHandler);
 
             socket.getOutputStream().write(('@' + "Test").getBytes());
             socket.getOutputStream().flush();
 
-            await = TestAwaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return discardServerHandler.getMessageReceivedCount() == 2;
-                }
-            }, 10, 100);
-            Assert.assertFalse(await);
-
+            Assertions.assertThrowsExactly(ConditionTimeoutException.class, () -> {
+                assertMessageReceivedCount(2, discardServerHandler);
+            });
         } finally {
             IOUtils.closeQuietly(socket);
 
             PinpointRPCTestUtils.close(serverAcceptor);
         }
+    }
+
+    private void assertMessageReceivedCount(int expectedCount, final DiscardServerHandler discardServerHandler) {
+        Awaitility.await()
+                .ignoreExceptions()
+                .untilAsserted(() -> assertThat(discardServerHandler.getMessageReceivedCount()).isEqualTo(expectedCount));
     }
 
     private static class TestPipelineFactory implements PipelineFactory {

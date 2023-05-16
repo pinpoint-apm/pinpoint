@@ -16,22 +16,34 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
+
+import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.JvmAttributeGaugeSet;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.ScheduledReporter;
+import com.codahale.metrics.Reporter;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-import com.navercorp.pinpoint.collector.util.LoggerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.slf4j.Log4jMarkerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -43,19 +55,25 @@ public class CollectorMetric {
 
     public static final String REPORTER_LOGGER_NAME = "com.navercorp.pinpoint.collector.StateReport";
 
-    private final Logger reporterLogger = LoggerFactory.getLogger(REPORTER_LOGGER_NAME);
+    private final CollectorProperties collectorProperties;
 
     private final MetricRegistry metricRegistry;
 
     private final HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
+    private final BulkOperationMetrics bulkOperationMetrics;
 
-    private ScheduledReporter reporter;
+    private List<Reporter> reporterList = new ArrayList<>(2);
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
 
-    public CollectorMetric(MetricRegistry metricRegistry, Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics) {
-        this.metricRegistry = metricRegistry;
+    public CollectorMetric(CollectorProperties collectorProperties,
+                           MetricRegistry metricRegistry,
+                           Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics,
+                           Optional<BulkOperationMetrics> cachedStatisticsDaoMetrics) {
+        this.collectorProperties = Objects.requireNonNull(collectorProperties, "collectorProperties");
+        this.metricRegistry = Objects.requireNonNull(metricRegistry, "metricRegistry");
         this.hBaseAsyncOperationMetrics = hBaseAsyncOperationMetrics.orElse(null);
+        this.bulkOperationMetrics = cachedStatisticsDaoMetrics.orElse(null);
     }
 
     @PostConstruct
@@ -69,9 +87,9 @@ public class CollectorMetric {
     }
 
     private boolean isEnable0(String loggerName) {
-        final Logger logger = LoggerFactory.getLogger(loggerName);
-        final int loggerLevel = LoggerUtils.getLoggerLevel(logger);
-        if (loggerLevel >= LoggerUtils.WARN_LEVEL) {
+        final Logger logger = LogManager.getLogger(loggerName);
+        final Level level = logger.getLevel();
+        if (level.isLessSpecificThan(Level.WARN)) {
             return false;
         }
         return true;
@@ -90,27 +108,66 @@ public class CollectorMetric {
                 metricRegistry.register(metric.getKey(), metric.getValue());
             }
         }
+
+        if (bulkOperationMetrics != null) {
+            Map<String, Metric> metrics = bulkOperationMetrics.getMetrics();
+            for (Map.Entry<String, Metric> metric : metrics.entrySet()) {
+                metricRegistry.register(metric.getKey(), metric.getValue());
+            }
+        }
     }
 
     private void initReporters() {
+        Slf4jReporter slf4jReporter = createSlf4jReporter();
+        slf4jReporter.start(60, TimeUnit.SECONDS); // print every 1 min.
+
+        reporterList.add(slf4jReporter);
+
+        if (collectorProperties.isMetricJmxEnable()) {
+
+            final String metricJmxDomainName = collectorProperties.getMetricJmxDomainName();
+            Assert.hasLength(metricJmxDomainName, "metricJmxDomainName must not be empty");
+
+            final JmxReporter jmxReporter = createJmxReporter(metricJmxDomainName);
+            jmxReporter.start();
+            reporterList.add(jmxReporter);
+        }
+    }
+
+    private Slf4jReporter createSlf4jReporter() {
         Slf4jReporter.Builder builder = Slf4jReporter.forRegistry(metricRegistry);
         builder.convertRatesTo(TimeUnit.SECONDS);
         builder.convertDurationsTo(TimeUnit.MILLISECONDS);
 
-        builder.outputTo(reporterLogger);
-        reporter = builder.build();
+        Log4jMarkerFactory log4jMarkerFactory = new Log4jMarkerFactory();
+        Log4jLoggerFactory log4jLoggerFactory = new Log4jLoggerFactory(log4jMarkerFactory);
 
-        reporter.start(60, TimeUnit.SECONDS); // print every 1 min.
+        final org.slf4j.Logger reporterLogger = log4jLoggerFactory.getLogger(REPORTER_LOGGER_NAME);
+        builder.outputTo(reporterLogger);
+        return builder.build();
     }
 
+    private JmxReporter createJmxReporter(String metricJmxDomainName) {
+        final JmxReporter.Builder builder = JmxReporter.forRegistry(metricRegistry);
+        builder.convertRatesTo(TimeUnit.SECONDS);
+        builder.convertDurationsTo(TimeUnit.MILLISECONDS);
+        builder.inDomain(metricJmxDomainName);
+
+        return builder.build();
+    }
 
     @PreDestroy
     private void shutdown() {
-        if (reporter == null) {
-            return;
+        for (Reporter reporter : reporterList) {
+            if (reporter instanceof Closeable) {
+                try {
+                    ((Closeable) reporter).close();
+                } catch (IOException ignored) {
+                    // ignore
+                }
+            }
         }
-        reporter.stop();
-        reporter = null;
+        reporterList = null;
     }
 
 }

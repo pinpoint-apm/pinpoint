@@ -88,7 +88,7 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
                 sb.append('{').append(text).append('}');
                 return sb.toString();
             }
-        } catch (JMSException e) {
+        } catch (JMSException ignored) {
             // ignore
         }
         return simpleClassName;

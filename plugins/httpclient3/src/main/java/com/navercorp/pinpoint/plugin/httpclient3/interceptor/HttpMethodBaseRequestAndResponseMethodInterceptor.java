@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -40,18 +42,9 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
 
 
     public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor");
-        }
-        if (interceptorScope == null) {
-            throw new NullPointerException("interceptorScope");
-        }
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
-        this.interceptorScope = interceptorScope;
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+        this.interceptorScope = Objects.requireNonNull(interceptorScope, "interceptorScope");
     }
     
     @Override

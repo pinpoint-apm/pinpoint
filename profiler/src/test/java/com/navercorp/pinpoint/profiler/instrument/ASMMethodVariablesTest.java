@@ -24,24 +24,29 @@ import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author
  */
 public class ASMMethodVariablesTest {
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Test
     public void getParameterTypes() throws Exception {
-        final ClassNode classNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
+        final ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
             ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
@@ -53,19 +58,19 @@ public class ASMMethodVariablesTest {
 
     @Test
     public void getParameterNames() throws Exception {
-        final ClassNode classNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
+        final ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
             ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
             String[] types = methodNodeAdapter.getParameterTypes();
             String[] names = methodNodeAdapter.getParameterNames();
-            assertEquals(methodNode.name, types.length, names.length);
+            assertEquals(types.length, names.length, methodNode.name);
         }
     }
 
     @Test
     public void getReturnType() throws Exception {
-        final ClassNode classNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass");
+        final ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass");
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
             ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
@@ -79,7 +84,7 @@ public class ASMMethodVariablesTest {
         int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
-        final ClassNode classNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
+        final ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
             ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
@@ -91,7 +96,7 @@ public class ASMMethodVariablesTest {
 
     @Test
     public void initInterceptorLocalVariables() throws Exception {
-        MethodNode methodNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", "<init>");
+        MethodNode methodNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", "<init>");
         ASMMethodVariables variables = new ASMMethodVariables("com/navercorp/pinpoint/profiler/instrument/mock/ConstructorChildClass", methodNode);
 
         assertNull(variables.getEnterInsnNode());
@@ -110,7 +115,7 @@ public class ASMMethodVariablesTest {
 
     @Test
     public void findInitConstructorInstruction() throws Exception {
-        MethodNode methodNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.AbstractClass", "<init>");
+        MethodNode methodNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.AbstractClass", "<init>");
         ASMMethodVariables variables = new ASMMethodVariables("com/navercorp/pinpoint/profiler/instrument/mock/AbstractClass", methodNode);
         AbstractInsnNode instruction = variables.findInitConstructorInstruction();
         assertEquals(7, methodNode.instructions.indexOf(instruction));
@@ -118,7 +123,7 @@ public class ASMMethodVariablesTest {
 
     @Test
     public void getInterceptorParameterCount() throws Exception {
-        MethodNode methodNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", "<init>");
+        MethodNode methodNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ConstructorChildClass", "<init>");
         ASMMethodVariables variables = new ASMMethodVariables("com/navercorp/pinpoint/profiler/instrument/mock/ConstructorChildClass", methodNode);
 
         assertEquals(1, variables.getInterceptorParameterCount(new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class)));
@@ -130,7 +135,7 @@ public class ASMMethodVariablesTest {
     @Test
     public void initLocalVariables() throws Exception {
         final String className = "com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass";
-        final MethodNode methodNode = ASMClassNodeLoader.get(className, "argByteType");
+        final MethodNode methodNode = loader.get(className, "argByteType");
         String[] exceptions = null;
         if (methodNode.exceptions != null) {
             exceptions = methodNode.exceptions.toArray(new String[0]);
@@ -138,12 +143,12 @@ public class ASMMethodVariablesTest {
 
         final ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter("foo", new MethodNode(methodNode.access, methodNode.name, methodNode.desc, methodNode.signature, exceptions));
         ASMMethodVariables variables = new ASMMethodVariables(JavaAssistUtils.javaNameToJvmName(className), methodNodeAdapter.getMethodNode());
-        assertEquals(0, variables.getLocalVariables().size());
+        assertThat(variables.getLocalVariables()).isEmpty();
 
         InsnList instructions = new InsnList();
         variables.initLocalVariables(instructions);
 
-        assertEquals(2, variables.getLocalVariables().size());
+        assertThat(variables.getLocalVariables()).hasSize(2);
         assertEquals("this", variables.getLocalVariables().get(0).name);
         assertEquals("Lcom/navercorp/pinpoint/profiler/instrument/mock/ArgsClass;", variables.getLocalVariables().get(0).desc);
         assertEquals("byte", variables.getLocalVariables().get(1).name);

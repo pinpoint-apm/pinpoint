@@ -81,7 +81,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(param, clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
 
         CookieExtractor<HttpRequest> cookieExtractor = HttpClient4CookieExtractor.INSTANCE;
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
@@ -90,7 +90,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
 
         ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -165,10 +165,10 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             final HttpAsyncRequestProducer producer = ((RequestProducerGetter) target)._$PINPOINT$_getRequestProducer();
             final HttpHost httpHost = producer.getTarget();
             if (httpHost != null) {
-                return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+                return new NameIntValuePair<>(httpHost.getHostName(), httpHost.getPort());
             }
         }
-        return new NameIntValuePair<String>(null, -1);
+        return new NameIntValuePair<>(null, -1);
     }
 
     private boolean isAsynchronousInvocation(final Object target, final Object[] args) {

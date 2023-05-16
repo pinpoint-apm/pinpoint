@@ -23,13 +23,13 @@ import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 /**
  * @author jaehong.kim
  */
-public class ThriftMessageToResultConverterProvider implements Provider<MessageConverter<ResultResponse>> {
+public class ThriftMessageToResultConverterProvider implements Provider<MessageConverter<Object, ResultResponse>> {
     @Inject
     public ThriftMessageToResultConverterProvider() {
     }
 
     @Override
-    public MessageConverter<ResultResponse> get() {
+    public MessageConverter<Object, ResultResponse> get() {
         return new ThriftMessageToResultConverter();
     }
 }

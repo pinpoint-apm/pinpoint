@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatDataPointFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class UnsignedShortEncodingStrategyTest extends EncodingStrategyTestBase<
 
     @Override
     protected List<EncodingStrategy<Short>> getEncodingStrategies() {
-        return Arrays.<EncodingStrategy<Short>>asList(UnsignedShortEncodingStrategy.values());
+        return List.of(UnsignedShortEncodingStrategy.values());
     }
 
     @Override
@@ -45,8 +44,8 @@ public class UnsignedShortEncodingStrategyTest extends EncodingStrategyTestBase<
         UnsignedShortEncodingStrategy.Analyzer.Builder builder = (UnsignedShortEncodingStrategy.Analyzer.Builder) analyzerBuilder;
         int actualValueEncodedSize = bufferSizes.get(UnsignedShortEncodingStrategy.NONE);
         int actualRepeatCountEncodedSize = bufferSizes.get(UnsignedShortEncodingStrategy.REPEAT_COUNT);
-        Assert.assertEquals("none", actualValueEncodedSize, builder.getByteSizeValue());
-        Assert.assertEquals("repeatCount", actualRepeatCountEncodedSize, builder.getByteSizeRepeatCount());
+        Assertions.assertEquals(actualValueEncodedSize, builder.getByteSizeValue(), "none");
+        Assertions.assertEquals(actualRepeatCountEncodedSize, builder.getByteSizeRepeatCount(), "repeatCount");
     }
 
     @Test

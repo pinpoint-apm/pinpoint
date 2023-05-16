@@ -23,12 +23,16 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -36,7 +40,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ThriftAgentEventMapperTest {
 
     @Mock
@@ -55,13 +60,12 @@ public class ThriftAgentEventMapperTest {
         final long eventTimestamp = startTimestamp;
         final TAgentStat agentStat = createAgentStat(agentId, startTimestamp, eventTimestamp, 2);
 
-        DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(agentStat.getDeadlock().getDeadlockedThreadCount());
+        DeadlockBo deadlockBo = new DeadlockBo(agentStat.getDeadlock().getDeadlockedThreadCount(), List.of());
         DeadlockEventBo expectedEventBo = new DeadlockEventBo(agentId, startTimestamp, eventTimestamp, AgentEventType.AGENT_DEADLOCK_DETECTED, deadlockBo);
 
         when(this.deadlockEventBoMapper.map(agentId, startTimestamp, startTimestamp, agentStat.getDeadlock())).thenReturn(expectedEventBo);
         AgentEventBo actualEventBo = agentEventMapper.map(agentStat);
-        Assert.assertEquals(expectedEventBo, actualEventBo);
+        Assertions.assertEquals(expectedEventBo, actualEventBo);
     }
 
     @Test
@@ -77,7 +81,7 @@ public class ThriftAgentEventMapperTest {
         when(this.deadlockEventBoMapper.map(any(String.class), any(Long.class), any(Long.class), any(TDeadlock.class))).thenReturn(expectedEventBo);
 
         AgentEventBo actualEventBo = agentEventMapper.map(agentStat);
-        Assert.assertNull(actualEventBo);
+        Assertions.assertNull(actualEventBo);
     }
 
     private TAgentStat createAgentStat(String agentId, long startTimestamp, long eventTimestamp, int deadlockThreadCount) {

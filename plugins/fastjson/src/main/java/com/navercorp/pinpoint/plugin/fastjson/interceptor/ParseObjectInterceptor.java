@@ -21,9 +21,10 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ContentLength;
 import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -38,6 +39,7 @@ public class ParseObjectInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private final ContentLength contentLength;
 
     /**
      * Instantiates a new Parse object interceptor.
@@ -48,6 +50,16 @@ public class ParseObjectInterceptor implements AroundInterceptor {
     public ParseObjectInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
+        this.contentLength = newContentLength();
+    }
+
+    private ContentLength newContentLength() {
+        ContentLength.Builder builder = ContentLength.newBuilder();
+        builder.addContentType(String.class);
+        builder.addContentType(byte[].class);
+        builder.addContentType(char[].class);
+        builder.addContentType(InputStream.class);
+        return builder.build();
     }
 
     @Override
@@ -87,18 +99,12 @@ public class ParseObjectInterceptor implements AroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (args[0] != null) {
-                if (args[0] instanceof String) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-                } else if (args[0] instanceof byte[]) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) args[0]).length);
-                } else if (args[0] instanceof char[]) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((char[]) args[0]).length);
-                } else if (args[0] instanceof InputStream) {
-                    recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((InputStream) args[0]).available());
-                }
+            Object arg = ArrayUtils.get(args, 0);
+            int length = contentLength.getLength(arg);
+            if (length != ContentLength.NOT_EXIST) {
+                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, length);
             }
-        } catch (IOException e) {
+
         } finally {
             trace.traceBlockEnd();
         }

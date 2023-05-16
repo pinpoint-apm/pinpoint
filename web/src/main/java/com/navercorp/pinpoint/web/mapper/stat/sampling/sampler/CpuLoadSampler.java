@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ import java.util.function.ToDoubleFunction;
 public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoad> {
 
     private static final int NUM_DECIMAL_PLACES = 1;
-    private static final DownSampler<Double> DOUBLE_DOWN_SAMPLER = DownSamplers.getDoubleDownSampler(SampledCpuLoad.UNCOLLECTED_PERCENTAGE, NUM_DECIMAL_PLACES);
 
     @Override
     public SampledCpuLoad sampleDataPoints(int timeWindowIndex, long timestamp, List<CpuLoadBo> dataPoints, CpuLoadBo previousDataPoint) {
@@ -62,16 +62,9 @@ public class CpuLoadSampler implements AgentStatSampler<CpuLoadBo, SampledCpuLoa
     }
 
     private AgentStatPoint<Double> createPoint(long timestamp, List<Double> values) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return SampledCpuLoad.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-
-        return new AgentStatPoint<>(
-                timestamp,
-                DOUBLE_DOWN_SAMPLER.sampleMin(values),
-                DOUBLE_DOWN_SAMPLER.sampleMax(values),
-                DOUBLE_DOWN_SAMPLER.sampleAvg(values),
-                DOUBLE_DOWN_SAMPLER.sampleSum(values));
-
+        return AgentStatPointSummary.doubleSummaryWithAllScale(timestamp, values, NUM_DECIMAL_PLACES);
     }
 }

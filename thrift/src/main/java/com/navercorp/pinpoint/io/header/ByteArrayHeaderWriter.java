@@ -18,39 +18,22 @@ package com.navercorp.pinpoint.io.header;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
-import org.apache.thrift.TException;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 public class ByteArrayHeaderWriter implements HeaderWriter {
 
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
     private final Header header;
     private final AutomaticBuffer buffer;
     private final HeaderEntity headerEntity;
 
-    public ByteArrayHeaderWriter(Header header) {
-        if (header == null) {
-            throw new NullPointerException("header");
-        }
-
-        this.buffer = new AutomaticBuffer(4);
-        this.header = header;
-        this.headerEntity = HeaderEntity.EMPTY_HEADER_ENTITY;
-    }
-
     public ByteArrayHeaderWriter(Header header, HeaderEntity headerEntity) {
-        if (header == null) {
-            throw new NullPointerException("header");
-        }
-
-        this.buffer = new AutomaticBuffer(4);
-        this.header = header;
+        this.header = Objects.requireNonNull(header, "header");
+        this.buffer = new AutomaticBuffer(32);
         this.headerEntity = headerEntity;
     }
 
@@ -58,22 +41,18 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     public byte[] writeHeader() {
         byte version = header.getVersion();
 
-        try{
-            if (version == HeaderV1.VERSION) {
-                writeHeaderV1();
-            } else if (version == HeaderV2.VERSION) {
-                writeHeaderV2();
-            } else {
-                throw new InvalidHeaderException("can not find header version. header : " + header);
-            }
-        } catch (Exception e) {
-            throw new InvalidHeaderException("can not write header. header : " + header, e);
+        if (version == HeaderV1.VERSION) {
+            writeHeaderV1();
+        } else if (version == HeaderV2.VERSION) {
+            writeHeaderV2();
+        } else {
+            throw new InvalidHeaderException("can not find header version. header : " + header);
         }
 
         return buffer.getBuffer();
     }
 
-    private void writeHeaderV1() throws TException {
+    private void writeHeaderV1() {
         writeHeaderPrefix();
     }
 
@@ -84,12 +63,12 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
     }
 
 
-    private void writeHeaderV2() throws TException, UnsupportedEncodingException {
+    private void writeHeaderV2() {
         writeHeaderPrefix();
         writeHeaderEntity();
     }
 
-    private void writeHeaderEntity() throws TException, UnsupportedEncodingException {
+    private void writeHeaderEntity() {
         Map<String, String> headerEntityData = headerEntity.getEntityAll();
         final int size = headerEntityData.size();
         if (size >= HeaderV2.HEADER_ENTITY_COUNT_MAX_SIZE) {
@@ -112,8 +91,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
             throw new InvalidHeaderException("string length is invalid in header data. value : " + value);
         }
 
-        byte[] valueBytes = value.getBytes(UTF_8);
-        buffer.put2PrefixedBytes(valueBytes);
+        buffer.put2PrefixedString(value);
     }
 
     private boolean validCheck(String value) {

@@ -50,22 +50,27 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-resttemplate-plugin"})
 public class RestTemplateIT {
 
-    private static WebServer webServer;
+    public static WebServer webServer;
 
     @BeforeClass
-    public static void BeforeClass() throws Exception {
+    public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
     @AfterClass
-    public static void AfterClass() throws Exception {
+    public static void afterClass() throws Exception {
         webServer = WebServer.cleanup(webServer);
     }
+
+    public String getAddress() {
+        return webServer.getCallHttpUrl();
+    }
+
 
     @Test
     public void test1() throws Exception {
         RestTemplate restTemplate = new RestTemplate();
-        String forObject = restTemplate.getForObject(webServer.getCallHttpUrl(), String.class);
+        String forObject = restTemplate.getForObject(getAddress(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -77,7 +82,7 @@ public class RestTemplateIT {
     @Test
     public void test2() throws Exception {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-        String forObject = restTemplate.getForObject(webServer.getCallHttpUrl(), String.class);
+        String forObject = restTemplate.getForObject(getAddress(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -89,7 +94,7 @@ public class RestTemplateIT {
     @Test
     public void test3() throws Exception {
         RestTemplate restTemplate = new RestTemplate(new Netty4ClientHttpRequestFactory());
-        String forObject = restTemplate.getForObject(webServer.getCallHttpUrl(), String.class);
+        String forObject = restTemplate.getForObject(getAddress(), String.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.awaitTrace(event("ASYNC", "Asynchronous Invocation"), 20, 3000);

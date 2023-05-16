@@ -14,13 +14,14 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
@@ -34,28 +35,31 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(3, springBeansConfig.getTargets().size());
+        assertThat(springBeansConfig.getTargets()).hasSize(3);
 
-        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, springBeansConfig.getTarget(1).getScope());
-        assertEquals(null, springBeansConfig.getTarget(1).getBasePackages());
-        assertEquals(1, springBeansConfig.getTarget(1).getNamePatterns().size());
-        assertEquals(1, springBeansConfig.getTarget(1).getAnnotations().size());
-        assertEquals(null, springBeansConfig.getTarget(1).getClassPatterns());
+        SpringBeansTarget target1 = springBeansConfig.getTarget(1);
+        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, target1.getScope());
+        assertThat(target1.getBasePackages()).isNull();
+        assertThat(target1.getNamePatterns()).hasSize(1);
+        assertThat(target1.getAnnotations()).hasSize(1);
+        assertThat(target1.getClassPatterns()).isNull();
 
-        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, springBeansConfig.getTarget(2).getScope());
-        assertEquals(null, springBeansConfig.getTarget(2).getBasePackages());
-        assertEquals(null, springBeansConfig.getTarget(2).getNamePatterns());
-        assertEquals(1, springBeansConfig.getTarget(2).getAnnotations().size());
-        assertEquals(1, springBeansConfig.getTarget(2).getClassPatterns().size());
+        SpringBeansTarget target2 = springBeansConfig.getTarget(2);
+        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, target2.getScope());
+        assertThat(target2.getBasePackages()).isNull();
+        assertThat(target2.getNamePatterns()).isNull();
+        assertThat(target2.getAnnotations()).hasSize(1);
+        assertThat(target2.getClassPatterns()).hasSize(1);
 
-        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, springBeansConfig.getTarget(3).getScope());
-        assertEquals(null, springBeansConfig.getTarget(3).getBasePackages());
-        assertEquals(null, springBeansConfig.getTarget(3).getNamePatterns());
-        assertEquals(1, springBeansConfig.getTarget(3).getAnnotations().size());
-        assertEquals(null, springBeansConfig.getTarget(3).getClassPatterns());
+        SpringBeansTarget target3 = springBeansConfig.getTarget(3);
+        assertEquals(SpringBeansTargetScope.COMPONENT_SCAN, target3.getScope());
+        assertThat(target3.getBasePackages()).isNull();
+        assertThat(target3.getNamePatterns()).isNull();
+        assertThat(target3.getAnnotations()).hasSize(1);
+        assertThat(target3.getClassPatterns()).isNull();
     }
 
     @Test
@@ -70,12 +74,12 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 2 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 3 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Repository");
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
 
         // backward compatiblity.
-        assertEquals(5, springBeansConfig.getTargets().size());
+        assertThat(springBeansConfig.getTargets()).hasSize(5);
     }
 
     @Test
@@ -98,10 +102,10 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 6 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
 
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(2, springBeansConfig.getTargets().size());
+        assertThat(springBeansConfig.getTargets()).hasSize(2);
     }
 
     @Test
@@ -117,9 +121,9 @@ public class SpringBeansConfigTest {
         // old
         properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "com.navercorp.*");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(3, springBeansConfig.getTargets().size());
+        assertThat(springBeansConfig.getTargets()).hasSize(3);
     }
 
     @Test
@@ -143,9 +147,9 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX, "java.lang.String");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(0, springBeansConfig.getTargets().size());
+        assertThat(springBeansConfig.getTargets()).isEmpty();
     }
 
     @Test
@@ -166,8 +170,8 @@ public class SpringBeansConfigTest {
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX, "post-processor");
         properties.put(SpringBeansConfig.SPRING_BEANS_PREFIX + 4 + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX, "org.springframework.stereotype.Service");
 
-        ProfilerConfig config = new DefaultProfilerConfig(properties);
+        ProfilerConfig config = ProfilerConfigLoader.load(properties);
         SpringBeansConfig springBeansConfig = new SpringBeansConfig(config);
-        assertEquals(4, springBeansConfig.getTargets().size());
+        assertThat(springBeansConfig.getTargets()).hasSize(4);
     }
 }

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

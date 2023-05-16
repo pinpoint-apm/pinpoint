@@ -55,16 +55,14 @@ public class ResponseTime {
     }
 
     public Histogram findHistogram(String agentId) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         return responseHistogramMap.get(agentId);
     }
 
     private Histogram getHistogram(String agentId) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         TimeHistogram histogram = responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
         return histogram;
     }
@@ -76,9 +74,8 @@ public class ResponseTime {
 
 
     public void addResponseTime(String agentId, Histogram copyHistogram) {
-        if (copyHistogram == null) {
-            throw new NullPointerException("copyHistogram");
-        }
+        Objects.requireNonNull(copyHistogram, "copyHistogram");
+        
         Histogram histogram = getHistogram(agentId);
         histogram.add(copyHistogram);
     }

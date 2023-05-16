@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.common.hbase.util;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -26,6 +27,11 @@ public final class CellUtils {
         return Bytes.toInt(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
     }
 
+    public static long qualifierToLong(Cell cell) {
+        Objects.requireNonNull(cell, "cell");
+        return Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+    }
+
     public static String qualifierToString(Cell cell) {
         Objects.requireNonNull(cell, "cell");
         return Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
@@ -34,5 +40,26 @@ public final class CellUtils {
     public static short valueToShort(Cell cell) {
         Objects.requireNonNull(cell, "cell");
         return Bytes.toShort(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+    }
+
+    public static long valueToLong(Cell cell) {
+        Objects.requireNonNull(cell, "cell");
+        return Bytes.toLong(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+    }
+
+    public static String valueToString(Cell cell) {
+        Objects.requireNonNull(cell, "cell");
+        return Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+    }
+
+
+    public static Cell lastCell(Cell[] rawCells, byte[] columnFamily) {
+        Cell last = null;
+        for (Cell rawCell : rawCells) {
+            if (CellUtil.matchingFamily(rawCell, columnFamily)) {
+                last = rawCell;
+            }
+        }
+        return last;
     }
 }

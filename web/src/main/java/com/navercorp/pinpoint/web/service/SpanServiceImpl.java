@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
+import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -25,12 +30,9 @@ import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
-import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 import com.navercorp.pinpoint.web.calltree.span.Align;
@@ -44,27 +46,32 @@ import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
-
-import org.apache.commons.collections.CollectionUtils;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  * @author minwoo.jung
  */
-//@Service
+@Service
 public class SpanServiceImpl implements SpanService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TraceDao traceDao;
 
@@ -78,33 +85,50 @@ public class SpanServiceImpl implements SpanService {
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
+    private final AgentInfoService agentInfoService;
+
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
-    public SpanServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+    public SpanServiceImpl(TraceDao traceDao,
                            SqlMetaDataDao sqlMetaDataDao,
                            Optional<MetaDataFilter> metaDataFilter,
                            ApiMetaDataDao apiMetaDataDao,
                            StringMetaDataDao stringMetaDataDao,
-                           ServiceTypeRegistryService serviceTypeRegistryService) {
+                           ServiceTypeRegistryService serviceTypeRegistryService,
+                           AgentInfoService agentInfoService) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.sqlMetaDataDao = Objects.requireNonNull(sqlMetaDataDao, "sqlMetaDataDao");
         this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
         this.apiMetaDataDao = Objects.requireNonNull(apiMetaDataDao, "apiMetaDataDao");
         this.stringMetaDataDao = Objects.requireNonNull(stringMetaDataDao, "stringMetaDataDao");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     @Override
-    public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
-        Objects.requireNonNull(transactionId, "transactionId");
+    public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter) {
+        return selectSpan(transactionId, filter, ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT);
+    }
 
-        final List<SpanBo> spans = traceDao.selectSpan(transactionId);
+    @Override
+    public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount) {
+        Objects.requireNonNull(transactionId, "transactionId");
+        Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(columnGetCount, "columnGetCount");
+
+        final FetchResult<List<SpanBo>> fetchResult = traceDao.selectSpan(transactionId, columnGetCount);
+        final List<SpanBo> spans = fetchResult.getData();
+        logger.debug("selectSpan spans:{}", spans.size());
+
+        populateAgentName(spans);
         if (CollectionUtils.isEmpty(spans)) {
             return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
         }
 
-        final SpanResult result = order(spans, selectedSpanHint);
+        final boolean isReachedLimit = columnGetCount.isReachedLimit(fetchResult.getFetchCount());
+
+        final SpanResult result = order(spans, filter, isReachedLimit);
         final CallTreeIterator callTreeIterator = result.getCallTree();
         final List<Align> values = callTreeIterator.values();
 
@@ -113,8 +137,50 @@ public class SpanServiceImpl implements SpanService {
         transitionMongoJson(values);
         transitionCachedString(values);
         transitionException(values);
-        // TODO need to at least show the row data when root span is not found. 
+
+        // TODO need to at least show the row data when root span is not found.
         return result;
+    }
+
+    @Override
+    public void populateAgentName(List<SpanBo> spanBoList) {
+        if (CollectionUtils.isEmpty(spanBoList)) {
+            return;
+        }
+        List<AgentIdStartTimeKey> query = spanBoList.stream()
+                .map(this::newAgentStartTimeKey)
+                .collect(Collectors.toList());
+
+        Map<AgentIdStartTimeKey, Optional<String>> agentNameMap = this.getAgentName(query);
+
+        bindAgentName(spanBoList, agentNameMap);
+    }
+
+    public AgentIdStartTimeKey newAgentStartTimeKey(SpanBo spanBo) {
+        return new AgentIdStartTimeKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
+    }
+
+    private void bindAgentName(List<SpanBo> list, Map<AgentIdStartTimeKey, Optional<String>> agentNameMap) {
+        for (SpanBo spanBo : list) {
+            AgentIdStartTimeKey key = new AgentIdStartTimeKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
+            Optional<String> agentName = agentNameMap.get(key);
+            spanBo.setAgentName(agentName.orElse(StringUtils.EMPTY));
+        }
+    }
+
+    private Map<AgentIdStartTimeKey, Optional<String>> getAgentName(List<AgentIdStartTimeKey> spanBoList) {
+        if (CollectionUtils.isEmpty(spanBoList)) {
+            return Collections.emptyMap();
+        }
+
+        Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
+        for (AgentIdStartTimeKey key : spanBoList) {
+            if (!nameMap.containsKey(key)) {
+                Optional<String> agentName = getAgentName(key.getAgentId(), key.getAgentStartTime());
+                nameMap.put(key, agentName);
+            }
+        }
+        return nameMap;
     }
 
 
@@ -210,16 +276,8 @@ public class SpanServiceImpl implements SpanService {
                 AnnotationBo collectionOption = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
 
                 if (collectionInfo != null) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(align.getDestinationId())
-                            .append(".")
-                            .append((String) collectionInfo.getValue());
-
-                    if (collectionOption != null) {
-                        stringBuilder.append(" with ")
-                                .append(((String) collectionOption.getValue()).toUpperCase());
-                    }
-                    collectionInfo.setValue(stringBuilder);
+                    String collectionValue = getCollectionInfo(align.getDestinationId(), collectionInfo, collectionOption);
+                    collectionInfo.setValue(collectionValue);
                 }
 
                 AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON_DATA.getCode());
@@ -243,6 +301,18 @@ public class SpanServiceImpl implements SpanService {
                     AnnotationBo bindValueAnnotation = new AnnotationBo(MongoConstants.MONGO_JSON_BINDVALUE.getCode(), jsonbindValue);
                     annotationBoList.add(bindValueAnnotation);
                 }
+            }
+
+            private String getCollectionInfo(String destinationId, AnnotationBo collection, AnnotationBo option) {
+                StringBuilder builder = new StringBuilder(32);
+                builder.append(destinationId);
+                builder.append(".");
+                builder.append(collection.getValue());
+                if (option != null) {
+                    builder.append(" with ");
+                    builder.append(Objects.toString(option.getValue(), "").toUpperCase());
+                }
+                return builder.toString();
             }
         });
     }
@@ -283,10 +353,8 @@ public class SpanServiceImpl implements SpanService {
                     String apiString = AnnotationUtils.findApiAnnotation(annotationBoList);
                     // annotation base api
                     if (apiString != null) {
-                        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId);
-                        apiMetaDataBo.setApiInfo(apiString);
-                        apiMetaDataBo.setLineNumber(-1);
-                        apiMetaDataBo.setMethodTypeEnum(MethodTypeEnum.DEFAULT);
+                        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId,
+                                LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
 
                         AnnotationBo apiAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);
                         annotationBoList.add(apiAnnotation);
@@ -385,9 +453,7 @@ public class SpanServiceImpl implements SpanService {
         final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, agentStartTime, cacheId);
         if (CollectionUtils.isEmpty(metaDataList)) {
             logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
-            StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, cacheId);
-            stringMetaDataBo.setStringValue("STRING-META-DATA-NOT-FOUND");
-            return stringMetaDataBo;
+            return new StringMetaDataBo(agentId, agentStartTime, cacheId, "STRING-META-DATA-NOT-FOUND");
         }
         if (metaDataList.size() == 1) {
             return metaDataList.get(0);
@@ -414,7 +480,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
-        if (apiMetaDataBo.getLineNumber() != -1) {
+        if (LineNumber.isLineNumber(apiMetaDataBo.getLineNumber())) {
             return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
         } else {
             return apiMetaDataBo.getApiInfo();
@@ -429,11 +495,22 @@ public class SpanServiceImpl implements SpanService {
         void replacement(Align align, List<AnnotationBo> annotationBoList);
     }
 
-    private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
-        SpanAligner spanAligner = new SpanAligner(spans, selectedSpanHint, serviceTypeRegistryService);
+    private SpanResult order(List<SpanBo> spans, Predicate<SpanBo> filter, boolean isReachedLimit) {
+        SpanAligner spanAligner = new SpanAligner(spans, filter, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
 
-        return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
+        TraceState.State matchType = spanAligner.getMatchType();
+        if (matchType == TraceState.State.PROGRESS && isReachedLimit) {
+            matchType = TraceState.State.OVERFLOW;
+        }
+
+        return new SpanResult(matchType, callTree.iterator());
+    }
+
+    private Optional<String> getAgentName(String agentId, long agentStartTime) {
+        final int deltaTimeInMilli = 1000;
+        final AgentInfo agentInfo = this.agentInfoService.getAgentInfoWithoutStatus(agentId, agentStartTime, deltaTimeInMilli);
+        return agentInfo == null ? Optional.empty() : Optional.ofNullable(agentInfo.getAgentName());
     }
 }
 

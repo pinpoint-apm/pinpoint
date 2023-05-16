@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -25,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.springframework.http.HttpHeaders;
 
 /**
@@ -35,17 +34,15 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
 
     private final RequestTraceWriter<HttpHeaders> requestTraceWriter;
 
-    public BodyInserterRequestBuilderConstructorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public BodyInserterRequestBuilderConstructorInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
 
         final ClientHeaderAdaptor clientHeaderAdaptor = new HttpHeadersClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpHeaders>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -77,7 +74,7 @@ public class BodyInserterRequestBuilderConstructorInterceptor implements AroundI
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 3) {
+        if (ArrayUtils.getLength(args) < 3) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }

@@ -23,7 +23,7 @@ import org.objectweb.asm.tree.FieldNode;
  * @author jaehong.kim
  */
 public class ASMFieldNodeAdapter {
-    private FieldNode fieldNode;
+    private final FieldNode fieldNode;
 
     public ASMFieldNodeAdapter(final FieldNode fieldNode) {
         this.fieldNode = fieldNode;

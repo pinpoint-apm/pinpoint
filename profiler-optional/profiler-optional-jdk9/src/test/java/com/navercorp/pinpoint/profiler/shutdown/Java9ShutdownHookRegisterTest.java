@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.shutdown;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author jaehong.kim

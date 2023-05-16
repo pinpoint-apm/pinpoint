@@ -52,6 +52,13 @@
         ORDER BY department
     </select>
 
+    <select id="searchUser" resultType="User">
+        SELECT *
+        FROM puser
+        WHERE user_id LIKE CONCAT('%', #{condition}, '%') OR NAME LIKE CONCAT('%', #{condition}, '%') OR department LIKE CONCAT('%', #{condition}, '%')
+        ORDER BY department
+    </select>
+
     <select id="isExistUserId" resultType="java.lang.Boolean">
         SELECT EXISTS (
             SELECT 1
@@ -59,7 +66,15 @@
             WHERE user_id = #{userId}
         )
     </select>
-    
+
+    <select id="selectUserByUserGroupId" resultType="User">
+        SELECT *
+        FROM puser a
+        INNER JOIN user_group_member b ON a.user_id = b.member_id
+        WHERE b.user_group_id = #{userGroupId}
+        ORDER BY a.department, a.name
+    </select>
+
     <update id="updateUser" parameterType="User">
         UPDATE puser
         SET name = #{name}, department = #{department}, phone_country_code = #{phoneCountryCode}, phoneNumber = #{phoneNumber}, email = #{email}

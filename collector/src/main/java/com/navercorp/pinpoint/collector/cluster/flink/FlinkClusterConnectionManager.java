@@ -19,12 +19,14 @@ import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionMana
 import com.navercorp.pinpoint.collector.sender.FlinkRequestFactory;
 import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import com.navercorp.pinpoint.collector.util.Address;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,13 +35,15 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 public class FlinkClusterConnectionManager implements ClusterConnectionManager {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final PinpointClientFactory pinpointClientFactory;
     private final TcpDataSenderRepository tcpDataSenderRepository;
-    private final FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory;
+    private final SerializerFactory<HeaderTBaseSerializer> flinkHeaderTBaseSerializerFactory;
     private final FlinkRequestFactory flinkRequestFactory;
 
-    public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository, FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, FlinkRequestFactory flinkRequestFactory) {
+    public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository,
+                                         SerializerFactory<HeaderTBaseSerializer> flinkHeaderTBaseSerializerFactory,
+                                         FlinkRequestFactory flinkRequestFactory) {
         this.tcpDataSenderRepository = Objects.requireNonNull(tcpDataSenderRepository, "tcpDataSenderRepository");
         this.flinkHeaderTBaseSerializerFactory = Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory");
         this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "flinkRequestFactory");
@@ -111,8 +115,8 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
         try {
             final String host = address.getHost();
             final int port = address.getPort();
-            FlinkHeaderTBaseSerializer serializer = flinkHeaderTBaseSerializerFactory.createSerializer();
-            FlinkTcpDataSender tcpDataSender = new FlinkTcpDataSender("flink", host, port, pinpointClientFactory, serializer, flinkRequestFactory);
+            HeaderTBaseSerializer serializer = flinkHeaderTBaseSerializerFactory.createSerializer();
+            TcpDataSender<TBase<?, ?>> tcpDataSender = new FlinkTcpDataSender("flink", host, port, pinpointClientFactory, serializer, flinkRequestFactory);
             return new SenderContext(tcpDataSender);
         } catch (Exception e) {
             logger.error("not create tcpDataSender for {}.", address, e);

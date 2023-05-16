@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.cluster.connection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 
@@ -27,23 +27,23 @@ import java.net.InetSocketAddress;
  */
 public class ClusterConnectorTest {
     @Test
-    public void testParseInetSocketAddress() throws Exception {
+    public void testParseInetSocketAddress() {
         InetSocketAddress inetSocketAddress = ClusterConnector.parseInetSocketAddress("127.0.0.1:8080");
-        Assert.assertEquals(inetSocketAddress.getAddress().getHostAddress(), "127.0.0.1");
-        Assert.assertEquals(inetSocketAddress.getPort(), 8080);
+        Assertions.assertEquals(inetSocketAddress.getAddress().getHostAddress(), "127.0.0.1");
+        Assertions.assertEquals(inetSocketAddress.getPort(), 8080);
 
     }
 
     @Test
-    public void testParseInetSocketAddress_error1() throws Exception {
+    public void testParseInetSocketAddress_error1() {
         InetSocketAddress inetSocketAddress = ClusterConnector.parseInetSocketAddress("127.0.0.1");
-        Assert.assertNull(inetSocketAddress);
+        Assertions.assertNull(inetSocketAddress);
     }
 
     @Test
-    public void testParseInetSocketAddress_error2() throws Exception {
+    public void testParseInetSocketAddress_error2() {
         InetSocketAddress inetSocketAddress = ClusterConnector.parseInetSocketAddress("127.0.0.1:");
-        Assert.assertNull(inetSocketAddress);
+        Assertions.assertNull(inetSocketAddress);
 
     }
 }

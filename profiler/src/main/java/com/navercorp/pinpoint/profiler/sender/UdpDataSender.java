@@ -17,11 +17,13 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.DnsSocketAddressProvider;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -35,9 +37,9 @@ import java.net.SocketException;
  * @author emeroad
  * @author koo.taejin
  */
-public class UdpDataSender implements DataSender {
+public class UdpDataSender<T> implements DataSender<T> {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
     // Caution. not thread safe
@@ -45,26 +47,26 @@ public class UdpDataSender implements DataSender {
 
     private final DatagramSocket udpSocket;
 
-    private final AsyncQueueingExecutor<Object> executor;
+    private final AsyncQueueingExecutor<T> executor;
 
     private final UdpSocketAddressProvider socketAddressProvider;
 
-    private final MessageSerializer<ByteMessage> messageSerializer;
+    private final MessageSerializer<T, ByteMessage> messageSerializer;
 
 
     public UdpDataSender(String host, int port, String threadName,
                          int queueSize, int timeout, int sendBufferSize,
-                         MessageSerializer<ByteMessage> messageSerializer) {
-        Assert.requireNonNull(host, "host");
+                         MessageSerializer<T, ByteMessage> messageSerializer) {
+        Objects.requireNonNull(host, "host");
         if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("port out of range:" + port);
         }
-        Assert.requireNonNull(host, "host");
+        Objects.requireNonNull(host, "host");
         Assert.isTrue(queueSize > 0, "queueSize");
         Assert.isTrue(timeout > 0, "timeout");
         Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
 
-        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
+        this.messageSerializer = Objects.requireNonNull(messageSerializer, "messageSerializer");
 
         final SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);
         this.socketAddressProvider = new RefreshStrategy(socketAddressProvider);
@@ -78,18 +80,18 @@ public class UdpDataSender implements DataSender {
     }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(T data) {
         return executor.execute(data);
     }
 
-    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
-        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+    private AsyncQueueingExecutor<T> createAsyncQueueingExecutor(int queueSize, String executorName) {
+        AsyncQueueingExecutorListener<T> listener = new DefaultAsyncQueueingExecutorListener<T>() {
             @Override
-            public void execute(Object message) {
+            public void execute(T message) {
                 UdpDataSender.this.sendPacket(message);
             }
         };
-        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        final AsyncQueueingExecutor<T> executor = new AsyncQueueingExecutor<>(queueSize, executorName, listener);
         return executor;
     }
 
@@ -117,7 +119,7 @@ public class UdpDataSender implements DataSender {
         }
     }
 
-    private void sendPacket(Object message) {
+    private void sendPacket(T message) {
 
         final InetSocketAddress inetSocketAddress = socketAddressProvider.resolve();
         if (inetSocketAddress.getAddress() == null) {

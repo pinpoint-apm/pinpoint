@@ -19,18 +19,18 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
-import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -47,27 +47,28 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private static final int MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS = 8;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final HbaseColumnFamily.SelfStatMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
 
     private int scanCacheSize = 40;
 
     private final RowMapper<ResponseTime> responseTimeMapper;
 
     private final HbaseOperations2 hbaseOperations2;
+    private final TableNameProvider tableNameProvider;
 
     private final RangeFactory rangeFactory;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    private final TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
-
     public HbaseMapResponseTimeDao(HbaseOperations2 hbaseOperations2,
-                                   TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor,
+                                   TableNameProvider tableNameProvider,
                                    @Qualifier("responseTimeMapper") RowMapper<ResponseTime> responseTimeMapper,
                                    RangeFactory rangeFactory,
                                    @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.responseTimeMapper = Objects.requireNonNull(responseTimeMapper, "responseTimeMapper");
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
@@ -76,26 +77,22 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     @Override
     public List<ResponseTime> selectResponseTime(Application application, Range range) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
+        Objects.requireNonNull(application, "application");
+
         if (logger.isDebugEnabled()) {
             logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }
 
-        Scan scan = createScan(application, range, descriptor.getColumnFamilyName());
+        Scan scan = createScan(application, range, DESCRIPTOR.getName());
 
-        TableName mapStatisticsSelfTableName = descriptor.getTableName();
+        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Self data {}", responseTimeList);
+
+        if (responseTimeList.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        if (!responseTimeList.isEmpty()) {
-            return responseTimeList;
-        }
-
-        return new ArrayList<>();
+        return responseTimeList;
     }
 
     private Scan createScan(Application application, Range range, byte[] family) {
@@ -110,8 +107,8 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         final Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
-        scan.setStartRow(startKey);
-        scan.setStopRow(endKey);
+        scan.withStartRow(startKey);
+        scan.withStopRow(endKey);
         scan.addFamily(family);
         scan.setId("ApplicationSelfScan");
 

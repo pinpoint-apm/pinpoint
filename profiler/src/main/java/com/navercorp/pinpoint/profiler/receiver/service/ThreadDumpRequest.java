@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
@@ -48,7 +48,7 @@ public class ThreadDumpRequest {
 
 
     public static ThreadDumpRequest create(TCmdActiveThreadDump request) {
-        Assert.requireNonNull(request, "request");
+        Objects.requireNonNull(request, "request");
 
         final int limit = getLimit(request.getLimit());
 
@@ -59,7 +59,7 @@ public class ThreadDumpRequest {
     }
 
     public static ThreadDumpRequest create(TCmdActiveThreadLightDump request) {
-        Assert.requireNonNull(request, "request");
+        Objects.requireNonNull(request, "request");
 
         int limit = getLimit(request.getLimit());
 
@@ -70,7 +70,7 @@ public class ThreadDumpRequest {
     }
 
     public static ThreadDumpRequest create(PCmdActiveThreadDump request) {
-        Assert.requireNonNull(request, "request");
+        Objects.requireNonNull(request, "request");
 
         int limit = getLimit(request.getLimit());
 
@@ -81,7 +81,7 @@ public class ThreadDumpRequest {
     }
 
     public static ThreadDumpRequest create(PCmdActiveThreadLightDump request) {
-        Assert.requireNonNull(request, "request");
+        Objects.requireNonNull(request, "request");
 
         int limit = getLimit(request.getLimit());
 
@@ -92,7 +92,7 @@ public class ThreadDumpRequest {
     }
 
     ThreadDumpRequest(StackTrace stackTrace, int limit, List<Long> localTransactionIdList, List<String> threadNameList) {
-        this.stackTrace = Assert.requireNonNull(stackTrace, "stackTrace");
+        this.stackTrace = Objects.requireNonNull(stackTrace, "stackTrace");
         this.limit = limit;
 
         this.localTransactionIdSet = newHashSet(localTransactionIdList);

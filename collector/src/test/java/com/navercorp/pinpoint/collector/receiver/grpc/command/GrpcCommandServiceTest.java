@@ -23,6 +23,9 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterServic
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -32,83 +35,145 @@ import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdServiceHandshake;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.curator.utils.ZKPaths;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.awaitility.core.ConditionTimeoutException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
  */
 public class GrpcCommandServiceTest {
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
+    private ConditionFactory awaitility() {
+        return Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(1000, TimeUnit.MILLISECONDS);
+    }
 
     @Test
-    public void simpleTest() throws IOException {
-        InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient();
-        zookeeperClient.connect();
-
-
-        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, this.getClass().getSimpleName(), new ClusterPointRepository());
-        manager.start();
+    public void oldVersionHandshakeTest() throws IOException, PinpointZookeeperException {
+        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
 
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
         Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
-        GrpcCommandService commandService = new GrpcCommandService(mockClusterService);
-
-        try {
+        try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST));
 
-            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
+            attachContext(new Header("test", "agentId", "agentName", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
+
+            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<>());
 
             handleMessageObserver.onNext(createHandshakeMessage());
+            awaitility().await("oldVersionHandshakeTest")
+                    .untilAsserted(() -> assertThat(manager.getClusterData()).hasSize(1));
 
-            awaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return manager.getClusterData().size() == 1;
-                }
-            });
 
-            RecordedStreamObserver<Empty> recordedStreamObserver = new RecordedStreamObserver<>();
-            PCmdEchoResponse defaultInstance = PCmdEchoResponse.getDefaultInstance();
-            commandService.commandEcho(defaultInstance, recordedStreamObserver);
-            Assert.assertNull(recordedStreamObserver.getLatestThrowable());
-
-            attachContext(createTransportMetaData(transportMetaData.getRemoteAddress(), transportMetaData.getTransportId() + 1));
-            commandService.commandEcho(defaultInstance, recordedStreamObserver);
-            Assert.assertNotNull(recordedStreamObserver.getLatestThrowable());
-
-            StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<Empty>());
-            Assert.assertNotNull(pCmdActiveThreadCountResStreamObserver);
-
-            attachContext(transportMetaData);
-            TempServerCallStreamObserver<Empty> streamConnectionManagerObserver = new TempServerCallStreamObserver<>();
-
-            pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(streamConnectionManagerObserver);
-            Assert.assertNull(streamConnectionManagerObserver.getLatestException());
-
-            pCmdActiveThreadCountResStreamObserver.onNext(PCmdActiveThreadCountRes.getDefaultInstance());
-            Assert.assertNotNull(streamConnectionManagerObserver.getLatestException());
-        } finally {
-            commandService.close();
+            assertHandleMessage(commandService, transportMetaData);
         }
     }
 
+    @Test
+    public void oldVersionHandshakeFailTest() throws IOException, PinpointZookeeperException {
+        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
+
+        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
+
+        try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
+            TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
+            attachContext(transportMetaData);
+            attachContext(new Header("test", "agentId", "agentName", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+
+            final TempServerCallStreamObserver<PCmdRequest> requestObserver = new TempServerCallStreamObserver<>();
+            commandService.handleCommand(requestObserver);
+
+            Assertions.assertThrows(ConditionTimeoutException.class, () -> {
+                        Awaitility.await("oldVersionHandshakeFailTest")
+                                .timeout(400, TimeUnit.MILLISECONDS)
+                                .untilAsserted(() -> assertThat(manager.getClusterData()).hasSize(1));
+                    }
+            );
+
+            Assertions.assertNotNull(requestObserver.getLatestException());
+        }
+    }
+
+    @Test
+    public void newVersionHandshakeTest() throws IOException, PinpointZookeeperException {
+        ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
+
+        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
+
+        try (GrpcCommandService commandService = new GrpcCommandService(mockClusterService)) {
+            TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
+            attachContext(transportMetaData);
+            attachContext(new Header("test", "agentId", null, "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+
+            commandService.handleCommandV2(new TempServerCallStreamObserver<>());
+            awaitility()
+                    .untilAsserted(() -> assertThat(manager.getClusterData()).hasSize(1));
+
+            assertHandleMessage(commandService, transportMetaData);
+        }
+    }
+
+    private ZookeeperProfilerClusterManager creteMemoryClusterManager() throws PinpointZookeeperException {
+        InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient();
+        zookeeperClient.connect();
+
+        String path
+                = ZKPaths.makePath(ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH, ZookeeperConstants.COLLECTOR_LEAF_PATH, this.getClass().getSimpleName());
+
+        ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, path, new ClusterPointRepository<>());
+        manager.start();
+        return manager;
+    }
+
+    private void assertHandleMessage(GrpcCommandService commandService, TransportMetadata transportMetaData) {
+        RecordedStreamObserver<Empty> recordedStreamObserver = new RecordedStreamObserver<>();
+        PCmdEchoResponse defaultInstance = PCmdEchoResponse.getDefaultInstance();
+        commandService.commandEcho(defaultInstance, recordedStreamObserver);
+        Assertions.assertNull(recordedStreamObserver.getLatestThrowable());
+
+        attachContext(createTransportMetaData(transportMetaData.getRemoteAddress(), transportMetaData.getTransportId() + 1));
+        commandService.commandEcho(defaultInstance, recordedStreamObserver);
+        Assertions.assertNotNull(recordedStreamObserver.getLatestThrowable());
+
+        StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<>());
+        Assertions.assertNotNull(pCmdActiveThreadCountResStreamObserver);
+
+        attachContext(transportMetaData);
+        TempServerCallStreamObserver<Empty> streamConnectionManagerObserver = new TempServerCallStreamObserver<>();
+
+        pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(streamConnectionManagerObserver);
+        Assertions.assertNull(streamConnectionManagerObserver.getLatestException());
+
+        pCmdActiveThreadCountResStreamObserver.onNext(PCmdActiveThreadCountRes.getDefaultInstance());
+        Assertions.assertNotNull(streamConnectionManagerObserver.getLatestException());
+    }
+
     private TransportMetadata createTransportMetaData(InetSocketAddress remoteAddress, long transportId) {
-        return new DefaultTransportMetadata(this.getClass().getSimpleName(), remoteAddress, transportId, System.currentTimeMillis());
+        InetSocketAddress localAddress = InetSocketAddress.createUnresolved("127.0.0.1", 1111);
+        return new DefaultTransportMetadata(this.getClass().getSimpleName(), remoteAddress, localAddress, transportId, System.currentTimeMillis(), -1L);
     }
 
     private void attachContext(TransportMetadata transportMetadata) {
@@ -132,6 +197,14 @@ public class GrpcCommandServiceTest {
         PCmdMessage.Builder builder = PCmdMessage.newBuilder();
         builder.setHandshakeMessage(handshakeBuilder.build());
         return builder.build();
+    }
+
+    private List<Integer> getCodeList() {
+        List<Integer> codes = new ArrayList<>();
+        for (TCommandType commandType : TCommandType.values()) {
+            codes.add((int) commandType.getCode());
+        }
+        return codes;
     }
 
     private static class TempServerCallStreamObserver<T> extends ServerCallStreamObserver<T> {

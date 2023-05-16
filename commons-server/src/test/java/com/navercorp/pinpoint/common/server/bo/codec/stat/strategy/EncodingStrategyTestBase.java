@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public abstract class EncodingStrategyTestBase<T extends Number> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentStatDataPointCodec codec = new AgentStatDataPointCodec();
 
@@ -65,7 +65,7 @@ public abstract class EncodingStrategyTestBase<T extends Number> {
         EncodingStrategy<T> chosenStrategy = analyzer.getBestStrategy();
         List<T> values = analyzer.getValues();
         logger.debug("Chosen : {}", analyzer.getBestStrategy());
-        Assert.assertTrue(createTestFailMessage(values, bestStrategies, chosenStrategy), bestStrategies.contains(chosenStrategy));
+        Assertions.assertTrue(bestStrategies.contains(chosenStrategy), createTestFailMessage(values, bestStrategies, chosenStrategy));
     }
 
     private <S extends EncodingStrategy<T>> String createTestFailMessage(List<T> values, Set<S> bestStrategies, EncodingStrategy<T> chosenStrategy) {
@@ -78,7 +78,7 @@ public abstract class EncodingStrategyTestBase<T extends Number> {
 
     private Set<EncodingStrategy<T>> getBestEncodingStrategies(Map<EncodingStrategy<T>, Integer> bufferSizes) {
         int minimumBufferSize = Integer.MAX_VALUE;
-        Set<EncodingStrategy<T>> bestStrategies = new HashSet<EncodingStrategy<T>>();
+        Set<EncodingStrategy<T>> bestStrategies = new HashSet<>();
         for (Map.Entry<EncodingStrategy<T>, Integer> entry : bufferSizes.entrySet()) {
             EncodingStrategy<T> strategy = entry.getKey();
             int bufferSize = entry.getValue();
@@ -94,7 +94,7 @@ public abstract class EncodingStrategyTestBase<T extends Number> {
     }
 
     private Map<EncodingStrategy<T>, Integer> getBufferSizes(List<T> values) {
-        Map<EncodingStrategy<T>, Integer> bufferSizes = new HashMap<EncodingStrategy<T>, Integer>();
+        Map<EncodingStrategy<T>, Integer> bufferSizes = new HashMap<>();
         for (EncodingStrategy<T> strategy : getEncodingStrategies()) {
             Buffer encodedBuffer = new AutomaticBuffer();
             codec.encodeValues(encodedBuffer, strategy, values);

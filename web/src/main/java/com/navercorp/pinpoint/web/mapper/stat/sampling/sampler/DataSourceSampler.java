@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -32,8 +31,6 @@ import java.util.List;
  */
 @Component
 public class DataSourceSampler implements AgentStatSampler<DataSourceBo, SampledDataSource> {
-
-    private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledDataSource.UNCOLLECTED_VALUE);
 
     @Override
     public SampledDataSource sampleDataPoints(int timeWindowIndex, long timestamp, List<DataSourceBo> dataSourceBoList, DataSourceBo previousDataSourceBo) {
@@ -88,16 +85,11 @@ public class DataSourceSampler implements AgentStatSampler<DataSourceBo, Sampled
     }
 
     private AgentStatPoint<Integer> createPoint(long timestamp, List<Integer> values) {
-        if (values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return SampledDataSource.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
-        } else {
-            return new AgentStatPoint<>(
-                    timestamp,
-                    INTEGER_DOWN_SAMPLER.sampleMin(values),
-                    INTEGER_DOWN_SAMPLER.sampleMax(values),
-                    INTEGER_DOWN_SAMPLER.sampleAvg(values, 3),
-                    INTEGER_DOWN_SAMPLER.sampleSum(values));
         }
+
+        return AgentStatPointSummary.intSummary(timestamp, values, 3);
     }
 
 }

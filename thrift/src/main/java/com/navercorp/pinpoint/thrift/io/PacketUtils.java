@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.thrift.io;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -25,9 +26,8 @@ import java.util.Arrays;
 public class PacketUtils {
 
     public static byte[] sliceData(DatagramPacket packet, int startOffset) {
-        if (packet == null) {
-            throw new NullPointerException("packet");
-        }
+        Objects.requireNonNull(packet, "packet");
+
         int packetLength = packet.getLength();
         int packetOffset = packet.getOffset();
         byte[] source = packet.getData();
@@ -35,9 +35,7 @@ public class PacketUtils {
     }
 
     public static byte[] sliceData(byte[] packet, int startOffset, int length) {
-        if (packet == null) {
-            throw new NullPointerException("packet");
-        }
+        Objects.requireNonNull(packet, "packet");
         return Arrays.copyOfRange(packet, startOffset, length);
     }
 }

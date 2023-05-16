@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +38,7 @@ public class DatabaseInfoUtilsTest {
 
         DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, UnKnownDatabaseInfo.MONGO_INSTANCE);
 
-        Assert.assertEquals(databaseInfo, defaultDatabaseInfo);
+        Assertions.assertEquals(databaseInfo, defaultDatabaseInfo);
     }
 
     @Test
@@ -49,14 +47,14 @@ public class DatabaseInfoUtilsTest {
         when(databaseInfoAccessor._$PINPOINT$_getDatabaseInfo()).thenReturn(null);
 
         DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(databaseInfoAccessor, UnKnownDatabaseInfo.MONGO_INSTANCE);
-        Assert.assertEquals(databaseInfo, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        Assertions.assertEquals(databaseInfo, UnKnownDatabaseInfo.MONGO_INSTANCE);
     }
 
     @Test
     public void getDatabaseInfo_unknown() {
         DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(new Object(), UnKnownDatabaseInfo.MONGO_INSTANCE);
 
-        Assert.assertEquals(databaseInfo, UnKnownDatabaseInfo.MONGO_INSTANCE);
+        Assertions.assertEquals(databaseInfo, UnKnownDatabaseInfo.MONGO_INSTANCE);
     }
 
 }

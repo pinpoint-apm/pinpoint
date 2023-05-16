@@ -16,27 +16,31 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
+import com.navercorp.pinpoint.collector.config.ScatterProperties;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
+import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
+
 
 /**
  * find traceids by application name
@@ -47,29 +51,39 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
+    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
 
     private final HbaseOperations2 hbaseTemplate;
-
-    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+    private final TableNameProvider tableNameProvider;
 
     private final AcceptedTimeService acceptedTimeService;
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
 
-    public HbaseApplicationTraceIndexDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
-                                         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
+    private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
+    private final ScatterProperties scatterProperties;
+
+    private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
+
+    public HbaseApplicationTraceIndexDao(HbaseOperations2 hbaseTemplate,
+                                         TableNameProvider tableNameProvider,
                                          @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor rowKeyDistributor,
-                                         AcceptedTimeService acceptedTimeService) {
+                                         AcceptedTimeService acceptedTimeService,
+                                         ScatterProperties scatterProperties) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.scatterProperties = Objects.requireNonNull(scatterProperties, "scatterProperties");
     }
 
     @Override
     public void insert(final SpanBo span) {
         Objects.requireNonNull(span, "span");
+
         if (logger.isDebugEnabled()) {
             logger.debug("insert ApplicationTraceIndex: {}", span);
         }
@@ -79,30 +93,84 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         // Assert applicationName
         CollectorUtils.checkApplicationName(span.getApplicationId());
 
-        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstatns.AGENT_NAME_MAX_LEN);
-        buffer.putVInt(span.getElapsed());
-        buffer.putSVInt(span.getErrCode());
-        buffer.putPrefixedString(span.getAgentId());
-        final byte[] value = buffer.getBuffer();
-
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final byte[] distributedKey = createRowKey(span, acceptedTime);
+
         final Put put = new Put(distributedKey);
 
-        put.addColumn(descriptor.getColumnFamilyName(), makeQualifier(span) , acceptedTime, value);
+        final byte[] qualifier = SpanUtils.getVarTransactionId(span);
 
-        final TableName applicationTraceIndexTableName = descriptor.getTableName();
+        final byte[] indexValue = buildIndexValue(span);
+        put.addColumn(INDEX.getName(), qualifier, acceptedTime, indexValue);
+
+        final byte[] metaDataValue = buildMetaData(span);
+        put.addColumn(META.getName(), qualifier, metaDataValue);
+
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
         hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
     }
 
-    private byte[] makeQualifier(final SpanBo span) {
-        final byte[] qualifier = SpanUtils.getVarTransactionId(span);
-        return qualifier;
+    private byte[] buildIndexValue(SpanBo span) {
+        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
+        buffer.putVInt(span.getElapsed());
+        buffer.putSVInt(span.getErrCode());
+        buffer.putPrefixedString(span.getAgentId());
+        final byte[] indexValue = buffer.getBuffer();
+        return indexValue;
+    }
+
+    /**
+     * DotMetaData.Builder.read();
+     */
+    private byte[] buildMetaData(SpanBo span) {
+        Buffer buffer = new AutomaticBuffer(64);
+        buffer.putByte((byte) 0);
+        buffer.putLong(span.getSpanId());
+        buffer.putLong(span.getStartTime());
+        // fixed field offset
+        buffer.setByte(0, (byte) buffer.getOffset());
+
+        buffer.putPrefixedString(span.getRpc());
+        buffer.putPrefixedString(span.getRemoteAddr());
+        buffer.putPrefixedString(span.getEndPoint());
+        buffer.putPrefixedString(span.getAgentName());
+
+        return buffer.getBuffer();
     }
 
     private byte[] createRowKey(SpanBo span, long acceptedTime) {
+        if (scatterProperties.getServerSideScan() == ScatterProperties.ServerSideScan.v2) {
+            return createRowKeyV2(span, acceptedTime);
+        }
+        return createRowKeyV1(span, acceptedTime);
+    }
+
+    private byte[] createRowKeyV1(SpanBo span, long acceptedTime) {
         // distribute key evenly
-        final byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationId(), acceptedTime);
+        final byte[] applicationTraceIndexRowKey = rowKeyEncoder.encodeRowKey(span.getApplicationId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
+    }
+
+
+    private byte[] createRowKeyV2(SpanBo span, long acceptedTime) {
+        // distribute key evenly
+        byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
+        final byte[] appTraceIndexRowKey = newRowKeyV2(span.getApplicationId(), acceptedTime, fuzzyKey);
+        return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
+    }
+
+    byte[] newRowKeyV2(String applicationName, long acceptedTime, byte fuzzySlotKey) {
+        Objects.requireNonNull(applicationName, "applicationName");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
+        }
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationName, acceptedTime);
+
+        byte[] fuzzyRowKey = new byte[rowKey.length + 1];
+        System.arraycopy(rowKey, 0, fuzzyRowKey, 0, rowKey.length);
+
+        fuzzyRowKey[rowKey.length] = fuzzySlotKey;
+        return fuzzyRowKey;
     }
 }

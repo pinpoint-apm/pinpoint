@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 
 import java.net.SocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Taejin Koo
@@ -30,11 +31,12 @@ public interface PinpointSocket {
 
     void send(byte[] payload);
 
-    Future<ResponseMessage> request(byte[] payload);
+    CompletableFuture<ResponseMessage> request(byte[] payload);
 
     void response(int requestId, byte[] payload);
 
     ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler)  throws StreamException;
+    ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout)  throws StreamException;
 
     SocketAddress getRemoteAddress();
 

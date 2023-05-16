@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.metadata;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class StringMetaData {
+public class StringMetaData implements MetaDataType {
 
     private final int stringId; // required
     private final String stringValue; // required

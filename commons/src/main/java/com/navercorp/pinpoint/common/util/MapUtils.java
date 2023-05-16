@@ -27,7 +27,7 @@ public final class MapUtils {
     private MapUtils() {
     }
 
-    public static <T> boolean isEmpty(final Map<?, ?> map) {
+    public static boolean isEmpty(final Map<?, ?> map) {
         return map == null || map.isEmpty();
     }
 
@@ -36,11 +36,11 @@ public final class MapUtils {
         return map != null && !map.isEmpty();
     }
 
-    public static <T> int nullSafeSize(final Map<?, ?> map) {
+    public static int nullSafeSize(final Map<?, ?> map) {
         return nullSafeSize(map, 0);
     }
 
-    public static <T> int nullSafeSize(final Map<?, ?> map, final int nullValue) {
+    public static int nullSafeSize(final Map<?, ?> map, final int nullValue) {
         if (map == null) {
             return nullValue;
         }

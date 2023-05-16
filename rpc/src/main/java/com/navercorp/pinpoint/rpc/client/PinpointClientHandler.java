@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
@@ -25,6 +24,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 
 import java.net.SocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
@@ -40,17 +40,18 @@ public interface PinpointClientHandler {
 
     void sendSync(byte[] bytes);
 
-    Future sendAsync(byte[] bytes);
+    CompletableFuture<Void> sendAsync(byte[] bytes);
 
     void close();
 
     void send(byte[] bytes);
 
-    Future<ResponseMessage> request(byte[] bytes);
+    CompletableFuture<ResponseMessage> request(byte[] bytes);
 
     void response(int requestId, byte[] payload);
 
     ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException;
+    ClientStreamChannel openStreamAndAwait(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws StreamException;
 
     void sendPing();
 

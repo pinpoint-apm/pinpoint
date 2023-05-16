@@ -28,11 +28,11 @@ import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -41,16 +41,21 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
 
     public static final ManagedAgentLifeCycle STATE_NOT_MANAGED = null;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
+    private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
-    @Autowired
-    private AgentEventAsyncTaskService agentEventAsyncTaskService;
+    private final AgentEventAsyncTaskService agentEventAsyncTaskService;
 
-    @Autowired
-    private ChannelPropertiesFactory channelPropertiesFactory;
+    private final ChannelPropertiesFactory channelPropertiesFactory;
+
+    public AgentLifeCycleChangeEventHandler(AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService,
+                                            AgentEventAsyncTaskService agentEventAsyncTaskService,
+                                            ChannelPropertiesFactory channelPropertiesFactory) {
+        this.agentLifeCycleAsyncTaskService = Objects.requireNonNull(agentLifeCycleAsyncTaskService, "agentLifeCycleAsyncTaskService");
+        this.agentEventAsyncTaskService = Objects.requireNonNull(agentEventAsyncTaskService, "agentEventAsyncTaskService");
+        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory");
+    }
 
     @Override
     public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {

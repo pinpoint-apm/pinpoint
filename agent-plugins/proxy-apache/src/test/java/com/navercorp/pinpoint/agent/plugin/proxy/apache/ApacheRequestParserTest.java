@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.agent.plugin.proxy.apache;
 
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -30,7 +32,7 @@ public class ApacheRequestParserTest {
         ApacheRequestParser parser = new ApacheRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
         String value = "t=" + currentTimeMillis + "999" + " D=12345 i=99 b=1";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(12345, proxyHttpHeader.getDurationTimeMicroseconds());
@@ -43,7 +45,7 @@ public class ApacheRequestParserTest {
         ApacheRequestParser parser = new ApacheRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
         String value = "t=" + currentTimeMillis + "999";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
@@ -56,7 +58,7 @@ public class ApacheRequestParserTest {
         ApacheRequestParser parser = new ApacheRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
         String value = " D=12345";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
     }
 
@@ -64,7 +66,7 @@ public class ApacheRequestParserTest {
     public void parseApacheHttpdOnlyIdle() throws Exception {
         ApacheRequestParser parser = new ApacheRequestParser();
         String value = "i=99";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
     }
 
@@ -72,7 +74,7 @@ public class ApacheRequestParserTest {
     public void parseApacheHttpdOnlyBusy() throws Exception {
         ApacheRequestParser parser = new ApacheRequestParser();
         String value = "b=1";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
     }
 
@@ -80,7 +82,7 @@ public class ApacheRequestParserTest {
     public void parseApacheHttpdTooShotReceivedTime() throws Exception {
         ApacheRequestParser parser = new ApacheRequestParser();
         String value = "t=99" + " D=12345 i=99 b=1";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertFalse(proxyHttpHeader.isValid());
     }
 }

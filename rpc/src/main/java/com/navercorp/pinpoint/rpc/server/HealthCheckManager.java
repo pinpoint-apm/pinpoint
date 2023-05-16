@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import java.util.Objects;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -25,8 +27,8 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HealthCheckManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final PingSimplePacket PING_PACKET = PingSimplePacket.PING_PACKET;
@@ -52,9 +54,9 @@ public class HealthCheckManager {
     private final WriteFailFutureListener writeFailListener = new WriteFailFutureListener(logger, "ping write fail.", "ping write success.");
 
     public HealthCheckManager(Timer timer, long waitTimeMillis, ChannelGroup channelGroup) {
-        Assert.requireNonNull(timer, "timer");
+        Objects.requireNonNull(timer, "timer");
         Assert.isTrue(waitTimeMillis > 0, "waitTimeMillis is must greater than 0");
-        Assert.requireNonNull(channelGroup, "channelGroup");
+        Objects.requireNonNull(channelGroup, "channelGroup");
 
         this.timer = timer;
         this.waitTimeMillis = waitTimeMillis;

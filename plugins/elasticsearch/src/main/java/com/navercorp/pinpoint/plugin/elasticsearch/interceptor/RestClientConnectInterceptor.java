@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.elasticsearch.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.HttpHostInfoAccessor;
 import org.apache.http.HttpHost;
 
@@ -47,7 +48,8 @@ public class RestClientConnectInterceptor implements AroundInterceptor {
         }
 
         if (target instanceof HttpHostInfoAccessor) {
-            ((HttpHostInfoAccessor) target)._$PINPOINT$_setHttpHostInfo((HttpHost[]) args[3]);
+            HttpHost[] httpHosts = ArrayArgumentUtils.getArgument(args, 3, HttpHost[].class);
+            ((HttpHostInfoAccessor) target)._$PINPOINT$_setHttpHostInfo(httpHosts);
         }
 
     }

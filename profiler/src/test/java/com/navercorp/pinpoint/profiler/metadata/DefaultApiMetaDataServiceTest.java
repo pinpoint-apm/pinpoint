@@ -17,12 +17,16 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.profiler.cache.IdAllocator;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,21 +34,22 @@ import static org.mockito.Mockito.*;
 public class DefaultApiMetaDataServiceTest {
 
     @Test
-    public void cacheApi() throws Exception {
-        EnhancedDataSender<Object> dataSender = mock(EnhancedDataSender.class);
-        SimpleCache<String> cache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
+    public void cacheApi() {
+        EnhancedDataSender<MetaDataType> dataSender = mock(EnhancedDataSender.class);
+        SimpleCache<String> cache = new SimpleCache<>(new IdAllocator.ZigZagAllocator(1));
         ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender, cache);
 
-        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method", null, null);
+        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method",
+                null, null, 0);
 
         int first = apiMetaDataService.cacheApi(methodDescriptor);
 
-        Assert.assertNotEquals("not exist", first, 0);
-        verify(dataSender, times(1)).request(any(ApiMetaData.class));
+        Assertions.assertNotEquals(first, 0, "not exist");
+        verify(dataSender).request(any(ApiMetaData.class));
 
         int second = apiMetaDataService.cacheApi(methodDescriptor);
-        Assert.assertEquals("check cache", first, second);
-        verify(dataSender, times(1)).request(any(ApiMetaData.class));
+        Assertions.assertEquals(first, second, "check cache");
+        verify(dataSender).request(any(ApiMetaData.class));
     }
 
 }

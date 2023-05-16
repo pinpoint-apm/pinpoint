@@ -1,15 +1,15 @@
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
-import org.junit.Assert;
 import net.spy.memcached.ops.OperationState;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class BaseOperationTransitionStateInterceptorTest {
 
     @Test
     public void testComplete() throws Exception {
         String complete = OperationState.COMPLETE.toString();
-        Assert.assertEquals("COMPLETE", complete);
+        Assertions.assertEquals("COMPLETE", complete);
     }
 
     @Test
@@ -27,7 +27,7 @@ public class BaseOperationTransitionStateInterceptorTest {
             }
         }
 
-        Assert.fail("OperationState.TIMEDOUT state not found");
+        Assertions.fail("OperationState.TIMEDOUT state not found");
     }
 
     private boolean isArcusExist() {

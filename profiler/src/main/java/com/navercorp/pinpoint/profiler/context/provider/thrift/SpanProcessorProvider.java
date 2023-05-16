@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +35,7 @@ public class SpanProcessorProvider implements Provider<SpanProcessor<TSpan, TSpa
 
     @Inject
     public SpanProcessorProvider(TraceDataFormatVersion version) {
-        this.version = Assert.requireNonNull(version, "version");
+        this.version = Objects.requireNonNull(version, "version");
     }
 
     @Override

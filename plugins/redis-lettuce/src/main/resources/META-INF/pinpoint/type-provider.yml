@@ -8,3 +8,6 @@ serviceTypes:
       matcher:
             type: 'exact'
             code: 310 # redis.io
+    - code: 8206
+      name: 'REDIS_LETTUCE_INTERNAL'
+      desc: 'REDIS'

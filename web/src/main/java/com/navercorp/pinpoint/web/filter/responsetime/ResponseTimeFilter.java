@@ -9,5 +9,8 @@ public interface ResponseTimeFilter {
 
     boolean accept(long elapsed);
 
+    static boolean filterAccept(long elapsed) {
+        return ACCEPT;
+    }
 
 }

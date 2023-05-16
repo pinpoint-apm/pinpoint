@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -43,8 +43,8 @@ public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateLi
     private final StorageFactory storageFactory;
 
     SpanAsyncStateListener(Span span, StorageFactory storageFactory) {
-        this.span = Assert.requireNonNull(span, "span");
-        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory");
+        this.span = Objects.requireNonNull(span, "span");
+        this.storageFactory = Objects.requireNonNull(storageFactory, "storageFactory");
     }
 
     @Override

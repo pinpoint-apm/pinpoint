@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.web.task;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskDecorator;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +34,7 @@ public class ChainedTaskDecoratorTest {
 
     private SimpleAsyncTaskExecutor executor;
 
-    @Before
+    @BeforeEach
     public void setup() {
         executor = new SimpleAsyncTaskExecutor("Test-Worker-");
     }
@@ -48,7 +47,7 @@ public class ChainedTaskDecoratorTest {
         final CountingTaskDecorator decorator1 = new CountingTaskDecorator();
         final CountingTaskDecorator decorator2 = new CountingTaskDecorator();
         final CountingTaskDecorator decorator3 = new CountingTaskDecorator();
-        final List<TaskDecorator> decorators = Arrays.asList(decorator1, decorator2, decorator3);
+        final List<TaskDecorator> decorators = List.of(decorator1, decorator2, decorator3);
         final ChainedTaskDecorator chainedDecorator = new ChainedTaskDecorator(decorators);
         executor.setTaskDecorator(chainedDecorator);
         // When
@@ -57,9 +56,9 @@ public class ChainedTaskDecoratorTest {
         }
         completeLatch.await(5L, TimeUnit.SECONDS);
         // Then
-        Assert.assertEquals(testCount, decorator1.getCount());
-        Assert.assertEquals(testCount, decorator2.getCount());
-        Assert.assertEquals(testCount, decorator3.getCount());
+        Assertions.assertEquals(testCount, decorator1.getCount());
+        Assertions.assertEquals(testCount, decorator2.getCount());
+        Assertions.assertEquals(testCount, decorator3.getCount());
     }
 
     private static class CountingTaskDecorator implements TaskDecorator {

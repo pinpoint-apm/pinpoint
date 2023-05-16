@@ -18,20 +18,19 @@ package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
 /**
  * @author HyunGil Jeong
+ * @author Jongjin.Bae
  */
-@Configuration
 public class ConfigProperties {
 
-    private final Logger logger = LoggerFactory.getLogger(ConfigProperties.class);
+    private final Logger logger = LogManager.getLogger(ConfigProperties.class);
 
     @Value("${config.sendUsage:true}")
     private boolean sendUsage;
@@ -63,8 +62,17 @@ public class ConfigProperties {
     @Value("${config.show.stackTraceOnError:true}")
     private boolean showStackTraceOnError;
 
+    @Value("${config.show.systemMetric:false}")
+    private boolean showSystemMetric;
+
+    @Value("${config.show.urlStat:false}")
+    private boolean showUrlStat;
+
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
+    
+    @Value("${webhook.enable:false}")
+    private boolean webhookEnable;
 
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
@@ -106,14 +114,26 @@ public class ConfigProperties {
         return showStackTraceOnError;
     }
 
+    public boolean isShowSystemMetric() {
+        return showSystemMetric;
+    }
+
+    public boolean isShowUrlStat() {
+        return showUrlStat;
+    }
+
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
+    }
+    
+    public boolean isWebhookEnable() {
+        return webhookEnable;
     }
 
     @PostConstruct
     public void log() {
         logger.info("{}", this);
-        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
@@ -131,6 +151,7 @@ public class ConfigProperties {
         sb.append(", showApplicationStat=").append(showApplicationStat);
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
+        sb.append(", webhookEnable=").append(webhookEnable);
         sb.append('}');
         return sb.toString();
     }

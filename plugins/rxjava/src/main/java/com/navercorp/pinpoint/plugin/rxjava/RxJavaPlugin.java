@@ -89,7 +89,7 @@ public class RxJavaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
 
         protected void transformNestedScheduledActions(InstrumentClass target, Instrumentor instrumentor, ClassLoader classLoader) {
-            ;
+
         }
     }
 

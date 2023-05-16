@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +33,7 @@ public class RefreshStrategy implements UdpSocketAddressProvider {
     public static final long DEFAULT_PORT_UNREACHABLE_REFRESH_DELAY = TimeUnit.SECONDS.toMillis(30);
     public static final long NORMAL_REFRESH_DELAY = TimeUnit.MINUTES.toMillis(5);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SocketAddressProvider socketAddressProvider;
     private final long normalRefreshDelay;
@@ -49,7 +49,7 @@ public class RefreshStrategy implements UdpSocketAddressProvider {
     }
 
     public RefreshStrategy(SocketAddressProvider socketAddressProvider, long normalRefreshDelay, long portUnreachableRefreshDelay) {
-        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
+        this.socketAddressProvider = Objects.requireNonNull(socketAddressProvider, "socketAddressProvider");
         this.normalRefreshDelay = normalRefreshDelay;
         this.portUnreachableRefreshDelay = portUnreachableRefreshDelay;
     }

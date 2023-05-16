@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntryPointInterceptor {
 
-    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
+    private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<>();
 
     /**
      * Instantiates a new Consumer multi record entry point interceptor.
@@ -58,7 +60,8 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
     }
 
     private ConsumerRecordsDesc getConsumerRecordsDesc(Object[] args) {
-        return ConsumerRecordsDesc.create(getTargetParameter(args));
+        Iterable<?> iter = ArrayArgumentUtils.getArgument(args, parameterIndex, Iterable.class);
+        return ConsumerRecordsDesc.create(iter);
     }
 
     private Trace createTrace(ConsumerRecordsDesc consumerRecordsDesc) {
@@ -120,8 +123,11 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
 
                 int size = consumerRecordsDesc.size();
 
+                String endPointAddress = consumerRecordsDesc.getEndPointAddress();
                 String remoteAddress = consumerRecordsDesc.getRemoteAddress();
-                recorder.recordEndPoint(remoteAddress);
+                endPointAddress = StringUtils.defaultIfEmpty(endPointAddress, remoteAddress);
+
+                recorder.recordEndPoint(endPointAddress);
                 recorder.recordRemoteAddress(remoteAddress);
                 recorder.recordAcceptorHost(remoteAddress);
 

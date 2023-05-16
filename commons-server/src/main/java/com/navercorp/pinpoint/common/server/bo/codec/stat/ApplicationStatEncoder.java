@@ -21,16 +21,17 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
-public class ApplicationStatEncoder {
+public class ApplicationStatEncoder<T extends JoinStatBo> {
 
-    private final ApplicationStatCodec codec;
+    private final ApplicationStatCodec<T> codec;
 
-    public ApplicationStatEncoder(ApplicationStatCodec codec) {
-        this.codec = codec;
+    public ApplicationStatEncoder(ApplicationStatCodec<T> codec) {
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     public ByteBuffer encodeQualifier(long timestampDelta) {
@@ -40,7 +41,7 @@ public class ApplicationStatEncoder {
         return qualifierBuffer.wrapByteBuffer();
     }
 
-    public ByteBuffer encodeValue(List<JoinStatBo> JoinStatBoList) {
+    public ByteBuffer encodeValue(List<T> JoinStatBoList) {
         Buffer valueBuffer = new AutomaticBuffer();
         valueBuffer.putByte(this.codec.getVersion());
         codec.encodeValues(valueBuffer, JoinStatBoList);

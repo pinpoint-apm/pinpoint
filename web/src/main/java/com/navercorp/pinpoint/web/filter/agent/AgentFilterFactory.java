@@ -28,7 +28,7 @@ public class AgentFilterFactory {
 
     public static AgentFilter createAgentFilter(String agentId) {
         if (StringUtils.isBlank(agentId)) {
-            return SkipAgentFilter.SKIP_FILTER;
+            return AgentFilter::filterAccept;
         }
         return new DefaultAgentFilter(agentId);
     }

@@ -26,7 +26,8 @@ import java.util.Comparator;
  */
 public class TimeHistogram extends Histogram {
 
-    public static final Comparator<TimeHistogram> TIME_STAMP_ASC_COMPARATOR = new TimeStampAscComparator();
+    public static final Comparator<TimeHistogram> TIME_STAMP_ASC_COMPARATOR
+            = Comparator.comparingLong(TimeHistogram::getTimeStamp);
 
     private final long timeStamp;
 
@@ -44,15 +45,6 @@ public class TimeHistogram extends Histogram {
         return timeStamp;
     }
 
-
-    private static class TimeStampAscComparator implements Comparator<TimeHistogram> {
-        @Override
-        public int compare(TimeHistogram thisVal, TimeHistogram anotherVal) {
-            long thisLong = thisVal.getTimeStamp();
-            long anotherLong = anotherVal.getTimeStamp();
-            return (thisLong<anotherLong ? -1 : (thisVal==anotherVal ? 0 : 1));
-        }
-    }
 
     @Override
     public String toString() {

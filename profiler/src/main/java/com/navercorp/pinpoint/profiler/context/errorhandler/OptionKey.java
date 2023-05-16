@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,8 +25,8 @@ public class OptionKey {
 
 
     public static String getKey(String errorHandlerId, String optionKey) {
-        Assert.requireNonNull(errorHandlerId, "errorHandlerId");
-        Assert.requireNonNull(optionKey, "optionKey");
+        Objects.requireNonNull(errorHandlerId, "errorHandlerId");
+        Objects.requireNonNull(optionKey, "optionKey");
         return String.format(KEY_PATTERN, PREFIX, errorHandlerId, optionKey);
     }
 

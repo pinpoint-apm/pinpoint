@@ -31,17 +31,17 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
     }
 
     @Override
-    public SpanEvent dummyInstance() {
-        final SpanEvent spanEvent = new DummySpanEvent();
-        return spanEvent;
+    public SpanEvent disableInstance() {
+        return new DisableSpanEvent();
     }
 
     @Override
-    public boolean isDummy(SpanEvent element) {
-        if (element instanceof DummySpanEvent) {
-            return true;
-        }
-        return false;
+    public boolean isDisable(SpanEvent element) {
+        return isDisableSpanEvent(element);
+    }
+
+    public static boolean isDisableSpanEvent(SpanEvent spanEvent) {
+        return spanEvent instanceof DisableSpanEvent;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
     }
 
     @Override
-    public void setSequence(SpanEvent element, short sequence) {
+    public void setSequence(SpanEvent element, int sequence) {
         element.setSequence(sequence);
     }
 
@@ -59,10 +59,4 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
         return "SpanEventFactory{}";
     }
 
-    private static class DummySpanEvent extends SpanEvent {
-        @Override
-        public String toString() {
-            return "DummySpanEvent";
-        }
-    }
 }

@@ -1,14 +1,13 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ContainsMessageMatcher implements MessageMatcher {
     private final String[] messagePatterns;
 
     public ContainsMessageMatcher(String[] messagePatterns) {
-        this.messagePatterns = Assert.requireNonNull(messagePatterns, "messagePatterns");
+        this.messagePatterns = Objects.requireNonNull(messagePatterns, "messagePatterns");
     }
 
     @Override

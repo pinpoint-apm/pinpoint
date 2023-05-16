@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.kafka.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
@@ -31,9 +31,6 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-    public ConsumerConstructorInterceptor() {
-    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -57,7 +54,7 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
             return;
         }
 
-        ConsumerConfig consumerConfig = getConsumerConfig(args);
+        ConsumerConfig consumerConfig = ArrayArgumentUtils.getArgument(args, 0, ConsumerConfig.class);
         if (consumerConfig == null) {
             return;
         }
@@ -66,24 +63,13 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
         ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
     }
 
-    private ConsumerConfig getConsumerConfig(Object args[]) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        if (args[0] instanceof ConsumerConfig) {
-            return (ConsumerConfig)args[0];
-        }
-
-        return null;
-    }
-
     private String getRemoteAddress(ConsumerConfig consumerConfig) {
-        List<String> serverList = consumerConfig.getList("bootstrap.servers");
+        List<String> serverList = consumerConfig.getList(KafkaConstants.CONFIG_BOOTSTRAP_SERVERS_KEY);
         String remoteAddress = KafkaConstants.UNKNOWN;
-        if (CollectionUtils.nullSafeSize(serverList) == 1) {
+        final int serverListSize = CollectionUtils.nullSafeSize(serverList);
+        if (serverListSize == 1) {
             remoteAddress = serverList.get(0);
-        } else if (CollectionUtils.nullSafeSize(serverList) > 1) {
+        } else if (serverListSize > 1) {
             remoteAddress = serverList.toString();
         }
         return remoteAddress;

@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
 public class FutureGetInterceptorTest /*extends BaseInterceptorTest*/ {
 
-//    private final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class);
+//    private final Logger logger = LogManager.getLogger(FutureGetInterceptorTest.class);
 //
 //    FutureGetInterceptor interceptor = new FutureGetInterceptor(null, new MockTraceContextFactory().create());
 //

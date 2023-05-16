@@ -16,29 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
-import static org.mockito.Mockito.*;
-
-import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author emeroad
  */
 public class InvokeAfterCodeGeneratorTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
+
     @Test
-    public void testGenerate_AroundInterceptor3_catchClause() throws Exception {
+    public void testGenerate_AroundInterceptor3_catchClause() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -57,17 +54,16 @@ public class InvokeAfterCodeGeneratorTest {
         final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, apiMetaDataService, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
-        logger.debug("testGenerate_AroundInterceptor3_catchClause:{}", generate);
-        Assert.assertTrue(generate.contains("($w)$1"));
-        Assert.assertTrue(generate.contains("($w)$2"));
-        Assert.assertTrue(generate.contains("($w)$3"));
-
-        Assert.assertTrue(generate.contains("$e"));
+        assertThat(generate)
+                .contains("($w)$1")
+                .contains("($w)$2")
+                .contains("($w)$3")
+                .contains("$e");
 
     }
 
     @Test
-    public void testGenerate_AroundInterceptor3_NoCatchClause() throws Exception {
+    public void testGenerate_AroundInterceptor3_NoCatchClause() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -85,17 +81,16 @@ public class InvokeAfterCodeGeneratorTest {
         final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, apiMetaDataService, false, false);
         final String generate = invokeAfterCodeGenerator.generate();
 
-        logger.debug("testGenerate_AroundInterceptor3_NoCatchClause:{}", generate);
-        Assert.assertTrue(generate.contains("($w)$1"));
-        Assert.assertTrue(generate.contains("($w)$2"));
-        Assert.assertTrue(generate.contains("($w)$3"));
-
-        Assert.assertTrue(generate.contains("($w)$_"));
+        assertThat(generate)
+                .contains("($w)$1")
+                .contains("($w)$2")
+                .contains("($w)$3")
+                .contains("($w)$_");
 
     }
 
     @Test
-    public void testGenerate_AroundInterceptor3_methodParam2() throws Exception {
+    public void testGenerate_AroundInterceptor3_methodParam2() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -114,17 +109,16 @@ public class InvokeAfterCodeGeneratorTest {
         final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, apiMetaDataService, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
-        logger.debug("testGenerate_AroundInterceptor3_methodParam2:{}", generate);
-        Assert.assertTrue(generate.contains("($w)$1"));
-        Assert.assertTrue(generate.contains("($w)$2"));
-        Assert.assertFalse(generate.contains("($w)$3"));
-
-        Assert.assertTrue(generate.contains("$e"));
+        assertThat(generate)
+                .contains("($w)$1")
+                .contains("($w)$2")
+                .doesNotContain("($w)$3")
+                .contains("$e");
 
     }
 
     @Test
-    public void testGenerate_AroundInterceptor3_methodParam4() throws Exception {
+    public void testGenerate_AroundInterceptor3_methodParam4() {
 
         final Class<AroundInterceptor3> aroundInterceptor3Class = AroundInterceptor3.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -142,19 +136,17 @@ public class InvokeAfterCodeGeneratorTest {
         final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, apiMetaDataService, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
-        logger.debug("testGenerate_AroundInterceptor3_methodParam4:{}", generate);
-        Assert.assertTrue(generate.contains("($w)$1"));
-        Assert.assertTrue(generate.contains("($w)$2"));
-        Assert.assertTrue(generate.contains("($w)$3"));
-        Assert.assertFalse(generate.contains("($w)$4"));
-
-        Assert.assertTrue(generate.contains("$e"));
-
+        assertThat(generate)
+                .contains("($w)$1")
+                .contains("($w)$2")
+                .contains("($w)$3")
+                .doesNotContain("($w)$4")
+                .contains("$e");
     }
 
 
     @Test
-    public void testGenerate_AroundInterceptor0() throws Exception {
+    public void testGenerate_AroundInterceptor0() {
 
         final Class<AroundInterceptor0> aroundInterceptor3Class = AroundInterceptor0.class;
         final InterceptorDefinition interceptorDefinition = interceptorDefinitionFactory.createInterceptorDefinition(aroundInterceptor3Class);
@@ -172,12 +164,11 @@ public class InvokeAfterCodeGeneratorTest {
         final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, interceptorDefinition, mockClass, mockMethod, apiMetaDataService, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
-        logger.debug("testGenerate_AroundInterceptor0:{}", generate);
-        Assert.assertFalse(generate.contains("($w)$1"));
-        Assert.assertFalse(generate.contains("($w)$2"));
-        Assert.assertFalse(generate.contains("($w)$3"));
-
-        Assert.assertTrue(generate.contains("$e"));
+        assertThat(generate)
+                .doesNotContain("($w)$1")
+                .doesNotContain("($w)$2")
+                .doesNotContain("($w)$3")
+                .contains("$e");
 
     }
 }

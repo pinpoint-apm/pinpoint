@@ -4,6 +4,12 @@
 <mapper namespace="com.navercorp.pinpoint.web.dao.AlarmDao">
 
     <insert id="insertRule" parameterType="Rule" useGeneratedKeys="true" keyProperty="ruleId">
+        INSERT INTO alarm_rule (application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, webhook_send, notes)
+        VALUES
+            (#{applicationId}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{webhookSend}, #{notes})
+    </insert>
+    
+    <insert id="insertRuleExceptWebhookSend" parameterType="Rule" useGeneratedKeys="true" keyProperty="ruleId">
         INSERT INTO alarm_rule (application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, notes)
         VALUES
             (#{applicationId}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{notes})
@@ -32,10 +38,22 @@
         FROM alarm_rule
         WHERE application_id = #{applicationId}
     </select>
+
+    <select id="selectApplicationId" resultType="string">
+        SELECT DISTINCT(application_id)
+        FROM alarm_rule
+    </select>
     
     <update id="updateRule">
         UPDATE alarm_rule
-        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes} 
+        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, webhook_send = #{webhookSend}, notes = #{notes}
+        WHERE rule_id = #{ruleId}
+    </update>
+    
+    
+    <update id="updateRuleExceptWebhookSend">
+        UPDATE alarm_rule
+        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes}
         WHERE rule_id = #{ruleId}
     </update>
     
@@ -45,22 +63,10 @@
         WHERE user_group_id = (SELECT id FROM user_group WHERE number = #{number})
     </update>
     
-    <select id="selectBeforeCheckerResultList" resultType="ChecherResult">
-        SELECT *
-        FROM alarm_history
-        WHERE application_id = #{applicationId}
-    </select>
-
     <delete id="deleteCheckerResult" parameterType="string">
         DELETE
         FROM alarm_history
         WHERE rule_id = #{ruleId}
     </delete>
-    
-    <insert id="insertCheckerResult" parameterType="ChecherResult">
-        INSERT INTO alarm_history (rule_id, application_id, checker_name, detected, sequence_count, timing_count)
-        VALUES
-            (#{ruleId}, #{applicationId}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
-    </insert>
-    
+
 </mapper>

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
@@ -88,7 +88,7 @@ public class RandomTSpan {
 
     public List<TAnnotation> randomTAnnotationList() {
         int annotationSize = RandomUtils.nextInt(0, 3);
-        List<TAnnotation> result = new ArrayList<TAnnotation>();
+        List<TAnnotation> result = new ArrayList<>();
         for (int i = 0; i < annotationSize; i++) {
             result.add(randomTAnnotation(i));
         }

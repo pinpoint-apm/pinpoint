@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.receiver;
 
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
+import com.navercorp.pinpoint.profiler.receiver.grpc.ProfilerGrpcCommandService;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -75,6 +76,18 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
         return null;
     }
 
+
+    @Override
+    public ProfilerGrpcCommandService getGrpcService(short commandCode) {
+
+        final ProfilerCommandService service = profilerCommandServiceRepository.get(commandCode);
+        if (service instanceof ProfilerGrpcCommandService) {
+            return (ProfilerGrpcCommandService) service;
+        }
+
+        return null;
+    }
+
     int getCommandServiceSize() {
         return profilerCommandServiceRepository.size();
     }
@@ -85,7 +98,7 @@ public class DefaultProfilerCommandServiceLocator implements ProfilerCommandServ
     }
 
     private Set<Short> buildCodeSet(Map<Short, ProfilerCommandService> codes) {
-        return new HashSet<Short>(codes.keySet());
+        return new HashSet<>(codes.keySet());
 
     }
 

@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -26,7 +26,7 @@ import java.util.List;
 public class ASMMethodNodeAdapterRenameTest {
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
-    @Before
+    @BeforeEach
     public void before() {
         this.classLoader = ASMClassNodeLoader.getClassLoader();
     }
@@ -43,7 +43,7 @@ public class ASMMethodNodeAdapterRenameTest {
                 List<MethodNode> methodNodes = classNode.methods;
                 for (MethodNode methodNode : methodNodes) {
                     ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
-                    if(!adapter.isConstructor()) {
+                    if (!adapter.isConstructor()) {
                         adapter.rename(adapter.getName() + "_rename");
                     }
                 }
@@ -52,6 +52,6 @@ public class ASMMethodNodeAdapterRenameTest {
         Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod("sum_rename", int.class);
         method.invoke(clazz.newInstance(), 10);
-   }
+    }
 }
 

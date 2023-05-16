@@ -19,15 +19,14 @@ package com.navercorp.pinpoint.web.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.ServletServerHttpResponse;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -36,11 +35,11 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author hyungil.jeong
  */
-public class AdminAuthInterceptor extends HandlerInterceptorAdapter {
+public class AdminAuthInterceptor implements HandlerInterceptor {
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     
     @Value("${admin.password:}")
     private String password;
@@ -53,33 +52,29 @@ public class AdminAuthInterceptor extends HandlerInterceptorAdapter {
         if (StringUtils.isEmpty(password)) {
             return true;
         }
-        return checkAuthorization(request, response);
+        return checkAuthorization(request);
     }
 
-    private boolean checkAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean checkAuthorization(HttpServletRequest request) {
         String requestPassword = request.getParameter("password");
         if (requestPassword == null) {
-            handleMissingPassword(response);
+            handleMissingPassword();
             return false;
         }
         if (password.equals(requestPassword)) {
             return true;
         } else {
-            handleInvalidPassword(response);
+            handleInvalidPassword();
             return false;
         }
     }
 
-    private void handleMissingPassword(HttpServletResponse response) throws IOException {
-        ServletServerHttpResponse serverResponse = new ServletServerHttpResponse(response);
-        serverResponse.setStatusCode(HttpStatus.BAD_REQUEST);
-        serverResponse.getBody().write("Missing password.".getBytes(UTF_8));
+    private void handleMissingPassword() {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing password");
     }
 
-    private void handleInvalidPassword(HttpServletResponse response) throws IOException {
-        ServletServerHttpResponse serverResponse = new ServletServerHttpResponse(response);
-        serverResponse.setStatusCode(HttpStatus.FORBIDDEN);
-        serverResponse.getBody().write("Invalid password.".getBytes(UTF_8));
+    private void handleInvalidPassword() {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid password");
     }
 
     

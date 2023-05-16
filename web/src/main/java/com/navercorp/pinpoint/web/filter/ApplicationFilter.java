@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilter;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilterFactory;
@@ -28,9 +30,8 @@ import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
 import com.navercorp.pinpoint.web.filter.responsetime.SpanResponseConditionFilter;
 import com.navercorp.pinpoint.web.filter.transaction.NodeContext;
 import com.navercorp.pinpoint.web.filter.transaction.SpanContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +41,7 @@ import java.util.Objects;
  */
 public class ApplicationFilter implements Filter<List<SpanBo>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final List<ServiceType> serviceDescList;
 
@@ -99,7 +100,7 @@ public class ApplicationFilter implements Filter<List<SpanBo>> {
 
     private URLPatternFilter createAcceptUrlFilter(FilterDescriptor.Option option) {
         if (StringUtils.isEmpty(option.getUrlPattern())) {
-            return new BypassURLPatternFilter();
+            return URLPatternFilter::filterAccept;
         }
         return new AcceptUrlFilter(option.getUrlPattern());
     }

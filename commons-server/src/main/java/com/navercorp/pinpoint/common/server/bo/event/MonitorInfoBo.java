@@ -20,31 +20,28 @@ package com.navercorp.pinpoint.common.server.bo.event;
  * @author jaehong.kim
  */
 public class MonitorInfoBo {
-    private int stackDepth;
-    private String stackFrame;
+    private final int stackDepth;
+    private final String stackFrame;
+
+    public MonitorInfoBo(int stackDepth, String stackFrame) {
+        this.stackDepth = stackDepth;
+        this.stackFrame = stackFrame;
+    }
 
     public int getStackDepth() {
         return stackDepth;
     }
 
-    public void setStackDepth(int stackDepth) {
-        this.stackDepth = stackDepth;
-    }
 
     public String getStackFrame() {
         return stackFrame;
     }
 
-    public void setStackFrame(String stackFrame) {
-        this.stackFrame = stackFrame;
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MonitorInfoBo{");
-        sb.append("stackDepth=").append(stackDepth);
-        sb.append(", stackFrame='").append(stackFrame).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "MonitorInfoBo{" +
+                "stackDepth=" + stackDepth +
+                ", stackFrame='" + stackFrame + '\'' +
+                '}';
     }
 }

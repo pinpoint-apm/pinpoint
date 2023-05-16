@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -35,13 +35,13 @@ public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler
     public LoggingRejectedExecutionHandler(String executorName, int logRate) {
         Objects.requireNonNull(executorName, "executorName");
 
-        this.logger = LoggerFactory.getLogger(executorName);
+        this.logger = LogManager.getLogger(executorName);
         this.logRate = logRate;
     }
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-        final long error = rejectedCount.incrementAndGet();
+        final long error = rejectedCount.getAndIncrement();
         if ((error % logRate) == 0) {
             final int maxPoolSize = executor != null ? executor.getMaximumPoolSize() : -1;
             logger.warn("The executor uses finite bounds for both maximum threads and work queue capacity, and is saturated. Check the maxPoolSize, queueCapacity, and HBase options in the configuration. maxPoolSize={}, rejectedCount={}", maxPoolSize, error);

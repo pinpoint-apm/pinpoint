@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 /**
  * @author jaehong.kim
  */
-public class ThreadDumpThriftMessageConverter implements MessageConverter<TThreadDump> {
+public class ThreadDumpThriftMessageConverter implements MessageConverter<Object, TThreadDump> {
     private final ThreadStateThriftMessageConverter threadStateMessageConverter = new ThreadStateThriftMessageConverter();
 
     @Override

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-hbase</artifactId>
@@ -14,10 +14,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
-        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <sniffer.artifactid>java18</sniffer.artifactid>
-        <spring.boot.version>1.5.12.RELEASE</spring.boot.version>
+        <jdk.version>11</jdk.version>
+        <jdk.home>${env.JAVA_11_HOME}</jdk.home>
     </properties>
 
     <modules>
@@ -28,14 +26,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-hbase-schema</artifactId>
@@ -53,14 +43,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring.boot.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jaxb2-maven-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.5.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -34,29 +34,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentStatMapper<T> {
 
-    public final static Comparator<AgentStatDataPoint> REVERSE_TIMESTAMP_COMPARATOR = new Comparator<AgentStatDataPoint>() {
-        @Override
-        public int compare(AgentStatDataPoint o1, AgentStatDataPoint o2) {
-            long x = o2.getTimestamp();
-            long y = o1.getTimestamp();
-            return Long.compare(x, y);
-        }
-    };
+    public final static Comparator<AgentStatDataPoint> REVERSE_TIMESTAMP_COMPARATOR
+            = Comparator.comparingLong(AgentStatDataPoint::getTimestamp).reversed();
 
     private final AgentStatHbaseOperationFactory hbaseOperationFactory;
     private final AgentStatDecoder<T> decoder;
     private final TimestampFilter filter;
+    private final HbaseColumnFamily targetHbaseColumnFamily;
 
-    public AgentStatMapperV2(AgentStatHbaseOperationFactory hbaseOperationFactory, AgentStatDecoder<T> decoder, TimestampFilter filter) {
+    public AgentStatMapperV2(AgentStatHbaseOperationFactory hbaseOperationFactory, AgentStatDecoder<T> decoder, TimestampFilter filter, HbaseColumnFamily targetHbaseColumnFamily) {
         this.hbaseOperationFactory = hbaseOperationFactory;
         this.decoder = decoder;
         this.filter = filter;
+        this.targetHbaseColumnFamily = Objects.requireNonNull(targetHbaseColumnFamily, "targetHbaseColumnFamily");
     }
 
     @Override
@@ -71,7 +68,7 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
         List<T> dataPoints = new ArrayList<>();
 
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.AGENT_STAT_STATISTICS.getName())) {
+            if (CellUtil.matchingFamily(cell, targetHbaseColumnFamily.getName())) {
                 Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 

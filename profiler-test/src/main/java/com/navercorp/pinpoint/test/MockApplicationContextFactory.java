@@ -19,17 +19,14 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.Module;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
 import java.util.Collections;
 
 /**
@@ -41,50 +38,32 @@ public class MockApplicationContextFactory {
     }
 
     public DefaultApplicationContext build(String configPath) {
-        ProfilerConfig profilerConfig = readProfilerConfig(configPath, this.getClass().getClassLoader());
+        ProfilerConfig profilerConfig = loadProfilerConfig(configPath);
         return build(profilerConfig);
     }
 
-    private ProfilerConfig readProfilerConfig(String configPath, ClassLoader classLoader) {
-        final String path = getFilePath(classLoader, configPath);
-        ProfilerConfig profilerConfig = loadProfilerConfig(path);
-
-        String applicationServerType = profilerConfig.getApplicationServerType();
-        if (StringUtils.isEmpty(applicationServerType)) {
-            applicationServerType = ServiceType.TEST_STAND_ALONE.getName();
-        }
-        ((DefaultProfilerConfig)profilerConfig).setApplicationServerType(applicationServerType);
-        return profilerConfig;
-    }
-
-    private ProfilerConfig loadProfilerConfig(String path) {
-        try {
-            return DefaultProfilerConfig.load(path);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
-    private String getFilePath(ClassLoader classLoader, String configPath) {
-        final URL resource = classLoader.getResource(configPath);
+    private ProfilerConfig loadProfilerConfig(String configPath) {
+        final ClassLoader classLoader = this.getClass().getClassLoader();
+        final InputStream resource = classLoader.getResourceAsStream(configPath);
         if (resource == null) {
             throw new RuntimeException("pinpoint.config not found. configPath:" + configPath);
         }
-        return resource.getPath();
+
+        return ProfilerConfigLoader.load(resource);
     }
 
     public DefaultApplicationContext build(ProfilerConfig config) {
-        DefaultApplicationContext context = build(config, newModuleFactory());
-        return context;
+        return build(config, newModuleFactory());
     }
 
     public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {
         Instrumentation instrumentation = new DummyInstrumentation();
-        String mockAgent = "mockAgent";
+        String mockAgentId = "mockAgentId";
+        String mockAgentName = "mockAgentName";
         String mockApplicationName = "mockApplicationName";
 
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgent, mockApplicationName, false, config, Collections.<String>emptyList(),
-                null);
+        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgentId, mockAgentName, mockApplicationName, false,
+                config, Collections.emptyList(), Collections.emptyList());
         return new DefaultApplicationContext(agentOption, moduleFactory);
     }
 

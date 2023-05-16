@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.vo.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 
 /**
@@ -27,6 +28,10 @@ public class AggreJoinResponseTimeBo extends JoinResponseTimeBo implements Aggre
 
     public AggreJoinResponseTimeBo(String id, long timestamp, long avg, long minAvg, String minAvgAgentId, long maxAvg, String maxAvgAgentId) {
         super(id, timestamp, avg, minAvg, minAvgAgentId, maxAvg, maxAvgAgentId);
+    }
+
+    public AggreJoinResponseTimeBo(String id, long timestamp, JoinLongFieldBo responseTimeJoinValue) {
+        super(id, timestamp, responseTimeJoinValue);
     }
 
     public static AggreJoinResponseTimeBo createUncollectedObject(long timestamp) {

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import com.navercorp.pinpoint.plugin.vertx.VertxHttpClientConfig;
 import io.vertx.core.http.impl.HttpClientResponseImpl;
@@ -31,7 +32,7 @@ import io.vertx.core.http.impl.HttpClientResponseImpl;
  */
 public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    private boolean statusCode;
+    private final boolean statusCode;
 
     public HttpClientRequestImplDoHandleResponseInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -55,17 +56,12 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncConte
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 1 || !(args[0] instanceof HttpClientResponseImpl)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. args={}.", args);
-            }
+        Object httpClientResponseImpl = ArrayUtils.get(args, 0);
+        if (!(httpClientResponseImpl instanceof HttpClientResponseImpl)) {
             return false;
         }
 
-        if (!(args[0] instanceof AsyncContextAccessor)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need metadata accessor({}).", AsyncContextAccessor.class.getName());
-            }
+        if (!(httpClientResponseImpl instanceof AsyncContextAccessor)) {
             return false;
         }
 

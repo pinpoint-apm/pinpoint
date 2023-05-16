@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.common.profiler.concurrent.jsr166.ConcurrentWeakHashMap;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
@@ -27,14 +26,15 @@ import com.navercorp.pinpoint.profiler.util.ExtensionFilter;
 import com.navercorp.pinpoint.profiler.util.FileBinary;
 import com.navercorp.pinpoint.profiler.util.JarReader;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -43,19 +43,19 @@ import java.util.concurrent.ConcurrentMap;
  * @author jaehong.kim
  */
 public class PlainClassLoaderHandler implements ClassInjector {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final JarReader pluginJarReader;
 
     // TODO remove static field
-    private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<ClassLoader, ClassLoaderAttachment>();
+    private static final ConcurrentMap<ClassLoader, ClassLoaderAttachment> classLoaderAttachment = new ConcurrentWeakHashMap<>();
 
 
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
+        this.pluginConfig = Objects.requireNonNull(pluginConfig, "pluginConfig");
 
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
     }
@@ -68,7 +68,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         try {
-            if (!isPluginPackage(className)) {
+            if (!isPluginPackage(className, classLoader)) {
                 return loadClass(classLoader, className);
             }
             return (Class<T>) injectClass0(classLoader, className);
@@ -82,7 +82,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             final String name = JavaAssistUtils.jvmNameToJavaName(internalName);
-            if (!isPluginPackage(name)) {
+            if (!isPluginPackage(name, targetClassLoader)) {
                 return targetClassLoader.getResourceAsStream(internalName);
             }
 
@@ -103,10 +103,13 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
     }
 
-    private boolean isPluginPackage(String className) {
-        return pluginConfig.getPluginPackageFilter().accept(className);
+    private boolean isPluginPackage(String className, ClassLoader classLoader) {
+        return pluginConfig.getPluginPackageFilter().accept(className, classLoader);
     }
 
+    private boolean meetsRequirement(String className, ClassLoader classLoader) {
+        return pluginConfig.getPluginPackageRequirementFilter().accept(className, classLoader);
+    }
 
     private Class<?> injectClass0(ClassLoader classLoader, String className) throws IllegalArgumentException {
         if (isDebug) {
@@ -133,7 +136,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
         try {
             return pluginJarReader.getInputStream(classPath);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             if (isDebug) {
                 logger.debug("Failed to read plugin jar: {}", pluginConfig.getPluginJarURLExternalForm(), ex);
             }
@@ -199,7 +202,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private void defineJarClass(ClassLoader classLoader, ClassLoaderAttachment attachment) {
         if (isDebug) {
-            logger.debug("define Jar:{}", pluginConfig.getPluginUrl());
+            logger.debug("define Jar:{}", pluginConfig.getPluginJarURLExternalForm());
         }
 
         List<FileBinary> fileBinaryList = readJar();
@@ -207,11 +210,12 @@ public class PlainClassLoaderHandler implements ClassInjector {
         Map<String, SimpleClassMetadata> classEntryMap = parse(fileBinaryList);
 
         for (Map.Entry<String, SimpleClassMetadata> entry : classEntryMap.entrySet()) {
-
             final SimpleClassMetadata classMetadata = entry.getValue();
-            ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
-            classLoadingChecker.isFirstLoad(classMetadata.getClassName());
-            define0(classLoader, attachment, classMetadata, classEntryMap, classLoadingChecker);
+            if (meetsRequirement(classMetadata.getClassName(), classLoader)) {
+                ClassLoadingChecker classLoadingChecker = new ClassLoadingChecker();
+                classLoadingChecker.isFirstLoad(classMetadata.getClassName());
+                define0(classLoader, attachment, classMetadata, classEntryMap, classLoadingChecker);
+            }
         }
     }
 
@@ -224,7 +228,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     }
 
     private Map<String, SimpleClassMetadata> parse(List<FileBinary> fileBinaryList) {
-        Map<String, SimpleClassMetadata> parseMap = new HashMap<String, SimpleClassMetadata>();
+        Map<String, SimpleClassMetadata> parseMap = new HashMap<>();
         for (FileBinary fileBinary : fileBinaryList) {
             SimpleClassMetadata classNode = parseClass(fileBinary);
             parseMap.put(classNode.getClassName(), classNode);
@@ -252,7 +256,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
             logger.debug("className:{} super:{}", currentClass.getClassName(), superName);
         }
         if (!"java.lang.Object".equals(superName)) {
-            if (!isSkipClass(superName, classLoadingChecker)) {
+            if (!isSkipClass(superName, classLoader, classLoadingChecker)) {
                 SimpleClassMetadata superClassBinary = classMetaMap.get(superName);
                 if (isDebug) {
                     logger.debug("superClass dependency define super:{} ori:{}", superClassBinary.getClassName(), currentClass.getClassName());
@@ -264,8 +268,11 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
         final List<String> interfaceList = currentClass.getInterfaceNames();
         for (String interfaceName : interfaceList) {
-            if (!isSkipClass(interfaceName, classLoadingChecker)) {
+            if (!isSkipClass(interfaceName, classLoader, classLoadingChecker)) {
                 SimpleClassMetadata interfaceClassBinary = classMetaMap.get(interfaceName);
+                if (interfaceClassBinary == null) {
+                    throw new PinpointException(interfaceName + " not found");
+                }
                 if (isDebug) {
                     logger.debug("interface dependency define interface:{} ori:{}", interfaceClassBinary.getClassName(), interfaceClassBinary.getClassName());
                 }
@@ -289,8 +296,8 @@ public class PlainClassLoaderHandler implements ClassInjector {
         return DefineClassFactory.getDefineClass().defineClass(classLoader, className, classBytes);
     }
 
-    private boolean isSkipClass(final String className, final ClassLoadingChecker classLoadingChecker) {
-        if (!isPluginPackage(className)) {
+    private boolean isSkipClass(final String className, final ClassLoader classLoader, final ClassLoadingChecker classLoadingChecker) {
+        if (!isPluginPackage(className, classLoader)) {
             if (isDebug) {
                 logger.debug("PluginFilter skip class:{}", className);
             }
@@ -308,9 +315,9 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private class ClassLoaderAttachment {
 
-        private final ConcurrentMap<String, PluginLock> pluginLock = new ConcurrentHashMap<String, PluginLock>();
+        private final ConcurrentMap<String, PluginLock> pluginLock = new ConcurrentHashMap<>();
 
-        private final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<String, Class<?>>();
+        private final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<>();
 
         public PluginLock getPluginLock(String jarFile) {
             final PluginLock exist = this.pluginLock.get(jarFile);

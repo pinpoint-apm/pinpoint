@@ -15,9 +15,11 @@
  */
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
-import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo> {
+public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo, AggreJoinMemoryBo> {
 
     @Override
     public AggreJoinMemoryBo sampleDataPoints(int index, long timestamp, List<JoinMemoryBo> joinMemoryBoList, JoinMemoryBo previousDataPoint) {
@@ -36,18 +38,9 @@ public class JoinMemorySampler implements ApplicationStatSampler<JoinMemoryBo> {
 
         JoinMemoryBo joinMemoryBo = JoinMemoryBo.joinMemoryBoList(joinMemoryBoList, timestamp);
         String id = joinMemoryBo.getId();
-        long heapUsed = joinMemoryBo.getHeapUsed();
-        long minHeapUsed = joinMemoryBo.getMinHeapUsed();
-        long maxHeapUsed = joinMemoryBo.getMaxHeapUsed();
-        String minHeapAgentId = joinMemoryBo.getMinHeapAgentId();
-        String maxHeapAgentId = joinMemoryBo.getMaxHeapAgentId();
-        long nonHeapUsed = joinMemoryBo.getNonHeapUsed();
-        long minNonHeapUsed = joinMemoryBo.getMinNonHeapUsed();
-        long maxNonHeapUsed = joinMemoryBo.getMaxNonHeapUsed();
-        String minNonHeapAgentId = joinMemoryBo.getMinNonHeapAgentId();
-        String maxNonHeapAgentId = joinMemoryBo.getMaxNonHeapAgentId();
+        final JoinLongFieldBo heapUsedJoinValue = joinMemoryBo.getHeapUsedJoinValue();
+        final JoinLongFieldBo nonHeapUsedJoinValue = joinMemoryBo.getNonHeapUsedJoinValue();
 
-        AggreJoinMemoryBo aggreJoinMemoryBo = new AggreJoinMemoryBo(id, timestamp, heapUsed, minHeapUsed, maxHeapUsed, minHeapAgentId, maxHeapAgentId, nonHeapUsed, minNonHeapUsed, maxNonHeapUsed, minNonHeapAgentId, maxNonHeapAgentId);
-        return aggreJoinMemoryBo;
+        return new AggreJoinMemoryBo(id, timestamp, heapUsedJoinValue, nonHeapUsedJoinValue);
     }
 }

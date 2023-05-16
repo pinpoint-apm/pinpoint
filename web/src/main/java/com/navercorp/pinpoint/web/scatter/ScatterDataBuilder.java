@@ -15,21 +15,16 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
-@JsonSerialize(using = ScatterDataSerializer.class)
 public class ScatterDataBuilder {
 
     private final long from;
@@ -37,8 +32,8 @@ public class ScatterDataBuilder {
     private final int xGroupUnitMillis;
     private final int yGroupUnitMillis;
 
-    private final ScatterAgentMetadataRepository scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
-    private final Map<Long, DotGroups> scatterData = new HashMap<>();
+    private ScatterAgentMetadataRepository scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
+    private Map<Long, DotGroups> scatterData = new HashMap<>();
 
     private long oldestAcceptedTime = Long.MAX_VALUE;
     private long latestAcceptedTime = Long.MIN_VALUE;
@@ -78,50 +73,23 @@ public class ScatterDataBuilder {
         Coordinates coordinates = new Coordinates(x, y);
         addDot(coordinates, new Dot(dot.getTransactionId(), acceptedTimeDiff, dot.getElapsedTime(), dot.getExceptionCode(), dot.getAgentId()));
 
-        if (oldestAcceptedTime > dot.getAcceptedTime()) {
-            oldestAcceptedTime = dot.getAcceptedTime();
-        }
-
-        if (latestAcceptedTime < dot.getAcceptedTime()) {
-            latestAcceptedTime = dot.getAcceptedTime();
-        }
+        oldestAcceptedTime = Math.min(oldestAcceptedTime, dot.getAcceptedTime());
+        latestAcceptedTime = Math.max(latestAcceptedTime, dot.getAcceptedTime());
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
-        DotGroups dotGroups = scatterData.computeIfAbsent(coordinates.getX(), k -> new DotGroups(coordinates.getX()));
+        final Long x = coordinates.getX();
+        DotGroups dotGroups = this.scatterData.get(x);
+        if (dotGroups == null) {
+            dotGroups = new DotGroups(x);
+            this.scatterData.put(x, dotGroups);
+        }
 
         dotGroups.addDot(coordinates, dot);
 
         scatterAgentMetadataRepository.addDotAgentInfo(new DotAgentInfo(dot));
     }
 
-    public void merge(ScatterData scatterData) {
-        if (scatterData == null) {
-            return;
-        }
-
-        Map<Long, DotGroups> scatterDataMap = scatterData.getScatterDataMap();
-        for (Map.Entry<Long, DotGroups> entry : scatterDataMap.entrySet()) {
-            Long key = entry.getKey();
-
-            DotGroups dotGroups = this.scatterData.get(key);
-            if (dotGroups == null) {
-                this.scatterData.put(key, entry.getValue());
-            } else {
-                dotGroups.merge(entry.getValue());
-            }
-        }
-
-        scatterAgentMetadataRepository.merge(scatterData.getScatterAgentMetadataRepository());
-
-        if (oldestAcceptedTime > scatterData.getOldestAcceptedTime()) {
-            oldestAcceptedTime = scatterData.getOldestAcceptedTime();
-        }
-
-        if (latestAcceptedTime < scatterData.getLatestAcceptedTime()) {
-            latestAcceptedTime = scatterData.getLatestAcceptedTime();
-        }
-    }
 
     public long getFrom() {
         return from;
@@ -132,9 +100,12 @@ public class ScatterDataBuilder {
     }
 
     public ScatterData build() {
-        Map<Long, DotGroups> copyScatterData = new HashMap<>(this.scatterData);
-        Set<DotAgentInfo> dotAgentInfoSet = new HashSet<>(this.scatterAgentMetadataRepository.getDotAgentInfoSet());
-        ScatterAgentMetadataRepository copyRepo = new ScatterAgentMetadataRepository(dotAgentInfoSet);
+        Map<Long, DotGroups> copyScatterData = this.scatterData;
+        this.scatterData = new HashMap<>();
+
+        ScatterAgentMetadataRepository copyRepo = new ScatterAgentMetadataRepository(this.scatterAgentMetadataRepository.getDotAgentInfoSet());
+        this.scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
+
         return new ScatterData(from, to, this.oldestAcceptedTime, this.latestAcceptedTime, copyScatterData, copyRepo);
     }
 

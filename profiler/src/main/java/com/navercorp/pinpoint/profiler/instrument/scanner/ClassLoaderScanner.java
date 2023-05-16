@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.io.InputStream;
 
@@ -35,7 +35,7 @@ public class ClassLoaderScanner implements Scanner {
 
     @Override
     public boolean exist(String fileName) {
-        Assert.requireNonNull(fileName, "fileName");
+        Objects.requireNonNull(fileName, "fileName");
 
         // TODO
         return classLoader.getResource(fileName) != null;
@@ -43,7 +43,7 @@ public class ClassLoaderScanner implements Scanner {
 
     @Override
     public InputStream openStream(String fileName) {
-        Assert.requireNonNull(fileName, "fileName");
+        Objects.requireNonNull(fileName, "fileName");
 
         return classLoader.getResourceAsStream(fileName);
     }

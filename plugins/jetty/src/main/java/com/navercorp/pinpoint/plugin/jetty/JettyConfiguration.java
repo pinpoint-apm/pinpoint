@@ -14,11 +14,9 @@
  */
 package com.navercorp.pinpoint.plugin.jetty;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
 
@@ -38,29 +36,17 @@ public class JettyConfiguration {
     private final Filter<String> excludeProfileMethodFilter;
 
     public JettyConfiguration(ProfilerConfig config) {
+        // Plugin
         this.enable = config.readBoolean("profiler.jetty.enable", true);
         this.bootstrapMains = config.readList("profiler.jetty.bootstrap.main");
-        final String jettyExcludeURL = config.readString("profiler.jetty.excludeurl", "");
-
-        if (!jettyExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(jettyExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        boolean hidePinpointHeader = config.readBoolean("profiler.jetty.hide-pinpoint-header", true);
-        if (hidePinpointHeader) {
-            hidePinpointHeader = config.readBoolean("profiler.jetty.hidepinpointheader", true);
-        }
-        this.hidePinpointHeader = hidePinpointHeader;
-        final String excludeProfileMethod = config.readString("profiler.jetty.excludemethod", "");
-        if (!excludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(excludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
-        this.traceRequestParam = config.readBoolean("profiler.jetty.tracerequestparam", true);
-        this.realIpHeader = config.readString("profiler.jetty.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.jetty.realipemptyvalue", null);
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.jetty.excludeurl");
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.jetty.hidepinpointheader");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.jetty.excludemethod");
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.jetty.tracerequestparam");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.jetty.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.jetty.realipemptyvalue");
     }
 
     public boolean isEnable() {

@@ -16,30 +16,31 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
+import com.google.protobuf.StringValue;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
-
-import com.google.protobuf.StringValue;
 import org.jboss.netty.util.Timer;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author Taejin Koo
@@ -48,16 +49,16 @@ public class PinpointGrpcServerTest {
 
     public static Timer testTimer = null;
 
-    private final AgentInfo agentInfo = new AgentInfo("applicationName", "agentid", System.currentTimeMillis());
+    private final ClusterKey clusterKey = new ClusterKey("applicationName", "agentid", System.currentTimeMillis());
 
     private final PCmdEcho request = PCmdEcho.newBuilder().setMessage("hello").build();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         testTimer = TimerFactory.createHashedWheelTimer(PinpointGrpcServerTest.class + "-Timer", 100, TimeUnit.MILLISECONDS, 512);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         if (testTimer != null) {
             testTimer.stop();
@@ -68,9 +69,9 @@ public class PinpointGrpcServerTest {
     public void stateTest() {
         RecordedStreamObserver recordedStreamObserver = new RecordedStreamObserver();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 3000), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, new RequestManager(testTimer, 3000), Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
         assertCurrentState(SocketStateCode.NONE, pinpointGrpcServer);
-        Future<ResponseMessage> future = pinpointGrpcServer.request(request);
+        CompletableFuture<ResponseMessage> future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
 
         pinpointGrpcServer.connected();
@@ -78,7 +79,7 @@ public class PinpointGrpcServerTest {
         future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         pinpointGrpcServer.handleHandshake(supportCommandList);
         assertCurrentState(SocketStateCode.RUN_DUPLEX, pinpointGrpcServer);
 
@@ -88,29 +89,28 @@ public class PinpointGrpcServerTest {
         requestOnInvalidState(future, recordedStreamObserver);
     }
 
-    private void requestOnInvalidState(Future<ResponseMessage> future, RecordedStreamObserver recordedStreamObserver) {
-        Assert.assertFalse(future.isSuccess());
-        Assert.assertTrue(future.getCause() instanceof IllegalStateException);
-        Assert.assertEquals(0, recordedStreamObserver.getRequestCount());
+    private void requestOnInvalidState(CompletableFuture<ResponseMessage> future, RecordedStreamObserver recordedStreamObserver) {
+        Assertions.assertThrows(ExecutionException.class, () -> future.get(3000, TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(0, recordedStreamObserver.getRequestCount());
     }
 
     @Test
     public void requestTest() {
         RecordedStreamObserver<PCmdRequest> recordedStreamObserver = new RecordedStreamObserver<PCmdRequest>();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 3000), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), clusterKey, new RequestManager(testTimer, 3000), Mockito.mock(ProfilerClusterManager.class), recordedStreamObserver);
         pinpointGrpcServer.connected();
 
-        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = List.of(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         pinpointGrpcServer.handleHandshake(supportCommandList);
 
-        Future<ResponseMessage> future = pinpointGrpcServer.request(this.request);
-        Assert.assertEquals(1, recordedStreamObserver.getRequestCount());
+        CompletableFuture<ResponseMessage> future = pinpointGrpcServer.request(this.request);
+        Assertions.assertEquals(1, recordedStreamObserver.getRequestCount());
         // timeout
         awaitAndAssert(future, false);
 
         future = pinpointGrpcServer.request(this.request);
-        Assert.assertEquals(2, recordedStreamObserver.getRequestCount());
+        Assertions.assertEquals(2, recordedStreamObserver.getRequestCount());
 
         PCmdRequest latestRequest = recordedStreamObserver.getLatestRequest();
         pinpointGrpcServer.handleMessage(latestRequest.getRequestId(), PCmdEchoResponse.newBuilder().setMessage(latestRequest.getCommandEcho().getMessage()).build());
@@ -118,7 +118,7 @@ public class PinpointGrpcServerTest {
         awaitAndAssert(future, true);
 
         future = pinpointGrpcServer.request(this.request);
-        Assert.assertEquals(3, recordedStreamObserver.getRequestCount());
+        Assertions.assertEquals(3, recordedStreamObserver.getRequestCount());
         latestRequest = recordedStreamObserver.getLatestRequest();
 
         PCmdResponse.Builder builder = PCmdResponse.newBuilder();
@@ -131,16 +131,20 @@ public class PinpointGrpcServerTest {
         assertCurrentState(SocketStateCode.CLOSED_BY_SERVER, pinpointGrpcServer);
     }
 
-    private void awaitAndAssert(Future<ResponseMessage> future, boolean expected) {
-        future.await();
-        // timeout
-
-        Assert.assertEquals(expected, future.isSuccess());
+    private void awaitAndAssert(CompletableFuture<ResponseMessage> future, boolean expected) {
+        boolean result;
+        try {
+            future.get(3000, TimeUnit.MILLISECONDS);
+            result = true;
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            result = false;
+        }
+        Assertions.assertEquals(expected, result);
     }
 
     private void assertCurrentState(SocketStateCode expectedStateCode, PinpointGrpcServer pinpointGrpcServer) {
         SocketStateCode currentState = pinpointGrpcServer.getState();
-        Assert.assertEquals(expectedStateCode, currentState);
+        Assertions.assertEquals(expectedStateCode, currentState);
     }
 
 }

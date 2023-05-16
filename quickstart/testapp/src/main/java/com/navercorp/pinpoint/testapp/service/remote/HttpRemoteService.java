@@ -94,5 +94,4 @@ public class HttpRemoteService implements RemoteService {
 
         return objectMapper.readValue(entity.getContent(), responseType);
     }
-
 }

@@ -17,15 +17,17 @@
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.flink.TFActiveTraceHistogram;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author minwoo.jung
@@ -45,7 +47,7 @@ public class JoinThriftActiveTraceBoMapperTest {
         activeTraceCount.add(20);
         activeTraceCount.add(40);
         activeTraceCount.add(50);
-        tFActiveTraceHistogram.setVersion((short)2);
+        tFActiveTraceHistogram.setVersion((short) 2);
         tFActiveTraceHistogram.setHistogramSchemaType(1);
         tFActiveTraceHistogram.setActiveTraceCount(activeTraceCount);
 
@@ -61,11 +63,7 @@ public class JoinThriftActiveTraceBoMapperTest {
         assertEquals(joinActiveTraceBo.getTimestamp(), 1491274148454L);
         assertEquals(joinActiveTraceBo.getVersion(), 2);
         assertEquals(joinActiveTraceBo.getHistogramSchemaType(), 1);
-        assertEquals(joinActiveTraceBo.getTotalCount(), 120);
-        assertEquals(joinActiveTraceBo.getMaxTotalCount(), 120);
-        assertEquals(joinActiveTraceBo.getMaxTotalCountAgentId(), id);
-        assertEquals(joinActiveTraceBo.getMinTotalCount(), 120);
-        assertEquals(joinActiveTraceBo.getMinTotalCountAgentId(), id);
+        assertEquals(joinActiveTraceBo.getTotalCountJoinValue(), new JoinIntFieldBo(120, 120, id, 120, id));
     }
 
     @Test

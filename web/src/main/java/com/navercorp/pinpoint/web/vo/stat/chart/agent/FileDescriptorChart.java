@@ -16,71 +16,31 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author Roy Kim
  */
-public class FileDescriptorChart implements StatChart {
+public class FileDescriptorChart extends DefaultAgentChart<SampledFileDescriptor, Long> {
 
-    private final FileDescriptorChartGroup FileDescriptorChartGroup;
-
-    public FileDescriptorChart(TimeWindow timeWindow, List<SampledFileDescriptor> sampledFileDescriptors) {
-        this.FileDescriptorChartGroup = new FileDescriptorChartGroup(timeWindow, sampledFileDescriptors);
+    public enum FileDescriptorChartType implements StatChartGroup.AgentChartType {
+        OPEN_FILE_DESCRIPTOR_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return FileDescriptorChartGroup;
+    private static final ChartGroupBuilder<SampledFileDescriptor, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledFileDescriptor, AgentStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<SampledFileDescriptor, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, SampledFileDescriptor::getOpenFileDescriptorCount);
+        return builder;
     }
 
-    public static class FileDescriptorChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> FileDescriptorCharts;
-
-        public enum FileDescriptorChartType implements AgentChartType {
-            OPEN_FILE_DESCRIPTOR_COUNT
-        }
-
-        private FileDescriptorChartGroup(TimeWindow timeWindow, List<SampledFileDescriptor> sampledFileDescriptors) {
-            this.timeWindow = timeWindow;
-            this.FileDescriptorCharts = newChart(sampledFileDescriptors);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledFileDescriptor> sampledFileDescriptors) {
-            Chart<AgentStatPoint<Long>> openFileDescriptorChart = newChart(sampledFileDescriptors, SampledFileDescriptor::getOpenFileDescriptorCount);
-
-            return ImmutableMap.of(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, openFileDescriptorChart);
-        }
-
-        private Chart<AgentStatPoint<Long>> newChart(List<SampledFileDescriptor> sampledActiveTraces, Function<SampledFileDescriptor, AgentStatPoint<Long>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledFileDescriptor.UNCOLLECTED_POINT_CREATOR);
-            return builder.build(sampledActiveTraces, function);
-        }
-
-
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return FileDescriptorCharts;
-        }
+    public FileDescriptorChart(TimeWindow timeWindow, List<SampledFileDescriptor> statList) {
+        super(timeWindow, statList, BUILDER);
     }
 }

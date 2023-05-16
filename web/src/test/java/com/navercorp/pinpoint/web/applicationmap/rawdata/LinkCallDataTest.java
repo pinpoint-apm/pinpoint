@@ -1,19 +1,17 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Test;
-
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
-import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LinkCallDataTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final long ONE_MINUTE = 6000 * 10;
     private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
@@ -25,20 +23,20 @@ public class LinkCallDataTest {
     
     @Test
     public void addCallData() {
-        LinkKey key = new LinkKey("fromApplication", ServiceType.STAND_ALONE, "toApplication", ServiceType.STAND_ALONE);
+        LinkKey key = LinkKey.of("fromApplication", ServiceType.STAND_ALONE, "toApplication", ServiceType.STAND_ALONE);
 
-        long currentTime = System.currentTimeMillis();
-        
+        long currentTime = 1000;
+
         LinkCallData data1 = new LinkCallData(key);
         data1.addCallData(currentTime, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data1.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
-        
-        logger.debug("{}", data1.getTimeHistogram().size());
-        
-        Range range = new Range(currentTime, currentTime + SIX_HOURS);
+
+        assertThat(data1.getTimeHistogram()).hasSize(5);
+
+        Range range = Range.between(currentTime, currentTime + SIX_HOURS);
         TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         LinkCallData data2 = new LinkCallData(key, window);
         data2.addCallData(currentTime, (short) 100, 1L);
@@ -47,7 +45,7 @@ public class LinkCallDataTest {
         data2.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
         data2.addCallData(currentTime + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE + ONE_MINUTE, (short) 100, 1L);
 
-        logger.debug("{}", data2.getTimeHistogram().size());
+        assertThat(data2.getTimeHistogram()).hasSize(1);
 
     }
 

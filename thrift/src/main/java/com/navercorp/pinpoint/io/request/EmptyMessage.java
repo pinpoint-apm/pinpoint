@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyMessage<T> implements Message {
-    public static final Message INSTANCE = new EmptyMessage();
+public class EmptyMessage<T> implements Message<T> {
+    public static final Message<?> INSTANCE = new EmptyMessage<>();
 
     private static final Header EMPTY_HEADER = new HeaderV1((short) -1);
 
@@ -44,6 +44,6 @@ public class EmptyMessage<T> implements Message {
     }
 
     public static <T> Message<T> emptyMessage() {
-        return INSTANCE;
+        return (Message<T>) INSTANCE;
     }
 }

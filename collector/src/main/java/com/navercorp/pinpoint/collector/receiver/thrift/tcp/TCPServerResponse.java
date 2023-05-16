@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -32,7 +33,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class TCPServerResponse implements ServerResponse<TBase<?, ?>> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory;
     private final PinpointSocket pinpointSocket;
@@ -48,9 +49,8 @@ public class TCPServerResponse implements ServerResponse<TBase<?, ?>> {
 
     @Override
     public void write(TBase<?, ?> message) {
-        if (message == null) {
-            throw new NullPointerException("message");
-        }
+        Objects.requireNonNull(message, "message");
+
         if (closed) {
             throw new IllegalStateException("ServerResponse is closed");
         }
@@ -62,6 +62,13 @@ public class TCPServerResponse implements ServerResponse<TBase<?, ?>> {
         } catch (TException e) {
             handleTException(message,  e);
         }
+    }
+
+    @Override
+    public void finish() {
+        TResult result = new TResult(false);
+        result.setMessage("Handler is disabled. Skipping request message.");
+        write(result);
     }
 
     private void handleTException(TBase<?,?> message, TException e) {

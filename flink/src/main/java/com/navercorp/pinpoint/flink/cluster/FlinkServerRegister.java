@@ -20,26 +20,24 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperCl
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
+import com.navercorp.pinpoint.flink.config.FlinkProperties;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.zookeeper.PushZnodeJob;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManagerHelper;
-
 import org.apache.curator.utils.ZKPaths;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.List;
+import java.net.InetAddress;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -48,32 +46,31 @@ import java.util.concurrent.TimeUnit;
  */
 public class FlinkServerRegister implements ZookeeperEventWatcher {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ZookeeperClusterDataManagerHelper clusterDataManagerHelper = new ZookeeperClusterDataManagerHelper();
-
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final String connectAddress;
+    private final String zookeeperPath;
     private final int sessionTimeout;
     private final boolean clusterEnable;
 
     private final PushFlinkNodeJob pushFlinkNodeJob;
 
     private ZookeeperClient client;
+    private ZookeeperClusterDataManagerHelper clusterDataManager;
+
     private Timer timer;
 
-    public FlinkServerRegister(FlinkConfiguration flinkConfiguration, String pinpointFlinkClusterPath) {
-        Objects.requireNonNull(flinkConfiguration, "flinkConfiguration");
-        this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
-        this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
-        this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
+    public FlinkServerRegister(FlinkProperties flinkProperties) {
+        Objects.requireNonNull(flinkProperties, "flinkConfiguration");
+        this.clusterEnable = flinkProperties.isFlinkClusterEnable();
+        this.connectAddress = flinkProperties.getFlinkClusterZookeeperAddress();
+        this.sessionTimeout = flinkProperties.getFlinkClusterSessionTimeout();
+        this.zookeeperPath = flinkProperties.getFlinkZNodePath();
 
-        String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkConfiguration.getFlinkClusterTcpPort();
-        if (StringUtils.isEmpty(pinpointFlinkClusterPath)) {
-            throw new IllegalArgumentException("pinpointFlinkClusterPath must not be empty");
-        }
-        String zNodeFullPath = ZKPaths.makePath(pinpointFlinkClusterPath, zNodeName);
+        String zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkProperties.getFlinkClusterTcpPort();
+        String zNodeFullPath = ZKPaths.makePath(zookeeperPath, zNodeName);
 
         CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, new byte[0]);
-        int retryInterval = flinkConfiguration.getFlinkRetryInterval();
+        int retryInterval = flinkProperties.getFlinkRetryInterval();
         this.pushFlinkNodeJob = new PushFlinkNodeJob(createNodeMessage, retryInterval);
     }
 
@@ -86,6 +83,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
 
         this.timer = createTimer();
         this.client = new CuratorZookeeperClient(connectAddress, sessionTimeout, this);
+        this.clusterDataManager = new ZookeeperClusterDataManagerHelper(client);
         this.client.connect();
 
         registerFlinkNode();
@@ -99,9 +97,12 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         }
 
         // local ip addresses with all LOOPBACK addresses removed
-        List<String> ipList = NetUtils.getLocalV4IpList();
-        if (!ipList.isEmpty()) {
-            return ipList.get(0);
+        for (final String candidate: NetUtils.getLocalV4IpList()) {
+            try {
+                if (InetAddress.getByName(candidate).isReachable(5)) {
+                    return candidate;
+                }
+            } catch (Exception ignored) {}
         }
 
         return NetUtils.LOOPBACK_ADDRESS_V4;
@@ -134,21 +135,19 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
             return true;
         }
 
-        if (!clusterDataManagerHelper.pushZnode(client, pushFlinkNodeJob.getCreateNodeMessage())) {
+        if (!clusterDataManager.pushZnode(pushFlinkNodeJob.getCreateNodeMessage())) {
             timer.newTimeout(pushFlinkNodeJob, pushFlinkNodeJob.getRetryInterval(), TimeUnit.MILLISECONDS);
         }
 
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void process(WatchedEvent event) {
         logger.info("Handle Zookeeper Event({}) started.", event);
 
         KeeperState state = event.getState();
         EventType eventType = event.getType();
-        String path = event.getPath();
 
         if (state == KeeperState.SyncConnected || state == KeeperState.NoSyncConnected) {
             // when this happens, ephemeral node disappears
@@ -171,7 +170,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
 
     @Override
     public boolean handleConnected() {
-        if (clusterDataManagerHelper.pushZnode(client, pushFlinkNodeJob.getCreateNodeMessage())) {
+        if (clusterDataManager.pushZnode(pushFlinkNodeJob.getCreateNodeMessage())) {
             return true;
         } else {
             timer.newTimeout(pushFlinkNodeJob, pushFlinkNodeJob.getRetryInterval(), TimeUnit.MILLISECONDS);
@@ -206,7 +205,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
                 return;
             }
 
-            if (!clusterDataManagerHelper.pushZnode(client, getCreateNodeMessage())) {
+            if (!clusterDataManager.pushZnode(getCreateNodeMessage())) {
                 timer.newTimeout(this, getRetryInterval(), TimeUnit.MILLISECONDS);
             }
         }

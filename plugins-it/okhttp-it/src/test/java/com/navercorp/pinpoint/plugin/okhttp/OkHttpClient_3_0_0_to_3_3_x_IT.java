@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.anyAnnotationValue;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.common.trace.ServiceType.ASYNC;
 import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIENT;
@@ -94,7 +95,8 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
 
         Method readResponseMethod = Class.forName("okhttp3.internal.http.HttpEngine").getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
-                annotation("http.status.code", response.code())));
+                annotation("http.status.code", response.code())
+        ));
 
         verifier.verifyTraceCount(0);
     }
@@ -104,7 +106,7 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
         Request request = new Request.Builder().url(webServer.getCallHttpUrl()).build();
         OkHttpClient client = new OkHttpClient();
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<Response> responseRef = new AtomicReference<Response>(null);
+        final AtomicReference<Response> responseRef = new AtomicReference<>(null);
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -147,7 +149,8 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
         Response response = responseRef.get();
         Method readResponseMethod = Class.forName("okhttp3.internal.http.HttpEngine").getDeclaredMethod("readResponse");
         verifier.verifyTrace(event(OK_HTTP_CLIENT_INTERNAL.getName(), readResponseMethod,
-                annotation("http.status.code", response.code())));
+                annotation("http.status.code", response.code()))
+        );
 
         verifier.verifyTraceCount(0);
     }

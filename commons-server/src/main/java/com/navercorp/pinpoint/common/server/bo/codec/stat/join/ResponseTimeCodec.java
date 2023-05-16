@@ -22,15 +22,12 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StringEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldStrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,13 +37,12 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-@Component("joinResponseTimeCodec")
-public class ResponseTimeCodec implements ApplicationStatCodec {
+@Component
+public class ResponseTimeCodec implements ApplicationStatCodec<JoinResponseTimeBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
     public ResponseTimeCodec(AgentStatDataPointCodec codec) {
         this.codec = Objects.requireNonNull(codec, "codec");
     }
@@ -58,7 +54,7 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
     }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinResponseTimeBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinResponseTimeBo> joinResponseTimeBoList) {
         if (CollectionUtils.isEmpty(joinResponseTimeBoList)) {
             throw new IllegalArgumentException("joinResponseTimeBoList must not be empty");
         }
@@ -66,45 +62,33 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
         final int numValues = joinResponseTimeBoList.size();
         valueBuffer.putVInt(numValues);
         List<Long> timestamps = new ArrayList<Long>(numValues);
-        UnsignedLongEncodingStrategy.Analyzer.Builder avgAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder minAvgAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder minAvgAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder maxAvgAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder maxAvgAgentIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
+        JoinLongFieldStrategyAnalyzer.Builder responseTimeAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinResponseTimeBoList) {
-            JoinResponseTimeBo joinResponseTimeBo = (JoinResponseTimeBo) joinStatBo;
+        for (JoinResponseTimeBo joinResponseTimeBo : joinResponseTimeBoList) {
             timestamps.add(joinResponseTimeBo.getTimestamp());
-            avgAnalyzerBuilder.addValue(joinResponseTimeBo.getAvg());
-            minAvgAnalyzerBuilder.addValue(joinResponseTimeBo.getMinAvg());
-            minAvgAgentIdAnalyzerBuilder.addValue(joinResponseTimeBo.getMinAvgAgentId());
-            maxAvgAnalyzerBuilder.addValue(joinResponseTimeBo.getMaxAvg());
-            maxAvgAgentIdAnalyzerBuilder.addValue(joinResponseTimeBo.getMaxAvgAgentId());
+            responseTimeAnalyzerBuilder.addValue(joinResponseTimeBo.getResponseTimeJoinValue());
         }
 
         codec.encodeTimestamps(valueBuffer, timestamps);
-        encodeDataPoints(valueBuffer, avgAnalyzerBuilder.build(), minAvgAnalyzerBuilder.build(), minAvgAgentIdAnalyzerBuilder.build(), maxAvgAnalyzerBuilder.build(), maxAvgAgentIdAnalyzerBuilder.build());
+        encodeDataPoints(valueBuffer, responseTimeAnalyzerBuilder.build());
     }
 
-    private void encodeDataPoints(Buffer valueBuffer, StrategyAnalyzer<Long> avgAnalyzer, StrategyAnalyzer<Long> minAvgAnalyzer, StrategyAnalyzer<String> minAvgAgentIdAnalyzer, StrategyAnalyzer<Long> maxAvgAnalyzer, StrategyAnalyzer<String> maxAvgAgentIdAnalyzer) {
+    private void encodeDataPoints(Buffer valueBuffer, JoinLongFieldStrategyAnalyzer responseTimeAnalyzer) {
         AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
-        headerEncoder.addCode(avgAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minAvgAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minAvgAgentIdAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxAvgAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxAvgAgentIdAnalyzer.getBestStrategy().getCode());
+
+        final byte[] codes = responseTimeAnalyzer.getBestStrategy().getCodes();
+        for (byte code : codes) {
+            headerEncoder.addCode(code);
+        }
+
         final byte[] header = headerEncoder.getHeader();
         valueBuffer.putPrefixedBytes(header);
 
-        this.codec.encodeValues(valueBuffer, avgAnalyzer.getBestStrategy(), avgAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minAvgAnalyzer.getBestStrategy(), minAvgAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minAvgAgentIdAnalyzer.getBestStrategy(), minAvgAgentIdAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxAvgAnalyzer.getBestStrategy(), maxAvgAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxAvgAgentIdAnalyzer.getBestStrategy(), maxAvgAgentIdAnalyzer.getValues());
+        this.codec.encodeValues(valueBuffer, responseTimeAnalyzer.getBestStrategy(), responseTimeAnalyzer.getValues());
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinResponseTimeBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -115,28 +99,16 @@ public class ResponseTimeCodec implements ApplicationStatCodec {
 
         final byte[] header = valueBuffer.readPrefixedBytes();
         AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
-        EncodingStrategy<Long> avgEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> minAvgEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> minAvgAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> maxAvgEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> maxAvgAgentIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
+        JoinLongFieldEncodingStrategy responseTimeEncodingStrategy = JoinLongFieldEncodingStrategy.getFromCode(headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode());
 
-        List<Long> avgList = this.codec.decodeValues(valueBuffer, avgEncodingStrategy, numValues);
-        List<Long> minAvgList = this.codec.decodeValues(valueBuffer, minAvgEncodingStrategy, numValues);
-        List<String> minAvgAgentIdList = this.codec.decodeValues(valueBuffer, minAvgAgentIdEncodingStrategy, numValues);
-        List<Long> maxAvgList = this.codec.decodeValues(valueBuffer, maxAvgEncodingStrategy, numValues);
-        List<String> maxAvgAgentIdList = this.codec.decodeValues(valueBuffer, maxAvgAgentIdEncodingStrategy, numValues);
+        final List<JoinLongFieldBo> responseTimeList = this.codec.decodeValues(valueBuffer, responseTimeEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinResponseTimeBoList = new ArrayList<JoinStatBo>();
+        List<JoinResponseTimeBo> joinResponseTimeBoList = new ArrayList<>();
         for (int i = 0 ; i < numValues ; i++) {
             JoinResponseTimeBo joinResponseTimeBo = new JoinResponseTimeBo();
             joinResponseTimeBo.setId(id);
             joinResponseTimeBo.setTimestamp(timestampList.get(i));
-            joinResponseTimeBo.setAvg(avgList.get(i));
-            joinResponseTimeBo.setMinAvg(minAvgList.get(i));
-            joinResponseTimeBo.setMinAvgAgentId(minAvgAgentIdList.get(i));
-            joinResponseTimeBo.setMaxAvg(maxAvgList.get(i));
-            joinResponseTimeBo.setMaxAvgAgentId(maxAvgAgentIdList.get(i));
+            joinResponseTimeBo.setResponseTimeJoinValue(responseTimeList.get(i));
             joinResponseTimeBoList.add(joinResponseTimeBo);
         }
 

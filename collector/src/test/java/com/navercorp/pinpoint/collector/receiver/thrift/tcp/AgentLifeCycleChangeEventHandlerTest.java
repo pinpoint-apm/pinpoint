@@ -27,22 +27,32 @@ import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AgentLifeCycleChangeEventHandlerTest {
 
     @Mock
@@ -58,9 +68,9 @@ public class AgentLifeCycleChangeEventHandlerTest {
     private ChannelPropertiesFactory channelPropertiesFactory;
 
     @InjectMocks
-    private AgentLifeCycleChangeEventHandler lifeCycleChangeEventHandler = new AgentLifeCycleChangeEventHandler();
+    private AgentLifeCycleChangeEventHandler lifeCycleChangeEventHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         doReturn("TestPinpointServer").when(this.server).toString();
         when(channelPropertiesFactory.newChannelProperties(anyMap())).thenReturn(mock(ChannelProperties.class));
@@ -72,42 +82,43 @@ public class AgentLifeCycleChangeEventHandlerTest {
 //    }
 
     @Test
-    public void runningStatesShouldBeHandledCorrectly() throws Exception {
+    public void runningStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> runningStates = ManagedAgentLifeCycle.RUNNING.getManagedStateCodes();
         runAndVerifyByStateCodes(runningStates);
     }
 
     @Test
-    public void closedByClientStatesShouldBeHandledCorrectly() throws Exception {
+    public void closedByClientStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> closedByClientStates = ManagedAgentLifeCycle.CLOSED_BY_CLIENT.getManagedStateCodes();
         runAndVerifyByStateCodes(closedByClientStates);
     }
 
     @Test
-    public void unexpectedCloseByClientStatesShouldBeHandledCorrectly() throws Exception {
+    public void unexpectedCloseByClientStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> unexpectedCloseByClientStates = ManagedAgentLifeCycle.UNEXPECTED_CLOSE_BY_CLIENT.getManagedStateCodes();
         runAndVerifyByStateCodes(unexpectedCloseByClientStates);
     }
 
     @Test
-    public void closedByServerStatesShouldBeHandledCorrectly() throws Exception {
+    public void closedByServerStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> closedByServerStates = ManagedAgentLifeCycle.CLOSED_BY_SERVER.getManagedStateCodes();
         runAndVerifyByStateCodes(closedByServerStates);
     }
 
     @Test
-    public void unexpectedCloseByServerStatesShouldBeHandledCorrectly() throws Exception {
+    public void unexpectedCloseByServerStatesShouldBeHandledCorrectly() {
         // given
         final Set<SocketStateCode> unexpectedCloseByServerStates = ManagedAgentLifeCycle.UNEXPECTED_CLOSE_BY_SERVER.getManagedStateCodes();
         runAndVerifyByStateCodes(unexpectedCloseByServerStates);
     }
 
     @Test
-    public void unmanagedStatesShouldNotBeHandled() throws Exception {
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    public void unmanagedStatesShouldNotBeHandled() {
         // given
         final Set<SocketStateCode> unmanagedStates = new HashSet<>();
         for (SocketStateCode socketStateCode : SocketStateCode.values()) {
@@ -124,7 +135,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
         }
     }
 
-    private void runAndVerifyByStateCodes(Set<SocketStateCode> socketStates) throws Exception {
+    private void runAndVerifyByStateCodes(Set<SocketStateCode> socketStates) {
         int testCount = 0;
         for (SocketStateCode socketState : socketStates) {
             this.lifeCycleChangeEventHandler.stateUpdated(this.server, socketState);

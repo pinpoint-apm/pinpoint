@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
@@ -34,14 +33,15 @@ import com.navercorp.pinpoint.profiler.context.module.OverrideModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.spy;
  */
 public class DependencyGraph {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static void main(String[] args) throws IOException {
         DependencyGraph graph = new DependencyGraph();
@@ -84,8 +84,8 @@ public class DependencyGraph {
 
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption agentOption = new DefaultAgentOption(instrumentation,
-                "mockAgent", "mockApplicationName", false, profilerConfig, Collections.<String>emptyList(),
-                null);
+                "mockAgentId", "mockAgentName", "mockApplicationName", false,
+                profilerConfig, Collections.<String>emptyList(), Collections.<String>emptyList());
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
@@ -101,9 +101,9 @@ public class DependencyGraph {
         return dir;
     }
 
-    public class Grapher {
+    public static class Grapher {
         public void graph(String filename, Injector demoInjector) throws IOException {
-            PrintWriter out = new PrintWriter(new File(filename), Charsets.UTF_8.name());
+            PrintWriter out = new PrintWriter(filename, StandardCharsets.UTF_8.name());
 
             Injector injector = Guice.createInjector(new GraphvizModule());
             GraphvizGrapher grapher = injector.getInstance(GraphvizGrapher.class);

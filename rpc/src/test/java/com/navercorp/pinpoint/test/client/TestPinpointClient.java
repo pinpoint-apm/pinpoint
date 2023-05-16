@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.LoggingStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
@@ -30,6 +29,7 @@ import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -40,7 +40,7 @@ public class TestPinpointClient {
     private PinpointClient pinpointClient;
 
     public TestPinpointClient() {
-        this(Collections.<String, Object>emptyMap());
+        this(Collections.emptyMap());
     }
 
     public TestPinpointClient(Map<String, Object> param) {
@@ -52,7 +52,7 @@ public class TestPinpointClient {
     }
 
     public TestPinpointClient(MessageListener messageListener, ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this(messageListener, serverStreamChannelMessageHandler, Collections.<String, Object>emptyMap());
+        this(messageListener, serverStreamChannelMessageHandler, Collections.emptyMap());
     }
 
     public TestPinpointClient(MessageListener messageListener, Map<String, Object> param) {
@@ -60,7 +60,7 @@ public class TestPinpointClient {
     }
 
     public TestPinpointClient(MessageListener messageListener, ServerStreamChannelMessageHandler serverStreamChannelMessageHandler, Map<String, Object> param) {
-        Assert.requireNonNull(param, "param");
+        Objects.requireNonNull(param, "param");
 
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory();
         pinpointClientFactory.setProperties(param);
@@ -78,7 +78,7 @@ public class TestPinpointClient {
     }
 
     public TestPinpointClient(PinpointClientFactory pinpointClientFactory) {
-        this.pinpointClientFactory = Assert.requireNonNull(pinpointClientFactory, "pinpointClientFactory");
+        this.pinpointClientFactory = Objects.requireNonNull(pinpointClientFactory, "pinpointClientFactory");
     }
 
     public void connect(int port) {
@@ -90,8 +90,8 @@ public class TestPinpointClient {
     }
 
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
-        Assert.requireNonNull(pinpointClient, "pinpointClient");
-        return pinpointClient.openStream(payload, streamChannelEventHandler);
+        Objects.requireNonNull(pinpointClient, "pinpointClient");
+        return pinpointClient.openStreamAndAwait(payload, streamChannelEventHandler, 3000);
     }
 
     public void disconnect() {

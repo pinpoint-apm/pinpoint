@@ -1,0 +1,49 @@
+:host {
+    display: block;
+    position: relative;
+}
+
+.contents-wrapper {
+    display: flex;
+}
+
+.textarea-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.jvm-argument-info {
+    border: 1px solid var(--border-primary);
+    font-size: 14px;
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    resize: none;
+    outline: 0;
+}
+
+.copy-button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.copy-button:focus {
+    outline: 0;
+}
+
+.fa-copy {
+    font-size: 20px;
+    color: var(--icon-default);
+}
+
+.fa-copy:hover {
+    color: var(--icon-hover);
+}
+
+.copied-noti-text {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+}

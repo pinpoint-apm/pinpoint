@@ -19,10 +19,8 @@ package com.navercorp.pinpoint.io.util;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.thrift.TBase;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,51 +46,53 @@ public class TypeLocatorBuilderTest {
         });
 
         TypeLocator<TBase<?, ?>> build = typeLocatorBuilder.build();
-        Assert.assertNotNull(build.bodyLookup((short) 1));
-        Assert.assertNull(build.bodyLookup((short) 5));
+        Assertions.assertNotNull(build.bodyLookup((short) 1));
+        Assertions.assertNull(build.bodyLookup((short) 5));
 
-        Assert.assertEquals(build.headerLookup((short) 1).getType(), 1);
-        Assert.assertEquals(build.headerLookup((short) 3).getType(), 3);
+        Assertions.assertEquals(build.headerLookup((short) 1).getType(), 1);
+        Assertions.assertEquals(build.headerLookup((short) 3).getType(), 3);
     }
 
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void addBodyFactory_duplicated_type_code() {
-        TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<TBase<?, ?>>();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<TBase<?, ?>>();
 
-        typeLocatorBuilder.addBodyFactory((short) 1, new BodyFactory<TBase<?, ?>>() {
-            @Override
-            public TBase<?, ?> getObject() {
-                return new TSpan();
-            }
+            typeLocatorBuilder.addBodyFactory((short) 1, new BodyFactory<TBase<?, ?>>() {
+                @Override
+                public TBase<?, ?> getObject() {
+                    return new TSpan();
+                }
+            });
+
+            typeLocatorBuilder.addBodyFactory((short) 1, new BodyFactory<TBase<?, ?>>() {
+                @Override
+                public TBase<?, ?> getObject() {
+                    return new TSpanEvent();
+                }
+            });
         });
-
-        typeLocatorBuilder.addBodyFactory((short) 1, new BodyFactory<TBase<?, ?>>() {
-            @Override
-            public TBase<?, ?> getObject() {
-                return new TSpanEvent();
-            }
-        });
-
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void addBodyFactory_duplicated_body_class() {
-        TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<TBase<?, ?>>();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            TypeLocatorBuilder<TBase<?, ?>> typeLocatorBuilder = new TypeLocatorBuilder<TBase<?, ?>>();
 
-        typeLocatorBuilder.addBodyFactory((short) 1, new BodyFactory<TBase<?, ?>>() {
-            @Override
-            public TBase<?, ?> getObject() {
-                return new TSpan();
-            }
+            typeLocatorBuilder.addBodyFactory((short) 1, new BodyFactory<TBase<?, ?>>() {
+                @Override
+                public TBase<?, ?> getObject() {
+                    return new TSpan();
+                }
+            });
+
+            typeLocatorBuilder.addBodyFactory((short) 3, new BodyFactory<TBase<?, ?>>() {
+                @Override
+                public TBase<?, ?> getObject() {
+                    return new TSpan();
+                }
+            });
         });
-
-        typeLocatorBuilder.addBodyFactory((short) 3, new BodyFactory<TBase<?, ?>>() {
-            @Override
-            public TBase<?, ?> getObject() {
-                return new TSpan();
-            }
-        });
-
     }
 }

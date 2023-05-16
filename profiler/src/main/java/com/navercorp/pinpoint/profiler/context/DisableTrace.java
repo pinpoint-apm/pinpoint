@@ -16,13 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
-import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 
 /**
@@ -30,65 +35,84 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
  * @author jaehong.kim
  */
 public class DisableTrace implements Trace {
+    protected final Logger logger = LogManager.getLogger(getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
-    public static final String UNSUPPORTED_OPERATION  = "disable trace";
+    public static final String UNSUPPORTED_OPERATION = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;
 
-    private final long id;
-    private final long startTime;
-    private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
-    private final ActiveTraceHandle handle;
+    private final LocalTraceRoot traceRoot;
+    private final SpanRecorder spanRecorder;
+    private DefaultTraceScopePool scopePool;
+    private final CloseListener closeListener;
+
+    private int depth;
+
+    private SpanEventRecorder spanEventRecorder;
+
     private boolean closed = false;
 
-    private final SpanRecorder spanRecorder;
-    private final Span span;
-    private final Storage storage;
+    public DisableTrace(LocalTraceRoot traceRoot,
+                        SpanRecorder spanRecorder, SpanEventRecorder spanEventRecorder,
+                        CloseListener closeListener) {
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.spanRecorder = Objects.requireNonNull(spanRecorder, "spanRecorder");
+        this.spanEventRecorder = Objects.requireNonNull(spanEventRecorder, "spanEventRecorder");
 
-    public DisableTrace(long id, long startTime, ActiveTraceHandle handle, Span span, SpanRecorder spanRecorder, Storage storage) {
-        this.id = id;
-        this.startTime = startTime;
-        this.handle = Assert.requireNonNull(handle, "handle");
-        this.span = Assert.requireNonNull(span, "span");
-        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
-        this.storage = Assert.requireNonNull(storage, "storage");
+        this.closeListener = Objects.requireNonNull(closeListener, "closeListener");
+
+        setCurrentThread();
+    }
+
+    private void setCurrentThread() {
+        final long threadId = Thread.currentThread().getId();
+        getShared().setThreadId(threadId);
     }
 
     @Override
     public long getId() {
-        return id;
+        return traceRoot.getLocalTransactionId();
     }
 
     @Override
     public long getStartTime() {
-        return startTime;
+        return traceRoot.getTraceStartTime();
     }
 
 
     @Override
     public SpanEventRecorder traceBlockBegin() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        push();
+        return this.spanEventRecorder;
     }
 
     @Override
     public void traceBlockEnd() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
     public void traceBlockEnd(int stackId) {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        pop();
     }
+
+    private int push() {
+        return this.depth++;
+    }
+
+    private void pop() {
+        this.depth--;
+    }
+
 
     @Override
     public TraceId getTraceId() {
-        return this.span.getTraceRoot().getTraceId();
-
-//        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
@@ -109,7 +133,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public boolean isRootStack() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return depth == 0;
     }
 
 
@@ -121,25 +145,26 @@ public class DisableTrace implements Trace {
     @Override
     public void close() {
         if (closed) {
+            logger.debug("Already closed");
             return;
         }
+        closed = true;
+
         final long purgeTime = System.currentTimeMillis();
-        try {
-            span.getWebInfo().setDisabled(true);
-            span.setElapsedTime((int) (purgeTime - this.startTime));
-            storage.sendWebInfo(span);
-        } catch (Throwable t) {
-            // 增强的方法发生异常
-        } finally {
-            closed = true;
-            handle.purge(purgeTime);
-        }
+        this.closeListener.close(purgeTime);
     }
 
+    protected void flush() {
+        this.closed = true;
+    }
+
+    private Shared getShared() {
+        return traceRoot.getShared();
+    }
 
     @Override
     public int getCallStackFrameId() {
-        return 0;
+        return DEFAULT_STACKID;
     }
 
     @Override
@@ -149,16 +174,24 @@ public class DisableTrace implements Trace {
 
     @Override
     public SpanEventRecorder currentSpanEventRecorder() {
-        return null;
+        return spanEventRecorder;
     }
+
 
     @Override
     public TraceScope getScope(String name) {
+        if (scopePool == null) {
+            return null;
+        }
         return scopePool.get(name);
     }
 
     @Override
     public TraceScope addScope(String name) {
+        if (scopePool == null) {
+            scopePool = new DefaultTraceScopePool();
+        }
         return scopePool.add(name);
     }
+
 }

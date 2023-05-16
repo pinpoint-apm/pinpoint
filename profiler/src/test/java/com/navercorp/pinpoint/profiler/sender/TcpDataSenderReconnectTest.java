@@ -20,24 +20,30 @@ import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.server.LoggingServerMessageListenerFactory;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
  */
 public class TcpDataSenderReconnectTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 5000);
+    private ConditionFactory awaitility() {
+        return Awaitility.await()
+                .pollDelay(100, TimeUnit.MILLISECONDS)
+                .timeout(5000, TimeUnit.MILLISECONDS);
+    }
 
     @Test
     public void connectAndSend() throws InterruptedException {
@@ -46,7 +52,7 @@ public class TcpDataSenderReconnectTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
+        TcpDataSender<TApiMetaData> sender = new TcpDataSender<>(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
         oldTestPinpointServerAcceptor.assertAwaitClientConnected(5000);
 
         oldTestPinpointServerAcceptor.close();
@@ -67,7 +73,7 @@ public class TcpDataSenderReconnectTest {
         newTestPinpointServerAcceptor.close();
         clientFactory.release();
     }
-    
+
     private PinpointClientFactory createPinpointClientFactory() {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);
@@ -77,15 +83,8 @@ public class TcpDataSenderReconnectTest {
         return clientFactory;
     }
 
-    private void waitClientDisconnected(final TcpDataSender sender) {
-        boolean pass = awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return !sender.isConnected();
-            }
-        });
-
-        Assert.assertTrue(pass);
+    private void waitClientDisconnected(final TcpDataSender<?> sender) {
+        awaitility().untilAsserted(() -> assertThat(sender.isConnected()).isFalse());
     }
 
 }

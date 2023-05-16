@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinit
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
@@ -32,9 +32,9 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,12 +44,13 @@ import static org.mockito.Mockito.when;
  */
 public class ASMMethodNodeTest {
 
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
 
@@ -73,7 +74,7 @@ public class ASMMethodNodeTest {
         when(declaringClass.getName()).thenReturn(targetClassName);
         EngineComponent engineComponent = mock(EngineComponent.class);
 
-        final MethodNode methodNode = ASMClassNodeLoader.get(targetClassName, methodName);
+        final MethodNode methodNode = loader.get(targetClassName, methodName);
 
         ASMMethod method = new ASMMethod(engineComponent, pluginContext, declaringClass, methodNode);
         assertEquals(methodName, method.getName());
@@ -97,7 +98,7 @@ public class ASMMethodNodeTest {
             @Override
             public InterceptorDefinition answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
-                Class clazz = (Class) arguments[0];
+                Class<?> clazz = (Class) arguments[0];
                 return interceptorDefinitionFactory.createInterceptorDefinition(clazz);
             }
         });

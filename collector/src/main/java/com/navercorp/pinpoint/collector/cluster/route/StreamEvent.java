@@ -29,13 +29,13 @@ import java.util.Objects;
 public class StreamEvent extends DefaultRouteEvent {
 
     private final ServerStreamChannel serverStreamChannel;
-    private final TBase requestObject;
+    private final TBase<?, ?> requestObject;
     
-    public StreamEvent(RouteEvent routeEvent, ServerStreamChannel serverStreamChannel, TBase requestObject) {
+    public StreamEvent(RouteEvent routeEvent, ServerStreamChannel serverStreamChannel, TBase<?, ?> requestObject) {
         this(routeEvent.getDeliveryCommand(), serverStreamChannel, requestObject);
     }
 
-    public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannel serverStreamChannel, TBase requestObject) {
+    public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannel serverStreamChannel, TBase<?, ?> requestObject) {
         super(deliveryCommand, serverStreamChannel.getRemoteAddress());
 
         this.serverStreamChannel = Objects.requireNonNull(serverStreamChannel, "serverStreamChannel");
@@ -50,7 +50,7 @@ public class StreamEvent extends DefaultRouteEvent {
         return serverStreamChannel.getStreamId();
     }
 
-    public TBase getRequestObject() {
+    public TBase<?, ?> getRequestObject() {
         return requestObject;
     }
     

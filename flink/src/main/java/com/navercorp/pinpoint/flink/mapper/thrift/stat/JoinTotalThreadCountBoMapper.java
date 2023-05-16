@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 
-public class JoinTotalThreadCountBoMapper implements ThriftBoMapper<JoinTotalThreadCountBo, TFAgentStat> {
+public class JoinTotalThreadCountBoMapper implements ThriftStatMapper<JoinTotalThreadCountBo, TFAgentStat> {
     @Override
     public JoinTotalThreadCountBo map(TFAgentStat tFAgentStat) {
         if(!tFAgentStat.isSetTotalThreadCount()) {
@@ -32,11 +33,18 @@ public class JoinTotalThreadCountBoMapper implements ThriftBoMapper<JoinTotalThr
         final long totalThreadCount = tFAgentStat.getTotalThreadCount().getTotalThreadCount();
         joinTotalThreadCountBo.setId(agentId);
         joinTotalThreadCountBo.setTimestamp(tFAgentStat.getTimestamp());
-        joinTotalThreadCountBo.setAvgTotalThreadCount(totalThreadCount);
-        joinTotalThreadCountBo.setMinTotalThreadCount(totalThreadCount);
-        joinTotalThreadCountBo.setMinTotalThreadCountAgentId(agentId);
-        joinTotalThreadCountBo.setMaxTotalThreadCount(totalThreadCount);
-        joinTotalThreadCountBo.setMaxTotalThreadCountAgentId(agentId);
+        joinTotalThreadCountBo.setTotalThreadCountJoinValue(new JoinLongFieldBo(totalThreadCount, totalThreadCount, agentId, totalThreadCount, agentId));
         return joinTotalThreadCountBo;
+    }
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinTotalThreadCountBo joinTotalThreadCountBo = this.map(tFAgentStat);
+
+        if (joinTotalThreadCountBo == JoinTotalThreadCountBo.EMPTY_TOTAL_THREAD_COUNT_BO) {
+            return;
+        }
+
+        builder.addTotalThreadCount(joinTotalThreadCountBo);
     }
 }

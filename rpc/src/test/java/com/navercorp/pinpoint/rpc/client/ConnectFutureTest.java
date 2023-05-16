@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,19 +29,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConnectFutureTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void setResultTest() {
         ConnectFuture future = new ConnectFuture();
         future.setResult(Result.FAIL);
         future.setResult(Result.SUCCESS);
-        Assert.assertEquals(Result.FAIL, future.getResult());
+        Assertions.assertEquals(Result.FAIL, future.getResult());
 
         future = new ConnectFuture();
         future.setResult(Result.SUCCESS);
         future.setResult(Result.FAIL);
-        Assert.assertEquals(Result.SUCCESS, future.getResult());
+        Assertions.assertEquals(Result.SUCCESS, future.getResult());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ConnectFutureTest {
 
         future.await();
 
-        Assert.assertEquals(Result.SUCCESS, future.getResult());
+        Assertions.assertEquals(Result.SUCCESS, future.getResult());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class ConnectFutureTest {
 
         future.awaitUninterruptibly();
 
-        Assert.assertEquals(Result.SUCCESS, future.getResult());
+        Assertions.assertEquals(Result.SUCCESS, future.getResult());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ConnectFutureTest {
 
         future.await(TimeUnit.SECONDS.toMillis(1), TimeUnit.MILLISECONDS);
 
-        Assert.assertEquals(Result.SUCCESS, future.getResult());
+        Assertions.assertEquals(Result.SUCCESS, future.getResult());
     }
 
     @Test
@@ -89,12 +89,12 @@ public class ConnectFutureTest {
         thread.start();
 
         boolean isReady = future.await(waitTime / 2, TimeUnit.MILLISECONDS);
-        Assert.assertFalse(isReady);
-        Assert.assertEquals(null, future.getResult());
+        Assertions.assertFalse(isReady);
+        Assertions.assertNull(future.getResult());
 
         isReady = future.await(waitTime, TimeUnit.MILLISECONDS);
-        Assert.assertTrue(isReady);
-        Assert.assertEquals(Result.SUCCESS, future.getResult());
+        Assertions.assertTrue(isReady);
+        Assertions.assertEquals(Result.SUCCESS, future.getResult());
     }
 
     class SetResultRunnable implements Runnable {

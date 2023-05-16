@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.server;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
-
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import org.apache.thrift.TBaseProcessor;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
+import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
+import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
-import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
@@ -38,11 +36,13 @@ import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
-import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
-import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
 
 /**
  * @author HyunGil Jeong
@@ -58,8 +58,8 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
         final InetSocketAddress socketAddress = super.environment.getServerAddress();
         final String address = SocketAddressUtils.getAddressFirst(socketAddress);
         verifier.verifyTraceCount(2);
-        Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
-        verifier.verifyDiscreteTrace(
+        Method process = TBinaryProtocol.class.getDeclaredMethod("readMessageEnd");
+        verifier.verifyTrace(
                 // RootSpan - Thrift Server Invocation
                 // refer to TBaseProcessorProcessInterceptor.finalizeSpan(...)
                 root("THRIFT_SERVER", // ServiceType,
@@ -68,7 +68,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                         HostAndPort.toHostAndPortString(address, socketAddress.getPort()), // endPoint
                         address), // remoteAddress
                 // SpanEvent - TBaseProcessor.process
-                event("THRIFT_SERVER_INTERNAL", process));
+                event("THRIFT_SERVER_INTERNAL", process, annotation("thrift.url", "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo")));
     }
 
     public static class SyncEchoTestServerFactory {
@@ -94,7 +94,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws IOException {
+                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
@@ -113,7 +113,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws IOException {
+                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
@@ -127,12 +127,12 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     .outputProtocolFactory(environment.getProtocolFactory()));
             return new SyncEchoTestServer<TThreadedSelectorServer>(server, environment) {
                 @Override
-                public SyncEchoTestClient getSynchronousClient() throws TTransportException {
+                public SyncEchoTestClient getSynchronousClient() throws Exception {
                     return new SyncEchoTestClient.ClientForNonblockingServer(environment);
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws IOException {
+                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
@@ -146,12 +146,12 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     .outputProtocolFactory(environment.getProtocolFactory()));
             return new SyncEchoTestServer<TNonblockingServer>(server, environment) {
                 @Override
-                public SyncEchoTestClient getSynchronousClient() throws TTransportException {
+                public SyncEchoTestClient getSynchronousClient() throws Exception {
                     return new SyncEchoTestClient.ClientForNonblockingServer(environment);
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws IOException {
+                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };
@@ -165,12 +165,12 @@ public abstract class SyncEchoTestServer<T extends TServer> extends ThriftEchoTe
                     .outputProtocolFactory(environment.getProtocolFactory()));
             return new SyncEchoTestServer<THsHaServer>(server, environment) {
                 @Override
-                public SyncEchoTestClient getSynchronousClient() throws TTransportException {
+                public SyncEchoTestClient getSynchronousClient() throws Exception {
                     return new SyncEchoTestClient.ClientForNonblockingServer(environment);
                 }
 
                 @Override
-                public AsyncEchoTestClient getAsynchronousClient() throws IOException {
+                public AsyncEchoTestClient getAsynchronousClient() throws Exception {
                     return new AsyncEchoTestClient.Client(environment);
                 }
             };

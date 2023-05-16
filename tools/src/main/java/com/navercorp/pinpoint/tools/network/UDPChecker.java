@@ -24,24 +24,17 @@ public class UDPChecker extends AbstractNetworkChecker {
 
     @Override
     protected boolean check(InetSocketAddress address) throws IOException {
-        DatagramSocket socket = null;
-        try {
-            socket = createSocket(address);
-
+        try (DatagramSocket socket = createSocket(address)) {
             return socket.isConnected();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(socket);
         }
         return false;
     }
 
     @Override
     protected boolean check(InetSocketAddress address, byte[] requestData, byte[] expectedResponseData) {
-        DatagramSocket socket = null;
-        try {
-            socket = createSocket();
+        try (DatagramSocket socket = createSocket()){
 
             write(socket, requestData, address);
             byte[] responseData = read(socket, expectedResponseData.length);
@@ -49,8 +42,6 @@ public class UDPChecker extends AbstractNetworkChecker {
             return Arrays.equals(expectedResponseData, responseData);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(socket);
         }
         return false;
     }

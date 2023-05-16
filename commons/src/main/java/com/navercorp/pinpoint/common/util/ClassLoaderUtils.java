@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -67,9 +69,7 @@ public final class ClassLoaderUtils {
     }
 
     public static ClassLoader getDefaultClassLoader(ClassLoaderCallable defaultClassLoaderCallable) {
-        if (defaultClassLoaderCallable == null) {
-            throw new NullPointerException("defaultClassLoaderCallable");
-        }
+        Objects.requireNonNull(defaultClassLoaderCallable, "defaultClassLoaderCallable");
 
         try {
             final Thread th = Thread.currentThread();
@@ -77,7 +77,7 @@ public final class ClassLoaderUtils {
             if (contextClassLoader != null) {
                 return contextClassLoader;
             }
-        } catch (Throwable ignore) {
+        } catch (Throwable ignored) {
             // skip
         }
         // Timing for security exceptions is different when the ClassLoader is received as an argument
@@ -90,10 +90,7 @@ public final class ClassLoaderUtils {
 
 
     public static boolean isJvmClassLoader(ClassLoader classLoader) {
-        if (BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader) {
-            return true;
-        }
-        return false;
+        return BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader;
     }
 
     public static String dumpStandardClassLoader() {
@@ -110,7 +107,7 @@ public final class ClassLoaderUtils {
         if (classLoader == null) {
             buffer.append("null");
         } else {
-            buffer.append(classLoader.toString());
+            buffer.append(classLoader);
         }
         buffer.append(", ");
     }

@@ -16,18 +16,18 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author jaehong.kim
  */
 public class ASMBytecodeDisassemblerTest {
     @Test
-    public void dumpBytecode() throws Exception {
+    public void dumpBytecode() {
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
         byte[] classFile = BytecodeUtils.getClassFile(classLoader, "java/lang/String");
@@ -41,7 +41,7 @@ public class ASMBytecodeDisassemblerTest {
     }
 
     @Test
-    public void dumpASM() throws Exception {
+    public void dumpASM() {
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
         byte[] classFile = BytecodeUtils.getClassFile(classLoader, "java/lang/String");
 
@@ -51,7 +51,7 @@ public class ASMBytecodeDisassemblerTest {
     }
 
     @Test
-    public void dumpVerify() throws Exception {
+    public void dumpVerify() {
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
         byte[] classFile = BytecodeUtils.getClassFile(classLoader, "java/lang/String");
 

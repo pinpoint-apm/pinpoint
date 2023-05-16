@@ -14,12 +14,10 @@
  */
 package com.navercorp.pinpoint.plugin.websphere;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
+import java.util.Objects;
 
 import java.util.List;
 
@@ -41,28 +39,19 @@ public class WebsphereConfiguration {
     private final boolean hidePinpointHeader;
 
     public WebsphereConfiguration(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config");
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.websphere.enable", true);
         this.bootstrapMains = config.readList("profiler.websphere.bootstrap.main");
-        // runtime
-        this.traceRequestParam = config.readBoolean("profiler.websphere.tracerequestparam", true);
-        this.realIpHeader = config.readString("profiler.websphere.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.websphere.realipemptyvalue", null);
-        final String excludeURL = config.readString("profiler.websphere.excludeurl", "");
-        if (!excludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(excludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        final String excludeProfileMethod = config.readString("profiler.websphere.excludemethod", "");
-        if (!excludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(excludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
-        this.hidePinpointHeader = config.readBoolean("profiler.websphere.hidepinpointheader", true);
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.websphere.tracerequestparam");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.websphere.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.websphere.realipemptyvalue");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.websphere.excludeurl");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.websphere.excludemethod");
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.websphere.hidepinpointheader");
     }
 
     public boolean isEnable() {

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -29,25 +30,18 @@ public class AgentResponseTimeViewModel {
 
     private final Application agentName;
 
-    private final List<ResponseTimeViewModel> responseTimeViewModel;
+    private final List<TimeViewModel> responseTimeViewModel;
 
-    public AgentResponseTimeViewModel(Application agentName, List<ResponseTimeViewModel> responseTimeViewModel) {
-        if (agentName == null) {
-            throw new NullPointerException("agentName");
-        }
-        if (responseTimeViewModel == null) {
-            throw new NullPointerException("responseTimeViewModel");
-        }
-        this.agentName = agentName;
-        this.responseTimeViewModel = responseTimeViewModel;
+    public AgentResponseTimeViewModel(Application agentName, List<TimeViewModel> responseTimeViewModel) {
+        this.agentName = Objects.requireNonNull(agentName, "agentName");
+        this.responseTimeViewModel = Objects.requireNonNull(responseTimeViewModel, "responseTimeViewModel");
     }
 
     public String getAgentName() {
         return agentName.getName();
     }
 
-    public List<ResponseTimeViewModel> getResponseTimeViewModel() {
+    public List<TimeViewModel> getResponseTimeViewModel() {
         return responseTimeViewModel;
     }
-
 }

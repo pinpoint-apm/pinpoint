@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class JoinTotalThreadCountSampler implements ApplicationStatSampler<JoinTotalThreadCountBo> {
+public class JoinTotalThreadCountSampler implements ApplicationStatSampler<JoinTotalThreadCountBo, AggreJoinTotalThreadCountBo> {
     @Override
     public AggreJoinTotalThreadCountBo sampleDataPoints(int index, long timestamp, List<JoinTotalThreadCountBo> dataPoints, JoinTotalThreadCountBo previousDataPoint) {
         if(CollectionUtils.isEmpty(dataPoints)) {
@@ -33,13 +34,8 @@ public class JoinTotalThreadCountSampler implements ApplicationStatSampler<JoinT
         JoinTotalThreadCountBo joinTotalThreadCountBo = JoinTotalThreadCountBo.joinTotalThreadCountBoList(dataPoints, timestamp);
 
         String id = joinTotalThreadCountBo.getId();
-        long avgTotalThreadCount = joinTotalThreadCountBo.getAvgTotalThreadCount();
-        long minTotalThreadCount = joinTotalThreadCountBo.getMinTotalThreadCount();
-        String minTotalTreadCountAgentId = joinTotalThreadCountBo.getMinTotalThreadCountAgentId();
-        long maxTotalThreadCount = joinTotalThreadCountBo.getMaxTotalThreadCount();
-        String maxTotalThreadCountAgentId = joinTotalThreadCountBo.getMaxTotalThreadCountAgentId();
+        final JoinLongFieldBo totalThreadCountJoinValue = joinTotalThreadCountBo.getTotalThreadCountJoinValue();
 
-        AggreJoinTotalThreadCountBo aggreJoinTotalThraedCountBo = new AggreJoinTotalThreadCountBo(id, timestamp, avgTotalThreadCount, minTotalThreadCount, minTotalTreadCountAgentId, maxTotalThreadCount, maxTotalThreadCountAgentId);
-        return aggreJoinTotalThraedCountBo;
+        return new AggreJoinTotalThreadCountBo(id, timestamp, totalThreadCountJoinValue);
     }
 }

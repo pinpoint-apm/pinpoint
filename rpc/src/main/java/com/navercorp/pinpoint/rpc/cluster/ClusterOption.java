@@ -16,14 +16,22 @@
 
 package com.navercorp.pinpoint.rpc.cluster;
 
-import java.util.*;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
 public class ClusterOption {
 
-    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.<Role>emptyList());
+    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.emptyList());
 
     private final boolean enable;
     private final String id;
@@ -34,11 +42,11 @@ public class ClusterOption {
     }
 
     public ClusterOption(boolean enable, String id, Role role) {
-        this(enable, id, Arrays.asList(role));
+        this(enable, id, Collections.singletonList(role));
     }
 
     public ClusterOption(ClusterOption clusterOption) {
-        this(clusterOption.enable, clusterOption.id, new ArrayList<Role>(clusterOption.roles));
+        this(clusterOption.enable, clusterOption.id, new ArrayList<>(clusterOption.roles));
     }
 
     public ClusterOption(boolean enable, String id, List<Role> roles) {
@@ -64,16 +72,51 @@ public class ClusterOption {
             return Collections.emptyMap();
         }
 
-        Map<String, Object> clusterProperties = new HashMap<String, Object>(2);
+        Map<String, Object> clusterProperties = new HashMap<>(2);
         clusterProperties.put("id", id);
 
-        List<String> roleList = new ArrayList<String>(roles.size());
+        List<String> roleList = new ArrayList<>(roles.size());
         for (Role role : roles) {
             roleList.add(role.name());
         }
         clusterProperties.put("roles", roleList);
 
         return clusterProperties;
+    }
+
+    public static ClusterOption getClusterOption(Map<?, ?> handshakeResponse) {
+        if (MapUtils.isEmpty(handshakeResponse)) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        }
+
+        final Map<?, ?> cluster = (Map<?, ?>) handshakeResponse.get(ControlHandshakeResponsePacket.CLUSTER);
+        if (cluster == null) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        }
+
+        String id = MapUtils.getString(cluster, "id", "");
+        List<Role> roles = getRoles(cluster.get("roles"));
+
+        if (StringUtils.isEmpty(id)) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        } else {
+            return new ClusterOption(true, id, roles);
+        }
+    }
+
+    private static List<Role> getRoles(Object roleNames) {
+        if (!(roleNames instanceof List)) {
+            return new ArrayList<>();
+        }
+
+        final List<Role> roles = new ArrayList<>();
+        final List<Object> list = (List<Object>) roleNames;
+        for (Object roleName : list) {
+            if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
+                roles.add(Role.getValue((String) roleName));
+            }
+        }
+        return roles;
     }
 
     @Override

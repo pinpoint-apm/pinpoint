@@ -24,18 +24,23 @@ import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WrappedSpanEventRecorderTest {
 
     @Mock
@@ -67,7 +72,7 @@ public class WrappedSpanEventRecorderTest {
         final Exception exception1 = new Exception(exceptionMessage1);
         recorder.recordException(false, exception1);
 
-        Assert.assertEquals("Exception recoding", exceptionMessage1, spanEvent.getExceptionInfo().getStringValue());
+        Assertions.assertEquals(spanEvent.getExceptionInfo().getStringValue(), exceptionMessage1, "Exception recoding");
         verify(shared, never()).maskErrorCode(anyInt());
 
 
@@ -75,7 +80,7 @@ public class WrappedSpanEventRecorderTest {
         final Exception exception2 = new Exception(exceptionMessage2);
         recorder.recordException(true, exception2);
 
-        Assert.assertEquals("Exception recoding", exceptionMessage2, spanEvent.getExceptionInfo().getStringValue());
+        Assertions.assertEquals(spanEvent.getExceptionInfo().getStringValue(), exceptionMessage2, "Exception recoding");
         verify(shared, only()).maskErrorCode(1);
     }
 
@@ -89,7 +94,7 @@ public class WrappedSpanEventRecorderTest {
         final int API_ID = 1000;
         recorder.recordApiId(API_ID);
 
-        Assert.assertEquals("API ID", spanEvent.getApiId(), API_ID);
+        Assertions.assertEquals(spanEvent.getApiId(), API_ID, "API ID");
     }
 
 

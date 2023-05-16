@@ -31,8 +31,8 @@ import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class GrpcClientStreamChannel extends AbstractStreamChannel implements ClientStreamChannel {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AtomicReference<StreamObserver<Empty>> connectionObserverReference = new AtomicReference<>();
 

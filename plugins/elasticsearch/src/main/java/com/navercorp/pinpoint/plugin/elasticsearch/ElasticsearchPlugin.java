@@ -72,12 +72,13 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
         }
 
         final ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("ElasticsearchPlugin config:{}", elasticsearchPluginConfig);
+        if (Boolean.FALSE == elasticsearchPluginConfig.isEnabled()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
 
-        if (!elasticsearchPluginConfig.isEnabled()) {
-            return;
+        if (logger.isInfoEnabled()) {
+            logger.info("{} config:{}", this.getClass().getSimpleName(), elasticsearchPluginConfig);
         }
 
         addElasticsearchConnectorInterceptors();
@@ -138,9 +139,16 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
             target.addField(EndPointAccessor.class);
             target.addField(ClusterInfoAccessor.class);
 
-            InstrumentMethod client = target.getConstructor("org.elasticsearch.client.RestClient"
-                    , "org.elasticsearch.common.CheckedConsumer"
-                    , "java.util.List");
+            InstrumentMethod client = target.getConstructor("org.elasticsearch.client.RestClient", "org.elasticsearch.common.CheckedConsumer", "java.util.List");
+            if (client == null) {
+                // 7.16.0
+                client = target.getConstructor("org.elasticsearch.client.RestClient", "org.elasticsearch.core.CheckedConsumer", "java.util.List", "java.lang.Boolean");
+            }
+            if (client == null) {
+                // 7.14.0
+                client = target.getConstructor("org.elasticsearch.client.RestClient", "org.elasticsearch.core.CheckedConsumer", "java.util.List");
+            }
+
             if (client != null) {
                 client.addScopedInterceptor(HighLevelConnectInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
             }

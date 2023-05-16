@@ -17,19 +17,21 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
 import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
 import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.profiler.cache.Result;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
  */
 public class DefaultCachingSqlNormalizer implements CachingSqlNormalizer {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final DefaultParsingResult EMPTY_OBJECT = new DefaultParsingResult("");
 
@@ -37,7 +39,7 @@ public class DefaultCachingSqlNormalizer implements CachingSqlNormalizer {
     private final SqlParser sqlParser;
 
     public DefaultCachingSqlNormalizer(SimpleCache<String> sqlCache) {
-        this.sqlCache = Assert.requireNonNull(sqlCache, "sqlCache");
+        this.sqlCache = Objects.requireNonNull(sqlCache, "sqlCache");
         this.sqlParser = new DefaultSqlParser();
     }
 

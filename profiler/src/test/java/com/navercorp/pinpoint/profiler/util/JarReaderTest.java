@@ -18,25 +18,27 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.CharUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class JarReaderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void read() throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+        URL location = CodeSourceUtils.getCodeLocation(CharUtils.class);
 
         JarFile jarFile = new JarFile(location.getPath());
 
@@ -47,17 +49,17 @@ public class JarReaderTest {
         logger.debug("file:{}", fileBinaries);
 
         for (FileBinary fileBinary : fileBinaries) {
-            Assert.assertThat(fileBinary.getFileName(), Matchers.endsWith(".class"));
+            assertThat(fileBinary.getFileName()).endsWith(".class");
         }
     }
 
     @Test
     public void getInputStream() throws Exception {
-        URL location = CodeSourceUtils.getCodeLocation(Logger.class);
+        URL location = CodeSourceUtils.getCodeLocation(CharUtils.class);
 
         JarFile jarFile = new JarFile(location.getPath());
         JarReader jarReader = new JarReader(jarFile);
-        Assert.assertNotNull(jarReader.getInputStream("org/slf4j/Logger.class"));
-        Assert.assertNull(jarReader.getInputStream("org/slf4j/NotFound.class"));
+        Assertions.assertNotNull(jarReader.getInputStream("org/apache/commons/lang3/CharUtils.class"));
+        Assertions.assertNull(jarReader.getInputStream("org/apache/commons/lang3/NotFound.class"));
     }
 }

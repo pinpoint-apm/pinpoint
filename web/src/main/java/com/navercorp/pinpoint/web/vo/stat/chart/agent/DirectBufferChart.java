@@ -16,80 +16,38 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledDirectBuffer;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author Roy Kim
  */
-public class DirectBufferChart implements StatChart {
+public class DirectBufferChart extends DefaultAgentChart<SampledDirectBuffer, Long> {
 
-    private final DirectBufferChartGroup DirectBufferChartGroup;
-
-    public DirectBufferChart(TimeWindow timeWindow, List<SampledDirectBuffer> sampledDirectBuffers) {
-        this.DirectBufferChartGroup = new DirectBufferChartGroup(timeWindow, sampledDirectBuffers);
+    public enum DirectBufferChartType implements StatChartGroup.AgentChartType {
+        DIRECT_COUNT,
+        DIRECT_MEMORY_USED,
+        MAPPED_COUNT,
+        MAPPED_MEMORY_USED
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return DirectBufferChartGroup;
+    private static final ChartGroupBuilder<SampledDirectBuffer, AgentStatPoint<Long>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledDirectBuffer, AgentStatPoint<Long>> newChartBuilder() {
+        ChartGroupBuilder<SampledDirectBuffer, AgentStatPoint<Long>> builder = new ChartGroupBuilder<>(SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(DirectBufferChartType.DIRECT_COUNT, SampledDirectBuffer::getDirectCount);
+        builder.addPointFunction(DirectBufferChartType.DIRECT_MEMORY_USED, SampledDirectBuffer::getDirectMemoryUsed);
+        builder.addPointFunction(DirectBufferChartType.MAPPED_COUNT, SampledDirectBuffer::getMappedCount);
+        builder.addPointFunction(DirectBufferChartType.MAPPED_MEMORY_USED, SampledDirectBuffer::getMappedMemoryUsed);
+        return builder;
     }
 
-    public static class DirectBufferChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> DirectBufferCharts;
-
-        public enum DirectBufferChartType implements AgentChartType {
-            DIRECT_COUNT,
-            DIRECT_MEMORY_USED,
-            MAPPED_COUNT,
-            MAPPED_MEMORY_USED
-        }
-
-        private DirectBufferChartGroup(TimeWindow timeWindow, List<SampledDirectBuffer> sampledDirectBuffers) {
-            this.timeWindow = timeWindow;
-            this.DirectBufferCharts = newChart(sampledDirectBuffers);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledDirectBuffer> sampledDirectBuffers) {
-            Chart<AgentStatPoint<Long>> directCount = newChart(sampledDirectBuffers, SampledDirectBuffer::getDirectCount);
-            Chart<AgentStatPoint<Long>> directMemoryUsed = newChart(sampledDirectBuffers, SampledDirectBuffer::getDirectMemoryUsed);
-            Chart<AgentStatPoint<Long>> mappedCount = newChart(sampledDirectBuffers, SampledDirectBuffer::getMappedCount);
-            Chart<AgentStatPoint<Long>> mappedMemoryUsed = newChart(sampledDirectBuffers, SampledDirectBuffer::getMappedMemoryUsed);
-
-            return ImmutableMap.of(DirectBufferChartType.DIRECT_COUNT, directCount,
-                    DirectBufferChartType.DIRECT_MEMORY_USED, directMemoryUsed,
-                    DirectBufferChartType.MAPPED_COUNT, mappedCount,
-                    DirectBufferChartType.MAPPED_MEMORY_USED, mappedMemoryUsed);
-        }
-
-        private Chart<AgentStatPoint<Long>> newChart(List<SampledDirectBuffer> sampledActiveTraces, Function<SampledDirectBuffer, AgentStatPoint<Long>> function) {
-            TimeSeriesChartBuilder<AgentStatPoint<Long>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDirectBuffer.UNCOLLECTED_POINT_CREATOR);
-            return builder.build(sampledActiveTraces, function);
-        }
-
-
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return DirectBufferCharts;
-        }
+    public DirectBufferChart(TimeWindow timeWindow, List<SampledDirectBuffer> statList) {
+        super(timeWindow, statList, BUILDER);
     }
+
 }

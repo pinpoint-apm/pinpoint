@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.hystrix.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * Interceptor for <code>R getFallbackOrThrowException(HystrixEventType, FailureType, String, Exception);</code>
@@ -42,7 +43,7 @@ public class HystrixCommandGetFallbackOrThrowExceptionArgs4Interceptor extends H
         private final Object exception;
 
         private Args4Attributes(Object[] args) {
-            if (args == null || args.length != 4) {
+            if (ArrayUtils.getLength(args) != 4) {
                 failureType = null;
                 message = null;
                 exception = null;

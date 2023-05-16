@@ -16,22 +16,23 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class StreamChannelStateCodeTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Test
     public void Initialization_error_EnumSet() {
         logger.debug("StreamChannelStateCode:{}", StreamChannelStateCode.NEW);
 
-        Assert.assertTrue(StreamChannelStateCode.OPEN.canChangeState(StreamChannelStateCode.NEW));
+        Assertions.assertTrue(StreamChannelStateCode.OPEN.canChangeState(StreamChannelStateCode.NEW));
     }
 
 

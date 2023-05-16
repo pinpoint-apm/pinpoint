@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.profiler.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,9 +41,8 @@ public class PinpointThreadFactory implements ThreadFactory {
     }
 
     public PinpointThreadFactory(String threadName, boolean daemon) {
-        if (threadName == null) {
-            throw new NullPointerException("threadName");
-        }
+        Objects.requireNonNull(threadName, "threadName");
+
         this.threadPrefix = prefix(threadName, FACTORY_NUMBER.getAndIncrement());
         this.daemon = daemon;
     }

@@ -26,7 +26,7 @@ public final class StreamUtils {
     private StreamUtils() {
     }
 
-    public static void close(final StreamObserver streamObserver) {
+    public static void close(final StreamObserver<?> streamObserver) {
         if (streamObserver != null) {
             streamObserver.onCompleted();
         }

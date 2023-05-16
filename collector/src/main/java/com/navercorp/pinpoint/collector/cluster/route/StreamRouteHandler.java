@@ -37,10 +37,11 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -48,26 +49,26 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
     public static final String ATTACHMENT_KEY = StreamRouteManager.class.getSimpleName();
-    
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final RouteFilterChain<StreamEvent> streamCreateFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;
     private final RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain;
 
-    @Autowired
-    @Qualifier("commandHeaderTBaseSerializerFactory")
-    private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
+    private final SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
-    public StreamRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator,
-            RouteFilterChain<StreamEvent> streamCreateFilterChain,
-            RouteFilterChain<ResponseEvent> responseFilterChain,
-            RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain) {
+    public StreamRouteHandler(ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator,
+                              RouteFilterChain<StreamEvent> streamCreateFilterChain,
+                              RouteFilterChain<ResponseEvent> responseFilterChain,
+                              RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain,
+                              @Qualifier("commandHeaderTBaseSerializerFactory") SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory) {
         super(targetClusterPointLocator);
 
         this.streamCreateFilterChain = streamCreateFilterChain;
         this.responseFilterChain = responseFilterChain;
         this.streamCloseFilterChain = streamCloseFilterChain;
+        this.commandSerializerFactory = Objects.requireNonNull(commandSerializerFactory, "commandSerializerFactory");
     }
 
     @Override
@@ -93,12 +94,12 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     }
 
     private TCommandTransferResponse onRoute0(StreamEvent event) {
-        TBase<?,?> requestObject = event.getRequestObject();
+        TBase<?, ?> requestObject = event.getRequestObject();
         if (requestObject == null) {
             return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
-        ClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        ClusterPoint<?> clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
             return createResponse(TRouteResult.NOT_FOUND);
         }
@@ -141,21 +142,21 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
         return createResponse(TRouteResult.UNKNOWN);
     }
-    
+
     private ClientStreamChannel createStreamChannel(ThriftAgentConnection clusterPoint, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         PinpointServer pinpointServer = clusterPoint.getPinpointServer();
-        return pinpointServer.openStream(payload, streamChannelEventHandler);
+        return pinpointServer.openStreamAndAwait(payload, streamChannelEventHandler, 3000);
     }
-    
+
     public void close(ServerStreamChannel consumerStreamChannel) {
         Object attachmentListener = consumerStreamChannel.getAttribute(ATTACHMENT_KEY);
-        
+
         if (attachmentListener instanceof StreamRouteManager) {
-            ((StreamRouteManager)attachmentListener).close();
+            ((StreamRouteManager) attachmentListener).close();
         }
     }
 
-    private byte[] serialize(TBase<?,?> result) {
+    private byte[] serialize(TBase<?, ?> result) {
         return SerializationUtils.serialize(result, commandSerializerFactory, null);
     }
 

@@ -84,7 +84,7 @@ public class ChannelPropertiesFactory {
         if (ArrayUtils.isEmpty(customKey)) {
             return Collections.emptyMap();
         }
-        final Map<Object, Object> copy = new HashMap<Object, Object>();
+        final Map<Object, Object> copy = new HashMap<>();
         for (Object key : customKey) {
             final Object value = properties.get(key);
             if (value != null) {

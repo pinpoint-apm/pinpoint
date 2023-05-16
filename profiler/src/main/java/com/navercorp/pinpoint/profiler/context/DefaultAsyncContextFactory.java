@@ -19,28 +19,31 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
-    private final AsyncTraceContext asyncTraceContext;
+    private final AsyncContexts.Remote remote;
+    private final AsyncContexts.Local local;
     private final AsyncIdGenerator asyncIdGenerator;
-    private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
-    private final int asyncMethodApiId;
+    public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext,
+                                      Binder<Trace> binder,
+                                      AsyncIdGenerator asyncIdGenerator,
+                                      PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+        int asyncMethodApiId = getAsyncMethodApiId(predefinedMethodDescriptorRegistry);
+        this.remote = AsyncContexts.remote(asyncTraceContext, binder, asyncMethodApiId);
+        this.local = AsyncContexts.local(asyncTraceContext, binder);
 
-    public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "traceFactoryProvider");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
-
-        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
-
-        this.asyncMethodApiId = getAsyncMethodApiId(predefinedMethodDescriptorRegistry);
+        this.asyncIdGenerator = Objects.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
     }
 
     private int getAsyncMethodApiId(PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
@@ -54,21 +57,40 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     }
 
     @Override
-    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId) {
-        Assert.requireNonNull(traceRoot, "traceRoot");
-        Assert.requireNonNull(asyncId, "asyncId");
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+        Objects.requireNonNull(asyncId, "asyncId");
 
-        return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId);
+        if (canSampled) {
+            return remote.sync(traceRoot, asyncId);
+        } else {
+            return newDisableAsyncContext(traceRoot);
+        }
     }
 
     @Override
-    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, AsyncState asyncState) {
-        Assert.requireNonNull(traceRoot, "traceRoot");
-        Assert.requireNonNull(asyncId, "asyncId");
-        Assert.requireNonNull(asyncState, "asyncState");
+    public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, boolean canSampled, AsyncState asyncState) {
+        Objects.requireNonNull(traceRoot, "traceRoot");
+        Objects.requireNonNull(asyncId, "asyncId");
+        Objects.requireNonNull(asyncState, "asyncState");
 
-        return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState);
+        if (canSampled) {
+            return remote.async(traceRoot, asyncState, asyncId);
+        } else {
+            // TODO
+            return newDisableAsyncContext(traceRoot, asyncState);
+        }
+
     }
 
+    @Override
+    public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot) {
+        return local.sync(traceRoot);
+    }
+
+    @Override
+    public AsyncContext newDisableAsyncContext(LocalTraceRoot traceRoot, AsyncState asyncState) {
+        return local.async(traceRoot, asyncState);
+    }
 
 }

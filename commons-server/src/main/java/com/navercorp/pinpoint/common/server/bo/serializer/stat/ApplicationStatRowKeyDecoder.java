@@ -20,16 +20,13 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import org.springframework.stereotype.Component;
-
-import static com.navercorp.pinpoint.common.hbase.HbaseTableConstatns.APPLICATION_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.hbase.HbaseTableConstants.APPLICATION_NAME_MAX_LEN;
 import static com.navercorp.pinpoint.common.server.bo.stat.join.StatType.TYPE_CODE_BYTE_LENGTH;
 
 
 /**
  * @author minwoo.jung
  */
-@Component
 public class ApplicationStatRowKeyDecoder implements RowKeyDecoder<ApplicationStatRowKeyComponent> {
 
     @Override

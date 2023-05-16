@@ -15,10 +15,9 @@
  */
 package com.navercorp.pinpoint.plugin.redis.jedis.interceptor;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import redis.clients.jedis.Client;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -31,7 +30,7 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public AttachEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public AttachEndPointInterceptor() {
     }
 
     @Override
@@ -55,7 +54,7 @@ public class AttachEndPointInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args == null || args.length == 0 || args[0] == null) {
+        if (ArrayUtils.isEmpty(args) || args[0] == null) {
             if (isDebug) {
                 logger.debug("Invalid arguments. Null or not found args({}).", args);
             }

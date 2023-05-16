@@ -25,10 +25,10 @@ import org.apache.thrift.TBase;
 public interface PinpointRouteResponse {
 
     TRouteResult getRouteResult();
-    TBase getResponse();
+    TBase<?, ?> getResponse();
     String getMessage();
 
-    <R extends TBase> R getResponse(Class<R> clazz);
-    <R extends TBase> R getResponse(Class<R> clazz, R defaultValue);
+    <R extends TBase<?, ?>> R getResponse(Class<R> clazz);
+    <R extends TBase<?, ?>> R getResponse(Class<R> clazz, R defaultValue);
 
 }

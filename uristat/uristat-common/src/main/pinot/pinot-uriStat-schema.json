@@ -1,0 +1,125 @@
+{
+  "schemaName": "uriStat",
+  "dimensionFieldSpecs": [
+    {
+      "name": "tenantId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "applicationName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "agentId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "uri",
+      "dataType": "STRING"
+    },
+    {
+      "name": "version",
+      "dataType": "INT"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "apdexRaw",
+      "dataType": "DOUBLE"
+    },
+    {
+      "name": "count",
+      "dataType": "LONG"
+    },
+    {
+      "name": "failureCount",
+      "dataType": "LONG"
+    },
+    {
+      "name": "maxLatencyMs",
+      "dataType": "LONG"
+    },
+    {
+      "name": "totalTimeMs",
+      "dataType": "LONG"
+    },
+    {
+    "name": "tot0",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot1",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot2",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot3",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot4",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot5",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot6",
+    "dataType": "INT"
+    },
+    {
+    "name": "tot7",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail0",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail1",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail2",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail3",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail4",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail5",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail6",
+    "dataType": "INT"
+    },
+    {
+    "name": "fail7",
+    "dataType": "INT"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "timestamp",
+      "dataType": "LONG",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

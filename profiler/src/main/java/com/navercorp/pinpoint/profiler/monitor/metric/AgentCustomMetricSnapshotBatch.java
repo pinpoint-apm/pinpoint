@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-public class AgentCustomMetricSnapshotBatch {
+public class AgentCustomMetricSnapshotBatch implements MetricType {
 
     private final List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList;
 
     public AgentCustomMetricSnapshotBatch(List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList) {
-        this.agentCustomMetricSnapshotList = Assert.requireNonNull(agentCustomMetricSnapshotList, "agentCustomMetricSnapshotList");
+        this.agentCustomMetricSnapshotList = Objects.requireNonNull(agentCustomMetricSnapshotList, "agentCustomMetricSnapshotList");
     }
 
     public List<AgentCustomMetricSnapshot> getAgentCustomMetricSnapshotList() {

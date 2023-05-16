@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -31,7 +31,7 @@ import java.util.Collections;
 public class TcpDataSenderTest {
 
     @Test
-    public void connectAndSend() throws InterruptedException {
+    public void connectAndSend() {
         TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX, true);
         TestServerMessageListenerFactory.TestServerMessageListener serverMessageListener = testServerMessageListenerFactory.create();
 
@@ -40,7 +40,7 @@ public class TcpDataSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
-        TcpDataSender sender = new TcpDataSender(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
+        TcpDataSender<Object> sender = new TcpDataSender<>(this.getClass().getName(), TestPinpointServerAcceptor.LOCALHOST, bindPort, clientFactory);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
@@ -48,7 +48,7 @@ public class TcpDataSenderTest {
             serverMessageListener.awaitAssertExpectedSendCount(2, 1000);
         } finally {
             sender.stop();
-            
+
             if (clientFactory != null) {
                 clientFactory.release();
             }
@@ -56,7 +56,7 @@ public class TcpDataSenderTest {
             testPinpointServerAcceptor.close();
         }
     }
-    
+
     private PinpointClientFactory createPinpointClientFactory() {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);

@@ -19,6 +19,7 @@ package com.navercorp.test.pinpoint.plugin.activemq;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import java.util.Objects;
 
 /**
  * Helper class that acts as an entry point for a request to consume messages.
@@ -31,10 +32,7 @@ public class MessageReceiver {
     private final MessageConsumer messageConsumer;
 
     public MessageReceiver(MessageConsumer messageConsumer) {
-        if (messageConsumer == null) {
-            throw new NullPointerException("messageConsumer");
-        }
-        this.messageConsumer = messageConsumer;
+        this.messageConsumer = Objects.requireNonNull(messageConsumer, "messageConsumer");
     }
 
     public void receiveMessage() throws JMSException {

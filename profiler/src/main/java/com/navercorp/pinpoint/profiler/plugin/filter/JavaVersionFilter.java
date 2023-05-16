@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.plugin.filter;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class JavaVersionFilter implements PluginFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final JvmVersion jvmVersion;
 
     public JavaVersionFilter() {
@@ -36,7 +36,7 @@ public class JavaVersionFilter implements PluginFilter {
     }
 
     public JavaVersionFilter(JvmVersion jvmVersion) {
-        this.jvmVersion = Assert.requireNonNull(jvmVersion, "jvmVersion");
+        this.jvmVersion = Objects.requireNonNull(jvmVersion, "jvmVersion");
     }
 
     @Override

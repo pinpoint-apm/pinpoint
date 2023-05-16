@@ -21,8 +21,8 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
-        <version>2.0.5-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -31,11 +31,16 @@
 
     <properties>
         <jedis.version>2.4.2</jedis.version>
-        <lettuce.version>5.1.2.RELEASE</lettuce.version>
+        <lettuce.version>6.1.5.RELEASE</lettuce.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
-        <dubbo.version>2.5.3</dubbo.version>
-        <mongo.driver.version>3.9.0</mongo.driver.version>
-        <apache.dubbo.version>2.7.2</apache.dubbo.version>
+        <cassandra4.driver.version>4.15.0</cassandra4.driver.version>
+
+        <mongo.driver.3.version>3.12.11</mongo.driver.3.version>
+        <mongo.driver.4.version>4.6.1</mongo.driver.4.version>
+
+        <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
+        <apache.dubbo.version>2.7.18</apache.dubbo.version>
+        <ehcache.version>2.10.6</ehcache.version>
     </properties>
 
     <dependencyManagement>
@@ -47,13 +52,18 @@
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache-core</artifactId>
+                <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${cassandra.driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-core</artifactId>
+                <version>${cassandra4.driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cassandra</groupId>
@@ -64,12 +74,27 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver</artifactId>
-                <version>${mongo.driver.version}</version>
+                <version>${mongo.driver.3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-sync</artifactId>
+                <version>${mongo.driver.4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-reactivestreams</artifactId>
+                <version>${mongo.driver.4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>7.2.0</version>
+                <version>7.3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>8.1.2</version>
             </dependency>
 
             <dependency>
@@ -103,8 +128,11 @@
                 <artifactId>commons-httpclient</artifactId>
                 <version>3.1</version>
             </dependency>
-
-
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>5.1.3</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.google.http-client</groupId>
@@ -254,7 +282,7 @@
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>dubbo</artifactId>
-                <version>${dubbo.version}</version>
+                <version>${alibaba.dubbo.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -278,7 +306,6 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.3.1</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.json-lib</groupId>
@@ -319,23 +346,29 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>0.11.0.1</version>
+                <version>3.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams</artifactId>
+                <version>3.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${fastxml.jackson-jdk6.version}</version>
+                <version>${fastxml.jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${fastxml.jackson-jdk6.version}</version>
+                <version>${fastxml.jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${fastxml.jackson-jdk6.version}</version>
+                <version>${fastxml.jackson.version}</version>
             </dependency>
 
             <dependency>
@@ -366,6 +399,64 @@
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty</artifactId>
                 <version>0.9.1.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.paho</groupId>
+                <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+                <version>1.2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.paho</groupId>
+                <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+                <version>1.2.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>4.7.1</version>
+            </dependency>
+            <!-- Spring Data R2DBC -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-r2dbc</artifactId>
+                <version>1.5.1</version>
+            </dependency>
+            <dependency>
+                <groupId>io.r2dbc</groupId>
+                <artifactId>r2dbc-h2</artifactId>
+                <version>0.9.1.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.miku</groupId>
+                <artifactId>r2dbc-mysql</artifactId>
+                <version>0.8.2.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jasync-sql</groupId>
+                <artifactId>jasync-r2dbc-mysql</artifactId>
+                <version>2.0.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mariadb</groupId>
+                <artifactId>r2dbc-mariadb</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>r2dbc-postgresql</artifactId>
+                <version>0.9.1.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.database.r2dbc</groupId>
+                <artifactId>oracle-r2dbc</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.r2dbc</groupId>
+                <artifactId>r2dbc-mssql</artifactId>
+                <version>0.9.0.RELEASE</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

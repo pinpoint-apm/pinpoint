@@ -15,17 +15,18 @@
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.navercorp.pinpoint.web.dao.UserDao;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import org.springframework.stereotype.Repository;
 
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.vo.User;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -34,11 +35,17 @@ import com.navercorp.pinpoint.web.vo.User;
 public class MemoryUserDao implements UserDao {
 
     private final Map<String, User> users = new ConcurrentHashMap<>();
-    private final AtomicInteger userNumGenerator  = new AtomicInteger(); 
+    private final IdGenerator userNumGenerator  = new IdGenerator();
     
+    private final UserGroupDao userGroupDao;
+
+    public MemoryUserDao(UserGroupDao userGroupDao) {
+        this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
+    }
+
     @Override
     public void insertUser(User user) {
-        String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
+        String userNumber = userNumGenerator.getId();
         user.setNumber(userNumber);
         users.put(user.getUserId(), user);
     }
@@ -46,7 +53,7 @@ public class MemoryUserDao implements UserDao {
     @Override
     public void insertUserList(List<User> users) {
         for (User user : users) {
-            String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
+            String userNumber = userNumGenerator.getId();
             user.setNumber(userNumber);
             this.users.put(user.getUserId(), user);
         }
@@ -79,7 +86,7 @@ public class MemoryUserDao implements UserDao {
 
     @Override
     public List<User> selectUserByDepartment(String department) {
-        List<User> userList = new LinkedList<>();
+        List<User> userList = new ArrayList<>();
 
         for (User user : users.values()) {
             if (department.equals(user.getDepartment())) {
@@ -92,7 +99,7 @@ public class MemoryUserDao implements UserDao {
 
     @Override
     public List<User> selectUserByUserName(String userName) {
-        List<User> userList = new LinkedList<>();
+        List<User> userList = new ArrayList<>();
 
         for (User user : users.values()) {
             if (userName.equals(user.getName())) {
@@ -102,10 +109,33 @@ public class MemoryUserDao implements UserDao {
         
         return userList;
     }
+    
+    @Override
+    public List<User> selectUserByUserGroupId(String userGroupId) {
+        List<User> userList = new ArrayList<>();
+        List<String> groupMemberIdList = userGroupDao.selectMember(userGroupId)
+                .stream()
+                .map(UserGroupMember::getMemberId)
+                .collect(Collectors.toList());
+    
+        for (User user : users.values()) {
+            String userId = user.getUserId();
+            if (groupMemberIdList.contains(userId)) {
+                userList.add(user);
+            }
+        }
+    
+        return userList;
+    }
+
+    @Override
+    public List<User> searchUser(String condition) {
+        return new ArrayList<>(users.values());
+    }
 
     @Override
     public void dropAndCreateUserTable() {
         users.clear();
-        userNumGenerator.lazySet(1);
+        userNumGenerator.reset(1);
     }
 }

@@ -17,11 +17,13 @@
 package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 
 /**
@@ -46,7 +48,7 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
     }
 
     private boolean isAsync(Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return false;
         }
         if (!(args[0] instanceof AsyncContextAccessor)) {
@@ -60,5 +62,12 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
         recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordApi(this.methodDescriptor);
         recorder.recordException(throwable);
+
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        if (asyncContext != null) {
+            if (result instanceof AsyncContextAccessor) {
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            }
+        }
     }
 }

@@ -25,22 +25,23 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 
 /**
  * @author HyunGil Jeong
  */
+@ExtendWith(MockitoExtension.class)
 public class AgentEventAsyncTaskServiceTest {
 
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
@@ -57,14 +58,15 @@ public class AgentEventAsyncTaskServiceTest {
 
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+
+    @BeforeEach
+    public void beforeEach() {
         this.agentEventAsyncTaskService = new AgentEventAsyncTaskService(agentEventService);
     }
 
+
     @Test
-    public void handler_should_handle_events_with_empty_message_body() throws Exception {
+    public void handler_should_handle_events_with_empty_message_body() {
         // given
         final AgentEventType expectedEventType = AgentEventType.AGENT_CONNECTED;
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
@@ -72,14 +74,14 @@ public class AgentEventAsyncTaskServiceTest {
         ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
         AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
         this.agentEventAsyncTaskService.handleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedEventType);
-        verify(this.agentEventService, times(1)).insert(argCaptor.capture());
+        verify(this.agentEventService).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
         assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
         assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertEquals(0, actualAgentEventBo.getEventBody().length);
+        assertThat(actualAgentEventBo.getEventBody()).isEmpty();
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
@@ -87,11 +89,10 @@ public class AgentEventAsyncTaskServiceTest {
     }
 
     private static Map<Object, Object> createChannelProperties(String applicationId, String agentId, long startTimestamp) {
-        Map<Object, Object> map = new HashMap<>();
-
-        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
-        map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
-        map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
-        return map;
+        return Map.of(
+                HandshakePropertyType.APPLICATION_NAME.getName(), applicationId,
+                HandshakePropertyType.AGENT_ID.getName(), agentId,
+                HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp
+        );
     }
 }

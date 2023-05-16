@@ -37,25 +37,45 @@ public class DefaultCallStack<T> implements CallStack<T> {
     protected final int maxDepth;
     protected int index = DEFAULT_INDEX;
     protected int overflowIndex = 0;
-    protected short sequence;
+    protected final int maxSequence;
+    protected int sequence;
+    protected CallStackOverflowListener overflowListener;
+    protected boolean overflowed = false;
 
     public DefaultCallStack(Factory<T> factory) {
-        this(factory, -1);
+        this(factory, -1, -1);
+    }
+
+    public DefaultCallStack(Factory<T> factory, int maxDepth) {
+        this(factory, maxDepth, -1);
     }
 
     @SuppressWarnings("unchecked")
-    public DefaultCallStack(Factory<T> factory, int maxDepth) {
+    public DefaultCallStack(Factory<T> factory, int maxDepth, int maxSequence) {
         this.factory = factory;
         this.maxDepth = maxDepth;
-
+        this.maxSequence = maxSequence;
         this.stack = newStack(factory.getType(), STACK_SIZE);
+    }
+
+    public void setOverflowListener(CallStackOverflowListener overflowListener) {
+        this.overflowListener = overflowListener;
+    }
+
+    void onOverflow(final int point) {
+        if (Boolean.FALSE == overflowed) {
+            if (overflowListener != null) {
+                overflowListener.fireOverflow(point);
+            }
+            // Make sure it runs only once per CallStack.
+            overflowed = true;
+        }
     }
 
     @SuppressWarnings("unchecked")
     private T[] newStack(Class<T> type, int size) {
         return (T[]) Array.newInstance(type, size);
     }
-
 
     @Override
     public int getIndex() {
@@ -70,7 +90,9 @@ public class DefaultCallStack<T> implements CallStack<T> {
     public int push(final T element) {
         if (isOverflow()) {
             overflowIndex++;
-            return index + overflowIndex;
+            final int point = index + overflowIndex;
+            onOverflow(point);
+            return point;
         }
 
         checkExtend(index + 1);
@@ -83,7 +105,6 @@ public class DefaultCallStack<T> implements CallStack<T> {
     protected void markDepth(T element, int index) {
         factory.markDepth(element, index);
     }
-
 
     private void checkExtend(final int size) {
         final T[] originalStack = this.stack;
@@ -99,7 +120,7 @@ public class DefaultCallStack<T> implements CallStack<T> {
     public T pop() {
         if (isOverflow() && overflowIndex > 0) {
             overflowIndex--;
-            return factory.dummyInstance();
+            return factory.disableInstance();
         }
 
         final T spanEvent = peek();
@@ -117,7 +138,7 @@ public class DefaultCallStack<T> implements CallStack<T> {
         }
 
         if (isOverflow() && overflowIndex > 0) {
-            return factory.dummyInstance();
+            return factory.disableInstance();
         }
         return stack[index - 1];
     }
@@ -141,14 +162,42 @@ public class DefaultCallStack<T> implements CallStack<T> {
         return maxDepth;
     }
 
+    @Override
+    public int getMaxSequence() {
+        return maxSequence;
+    }
+
     @VisibleForTesting
     boolean isOverflow() {
+        return isDepthOverflow() || isSequenceOverflow();
+    }
+
+    private boolean isDepthOverflow() {
         return maxDepth != -1 && maxDepth < index;
     }
 
+    private boolean isSequenceOverflow() {
+        return maxSequence != -1 && maxSequence <= sequence;
+    }
+
     @Override
-    public Factory<T> getFactory() {
-        return factory;
+    public T newInstance() {
+        if (isOverflow()) {
+            return factory.disableInstance();
+        } else {
+            return factory.newInstance();
+        }
+    }
+
+    @Override
+    public T disableInstance() {
+        return this.factory.disableInstance();
+    }
+
+    @Override
+    public boolean isDisable(T element) {
+        return this.factory.isDisable(element);
+
     }
 
     @Override

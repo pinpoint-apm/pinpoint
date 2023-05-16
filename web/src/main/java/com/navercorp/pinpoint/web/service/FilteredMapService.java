@@ -16,20 +16,17 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.filter.Filter;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.LoadFactor;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.List;
 
 /**
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 public interface FilteredMapService {
 
@@ -37,11 +34,7 @@ public interface FilteredMapService {
 
     LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
+    ApplicationMap selectApplicationMap(FilteredMapServiceOption option);
 
-    LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<List<SpanBo>> filter);
-
-    ApplicationMap selectApplicationMap(TransactionId transactionId, int version);
-
-    ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> traceIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version);
-
+    ApplicationMap selectApplicationMapWithScatterData(FilteredMapServiceOption option);
 }

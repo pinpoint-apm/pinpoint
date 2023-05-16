@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -36,14 +37,8 @@ public class AgentResponseTimeViewModelList {
     }
 
     public AgentResponseTimeViewModelList(String fieldName, List<AgentResponseTimeViewModel> agentResponseTimeViewModelList) {
-        if (fieldName == null) {
-            throw new NullPointerException("fieldName");
-        }
-        if (agentResponseTimeViewModelList == null) {
-            throw new NullPointerException("agentResponseTimeViewModelList");
-        }
-        this.fieldName = fieldName;
-        this.agentResponseTimeViewModelList = agentResponseTimeViewModelList;
+        this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
+        this.agentResponseTimeViewModelList = Objects.requireNonNull(agentResponseTimeViewModelList, "agentResponseTimeViewModelList");
     }
 
     public void setFieldName(String fieldName) {

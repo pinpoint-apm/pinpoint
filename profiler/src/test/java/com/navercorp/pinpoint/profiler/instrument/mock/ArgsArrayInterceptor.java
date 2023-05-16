@@ -46,18 +46,18 @@ public class ArgsArrayInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        this.before = true;
-        this.beforeTarget = target;
-        this.beforeArgs = args;
+        before = true;
+        beforeTarget = target;
+        beforeArgs = args;
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        this.after = true;
-        this.afterTarget = target;
-        this.afterArgs = args;
-        this.result = result;
-        this.throwable = throwable;
+        after = true;
+        afterTarget = target;
+        afterArgs = args;
+        ArgsArrayInterceptor.result = result;
+        ArgsArrayInterceptor.throwable = throwable;
     }
 
     private String toArgs(Object[] args) {

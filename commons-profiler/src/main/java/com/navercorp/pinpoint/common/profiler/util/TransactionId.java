@@ -16,24 +16,22 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 
 /**
  * @author emeroad
  */
 public class TransactionId {
 
-    private String agentId;
+    private final String agentId;
     private final long agentStartTime;
     private final long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
-        this.agentStartTime = agentStartTime;
-        this.transactionSequence = transactionSequence;
-    }
-
-    public TransactionId(long agentStartTime, long transactionSequence) {
+        if (!IdValidateUtils.validateId(agentId)) {
+            throw new IllegalArgumentException("invalid agentId");
+        }
+        this.agentId = agentId;
         this.agentStartTime = agentStartTime;
         this.transactionSequence = transactionSequence;
     }

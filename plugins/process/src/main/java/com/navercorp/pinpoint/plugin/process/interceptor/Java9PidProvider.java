@@ -48,7 +48,7 @@ public class Java9PidProvider implements PidProvider {
         }
         try {
             return (Long) pidMethod.invoke(process);
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
             return null;
         }
     }

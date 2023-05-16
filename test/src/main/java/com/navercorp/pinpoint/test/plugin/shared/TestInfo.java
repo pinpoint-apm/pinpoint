@@ -25,10 +25,12 @@ import java.util.List;
 public class TestInfo {
     private final String testId;
     private final List<File> dependencyFileList;
+    private final List<String> repositoryUrls;
 
-    public TestInfo(String testId, List<File> dependencyFileList) {
+    public TestInfo(String testId, List<File> dependencyFileList, List<String> repositoryUrls) {
         this.testId = testId;
         this.dependencyFileList = dependencyFileList;
+        this.repositoryUrls = repositoryUrls;
     }
 
     public String getTestId() {
@@ -37,5 +39,9 @@ public class TestInfo {
 
     public List<File> getDependencyFileList() {
         return dependencyFileList;
+    }
+
+    public List<String> getRepositoryUrls() {
+        return repositoryUrls;
     }
 }

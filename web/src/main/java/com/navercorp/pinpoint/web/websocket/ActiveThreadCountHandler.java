@@ -31,14 +31,15 @@ import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType
 import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -57,7 +58,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     static final String API_ACTIVE_THREAD_COUNT = "activeThreadCount";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Object lock = new Object();
     private final AgentService agentService;
@@ -187,7 +188,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
             sessionRepository.remove(closeSession);
             if (sessionRepository.isEmpty()) {
-                boolean turnOff = onTimerTask.compareAndSet(true, false);
+                onTimerTask.compareAndSet(true, false);
             }
         }
 
@@ -268,6 +269,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         super.handlePongMessage(webSocketSession, message);
     }
 
+    @GuardedBy("lock")
     private void bindingResponseAggregator(WebSocketSession webSocketSession, WebSocketSessionContext webSocketSessionContext, String applicationName) {
         logger.info("bindingResponseAggregator. session:{}, applicationName:{}.", webSocketSession, applicationName);
 
@@ -287,6 +289,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         responseAggregator.addWebSocketSession(webSocketSession);
     }
 
+    @GuardedBy("lock")
     private void unbindingResponseAggregator(WebSocketSession webSocketSession, WebSocketSessionContext sessionContext) {
 
         final String applicationName = sessionContext.getApplicationName();

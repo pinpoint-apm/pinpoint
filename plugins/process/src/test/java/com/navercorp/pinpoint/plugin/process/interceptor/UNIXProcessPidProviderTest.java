@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.process.interceptor;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 
@@ -31,7 +31,7 @@ public class UNIXProcessPidProviderTest {
         MockProcess mockProcess = new MockProcess();
         Field pidField = UNIXProcessPidProvider.getPidField(MockProcess.class);
         long pid = pidField.getLong(mockProcess);
-        Assert.assertEquals(pid, MockProcess.DEFAULT_PID);
+        Assertions.assertEquals(pid, MockProcess.DEFAULT_PID);
     }
 
 

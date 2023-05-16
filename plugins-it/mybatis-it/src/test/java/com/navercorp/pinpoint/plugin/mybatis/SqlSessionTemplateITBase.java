@@ -22,6 +22,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -50,9 +51,11 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
 
     private SqlSessionTemplate sqlSessionTemplate;
 
+    private AutoCloseable openMocks;
+
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        openMocks = MockitoAnnotations.openMocks(this);
         Configuration configuration = mock(Configuration.class);
         TransactionFactory transactionFactory = mock(TransactionFactory.class);
         DataSource dataSource = mock(DataSource.class);
@@ -61,6 +64,11 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
         when(this.sqlSessionFactory.getConfiguration()).thenReturn(configuration);
         when(this.sqlSessionFactory.openSession(EXECUTOR_TYPE)).thenReturn(this.sqlSessionProxy);
         this.sqlSessionTemplate = new SqlSessionTemplate(this.sqlSessionFactory, EXECUTOR_TYPE);
+    }
+
+    @After
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     @Override

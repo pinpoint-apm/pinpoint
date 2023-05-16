@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins</artifactId>
@@ -37,6 +37,7 @@
 
         <module>httpclient3</module>
         <module>httpclient4</module>
+        <module>httpclient5</module>
         <module>ning-asynchttpclient</module>
         <module>resttemplate</module>
         <module>gson</module>
@@ -65,6 +66,7 @@
         <module>grpc</module>
         <module>jetty</module>
         <module>websphere</module>
+        <module>kotlin-coroutines</module>
         <module>spring</module>
         <module>spring-boot</module>
         <module>spring-webflux</module>
@@ -75,6 +77,7 @@
         <module>logback</module>
         <module>dubbo</module>
         <module>cassandra</module>
+        <module>cassandra4</module>
         <module>activemq-client</module>
         <module>cxf</module>
         <module>hystrix</module>
@@ -96,14 +99,19 @@
         <module>log4j2</module>
         <module>openwhisk</module>
         <module>redis-redisson</module>
-        <module>elasticsearch-bboss</module>
         <module>apache-dubbo</module>
         <module>elasticsearch</module>
+        <module>elasticsearch8</module>
         <module>reactor</module>
         <module>reactor-netty</module>
         <module>jdk-completable-future</module>
         <module>thread</module>
         <module>process</module>
+        <module>paho-mqtt</module>
+        <module>rocketmq</module>
+        <module>agentsdk-async</module>
+        <module>spring-data-r2dbc</module>
+        <module>spring-tx</module>
     </modules>
 
 

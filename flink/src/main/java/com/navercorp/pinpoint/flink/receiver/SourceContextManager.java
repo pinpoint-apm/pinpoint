@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.flink.receiver;
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class SourceContextManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final List<SourceFunction.SourceContext> sourceContextList = new CopyOnWriteArrayList<>();
     private final AtomicInteger callCount = new AtomicInteger(1);

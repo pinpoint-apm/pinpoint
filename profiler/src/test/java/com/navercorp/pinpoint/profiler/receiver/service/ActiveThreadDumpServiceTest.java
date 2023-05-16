@@ -16,26 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.active.UnsampledActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,13 +57,13 @@ public class ActiveThreadDumpServiceTest {
 
     private final WaitingJobListFactory waitingJobListFactory = new WaitingJobListFactory();
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         waitingJobListFactory.close();
     }
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
 
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, JOB_TIMEOUT);
 
@@ -70,27 +72,27 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(createRequest(0, null, null));
 
-        Assert.assertEquals(CREATE_SIZE, response.getThreadDumpsSize());
+        Assertions.assertEquals(CREATE_SIZE, response.getThreadDumpsSize());
 
     }
 
     @Test
-    public void basicFunctionTest2() throws Exception {
+    public void basicFunctionTest2() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
         List<ActiveTraceSnapshot> activeTraceInfoList = createMockActiveTraceInfoList(CREATE_SIZE, DEFAULT_TIME_MILLIS, TIME_DIFF_INTERVAL, waitingJobList);
 
-        TCmdActiveThreadDump tCmdActiveThreadDump = createRequest(0, null, Arrays.asList(1L));
+        TCmdActiveThreadDump tCmdActiveThreadDump = createRequest(0, null, Collections.singletonList(1L));
 
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(1, response.getThreadDumpsSize());
+        Assertions.assertEquals(1, response.getThreadDumpsSize());
 
     }
 
     @Test
-    public void basicFunctionTest3() throws Exception {
+    public void basicFunctionTest3() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
         int targetThreadNameSize = 3;
@@ -103,14 +105,13 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(3, response.getThreadDumpsSize());
+        Assertions.assertEquals(3, response.getThreadDumpsSize());
 
     }
 
     @Test
-    public void basicFunctionTest4() throws Exception {
+    public void basicFunctionTest4() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
-
 
 
         List<ActiveTraceSnapshot> activeTraceInfoList = createMockActiveTraceInfoList(CREATE_SIZE, DEFAULT_TIME_MILLIS, TIME_DIFF_INTERVAL, waitingJobList);
@@ -126,12 +127,12 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(targetThreadNameSize + targetTraceIdSize, response.getThreadDumpsSize());
+        Assertions.assertEquals(targetThreadNameSize + targetTraceIdSize, response.getThreadDumpsSize());
 
     }
 
     @Test
-    public void basicFunctionTest5() throws Exception {
+    public void basicFunctionTest5() {
         List<WaitingJob> waitingJobList = this.waitingJobListFactory.createList(CREATE_SIZE, 1000 * 3);
 
 
@@ -145,17 +146,17 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpService service = createService(activeTraceInfoList);
         TCmdActiveThreadDumpRes response = (TCmdActiveThreadDumpRes) service.requestCommandService(tCmdActiveThreadDump);
 
-        Assert.assertEquals(limit, response.getThreadDumpsSize());
+        Assertions.assertEquals(limit, response.getThreadDumpsSize());
 
         for (TActiveThreadDump dump : response.getThreadDumps()) {
-            Assert.assertTrue(oldTimeList.contains(dump.getStartTime()));
+            assertThat(oldTimeList).contains(dump.getStartTime());
         }
 
     }
 
 
     private List<ActiveTraceSnapshot> createMockActiveTraceInfoList(int createActiveTraceRepositorySize, long currentTimeMillis, long diff, List<WaitingJob> waitingJobList) {
-        List<ActiveTraceSnapshot> activeTraceInfoList = new ArrayList<ActiveTraceSnapshot>(createActiveTraceRepositorySize);
+        List<ActiveTraceSnapshot> activeTraceInfoList = new ArrayList<>(createActiveTraceRepositorySize);
         for (int i = 0; i < createActiveTraceRepositorySize; i++) {
             ActiveTraceSnapshot activeTraceInfo = createActiveTraceInfo(currentTimeMillis + (diff * i), waitingJobList.get(i));
             activeTraceInfoList.add(activeTraceInfo);
@@ -166,12 +167,17 @@ public class ActiveThreadDumpServiceTest {
     private ActiveTraceSnapshot createActiveTraceInfo(long startTime, Runnable runnable) {
         Thread thread = pinpointThreadFactory.newThread(runnable);
         thread.start();
-        long id = thread.getId();
-        return new UnsampledActiveTraceSnapshot(idGenerator.incrementAndGet(), startTime, id);
+        long threadId = thread.getId();
+
+        int id = idGenerator.incrementAndGet();
+        LocalTraceRoot traceRoot = TraceRoot.local("agentId-" + id, startTime, id);
+        traceRoot.getShared().setThreadId(threadId);
+
+        return DefaultActiveTraceSnapshot.of(traceRoot);
     }
 
     private List<Long> getOldTimeList(int maxCount) {
-        List<Long> startTimeMillisList = new ArrayList<Long>(maxCount);
+        List<Long> startTimeMillisList = new ArrayList<>(maxCount);
         for (int i = 0; i < maxCount; i++) {
             startTimeMillisList.add(DEFAULT_TIME_MILLIS + (TIME_DIFF_INTERVAL * i));
         }
@@ -181,7 +187,7 @@ public class ActiveThreadDumpServiceTest {
     private List<String> extractThreadNameList(List<ActiveTraceSnapshot> activeTraceInfoList, int size) {
         List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
 
-        List<String> threadNameList = new ArrayList<String>(size);
+        List<String> threadNameList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
 
             final ActiveTraceSnapshot activeTraceSnapshot = copied.get(i);
@@ -195,7 +201,7 @@ public class ActiveThreadDumpServiceTest {
     private List<Long> extractLocalTraceIdList(List<ActiveTraceSnapshot> activeTraceInfoList, int size) {
         List<ActiveTraceSnapshot> copied = shuffle(activeTraceInfoList);
 
-        List<Long> localTraceIdList = new ArrayList<Long>(size);
+        List<Long> localTraceIdList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             localTraceIdList.add(copied.get(i).getLocalTransactionId());
         }
@@ -204,7 +210,7 @@ public class ActiveThreadDumpServiceTest {
     }
 
     private <E> List<E> shuffle(List<E> list) {
-        List<E> copied = new ArrayList<E>(list);
+        List<E> copied = new ArrayList<>(list);
         Collections.shuffle(copied, ThreadLocalRandom.current());
         return copied;
     }
@@ -217,7 +223,6 @@ public class ActiveThreadDumpServiceTest {
         ActiveThreadDumpCoreService activeThreadDump = new ActiveThreadDumpCoreService(activeTraceRepository);
         return new ActiveThreadDumpService(activeThreadDump);
     }
-
 
 
     private TCmdActiveThreadDump createRequest(int limit, List<String> threadNameList, List<Long> localTraceIdList) {
@@ -233,7 +238,6 @@ public class ActiveThreadDumpServiceTest {
         }
         return request;
     }
-
 
 
 }

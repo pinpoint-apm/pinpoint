@@ -25,5 +25,7 @@ public interface TraceRootFactory {
 
     TraceRoot newTraceRoot(long transactionId);
 
+    LocalTraceRoot newDisableTraceRoot(long transactionId);
+
     TraceRoot continueTraceRoot(TraceId traceId, long transactionId);
 }

@@ -170,6 +170,11 @@ public class OraclePlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
                     .addScopedInterceptor(DriverConnectInterceptorV2.class, va(OracleConstants.ORACLE), ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
 
+            InstrumentMethod method = target.getDeclaredMethod("connect", "java.lang.String", "java.util.Properties", "org.ietf.jgss.GSSCredential");
+            if (method != null) {
+                method.addScopedInterceptor(DriverConnectInterceptorV2.class, va(OracleConstants.ORACLE), ORACLE_SCOPE, ExecutionPolicy.ALWAYS);
+            }
+
             return target.toBytecode();
         }
     };

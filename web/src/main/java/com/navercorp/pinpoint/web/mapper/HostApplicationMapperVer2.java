@@ -25,14 +25,14 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 
@@ -42,10 +42,13 @@ import java.util.List;
 @Component
 public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplication>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationFactory applicationFactory;
+    private final ApplicationFactory applicationFactory;
+
+    public HostApplicationMapperVer2(ApplicationFactory applicationFactory) {
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+    }
 
     @Override
     public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {

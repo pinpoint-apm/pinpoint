@@ -16,24 +16,20 @@
 
 package com.navercorp.pinpoint.common.server.trace;
 
-
-import com.navercorp.pinpoint.common.server.trace.ApiDescription;
-import com.navercorp.pinpoint.common.server.trace.ApiDescriptionParser;
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.navercorp.pinpoint.common.util.LineNumber;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
  */
 public class ApiDescriptionParserTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private ApiDescriptionParser apiParser = new ApiDescriptionParser();
+    private final ApiDescriptionParser apiParser = new ApiDescriptionParser();
 
     @Test
     public void parse() {
@@ -42,36 +38,33 @@ public class ApiDescriptionParserTest {
 // com.mysql.jdbc.ConnectionImpl.commit()
 // org.apache.catalina.core.StandardHostValve.invoke(org.apache.catalina.connector.Request request, org.apache.catalina.connector.Response response):110
         String api = "a.StandardHostValve.invoke(b.Request request, b.Response response)";
-        ApiDescription result = apiParser.parse(api);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
-        Assert.assertEquals("a.StandardHostValve", result.getClassName());
-        Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
-        Assert.assertEquals("a", result.getPackageNameName());
+        Assertions.assertEquals("a.StandardHostValve", result.getClassName());
+        Assertions.assertEquals("StandardHostValve", result.getSimpleClassName());
+        Assertions.assertEquals("a", result.getPackageName());
 
-        Assert.assertEquals("invoke", result.getMethodName());
+        Assertions.assertEquals("invoke", result.getMethodName());
 
-        Assert.assertEquals("invoke(Request request, Response response)", result.getSimpleMethodDescription());
-        Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
+        Assertions.assertEquals("invoke(Request request, Response response)", result.getMethodDescription());
 
-        Assert.assertArrayEquals(new String[]{"Request request", "Response response"}, result.getSimpleParameter());
+        Assertions.assertArrayEquals(new String[]{"Request request", "Response response"}, result.getSimpleParameter());
     }
-
 
     @Test
     public void parseNoArgs() {
         String api = "a.StandardHostValve.invoke()";
-        ApiDescription result = apiParser.parse(api);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
-        Assert.assertEquals("a.StandardHostValve", result.getClassName());
-        Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
-        Assert.assertEquals("a", result.getPackageNameName());
+        Assertions.assertEquals("a.StandardHostValve", result.getClassName());
+        Assertions.assertEquals("StandardHostValve", result.getSimpleClassName());
+        Assertions.assertEquals("a", result.getPackageName());
 
-        Assert.assertEquals("invoke", result.getMethodName());
+        Assertions.assertEquals("invoke", result.getMethodName());
 
-        Assert.assertEquals("invoke()", result.getSimpleMethodDescription());
-        Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
+        Assertions.assertEquals("invoke()", result.getMethodDescription());
 
-        Assert.assertArrayEquals(new String[]{}, result.getSimpleParameter());
+        Assertions.assertArrayEquals(new String[]{}, result.getSimpleParameter());
     }
 
 
@@ -79,18 +72,17 @@ public class ApiDescriptionParserTest {
     public void parseNoPackage() {
 
         String api = "StandardHostValve.invoke(Request request, Response response)";
-        ApiDescription result = apiParser.parse(api);
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
 
-        Assert.assertEquals("StandardHostValve", result.getClassName());
-        Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
-        Assert.assertEquals("", result.getPackageNameName());
+        Assertions.assertEquals("StandardHostValve", result.getClassName());
+        Assertions.assertEquals("StandardHostValve", result.getSimpleClassName());
+        Assertions.assertEquals("", result.getPackageName());
 
-        Assert.assertEquals("invoke", result.getMethodName());
+        Assertions.assertEquals("invoke", result.getMethodName());
 
-        Assert.assertEquals("invoke(Request request, Response response)", result.getSimpleMethodDescription());
-        Assert.assertEquals("StandardHostValve", result.getSimpleClassName());
+        Assertions.assertEquals("invoke(Request request, Response response)", result.getMethodDescription());
 
-        Assert.assertArrayEquals(new String[]{"Request request", "Response response"}, result.getSimpleParameter());
+        Assertions.assertArrayEquals(new String[]{"Request request", "Response response"}, result.getSimpleParameter());
 
     }
 
@@ -98,10 +90,109 @@ public class ApiDescriptionParserTest {
     @Test
     public void parseTag() {
         final String apiDescriptionString = ".Tomcat Servlet Process()";
-        ApiDescription result = apiParser.parse(apiDescriptionString);
-        
-        logger.debug(result.getSimpleMethodDescription());
+        ApiDescription result = apiParser.parse(apiDescriptionString, -1);
+
+        logger.debug(result.getMethodDescription());
         logger.debug(result.getSimpleClassName());
     }
 
+
+    @Test
+    public void parseNoClass() {
+        String api = "function()";
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
+
+        Assertions.assertEquals("", result.getClassName());
+        Assertions.assertEquals("", result.getSimpleClassName());
+        Assertions.assertEquals("", result.getPackageName());
+
+        Assertions.assertEquals("function", result.getMethodName());
+
+        Assertions.assertEquals("function()", result.getMethodDescription());
+
+        Assertions.assertArrayEquals(new String[]{}, result.getSimpleParameter());
+    }
+
+    @Test
+    public void parseNoClass_classskip_trick() {
+        String api = ".function()";
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
+
+        Assertions.assertEquals("", result.getClassName());
+        Assertions.assertEquals("", result.getSimpleClassName());
+        Assertions.assertEquals("", result.getPackageName());
+
+        Assertions.assertEquals("function", result.getMethodName());
+
+        Assertions.assertEquals("function()", result.getMethodDescription());
+
+        Assertions.assertArrayEquals(new String[]{}, result.getSimpleParameter());
+    }
+
+
+    @Test
+    public void parse_noParameterTYpe() {
+        String api = "express.app.get(path, callback)";
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
+
+        Assertions.assertEquals("express.app", result.getClassName());
+        Assertions.assertEquals("app", result.getSimpleClassName());
+        Assertions.assertEquals("express", result.getPackageName());
+
+        Assertions.assertEquals("get", result.getMethodName());
+
+        Assertions.assertEquals("get(path, callback)", result.getMethodDescription());
+
+
+        Assertions.assertArrayEquals(new String[]{"path", "callback"}, result.getSimpleParameter());
+    }
+
+    @Test
+    public void parse_tailingInfo1() {
+        String api = "express.app.get(path, callback) at /src/file:123";
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
+
+        Assertions.assertEquals("express.app", result.getClassName());
+        Assertions.assertEquals("app", result.getSimpleClassName());
+        Assertions.assertEquals("express", result.getPackageName());
+
+        Assertions.assertEquals("get", result.getMethodName());
+
+        Assertions.assertEquals("get(path, callback) at /src/file:123", result.getMethodDescription());
+
+        Assertions.assertArrayEquals(new String[]{"path", "callback"}, result.getSimpleParameter());
+    }
+
+
+    @Test
+    public void parse_tailingInfo2() {
+        String api = "express.app.get(path, callback) at /src/file:123";
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
+
+        Assertions.assertEquals("express.app", result.getClassName());
+        Assertions.assertEquals("app", result.getSimpleClassName());
+        Assertions.assertEquals("express", result.getPackageName());
+
+        Assertions.assertEquals("get", result.getMethodName());
+
+        Assertions.assertEquals("get(path, callback) at /src/file:123", result.getMethodDescription());
+
+        Assertions.assertArrayEquals(new String[]{"path", "callback"}, result.getSimpleParameter());
+    }
+
+    @Test
+    public void parse_tailingInfo4() {
+        String api = "express.app.get(path, callback) at (test.value)";
+        ApiDescription result = apiParser.parse(api, LineNumber.NO_LINE_NUMBER);
+
+        Assertions.assertEquals("express.app", result.getClassName());
+        Assertions.assertEquals("app", result.getSimpleClassName());
+        Assertions.assertEquals("express", result.getPackageName());
+
+        Assertions.assertEquals("get", result.getMethodName());
+
+        Assertions.assertEquals("get(path, callback) at (test.value)", result.getMethodDescription());
+
+        Assertions.assertArrayEquals(new String[]{"path", "callback"}, result.getSimpleParameter());
+    }
 }

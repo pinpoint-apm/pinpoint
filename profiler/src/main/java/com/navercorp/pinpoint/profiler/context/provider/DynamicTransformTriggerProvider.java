@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.DynamicTransformService;
-import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
+import java.util.Objects;
+import com.navercorp.pinpoint.profiler.transformer.DynamicTransformService;
+import com.navercorp.pinpoint.profiler.transformer.DynamicTransformerRegistry;
 
 import java.lang.instrument.Instrumentation;
 
@@ -35,8 +35,8 @@ public class DynamicTransformTriggerProvider implements Provider<DynamicTransfor
 
     @Inject
     public DynamicTransformTriggerProvider(Instrumentation instrumentation, DynamicTransformerRegistry dynamicTransformerRegistry) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.dynamicTransformerRegistry = Objects.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
     }
 
     @Override

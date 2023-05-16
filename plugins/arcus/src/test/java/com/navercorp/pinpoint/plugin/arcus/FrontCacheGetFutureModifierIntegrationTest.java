@@ -1,21 +1,21 @@
 package com.navercorp.pinpoint.plugin.arcus;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author harebox
  */
 public class FrontCacheGetFutureModifierIntegrationTest /*extends BasePinpointTest*/ {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 //        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    @Ignore
+    @Disabled
     // FIXME 테스트 깨짐
     public void frontCacheShouldBeTraced() throws Exception {
 //        // given: front-cache-enabled ArcusClient

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.hbase.namespace;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
@@ -37,15 +37,15 @@ public class HbaseNamespaceValidatorTest {
         String invalid4 = "abc!";
         String invalid5 = null;
 
-        Assert.assertTrue(valid1 + " should be valid.", HbaseNamespaceValidator.INSTANCE.validate(valid1));
-        Assert.assertTrue(valid2 + " should be valid.", HbaseNamespaceValidator.INSTANCE.validate(valid2));
-        Assert.assertTrue(valid3 + " should be valid.", HbaseNamespaceValidator.INSTANCE.validate(valid3));
-        Assert.assertTrue(valid4 + " should be valid.", HbaseNamespaceValidator.INSTANCE.validate(valid4));
+        Assertions.assertTrue(HbaseNamespaceValidator.INSTANCE.validate(valid1), valid1 + " should be valid.");
+        Assertions.assertTrue(HbaseNamespaceValidator.INSTANCE.validate(valid2), valid2 + " should be valid.");
+        Assertions.assertTrue(HbaseNamespaceValidator.INSTANCE.validate(valid3), valid2 + " should be valid.");
+        Assertions.assertTrue(HbaseNamespaceValidator.INSTANCE.validate(valid4), valid2 + " should be valid.");
 
-        Assert.assertFalse(invalid1 + " should be invalid.", HbaseNamespaceValidator.INSTANCE.validate(invalid1));
-        Assert.assertFalse(invalid2 + " should be invalid.", HbaseNamespaceValidator.INSTANCE.validate(invalid2));
-        Assert.assertFalse(invalid3 + " should be invalid.", HbaseNamespaceValidator.INSTANCE.validate(invalid3));
-        Assert.assertFalse(invalid4 + " should be invalid.", HbaseNamespaceValidator.INSTANCE.validate(invalid4));
-        Assert.assertFalse(invalid4 + " should be invalid.", HbaseNamespaceValidator.INSTANCE.validate(invalid5));
+        Assertions.assertFalse(HbaseNamespaceValidator.INSTANCE.validate(invalid1), invalid1 + " should be invalid.");
+        Assertions.assertFalse(HbaseNamespaceValidator.INSTANCE.validate(invalid2), invalid2 + " should be invalid.");
+        Assertions.assertFalse(HbaseNamespaceValidator.INSTANCE.validate(invalid3), invalid3 + " should be invalid.");
+        Assertions.assertFalse(HbaseNamespaceValidator.INSTANCE.validate(invalid4), invalid4 + " should be invalid.");
+        Assertions.assertFalse(HbaseNamespaceValidator.INSTANCE.validate(invalid5), invalid5 + " should be invalid.");
     }
 }

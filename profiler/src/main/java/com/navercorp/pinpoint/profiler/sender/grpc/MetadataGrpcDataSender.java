@@ -27,9 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.FutureListener;
-import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
-
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -39,13 +37,12 @@ import io.netty.util.TimerTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
-import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
+import java.util.function.BiConsumer;
 
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDataSender<Object> {
+public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
     private final MetadataGrpc.MetadataStub metadataStub;
     private final int maxAttempts;
     private final int retryDelayMillis;
@@ -55,7 +52,9 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
 
     private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
 
-    public MetadataGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
+    public MetadataGrpcDataSender(String host, int port, int executorQueueSize,
+                                  MessageConverter<T, GeneratedMessageV3> messageConverter,
+                                  ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.maxAttempts = getMaxAttempts(retryMaxCount);
@@ -91,32 +90,22 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
 
     // Unsupported Operation
     @Override
-    public boolean request(Object data, int retry) {
+    public boolean request(T data, int retry) {
         throw new UnsupportedOperationException("unsupported operation request(data, retry)");
     }
 
     @Override
-    public boolean request(Object data, FutureListener listener) {
+    public boolean request(T data, BiConsumer<ResponseMessage, Throwable> listener) {
         throw new UnsupportedOperationException("unsupported operation request(data, listener)");
     }
 
     @Override
-    public boolean send(Object data) {
+    public boolean send(T data) {
         throw new UnsupportedOperationException("unsupported operation send(data)");
     }
 
     @Override
-    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        throw new UnsupportedOperationException("unsupported operation addReconnectEventListener(eventListener)");
-    }
-
-    @Override
-    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
-        throw new UnsupportedOperationException("unsupported operation removeReconnectEventListener(eventListener)");
-    }
-
-    @Override
-    public boolean request(final Object data) {
+    public boolean request(final T data) {
         final Runnable convertAndRun = new Runnable() {
             @Override
             public void run() {
@@ -124,7 +113,7 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
                     // Convert message
                     final GeneratedMessageV3 message = messageConverter.toMessage(data);
                     if (isDebug) {
-                        logger.debug("Request metadata={}", debugLog(message));
+                        logger.debug("Request metadata={}", MessageFormatUtils.debugLog(message));
                     }
                     request0(message, maxAttempts);
                 } catch (Exception ex) {
@@ -156,12 +145,12 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
             final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
             this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else {
-            logger.warn("Unsupported message {}", debugLog(message));
+            logger.warn("Unsupported message {}", MessageFormatUtils.debugLog(message));
         }
     }
 
     private StreamObserver<PResult> newResponseStream(GeneratedMessageV3 message, int remainingRetryCount) {
-        return new RetryResponseStreamObserver<GeneratedMessageV3, PResult>(logger, retryScheduler, message, remainingRetryCount);
+        return new RetryResponseStreamObserver<>(logger, retryScheduler, message, remainingRetryCount);
     }
 
     // Retry

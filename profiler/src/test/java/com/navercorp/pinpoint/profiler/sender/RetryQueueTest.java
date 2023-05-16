@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -29,7 +29,7 @@ public class RetryQueueTest {
         retryQueue.add(new RetryMessage(1, new byte[0]));
         retryQueue.add(new RetryMessage(1, new byte[0]));
 
-        Assert.assertEquals(1, retryQueue.size());
+        Assertions.assertEquals(1, retryQueue.size());
     }
 
     @Test
@@ -37,7 +37,7 @@ public class RetryQueueTest {
 
         RetryQueue retryQueue = new RetryQueue(1, 1);
         RetryMessage retryMessage = retryQueue.get();
-        Assert.assertNull(retryMessage);
+        Assertions.assertNull(retryMessage);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class RetryQueueTest {
         retryQueue.add(retryMessage);
         retryQueue.add(retryMessage);
 
-        Assert.assertEquals(retryQueue.size(), 0);
+        Assertions.assertEquals(retryQueue.size(), 0);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class RetryQueueTest {
         retryQueue.add(retryMessage);
         retryQueue.add(retryMessage);
 
-        Assert.assertEquals(retryQueue.size(), 0);
+        Assertions.assertEquals(retryQueue.size(), 0);
     }
 
     @Test
@@ -77,6 +77,6 @@ public class RetryQueueTest {
         retryMessage.fail();
         retryQueue.add(retryMessage);
 
-        Assert.assertEquals(retryQueue.size(), 1);
+        Assertions.assertEquals(retryQueue.size(), 1);
     }
 }

@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.mapper;
 
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -11,19 +10,21 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingC
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SpanMapperV2Test {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SpanDecoderV0 decoder = new SpanDecoderV0();
 
@@ -39,7 +40,7 @@ public class SpanMapperV2Test {
         firstSpanEventBo.setEndElapsed(100);
 
         AnnotationBo annotationBo = newAnnotation(200, "annotation");
-        firstSpanEventBo.setAnnotationBoList(Lists.newArrayList(annotationBo));
+        firstSpanEventBo.setAnnotationBoList(List.of(annotationBo));
         firstSpanEventBo.setServiceType((short) 1003);
         firstSpanEventBo.setSequence((short) 0);
 
@@ -64,36 +65,35 @@ public class SpanMapperV2Test {
         SpanDecodingContext decodingContext = new SpanDecodingContext();
         decoder.readSpanValue(buffer, readSpan, decodingContext);
 
-        Assert.assertEquals(readSpan.getSpanEventBoList().size(), 2);
+        assertThat(readSpan.getSpanEventBoList()).hasSize(2);
 
 
         // span
-        Assert.assertEquals(readSpan.getServiceType(), 1000);
-        Assert.assertEquals(readSpan.hasException(), true);
-        Assert.assertEquals(readSpan.getExceptionId(), 1);
-        Assert.assertEquals(readSpan.getExceptionMessage(), "spanException");
+        Assertions.assertEquals(readSpan.getServiceType(), 1000);
+        Assertions.assertTrue(readSpan.hasException());
+        Assertions.assertEquals(readSpan.getExceptionId(), 1);
+        Assertions.assertEquals(readSpan.getExceptionMessage(), "spanException");
 
         List<SpanEventBo> spanEventBoList = readSpan.getSpanEventBoList();
         SpanEventBo readFirst = spanEventBoList.get(0);
         SpanEventBo readNext = spanEventBoList.get(1);
 
-        Assert.assertEquals(readFirst.getEndElapsed(), 100);
-        Assert.assertEquals(readNext.getEndElapsed(), 200);
+        Assertions.assertEquals(readFirst.getEndElapsed(), 100);
+        Assertions.assertEquals(readNext.getEndElapsed(), 200);
 
-        Assert.assertEquals(readFirst.getExceptionId(), 2);
-        Assert.assertEquals(readNext.hasException(), false);
+        Assertions.assertEquals(readFirst.getExceptionId(), 2);
+        Assertions.assertFalse(readNext.hasException());
 
-        Assert.assertEquals(readFirst.getServiceType(), 1003);
-        Assert.assertEquals(readNext.getServiceType(), 2003);
+        Assertions.assertEquals(readFirst.getServiceType(), 1003);
+        Assertions.assertEquals(readNext.getServiceType(), 2003);
 
-        Assert.assertEquals(readFirst.getSequence(), 0);
-        Assert.assertEquals(readNext.getSequence(), 1);
+        Assertions.assertEquals(readFirst.getSequence(), 0);
+        Assertions.assertEquals(readNext.getSequence(), 1);
 
     }
 
     private AnnotationBo newAnnotation(int key, Object value) {
-        AnnotationBo annotationBo = new AnnotationBo(key, value);
-        return annotationBo;
+        return new AnnotationBo(key, value);
     }
 
 }

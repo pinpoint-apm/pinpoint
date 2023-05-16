@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Component;
+
 
 /**
  * @author HyunGil Jeong
@@ -32,7 +32,6 @@ public class ApplicationMapBuilderFactory {
 
     private final ServerInfoAppenderFactory serverInfoAppenderFactory;
 
-    @Autowired
     public ApplicationMapBuilderFactory(
             NodeHistogramAppenderFactory nodeHistogramAppenderFactory,
             ServerInfoAppenderFactory serverInfoAppenderFactory) {

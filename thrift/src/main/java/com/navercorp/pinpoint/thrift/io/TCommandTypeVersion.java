@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.thrift.io;
 import org.apache.thrift.TBase;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -79,7 +81,9 @@ public enum TCommandTypeVersion {
     UNKNOWN("UNKNOWN");
 
     private final String versionName;
-    private final List<TCommandType> supportCommandList = new ArrayList<TCommandType>();
+    private final List<TCommandType> supportCommandList = new ArrayList<>();
+
+    private static final EnumSet<TCommandTypeVersion> ALL = EnumSet.allOf(TCommandTypeVersion.class);
 
     TCommandTypeVersion(String versionName, TCommandTypeVersion version, TCommandType... supportCommandArray) {
         this.versionName = versionName;
@@ -105,7 +109,7 @@ public enum TCommandTypeVersion {
         return supportCommandList;
     }
 
-    public boolean isSupportCommand(TBase command) {
+    public boolean isSupportCommand(TBase<?, ?> command) {
         if (command == null) {
             return false;
         }
@@ -128,11 +132,9 @@ public enum TCommandTypeVersion {
     }
 
     public static TCommandTypeVersion getVersion(String version) {
-        if (version == null) {
-            throw new NullPointerException("version");
-        }
+        Objects.requireNonNull(version, "version");
 
-        for (TCommandTypeVersion versionType : TCommandTypeVersion.values()) {
+        for (TCommandTypeVersion versionType : ALL) {
             if (versionType.getVersionName().equals(version)) {
                 return versionType;
             }

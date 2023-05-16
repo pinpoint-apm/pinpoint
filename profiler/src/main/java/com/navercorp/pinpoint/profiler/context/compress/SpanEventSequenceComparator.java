@@ -23,16 +23,8 @@ import java.util.Comparator;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanEventSequenceComparator implements Comparator<SpanEvent> {
+public class SpanEventSequenceComparator {
 
-    public static final Comparator<SpanEvent> INSTANCE = new SpanEventSequenceComparator();
+    public static final Comparator<SpanEvent> INSTANCE = Comparator.comparingInt(SpanEvent::getSequence);
 
-    @Override
-    public int compare(SpanEvent o1, SpanEvent o2) {
-        return compareShort(o1.getSequence(), o2.getSequence());
-    }
-
-    private static int compareShort(short x, short y) {
-        return x - y;
-    }
 }

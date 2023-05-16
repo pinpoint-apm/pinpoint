@@ -40,7 +40,7 @@ public class IntHashMap<T> {
     /**
      * The hash table data.
      */
-    private transient Entry table[];
+    private transient Entry[] table;
 
     /**
      * The total number of entries in the hash table.
@@ -164,7 +164,7 @@ public class IntHashMap<T> {
      * @see     #put(int, T)
      */
     public T get(int key) {
-        Entry<T> tab[] = table;
+        Entry<T>[] tab = table;
         int hash = key;
         int index = (hash & 0x7FFFFFFF) % tab.length;
         for (Entry<T> e = tab[index]; e != null; e = e.next) {
@@ -186,10 +186,10 @@ public class IntHashMap<T> {
      */
     protected void rehash() {
         int oldCapacity = table.length;
-        Entry<T> oldMap[] = table;
+        Entry<T>[] oldMap = table;
 
         int newCapacity = oldCapacity * 2 + 1;
-        Entry<T> newMap[] = new Entry[newCapacity];
+        Entry<T>[] newMap = new Entry[newCapacity];
 
         threshold = (int) (newCapacity * loadFactor);
         table = newMap;
@@ -223,7 +223,7 @@ public class IntHashMap<T> {
      */
     public T put(int key, T value) {
         // Makes sure the key is not already in the hashtable.
-        Entry<T> tab[] = table;
+        Entry<T>[] tab = table;
         int hash = key;
         int index = (hash & 0x7FFFFFFF) % tab.length;
         for (Entry<T> e = tab[index]; e != null; e = e.next) {

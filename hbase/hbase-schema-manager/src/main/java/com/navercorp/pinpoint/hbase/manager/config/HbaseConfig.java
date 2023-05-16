@@ -21,10 +21,11 @@ import com.navercorp.pinpoint.common.hbase.HbaseAdminFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseTableFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.Properties;
@@ -32,7 +33,7 @@ import java.util.Properties;
 /**
  * @author HyunGil Jeong
  */
-@Configuration
+@org.springframework.context.annotation.Configuration
 @PropertySource("classpath:hbase.properties")
 public class HbaseConfig {
 
@@ -56,6 +57,9 @@ public class HbaseConfig {
 
     @Value("${hbase.client.operation.timeout:5000}")
     private String clientOperationTimeout;
+
+    @Value("${hbase.client.meta.operation.timeout:5000}")
+    private String clientMetaOperationTimeout;
 
     @Value("${hbase.ipc.client.socket.timeout.read:5000}")
     private String ipcClientSocketTimeoutRead;
@@ -119,6 +123,14 @@ public class HbaseConfig {
         this.clientOperationTimeout = clientOperationTimeout;
     }
 
+    public String getClientMetaOperationTimeout() {
+        return clientMetaOperationTimeout;
+    }
+
+    public void setClientMetaOperationTimeout(String clientMetaOperationTimeout) {
+        this.clientMetaOperationTimeout = clientMetaOperationTimeout;
+    }
+
     public String getIpcClientSocketTimeoutRead() {
         return ipcClientSocketTimeoutRead;
     }
@@ -136,7 +148,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public HbaseConfigurationFactoryBean hbaseConfiguration() {
+    public FactoryBean<Configuration> hbaseConfiguration() {
         Properties properties = new Properties();
         properties.setProperty("hbase.zookeeper.quorum", host);
         properties.setProperty("hbase.zookeeper.property.clientPort", port);
@@ -145,6 +157,7 @@ public class HbaseConfig {
         properties.setProperty("hbase.ipc.client.tcpnodelay", ipcClientTcpNoDelay);
         properties.setProperty("hbase.rpc.timeout", rpcTimeout);
         properties.setProperty("hbase.client.operation.timeout", clientOperationTimeout);
+        properties.setProperty("hbase.client.meta.operation.timeout", clientMetaOperationTimeout);
         properties.setProperty("hbase.ipc.client.socket.timeout.read", ipcClientSocketTimeoutRead);
         properties.setProperty("hbase.ipc.client.socket.timeout.write", ipcClientSocketTimeoutWrite);
         HbaseConfigurationFactoryBean factoryBean = new HbaseConfigurationFactoryBean();
@@ -153,7 +166,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public ConnectionFactoryBean connectionFactory(org.apache.hadoop.conf.Configuration configuration) {
+    public FactoryBean<Connection> connectionFactory(Configuration configuration) {
         return new ConnectionFactoryBean(configuration);
     }
 
@@ -168,7 +181,7 @@ public class HbaseConfig {
     }
 
     @Bean
-    public HbaseTemplate2 hbaseTemplate(org.apache.hadoop.conf.Configuration configuration,
+    public HbaseTemplate2 hbaseTemplate(Configuration configuration,
                                         HbaseTableFactory hbaseTableFactory) {
         HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();
         hbaseTemplate2.setConfiguration(configuration);

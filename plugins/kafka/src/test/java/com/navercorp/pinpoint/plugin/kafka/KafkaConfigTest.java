@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -32,49 +32,84 @@ public class KafkaConfigTest {
     public void configTest1() throws Exception {
         KafkaConfig config = createConfig("true", "true", "entryPoint");
 
-        Assert.assertTrue(config.isProducerEnable());
-        Assert.assertTrue(config.isConsumerEnable());
-        Assert.assertEquals("entryPoint", config.getKafkaEntryPoint());
+        Assertions.assertTrue(config.isProducerEnable());
+        Assertions.assertTrue(config.isConsumerEnable());
+        Assertions.assertEquals("entryPoint", config.getKafkaEntryPoint());
     }
 
     @Test
     public void configTest2() throws Exception {
         KafkaConfig config = createConfig("true", "false");
 
-        Assert.assertTrue(config.isProducerEnable());
-        Assert.assertFalse(config.isConsumerEnable());
-        Assert.assertEquals("", config.getKafkaEntryPoint());
+        Assertions.assertTrue(config.isProducerEnable());
+        Assertions.assertFalse(config.isConsumerEnable());
+        Assertions.assertEquals("", config.getKafkaEntryPoint());
     }
 
     @Test
     public void configTest3() throws Exception {
         KafkaConfig config = createConfig("false", "true");
 
-        Assert.assertFalse(config.isProducerEnable());
-        Assert.assertTrue(config.isConsumerEnable());
-        Assert.assertEquals("", config.getKafkaEntryPoint());
+        Assertions.assertFalse(config.isProducerEnable());
+        Assertions.assertTrue(config.isConsumerEnable());
+        Assertions.assertEquals("", config.getKafkaEntryPoint());
     }
 
     @Test
     public void configTest4() throws Exception {
         KafkaConfig config = createConfig("false", "false");
 
-        Assert.assertFalse(config.isProducerEnable());
-        Assert.assertFalse(config.isConsumerEnable());
-        Assert.assertEquals("", config.getKafkaEntryPoint());
+        Assertions.assertFalse(config.isProducerEnable());
+        Assertions.assertFalse(config.isConsumerEnable());
+        Assertions.assertEquals("", config.getKafkaEntryPoint());
+    }
+
+    @Test
+    public void configTest5() throws Exception {
+        KafkaConfig config = createConfig("true", "false", "true", "entryPoint1");
+
+        Assertions.assertTrue(config.isProducerEnable());
+        Assertions.assertFalse(config.isConsumerEnable());
+        Assertions.assertTrue(config.isHeaderEnable());
+        Assertions.assertEquals("entryPoint1", config.getKafkaEntryPoint());
+    }
+
+    @Test
+    public void configTest6() throws Exception {
+        KafkaConfig config = createConfig("true", "false", "false", "entryPoint2");
+
+        Assertions.assertTrue(config.isProducerEnable());
+        Assertions.assertFalse(config.isConsumerEnable());
+        Assertions.assertFalse(config.isHeaderEnable());
+        Assertions.assertEquals("entryPoint2", config.getKafkaEntryPoint());
+    }
+
+    @Test
+    public void configTest7() throws Exception {
+        KafkaConfig config = createConfig("false", "true", "false", "entryPoint3");
+
+        Assertions.assertFalse(config.isProducerEnable());
+        Assertions.assertTrue(config.isConsumerEnable());
+        Assertions.assertFalse(config.isHeaderEnable());
+        Assertions.assertEquals("entryPoint3", config.getKafkaEntryPoint());
     }
 
     private KafkaConfig createConfig(String producerEnable, String consumerEnable) {
-        return createConfig(producerEnable, consumerEnable, "");
+        return createConfig(producerEnable, consumerEnable, "true", "");
     }
 
     private KafkaConfig createConfig(String producerEnable, String consumerEnable, String consumerEntryPoint) {
+        return createConfig(producerEnable, consumerEnable, "true", consumerEntryPoint);
+    }
+
+    private KafkaConfig createConfig(String producerEnable, String consumerEnable, String headerEnabled, String consumerEntryPoint) {
         Properties properties = new Properties();
         properties.put(KafkaConfig.PRODUCER_ENABLE, producerEnable);
         properties.put(KafkaConfig.CONSUMER_ENABLE, consumerEnable);
+        properties.put(KafkaConfig.HEADER_ENABLE, headerEnabled);
         properties.put(KafkaConfig.CONSUMER_ENTRY_POINT, consumerEntryPoint);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new KafkaConfig(profilerConfig);
     }

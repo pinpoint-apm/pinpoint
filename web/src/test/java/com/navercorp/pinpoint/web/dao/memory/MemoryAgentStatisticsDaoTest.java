@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.web.dao.memory;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -33,7 +34,7 @@ public class MemoryAgentStatisticsDaoTest {
 
     private static List<AgentCountStatistics> testDataList;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         testDataList = createTestData(100);
     }
@@ -50,29 +51,32 @@ public class MemoryAgentStatisticsDaoTest {
     }
 
     @Test
-    public void simpleTest() throws Exception {
+    public void simpleTest() {
         MemoryAgentStatisticsDao dao = new MemoryAgentStatisticsDao();
         for (AgentCountStatistics testData : testDataList) {
             dao.insertAgentCount(testData);
         }
 
-        Range range = new Range(660L, 1320L);
+        Range range = Range.between(660L, 1320L);
         List<AgentCountStatistics> agentCountStatisticses = dao.selectAgentCount(range);
-        Assert.assertEquals(7, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(7);
 
 
-        range = new Range(7100L, System.currentTimeMillis());
+        range = Range.between(7100L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
-        Assert.assertEquals(30, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(30);
 
-        range = new Range(0L, System.currentTimeMillis());
+        range = Range.between(0L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
-        Assert.assertEquals(100, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).hasSize(100);
 
         long currentTime = System.currentTimeMillis();
-        range = new Range(currentTime, currentTime + 100);
+        range = Range.between(currentTime, currentTime + 100);
         agentCountStatisticses = dao.selectAgentCount(range);
-        Assert.assertEquals(0, agentCountStatisticses.size());
+        assertThat(agentCountStatisticses).isEmpty();
+
+        agentCountStatisticses = dao.selectLatestAgentCount(10);
+        assertThat(agentCountStatisticses).hasSize(10);
     }
 
 }

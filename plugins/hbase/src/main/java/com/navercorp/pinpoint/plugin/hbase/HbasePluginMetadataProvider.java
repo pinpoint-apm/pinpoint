@@ -33,5 +33,9 @@ public class HbasePluginMetadataProvider implements TraceMetadataProvider {
         context.addServiceType(HbasePluginConstants.HBASE_CLIENT_TABLE);
         context.addServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
         context.addAnnotationKey(HbasePluginConstants.HBASE_CLIENT_PARAMS);
+        context.addAnnotationKey(HbasePluginConstants.HBASE_TABLE_NAME);
+        context.addAnnotationKey(HbasePluginConstants.HBASE_OP_READ_SIZE);
+        context.addAnnotationKey(HbasePluginConstants.HBASE_OP_WRITE_SIZE);
+        context.addAnnotationKey(HbasePluginConstants.HBASE_SCAN_RPC_RESULT_NUM);
     }
 }

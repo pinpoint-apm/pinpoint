@@ -17,22 +17,21 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import org.apache.catalina.connector.Connector;
-
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import org.apache.catalina.connector.Connector;
 
 /**
  * @author emeroad
  */
 public class ConnectorInitializeInterceptor implements AroundInterceptor {
 
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
     
     public ConnectorInitializeInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;

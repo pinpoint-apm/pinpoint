@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public interface ApplicationStatSamplingHandler {
+public interface ApplicationStatSamplingHandler<IN extends JoinStatBo, OUT extends AggregationStatData> {
 
-    void addDataPoint(JoinStatBo dataPoint);
+    void addDataPoint(IN dataPoint);
 
-    List<AggregationStatData> getSampledDataPoints();
+    List<OUT> getSampledDataPoints();
 }

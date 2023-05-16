@@ -17,39 +17,36 @@
 package com.navercorp.pinpoint.plugin.rabbitmq;
 
 import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
-import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
+
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import com.rabbitmq.client.ConnectionFactory;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+
+import java.util.Properties;
 
 /**
  * @author Jiaqi Feng
  * @author HyunGil Jeong
  */
-
 public abstract class RabbitMQClientITBase {
-
-    private static final TestBroker BROKER = new TestBroker();
 
     private final ConnectionFactory connectionFactory = new ConnectionFactory();
     protected final RabbitMQTestRunner testRunner = new RabbitMQTestRunner(connectionFactory);
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        BROKER.start();
-    }
+    private static int port;
 
-    @AfterClass
-    public static void tearDownAfterClass() {
-        BROKER.shutdown();
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        port = Integer.parseInt(beforeAllResult.getProperty("PORT"));
     }
 
     @Before
     public void setUp() {
         connectionFactory.setHost(RabbitMQTestConstants.BROKER_HOST);
-        connectionFactory.setPort(RabbitMQTestConstants.BROKER_PORT);
-        connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
+        connectionFactory.setPort(port);
+//        connectionFactory.setSaslConfig(RabbitMQTestConstants.SASL_CONFIG);
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
     }
 
     final ConnectionFactory getConnectionFactory() {

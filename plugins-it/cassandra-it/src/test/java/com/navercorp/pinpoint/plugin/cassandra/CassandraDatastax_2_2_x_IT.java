@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.BeforeClass;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.runner.RunWith;
 
 /**
@@ -34,9 +34,7 @@ import org.junit.runner.RunWith;
 @Dependency({
         "com.datastax.cassandra:cassandra-driver-core:[2.2.min,2.2.max]",
         PluginITConstants.VERSION, CassandraITConstants.COMMONS_PROFILER, CassandraITConstants.CASSANDRA_TESTCONTAINER})
+@SharedTestLifeCycleClass(CassandraServer2X.class)
 public class CassandraDatastax_2_2_x_IT extends CassandraDatastaxITBase {
-    @BeforeClass
-    public static void beforeClass() {
-        startCassandra(CassandraITConstants.CASSANDRA_2_X_IMAGE);
-    }
+
 }

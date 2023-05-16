@@ -18,14 +18,12 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -33,17 +31,17 @@ import java.util.Arrays;
  * @author emeroad
  */
 public class HeaderTBaseSerializerTest {
-    private final Logger logger = LoggerFactory.getLogger(HeaderTBaseSerializerTest.class.getName());
+    private final Logger logger = LogManager.getLogger(HeaderTBaseSerializerTest.class);
 
 
     @Test
     public void testSerialize1() throws Exception {
-        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false).createSerializer();
+        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory().createSerializer();
         HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
 
         test(serializer, deserializer);
     }
-    
+
     @Test
     public void testSerialize2() throws Exception {
         HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory().createSerializer();
@@ -51,7 +49,7 @@ public class HeaderTBaseSerializerTest {
 
         test(serializer, deserializer);
     }
-    
+
     private void test(HeaderTBaseSerializer serializer, HeaderTBaseDeserializer deserializer) throws TException {
 
         TAgentInfo tAgentInfo = new TAgentInfo();
@@ -66,11 +64,11 @@ public class HeaderTBaseSerializerTest {
         TAgentInfo deserialize = (TAgentInfo) message.getData();
         logger.debug("deserializer:{}", deserialize.getClass());
 
-        Assert.assertEquals(deserialize, tAgentInfo);
+        Assertions.assertEquals(deserialize, tAgentInfo);
     }
 
     public void dump(byte[] data) {
         String s = Arrays.toString(data);
-        logger.debug("size:{} data:{}", data.length, s);
+        logger.trace("size:{} data:{}", data.length, s);
     }
 }

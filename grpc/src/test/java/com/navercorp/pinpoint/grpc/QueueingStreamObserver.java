@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.grpc;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class QueueingStreamObserver<V> implements StreamObserver<V> {
     private final BlockingQueue<V> queue = new ArrayBlockingQueue<V>(1024);
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public QueueingStreamObserver() {
     }

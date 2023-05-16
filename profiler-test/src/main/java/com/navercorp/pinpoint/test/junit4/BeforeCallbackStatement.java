@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.test.junit4;
 
 import org.junit.runners.model.Statement;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -27,15 +29,8 @@ public class BeforeCallbackStatement extends Statement {
     private final Statement statement;
 
     public BeforeCallbackStatement(Statement statement, Statement before) {
-        if (statement == null) {
-            throw new NullPointerException("statement");
-        }
-        if (before == null) {
-            throw new NullPointerException("BEFORE");
-        }
-
-        this.statement = statement;
-        this.before = before;
+        this.statement = Objects.requireNonNull(statement, "statement");
+        this.before = Objects.requireNonNull(before, "before");
     }
 
     @Override

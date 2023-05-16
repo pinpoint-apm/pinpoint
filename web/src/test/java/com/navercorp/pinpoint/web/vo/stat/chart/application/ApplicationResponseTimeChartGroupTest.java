@@ -16,19 +16,20 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -38,40 +39,39 @@ public class ApplicationResponseTimeChartGroupTest {
     @Test
     public void createApplicationResponseTimeChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
 
         final String id = "test_app";
-        List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList = new ArrayList<AggreJoinResponseTimeBo>();
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo1 = new AggreJoinResponseTimeBo(id, time, 3000, 2, "app_1_1", 6000, "app_1_1");
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo2 = new AggreJoinResponseTimeBo(id, time - 60000, 4000, 200, "app_2_1", 9000, "app_2_1");
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo3 = new AggreJoinResponseTimeBo(id, time - 120000, 2000, 20, "app_3_1", 7000, "app_3_1");
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo4 = new AggreJoinResponseTimeBo(id, time - 180000, 5000, 20, "app_4_1", 8000, "app_4_1");
-        AggreJoinResponseTimeBo aggreJoinResponseTimeBo5 = new AggreJoinResponseTimeBo(id, time - 240000, 1000, 10, "app_5_1", 6600, "app_5_1");
-        aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo1);
-        aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo2);
-        aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo3);
-        aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo4);
-        aggreJoinResponseTimeBoList.add(aggreJoinResponseTimeBo5);
-        StatChartGroup applicationResponseTimeChartGroup = new ApplicationResponseTimeChart.ApplicationResponseTimeChartGroup(timeWindow, aggreJoinResponseTimeBoList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationResponseTimeChartGroup.getCharts();
+        List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList = List.of(
+                new AggreJoinResponseTimeBo(id, time, 3000, 2, "app_1_1", 6000, "app_1_1"),
+                new AggreJoinResponseTimeBo(id, time - 60000, 4000, 200, "app_2_1", 9000, "app_2_1"),
+                new AggreJoinResponseTimeBo(id, time - 120000, 2000, 20, "app_3_1", 7000, "app_3_1"),
+                new AggreJoinResponseTimeBo(id, time - 180000, 5000, 20, "app_4_1", 8000, "app_4_1"),
+                new AggreJoinResponseTimeBo(id, time - 240000, 1000, 10, "app_5_1", 6600, "app_5_1")
+        );
 
-        Chart responseTimeChart = charts.get(ApplicationResponseTimeChart.ApplicationResponseTimeChartGroup.ResponseTimeChartType.RESPONSE_TIME);
-        List<Point> responseTimePointList = responseTimeChart.getPoints();
-        assertEquals(5, responseTimePointList.size());
+        ChartGroupBuilder<AggreJoinResponseTimeBo, ApplicationStatPoint<Double>> builder = ApplicationResponseTimeChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = builder.build(timeWindow, aggreJoinResponseTimeBoList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> charts = statChartGroup.getCharts();
+
+        Chart<ApplicationStatPoint<Double>> responseTimeChart = charts.get(ApplicationResponseTimeChart.ResponseTimeChartType.RESPONSE_TIME);
+        List<ApplicationStatPoint<Double>> responseTimePointList = responseTimeChart.getPoints();
+        assertThat(responseTimePointList).hasSize(5);
         int index = responseTimePointList.size();
 
-        for (Point point : responseTimePointList) {
-            testResponseTimeCount((ResponseTimePoint) point, aggreJoinResponseTimeBoList.get(--index));
+        for (ApplicationStatPoint<Double> point : responseTimePointList) {
+            testResponseTimeCount(point, aggreJoinResponseTimeBoList.get(--index));
         }
     }
 
-    private void testResponseTimeCount(ResponseTimePoint responseTimePoint, AggreJoinResponseTimeBo aggreJoinResponseTimeBo) {
-        assertEquals(responseTimePoint.getYValForAvg(), aggreJoinResponseTimeBo.getAvg(), 0);
-        assertEquals(responseTimePoint.getYValForMin(), aggreJoinResponseTimeBo.getMinAvg(), 0);
-        assertEquals(responseTimePoint.getYValForMax(), aggreJoinResponseTimeBo.getMaxAvg(), 0);
-        assertEquals(responseTimePoint.getAgentIdForMax(), aggreJoinResponseTimeBo.getMaxAvgAgentId());
-        assertEquals(responseTimePoint.getAgentIdForMin(), aggreJoinResponseTimeBo.getMinAvgAgentId());
+    private void testResponseTimeCount(ApplicationStatPoint<Double> responseTimePoint, AggreJoinResponseTimeBo aggreJoinResponseTimeBo) {
+        final JoinLongFieldBo responseTimeJoinValue = aggreJoinResponseTimeBo.getResponseTimeJoinValue();
+        assertEquals(responseTimePoint.getYValForAvg(), responseTimeJoinValue.getAvg(), 0);
+        assertEquals(responseTimePoint.getYValForMin(), responseTimeJoinValue.getMin(), 0);
+        assertEquals(responseTimePoint.getYValForMax(), responseTimeJoinValue.getMax(), 0);
+        assertEquals(responseTimePoint.getAgentIdForMax(), responseTimeJoinValue.getMaxAgentId());
+        assertEquals(responseTimePoint.getAgentIdForMin(), responseTimeJoinValue.getMinAgentId());
     }
 
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jboss;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * The Class MethodInvocationHandlerMethodDescriptor.
@@ -28,9 +29,6 @@ public class MethodInvocationHandlerMethodDescriptor implements MethodDescriptor
 
     /** The api id. */
     private int apiId = 0;
-
-    /** The type. */
-    private int type = MethodType.WEB_REQUEST;
 
     /*
      * (non-Javadoc)
@@ -89,7 +87,7 @@ public class MethodInvocationHandlerMethodDescriptor implements MethodDescriptor
      */
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     /*
@@ -139,15 +137,7 @@ public class MethodInvocationHandlerMethodDescriptor implements MethodDescriptor
      */
     @Override
     public int getType() {
-        return type;
+        return MethodType.WEB_REQUEST;
     }
 
-    /**
-     * Sets the type.
-     *
-     * @param type the new type
-     */
-    public void setType(final int type) {
-        this.type = type;
-    }
 }

@@ -15,13 +15,13 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
@@ -37,7 +37,7 @@ public class VertxHttpServerConfigTest {
         properties.setProperty("profiler.vertx.http.server.realipemptyvalue", "unknown");
         properties.setProperty("profiler.vertx.http.server.excludemethod", "chunk, continue");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         VertxHttpServerConfig config = new VertxHttpServerConfig(profilerConfig);
 
         assertEquals(true, config.isTraceRequestParam());
@@ -53,7 +53,7 @@ public class VertxHttpServerConfigTest {
         properties.setProperty("profiler.vertx.http.server.realipemptyvalue", "");
         properties.setProperty("profiler.vertx.http.server.excludemethod", "");
 
-        profilerConfig = new DefaultProfilerConfig(properties);
+        profilerConfig = ProfilerConfigLoader.load(properties);
         config = new VertxHttpServerConfig(profilerConfig);
 
         assertEquals(false, config.isTraceRequestParam());
@@ -61,5 +61,18 @@ public class VertxHttpServerConfigTest {
         assertEquals("", config.getRealIpHeader());
         assertEquals("", config.getRealIpEmptyValue());
         assertEquals(false, config.getExcludeProfileMethodFilter().filter("CHUNK"));
+
+        properties = new Properties();
+        properties.setProperty("profiler.vertx.http.server.tracerequestparam", "true");
+        properties.setProperty("profiler.server.tracerequestparam", "false");
+        properties.setProperty("profiler.vertx.http.server.excludeurl", "/l7/check");
+        properties.setProperty("profiler.server.excludeurl", "/health");
+        properties.setProperty("profiler.vertx.http.server.realipheader", "RealIp");
+        properties.setProperty("profiler.server.realipheader", "X-Forward-Ip");
+        properties.setProperty("profiler.vertx.http.server.realipemptyvalue", "unknown");
+        properties.setProperty("profiler.server.realipemptyvalue", "UFO");
+        properties.setProperty("profiler.vertx.http.server.excludemethod", "chunk, continue");
+        properties.setProperty("profiler.server.excludemethod", "POST, PUT");
+
     }
 }

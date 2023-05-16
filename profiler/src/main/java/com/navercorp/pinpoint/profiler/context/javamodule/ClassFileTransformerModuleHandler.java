@@ -20,13 +20,14 @@ import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,21 +37,13 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
     private final ClassFileTransformer delegate;
     private final JavaModuleFactory javaModuleFactory;
     private final JavaModule bootstrapModule;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     public ClassFileTransformerModuleHandler(Instrumentation instrumentation, ClassFileTransformer delegate, JavaModuleFactory javaModuleFactory) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        if (delegate == null) {
-            throw new NullPointerException("delegate");
-        }
-        if (javaModuleFactory == null) {
-            throw new NullPointerException("javaModuleFactory");
-        }
-        this.delegate = delegate;
-        this.javaModuleFactory = javaModuleFactory;
+        Objects.requireNonNull(instrumentation, "instrumentation");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.javaModuleFactory = Objects.requireNonNull(javaModuleFactory, "javaModuleFactory");
         this.bootstrapModule = javaModuleFactory.wrapFromClass(JavaModuleFactory.class);
     }
 

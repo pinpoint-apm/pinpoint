@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.rpc;
 
-import org.junit.Test;
-
-import com.navercorp.pinpoint.rpc.ClassPreLoader;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad

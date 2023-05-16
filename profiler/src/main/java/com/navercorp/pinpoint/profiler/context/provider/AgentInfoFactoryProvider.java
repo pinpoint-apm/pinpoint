@@ -18,11 +18,12 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -35,9 +36,9 @@ public class AgentInfoFactoryProvider implements Provider<AgentInfoFactory> {
 
     @Inject
     public AgentInfoFactoryProvider(AgentInformation agentInformation, ServerMetaDataRegistryService serverMetaDataRegistryService, JvmInformation jvmInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
-        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
-        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation");
+        this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaDataRegistryService = Objects.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
+        this.jvmInformation = Objects.requireNonNull(jvmInformation, "jvmInformation");
     }
 
     @Override

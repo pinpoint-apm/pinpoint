@@ -43,9 +43,6 @@ public abstract class AbstractSpringBeanCreationInterceptor {
         }
 
         Class<?> clazz = bean.getClass();
-        if (clazz == null) {
-            return;
-        }
 
         if (!filter.isTarget(SpringBeansTargetScope.POST_PROCESSOR, beanName, clazz)) {
             return;

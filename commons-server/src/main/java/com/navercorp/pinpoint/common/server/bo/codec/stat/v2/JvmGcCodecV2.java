@@ -29,8 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongE
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,14 +39,13 @@ import java.util.Objects;
 /**
  * @author HyunGil Jeong
  */
-@Component("jvmGcCodecV2")
+@Component
 public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
 
     private static final byte VERSION = 2;
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
     public JvmGcCodecV2(AgentStatDataPointCodec codec) {
         this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
     }

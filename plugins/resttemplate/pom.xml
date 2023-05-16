@@ -5,12 +5,16 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-resttemplate-plugin</artifactId>
     <name>pinpoint-resttemplate-plugin</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <spring.version>${spring4.version}</spring.version>
+    </properties>
 
     <dependencies>
         <dependency>

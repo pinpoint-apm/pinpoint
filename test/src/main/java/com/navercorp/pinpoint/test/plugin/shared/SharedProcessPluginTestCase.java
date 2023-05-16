@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import com.navercorp.pinpoint.common.Charsets;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.test.plugin.ForkedPinpointPluginTest;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestContext;
+import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
+import com.navercorp.pinpoint.test.plugin.PluginTestContext;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 
 import java.io.File;
@@ -27,29 +26,30 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.CHILD_CLASS_PATH_PREFIX;
 
 /**
  * @author Taejin Koo
  */
 public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
 
-    private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
+    private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
 
-    private final PinpointPluginTestContext context;
+    private final PluginTestContext context;
     private final String testId;
     private final List<String> libs;
     private final boolean onSystemClassLoader;
     private final SharedProcessManager processManager;
 
-    public SharedProcessPluginTestCase(PinpointPluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader, SharedProcessManager processManager) {
+    public SharedProcessPluginTestCase(PluginTestContext context, String testId, List<String> libs, boolean onSystemClassLoader, SharedProcessManager processManager) {
         this.context = context;
         this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
         this.libs = libs;
         this.onSystemClassLoader = onSystemClassLoader;
-        this.processManager = Assert.requireNonNull(processManager, "processManager");
+        this.processManager = Objects.requireNonNull(processManager, "processManager");
     }
 
     @Override
@@ -60,7 +60,7 @@ public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
     @Override
     public List<String> getClassPath() {
         if (onSystemClassLoader) {
-            List<String> libs = new ArrayList<String>(context.getRequiredLibraries());
+            List<String> libs = new ArrayList<>(context.getRequiredLibraries());
             libs.addAll(this.libs);
             libs.add(context.getTestClassLocation());
 
@@ -83,7 +83,7 @@ public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
 
     @Override
     public List<String> getAppArgs() {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
 
         args.add(context.getTestClass().getName());
 

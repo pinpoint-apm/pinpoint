@@ -18,15 +18,21 @@ package com.navercorp.pinpoint.plugin.elasticsearch;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.plugin.elasticsearch.ElasticsearchConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,9 +44,26 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"org.elasticsearch.client:elasticsearch-rest-high-level-client:[6.4.0,6.9.9)",
-        "pl.allegro.tech:embedded-elasticsearch:2.8.0"})
+        TestcontainersOption.ELASTICSEARCH})
 @JvmVersion(8)
-public class ElasticsearchIT_6_4_x_IT extends ElasticsearchITBase {
+@SharedTestLifeCycleClass(ESServer.class)
+public class ElasticsearchIT_6_4_x_IT extends ElasticsearchITBase  {
+
+    private static RestHighLevelClient restHighLevelClient;
+
+    @Before
+    public void setup() {
+        restHighLevelClient = new RestHighLevelClient(
+                RestClient.builder(
+                        new HttpHost(getEsHost(), getEsPort(), "http")));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        if (restHighLevelClient != null) {
+            restHighLevelClient.close();
+        }
+    }
 
     @Test
     public void testCRUD() throws Exception {
@@ -50,10 +73,10 @@ public class ElasticsearchIT_6_4_x_IT extends ElasticsearchITBase {
         testIndexV64UP(verifier);
     }
 
+    @SuppressWarnings("deprecation")
     private void testIndexV64UP(PluginTestVerifier verifier) throws IOException {
 
-        IndexRequest indexRequest = new IndexRequest(
-                "postv6", "doc", "3");
+        IndexRequest indexRequest = new IndexRequest("postv6", "doc", "3");
 
         String jsonString = "{" +
                 "\"user\":\"kimchy\"," +
@@ -71,7 +94,7 @@ public class ElasticsearchIT_6_4_x_IT extends ElasticsearchITBase {
             throw new AssertionError(e);
         }
 
-        verifier.verifyTrace(event(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR.getName(), index, null, ELASTICSEARCH_ADDRESS, "ElasticSearch"
+        verifier.verifyTrace(event(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR.getName(), index, null, getEsAddress(), "ElasticSearch"
                 , new ExpectedAnnotation(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY.getName(), indexRequest.toString())
         ));
     }

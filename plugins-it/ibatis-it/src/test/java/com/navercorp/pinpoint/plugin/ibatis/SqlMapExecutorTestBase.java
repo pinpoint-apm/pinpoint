@@ -16,21 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-
-import org.junit.Before;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import com.ibatis.sqlmap.client.SqlMapExecutor;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.ibatis.sqlmap.engine.scope.SessionScope;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import org.junit.After;
+import org.junit.Before;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Method;
+
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
@@ -50,10 +50,17 @@ public abstract class SqlMapExecutorTestBase {
     @Mock
     private SessionScope mockSessionScope;
 
+    private AutoCloseable openMocks;
+
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
+        openMocks = MockitoAnnotations.openMocks(this);
         when(this.mockSqlMapExecutorDelegate.beginSessionScope()).thenReturn(this.mockSessionScope);
+    }
+
+    @After
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     protected final void testAndVerifyInsertWithNullSqlId(SqlMapExecutor executor) throws Exception {

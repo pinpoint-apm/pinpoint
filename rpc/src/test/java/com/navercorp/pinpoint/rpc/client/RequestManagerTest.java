@@ -16,92 +16,79 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author emeroad
  */
 public class RequestManagerTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private Timer timer = getTimer();
+    private Timer timer;
+    private RequestManager requestManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        this.timer = getTimer();
-
+        this.timer = new HashedWheelTimer(10, TimeUnit.MICROSECONDS);
+        this.requestManager = new RequestManager(timer, 3000);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (this.timer != null) {
             this.timer.stop();
+        }
+        if (this.requestManager != null) {
+            this.requestManager.close();
         }
     }
 
     @Test
     public void testRegisterRequest() throws Exception {
-        RequestManager requestManager = new RequestManager(timer, 3000);
+        final int requestId = requestManager.nextRequestId();
+        final CompletableFuture<ResponseMessage> future = requestManager.register(requestId, 50);
+
         try {
-            final int requestId = requestManager.nextRequestId();
-            final Future future = requestManager.register(requestId, 50);
-
-            TestAwaitUtils.await(new TestAwaitTaskUtils() {
-                @Override
-                public boolean checkCompleted() {
-                    return future.isReady();
-                }
-            }, 10, 200);
-
-            Assert.assertTrue(future.isReady());
-            Assert.assertFalse(future.isSuccess());
-            Assert.assertTrue(future.getCause().getMessage().contains("timeout"));
-            logger.debug(future.getCause().getMessage());
-        } finally {
-            requestManager.close();
+            future.get(3000, TimeUnit.MILLISECONDS);
+            Assertions.fail();
+        } catch (InterruptedException e) {
+            Assertions.fail();
+        } catch (TimeoutException | ExecutionException ex) {
+            Throwable th = ex;
+            if (ex instanceof ExecutionException) {
+                th = ex.getCause();
+            }
+            assertThat(th.getMessage()).contains("Timeout");
         }
     }
 
 
     @Test
     public void testRemoveMessageFuture() throws Exception {
-        RequestManager requestManager = new RequestManager(timer, 3000);
-        try {
-            int requestId = requestManager.nextRequestId();
+        int requestId = requestManager.nextRequestId();
 
-            DefaultFuture future = requestManager.register(requestId, 2000);
-            future.setFailure(new RuntimeException());
+        CompletableFuture<ResponseMessage> future = requestManager.register(requestId, 2000);
+        future.completeExceptionally(new RuntimeException());
 
-            Future nullFuture = requestManager.removeMessageFuture(requestId);
-            Assert.assertNull(nullFuture);
-        } finally {
-            requestManager.close();
-        }
-
+        CompletableFuture<ResponseMessage> nullFuture = requestManager.removeMessageFuture(requestId);
+        assertNull(nullFuture);
     }
 
-    private HashedWheelTimer getTimer() {
-        return new HashedWheelTimer(10, TimeUnit.MICROSECONDS);
-    }
-
-
-
-    @Test
-    public void testClose() throws Exception {
-
-    }
 }

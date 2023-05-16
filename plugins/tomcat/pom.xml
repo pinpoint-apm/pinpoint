@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-tomcat-plugin</artifactId>
@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
+        <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
     </properties>
 
     <dependencies>
@@ -73,6 +73,11 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -105,6 +110,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.navercorp.pinpoint:pinpoint-common-servlet</include>
+                                    <includes>com.navercorp.pinpoint:pinpoint-jboss-plugin</includes>
+                                </includes>
+                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>com.navercorp.pinpoint:pinpoint-jboss-plugin</artifact>
@@ -127,6 +138,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Pinpoint-Plugin-Package-Class-Requirements>com.navercorp.pinpoint.plugin.tomcat.javax:javax.servlet.http.HttpServletRequest, com.navercorp.pinpoint.plugin.tomcat.jakarta:jakarta.servlet.http.HttpServletRequest</Pinpoint-Plugin-Package-Class-Requirements>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

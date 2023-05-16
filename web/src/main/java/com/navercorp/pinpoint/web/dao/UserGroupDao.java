@@ -55,5 +55,7 @@ public interface UserGroupDao {
 
     boolean isExistUserGroup(String userGroupId);
 
+    boolean isExistUserGroupMember(UserGroupMember userGroupMember);
+
     List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId);
 }

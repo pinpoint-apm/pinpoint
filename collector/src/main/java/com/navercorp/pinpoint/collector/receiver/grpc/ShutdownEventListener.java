@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 
@@ -30,7 +30,7 @@ public class ShutdownEventListener implements ApplicationListener<ContextClosedE
 
     @Override
     public void onApplicationEvent(ContextClosedEvent contextClosedEvent) {
-        final Logger logger = LoggerFactory.getLogger(this.getClass());
+        final Logger logger = LogManager.getLogger(this.getClass());
         logger.info("onApplicationEvent:{}", contextClosedEvent);
         shutdown = true;
     }

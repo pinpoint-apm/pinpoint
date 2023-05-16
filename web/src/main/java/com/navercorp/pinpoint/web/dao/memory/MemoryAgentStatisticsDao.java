@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,9 @@ import java.util.TreeMap;
 @Repository
 public class MemoryAgentStatisticsDao implements AgentStatisticsDao {
 
-    private final Map<Long, Integer> agentCountPerTime = new TreeMap<>(new LongComparator());
+    private static final Comparator<Long> REVERSE = Collections.reverseOrder(Long::compare);
+
+    private final TreeMap<Long, Integer> agentCountPerTime = new TreeMap<>(REVERSE);
 
     @Override
     public boolean insertAgentCount(AgentCountStatistics agentCountStatistics) {
@@ -63,15 +66,24 @@ public class MemoryAgentStatisticsDao implements AgentStatisticsDao {
         return result;
     }
 
-    private static class LongComparator implements Comparator<Long> {
-
-        @Override
-        public int compare(Long o1, Long o2) {
-            int compare = Long.compare(o2, o1);
-
-            // if same then overwrite.
-            return compare;
+    @Override
+    public List<AgentCountStatistics> selectLatestAgentCount(Integer size) {
+        if (agentCountPerTime.isEmpty()) {
+            return null;
         }
+
+        List<AgentCountStatistics> result = new ArrayList<>();
+
+        for (Long timestamp: agentCountPerTime.descendingKeySet()) {
+            Integer agentCount = agentCountPerTime.get(timestamp);
+            result.add(new AgentCountStatistics(agentCount, timestamp));
+
+            if (result.size() >= size) {
+                break;
+            }
+        }
+
+        return result;
     }
 
 }

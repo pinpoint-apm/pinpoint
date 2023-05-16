@@ -9,12 +9,17 @@
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
                 <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
 
+                <!--Root ZNode for HBase in ZooKeeper.-->
+                <prop key="zookeeper.znode.parent">${hbase.zookeeper.znode.parent:/hbase}</prop>
+
                 <!-- hbase default:true -->
                 <prop key="hbase.ipc.client.tcpnodelay">${hbase.ipc.client.tcpnodelay}</prop>
                 <!-- hbase default:60000 -->
                 <prop key="hbase.rpc.timeout">${hbase.rpc.timeout}</prop>
                 <!-- hbase default:Integer.MAX_VALUE -->
                 <prop key="hbase.client.operation.timeout">${hbase.client.operation.timeout}</prop>
+                <!-- # hbase default: 20m -->
+                <prop key="hbase.client.meta.operation.timeout">${hbase.client.meta.operation.timeout}</prop>
 
                 <!-- hbase socket read timeout. default: 200000-->
                 <prop key="hbase.ipc.client.socket.timeout.read">${hbase.ipc.client.socket.timeout.read}</prop>
@@ -50,7 +55,7 @@
         <constructor-arg ref="connectionFactory"/>
     </bean>
 
-    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory" factory-method="create">
+    <bean id="asyncOperation" class="com.navercorp.pinpoint.common.hbase.HBaseAsyncOperationFactory">
         <constructor-arg ref="connectionFactory"/>
         <constructor-arg ref="hbaseConfiguration"/>
     </bean>
@@ -64,11 +69,6 @@
         <property name="tableFactory" ref="hbaseTableFactory"/>
         <property name="asyncOperation" ref="asyncOperation"/>
     </bean>
-
-    <bean id="autoRetryHbaseTemplate" class="com.navercorp.pinpoint.common.hbase.AsyncPutHbaseTemplate2">
-        <constructor-arg ref="hbaseTemplate"/>
-    </bean>
-
 
     <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
         <constructor-arg ref="connectionFactory"/>

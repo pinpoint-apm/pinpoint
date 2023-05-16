@@ -16,70 +16,71 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.CodeResult;
+import com.navercorp.pinpoint.web.response.CodeResult;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-@Controller
+import java.util.Objects;
+
+@RestController
 @RequestMapping("/command")
 public class CommandController {
-
-    private static final int CODE_SUCCESS = 0;
-    private static final int CODE_FAIL = -1;
 
     // FIX ME: created for a simple ping/pong test for now
     // need a formal set of APIs and proper code
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private AgentService agentService;
+    private final AgentService agentService;
 
-    @RequestMapping(value = "/echo", method = RequestMethod.GET)
-    @ResponseBody
-    public CodeResult echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
-                           @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
+    public CommandController(AgentService agentService) {
+        this.agentService = Objects.requireNonNull(agentService, "agentService");
+    }
 
-        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
-        if (agentInfo == null) {
-            return new CodeResult(CODE_FAIL, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+    @GetMapping(value = "/echo")
+    public CodeResult<String> echo(@RequestParam("applicationName") String applicationName, @RequestParam("agentId") String agentId,
+                                          @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
+
+        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp);
+        if (clusterKey == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandEcho echo = new TCommandEcho();
         echo.setMessage(message);
 
         try {
-            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, echo);
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(clusterKey, echo);
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
                 TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {
-                    return new CodeResult(CODE_FAIL, "result null.");
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "result null.");
                 } else if (result instanceof TCommandEcho) {
-                    return new CodeResult(CODE_SUCCESS, ((TCommandEcho) result).getMessage());
+                    return CodeResult.ok(((TCommandEcho) result).getMessage());
                 } else if (result instanceof TResult) {
-                    return new CodeResult(CODE_FAIL, ((TResult) result).getMessage());
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, (((TResult) result).getMessage()));
                 } else {
-                    return new CodeResult(CODE_FAIL, result.toString());
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, result.toString());
                 }
             } else {
-                return new CodeResult(CODE_FAIL, "unknown");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "unknown");
             }
         } catch (TException e) {
-            return new CodeResult(CODE_FAIL, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

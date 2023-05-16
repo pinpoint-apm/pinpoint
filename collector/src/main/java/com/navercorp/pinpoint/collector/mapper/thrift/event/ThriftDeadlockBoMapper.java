@@ -40,18 +40,19 @@ public class ThriftDeadlockBoMapper implements ThriftBoMapper<DeadlockBo, TDeadl
     }
 
     public DeadlockBo map(final TDeadlock tDeadlock) {
-        final DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(tDeadlock.getDeadlockedThreadCount());
+        List<ThreadDumpBo> threadDumpList = getThreadDumpList(tDeadlock);
+        return new DeadlockBo(tDeadlock.getDeadlockedThreadCount(), threadDumpList);
+    }
 
+    private List<ThreadDumpBo> getThreadDumpList(TDeadlock tDeadlock) {
         if (tDeadlock.isSetDeadlockedThreadList()) {
             final List<ThreadDumpBo> threadDumpBoList = new ArrayList<>();
             for (TThreadDump threadDump : tDeadlock.getDeadlockedThreadList()) {
                 final ThreadDumpBo threadDumpBo = this.threadDumpBoMapper.map(threadDump);
                 threadDumpBoList.add(threadDumpBo);
             }
-            deadlockBo.setThreadDumpBoList(threadDumpBoList);
+            return threadDumpBoList;
         }
-
-        return deadlockBo;
+        return List.of();
     }
 }

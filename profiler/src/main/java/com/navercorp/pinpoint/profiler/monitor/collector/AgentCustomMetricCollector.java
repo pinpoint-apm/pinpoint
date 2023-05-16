@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricWrapper;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
@@ -31,7 +31,7 @@ public class AgentCustomMetricCollector {
     private final CustomMetricRegistryService customMetricRegistryService;
 
     public AgentCustomMetricCollector(CustomMetricRegistryService customMetricRegistryService) {
-        this.customMetricRegistryService = Assert.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
+        this.customMetricRegistryService = Objects.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
     }
 
     public AgentCustomMetricSnapshot collect() {

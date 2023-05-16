@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.filter.agent;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -26,46 +26,46 @@ public class AgentFilterFactoryTest {
 
 
     @Test
-    public void fromFilter() throws Exception {
+    public void fromFilter() {
         AgentFilterFactory factory = new AgentFilterFactory("a", "b");
         AgentFilter filter = factory.createFromAgentFilter();
 
-        Assert.assertTrue(filter.accept("a"));
-        Assert.assertFalse(filter.accept("b"));
-        Assert.assertFalse(filter.accept(null));
+        Assertions.assertTrue(filter.accept("a"));
+        Assertions.assertFalse(filter.accept("b"));
+        Assertions.assertFalse(filter.accept(null));
     }
 
     @Test
-    public void fromFilter_skip() throws Exception {
+    public void fromFilter_skip() {
         AgentFilterFactory factory = new AgentFilterFactory(null, "b");
         AgentFilter filter = factory.createFromAgentFilter();
 
-        Assert.assertTrue(filter.accept("a"));
-        Assert.assertTrue(filter.accept("b"));
-        Assert.assertTrue(filter.accept(null));
+        Assertions.assertTrue(filter.accept("a"));
+        Assertions.assertTrue(filter.accept("b"));
+        Assertions.assertTrue(filter.accept(null));
     }
 
     @Test
-    public void toFilter() throws Exception {
+    public void toFilter() {
         AgentFilterFactory factory = new AgentFilterFactory("a", "b");
         AgentFilter filter = factory.createToAgentFilter();
 
-        Assert.assertTrue(filter.accept("b"));
+        Assertions.assertTrue(filter.accept("b"));
 
-        Assert.assertFalse(filter.accept("a"));
-        Assert.assertFalse(filter.accept(null));
+        Assertions.assertFalse(filter.accept("a"));
+        Assertions.assertFalse(filter.accept(null));
 
-        Assert.assertTrue(factory.toAgentExist());
+        Assertions.assertTrue(factory.toAgentExist());
     }
 
     @Test
-    public void toFilter_skip() throws Exception {
+    public void toFilter_skip() {
         AgentFilterFactory factory = new AgentFilterFactory("a", null);
         AgentFilter filter = factory.createToAgentFilter();
 
-        Assert.assertTrue(filter.accept("b"));
-        Assert.assertTrue(filter.accept("a"));
-        Assert.assertTrue(filter.accept(null));
+        Assertions.assertTrue(filter.accept("b"));
+        Assertions.assertTrue(filter.accept("a"));
+        Assertions.assertTrue(filter.accept(null));
 
     }
 

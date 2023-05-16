@@ -17,108 +17,125 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 
-import com.navercorp.pinpoint.common.util.Assert;
+import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
+import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
+import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
+import com.navercorp.pinpoint.profiler.util.NamedRunnable;
+import io.grpc.stub.ClientCallStreamObserver;
 
-import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
-import io.grpc.stub.StreamObserver;
-
-import java.util.concurrent.RejectedExecutionException;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 /**
  * @author jaehong.kim
  */
-public class StatGrpcDataSender extends GrpcDataSender {
-    private final StatGrpc.StatStub statStub;
+public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
+    private static final String ID = "StatStream";
+
     private final ReconnectExecutor reconnectExecutor;
 
-    private volatile StreamObserver<PStatMessage> statStream;
-    private final Reconnector statStreamReconnector;
+    private final Reconnector reconnector;
+    private final StreamState failState;
+    private final StreamExecutorFactory<PStatMessage> streamExecutorFactory;
+
+
+    private volatile StreamTask<MetricType, PStatMessage> currentStreamTask;
+
+    private final ClientStreamingService<PStatMessage, Empty> clientStreamService;
+
+    public MessageDispatcher<MetricType, PStatMessage> dispatcher = new MessageDispatcher<MetricType, PStatMessage>() {
+        @Override
+        public void onDispatch(ClientCallStreamObserver<PStatMessage> stream, MetricType data) {
+            final GeneratedMessageV3 message = messageConverter.toMessage(data);
+            if (isDebug) {
+                logger.debug("Send message={}", debugLog(message));
+            }
+
+            if (message instanceof PAgentStatBatch) {
+                final PAgentStatBatch agentStatBatch = (PAgentStatBatch) message;
+                final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStatBatch(agentStatBatch).build();
+                stream.onNext(statMessage);
+                return;
+            }
+
+            if (message instanceof PAgentStat) {
+                final PAgentStat agentStat = (PAgentStat) message;
+                final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStat(agentStat).build();
+                stream.onNext(statMessage);
+                return;
+            }
+            if (message instanceof PCustomMetricMessage) {
+                final PCustomMetricMessage customMetricMessage = (PCustomMetricMessage) message;
+                logger.info("Message will not delivered. message:{}", message);
+
+                return;
+            }
+            if (message instanceof PAgentUriStat) {
+                final PAgentUriStat agentUriStat = (PAgentUriStat) message;
+                final PStatMessage statMessage = PStatMessage.newBuilder().setAgentUriStat(agentUriStat).build();
+
+                // TODO remove comment
+                stream.onNext(statMessage);
+                return;
+            }
+            throw new IllegalStateException("unsupported message " + message);
+        }
+    };
 
     public StatGrpcDataSender(String host, int port,
-                              int senderExecutorQueueSize,
-                              MessageConverter<GeneratedMessageV3> messageConverter,
+                              int executorQueueSize,
+                              MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
                               ChannelFactory channelFactory) {
-        super(host, port, senderExecutorQueueSize, messageConverter, channelFactory);
+        super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.statStub = StatGrpc.newStub(managedChannel);
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
-        {
-            final Runnable statStreamReconnectJob = new Runnable() {
-                @Override
-                public void run() {
-                    statStream = newStatStream();
-                }
-            };
-            this.statStreamReconnector = reconnectExecutor.newReconnector(statStreamReconnectJob);
-            statStreamReconnectJob.run();
-        }
-    }
-
-    private StreamObserver<PStatMessage> newStatStream() {
-        final StreamId statId = StreamId.newStreamId("StatStream");
-        final ResponseStreamObserver<PStatMessage, Empty> responseObserver = new ResponseStreamObserver<PStatMessage, Empty>(statId, statStreamReconnector);
-        return statStub.sendAgentStat(responseObserver);
-    }
-
-    @Override
-    public boolean send(final Object data) {
-        final Runnable command = new Runnable() {
+        this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
+        final Runnable reconnectJob = new NamedRunnable(ID) {
             @Override
             public void run() {
-                try {
-                    send0(data);
-                } catch (Exception ex) {
-                    logger.debug("send fail:{}", data, ex);
-                }
+                startStream();
             }
         };
-        try {
-            executor.execute(command);
-        } catch (RejectedExecutionException reject) {
-            logger.debug("reject:{}", command);
-            return false;
-        }
-        return true;
+        this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
+        this.failState = new SimpleStreamState(100, 5000);
+        this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
+
+        ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
+            @Override
+            public ClientCallStreamObserver<PStatMessage> newStream(ResponseStreamObserver<PStatMessage, Empty> response) {
+                logger.info("newStream {}", ID);
+                StatGrpc.StatStub statStub = StatGrpc.newStub(managedChannel);
+                return (ClientCallStreamObserver<PStatMessage>) statStub.sendAgentStat(response);
+            }
+        };
+        this.clientStreamService = new ClientStreamingService<>(clientStreamProvider, reconnector);
+
+        reconnectJob.run();
+
     }
 
-
-    private boolean send0(Object data) {
-        final GeneratedMessageV3 message = messageConverter.toMessage(data);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Send message={}", debugLog(message));
+    private void startStream() {
+//        streamTaskManager.closeAllStream();
+        try {
+            StreamTask<MetricType, PStatMessage> streamTask =  new DefaultStreamTask<>(ID, clientStreamService,
+                    this.streamExecutorFactory, this.queue, this.dispatcher, failState);
+            streamTask.start();
+            this.currentStreamTask = streamTask;
+        } catch (Throwable th) {
+            logger.error("Unexpected error", th);
         }
-
-        if (message instanceof PAgentStatBatch) {
-            final PAgentStatBatch agentStatBatch = (PAgentStatBatch) message;
-            final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStatBatch(agentStatBatch).build();
-            statStream.onNext(statMessage);
-            return true;
-        }
-
-        if (message instanceof PAgentStat) {
-            final PAgentStat agentStat = (PAgentStat) message;
-            final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStat(agentStat).build();
-            statStream.onNext(statMessage);
-            return true;
-        }
-        if (message instanceof PCustomMetricMessage) {
-            final PCustomMetricMessage customMetricMessage = (PCustomMetricMessage) message;
-            logger.info("Message will not delivered. message:{}", message);
-
-            return true;
-        }
-        throw new IllegalStateException("unsupported message " + message);
     }
 
     @Override
@@ -133,8 +150,12 @@ public class StatGrpcDataSender extends GrpcDataSender {
         if (reconnectExecutor != null) {
             reconnectExecutor.close();
         }
-        logger.info("{} close()", statStream);
-        StreamUtils.close(statStream);
+
+        final StreamTask<MetricType, PStatMessage> currentStreamTask = this.currentStreamTask;
+        if (currentStreamTask != null) {
+            currentStreamTask.stop();
+        }
+        logger.info("{} close()", ID);
         release();
     }
 
@@ -146,4 +167,5 @@ public class StatGrpcDataSender extends GrpcDataSender {
                 ", port=" + port +
                 "} " + super.toString();
     }
+
 }

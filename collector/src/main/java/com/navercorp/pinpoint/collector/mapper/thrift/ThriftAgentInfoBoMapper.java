@@ -43,6 +43,7 @@ public class ThriftAgentInfoBoMapper {
         final String ip = thriftObject.getIp();
         final String ports = thriftObject.getPorts();
         final String agentId = thriftObject.getAgentId();
+        final String agentName = thriftObject.getAgentName();
         final String applicationName = thriftObject.getApplicationName();
         final short serviceType = thriftObject.getServiceType();
         final int pid = thriftObject.getPid();
@@ -58,6 +59,7 @@ public class ThriftAgentInfoBoMapper {
         builder.setIp(ip);
         builder.setPorts(ports);
         builder.setAgentId(agentId);
+        builder.setAgentName(agentName);
         builder.setApplicationName(applicationName);
         builder.setServiceTypeCode(serviceType);
         builder.setPid(pid);

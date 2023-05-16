@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 
@@ -36,30 +36,30 @@ public class DefaultRouteHandlerTest {
     private int requestId = 0;
 
     @Test
-    public void testName() throws Exception {
-        DefaultRouteHandler routeHandler = new DefaultRouteHandler(new ClusterPointRepository(), new DefaultRouteFilterChain(), new DefaultRouteFilterChain());
+    public void testName() {
+        DefaultRouteHandler routeHandler = new DefaultRouteHandler(new ClusterPointRepository<>(), new DefaultRouteFilterChain<>(), new DefaultRouteFilterChain<>());
 
-        CountFilter requestFilter = new CountFilter();
+        CountFilter<RequestEvent> requestFilter = new CountFilter<>();
         routeHandler.addRequestFilter(requestFilter);
 
         TCommandTransferResponse response = routeHandler.onRoute(createRequestEvent());
-        Assert.assertEquals(1, requestFilter.getCallCount());
+        Assertions.assertEquals(1, requestFilter.getCallCount());
 
-        CountFilter responseFilter = new CountFilter();
+        CountFilter<ResponseEvent> responseFilter = new CountFilter<>();
         routeHandler.addResponseFilter(responseFilter);
 
         response = routeHandler.onRoute(createRequestEvent());
-        Assert.assertEquals(2, requestFilter.getCallCount());
-        Assert.assertEquals(1, responseFilter.getCallCount());
+        Assertions.assertEquals(2, requestFilter.getCallCount());
+        Assertions.assertEquals(1, responseFilter.getCallCount());
 
-        Assert.assertEquals(TRouteResult.NOT_FOUND, response.getRouteResult());
+        Assertions.assertEquals(TRouteResult.NOT_FOUND, response.getRouteResult());
     }
 
-    private RequestEvent createRequestEvent() throws Exception {
+    private RequestEvent createRequestEvent() {
         return new RequestEvent(createRouteEvent(), ++requestId, new TCommandEcho());
     }
 
-    private RouteEvent createRouteEvent() throws Exception {
+    private RouteEvent createRouteEvent() {
         TCommandTransfer tCommandTransfer = new TCommandTransfer();
         tCommandTransfer.setApplicationName("applicationName");
         tCommandTransfer.setAgentId("agentId");
@@ -70,12 +70,12 @@ public class DefaultRouteHandlerTest {
         return new DefaultRouteEvent(tCommandTransfer, socketAddress);
     }
 
-    static class CountFilter implements RouteFilter {
+    static class CountFilter<T extends RouteEvent> implements RouteFilter<T> {
 
         private int callCount = 0;
 
         @Override
-        public void doEvent(RouteEvent event) {
+        public void doEvent(T event) {
             callCount++;
         }
 

@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
@@ -139,7 +140,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(final Object target, final Object[] args) {
-        if (args.length != 1) {
+        if (ArrayUtils.getLength(args) != 1) {
             return false;
         }
 

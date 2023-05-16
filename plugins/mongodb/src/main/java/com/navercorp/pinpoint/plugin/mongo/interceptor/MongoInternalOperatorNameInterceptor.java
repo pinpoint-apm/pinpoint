@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.InternalOperatorNameAccessor;
 
 /**
@@ -36,17 +36,21 @@ public class MongoInternalOperatorNameInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (ArrayUtils.hasLength(args)) {
-            if (target instanceof InternalOperatorNameAccessor) {
-                ((InternalOperatorNameAccessor) target)._$PINPOINT$_setInternalOperatorName(args[0].toString());
+        try {
+            Object argument = ArrayArgumentUtils.getArgument(args, 0, Object.class);
+            if (argument != null) {
+                if (target instanceof InternalOperatorNameAccessor) {
+                    ((InternalOperatorNameAccessor) target)._$PINPOINT$_setInternalOperatorName(argument.toString());
+                }
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
     }
 }

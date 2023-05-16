@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.plugin.druid;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DataSourceMonitorAccessorTest implements DataSourceMonitorAccessor {
 

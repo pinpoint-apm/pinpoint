@@ -16,19 +16,9 @@
 
 package com.navercorp.pinpoint.loader.plugins.trace.yaml;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
-import com.navercorp.pinpoint.common.trace.DefaultServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
-import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-import com.navercorp.pinpoint.loader.plugins.trace.yaml.TraceMetadataProviderYamlParser;
+import com.navercorp.pinpoint.common.trace.*;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,11 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
@@ -105,8 +92,8 @@ public class TraceMetadataProviderYamlParserTest {
 
     private static class TraceMetadataProviderVerifier {
 
-        private final Map<Short, ServiceTypeInfo> serviceTypes = new HashMap<Short, ServiceTypeInfo>();
-        private final Map<Integer, AnnotationKey> annotationKeys = new HashMap<Integer, AnnotationKey>();
+        private final Map<Short, ServiceTypeInfo> serviceTypes = new HashMap<>();
+        private final Map<Integer, AnnotationKey> annotationKeys = new HashMap<>();
 
         private TraceMetadataProviderVerifier(TraceMetadataProvider traceMetadataProvider) {
             traceMetadataProvider.setup(new TraceMetadataSetupContext() {
@@ -129,15 +116,15 @@ public class TraceMetadataProviderYamlParserTest {
 
         void verifyServiceType(ServiceTypeInfoExpectation expectation) {
             ServiceTypeInfo actualServiceTypeInfo = serviceTypes.get(expectation.code);
-            assertThat(actualServiceTypeInfo, is(notNullValue()));
+            assertThat(actualServiceTypeInfo).isNotNull();
 
             ServiceType actualServiceType = actualServiceTypeInfo.getServiceType();
-            assertThat(actualServiceType.getCode(), is(expectation.code));
-            assertThat(actualServiceType.getName(), is(expectation.name));
+            assertThat(actualServiceType.getCode()).isEqualTo(expectation.code);
+            assertThat(actualServiceType.getName()).isEqualTo(expectation.name);
             if (expectation.desc == null) {
-                assertThat(actualServiceType.getDesc(), is(expectation.name));
+                assertThat(actualServiceType.getDesc()).isEqualTo(expectation.name);
             } else {
-                assertThat(actualServiceType.getDesc(), is(expectation.desc));
+                assertThat(actualServiceType.getDesc()).isEqualTo(expectation.desc);
             }
 
             for (ServiceTypeProperty expectedServiceTypeProperty : expectation.serviceTypeProperties) {
@@ -159,19 +146,19 @@ public class TraceMetadataProviderYamlParserTest {
 
             AnnotationKeyMatcher actualMatcher = actualServiceTypeInfo.getPrimaryAnnotationKeyMatcher();
             if (expectation.annotationKeyMatcher == null) {
-                assertThat(actualMatcher, is(nullValue()));
+                assertThat(actualMatcher).isNull();
             } else {
                 // do toString() matching
-                assertThat(actualMatcher.toString(), is(expectation.annotationKeyMatcher.toString()));
+                assertThat(actualMatcher.toString()).isEqualTo(expectation.annotationKeyMatcher.toString());
             }
         }
 
         void verifyAnnotationKey(AnnotationKeyExpectation expectation) {
             AnnotationKey actualAnnotationKey = annotationKeys.get(expectation.code);
-            assertThat(actualAnnotationKey, is(notNullValue()));
+            assertThat(actualAnnotationKey).isNotNull();
 
-            assertThat(actualAnnotationKey.getCode(), is(expectation.code));
-            assertThat(actualAnnotationKey.getName(), is(expectation.name));
+            assertThat(actualAnnotationKey.getCode()).isEqualTo(expectation.code);
+            assertThat(actualAnnotationKey.getName()).isEqualTo(expectation.name);
 
             for (AnnotationKeyProperty expectedAnnotationKeyProperty : expectation.annotationKeyProperties) {
                 switch (expectedAnnotationKeyProperty) {
@@ -189,7 +176,7 @@ public class TraceMetadataProviderYamlParserTest {
     private static class ServiceTypeInfoExpectation {
         private final short code;
         private final String name;
-        private final List<ServiceTypeProperty> serviceTypeProperties = new ArrayList<ServiceTypeProperty>();
+        private final List<ServiceTypeProperty> serviceTypeProperties = new ArrayList<>();
         private String desc = null;
         private AnnotationKeyMatcher annotationKeyMatcher = null;
 
@@ -217,7 +204,7 @@ public class TraceMetadataProviderYamlParserTest {
     private static class AnnotationKeyExpectation {
         private final int code;
         private final String name;
-        private final List<AnnotationKeyProperty> annotationKeyProperties = new ArrayList<AnnotationKeyProperty>();
+        private final List<AnnotationKeyProperty> annotationKeyProperties = new ArrayList<>();
 
         AnnotationKeyExpectation(int code, String name) {
             this.code = code;

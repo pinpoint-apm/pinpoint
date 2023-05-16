@@ -16,10 +16,16 @@
 
 package com.navercorp.pinpoint.agent.plugin.proxy.app;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeaderBuilder;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author jaehong.kim
@@ -27,8 +33,8 @@ import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser
 public class AppRequestParser implements ProxyRequestParser {
 
     @Override
-    public String getHttpHeaderName() {
-        return AppRequestConstants.APP_REQUEST_TYPE.getHttpHeaderName();
+    public List<String> getHttpHeaderNameList() {
+        return Collections.singletonList(AppRequestConstants.APP_REQUEST_TYPE.getHttpHeaderName());
     }
 
     @Override
@@ -36,9 +42,13 @@ public class AppRequestParser implements ProxyRequestParser {
         return AppRequestConstants.APP_REQUEST_TYPE.getCode();
     }
 
+    @Override
+    public void init(ProfilerConfig profilerConfig) {
+    }
+
 
     @Override
-    public ProxyRequestHeader parse(String value) {
+    public ProxyRequestHeader parseHeader(String name, String value) {
         final ProxyRequestHeaderBuilder header = new ProxyRequestHeaderBuilder();
         for (String token : StringUtils.tokenizeToStringList(value, " ")) {
             if (token.startsWith("t=")) {
@@ -56,6 +66,17 @@ public class AppRequestParser implements ProxyRequestParser {
             } else if (token.startsWith("app=")) {
                 final String app = token.substring(4).trim();
                 if (!app.isEmpty()) {
+                    try {
+                        if (!IdValidateUtils.validateId(app, 30)) {
+                            header.setValid(false);
+                            header.setCause("app can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength: 30");
+                            return header.build();
+                        }
+                    } catch (Exception ignored) {
+                        header.setValid(false);
+                        header.setCause("invalid app");
+                        return header.build();
+                    }
                     header.setApp(app);
                 }
             }
@@ -69,10 +90,6 @@ public class AppRequestParser implements ProxyRequestParser {
         }
 
         // to milliseconds.
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException ignored) {
-        }
-        return 0;
+        return NumberUtils.parseLong(value, 0);
     }
 }

@@ -20,9 +20,10 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +35,7 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
 
     @Inject
     public DefaultTraceIdFactory(@AgentId String agentId, @AgentStartTime long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
 
     }
@@ -46,9 +47,8 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
     }
 
     public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
+
         final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
         return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanId, spanId, flags);
     }

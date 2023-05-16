@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
-import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPointSummary;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ import java.util.function.ToLongFunction;
 
 @Component
 public class TotalThreadCountSampler implements AgentStatSampler<TotalThreadCountBo, SampledTotalThreadCount> {
-    private static final DownSampler<Long> LONG_DOWN_SAMPLER = DownSamplers.getLongDownSampler(SampledTotalThreadCount.UNCOLLECTED_VALUE);
 
     @Override
     public SampledTotalThreadCount sampleDataPoints(int index, long timestamp, List<TotalThreadCountBo> dataPoints, TotalThreadCountBo previousDataPoint) {
@@ -54,14 +53,10 @@ public class TotalThreadCountSampler implements AgentStatSampler<TotalThreadCoun
     }
 
     private AgentStatPoint<Long> createPoint(long timestamp, List<Long> values) {
-        if(values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return SampledTotalThreadCount.UNCOLLECTED_POINT_CREATOR.createUnCollectedPoint(timestamp);
         }
-        return new AgentStatPoint<>(timestamp,
-                LONG_DOWN_SAMPLER.sampleMin(values),
-                LONG_DOWN_SAMPLER.sampleMax(values),
-                LONG_DOWN_SAMPLER.sampleAvg(values),
-                LONG_DOWN_SAMPLER.sampleSum(values)
-        );
+        return AgentStatPointSummary.longSummary(timestamp, values);
     }
+
 }

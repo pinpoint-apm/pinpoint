@@ -16,8 +16,6 @@
 package com.navercorp.pinpoint.plugin.weblogic;
 
 
-import java.security.ProtectionDomain;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -33,6 +31,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.weblogic.interceptor.ServletRequestImplStartAsyncInterceptor;
 import com.navercorp.pinpoint.plugin.weblogic.interceptor.WebAppServletContextExecuteInterceptor;
 
+import java.security.ProtectionDomain;
+
 /**
  * @author andyspan
  * @author jaehong.kim
@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.plugin.weblogic.interceptor.WebAppServletContextEx
 public class WeblogicPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
-    protected PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {

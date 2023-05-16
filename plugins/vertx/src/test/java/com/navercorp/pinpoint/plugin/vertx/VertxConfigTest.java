@@ -15,13 +15,14 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
@@ -36,12 +37,12 @@ public class VertxConfigTest {
         properties.setProperty("profiler.vertx.http.client.enable", "true");
         properties.setProperty("profiler.vertx.bootstrap.main", "io.vertx.core.Starter");
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
         VertxConfig config = new VertxConfig(profilerConfig);
         assertEquals(true, config.isEnable());
         assertEquals(true, config.isEnableHttpServer());
         assertEquals(true, config.isEnableHttpClient());
-        assertEquals(1, config.getBootstrapMains().size());
+        assertThat(config.getBootstrapMains()).hasSize(1);
         assertEquals("io.vertx.core.Starter", config.getBootstrapMains().get(0));
 
         properties = new Properties();
@@ -50,11 +51,11 @@ public class VertxConfigTest {
         properties.setProperty("profiler.vertx.http.client.enable", "false");
         properties.setProperty("profiler.vertx.bootstrap.main", "");
 
-        profilerConfig = new DefaultProfilerConfig(properties);
+        profilerConfig = ProfilerConfigLoader.load(properties);
         config = new VertxConfig(profilerConfig);
         assertEquals(false, config.isEnable());
         assertEquals(false, config.isEnableHttpServer());
         assertEquals(false, config.isEnableHttpClient());
-        assertEquals(0, config.getBootstrapMains().size());
+        assertThat(config.getBootstrapMains()).isEmpty();
     }
 }

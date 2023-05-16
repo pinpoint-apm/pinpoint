@@ -1,0 +1,16 @@
+serviceTypes:
+    - code: 1800
+      name: 'GO'
+      property:
+          recordStatistics: true
+    - code: 1801
+      name: 'GO_FUNCTION'
+      matcher:
+          type: 'args'
+    - code: 9401
+      name: 'GO_HTTP_CLIENT'
+      property:
+          recordStatistics: true
+      matcher:
+          type: 'exact'
+          code: 40

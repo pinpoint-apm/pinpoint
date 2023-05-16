@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.profiler.interceptor.scope.DefaultInterceptorScopeInvocation;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -31,10 +33,8 @@ public class ThreadLocalScope implements InterceptorScopeInvocation {
 
 
     public ThreadLocalScope(final InterceptorScopeDefinition scopeDefinition) {
-        if (scopeDefinition == null) {
-            throw new NullPointerException("scopeDefinition");
-        }
-        
+        Objects.requireNonNull(scopeDefinition, "scopeDefinition");
+
         this.scope = new NamedThreadLocal<InterceptorScopeInvocation>(scopeDefinition.getName()) {
             @Override
             protected InterceptorScopeInvocation initialValue() {

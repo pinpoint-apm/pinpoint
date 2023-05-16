@@ -1,0 +1,106 @@
+:host {
+    --snb-link-item-hover: var(--blue-800);
+    --snb-child-link-background: var(--blue-700);
+    --snb-child-link-item-hover: var(--blue-900);
+    --snb-child-link-title: var(--blue-900);
+    --snb-theme-hover: var(--snb-child-link-background);
+}
+
+.dark-mode :host {
+    --snb-link-item-hover: var(--grey-300);
+    --snb-child-link-background: var(--background-layer);
+    --snb-child-link-item-hover: var(--grey-400);
+    --snb-child-link-title: var(--blue-grey-100);
+    --snb-theme-hover: var(--snb-child-link-background);
+}
+
+.link-item {
+    position: relative;
+    display: flex;
+    height: 40px;
+    cursor: pointer;
+    padding-left: 16px;
+    align-items: center;
+}
+
+.link-item > a {
+    display: grid;
+    grid-template-columns: 30px auto;
+    align-items: center;
+}
+
+.link-item > span {
+    display: grid;
+    grid-template-columns: 30px auto;
+    align-items: center;
+}
+
+.link-item .link-item a {
+    display: flex;
+    align-items: center;
+}
+
+.link-item.active,
+.link-item:hover {
+    background-color: var(--snb-link-item-hover);
+    font-weight: bold;
+}
+
+.link-item.disable {
+    pointer-events: none;
+    cursor: not-allowed;
+    color: var(--text-disable);
+}
+
+.link-item .link-item:hover {
+    background-color: var(--snb-child-link-item-hover);
+    font-weight: bold;
+}
+
+.link-item-button-wrapper {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+}
+
+.link-item-wrapper:hover .child-link-wrapper {
+    visibility: visible;
+}
+
+.child-link-wrapper {
+    visibility: hidden;
+    position: absolute;
+    z-index: 999;
+    right: -201px;
+    width: 200px;
+    background-color: var(--snb-child-link-background);
+    box-shadow: rgb(0 0 0 / 25%) 3px 3px 10px;
+}
+
+.child-link-wrapper a {
+    width: 100%;
+    font-size: 13px;
+    line-height: 200%;
+    grid-template-columns: auto;
+}
+
+.child-link-title {
+    display: flex;
+    font-size: 14px;
+    font-weight: bold;
+    height: 40px;
+    align-items: center;
+    padding-left: 15px;
+    background-color: var(--snb-child-link-title);
+}
+
+.divider {
+    height: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--border-primary-darker);
+}
+
+.theme:hover {
+    background-color: var(--snb-theme-hover);
+    font-weight: normal;
+}

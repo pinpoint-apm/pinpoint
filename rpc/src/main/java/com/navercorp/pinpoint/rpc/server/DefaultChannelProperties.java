@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,8 +43,8 @@ public class DefaultChannelProperties implements ChannelProperties {
 
 
     public DefaultChannelProperties(String agentId, String applicationName, int serviceType, String agentVersion, String hostName, String hostIp, int pid, long startTime, int socketId, List<Integer> supportCommandList, Map<Object, Object> customProperty) {
-        this.agentId = agentId;
-        this.applicationName = applicationName;
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.hostIp = hostIp;
         this.pid = pid;
         this.serviceType = serviceType;
@@ -51,8 +52,8 @@ public class DefaultChannelProperties implements ChannelProperties {
         this.startTime = startTime;
         this.agentVersion = agentVersion;
         this.socketId = socketId;
-        this.supportCommand = new ArrayList<Integer>(supportCommandList);
-        this.properties = new HashMap<Object, Object>(customProperty);
+        this.supportCommand = new ArrayList<>(supportCommandList);
+        this.properties = new HashMap<>(customProperty);
     }
 
     @Override

@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -32,7 +33,7 @@ public class CustomMetricRegistryAdaptor implements CustomMetricRegistry {
     private final CustomMetricRegistryService delegate;
 
     public CustomMetricRegistryAdaptor(CustomMetricRegistryService delegate) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

@@ -28,19 +28,20 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
 
+    private final LongAdder submitCount = new LongAdder();
     private final RunnableDecorator runnableDecorator;
 
     public MonitoredThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                        RunnableDecorator runnableDecorator) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "executeListener");
-
+        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator");
     }
 
 
@@ -65,28 +66,36 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
 
     @Override
     public void execute(Runnable command) {
+        submitCount.increment();
         super.execute(runnableDecorator.decorate(command));
     }
 
     @Override
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+        submitCount.increment();
         return super.invokeAny(runnableDecorator.decorate(tasks));
     }
 
     @Override
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        submitCount.increment();
         return super.invokeAny(runnableDecorator.decorate(tasks), timeout, unit);
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+        submitCount.increment();
         return super.invokeAll(runnableDecorator.decorate(tasks));
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
+        submitCount.increment();
         return super.invokeAll(runnableDecorator.decorate(tasks), timeout, unit);
     }
 
+    public long getSubmitCount() {
+        return submitCount.longValue();
+    }
 }
 

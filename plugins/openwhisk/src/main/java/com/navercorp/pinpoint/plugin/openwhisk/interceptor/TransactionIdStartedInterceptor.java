@@ -17,10 +17,14 @@ package com.navercorp.pinpoint.plugin.openwhisk.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConfig;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.accessor.PinpointTraceAccessor;
@@ -36,14 +40,12 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
     protected final boolean isDebug = logger.isDebugEnabled();
     private final boolean isLoggingMessage;
 
-    public TransactionIdStartedInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public TransactionIdStartedInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.descriptor = descriptor;
 
         final OpenwhiskConfig config = new OpenwhiskConfig(traceContext.getProfilerConfig());
         this.isLoggingMessage = config.isLoggingMessage();
@@ -60,10 +62,13 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (asyncContext == null) {
-            logger.debug("Not found asynchronous invocation metadata {}", (LogMarkerToken)args[2]);
+            if (logger.isDebugEnabled()) {
+                // (LogMarkerToken)args[2]
+                Object logMarkerToken = ArrayArgumentUtils.getArgument(args, 2, Object.class);
+                logger.debug("Not found asynchronous invocation metadata {}", logMarkerToken);
+            }
             return;
         }
 
@@ -88,8 +93,7 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
         if (asyncContext == null) {
             logger.debug("Not found asynchronous invocation metadata");
             return;

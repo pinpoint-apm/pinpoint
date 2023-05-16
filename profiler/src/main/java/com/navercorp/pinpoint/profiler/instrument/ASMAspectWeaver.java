@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
 import org.objectweb.asm.Opcodes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ASMAspectWeaver {
 
     private static final MethodNameReplacer DEFAULT_METHOD_NAME_REPLACER = new DefaultMethodNameReplacer();
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final MethodNameReplacer methodNameReplacer;
 
     public ASMAspectWeaver() {

@@ -19,55 +19,61 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationService;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.CodeResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
+import com.navercorp.pinpoint.web.response.CodeResult;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 
-@Controller
+@RestController
 public class ApplicationController {
+    public static final int MAX_PAGING_LIMIT = 100;
 
-    private static final int CODE_SUCCESS = 0;
-    private static final int CODE_FAIL = -1;
+    private final AgentInfoService agentInfoService;
 
-    @Autowired
-    private AgentInfoService agentInfoService;
+    private final ApplicationService applicationService;
 
-    @Autowired
-    private ApplicationService applicationService;
+    public ApplicationController(AgentInfoService agentInfoService, ApplicationService applicationService) {
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+    }
 
-    @RequestMapping(value = "/getApplicationHostInfo", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping(value = "/getApplicationHostInfo")
     public ApplicationAgentHostList getApplicationHostInfo (
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit) throws Exception {
-        return agentInfoService.getApplicationAgentHostList(offset, limit);
+            @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
+            @RequestParam(value = "durationDays", required = false) Integer durationDays) {
+        int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
+        durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
+
+        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDays);
     }
 
     @RequestMapping(value = "/isAvailableApplicationName")
-    @ResponseBody
-    public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
-        if (!IdValidateUtils.checkLength(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
-            return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
+    public CodeResult<String> isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
+        final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN);
+        if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");
         }
-
-        if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
-            return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+        if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
         }
 
         if (applicationService.isExistApplicationName(applicationName)) {
-            return new CodeResult(CODE_FAIL, "already exist applicationName");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "applicationName already exists");
         }
 
-        return new CodeResult(CODE_SUCCESS, "OK");
+        return CodeResult.ok("OK");
     }
 
 }

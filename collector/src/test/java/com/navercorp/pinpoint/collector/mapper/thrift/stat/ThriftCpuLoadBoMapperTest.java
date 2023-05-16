@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Taejin Koo
@@ -41,8 +41,8 @@ public class ThriftCpuLoadBoMapperTest extends ThriftBoMapperTestBase<TCpuLoad, 
 
     @Override
     protected void verify(TCpuLoad original, CpuLoadBo mappedStatDataPoint) {
-        Assert.assertEquals("jvmCpuLoad", original.getJvmCpuLoad(), mappedStatDataPoint.getJvmCpuLoad(), 0);
-        Assert.assertEquals("systemCpuLoad", original.getSystemCpuLoad(), mappedStatDataPoint.getSystemCpuLoad(), 0);
+        Assertions.assertEquals(original.getJvmCpuLoad(), mappedStatDataPoint.getJvmCpuLoad(), 0, "jvmCpuLoad");
+        Assertions.assertEquals(original.getSystemCpuLoad(), mappedStatDataPoint.getSystemCpuLoad(), 0, "systemCpuLoad");
     }
 
 }

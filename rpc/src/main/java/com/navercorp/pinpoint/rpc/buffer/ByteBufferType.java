@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.buffer;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -25,9 +27,7 @@ public enum ByteBufferType {
     DIRECT;
 
     public static ByteBufferType getValue(String name) {
-        if (name == null) {
-            throw new NullPointerException("name");
-        }
+        Objects.requireNonNull(name, "name");
 
         for (ByteBufferType byteBufferType : ByteBufferType.values()) {
             if (name.equalsIgnoreCase(byteBufferType.name())) {

@@ -71,7 +71,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
         this.excludeUrlFilter = config.getExcludeUrlFilter();
         this.excludeHttpMethodFilter = config.getExcludeHttpMethodFilter();
         this.requestAdaptor = new HttpRequestAdaptor(config);
-        this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(requestAdaptor);
         traceContext.cacheApi(AKKA_HTTP_SERVER_METHOD_DESCRIPTOR);
     }
 

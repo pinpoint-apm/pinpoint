@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.postgresql.interceptor;
 
-import java.util.Arrays;
-import java.util.Properties;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -27,8 +24,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.jdbc.postgresql.PostgreSqlConstants;
 
 /**
@@ -54,32 +53,19 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (args == null || args.length != 5) {
-            return;
-        }
+        final String url = toUrl(args);
 
-
-        Properties properties = getProperties(args[3]);
-
-        final String hostToConnectTo = properties.getProperty("PGHOST");
-        final Integer portToConnectTo = Integer.valueOf(properties.getProperty("PGPORT", DEFAULT_PORT));
-
-        final String databaseId = properties.getProperty("PGDBNAME");
-
-        // In case of loadbalance, connectUrl is modified.
-        // final String url = getString(args[4]);
-        DatabaseInfo databaseInfo = null;
-        if (hostToConnectTo != null && portToConnectTo != null && databaseId != null) {
-            // It's dangerous to use this url directly
-            databaseInfo = createDatabaseInfo(hostToConnectTo, portToConnectTo, databaseId);
-            if (InterceptorUtils.isSuccess(throwable)) {
-                // Set only if connection is success.
-                if (target instanceof DatabaseInfoAccessor) {
-                    ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
-                }
+        final JdbcContext jdbcContext = traceContext.getJdbcContext();
+        jdbcContext.parseJdbcUrl(PostgreSqlConstants.POSTGRESQL, url);
+        DatabaseInfo databaseInfo = jdbcContext.parseJdbcUrl(PostgreSqlConstants.POSTGRESQL, url);
+        // It's dangerous to use this url directly
+//            databaseInfo = createDatabaseInfo(hostToConnectTo, portToConnectTo, databaseId);
+        if (InterceptorUtils.isSuccess(throwable)) {
+            // Set only if connection is success.
+            if (target instanceof DatabaseInfoAccessor) {
+                ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
         }
-
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -92,25 +78,13 @@ public class PostgreSQLConnectionCreateInterceptor implements AroundInterceptor 
             recorder.recordEndPoint(databaseInfo.getMultipleHost());
             recorder.recordDestinationId(databaseInfo.getDatabaseId());
         }
-
-    }
-    
-    private DatabaseInfo createDatabaseInfo(String url, Integer port, String databaseId) {
-        if (url.indexOf(':') == -1) {
-            url += ":" + port;
-        }
-
-        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(PostgreSqlConstants.POSTGRESQL, PostgreSqlConstants.POSTGRESQL_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
-        return databaseInfo;
-
     }
 
-    private Properties getProperties(Object value) {
-        if (value instanceof Properties) {
-            return (Properties) value;
+    private String toUrl(final Object[] args) {
+        if (ArrayUtils.getLength(args) == 5) {
+            return ArrayArgumentUtils.getArgument(args, 4, String.class);
         }
-        // NPE defence empty properties
-        return new Properties();
+        return ArrayArgumentUtils.getArgument(args, 2, String.class);
     }
 
     @Override

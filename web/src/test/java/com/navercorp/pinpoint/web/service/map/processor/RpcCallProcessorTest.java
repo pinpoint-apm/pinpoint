@@ -17,20 +17,20 @@
 package com.navercorp.pinpoint.web.service.map.processor;
 
 import com.google.common.collect.Sets;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.VirtualLinkMarker;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Set;
@@ -39,16 +39,17 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.ALIAS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RpcCallProcessorTest {
 
-    private final Range testRange = new Range(System.currentTimeMillis(), System.currentTimeMillis());
+    private final Range testRange = Range.between(System.currentTimeMillis(), System.currentTimeMillis());
 
     @Mock
     private HostApplicationMapDao hostApplicationMapDao;
@@ -73,10 +74,10 @@ public class RpcCallProcessorTest {
 
         // Then
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
-        Assert.assertNotNull(replacedLinkDataMap.getLinkData(linkKey));
-        Assert.assertEquals(linkDataMap.size(), replacedLinkDataMap.size());
+        Assertions.assertNotNull(replacedLinkDataMap.getLinkData(linkKey));
+        Assertions.assertEquals(linkDataMap.size(), replacedLinkDataMap.size());
 
-        Assert.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -103,15 +104,15 @@ public class RpcCallProcessorTest {
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
-        Assert.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
+        Assertions.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
 
         LinkKey replacedLinkKey = new LinkKey(fromApplication, expectedToApplication);
         LinkData replacedLinkData = replacedLinkDataMap.getLinkData(replacedLinkKey);
-        Assert.assertNotNull(replacedLinkData);
-        Assert.assertEquals(fromApplication, replacedLinkData.getFromApplication());
-        Assert.assertEquals(expectedToApplication, replacedLinkData.getToApplication());
+        Assertions.assertNotNull(replacedLinkData);
+        Assertions.assertEquals(fromApplication, replacedLinkData.getFromApplication());
+        Assertions.assertEquals(expectedToApplication, replacedLinkData.getToApplication());
 
-        Assert.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -141,23 +142,23 @@ public class RpcCallProcessorTest {
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
-        Assert.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
+        Assertions.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
 
         LinkKey replacedLinkKey1 = new LinkKey(fromApplication, expectedToApplication1);
         LinkData replacedLinkData1 = replacedLinkDataMap.getLinkData(replacedLinkKey1);
-        Assert.assertNotNull(replacedLinkData1);
-        Assert.assertEquals(fromApplication, replacedLinkData1.getFromApplication());
-        Assert.assertEquals(expectedToApplication1, replacedLinkData1.getToApplication());
+        Assertions.assertNotNull(replacedLinkData1);
+        Assertions.assertEquals(fromApplication, replacedLinkData1.getFromApplication());
+        Assertions.assertEquals(expectedToApplication1, replacedLinkData1.getToApplication());
 
         LinkKey replacedLinkKey2 = new LinkKey(fromApplication, expectedToApplication2);
         LinkData replacedLinkData2 = replacedLinkDataMap.getLinkData(replacedLinkKey2);
-        Assert.assertNotNull(replacedLinkData2);
-        Assert.assertEquals(fromApplication, replacedLinkData2.getFromApplication());
-        Assert.assertEquals(expectedToApplication2, replacedLinkData2.getToApplication());
+        Assertions.assertNotNull(replacedLinkData2);
+        Assertions.assertEquals(fromApplication, replacedLinkData2.getFromApplication());
+        Assertions.assertEquals(expectedToApplication2, replacedLinkData2.getToApplication());
 
         Set<LinkData> virtualLinkDatas = virtualLinkMarker.getVirtualLinkData();
-        Assert.assertTrue(virtualLinkDatas.contains(replacedLinkData1));
-        Assert.assertTrue(virtualLinkDatas.contains(replacedLinkData2));
+        assertThat(virtualLinkDatas).contains(replacedLinkData1);
+        assertThat(virtualLinkDatas).contains(replacedLinkData2);
     }
 
     @Test
@@ -183,14 +184,14 @@ public class RpcCallProcessorTest {
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
-        Assert.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
+        Assertions.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
 
         LinkKey replacedLinkKey = new LinkKey(fromApplication, expectedToApplication);
         LinkData replacedLinkData = replacedLinkDataMap.getLinkData(replacedLinkKey);
-        Assert.assertEquals(fromApplication, replacedLinkData.getFromApplication());
-        Assert.assertEquals(expectedToApplication, replacedLinkData.getToApplication());
+        Assertions.assertEquals(fromApplication, replacedLinkData.getFromApplication());
+        Assertions.assertEquals(expectedToApplication, replacedLinkData.getToApplication());
 
-        Assert.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -217,10 +218,10 @@ public class RpcCallProcessorTest {
         // Then
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
         LinkData linkData = replacedLinkDataMap.getLinkData(linkKey);
-        Assert.assertEquals(fromApplication, linkData.getFromApplication());
-        Assert.assertEquals(toApplication, linkData.getToApplication());
+        Assertions.assertEquals(fromApplication, linkData.getFromApplication());
+        Assertions.assertEquals(toApplication, linkData.getToApplication());
 
-        Assert.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+        assertThat(virtualLinkMarker.getVirtualLinkData()).isEmpty();
     }
 
     @Test
@@ -254,13 +255,13 @@ public class RpcCallProcessorTest {
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
-        Assert.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
+        Assertions.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
 
         LinkKey replacedLinkKey2 = new LinkKey(fromApplication, expectedToApplication2);
         LinkData replacedLinkData2 = replacedLinkDataMap.getLinkData(replacedLinkKey2);
-        Assert.assertNotNull(replacedLinkData2);
-        Assert.assertEquals(fromApplication, replacedLinkData2.getFromApplication());
-        Assert.assertEquals(expectedToApplication2, replacedLinkData2.getToApplication());
+        Assertions.assertNotNull(replacedLinkData2);
+        Assertions.assertEquals(fromApplication, replacedLinkData2.getFromApplication());
+        Assertions.assertEquals(expectedToApplication2, replacedLinkData2.getToApplication());
 
     }
 }

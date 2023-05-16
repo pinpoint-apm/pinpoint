@@ -27,9 +27,6 @@ import org.springframework.stereotype.Component;
 public class GrpcMonitorInfoBoMapper {
 
     public MonitorInfoBo map(final PMonitorInfo monitorInfo) {
-        final MonitorInfoBo monitorInfoBo = new MonitorInfoBo();
-        monitorInfoBo.setStackDepth(monitorInfo.getStackDepth());
-        monitorInfoBo.setStackFrame(monitorInfo.getStackFrame());
-        return monitorInfoBo;
+        return new MonitorInfoBo(monitorInfo.getStackDepth(), monitorInfo.getStackFrame());
     }
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 
 /**
@@ -47,7 +48,7 @@ public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInte
     }
 
     private boolean isAsync(Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return false;
         }
         if (!(args[0] instanceof AsyncContextAccessor)) {
@@ -63,7 +64,7 @@ public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInte
         recorder.recordException(throwable);
 
         if (isAsync(args) && isAsync(result)) {
-            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
             if (asyncContext != null) {
                 ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {

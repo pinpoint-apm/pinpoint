@@ -17,10 +17,10 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,14 +36,14 @@ import java.util.jar.JarFile;
  */
 public class JarReader {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int BUFFER_SIZE = 1024 * 4;
 
     private final JarFile jarFile;
 
     public JarReader(JarFile jarFile) {
-        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
+        this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
     }
 
     public InputStream getInputStream(String name) throws IOException {
@@ -56,14 +56,12 @@ public class JarReader {
     }
 
     public List<FileBinary> read(JarEntryFilter jarEntryFilter) throws IOException{
-        if (jarEntryFilter == null) {
-            throw new NullPointerException("jarEntryFilter");
-        }
+        Objects.requireNonNull(jarEntryFilter, "jarEntryFilter");
 
         final BufferedContext bufferedContext = new BufferedContext();
 
         Enumeration<JarEntry> entries = jarFile.entries();
-        List<FileBinary> fileBinaryList = new ArrayList<FileBinary>();
+        List<FileBinary> fileBinaryList = new ArrayList<>();
         while (entries.hasMoreElements()) {
             final JarEntry jarEntry = entries.nextElement();
             if (jarEntryFilter.filter(jarEntry)) {

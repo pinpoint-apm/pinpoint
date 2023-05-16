@@ -17,17 +17,21 @@
 package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
+import java.util.Set;
 
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author HyunGil Jeong
  */
 public interface AgentEventService {
 
-    AgentEvent getAgentEvent(String agentId, long eventTimestamp, int eventTypeCode);
+    AgentEvent getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventTypeCode);
 
-    List<AgentEvent> getAgentEvents(String agentId, Range range, int... excludeEventTypeCodes);
+    List<AgentEvent> getAgentEvents(String agentId, Range range);
+
+    List<AgentEvent> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypeCodes);
 
 }

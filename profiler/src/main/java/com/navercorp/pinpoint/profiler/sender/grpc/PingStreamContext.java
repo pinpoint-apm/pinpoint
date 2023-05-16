@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.grpc.trace.PPing;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @author Woonduk Kang(emeroad)
  */
 public class PingStreamContext {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     // for debug
     private final StreamId streamId;
@@ -51,15 +51,15 @@ public class PingStreamContext {
     public PingStreamContext(AgentGrpc.AgentStub agentStub,
                              Reconnector reconnector,
                              ScheduledExecutorService retransmissionExecutor) {
-        Assert.requireNonNull(agentStub, "agentStub");
+        Objects.requireNonNull(agentStub, "agentStub");
 
         this.streamId = StreamId.newStreamId("PingStream");
 
+        this.reconnector = Objects.requireNonNull(reconnector, "reconnector");
+        this.retransmissionExecutor = Objects.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
+        // WARNING
         this.responseObserver = new PingClientResponseObserver();
         this.requestObserver = agentStub.pingSession(responseObserver);
-
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
-        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
     }
 
     private PPing newPing() {
@@ -84,10 +84,10 @@ public class PingStreamContext {
             if (statusError.isSimpleError()) {
                 logger.info("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage());
             } else {
-                logger.warn("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
+                logger.info("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
             }
             cancelPingScheduler();
-            reconnector.reconnect();
+            PingStreamContext.this.reconnector.reconnect();
         }
 
 
@@ -95,7 +95,7 @@ public class PingStreamContext {
         public void onCompleted() {
             logger.info("{} completed", streamId);
             cancelPingScheduler();
-            reconnector.reconnect();
+            PingStreamContext.this.reconnector.reconnect();
         }
 
         private void cancelPingScheduler() {
@@ -113,7 +113,7 @@ public class PingStreamContext {
                 @Override
                 public void run() {
                     logger.info("{} onReady", streamId);
-                    reconnector.reset();
+                    PingStreamContext.this.reconnector.reset();
 
                     final Runnable pingRunnable = new Runnable() {
                         @Override
@@ -127,7 +127,7 @@ public class PingStreamContext {
                 }
             });
         }
-    };
+    }
 
     private ScheduledFuture<?> schedule(Runnable command) {
         try {

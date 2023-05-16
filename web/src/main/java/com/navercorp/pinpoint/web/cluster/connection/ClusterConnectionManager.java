@@ -19,41 +19,46 @@ package com.navercorp.pinpoint.web.cluster.connection;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.cluster.ClusterId;
+import com.navercorp.pinpoint.web.config.WebClusterProperties;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class ClusterConnectionManager {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final WebConfig config;
+    private final WebClusterProperties properties;
 
     private ClusterAcceptor clusterAcceptor;
     private ClusterConnector clusterConnector;
 
-    public ClusterConnectionManager(WebConfig config) {
-        this.config = config;
+    public ClusterConnectionManager(WebClusterProperties properties) {
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
-    public void start() throws InterruptedException, IOException, KeeperException {
+    public void start() {
         logger.info("start() started.");
 
-        int bindPort = config.getClusterTcpPort();
+        String hostAddress = properties.getHostAddress();
+        int bindPort = properties.getClusterTcpPort();
         if (bindPort > 0) {
-            clusterAcceptor = new ClusterAcceptor(getRepresentationLocalV4Ip(), bindPort);
+            if (StringUtils.isEmpty(hostAddress)) {
+                hostAddress = getRepresentationLocalV4Ip();
+            }
+
+            clusterAcceptor = new ClusterAcceptor(hostAddress, bindPort);
             clusterAcceptor.start();
         }
 
-        final String clusterConnectAddress = config.getClusterConnectAddress();
+        final String clusterConnectAddress = properties.getClusterConnectAddress();
         if (StringUtils.isNotBlank(clusterConnectAddress)) {
             clusterConnector = new ClusterConnector(clusterConnectAddress);
             clusterConnector.start();
@@ -96,13 +101,16 @@ public class ClusterConnectionManager {
         return NetUtils.LOOPBACK_ADDRESS_V4;
     }
 
-    public PinpointSocket getSocket(String clusterId) {
+    public PinpointSocket getSocket(ClusterId clusterId) {
+        Objects.requireNonNull(clusterId, "clusterId");
+
         if (clusterAcceptor != null) {
             List<PinpointSocket> clusterList = clusterAcceptor.getClusterSocketList();
             for (PinpointSocket cluster : clusterList) {
                 ClusterOption remoteClusterOption = cluster.getRemoteClusterOption();
+                logger.debug("clusterAcceptor clusterId:{} remoteClusterOption:{}", clusterId, remoteClusterOption);
                 if (remoteClusterOption != null) {
-                    if (clusterId.equals(remoteClusterOption.getId())) {
+                    if (clusterId.getCollectorId().equals(remoteClusterOption.getId())) {
                         return cluster;
                     }
                 }
@@ -113,8 +121,9 @@ public class ClusterConnectionManager {
             List<PinpointSocket> clusterList = clusterConnector.getClusterSocketList();
             for (PinpointSocket cluster : clusterList) {
                 ClusterOption remoteClusterOption = cluster.getRemoteClusterOption();
+                logger.debug("clusterConnector clusterId:{} remoteClusterOption:{}", clusterId, remoteClusterOption);
                 if (remoteClusterOption != null) {
-                    if (clusterId.equals(remoteClusterOption.getId())) {
+                    if (clusterId.getCollectorId().equals(remoteClusterOption.getId())) {
                         return cluster;
                     }
                 }

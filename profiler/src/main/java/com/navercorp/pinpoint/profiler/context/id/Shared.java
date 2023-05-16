@@ -47,7 +47,9 @@ public interface Shared {
 
     int getStatusCode();
 
-    void maskExceptionFlag(boolean flag);
+    boolean setUriTemplate(String uriTemplate);
 
-    boolean isException();
+    boolean setUriTemplate(String uriTemplate, boolean force);
+
+    String getUriTemplate();
 }

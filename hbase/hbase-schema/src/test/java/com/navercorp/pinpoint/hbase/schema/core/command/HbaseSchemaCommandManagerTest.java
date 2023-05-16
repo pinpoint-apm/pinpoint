@@ -30,19 +30,15 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.TableConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -62,7 +58,7 @@ public class HbaseSchemaCommandManagerTest {
         String tableName = "table1";
         HTableDescriptor sameNamespaceHtd = createHtd(namespace, tableName, "CF1");
         HTableDescriptor differentNamespaceHtd = createHtd(differentNamespace, tableName, "CF1");
-        List<HTableDescriptor> htds = Arrays.asList(sameNamespaceHtd, differentNamespaceHtd);
+        List<HTableDescriptor> htds = List.of(sameNamespaceHtd, differentNamespaceHtd);
         HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, htds);
 
         ColumnFamilyChange createColumnFamilyChange = newColumnFamilyChange("CF2");
@@ -71,35 +67,40 @@ public class HbaseSchemaCommandManagerTest {
         manager.applyChangeSet(modifyTableChangeSet);
 
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot, contains(sameNamespaceHtd));
-        assertThat(schemaSnapshot, not(contains(differentNamespaceHtd)));
+        assertThat(schemaSnapshot)
+                .contains(sameNamespaceHtd)
+                .doesNotContain(differentNamespaceHtd);
     }
 
-    @Test(expected = InvalidHbaseSchemaException.class)
+    @Test
     public void creatingExistingTableShouldFail() {
-        String namespace = "namespace";
-        String tableName = "table";
-        HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
-        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
+        Assertions.assertThrows(InvalidHbaseSchemaException.class, () -> {
+            String namespace = "namespace";
+            String tableName = "table";
+            HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
+            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, List.of(existingTable));
 
-        TableChange createTableChange = newTableChange(ChangeType.CREATE, tableName);
-        ChangeSet createTableChangeSet = newChangeSet(createTableChange);
+            TableChange createTableChange = newTableChange(ChangeType.CREATE, tableName);
+            ChangeSet createTableChangeSet = newChangeSet(createTableChange);
 
-        manager.applyChangeSet(createTableChangeSet);
+            manager.applyChangeSet(createTableChangeSet);
+        });
     }
 
-    @Test(expected = InvalidHbaseSchemaException.class)
+    @Test
     public void modifyingNonExistingTableShouldFail() {
-        String namespace = "namespace";
-        String tableName = "table";
-        String nonExistingTableName = "anotherTable";
-        HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
-        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(existingTable));
+        Assertions.assertThrows(InvalidHbaseSchemaException.class, () -> {
+            String namespace = "namespace";
+            String tableName = "table";
+            String nonExistingTableName = "anotherTable";
+            HTableDescriptor existingTable = createHtd(namespace, tableName, "CF");
+            HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, List.of(existingTable));
 
-        TableChange modifyTableChange = newTableChange(ChangeType.MODIFY, nonExistingTableName);
-        ChangeSet modifyTableChangeSet = newChangeSet(modifyTableChange);
+            TableChange modifyTableChange = newTableChange(ChangeType.MODIFY, nonExistingTableName);
+            ChangeSet modifyTableChangeSet = newChangeSet(modifyTableChange);
 
-        manager.applyChangeSet(modifyTableChangeSet);
+            manager.applyChangeSet(modifyTableChangeSet);
+        });
     }
 
     @Test
@@ -123,7 +124,7 @@ public class HbaseSchemaCommandManagerTest {
             fail("Expected an InvalidHbaseSchemaException to be thrown");
         } catch (InvalidHbaseSchemaException expected) {
             List<HTableDescriptor> currentSnapshot = manager.getSchemaSnapshot();
-            assertThat(currentSnapshot, equalTo(initialSnapshot));
+            assertThat(currentSnapshot).isEqualTo(initialSnapshot);
         }
 
         // create existing table
@@ -134,7 +135,7 @@ public class HbaseSchemaCommandManagerTest {
             fail("Expected an InvalidHbaseSchemaException to be thrown");
         } catch (InvalidHbaseSchemaException expected) {
             List<HTableDescriptor> currentSnapshot = manager.getSchemaSnapshot();
-            assertThat(currentSnapshot, equalTo(initialSnapshot));
+            assertThat(currentSnapshot).isEqualTo(initialSnapshot);
         }
 
         // create existing column family
@@ -146,7 +147,7 @@ public class HbaseSchemaCommandManagerTest {
             fail("Expected an InvalidHbaseSchemaException to be thrown");
         } catch (InvalidHbaseSchemaException expected) {
             List<HTableDescriptor> currentSnapshot = manager.getSchemaSnapshot();
-            assertThat(currentSnapshot, equalTo(initialSnapshot));
+            assertThat(currentSnapshot).isEqualTo(initialSnapshot);
         }
     }
 
@@ -159,7 +160,7 @@ public class HbaseSchemaCommandManagerTest {
         String newColumnFamily2 = "CF2";
 
         HTableDescriptor existingHtd = createHtd(namespace, tableName, existingColumnFamily);
-        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, Arrays.asList(new HTableDescriptor(existingHtd)));
+        HbaseSchemaCommandManager manager = new HbaseSchemaCommandManager(namespace, null, List.of(new HTableDescriptor(existingHtd)));
 
         ChangeSet createColumnFamilyChangeSet1 = newChangeSet(newTableChange(ChangeType.MODIFY, tableName, newColumnFamilyChange(newColumnFamily1)));
         ChangeSet createColumnFamilyChangeSet2 = newChangeSet(newTableChange(ChangeType.MODIFY, tableName, newColumnFamilyChange(newColumnFamily2)));
@@ -168,11 +169,11 @@ public class HbaseSchemaCommandManagerTest {
 
         // verify schema snapshot
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot.size(), is(1));
+        assertThat(schemaSnapshot).hasSize(1);
         HTableDescriptor snapshotTable = schemaSnapshot.get(0);
-        assertThat(snapshotTable.getTableName(), is(TableName.valueOf(namespace, tableName)));
+        assertThat(snapshotTable.getTableName()).isEqualTo(TableName.valueOf(namespace, tableName));
         List<String> snapshotColumnFamilies = snapshotTable.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
-        assertThat(snapshotColumnFamilies, contains(existingColumnFamily, newColumnFamily1, newColumnFamily2));
+        assertThat(snapshotColumnFamilies).contains(existingColumnFamily, newColumnFamily1, newColumnFamily2);
 
         // verify command - should add 2 column families
         HbaseAdminOperation mockHbaseAdminOperation = Mockito.mock(HbaseAdminOperation.class);
@@ -206,11 +207,11 @@ public class HbaseSchemaCommandManagerTest {
 
         // verify schema snapshot
         List<HTableDescriptor> schemaSnapshot = manager.getSchemaSnapshot();
-        assertThat(schemaSnapshot.size(), is(1));
+        assertThat(schemaSnapshot).hasSize(1);
         HTableDescriptor snapshotTable = schemaSnapshot.get(0);
-        assertThat(snapshotTable.getTableName(), is(TableName.valueOf(namespace, tableName)));
+        assertThat(snapshotTable.getTableName()).isEqualTo(TableName.valueOf(namespace, tableName));
         List<String> snapshotColumnFamilies = snapshotTable.getFamilies().stream().map(HColumnDescriptor::getNameAsString).collect(Collectors.toList());
-        assertThat(snapshotColumnFamilies, contains(columnFamily1, columnFamily2, columnFamily3));
+        assertThat(snapshotColumnFamilies).contains(columnFamily1, columnFamily2, columnFamily3);
 
         // verify command - should create 1 table (with all 3 column families)
         HbaseAdminOperation mockHbaseAdminOperation = Mockito.mock(HbaseAdminOperation.class);
@@ -219,7 +220,7 @@ public class HbaseSchemaCommandManagerTest {
         for (TableCommand tableCommand : manager.getCommands()) {
             tableCommand.execute(mockHbaseAdminOperation);
         }
-        verify(mockHbaseAdminOperation, times(1)).createTable(any(HTableDescriptor.class));
+        verify(mockHbaseAdminOperation).createTable(any(HTableDescriptor.class));
     }
 
     private ColumnFamilyChange newColumnFamilyChange(String cfName) {
@@ -227,7 +228,7 @@ public class HbaseSchemaCommandManagerTest {
     }
 
     private TableChange newTableChange(ChangeType changeType, String tableName, ColumnFamilyChange... cfChanges) {
-        List<ColumnFamilyChange> columnFamilyChanges = Arrays.asList(cfChanges);
+        List<ColumnFamilyChange> columnFamilyChanges = List.of(cfChanges);
         switch (changeType) {
             case CREATE:
                 return new CreateTableChange(tableName, TableConfiguration.EMPTY_CONFIGURATION, columnFamilyChanges, CreateTableChange.SplitOption.NONE);
@@ -239,7 +240,7 @@ public class HbaseSchemaCommandManagerTest {
     }
 
     private ChangeSet newChangeSet(TableChange... tableChanges) {
-        return new ChangeSet("id", "value", Arrays.asList(tableChanges));
+        return new ChangeSet("id", "value", List.of(tableChanges));
     }
 
     private HTableDescriptor createHtd(String namespace, String tableQualifier, String... columnFamilyNames) {

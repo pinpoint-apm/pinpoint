@@ -15,20 +15,17 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoEncoder;
+import com.navercorp.pinpoint.web.util.SecurityContextUtils;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoEncoder;
 import com.navercorp.pinpoint.web.vo.User;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,11 +77,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<User> searchUser(String condition) {
+        List<User> userList = userDao.searchUser(condition);
+        return userInfoDecoder.decodeUserInfoList(userList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public User selectUserByUserId(String userId) {
         User user = userDao.selectUserByUserId(userId);
         return userInfoDecoder.decodeUserInfo(user);
     }
-
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> selectUserByUserGroupId(String userGroupId) {
+        List<User> userList = userDao.selectUserByUserGroupId(userGroupId);
+        return userInfoDecoder.decodeUserInfoList(userList);
+    }
+    
     @Override
     @Transactional(readOnly = true)
     public List<User> selectUserByUserName(String userName) {
@@ -119,11 +130,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public String getUserIdFromSecurity() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            return (String)authentication.getPrincipal();
-        }
-
-        return EMPTY;
+        return SecurityContextUtils.defaultStringPrincipal(EMPTY);
     }
 }

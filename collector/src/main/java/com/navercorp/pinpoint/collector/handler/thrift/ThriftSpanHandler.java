@@ -19,39 +19,48 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-
+import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.thrift.dto.TSpan;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author emeroad
  * @author netspider
  */
 @Service
-public class ThriftSpanHandler implements SimpleHandler {
+public class ThriftSpanHandler implements SimpleHandler<TBase<?, ?>> {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final TraceService traceService;
 
+    private final AcceptedTimeService acceptedTimeService;
+    private final SpanEventFilter spanEventFilter;
     private final SpanFactory spanFactory;
 
-    public ThriftSpanHandler(TraceService traceService, SpanFactory spanFactory) {
+    public ThriftSpanHandler(TraceService traceService,
+                             AcceptedTimeService acceptedTimeService,
+                             Optional<SpanEventFilter> spanEventFilter,
+                             SpanFactory spanFactory) {
         this.traceService = Objects.requireNonNull(traceService, "traceService");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.spanEventFilter = spanEventFilter.orElseGet(EmptySpanEventFilter::new);
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
+        final TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle simple data={}", data);
         }
@@ -65,7 +74,8 @@ public class ThriftSpanHandler implements SimpleHandler {
 
     private void handleSpan(TSpan tSpan) {
         try {
-            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
+            long acceptedTime = acceptedTimeService.getAcceptedTime();
+            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan, acceptedTime, spanEventFilter);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
             logger.warn("Failed to handle Span={}, Caused:{}", tSpan, e.getMessage(), e);

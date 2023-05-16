@@ -16,21 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -41,7 +41,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     // memory leak defense threshold
     private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     // oom safe cache
@@ -57,13 +57,12 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     }
 
     public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector, int maxActiveTraceSize) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
+        this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
         this.activeTraceInfoMap = createCache(maxActiveTraceSize);
     }
 
     private ConcurrentMap<ActiveTraceHandle, ActiveTrace> createCache(int maxActiveTraceSize) {
-        final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        cacheBuilder.concurrencyLevel(64);
+        final Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
         cacheBuilder.initialCapacity(maxActiveTraceSize);
         cacheBuilder.maximumSize(maxActiveTraceSize);
 
@@ -83,39 +82,20 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
         }
     }
 
-    @Override
-    public ActiveTraceHandle register(TraceRoot traceRoot) {
-        final ActiveTrace activeTrace = newSampledActiveTrace(traceRoot);
-        return register0(activeTrace);
-    }
 
-    private ActiveTrace newSampledActiveTrace(TraceRoot traceRoot) {
-        return new SampledActiveTrace(traceRoot);
-    }
 
     @Override
-    public ActiveTraceHandle register(long localTransactionId, long startTime, long threadId) {
-        final ActiveTrace activeTrace = newUnsampledActiveTrace(localTransactionId, startTime, threadId);
-        return register0(activeTrace);
-    }
-
-    private ActiveTrace newUnsampledActiveTrace(long localTransactionId, long startTime, long threadId) {
-        return new UnsampledActiveTrace(localTransactionId, startTime, threadId);
-    }
-
-    private ActiveTraceHandle register0(ActiveTrace activeTrace) {
+    public ActiveTraceHandle register(LocalTraceRoot localTraceRoot) {
         if (isDebug) {
-            logger.debug("register ActiveTrace key:{}", activeTrace);
+            logger.debug("register ActiveTrace key:{}", localTraceRoot);
         }
 
-        final long id = activeTrace.getId();
+        final long id = localTraceRoot.getLocalTransactionId();
+
         final ActiveTraceHandle handle = new DefaultActiveTraceHandle(id);
-        final ActiveTrace old = this.activeTraceInfoMap.put(handle, activeTrace);
-        if (old != null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("old activeTrace exist:{}", old);
-            }
-        }
+
+        this.activeTraceInfoMap.computeIfAbsent(handle, activeTraceHandle -> new DefaultActiveTrace(localTraceRoot));
+
         return handle;
     }
 
@@ -127,7 +107,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
             return Collections.emptyList();
         }
         final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
-        final List<ActiveTraceSnapshot> collectData = new ArrayList<ActiveTraceSnapshot>(activeTraceCollection.size());
+        final List<ActiveTraceSnapshot> collectData = new ArrayList<>(activeTraceCollection.size());
 
         for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();
@@ -152,7 +132,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
             return Collections.emptyList();
         }
         final Collection<ActiveTrace> activeTraceCollection = this.activeTraceInfoMap.values();
-        final List<Long> collectData = new ArrayList<Long>(activeTraceCollection.size());
+        final List<Long> collectData = new ArrayList<>(activeTraceCollection.size());
 
         for (ActiveTrace trace : activeTraceCollection) {
             final long startTime = trace.getStartTime();

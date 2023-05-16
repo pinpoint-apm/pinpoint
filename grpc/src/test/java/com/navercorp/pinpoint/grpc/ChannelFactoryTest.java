@@ -18,11 +18,12 @@ package com.navercorp.pinpoint.grpc;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
@@ -32,27 +33,17 @@ import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.ManagedChannel;
-import io.grpc.MethodDescriptor;
-import io.grpc.NameResolverProvider;
-import io.grpc.Server;
-import io.grpc.ServerInterceptor;
-import io.grpc.ServerTransportFilter;
-import io.grpc.Status;
+import io.grpc.*;
 import io.grpc.internal.PinpointDnsNameResolverProvider;
 import io.grpc.stub.StreamObserver;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+import javax.net.ssl.SSLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,7 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ChannelFactoryTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChannelFactoryTest.class);
+    private static final Logger logger = LogManager.getLogger(ChannelFactoryTest.class);
 
     public static final int PORT = 30211;
 
@@ -78,7 +69,7 @@ public class ChannelFactoryTest {
     private static ExecutorService dnsExecutorService;
     private static NameResolverProvider nameResolverProvider;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         dnsExecutorService = newCachedExecutorService("dnsExecutor");
         nameResolverProvider = new PinpointDnsNameResolverProvider("dnsExecutor", dnsExecutorService);
@@ -88,9 +79,9 @@ public class ChannelFactoryTest {
         server.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
-        if (server != null ) {
+        if (server != null) {
             server.shutdownNow();
             server.awaitTermination();
             serverFactory.close();
@@ -103,7 +94,7 @@ public class ChannelFactoryTest {
     @Test
     public void build() throws InterruptedException {
 
-        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "appName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "agentName", "appName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 
@@ -111,7 +102,7 @@ public class ChannelFactoryTest {
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryBuilder.addClientInterceptor(countRecordClientInterceptor);
-        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+        channelFactoryBuilder.setClientOption(new ClientOption());
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         ManagedChannel managedChannel = channelFactory.build("127.0.0.1", PORT);
@@ -119,7 +110,7 @@ public class ChannelFactoryTest {
 
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
 
-        final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<Empty>();
+        final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<>();
 
         logger.debug("sendSpan");
         StreamObserver<PSpanMessage> sendSpan = spanStub.sendSpan(responseObserver);
@@ -136,7 +127,7 @@ public class ChannelFactoryTest {
         logger.debug("client-onCompleted");
         sendSpan.onCompleted();
 
-        Assert.assertTrue(countRecordClientInterceptor.getExecutedInterceptCallCount() == 1);
+        Assertions.assertEquals(1, countRecordClientInterceptor.getExecutedInterceptCallCount());
 
         logger.debug("state:{}", managedChannel.getState(true));
         spanService.awaitOnCompleted();
@@ -160,10 +151,10 @@ public class ChannelFactoryTest {
     }
 
 
-    private static Server serverStart(ExecutorService executorService) throws IOException {
+    private static Server serverStart(ExecutorService executorService) throws SSLException {
         logger.debug("server start");
 
-        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, new ServerOption.Builder().build());
+        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, null, ServerOption.newBuilder().build());
         spanService = new SpanService();
 
         serverFactory.addService(spanService);
@@ -184,7 +175,7 @@ public class ChannelFactoryTest {
     }
 
     static class SpanService extends SpanGrpc.SpanImplBase {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final CountDownLatch onCompletedLatch;
 
@@ -199,10 +190,10 @@ public class ChannelFactoryTest {
                 public void onNext(PSpanMessage value) {
                     Header header = ServerContext.getAgentInfo();
 
-                    logger.debug("server-onNext:{} header:{}" , value, header);
+                    logger.debug("server-onNext:{} header:{}", value, header);
                     logger.debug("server-threadName:{}", Thread.currentThread().getName());
 
-                    logger.debug("server-onNext: send Empty" );
+                    logger.debug("server-onNext: send Empty");
                     Empty.Builder builder = Empty.newBuilder();
                     responseObserver.onNext(builder.build());
                 }

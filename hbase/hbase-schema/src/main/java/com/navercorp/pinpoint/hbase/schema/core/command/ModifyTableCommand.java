@@ -22,8 +22,8 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.io.compress.Compression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * This command is solely for adding new column families to an existing table.
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ModifyTableCommand extends TableCommand {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     ModifyTableCommand(HTableDescriptor htd, Compression.Algorithm compressionAlgorithm) {
         super(htd, compressionAlgorithm);

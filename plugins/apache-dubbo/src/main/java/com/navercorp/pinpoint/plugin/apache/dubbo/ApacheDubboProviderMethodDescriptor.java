@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.plugin.apache.dubbo;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * @author K
  */
 public class ApacheDubboProviderMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = MethodType.WEB_REQUEST;
 
     @Override
     public String getMethodName() {
@@ -53,7 +53,7 @@ public class ApacheDubboProviderMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -78,6 +78,6 @@ public class ApacheDubboProviderMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getType() {
-        return this.type;
+        return MethodType.WEB_REQUEST;
     }
 }

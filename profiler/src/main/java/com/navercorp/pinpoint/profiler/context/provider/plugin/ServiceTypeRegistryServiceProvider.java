@@ -21,7 +21,8 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,7 +33,7 @@ public class ServiceTypeRegistryServiceProvider implements Provider<ServiceTypeR
 
     @Inject
     public ServiceTypeRegistryServiceProvider(TraceMetadataLoaderService traceMetadataLoaderService) {
-        this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService");
+        this.traceMetadataLoaderService = Objects.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService");
     }
 
     @Override

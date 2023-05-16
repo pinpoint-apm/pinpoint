@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatDataPointFactory;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class UnsignedIntegerEncodingStrategyTest extends EncodingStrategyTestBas
 
     @Override
     protected List<EncodingStrategy<Integer>> getEncodingStrategies() {
-        return Arrays.<EncodingStrategy<Integer>>asList(UnsignedIntegerEncodingStrategy.values());
+        return List.of(UnsignedIntegerEncodingStrategy.values());
     }
 
     @Override
@@ -47,10 +46,10 @@ public class UnsignedIntegerEncodingStrategyTest extends EncodingStrategyTestBas
         int actualRepeatCountEncodedSize = bufferSizes.get(UnsignedIntegerEncodingStrategy.REPEAT_COUNT);
         int actualDeltaEncodedSize = bufferSizes.get(UnsignedIntegerEncodingStrategy.DELTA);
         int actualDeltaOfDeltaEncodedSize = bufferSizes.get(UnsignedIntegerEncodingStrategy.DELTA_OF_DELTA);
-        Assert.assertEquals(actualValueEncodedSize, builder.getByteSizeValue());
-        Assert.assertEquals(actualRepeatCountEncodedSize, builder.getByteSizeRepeatCount());
-        Assert.assertEquals(actualDeltaEncodedSize, builder.getByteSizeDelta());
-        Assert.assertEquals(actualDeltaOfDeltaEncodedSize, builder.getByteSizeDeltaOfDelta());
+        Assertions.assertEquals(actualValueEncodedSize, builder.getByteSizeValue());
+        Assertions.assertEquals(actualRepeatCountEncodedSize, builder.getByteSizeRepeatCount());
+        Assertions.assertEquals(actualDeltaEncodedSize, builder.getByteSizeDelta());
+        Assertions.assertEquals(actualDeltaOfDeltaEncodedSize, builder.getByteSizeDeltaOfDelta());
     }
 
     @Test
@@ -66,6 +65,7 @@ public class UnsignedIntegerEncodingStrategyTest extends EncodingStrategyTestBas
         int maxValue = 1000000;
         testValues(minValue, maxValue);
     }
+
     @Test
     public void test_large_values() {
         int minValue = 1000000;

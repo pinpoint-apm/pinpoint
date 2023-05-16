@@ -19,31 +19,47 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
-import com.navercorp.pinpoint.grpc.client.ClientOption;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
-import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
+import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadCountService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadDumpService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcActiveThreadLightDumpService;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcEchoService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
+import io.netty.handler.ssl.SslContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 
 /**
  * @author jaehong.kim
  */
-public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<Object>> {
+public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final GrpcTransportConfig grpcTransportConfig;
-    private final MessageConverter<GeneratedMessageV3> messageConverter;
+    private final MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
 
     private final Provider<ReconnectExecutor> reconnectExecutorProvider;
@@ -52,40 +68,65 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private final NameResolverProvider nameResolverProvider;
     private final ActiveTraceRepository activeTraceRepository;
 
+    private List<ClientInterceptor> clientInterceptorList;
+    private final Provider<SslContext> sslContextProvider;
+
     @Inject
     public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
-                                       @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter,
+                                       @MetadataDataSender MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
                                        HeaderFactory headerFactory,
                                        Provider<ReconnectExecutor> reconnectExecutor,
                                        ScheduledExecutorService retransmissionExecutor,
                                        NameResolverProvider nameResolverProvider,
-                                       ActiveTraceRepository activeTraceRepository) {
-        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
+                                       ActiveTraceRepository activeTraceRepository,
+                                       Provider<SslContext> sslContextProvider) {
+        this.grpcTransportConfig = Objects.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
 
-        this.reconnectExecutorProvider = Assert.requireNonNull(reconnectExecutor, "reconnectExecutorProvider");
-        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
+        this.reconnectExecutorProvider = Objects.requireNonNull(reconnectExecutor, "reconnectExecutorProvider");
+        this.retransmissionExecutor = Objects.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
 
 
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        this.nameResolverProvider = Objects.requireNonNull(nameResolverProvider, "nameResolverProvider");
+        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
+
+        this.sslContextProvider = Objects.requireNonNull(sslContextProvider, "sslContextProvider");
+    }
+
+    @Inject(optional = true)
+    public void setClientInterceptor(@AgentDataSender List<ClientInterceptor> clientInterceptorList) {
+        this.clientInterceptorList = Objects.requireNonNull(clientInterceptorList, "clientInterceptorList");
     }
 
     @Override
-    public EnhancedDataSender get() {
+    public EnhancedDataSender<MetaDataType> get() {
         final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
         final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
+        final boolean sslEnable = grpcTransportConfig.isAgentSslEnable();
         final int senderExecutorQueueSize = grpcTransportConfig.getAgentSenderExecutorQueueSize();
 
-        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
+        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder(sslEnable);
         ChannelFactory channelFactory = channelFactoryBuilder.build();
 
-        final  ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
-        return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, activeTraceRepository);
+        final ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
+
+        final ProfilerCommandServiceLocator profilerCommandServiceLocator = createProfilerCommandServiceLocator(activeTraceRepository);
+
+        MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = this.messageConverter;
+        return newAgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter,
+                channelFactory, reconnectExecutor, retransmissionExecutor, profilerCommandServiceLocator);
     }
 
-    ChannelFactoryBuilder newChannelFactoryBuilder() {
+    protected EnhancedDataSender<MetaDataType> newAgentGrpcDataSender(String collectorIp, int collectorPort, int senderExecutorQueueSize,
+                                                                MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter,
+                                                                ChannelFactory channelFactory, ReconnectExecutor reconnectExecutor,
+                                                                ScheduledExecutorService retransmissionExecutor,
+                                                                ProfilerCommandServiceLocator profilerCommandServiceLocator) {
+        return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, channelFactory, profilerCommandServiceLocator);
+    }
+
+    ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {
         final int channelExecutorQueueSize = grpcTransportConfig.getAgentChannelExecutorQueueSize();
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getAgentRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getAgentClientOption();
@@ -94,8 +135,34 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        if (clientInterceptorList != null) {
+            for (ClientInterceptor clientInterceptor : clientInterceptorList) {
+                logger.info("addClientInterceptor:{}", clientInterceptor);
+                channelFactoryBuilder.addClientInterceptor(clientInterceptor);
+            }
+        }
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
+
+        if (sslEnable) {
+            SslContext sslContext = sslContextProvider.get();
+            channelFactoryBuilder.setSslContext(sslContext);
+        }
+
         return channelFactoryBuilder;
+    }
+
+    private ProfilerCommandServiceLocator createProfilerCommandServiceLocator(ActiveTraceRepository activeTraceRepository) {
+        ProfilerCommandLocatorBuilder profilerCommandLocatorBuilder = new ProfilerCommandLocatorBuilder();
+
+        profilerCommandLocatorBuilder.addService(new GrpcEchoService());
+        if (activeTraceRepository != null) {
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(activeTraceRepository));
+        }
+
+        final ProfilerCommandServiceLocator commandServiceLocator = profilerCommandLocatorBuilder.build();
+        return commandServiceLocator;
     }
 }

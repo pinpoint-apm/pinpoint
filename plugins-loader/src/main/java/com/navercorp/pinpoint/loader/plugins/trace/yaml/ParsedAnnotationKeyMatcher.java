@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.loader.plugins.trace.yaml;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -50,7 +51,7 @@ public class ParsedAnnotationKeyMatcher {
             throw new IllegalArgumentException("matcher type must not be empty");
         }
         if (type.equalsIgnoreCase("exact")) {
-            Assert.requireNonNull(code, "code must not be null for matcher type 'exact'");
+            Objects.requireNonNull(code, "code must not be null for matcher type 'exact'");
             return AnnotationKeyMatchers.exact(code);
         } else if (type.equalsIgnoreCase("args")) {
             return AnnotationKeyMatchers.ARGS_MATCHER;

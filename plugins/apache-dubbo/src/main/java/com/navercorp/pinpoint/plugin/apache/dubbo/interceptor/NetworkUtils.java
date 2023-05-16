@@ -56,7 +56,7 @@ public final class NetworkUtils {
                     Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
                     while (addresses.hasMoreElements()) {
                         InetAddress ip = addresses.nextElement();
-                        if (ip != null && ip instanceof Inet4Address && !ip.isLoopbackAddress()) {
+                        if (ip instanceof Inet4Address && !ip.isLoopbackAddress()) {
                             final String hostAddress = ip.getHostAddress();
                             if (hostAddress.indexOf(':') == -1) {
                                 // TODO We do not seem to understand this problem exactly.

@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.hbase.manager.hbase.ReadOnlyHbaseSchemaChangeLogDa
 import com.navercorp.pinpoint.hbase.schema.dao.SchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.HbaseSchemaChangeLogDao;
 import com.navercorp.pinpoint.hbase.schema.dao.hbase.codec.SchemaChangeLogCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +41,7 @@ import javax.annotation.PostConstruct;
 @ConditionalOnProperty(value = ProgramOptions.DRY_RUN)
 public class DryConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(DryConfig.class);
+    private final Logger logger = LogManager.getLogger(DryConfig.class);
 
     @PostConstruct
     public void init() {

@@ -15,81 +15,52 @@
  */
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.google.common.collect.ImmutableMap;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDoubleFieldBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author minwoo.jung
  */
-public class ApplicationCpuLoadChart implements StatChart {
+public class ApplicationCpuLoadChart extends DefaultApplicationChart<AggreJoinCpuLoadBo, Double> {
 
-    private final ApplicationCpuLoadChartGroup cpuLoadChartGroup;
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
+            = new DoubleApplicationStatPoint.UncollectedCreator(JoinCpuLoadBo.UNCOLLECTED_VALUE);
 
-    public ApplicationCpuLoadChart(TimeWindow timeWindow, List<AggreJoinCpuLoadBo> aggreJoinCpuLoadBoList) {
-        this.cpuLoadChartGroup = new ApplicationCpuLoadChartGroup(timeWindow, aggreJoinCpuLoadBoList);
+    private static final ChartGroupBuilder<AggreJoinCpuLoadBo, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+
+    public enum CpuLoadChartType implements StatChartGroup.ApplicationChartType {
+        CPU_LOAD_JVM,
+        CPU_LOAD_SYSTEM
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return cpuLoadChartGroup;
+    static ChartGroupBuilder<AggreJoinCpuLoadBo, ApplicationStatPoint<Double>> newChartBuilder() {
+        ChartGroupBuilder<AggreJoinCpuLoadBo, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        builder.addPointFunction(CpuLoadChartType.CPU_LOAD_JVM, ApplicationCpuLoadChart::newJvmCpu);
+        builder.addPointFunction(CpuLoadChartType.CPU_LOAD_SYSTEM, ApplicationCpuLoadChart::newSystemCpu);
+        return builder;
     }
 
-    public static class ApplicationCpuLoadChartGroup implements StatChartGroup {
-
-        private static final CpuLoadPoint.UncollectedCpuLoadPointCreator UNCOLLECTED_CPULOAD_POINT = new CpuLoadPoint.UncollectedCpuLoadPointCreator();
-
-        private final TimeWindow timeWindow;
-        private final Map<ChartType, Chart<? extends Point>> cpuLoadChartMap;
-
-        public enum CpuLoadChartType implements ApplicationChartType {
-            CPU_LOAD_JVM,
-            CPU_LOAD_SYSTEM
-        }
-
-        public ApplicationCpuLoadChartGroup(TimeWindow timeWindow, List<AggreJoinCpuLoadBo> aggreCpuLoadList) {
-            this.timeWindow = timeWindow;
-            this.cpuLoadChartMap = newChart(aggreCpuLoadList);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinCpuLoadBo> aggreCpuLoadList) {
-            Chart<CpuLoadPoint> jvmCpuLoadChart = newChart(aggreCpuLoadList, this::newJvmCpu);
-            Chart<CpuLoadPoint> systemCpuLoadChart = newChart(aggreCpuLoadList, this::newSystemCpu);
-            return ImmutableMap.of(CpuLoadChartType.CPU_LOAD_JVM, jvmCpuLoadChart, CpuLoadChartType.CPU_LOAD_SYSTEM, systemCpuLoadChart);
-        }
-
-        private Chart<CpuLoadPoint> newChart(List<AggreJoinCpuLoadBo> cpuLoadList, Function<AggreJoinCpuLoadBo, CpuLoadPoint> filter) {
-
-            TimeSeriesChartBuilder<CpuLoadPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_CPULOAD_POINT);
-            return builder.build(cpuLoadList, filter);
-        }
-
-        private CpuLoadPoint newSystemCpu(AggreJoinCpuLoadBo cpuLoad) {
-            return new CpuLoadPoint(cpuLoad.getTimestamp(), cpuLoad.getMinSystemCpuLoad(), cpuLoad.getMinSysCpuAgentId(), cpuLoad.getMaxSystemCpuLoad(), cpuLoad.getMaxSysCpuAgentId(), cpuLoad.getSystemCpuLoad());
-        }
-
-        private CpuLoadPoint newJvmCpu(AggreJoinCpuLoadBo cpuLoad) {
-            return new CpuLoadPoint(cpuLoad.getTimestamp(), cpuLoad.getMinJvmCpuLoad(), cpuLoad.getMinJvmCpuAgentId(), cpuLoad.getMaxJvmCpuLoad(), cpuLoad.getMaxJvmCpuAgentId(), cpuLoad.getJvmCpuLoad());
-        }
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.cpuLoadChartMap;
-        }
+    public ApplicationCpuLoadChart(TimeWindow timeWindow, List<AggreJoinCpuLoadBo> appStatList) {
+        super(timeWindow, appStatList, BUILDER);
     }
+
+    private static ApplicationStatPoint<Double> newSystemCpu(AggreJoinCpuLoadBo statBo) {
+        JoinDoubleFieldBo point = statBo.getSystemCpuLoadJoinValue();
+        long timestamp = statBo.getTimestamp();
+        return StatPointUtils.toDoubleStatPoint(timestamp, point);
+    }
+
+    private static ApplicationStatPoint<Double> newJvmCpu(AggreJoinCpuLoadBo statBo) {
+        JoinDoubleFieldBo point = statBo.getJvmCpuLoadJoinValue();
+        long timestamp = statBo.getTimestamp();
+        return StatPointUtils.toDoubleStatPoint(timestamp, point);
+    }
+
 }

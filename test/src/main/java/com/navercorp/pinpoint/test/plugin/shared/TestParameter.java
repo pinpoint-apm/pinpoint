@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TestParameter {
     private final String testId;
-    private final String testMavenDependencies;
+    private final List<String> testMavenDependencies;
 
-    public TestParameter(String testId, String testMavenDependencies) {
+    public TestParameter(String testId, List<String> testMavenDependencies) {
         this.testId = testId;
         this.testMavenDependencies = testMavenDependencies;
     }
@@ -32,7 +34,7 @@ public class TestParameter {
         return testId;
     }
 
-    public String getMavenDependencies() {
+    public List<String> getMavenDependencies() {
         return testMavenDependencies;
     }
 

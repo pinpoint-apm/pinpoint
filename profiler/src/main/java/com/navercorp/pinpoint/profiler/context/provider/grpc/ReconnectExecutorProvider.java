@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -31,7 +31,7 @@ public class ReconnectExecutorProvider implements Provider<ReconnectExecutor> {
 
     @Inject
     public ReconnectExecutorProvider(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
+        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
     }
 
     @Override

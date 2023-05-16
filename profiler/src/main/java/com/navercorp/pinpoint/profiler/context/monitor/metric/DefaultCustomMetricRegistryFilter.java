@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetric;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
-import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -30,29 +29,26 @@ import java.util.List;
 public class DefaultCustomMetricRegistryFilter implements CustomMetricRegistryFilter {
 
     // default
-    private static final AllowedSource<LongCounter> NETTY_USED_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/usedDirectMemory", LongCounter.class);
-    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/maxDirectMemory ", LongCounter.class);
+    private static final AllowedSource<LongCounter> NETTY_USED_DIRECT_MEMORY = new AllowedSource<>("custom/netty/usedDirectMemory", LongCounter.class);
+    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<>("custom/netty/maxDirectMemory ", LongCounter.class);
 
-    private final List<AllowedSource> allowedSourceList;
+    private final AllowedSource<? extends CustomMetric>[] allowedSourceList;
 
     public DefaultCustomMetricRegistryFilter() {
-        List<AllowedSource> allowedSourceList = new ArrayList<AllowedSource>();
-        allowedSourceList.add(NETTY_USED_DIRECT_MEMORY);
-        allowedSourceList.add(NETTY_MAX_DIRECT_MEMORY);
-
-        this.allowedSourceList = Collections.unmodifiableList(allowedSourceList);
+        this(Arrays.asList(NETTY_USED_DIRECT_MEMORY, NETTY_MAX_DIRECT_MEMORY));
     }
 
-    public DefaultCustomMetricRegistryFilter(List<AllowedSource> allowedSourceList) {
-        Assert.requireNonNull(allowedSourceList, "allowedSourceList");
-        this.allowedSourceList = Collections.unmodifiableList(allowedSourceList);
+    @SuppressWarnings("unchecked")
+    public DefaultCustomMetricRegistryFilter(List<AllowedSource<? extends CustomMetric>> allowedSourceList) {
+        Objects.requireNonNull(allowedSourceList, "allowedSourceList");
+        this.allowedSourceList = allowedSourceList.toArray(new AllowedSource[0]);
     }
 
     @Override
     public boolean filter(CustomMetric value) {
-        Assert.requireNonNull(value, "value");
+        Objects.requireNonNull(value, "value");
 
-        for (AllowedSource allowedSource : allowedSourceList) {
+        for (AllowedSource<? extends CustomMetric> allowedSource : allowedSourceList) {
             if (contains(allowedSource, value)) {
                 return NOT_FILTERED;
             }
@@ -61,7 +57,7 @@ public class DefaultCustomMetricRegistryFilter implements CustomMetricRegistryFi
     }
 
 
-    private boolean contains(AllowedSource allowedSource, CustomMetric value) {
+    private boolean contains(AllowedSource<? extends CustomMetric> allowedSource, CustomMetric value) {
         if (!allowedSource.getMetricName().equals(value.getName())) {
             return false;
         }
@@ -77,8 +73,8 @@ public class DefaultCustomMetricRegistryFilter implements CustomMetricRegistryFi
         private final Class<T> metricClazz;
 
         public AllowedSource(String metricName, Class<T> metricClazz) {
-            this.metricName = Assert.requireNonNull(metricName, "metricName");
-            this.metricClazz = Assert.requireNonNull(metricClazz, "metricClazz");
+            this.metricName = Objects.requireNonNull(metricName, "metricName");
+            this.metricClazz = Objects.requireNonNull(metricClazz, "metricClazz");
         }
 
         public String getMetricName() {

@@ -16,15 +16,18 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.web.service.stat.ChartTypeSupport;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public interface SampledAgentStatDao<S extends SampledAgentStatDataPoint> {
+@Repository
+public interface SampledAgentStatDao<S extends SampledAgentStatDataPoint> extends ChartTypeSupport {
 
     List<S> getSampledAgentStatList(String agentId, TimeWindow timeWindow);
 }

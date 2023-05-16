@@ -1,0 +1,49 @@
+### save from, to variable
+GET http://localhost:8080/serverTime
+Accept: application/json
+content-type: application/json
+
+> {%
+   client.global.set("from", JSON.parse(JSON.stringify(response.body))['currentServerTime'])
+   client.global.set("to", JSON.parse(JSON.stringify(response.body))['currentServerTime'] + 100000)
+%}
+
+
+### LongMetric, w/o tags
+GET http://{{host}}/systemMetric/list.pinpoint
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
+    &metricName=mem&fieldName=used
+    &from={{from}}&to={{to}}
+Accept: application/json
+
+### LongMetric, w/o tags
+GET http://{{host}}/systemMetric/list.pinpoint
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
+    &metricName=mem&fieldName=free
+    &from={{from}}&to={{to}}
+Accept: application/json
+
+
+### DoubleMetric, w/o tags
+GET http://{{host}}/systemMetric/list.pinpoint
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
+    &metricName=cpu&fieldName=usage_user
+    &from={{from}}&to={{to}}
+Accept: application/json
+
+### DoubleMetric, with tags
+GET http://{{host}}/systemMetric/list.pinpoint
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
+    &metricName=cpu&fieldName=usage_user&tags=cpu:cpu0
+    &from={{from}}&to={{to}}
+Accept: application/json
+
+### No Such Metric
+GET http://{{host}}/systemMetric/list.pinpoint
+    ?hostGroupName={{hostGroupName}}&hostName={{metric-host}}
+    &metricName=mem&fieldName=freer
+    &from={{from}}&to={{to}}
+Accept: application/json
+
+###
+

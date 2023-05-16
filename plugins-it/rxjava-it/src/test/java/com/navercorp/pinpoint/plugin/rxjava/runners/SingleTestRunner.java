@@ -45,7 +45,7 @@ public class SingleTestRunner {
 
     public void single() throws Exception {
         final String message = "Hello World";
-        final AtomicReference<String> actualMessage = new AtomicReference<String>();
+        final AtomicReference<String> actualMessage = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
         Subscription subscription = echoService.echo(message)
@@ -84,7 +84,7 @@ public class SingleTestRunner {
     public void singleError() throws Exception {
         final String message = "Hello World";
         final Exception expected = new RuntimeException("expected");
-        final AtomicReference<Exception> actual = new AtomicReference<Exception>();
+        final AtomicReference<Exception> actual = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         Subscription subscription = echoService.echo(message, expected)
                 .subscribeOn(Schedulers.computation())

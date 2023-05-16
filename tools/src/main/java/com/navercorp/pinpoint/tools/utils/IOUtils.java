@@ -36,7 +36,7 @@ public final class IOUtils {
         if (socket != null) {
             try {
                 socket.close();
-            } catch (IOException ignore) {
+            } catch (IOException ignored) {
                 // skip
             }
         }

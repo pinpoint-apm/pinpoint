@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
@@ -29,31 +30,31 @@ import java.util.Properties;
 public class PropertiesVerificationTest {
 
     private static final String LOCAL_HOST = "localhost";
-    private static final String HBASE_CLIENT_HOST_VALUE =  "${pinpoint.zookeeper.address}";
+    private static final String HBASE_CLIENT_HOST_VALUE = "${pinpoint.zookeeper.address}";
 
     @Test
     public void checkHbasePropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase-root.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
-        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
+        Assertions.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
 
         String clientPort = properties.getProperty("hbase.client.port");
-        Assert.assertEquals("2181", clientPort);
+        Assertions.assertEquals("2181", clientPort);
     }
 
     @Test
     public void checkWebPropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-web.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-web-root.properties");
 
         String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
-        Assert.assertEquals(LOCAL_HOST, pinpointZKAddress);
+        Assertions.assertEquals(LOCAL_HOST, pinpointZKAddress);
 
         String zookeeperAddress = properties.getProperty("cluster.zookeeper.address");
-        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
+        Assertions.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
 
         String connectAddress = properties.getProperty("cluster.connect.address");
-        Assert.assertTrue(StringUtils.isEmpty(connectAddress));
+        assertThat(connectAddress).isNullOrEmpty();
     }
 
 }

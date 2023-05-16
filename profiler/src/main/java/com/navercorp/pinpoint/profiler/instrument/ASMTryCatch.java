@@ -20,7 +20,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 /**
@@ -36,7 +35,7 @@ public class ASMTryCatch {
 
         final TryCatchBlockNode tryCatchBlockNode = new TryCatchBlockNode(this.startLabelNode, this.endLabelNode, this.endLabelNode, "java/lang/Throwable");
         if (this.methodNode.tryCatchBlocks == null) {
-            this.methodNode.tryCatchBlocks = new ArrayList<TryCatchBlockNode>();
+            this.methodNode.tryCatchBlocks = new ArrayList<>();
         }
         this.methodNode.tryCatchBlocks.add(tryCatchBlockNode);
     }
@@ -54,10 +53,10 @@ public class ASMTryCatch {
             return;
         }
 
-        Collections.sort(this.methodNode.tryCatchBlocks, new Comparator<TryCatchBlockNode>() {
+        this.methodNode.tryCatchBlocks.sort(new Comparator<TryCatchBlockNode>() {
             @Override
             public int compare(TryCatchBlockNode o1, TryCatchBlockNode o2) {
-                return blockLength(o1) - blockLength(o2);
+                return Integer.compare(blockLength(o1), blockLength(o2));
             }
 
             private int blockLength(TryCatchBlockNode block) {

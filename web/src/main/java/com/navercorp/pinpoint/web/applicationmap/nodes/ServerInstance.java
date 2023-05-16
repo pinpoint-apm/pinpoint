@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 
 import java.util.Objects;
 
@@ -38,34 +39,39 @@ public class ServerInstance {
     private final String ip;
 
     private final String name;
-    private final short serviceTypeCode;
+    private final String agentName;
+    private final ServiceType serviceType;
 
     private final ServerType serverType;
 
-    @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
     private final AgentLifeCycleState status;
 
-    public ServerInstance(AgentInfo agentInfo) {
-        Objects.requireNonNull(agentInfo, "agentInfo");
 
+    public ServerInstance(AgentInfo agentInfo, AgentStatus agentStatus) {
+        Objects.requireNonNull(agentInfo, "agentInfo");
         this.hostName = agentInfo.getHostName();
         this.ip = agentInfo.getIp();
         this.name = agentInfo.getAgentId();
-        this.serviceTypeCode = agentInfo.getServiceTypeCode();
-        AgentStatus agentStatus = agentInfo.getStatus();
-        if (agentStatus != null) {
-            this.status = agentStatus.getState();
-        } else {
-            this.status = AgentLifeCycleState.UNKNOWN;
-        }
+        this.agentName = agentInfo.getAgentName();
+        this.serviceType = agentInfo.getServiceType();
+        this.status = getAgentLifeCycleState(agentStatus);
         this.serverType = ServerType.Physical;
     }
 
-    public ServerInstance(String hostName, String physicalName, short serviceTypeCode) {
+    private AgentLifeCycleState getAgentLifeCycleState(AgentStatus agentStatus) {
+        if (agentStatus != null) {
+            return agentStatus.getState();
+        } else {
+            return AgentLifeCycleState.UNKNOWN;
+        }
+    }
+
+    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.ip = null;
+        this.agentName = null;
         this.name = Objects.requireNonNull(physicalName, "physicalName");
-        this.serviceTypeCode = serviceTypeCode;
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.status = AgentLifeCycleState.UNKNOWN;
         this.serverType = ServerType.Logical;
     }
@@ -78,11 +84,18 @@ public class ServerInstance {
         return name;
     }
 
-
-    public short getServiceTypeCode() {
-        return serviceTypeCode;
+    public String getAgentName() {
+        return agentName;
     }
 
+    public short getServiceTypeCode() {
+        return serviceType.getCode();
+    }
+
+    @JsonIgnore
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
 
     public AgentLifeCycleState getStatus() {
         return status;
@@ -96,6 +109,7 @@ public class ServerInstance {
         return ip;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,17 +117,14 @@ public class ServerInstance {
 
         ServerInstance that = (ServerInstance) o;
 
-        if (serviceTypeCode != that.serviceTypeCode) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return serverType == that.serverType;
-
+        return serviceType != null ? serviceType.equals(that.serviceType) : that.serviceType == null;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (int) serviceTypeCode;
-        result = 31 * result + (serverType != null ? serverType.hashCode() : 0);
+        result = 31 * result + (serviceType != null ? serviceType.hashCode() : 0);
         return result;
     }
 

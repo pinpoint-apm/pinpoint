@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -35,14 +35,18 @@ import java.util.Set;
  */
 public class ServerBuilder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AgentHistogramList agentHistogramList;
-    private final Set<AgentInfo> agentSet;
+    private final AgentHistogramList agentHistogramList = new AgentHistogramList();
+    private final Set<AgentAndStatus> agentSet = new HashSet<>();
+    private final HyperLinkFactory hyperLinkFactory;
 
     public ServerBuilder() {
-        this.agentHistogramList = new AgentHistogramList();
-        this.agentSet = new HashSet<>();
+        this.hyperLinkFactory = HyperLinkFactory.empty();
+    }
+
+    public ServerBuilder(HyperLinkFactory hyperLinkFactory) {
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {
@@ -52,19 +56,13 @@ public class ServerBuilder {
         this.agentHistogramList.addAgentHistogram(agentHistogramList);
     }
 
-    public void addAgentInfo(Set<AgentInfo> agentInfo) {
+    public void addAgentInfo(Set<AgentAndStatus> agentInfo) {
         if (agentInfo == null) {
             return;
         }
         this.agentSet.addAll(agentInfo);
     }
 
-    public void addServerInstance(ServerBuilder copy) {
-        Objects.requireNonNull(copy, "copy");
-
-        addCallHistogramList(copy.agentHistogramList);
-        addAgentInfo(copy.agentSet);
-    }
 
     private String getHostName(String instanceName) {
         final int pos = instanceName.indexOf(':');
@@ -80,30 +78,31 @@ public class ServerBuilder {
      *
      * @param hostHistogram
      */
-    public ServerInstanceList buildLogicalServer(final AgentHistogramList hostHistogram) {
-        ServerInstanceList serverInstanceList = new ServerInstanceList();
+    public ServerGroupList buildLogicalServer(final AgentHistogramList hostHistogram) {
+        ServerGroupList.Builder builder = ServerGroupList.newBuilder(hyperLinkFactory);
+
         for (AgentHistogram agentHistogram : hostHistogram.getAgentHistogramList()) {
             final String instanceName = agentHistogram.getId();
             final String hostName = getHostName(agentHistogram.getId());
             final ServiceType serviceType = agentHistogram.getServiceType();
 
-            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType.getCode());
-            serverInstanceList.addServerInstance(serverInstance);
+            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType);
+
+            builder.addServerInstance(serverInstance);
         }
-        return serverInstanceList;
+        return builder.build();
     }
 
-    public ServerInstanceList buildPhysicalServer(final Set<AgentInfo> agentSet) {
-        final ServerInstanceList serverInstanceList = new ServerInstanceList();
-        for (AgentInfo agent : agentSet) {
-            final ServerInstance serverInstance = new ServerInstance(agent);
-            serverInstanceList.addServerInstance(serverInstance);
-
+    public ServerGroupList buildPhysicalServer(final Set<AgentAndStatus> agentSet) {
+        final ServerGroupList.Builder builder = ServerGroupList.newBuilder(hyperLinkFactory);
+        for (AgentAndStatus agentAndStatus : agentSet) {
+            final ServerInstance serverInstance = new ServerInstance(agentAndStatus.getAgentInfo(), agentAndStatus.getStatus());
+            builder.addServerInstance(serverInstance);
         }
-        return serverInstanceList;
+        return builder.build();
     }
 
-    public ServerInstanceList build() {
+    public ServerGroupList build() {
         if (!agentSet.isEmpty()) {
             // if agent name exists (physical server exists)
             this.logger.debug("buildPhysicalServer:{}", agentSet);

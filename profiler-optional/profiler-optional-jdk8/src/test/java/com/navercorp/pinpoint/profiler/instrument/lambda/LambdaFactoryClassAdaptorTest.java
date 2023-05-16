@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
 import com.navercorp.pinpoint.common.util.IOUtils;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import java.io.InputStream;
  */
 public class LambdaFactoryClassAdaptorTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test

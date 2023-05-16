@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.thrift.descriptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * @author HyunGil Jeong
@@ -25,8 +26,7 @@ import com.navercorp.pinpoint.common.trace.MethodType;
 public class ThriftAsyncClientMethodDescriptor implements MethodDescriptor {
     
     private int apiId = 0;
-    private int type = MethodType.INVOCATION;
-    
+
     @Override
     public String getMethodName() {
         return "";
@@ -54,7 +54,7 @@ public class ThriftAsyncClientMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -79,11 +79,7 @@ public class ThriftAsyncClientMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getType() {
-        return this.type;
-    }
-    
-    public void setType(int type) {
-        this.type = type;
+        return MethodType.INVOCATION;
     }
 
 }

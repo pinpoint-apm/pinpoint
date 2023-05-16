@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exception.PinpointException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -30,7 +30,7 @@ import java.lang.reflect.Constructor;
 public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
 
     private static final String DEFAULT_MODULE_FACTORY = ApplicationContextModuleFactory.class.getName();
-    private final Logger logger = LoggerFactory.getLogger(DefaultModuleFactoryResolver.class);
+    private final Logger logger = LogManager.getLogger(DefaultModuleFactoryResolver.class);
 
     private final String moduleFactoryClazzName;
 
@@ -55,10 +55,7 @@ public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
         if (StringUtils.isEmpty(moduleFactoryClazzName)) {
             return true;
         }
-        if (DEFAULT_MODULE_FACTORY.equals(moduleFactoryClazzName)) {
-            return true;
-        }
-        return false;
+        return DEFAULT_MODULE_FACTORY.equals(moduleFactoryClazzName);
     }
 
     @Override
@@ -81,7 +78,7 @@ public class DefaultModuleFactoryResolver implements ModuleFactoryResolver {
     }
 
     private ClassLoader getClassLoader(ClassLoader classLoader) {
-        return Assert.requireNonNull(classLoader, "can't find classLoader");
+        return Objects.requireNonNull(classLoader, "can't find classLoader");
     }
 
 }

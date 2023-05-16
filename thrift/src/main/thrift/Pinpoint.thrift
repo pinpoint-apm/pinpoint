@@ -48,6 +48,7 @@ struct TAgentInfo {
     30: optional TJvmInfo   jvmInfo
 
     40: optional bool container = false
+    50: optional string	agentName
 }
 
 struct TJvmGc {
@@ -128,6 +129,7 @@ struct TAgentStat {
     80: optional TFileDescriptor fileDescriptor
     90: optional TDirectBuffer directBuffer
     100: optional TTotalThreadCount totalThreadCount
+    110: optional TLoadedClass loadedClass
     200: optional string    metadata
 }
 
@@ -156,4 +158,9 @@ struct TFileDescriptor {
 
 struct TTotalThreadCount {
     1: i64                      totalThreadCount
+}
+
+struct TLoadedClass {
+    1: i64                      loadedClassCount
+    2: i64                      unloadedClassCount
 }

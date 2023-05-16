@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterExtractor;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import io.vertx.core.http.HttpServerRequest;
 
 /**
@@ -32,8 +32,8 @@ public class MethodFilterExtractor implements ParameterExtractor<HttpServerReque
     private final ParameterExtractor<HttpServerRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<HttpServerRequest> delegate) {
-        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.excludeProfileMethodFilter = Objects.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

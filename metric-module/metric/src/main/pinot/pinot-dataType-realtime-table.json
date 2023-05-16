@@ -1,0 +1,39 @@
+{
+  "tableName": "systemMetricDataType",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "timeColumnName": "saveTime",
+    "timeType": "MILLISECONDS",
+    "schemaName": "systemMetricDataType",
+    "replicasPerPartition": "3",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "70"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["metricName"],
+    "loadMode": "MMAP",
+    "nullHandlingEnabled": true,
+    "streamConfigs": {
+      "streamType": "kafka",
+      "stream.kafka.consumer.type": "lowlevel",
+      "stream.kafka.topic.name": "system-metric-data-type",
+      "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+      "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+      "stream.kafka.broker.list": "localhost:19092",
+      "realtime.segment.flush.threshold.rows": "0",
+      "realtime.segment.flush.threshold.time": "24h",
+      "realtime.segment.flush.threshold.segment.size": "64M",
+      "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
+    }
+  },
+  "metadata": {
+    "customConfigs": {}
+  },
+  "routing": {
+    "instanceSelectorType": "strictReplicaGroup"
+  },
+  "upsertConfig": {
+    "mode": "FULL"
+  }
+}

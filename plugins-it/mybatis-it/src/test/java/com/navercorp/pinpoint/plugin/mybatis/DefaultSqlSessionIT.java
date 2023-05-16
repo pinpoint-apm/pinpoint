@@ -18,20 +18,23 @@ package com.navercorp.pinpoint.plugin.mybatis;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -42,7 +45,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "org.mybatis:mybatis:[3.0.3,)", "org.mockito:mockito-all:1.8.4" })
+@Dependency({ "org.mybatis:mybatis:[3.0.3,)", "org.mockito:mockito-core:4.8.1" })
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mybatis-plugin")
 public class DefaultSqlSessionIT extends SqlSessionTestBase {
 
@@ -53,12 +56,23 @@ public class DefaultSqlSessionIT extends SqlSessionTestBase {
     private ObjectFactory objectFactory;
 
     @Mock
+    private MappedStatement mappedStatement;
+
+    @Mock
     private Executor executor;
 
+    private AutoCloseable openMocks;
+
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() {
+        openMocks = MockitoAnnotations.openMocks(this);
         when(this.configuration.getObjectFactory()).thenReturn(this.objectFactory);
+        when(this.configuration.getMappedStatement(anyString())).thenReturn(mappedStatement);
+    }
+
+    @AfterEach
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     @Override

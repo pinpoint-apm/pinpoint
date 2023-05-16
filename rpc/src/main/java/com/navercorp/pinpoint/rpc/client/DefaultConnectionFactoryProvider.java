@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.util.Timer;
@@ -29,7 +29,7 @@ public class DefaultConnectionFactoryProvider implements ConnectionFactoryProvid
     private final PipelineFactory pipelineFactory;
 
     public DefaultConnectionFactoryProvider(PipelineFactory pipelineFactory) {
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
+        this.pipelineFactory = Objects.requireNonNull(pipelineFactory, "pipelineFactory");
     }
 
     @Override

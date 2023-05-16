@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.resttemplate;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
@@ -29,24 +29,24 @@ import java.util.Properties;
 public class RestTemplateConfigTest {
 
     @Test
-    public void configTest1() throws Exception {
+    public void configTest1() {
         RestTemplateConfig config = createRestTemplateConfig("true");
 
-        Assert.assertTrue(config.isPluginEnable());
+        Assertions.assertTrue(config.isPluginEnable());
     }
 
     @Test
-    public void configTest2() throws Exception {
+    public void configTest2() {
         RestTemplateConfig config = createRestTemplateConfig("false");
 
-        Assert.assertFalse(config.isPluginEnable());
+        Assertions.assertFalse(config.isPluginEnable());
     }
 
     private RestTemplateConfig createRestTemplateConfig(String pluginEnable) {
         Properties properties = new Properties();
         properties.put(RestTemplateConfig.PLUGIN_ENABLE, pluginEnable);
 
-        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
 
         return new RestTemplateConfig(profilerConfig);
     }

@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
  * @author emeroad
  */
 public class FixedBuffer implements Buffer {
-    protected static final int NULL = -1;
     protected byte[] buffer;
     protected int offset;
 
@@ -331,11 +330,6 @@ public class FixedBuffer implements Buffer {
         return BytesUtils.zigzagToInt(readVInt());
     }
 
-    @Deprecated
-    public int readSVarInt() {
-        return readSVInt();
-    }
-
     @Override
     public short readShort() {
         final short i = BytesUtils.bytesToShort(buffer, offset);
@@ -537,18 +531,23 @@ public class FixedBuffer implements Buffer {
     }
 
 
-    private String readString(final int size) {
+    protected String readString(final int size) {
         final String s = newString(size);
         this.offset = offset + size;
         return s;
     }
 
-    private String newString(final int size) {
+    protected String newString(final int size) {
         try {
             return new String(buffer, offset, size, UTF8);
         } catch (UnsupportedEncodingException ue) {
             return new String(buffer, offset, size, UTF8_CHARSET);
         }
+    }
+
+    @Override
+    public void setByte(int offset, byte value) {
+        this.buffer[offset] = value;
     }
 
     /**

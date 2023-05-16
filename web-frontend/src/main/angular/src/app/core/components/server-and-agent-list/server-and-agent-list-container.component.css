@@ -1,0 +1,110 @@
+:host {
+    display: block;
+    height: calc(100% - 40px); /* 40px: title height */
+}
+
+.guide-text {
+    font-size: 14px;
+    padding: 7px 13px;
+}
+
+.error-text {
+    color: var(--status-fail);
+}
+
+.search-section-wrapper {
+    display: flex;
+    height: 48px;
+    align-items: center;
+    width: 100%;
+    padding: 10px 11px 8px 11px;
+    gap: 7px;
+}
+
+.list-wrapper {
+    width: 100%;
+    position: relative;
+    height: calc(100% - 48px - 32px); /* search area(48px) + sort area(32px) */
+}
+
+.sort-option-wrapper {
+    display: flex;
+    align-items: center;;
+    width: 100%;
+    height: 32px;
+    padding: 0px 15px 8px;
+    border-bottom: 1px solid var(--border-primary);
+    gap: 2px;
+}
+
+.sort-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.sort-option-list-wrapper {
+    flex: 1;
+    display: flex;
+    /* gap: 5px; */
+}
+
+.sort-option {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 3px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.sort-option:hover {
+    /* background: var(--background-hover-default); */
+    /* font-weight: bold; */
+    color: var(--primary);
+}
+
+.sort-option.active {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.search-input-wrapper {
+    flex: 1;
+    height: 100%;
+    color: var(--text-primary-lightest);
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--form-input-border);
+    background-color: var(--background-default);
+    padding: 0 28px 0 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.search-input:focus {
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 1px 1px var(--primary);
+    outline: none;
+}
+
+.search-input-wrapper .fa-search {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    color: var(--icon-default);
+    font-size: 18px;
+}
+
+::placeholder {
+    font-size: 12px;
+}
+
+.fas {
+    color: var(--icon-default);
+    font-size: 18px;
+}

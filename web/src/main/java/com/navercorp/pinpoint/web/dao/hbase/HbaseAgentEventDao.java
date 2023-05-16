@@ -18,19 +18,16 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
@@ -38,8 +35,8 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -55,21 +52,26 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private static final int SCANNER_CACHE_SIZE = 20;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final HbaseColumnFamily.AgentEvent DESCRIPTOR = HbaseColumnFamily.AGENT_EVENT_EVENTS;
 
     private final HbaseOperations2 hbaseOperations2;
+
+    private final TableNameProvider tableNameProvider;
 
     private final RowMapper<List<AgentEventBo>> agentEventMapper;
 
     private final ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor;
 
-    private final TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
+    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
-    public HbaseAgentEventDao(HbaseOperations2 hbaseOperations2, TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor,
+    public HbaseAgentEventDao(HbaseOperations2 hbaseOperations2,
+                              TableNameProvider tableNameProvider,
                               @Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper,
                               ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor) {
         this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
         this.agentEventResultsExtractor = Objects.requireNonNull(agentEventResultsExtractor, "agentEventResultsExtractor");
     }
@@ -83,11 +85,11 @@ public class HbaseAgentEventDao implements AgentEventDao {
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHE_SIZE);
 
-        scan.setStartRow(createRowKey(agentId, range.getTo()));
-        scan.setStopRow(createRowKey(agentId, range.getFrom()));
-        scan.addFamily(descriptor.getColumnFamilyName());
+        scan.withStartRow(createRowKey(agentId, range.getTo()));
+        scan.withStopRow(createRowKey(agentId, range.getFrom()));
+        scan.addFamily(DESCRIPTOR.getName());
 
-        if (!CollectionUtils.isEmpty(excludeEventTypes)) {
+        if (CollectionUtils.hasLength(excludeEventTypes)) {
             FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
             for (AgentEventType excludeEventType : excludeEventTypes) {
                 byte[] excludeQualifier = Bytes.toBytes(excludeEventType.getCode());
@@ -96,7 +98,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
             scan.setFilter(filterList);
         }
 
-        TableName agentEventTableName = descriptor.getTableName();
+        TableName agentEventTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<AgentEventBo> agentEvents = this.hbaseOperations2.find(agentEventTableName, scan, agentEventResultsExtractor);
         logger.debug("agentEvents found. {}", agentEvents);
         return agentEvents;
@@ -113,9 +115,9 @@ public class HbaseAgentEventDao implements AgentEventDao {
         final byte[] rowKey = createRowKey(agentId, eventTimestamp);
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
-        TableName agentEventTableName = descriptor.getTableName();
+        TableName agentEventTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<AgentEventBo> events = this.hbaseOperations2.get(agentEventTableName, rowKey,
-                descriptor.getColumnFamilyName(), qualifier, this.agentEventMapper);
+                DESCRIPTOR.getName(), qualifier, this.agentEventMapper);
         if (CollectionUtils.isEmpty(events)) {
             return null;
         }
@@ -123,9 +125,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     }
 
     private byte[] createRowKey(String agentId, long timestamp) {
-        byte[] agentIdKey = BytesUtils.toBytes(agentId);
-        long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
-        return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseTimestamp);
+        return rowKeyEncoder.encodeRowKey(agentId, timestamp);
     }
 
 

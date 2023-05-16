@@ -1,0 +1,15 @@
+serviceTypes:
+  - code: 1300
+    name: 'C_CPP'
+    property:
+      recordStatistics: true
+  - code: 1301
+    name: 'C_CPP_METHOD'
+    matcher:
+      type: 'args'
+  - code: 9800
+    name: 'C_CPP_REMOTE_METHOD'
+    property:
+      recordStatistics: true
+    matcher:
+      type: 'args'

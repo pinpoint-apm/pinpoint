@@ -35,7 +35,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -60,6 +59,13 @@ public class ASMMethodVariables {
     private static final Type DOUBLE_TYPE = Type.getObjectType("java/lang/Double");
 
     private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+
+    private static final Comparator<LocalVariableNode> INDEX_COMPARATOR = new Comparator<LocalVariableNode>() {
+        @Override
+        public int compare(LocalVariableNode o1, LocalVariableNode o2) {
+            return Integer.compare(o1.index, o2.index);
+        }
+    };
 
     private final LabelNode interceptorVariableStartLabelNode = new LabelNode();
     private final LabelNode interceptorVariableEndLabelNode = new LabelNode();
@@ -147,12 +153,7 @@ public class ASMMethodVariables {
         }
 
         // sort by index.
-        Collections.sort(localVariableNodes, new Comparator<LocalVariableNode>() {
-            @Override
-            public int compare(LocalVariableNode o1, LocalVariableNode o2) {
-                return o1.index - o2.index;
-            }
-        });
+        localVariableNodes.sort(INDEX_COMPARATOR);
         String[] names = new String[this.argumentTypes.length];
 
         for (int i = 0; i < this.argumentTypes.length; i++) {
@@ -386,10 +387,10 @@ public class ASMMethodVariables {
     int getInterceptorParameterCount(final InterceptorDefinition interceptorDefinition) {
         if (interceptorDefinition.getBeforeMethod() != null) {
             // skip this.
-            return interceptorDefinition.getBeforeMethod().getParameterTypes().length - 1;
+            return interceptorDefinition.getBeforeMethod().getParameterCount() - 1;
         } else if (interceptorDefinition.getAfterMethod() != null) {
             // skip this, result, throwable.
-            return interceptorDefinition.getAfterMethod().getParameterTypes().length - 3;
+            return interceptorDefinition.getAfterMethod().getParameterCount() - 3;
         }
 
         return 0;

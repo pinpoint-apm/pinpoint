@@ -15,12 +15,13 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
@@ -35,21 +36,23 @@ public class DefaultInternalClassMetadataTest {
         // super
         assertEquals("java/lang/Object", classMetadata.getSuperClassInternalName());
         // interfaces
-        assertTrue(classMetadata.getInterfaceInternalNames().contains("java/lang/Comparable"));
-        assertTrue(classMetadata.getInterfaceInternalNames().contains("java/lang/Serializable"));
+
+        assertThat(classMetadata.getInterfaceInternalNames())
+                .contains("java/lang/Comparable")
+                .contains("java/lang/Serializable");
         // annotation
-        assertEquals(0, classMetadata.getAnnotationInternalNames().size());
+        assertThat(classMetadata.getAnnotationInternalNames()).isEmpty();
     }
 
     @Test
-    public void interfaceNamesNull() throws Exception {
+    public void interfaceNamesNull() {
         DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", null, Collections.<String>emptyList(), false, false, false, false);
-        assertEquals(0, classMetadata.getInterfaceInternalNames().size());
+        assertThat(classMetadata.getInterfaceInternalNames()).isEmpty();
     }
 
     @Test
-    public void annotationNamesNull() throws Exception {
+    public void annotationNamesNull() {
         DefaultInternalClassMetadata classMetadata = new DefaultInternalClassMetadata("java/lang/String", "java/lang/Object", Arrays.asList("java/lang/Comparable", "java/lang/Serializable"), null, false, false, false, false);
-        assertEquals(0, classMetadata.getAnnotationInternalNames().size());
+        assertThat(classMetadata.getAnnotationInternalNames()).isEmpty();
     }
 }

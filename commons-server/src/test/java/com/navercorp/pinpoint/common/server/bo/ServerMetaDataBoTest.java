@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author hyungil.jeong
@@ -31,15 +30,15 @@ public class ServerMetaDataBoTest {
     @Test
     public void testByteArrayConversion() {
         // Given
-        final ServerMetaDataBo testBo = createTestBo("testServer", Arrays.asList("arg1", "arg2"), 
-                Arrays.asList(ServiceInfoBoTest.createTestBo("testService", Arrays.asList("lib1", "lib2"))));
+        final ServerMetaDataBo testBo = createTestBo("testServer", List.of("arg1", "arg2"),
+                List.of(ServiceInfoBoTest.createTestBo("testService", List.of("lib1", "lib2"))));
         // When
         final byte[] serializedBo = testBo.writeValue();
         final ServerMetaDataBo deserializedBo = new ServerMetaDataBo.Builder(serializedBo).build();
         // Then
         assertEquals(testBo, deserializedBo);
     }
-    
+
     @Test
     public void testByteArrayConversionNullValues() {
         // Given
@@ -50,7 +49,7 @@ public class ServerMetaDataBoTest {
         // Then
         assertEquals(testBo, deserializedBo);
     }
-    
+
     static ServerMetaDataBo createTestBo(String serverInfo, List<String> vmArgs, List<ServiceInfoBo> serviceInfos) {
         final ServerMetaDataBo.Builder builder = new ServerMetaDataBo.Builder();
         builder.serverInfo(serverInfo);

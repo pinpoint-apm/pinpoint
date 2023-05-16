@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
-import com.navercorp.pinpoint.rpc.Future;
-
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 import org.apache.thrift.TBase;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Connection with agent module
  */
 public interface ClusterPoint<M> {
 
-    Future request(M request);
+    CompletableFuture<ResponseMessage> request(M request);
 
-    AgentInfo getDestAgentInfo();
+    ClusterKey getDestClusterKey();
 
-    boolean isSupportCommand(TBase command);
+    boolean isSupportCommand(TBase<?, ?> command);
 
 }

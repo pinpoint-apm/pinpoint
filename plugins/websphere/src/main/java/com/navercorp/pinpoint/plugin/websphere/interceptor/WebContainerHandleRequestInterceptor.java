@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.websphere.interceptor;
 import com.ibm.websphere.servlet.request.IRequest;
 import com.ibm.websphere.servlet.response.IResponse;
 import com.ibm.ws.webcontainer.channel.WCCResponseImpl;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -26,11 +27,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerCookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServerHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListener;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
-import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validation;
+import com.navercorp.pinpoint.bootstrap.util.argument.Validator;
 import com.navercorp.pinpoint.plugin.websphere.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.websphere.StatusCodeAccessor;
 import com.navercorp.pinpoint.plugin.websphere.WebsphereConfiguration;
@@ -46,17 +49,34 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MethodDescriptor methodDescriptor;
-    private final ArgumentValidator argumentValidator;
-    private final ServletRequestListenerInterceptorHelper<IRequest> servletRequestListenerInterceptorHelper;
+    private final Validator validator;
+    private final ServletRequestListener<IRequest> servletRequestListener;
 
     public WebContainerHandleRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<IRequest> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
-        this.argumentValidator = new ServletArgumentValidator(logger, 0, IRequest.class, 1, IResponse.class);
+        this.validator = buildValidator();
         final WebsphereConfiguration config = new WebsphereConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<IRequest> requestAdaptor = new IRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         final ParameterRecorder<IRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<IRequest>(WebsphereConstants.WEBSPHERE, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+
+        ServletRequestListenerBuilder<IRequest> builder = new ServletRequestListenerBuilder<>(WebsphereConstants.WEBSPHERE, traceContext, requestAdaptor);
+        builder.setExcludeURLFilter(config.getExcludeUrlFilter());
+        builder.setParameterRecorder(parameterRecorder);
+        builder.setRequestRecorderFactory(requestRecorderFactory);
+
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        builder.setRealIpSupport(config.getRealIpHeader(), config.getRealIpEmptyValue());
+        builder.setHttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
+        builder.setServerHeaderRecorder(profilerConfig.readList(ServerHeaderRecorder.CONFIG_KEY_RECORD_REQ_HEADERS));
+        builder.setServerCookieRecorder(profilerConfig.readList(ServerCookieRecorder.CONFIG_KEY_RECORD_REQ_COOKIES));
+        this.servletRequestListener = builder.build();
+    }
+
+    private Validator buildValidator() {
+        Validation argBuilder = new Validation(logger);
+        argBuilder.addArgument(IRequest.class, 0);
+        argBuilder.addArgument(IResponse.class, 1);
+        return argBuilder.build();
     }
 
     @Override
@@ -65,13 +85,13 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 
         try {
             final IRequest request = (IRequest) args[0];
-            this.servletRequestListenerInterceptorHelper.initialized(request, WebsphereConstants.WEBSPHERE_METHOD, this.methodDescriptor);
+            this.servletRequestListener.initialized(request, WebsphereConstants.WEBSPHERE_METHOD, this.methodDescriptor);
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }
@@ -83,7 +103,7 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!argumentValidator.validate(args)) {
+        if (!validator.validate(args)) {
             return;
         }
 
@@ -91,7 +111,7 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
             final IRequest request = (IRequest) args[0];
             final IResponse response = (IResponse) args[1];
             final int statusCode = getStatusCode(response);
-            this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
+            this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }

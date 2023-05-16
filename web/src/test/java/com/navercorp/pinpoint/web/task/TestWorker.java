@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.task;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class TestWorker implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final CountDownLatch completeLatch;
     private final Callback callback;

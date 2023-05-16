@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeParseException;
@@ -30,18 +30,20 @@ import java.time.format.DateTimeParseException;
  */
 public class DateTimeFormatUtilsTest {
 
+    private final DateFormat defaultDateFormatfinal = new SimpleDateFormat(DateTimeFormatUtils.DEFAULT_DATE_FORMAT);
+    private final DateFormat simpleDateFormatfinal = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
 
     @Test
     public void format() {
         long time = System.currentTimeMillis();
-        Assert.assertEquals(DateUtils.longToDateStr(time), DateTimeFormatUtils.format(time));
+        Assertions.assertEquals(defaultDateFormatfinal.format(time), DateTimeFormatUtils.format(time));
     }
 
     @Test
     public void formatSimple() {
         long time = System.currentTimeMillis();
         String actual = DateTimeFormatUtils.formatSimple(time);
-        Assert.assertEquals(DateUtils.longToDateStr(time, DateTimeFormatUtils.SIMPLE_DATE_FORMAT), actual);
+        Assertions.assertEquals(simpleDateFormatfinal.format(time), actual);
     }
 
     @Test
@@ -49,19 +51,21 @@ public class DateTimeFormatUtilsTest {
         String simpleDate = DateTimeFormatUtils.formatSimple(System.currentTimeMillis());
         SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
         long time = format.parse(simpleDate).getTime();
-        
-        Assert.assertEquals(time, DateTimeFormatUtils.parseSimple(simpleDate));
+
+        Assertions.assertEquals(time, DateTimeFormatUtils.parseSimple(simpleDate));
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void parseSimple_sqltimestamp_error() throws ParseException {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        // "2100-12-31 23:59:59.111"
-        String simpleDate = timestamp.toString();
-        SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
+        Assertions.assertThrows(DateTimeParseException.class, () -> {
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            // "2100-12-31 23:59:59.111"
+            String simpleDate = timestamp.toString();
+            SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
 
-        long time = format.parse(simpleDate).getTime();
-        DateTimeFormatUtils.parseSimple(simpleDate);
+            long time = format.parse(simpleDate).getTime();
+            DateTimeFormatUtils.parseSimple(simpleDate);
+        });
     }
 
 

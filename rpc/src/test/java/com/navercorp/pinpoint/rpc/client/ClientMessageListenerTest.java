@@ -22,21 +22,30 @@ import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
 import com.navercorp.pinpoint.test.client.TestPinpointClient;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 import com.navercorp.pinpoint.test.server.TestServerMessageListenerFactory;
-import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Taejin Koo
  */
 public class ClientMessageListenerTest {
 
-    private final TestAwaitUtils awaitUtils = new TestAwaitUtils(10, 1000);
+    private ConditionFactory awaitility() {
+        return Awaitility.await()
+                .pollDelay(10, TimeUnit.MILLISECONDS)
+                .timeout(1000, TimeUnit.MILLISECONDS);
+    }
+
     private final TestServerMessageListenerFactory testServerMessageListenerFactory = new TestServerMessageListenerFactory(TestServerMessageListenerFactory.HandshakeType.DUPLEX);
 
     @Test
-    public void clientMessageListenerTest1() throws InterruptedException {
+    public void clientMessageListenerTest1() {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
@@ -56,7 +65,7 @@ public class ClientMessageListenerTest {
     }
 
     @Test
-    public void clientMessageListenerTest2() throws InterruptedException {
+    public void clientMessageListenerTest2() {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
@@ -87,25 +96,19 @@ public class ClientMessageListenerTest {
         }
     }
 
-    private void assertSendMessage(PinpointSocket writableServer, String message, final EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertSendMessage(PinpointSocket writableServer, String message, final EchoClientListener echoMessageListener) {
         writableServer.send(message.getBytes());
 
-        awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return echoMessageListener.getSendPacketRepository().size() > 0;
-            }
-        });
-
-        Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
+        awaitility().untilAsserted(() -> assertThat(echoMessageListener.getSendPacketRepository()).hasSizeGreaterThan(0));
+        Assertions.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }
 
-    private void assertRequestMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertRequestMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) {
         byte[] response = PinpointRPCTestUtils.request(writableServer, message.getBytes());
-        Assert.assertEquals(message, new String(response));
+        Assertions.assertEquals(message, new String(response));
 
         if (echoMessageListener != null) {
-            Assert.assertEquals(message, new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
+            Assertions.assertEquals(message, new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
         }
     }
 

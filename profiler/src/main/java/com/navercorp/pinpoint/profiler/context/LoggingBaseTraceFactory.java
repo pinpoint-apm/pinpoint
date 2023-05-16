@@ -19,29 +19,30 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class LoggingBaseTraceFactory implements BaseTraceFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private BaseTraceFactory baseTraceFactory;
+    private final BaseTraceFactory baseTraceFactory;
 
     public static BaseTraceFactory wrap(BaseTraceFactory baseTraceFactory) {
-        if (baseTraceFactory == null) {
-            throw new NullPointerException("baseTraceFactory");
-        }
+        Objects.requireNonNull(baseTraceFactory, "baseTraceFactory");
+
         return new LoggingBaseTraceFactory(baseTraceFactory);
     }
 
     private LoggingBaseTraceFactory(BaseTraceFactory baseTraceFactory) {
-        this.baseTraceFactory = Assert.requireNonNull(baseTraceFactory, "baseTraceFactory");
+        this.baseTraceFactory = Objects.requireNonNull(baseTraceFactory, "baseTraceFactory");
     }
 
     @Override
@@ -73,12 +74,21 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
         if (logger.isDebugEnabled()) {
             logger.debug("continueAsyncTraceObject(traceRoot:{}, localAsyncId:{})", traceRoot, localAsyncId);
         }
 
-        return baseTraceFactory.continueAsyncTraceObject(traceRoot, localAsyncId);
+        return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId);
+    }
+
+    @Override
+    public Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("continueDisableAsyncContextTraceObject(traceRoot:{})", traceRoot);
+        }
+
+        return baseTraceFactory.continueDisableAsyncContextTraceObject(traceRoot);
     }
 
     @Override
@@ -89,10 +99,21 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
     }
 
     @Override
+    public Trace newTraceObject(String urlPath) {
+        logger.debug("newTraceObject(String urlPath)");
+        return baseTraceFactory.newTraceObject(urlPath);
+    }
+
+    @Override
     @InterfaceAudience.LimitedPrivate("vert.x")
     public Trace newAsyncTraceObject() {
         logger.debug("newAsyncTraceObject()");
 
         return baseTraceFactory.newAsyncTraceObject();
+    }
+
+    public Trace newAsyncTraceObject(String urlPath) {
+        logger.debug("newAsyncTraceObject(String urlPath)");
+        return baseTraceFactory.newAsyncTraceObject(urlPath);
     }
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.rabbitmq.util;
 
+import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.apache.qpid.server.Broker;
 import org.apache.qpid.server.BrokerOptions;
 
@@ -31,6 +32,7 @@ public class TestBroker {
     }
 
     private final Broker broker = new Broker();
+    private static final int PORT = SocketUtils.findAvailableTcpPort(20000, 29999);
 
     private static void setSystemProperties() {
         String qpidWorkDir = new File(System.getProperty("java.io.tmpdir"), "qpidworktmp").getAbsolutePath();
@@ -42,7 +44,7 @@ public class TestBroker {
 
     public void start() throws Exception {
         BrokerOptions brokerOptions = new BrokerOptions();
-        brokerOptions.setConfigProperty("qpid.amqp_port", String.valueOf(RabbitMQTestConstants.BROKER_PORT));
+        brokerOptions.setConfigProperty("qpid.amqp_port", String.valueOf(PORT));
         brokerOptions.setConfigurationStoreType("Memory");
         brokerOptions.setStartupLoggedToSystemOut(false);
         start(brokerOptions);
@@ -54,5 +56,9 @@ public class TestBroker {
 
     public void shutdown() {
         broker.shutdown();
+    }
+
+    public static int getPort() {
+        return PORT;
     }
 }

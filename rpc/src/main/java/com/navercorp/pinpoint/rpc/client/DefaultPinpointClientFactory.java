@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
@@ -31,8 +31,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultPinpointClientFactory implements PinpointClientFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SocketIdFactory socketIdFactory = new SocketIdFactory();
 
@@ -70,7 +70,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
     private MessageListener messageListener = SimpleMessageListener.INSTANCE;
-    private final List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
+    private final List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<>();
     private volatile ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = ServerStreamChannelMessageHandler.DISABLED_INSTANCE;
 
 
@@ -102,7 +102,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
         this.channelFactory = channelFactory.createChannelFactory(bossCount, workerCount, timer);
         this.socketOptionBuilder = new SocketOption.Builder();
-        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
+        this.connectionFactoryProvider = Objects.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
     }
 
     public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer) {
@@ -110,12 +110,12 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer, ConnectionFactoryProvider connectionFactoryProvider) {
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
-        this.timer = Assert.requireNonNull(timer, "timer");
+        this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
+        this.timer = Objects.requireNonNull(timer, "timer");
 
         this.useExternalResource = true;
         this.socketOptionBuilder = new SocketOption.Builder();
-        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
+        this.connectionFactoryProvider = Objects.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
     }
 
     private static Timer createTimer(String timerName) {
@@ -220,7 +220,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         final ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = this.getServerStreamChannelMessageHandler();
         final List<StateChangeEventListener> stateChangeEventListeners = this.getStateChangeEventListeners();
 
-        Map<String, Object> copyProperties = new HashMap<String, Object>(this.properties);
+        Map<String, Object> copyProperties = new HashMap<>(this.properties);
         final HandshakerFactory handshakerFactory = new HandshakerFactory(socketIdFactory, copyProperties, clientOption, clusterOption);
         final ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, clusterOption, handshakerFactory,
                 messageListener, serverStreamChannelMessageHandler, stateChangeEventListeners);
@@ -239,7 +239,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     @Override
     public PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider) {
-        Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
+        Objects.requireNonNull(socketAddressProvider, "socketAddressProvider");
 
         PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
         ConnectionFactory connectionFactory = createConnectionFactory();
@@ -281,9 +281,9 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setProperties(Map<String, Object> agentProperties) {
-        Assert.requireNonNull(properties, "agentProperties");
+        Objects.requireNonNull(properties, "agentProperties");
 
-        this.properties = new HashMap<String, Object>(agentProperties);
+        this.properties = new HashMap<>(agentProperties);
     }
 
     public ClusterOption getClusterOption() {
@@ -311,7 +311,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setMessageListener(MessageListener messageListener) {
-        Assert.requireNonNull(messageListener, "messageListener");
+        Objects.requireNonNull(messageListener, "messageListener");
 
         this.messageListener = messageListener;
     }
@@ -321,11 +321,11 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
+        this.serverStreamChannelMessageHandler = Objects.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
     }
 
     public List<StateChangeEventListener> getStateChangeEventListeners() {
-        return new ArrayList<StateChangeEventListener>(stateChangeEventListeners);
+        return new ArrayList<>(stateChangeEventListeners);
     }
 
     public void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener) {

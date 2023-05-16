@@ -16,14 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder.proxy;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+
+import java.util.List;
+
 /**
  * @author jaehong.kim
  */
 public interface ProxyRequestParser {
 
-    ProxyRequestHeader parse(final String value);
+    ProxyRequestHeader parseHeader(String name, String value);
 
-    String getHttpHeaderName();
+    List<String> getHttpHeaderNameList();
 
     int getCode();
+
+    void init(ProfilerConfig profilerConfig);
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 
 import java.lang.management.ThreadInfo;
@@ -30,8 +30,8 @@ public class ThreadDump {
     private final ThreadInfo threadInfo;
 
     public ThreadDump(ActiveTraceSnapshot activeTraceSnapshot, ThreadInfo threadInfo) {
-        this.activeTraceSnapshot = Assert.requireNonNull(activeTraceSnapshot, "activeTraceSnapshot");
-        this.threadInfo = Assert.requireNonNull(threadInfo, "threadInfo");
+        this.activeTraceSnapshot = Objects.requireNonNull(activeTraceSnapshot, "activeTraceSnapshot");
+        this.threadInfo = Objects.requireNonNull(threadInfo, "threadInfo");
     }
 
     public ActiveTraceSnapshot getActiveTraceSnapshot() {

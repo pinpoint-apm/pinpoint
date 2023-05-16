@@ -19,10 +19,23 @@ package com.navercorp.pinpoint.plugin.hbase;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.*;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.BufferedMutatorImpl;
+import org.apache.hadoop.hbase.client.BufferedMutatorParams;
+import org.apache.hadoop.hbase.client.ClusterConnection;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,12 +44,14 @@ import org.mockito.MockitoAnnotations;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({"org.apache.hbase:hbase-shaded-client:[1.2.6.1]", "org.mockito:mockito-core:2.7.22"})
+@Dependency({"org.apache.hbase:hbase-shaded-client:[1.2.6.1]", "org.mockito:mockito-core:4.8.1"})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-hbase-plugin")
 @PinpointConfig("hbase/pinpoint-hbase-test.config")
 public class HbaseClientIT {
@@ -44,9 +59,18 @@ public class HbaseClientIT {
     @Mock
     private ClusterConnection connection;
 
+    private final String tableName = "Table";
+
+    private AutoCloseable openMocks;
+    
     @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void beforeEach() {
+        openMocks = MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void after() throws Exception {
+        openMocks.close();
     }
 
     @Test
@@ -57,17 +81,17 @@ public class HbaseClientIT {
         Admin admin = new HBaseAdmin(connection);
 
         try {
-            admin.tableExists(TableName.valueOf("test"));
-        } catch (Exception ignore) {
+            admin.tableExists(TableName.valueOf(tableName));
+        } catch (Exception ignored) {
             //
         }
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        verifier.printCache();
+        verifier.printMethod();
 
         verifier.verifyTrace(event("HBASE_CLIENT_ADMIN", HBaseAdmin.class.getDeclaredMethod("tableExists", TableName.class),
-                annotation("hbase.client.params", "[test]")));
+                annotation("hbase.client.params", String.format("[%s]", tableName))));
 
         verifier.verifyTraceCount(0);
     }
@@ -75,24 +99,23 @@ public class HbaseClientIT {
     @Test
     public void testTable() throws Exception {
 
-        doReturn(new Configuration()).when(connection).getConfiguration();
+        Configuration configuration = new Configuration();
+        doReturn(configuration).when(connection).getConfiguration();
+        doReturn(mock(BufferedMutatorImpl.class)).when(connection).getBufferedMutator(any(BufferedMutatorParams.class));
 
-        Table table = new HTable(TableName.valueOf("test"), connection);
+        Table table = new HTable(TableName.valueOf(tableName), connection);
 
         Put put = new Put("row".getBytes());
 
-        try {
-            table.put(put);
-        } catch (Exception ignore) {
-            //
-        }
+        table.put(put);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        verifier.printCache();
+        verifier.printMethod();
 
         verifier.verifyTrace(event("HBASE_CLIENT_TABLE", HTable.class.getDeclaredMethod("put", Put.class),
-                annotation("hbase.client.params", "rowKey: row")));
+                annotation("hbase.client.params", "rowKey: row"),
+                annotation("hbase.table.name", tableName)));
 
         verifier.verifyTraceCount(0);
     }

@@ -23,86 +23,66 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeader
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.AgentStatHeaderEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderDecoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.header.BitCountingHeaderEncoder;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnalyzer;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StringEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedLongEncodingStrategy;
-import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldEncodingStrategy;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.JoinLongFieldStrategyAnalyzer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Component("joinTotalThreadCountCodec")
-public class TotalThreadCountCodec implements ApplicationStatCodec {
+@Component
+public class TotalThreadCountCodec implements ApplicationStatCodec<JoinTotalThreadCountBo> {
     private static final byte VERSION = 1;
 
     private final AgentStatDataPointCodec codec;
 
-    @Autowired
-    public TotalThreadCountCodec(AgentStatDataPointCodec codec) { this.codec = codec; }
+    public TotalThreadCountCodec(AgentStatDataPointCodec codec) {
+        this.codec = Objects.requireNonNull(codec, "codec");
+    }
 
     @Override
     public byte getVersion() { return VERSION; }
 
     @Override
-    public void encodeValues(Buffer valueBuffer, List<JoinStatBo> joinTotalThreadCountBoList) {
+    public void encodeValues(Buffer valueBuffer, List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
         if (CollectionUtils.isEmpty(joinTotalThreadCountBoList)) {
             throw new IllegalArgumentException("joinTotalThreadCountBoList must not be empty");
         }
         final int numValues = joinTotalThreadCountBoList.size();
         valueBuffer.putVInt(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
-        UnsignedLongEncodingStrategy.Analyzer.Builder avgTotalThreadCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder minTotalThreadCountAnalyzerBuilder =  new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder minTotalThreadCountIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
-        UnsignedLongEncodingStrategy.Analyzer.Builder maxTotalThreadCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
-        StringEncodingStrategy.Analyzer.Builder maxTotalThreadCountIdAnalyzerBuilder = new StringEncodingStrategy.Analyzer.Builder();
+        List<Long> timestamps = new ArrayList<>(numValues);
+        JoinLongFieldStrategyAnalyzer.Builder totalThreadCountAnalyzerBuilder = new JoinLongFieldStrategyAnalyzer.Builder();
 
-        for (JoinStatBo joinStatBo : joinTotalThreadCountBoList) {
-            JoinTotalThreadCountBo joinTotalThreadCountBo = (JoinTotalThreadCountBo) joinStatBo;
+        for (JoinTotalThreadCountBo joinTotalThreadCountBo : joinTotalThreadCountBoList) {
             timestamps.add(joinTotalThreadCountBo.getTimestamp());
-            avgTotalThreadCountAnalyzerBuilder.addValue(joinTotalThreadCountBo.getAvgTotalThreadCount());
-            minTotalThreadCountAnalyzerBuilder.addValue(joinTotalThreadCountBo.getMinTotalThreadCount());
-            minTotalThreadCountIdAnalyzerBuilder.addValue(joinTotalThreadCountBo.getMinTotalThreadCountAgentId());
-            maxTotalThreadCountAnalyzerBuilder.addValue(joinTotalThreadCountBo.getMaxTotalThreadCount());
-            maxTotalThreadCountIdAnalyzerBuilder.addValue(joinTotalThreadCountBo.getMaxTotalThreadCountAgentId());
+            totalThreadCountAnalyzerBuilder.addValue(joinTotalThreadCountBo.getTotalThreadCountJoinValue());
 
         }
         codec.encodeTimestamps(valueBuffer, timestamps);
-        encodeDataPoints(valueBuffer, avgTotalThreadCountAnalyzerBuilder.build(), minTotalThreadCountAnalyzerBuilder.build(),
-                minTotalThreadCountIdAnalyzerBuilder.build(), maxTotalThreadCountAnalyzerBuilder.build(), maxTotalThreadCountIdAnalyzerBuilder.build());
+        encodeDataPoints(valueBuffer, totalThreadCountAnalyzerBuilder.build());
     }
 
-    private void encodeDataPoints(Buffer valueBuffer,
-                                  StrategyAnalyzer<Long> avgTotalThreadCountAnalyzer,
-                                  StrategyAnalyzer<Long> minTotalThreadCountAnalyzer,
-                                  StrategyAnalyzer<String> minTotalThreadCountIdAnalyzer,
-                                  StrategyAnalyzer<Long> maxTotalThreadCountAnalyzer,
-                                  StrategyAnalyzer<String> maxTotalThreadCountIdAnalyzer) {
+    private void encodeDataPoints(Buffer valueBuffer, JoinLongFieldStrategyAnalyzer totalThreadCountAnalyzer) {
         AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
-        headerEncoder.addCode(avgTotalThreadCountAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minTotalThreadCountAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(minTotalThreadCountIdAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxTotalThreadCountAnalyzer.getBestStrategy().getCode());
-        headerEncoder.addCode(maxTotalThreadCountIdAnalyzer.getBestStrategy().getCode());
+
+        final byte[] codes = totalThreadCountAnalyzer.getBestStrategy().getCodes();
+        for (byte code : codes) {
+            headerEncoder.addCode(code);
+        }
 
         final byte[] header = headerEncoder.getHeader();
         valueBuffer.putPrefixedBytes(header);
 
-        this.codec.encodeValues(valueBuffer, avgTotalThreadCountAnalyzer.getBestStrategy(), avgTotalThreadCountAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minTotalThreadCountAnalyzer.getBestStrategy(), minTotalThreadCountAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, minTotalThreadCountIdAnalyzer.getBestStrategy(), minTotalThreadCountIdAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxTotalThreadCountAnalyzer.getBestStrategy(), maxTotalThreadCountAnalyzer.getValues());
-        this.codec.encodeValues(valueBuffer, maxTotalThreadCountIdAnalyzer.getBestStrategy(), maxTotalThreadCountIdAnalyzer.getValues());
+        this.codec.encodeValues(valueBuffer, totalThreadCountAnalyzer.getBestStrategy(), totalThreadCountAnalyzer.getValues());
     }
 
     @Override
-    public List<JoinStatBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
+    public List<JoinTotalThreadCountBo> decodeValues(Buffer valueBuffer, ApplicationStatDecodingContext decodingContext) {
         final String id = decodingContext.getApplicationId();
         final long baseTimestamp = decodingContext.getBaseTimestamp();
         final long timestampDelta = decodingContext.getTimestampDelta();
@@ -113,28 +93,16 @@ public class TotalThreadCountCodec implements ApplicationStatCodec {
 
         final byte[] header = valueBuffer.readPrefixedBytes();
         AgentStatHeaderDecoder headerDecoder = new BitCountingHeaderDecoder(header);
-        EncodingStrategy<Long> avgTotalThreadCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> minTotalThreadCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> minTotalThreadCountIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<Long> maxTotalThreadCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
-        EncodingStrategy<String> maxTotalThreadCountIdEncodingStrategy = StringEncodingStrategy.getFromCode(headerDecoder.getCode());
+        JoinLongFieldEncodingStrategy totalThreadCountEncodingStrategy = JoinLongFieldEncodingStrategy.getFromCode(headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode(), headerDecoder.getCode());
 
-        List<Long> avgTotalThreadCounts = this.codec.decodeValues(valueBuffer, avgTotalThreadCountEncodingStrategy, numValues);
-        List<Long> minTotalThreadCounts = this.codec.decodeValues(valueBuffer, minTotalThreadCountEncodingStrategy, numValues);
-        List<String> minTotalThreadCountsAgentIds = this.codec.decodeValues(valueBuffer, minTotalThreadCountIdEncodingStrategy, numValues);
-        List<Long> maxTotalThreadCounts = this.codec.decodeValues(valueBuffer, maxTotalThreadCountEncodingStrategy, numValues);
-        List<String> maxTotalThreadCountsAgentIds = this.codec.decodeValues(valueBuffer, maxTotalThreadCountIdEncodingStrategy, numValues);
+        final List<JoinLongFieldBo> totalThreadCountList = this.codec.decodeValues(valueBuffer, totalThreadCountEncodingStrategy, numValues);
 
-        List<JoinStatBo> joinTotalThreadCountBoList = new ArrayList<JoinStatBo>();
+        List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>();
         for (int i = 0 ; i < numValues ; i++) {
             JoinTotalThreadCountBo joinTotalThreadCountBo = new JoinTotalThreadCountBo();
             joinTotalThreadCountBo.setId(id);
             joinTotalThreadCountBo.setTimestamp(timestampList.get(i));
-            joinTotalThreadCountBo.setAvgTotalThreadCount(avgTotalThreadCounts.get(i));
-            joinTotalThreadCountBo.setMinTotalThreadCount(minTotalThreadCounts.get(i));
-            joinTotalThreadCountBo.setMinTotalThreadCountAgentId(minTotalThreadCountsAgentIds.get(i));
-            joinTotalThreadCountBo.setMaxTotalThreadCount(maxTotalThreadCounts.get(i));
-            joinTotalThreadCountBo.setMaxTotalThreadCountAgentId(maxTotalThreadCountsAgentIds.get(i));
+            joinTotalThreadCountBo.setTotalThreadCountJoinValue(totalThreadCountList.get(i));
             joinTotalThreadCountBoList.add(joinTotalThreadCountBo);
         }
 

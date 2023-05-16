@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 import java.util.Objects;
@@ -27,12 +28,7 @@ import java.util.Objects;
 public class SampledCpuLoad implements SampledAgentStatDataPoint {
 
     public static final Double UNCOLLECTED_PERCENTAGE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
-        @Override
-        public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
-            return new AgentStatPoint<>(xVal, UNCOLLECTED_PERCENTAGE);
-        }
-    };
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_PERCENTAGE);
 
     private final AgentStatPoint<Double> jvmCpuLoad;
     private final AgentStatPoint<Double> systemCpuLoad;

@@ -15,11 +15,9 @@ public final class PinpointPluginTestUtils {
         StringBuilder describe = new StringBuilder("Method ");
         describe.append(method.getName());
 
-        if (method.getDeclaringClass() != null) {
-            describe.append("(");
-            describe.append(method.getDeclaringClass().getName());
-            describe.append(")");
-        }
+        describe.append('(');
+        describe.append(method.getDeclaringClass().getName());
+        describe.append(')');
 
         return describe.toString();
     }

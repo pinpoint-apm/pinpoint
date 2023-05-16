@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ "org.mybatis:mybatis-spring:[1.1.0,1.1.max)", "org.mybatis:mybatis:3.2.7",
-        "org.springframework:spring-jdbc:[4.1.7.RELEASE]", "org.mockito:mockito-all:1.8.4" })
+        "org.springframework:spring-jdbc:[4.1.7.RELEASE]", "org.mockito:mockito-core:4.8.1" })
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mybatis-plugin")
 public class SqlSessionTemplate_1_1_x_IT extends SqlSessionTemplateITBase {
 }

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -30,14 +32,8 @@ public class DefaultProfilerPluginGlobalContext implements ProfilerPluginGlobalC
     private ServiceType applicationType = null;
 
     public DefaultProfilerPluginGlobalContext(ProfilerConfig profilerConfig, ServiceType configuredApplicationType) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        if (configuredApplicationType == null) {
-            throw new NullPointerException("configuredApplicationType");
-        }
-        this.profilerConfig = profilerConfig;
-        this.configuredApplicationType = configuredApplicationType;
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
     }
 
     @Override
@@ -57,9 +53,8 @@ public class DefaultProfilerPluginGlobalContext implements ProfilerPluginGlobalC
 
     @Override
     public boolean registerApplicationType(ServiceType applicationType) {
-        if (applicationType == null) {
-            throw new NullPointerException("applicationType");
-        }
+        Objects.requireNonNull(applicationType, "applicationType");
+
         if (this.applicationType == null) {
             this.applicationType = applicationType;
             return true;

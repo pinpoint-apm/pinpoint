@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.monitor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -27,20 +28,31 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class RejectedExecutionHandlerChain implements RejectedExecutionHandler {
     private final RejectedExecutionHandler[] handlerChain;
 
-    public static RejectedExecutionHandler build(List<RejectedExecutionHandler> chain) {
-        Objects.requireNonNull(chain, "handlerChain");
-        RejectedExecutionHandler[] handlerChain = chain.toArray(new RejectedExecutionHandler[0]);
-        return new RejectedExecutionHandlerChain(handlerChain);
-    }
-
-    private RejectedExecutionHandlerChain(RejectedExecutionHandler[] handlerChain) {
-        this.handlerChain = Objects.requireNonNull(handlerChain, "handlerChain");
+    private RejectedExecutionHandlerChain(List<RejectedExecutionHandler> handlerChain) {
+        Objects.requireNonNull(handlerChain, "handlerChain");
+        this.handlerChain = handlerChain.toArray(new RejectedExecutionHandler[0]);
     }
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
         for (RejectedExecutionHandler rejectedExecutionHandler : handlerChain) {
             rejectedExecutionHandler.rejectedExecution(r, executor);
+        }
+    }
+
+    public static class Builder {
+        private final List<RejectedExecutionHandler> chain = new ArrayList<>();
+
+        public Builder() {
+        }
+
+        public void addRejectHandler(RejectedExecutionHandler handler) {
+            Objects.requireNonNull(handler, "handler");
+            this.chain.add(handler);
+        }
+
+        public RejectedExecutionHandler build() {
+            return new RejectedExecutionHandlerChain(chain);
         }
     }
 }

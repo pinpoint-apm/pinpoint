@@ -16,8 +16,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
-import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
  * @author Roy Kim
  */
 @Component
-public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFileDescriptorBo> {
+public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFileDescriptorBo, AggreJoinFileDescriptorBo> {
 
     @Override
     public AggreJoinFileDescriptorBo sampleDataPoints(int timeWindowIndex, long timestamp, List<JoinFileDescriptorBo> joinFileDescriptorBoList, JoinFileDescriptorBo previousDataPoint) {
@@ -37,13 +39,8 @@ public class JoinFileDescriptorSampler implements ApplicationStatSampler<JoinFil
         JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, timestamp);
 
         String id = joinFileDescriptorBo.getId();
-        long openFileDescriptorCount = joinFileDescriptorBo.getAvgOpenFDCount();
-        long minOpenFileDescriptor = joinFileDescriptorBo.getMinOpenFDCount();
-        String minOpenFileDescriptorAgentId = joinFileDescriptorBo.getMinOpenFDCountAgentId();
-        long maxOpenFileDescriptor  = joinFileDescriptorBo.getMaxOpenFDCount();
-        String maxOpenFileDescriptorAgentId = joinFileDescriptorBo.getMaxOpenFDCountAgentId();
+        final JoinLongFieldBo openFdCountJoinValue = joinFileDescriptorBo.getOpenFdCountJoinValue();
 
-        AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo = new AggreJoinFileDescriptorBo(id, openFileDescriptorCount, maxOpenFileDescriptor , maxOpenFileDescriptorAgentId, minOpenFileDescriptor, minOpenFileDescriptorAgentId, timestamp);
-        return aggreJoinFileDescriptorBo;
+        return new AggreJoinFileDescriptorBo(id, openFdCountJoinValue, timestamp);
     }
 }

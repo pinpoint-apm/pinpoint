@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.collector.sender;
 import com.navercorp.pinpoint.io.request.FlinkRequest;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.TBaseSerializer;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -30,50 +30,42 @@ import java.util.Objects;
 /**
  * @author minwoo.jung
  */
-public class FlinkTcpDataSender extends TcpDataSender {
+public class FlinkTcpDataSender extends TcpDataSender<TBase<?, ?>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final FlinkHeaderTBaseSerializer flinkHeaderTBaseSerializer;
+    private final TBaseSerializer flinkHeaderTBaseSerializer;
     private final FlinkRequestFactory flinkRequestFactory;
 
-    public FlinkTcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, FlinkHeaderTBaseSerializer serializer, FlinkRequestFactory flinkRequestFactory) {
+    public FlinkTcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, TBaseSerializer serializer, FlinkRequestFactory flinkRequestFactory) {
         super(name, host, port, clientFactory);
 
-        if (StringUtils.isEmpty(name)) {
-            throw new IllegalArgumentException("name must not be empty.");
-        }
-        if (StringUtils.isEmpty(host)) {
-            throw new IllegalArgumentException("host must not be empty.");
-        }
+        Assert.hasLength(name, "name");
+        Assert.hasLength(host, "host");
         Objects.requireNonNull(clientFactory, "clientFactory");
+
         this.flinkHeaderTBaseSerializer = Objects.requireNonNull(serializer, "serializer");
         this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "clientFactory");
     }
 
     @Override
-    public boolean send(Object data) {
-        if (!(data instanceof TBase<?, ?>)) {
-            logger.info("unknown message:{}", data);
-            return false;
-        }
-        TBase<?, ?> message = (TBase<?, ?>) data;
-        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(message, new HashMap<String, String>(0));
+    public boolean send(TBase<?, ?> data) {
+        FlinkRequest flinkRequest = flinkRequestFactory.createFlinkRequest(data, new HashMap<>(0));
         return executor.execute(flinkRequest);
     }
 
     @Override
-    protected void sendPacket(Object flinkRequest) {
+    protected void sendPacket(Object request) {
         try {
-            if (flinkRequest instanceof FlinkRequest) {
-                byte[] copy = flinkHeaderTBaseSerializer.serialize((FlinkRequest) flinkRequest);
+            if (request instanceof FlinkRequest) {
+                FlinkRequest flinkRequest = (FlinkRequest)  request;
+                byte[] copy = flinkHeaderTBaseSerializer.serialize(flinkRequest.getData(), flinkRequest.getHeaderEntity());
                 if (copy == null) {
                     return;
                 }
                 doSend(copy);
             } else {
-                logger.error("sendPacket fail. invalid dto type:{}", flinkRequest.getClass());
-                return;
+                logger.error("sendPacket fail. invalid dto type:{}", request.getClass());
             }
         } catch (Exception e) {
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);

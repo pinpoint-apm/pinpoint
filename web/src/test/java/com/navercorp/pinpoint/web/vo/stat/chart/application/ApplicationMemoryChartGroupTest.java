@@ -16,19 +16,20 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -38,46 +39,44 @@ public class ApplicationMemoryChartGroupTest {
     @Test
     public void createApplicationMemoryChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.between(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
-        List<AggreJoinMemoryBo> aggreJoinMemoryList = new ArrayList<>(5);
-        AggreJoinMemoryBo aggreJoinMemoryBo1 = new AggreJoinMemoryBo("testApp", time, 3000, 1000, 5000, "agent1_1", "agent1_2", 300, 100, 500, "agent1_3", "agent1_4");
-        AggreJoinMemoryBo aggreJoinMemoryBo2 = new AggreJoinMemoryBo("testApp", time - 60000, 2000, 1200, 5000, "agent2_1", "agent2_2", 200, 100, 600, "agent2_3", "agent2_4");
-        AggreJoinMemoryBo aggreJoinMemoryBo3 = new AggreJoinMemoryBo("testApp", time - 120000, 1000, 1300, 7000, "agent3_1", "agent3_2", 400, 200, 700, "agent3_3", "agent3_4");
-        AggreJoinMemoryBo aggreJoinMemoryBo4 = new AggreJoinMemoryBo("testApp", time - 180000, 5000, 1400, 8000, "agent4_1", "agent4_2", 500, 300, 800, "agent4_3", "agent4_4");
-        AggreJoinMemoryBo aggreJoinMemoryBo5 = new AggreJoinMemoryBo("testApp", time - 240000, 4000, 1500, 9000, "agent5_1", "agent5_2", 400, 400, 900, "agent5_3", "agent5_4");
-        aggreJoinMemoryList.add(aggreJoinMemoryBo1);
-        aggreJoinMemoryList.add(aggreJoinMemoryBo2);
-        aggreJoinMemoryList.add(aggreJoinMemoryBo3);
-        aggreJoinMemoryList.add(aggreJoinMemoryBo4);
-        aggreJoinMemoryList.add(aggreJoinMemoryBo5);
+        List<AggreJoinMemoryBo> aggreJoinMemoryList = List.of(
+                new AggreJoinMemoryBo("testApp", time, 3000, 1000, 5000, "agent1_1", "agent1_2", 300, 100, 500, "agent1_3", "agent1_4"),
+                new AggreJoinMemoryBo("testApp", time - 60000, 2000, 1200, 5000, "agent2_1", "agent2_2", 200, 100, 600, "agent2_3", "agent2_4"),
+                new AggreJoinMemoryBo("testApp", time - 120000, 1000, 1300, 7000, "agent3_1", "agent3_2", 400, 200, 700, "agent3_3", "agent3_4"),
+                new AggreJoinMemoryBo("testApp", time - 180000, 5000, 1400, 8000, "agent4_1", "agent4_2", 500, 300, 800, "agent4_3", "agent4_4"),
+                new AggreJoinMemoryBo("testApp", time - 240000, 4000, 1500, 9000, "agent5_1", "agent5_2", 400, 400, 900, "agent5_3", "agent5_4")
+        );
 
-        StatChartGroup applicationMemoryChartGroup = new ApplicationMemoryChart.ApplicationMemoryChartGroup(timeWindow, aggreJoinMemoryList);
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = applicationMemoryChartGroup.getCharts();
+        ChartGroupBuilder<AggreJoinMemoryBo, ApplicationStatPoint<Double>> builder = ApplicationMemoryChart.newChartBuilder();
+        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = builder.build(timeWindow, aggreJoinMemoryList);
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> charts = statChartGroup.getCharts();
 
-        Chart heapChart = charts.get(ApplicationMemoryChart.ApplicationMemoryChartGroup.MemoryChartType.MEMORY_HEAP);
-        List<Point> heapPoints = heapChart.getPoints();
-        assertEquals(5, heapPoints.size());
+        Chart<ApplicationStatPoint<Double>> heapChart = charts.get(ApplicationMemoryChart.MemoryChartType.MEMORY_HEAP);
+        List<ApplicationStatPoint<Double>> heapPoints = heapChart.getPoints();
+        assertThat(heapPoints).hasSize(5);
         int index = heapPoints.size();
-        for (Point point : heapPoints) {
-            testHeap((MemoryPoint)point, aggreJoinMemoryList.get(--index));
+        for (ApplicationStatPoint<Double> point : heapPoints) {
+            testHeap(point, aggreJoinMemoryList.get(--index));
         }
 
-        Chart nonHeapChart = charts.get(ApplicationMemoryChart.ApplicationMemoryChartGroup.MemoryChartType.MEMORY_NON_HEAP);
-        List<Point> nonHeapPoints = heapChart.getPoints();
-        assertEquals(5, nonHeapPoints.size());
+        Chart<ApplicationStatPoint<Double>> nonHeapChart = charts.get(ApplicationMemoryChart.MemoryChartType.MEMORY_NON_HEAP);
+        List<ApplicationStatPoint<Double>> nonHeapPoints = heapChart.getPoints();
+        assertThat(nonHeapPoints).hasSize(5);
         index = nonHeapPoints.size();
-        for (Point point : nonHeapPoints) {
-            testHeap((MemoryPoint)point, aggreJoinMemoryList.get(--index));
+        for (ApplicationStatPoint<Double> point : nonHeapPoints) {
+            testHeap(point, aggreJoinMemoryList.get(--index));
         }
     }
 
-    private void testHeap(MemoryPoint memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
-        assertEquals(memoryPoint.getYValForAvg(), aggreJoinMemoryBo.getHeapUsed(), 0);
-        assertEquals(memoryPoint.getYValForMin(), aggreJoinMemoryBo.getMinHeapUsed(), 0);
-        assertEquals(memoryPoint.getYValForMax(), aggreJoinMemoryBo.getMaxHeapUsed(), 0);
-        assertEquals(memoryPoint.getAgentIdForMin(), aggreJoinMemoryBo.getMinHeapAgentId());
-        assertEquals(memoryPoint.getAgentIdForMax(), aggreJoinMemoryBo.getMaxHeapAgentId());
+    private void testHeap(ApplicationStatPoint<Double> memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
+        final JoinLongFieldBo heapUsedJoinValue = aggreJoinMemoryBo.getHeapUsedJoinValue();
+        assertEquals(memoryPoint.getYValForAvg(), heapUsedJoinValue.getAvg(), 0);
+        assertEquals(memoryPoint.getYValForMin(), heapUsedJoinValue.getMin(), 0);
+        assertEquals(memoryPoint.getYValForMax(), heapUsedJoinValue.getMax(), 0);
+        assertEquals(memoryPoint.getAgentIdForMin(), heapUsedJoinValue.getMinAgentId());
+        assertEquals(memoryPoint.getAgentIdForMax(), heapUsedJoinValue.getMaxAgentId());
     }
 
 }

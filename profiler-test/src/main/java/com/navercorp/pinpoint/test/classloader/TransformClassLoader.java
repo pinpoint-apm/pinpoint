@@ -26,8 +26,6 @@ import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
@@ -40,12 +38,14 @@ import java.util.logging.Logger;
  */
 public class TransformClassLoader extends ClassLoader {
 
+    static {
+        registerAsParallelCapable();
+    }
+
     private final Logger logger = Logger.getLogger(TransformClassLoader.class.getName());
 
-    private final ConcurrentMap<String, Object> lockMap = new ConcurrentHashMap<String, Object>();
-
-    private final Set<String> notDefinedClass = new CopyOnWriteArraySet<String>();
-    private final List<String> notDefinedPackages = new CopyOnWriteArrayList<String>();
+    private final Set<String> notDefinedClass = new CopyOnWriteArraySet<>();
+    private final List<String> notDefinedPackages = new CopyOnWriteArrayList<>();
 
     private final static ProtectionDomain DEFAULT_DOMAIN = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
         public Object run() {
@@ -134,7 +134,7 @@ public class TransformClassLoader extends ClassLoader {
     /**
      * Requests the class loader to load a class.
      */
-    protected Class loadClass(String name, boolean resolve)
+    protected Class<?> loadClass(String name, boolean resolve)
             throws ClassFormatError, ClassNotFoundException {
 
         synchronized (getClassLoadingLock(name)) {
@@ -157,16 +157,6 @@ public class TransformClassLoader extends ClassLoader {
 
             return c;
         }
-    }
-
-    protected Object getClassLoadingLock(String className) {
-
-        final Object newLock = new Object();
-        final Object existLock = lockMap.putIfAbsent(className, newLock);
-        if (existLock != null) {
-            return existLock;
-        }
-        return newLock;
     }
 
     /**
@@ -208,7 +198,7 @@ public class TransformClassLoader extends ClassLoader {
             if (getPackage(pname) == null)
                 try {
                     definePackage(pname, null, null, null, null, null, null, null);
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException ignored) {
                     // ignore.  maybe the package object for the same
                     // name has been created just right away.
                 }

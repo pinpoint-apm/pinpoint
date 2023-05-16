@@ -30,18 +30,16 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializ
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
-
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -103,12 +101,12 @@ public class AgentStatMapperV2Test {
         Result result = Result.create(cellsToPut);
 
         // When
-        AgentStatMapperV2<TestAgentStat> mapper = new AgentStatMapperV2<>(this.hbaseOperationFactory, this.decoder, TEST_FILTER);
+        AgentStatMapperV2<TestAgentStat> mapper = new AgentStatMapperV2<>(this.hbaseOperationFactory, this.decoder, TEST_FILTER, HbaseColumnFamily.AGENT_STAT_STATISTICS);
         List<TestAgentStat> mappedAgentStats = mapper.mapRow(result, 0);
 
         // Then
         givenAgentStats.sort(AgentStatMapperV2.REVERSE_TIMESTAMP_COMPARATOR);
-        Assert.assertEquals(givenAgentStats, mappedAgentStats);
+        Assertions.assertEquals(givenAgentStats, mappedAgentStats);
     }
 
     private List<TestAgentStat> createAgentStats(long initialTimestamp, long interval, int batchSize) {
@@ -163,7 +161,7 @@ public class AgentStatMapperV2Test {
 
     private static class TestAgentStatDecoder extends AgentStatDecoder<TestAgentStat> {
         protected TestAgentStatDecoder(AgentStatCodec<TestAgentStat> codec) {
-            super(Arrays.asList(codec));
+            super(List.of(codec));
         }
     }
 

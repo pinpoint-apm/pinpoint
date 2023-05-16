@@ -17,16 +17,16 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.lang.reflect.Field;
 
@@ -34,34 +34,40 @@ import java.lang.reflect.Field;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = GrpcSpanReceiverConfiguration.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource(properties = "test.port=111")
+@ContextConfiguration(classes = AnnotationVisitorTest.TestConfig.class)
+@ExtendWith(SpringExtension.class)
 public class AnnotationVisitorTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+    private final AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
 
     @Autowired
-    GrpcSpanReceiverConfiguration configuration;
+    private TestConfig config;
 
     boolean touch;
+
     @Test
     public void test() {
-//        GrpcSpanReceiverConfiguration configuration = new GrpcSpanReceiverConfiguration();
-        final int grpcBindPort = configuration.getGrpcBindPort();
 
-        this.annotationVisitor.visit(configuration, new AnnotationVisitor.FieldVisitor() {
+        final int port = config.port;
+
+        this.annotationVisitor.visit(config, new AnnotationVisitor.FieldVisitor() {
             @Override
             public void visit(Field field, Object value) {
-                if (field.getName().equals("grpcBindPort")) {
-                    Assert.assertEquals(grpcBindPort , value);
+                if (field.getName().equals("port")) {
+                    Assertions.assertEquals(port, value);
                     touch = true;
                 }
             }
         });
-        Assert.assertTrue(touch);
+        Assertions.assertTrue(touch);
+    }
+
+    public static class TestConfig {
+        @Value("${test.port}")
+        private int port;
     }
 
 }

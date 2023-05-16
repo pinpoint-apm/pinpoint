@@ -21,4 +21,6 @@ package com.navercorp.pinpoint.io.request;
  */
 public interface ServerResponse<T> {
     void write(T message);
+
+    void finish();
 }

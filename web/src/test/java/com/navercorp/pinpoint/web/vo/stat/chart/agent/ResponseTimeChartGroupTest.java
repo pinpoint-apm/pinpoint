@@ -17,16 +17,16 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ResponseTimeSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,13 +45,14 @@ public class ResponseTimeChartGroupTest {
     private final ResponseTimeSampler sampler = new ResponseTimeSampler();
 
     @Test
-    public void basicFunctionTest1() throws Exception {
+    public void basicFunctionTest1() {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.between(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledResponseTime> sampledResponseTimeList = createSampledResponseTimeList(timeWindow);
 
-        StatChartGroup responseTimeChartGroup = new ResponseTimeChart.ResponseTimeChartGroup(timeWindow, sampledResponseTimeList);
+        ResponseTimeChart responseTimeChart = new ResponseTimeChart(timeWindow, sampledResponseTimeList);
+        StatChartGroup<AgentStatPoint<Long>> responseTimeChartGroup = responseTimeChart.getCharts();
 
         assertEquals(sampledResponseTimeList, responseTimeChartGroup);
     }
@@ -86,25 +87,25 @@ public class ResponseTimeChartGroupTest {
         return sampler.sampleDataPoints(0, timestamp, responseTimeBoList, null);
     }
 
-    private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, StatChartGroup responseTimeChartGroup) {
-        Map<StatChartGroup.ChartType, Chart<? extends Point>> charts = responseTimeChartGroup.getCharts();
+    private void assertEquals(List<SampledResponseTime> sampledResponseTimeList, StatChartGroup<AgentStatPoint<Long>> responseTimeChartGroup) {
+        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Long>>> charts = responseTimeChartGroup.getCharts();
 
-        Chart avgChart = charts.get(ResponseTimeChart.ResponseTimeChartGroup.ResponseTimeChartType.AVG);
-        List<Point> avgChartPointList = avgChart.getPoints();
+        Chart<AgentStatPoint<Long>> avgChart = charts.get(ResponseTimeChart.ResponseTimeChartType.AVG);
+        List<AgentStatPoint<Long>> avgChartPointList = avgChart.getPoints();
         for (int i = 0; i < sampledResponseTimeList.size(); i++) {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
             Point point = sampledResponseTime.getAvg();
 
-            Assert.assertEquals(avgChartPointList.get(i), point);
+            Assertions.assertEquals(avgChartPointList.get(i), point);
         }
 
-        Chart maxChart = charts.get(ResponseTimeChart.ResponseTimeChartGroup.ResponseTimeChartType.MAX);
-        List<Point> maxChartPointList = maxChart.getPoints();
+        Chart<AgentStatPoint<Long>> maxChart = charts.get(ResponseTimeChart.ResponseTimeChartType.MAX);
+        List<AgentStatPoint<Long>> maxChartPointList = maxChart.getPoints();
         for (int i = 0; i < sampledResponseTimeList.size(); i++) {
             SampledResponseTime sampledResponseTime = sampledResponseTimeList.get(i);
-            Point point = sampledResponseTime.getMax();
+            AgentStatPoint<Long> point = sampledResponseTime.getMax();
 
-            Assert.assertEquals(maxChartPointList.get(i), point);
+            Assertions.assertEquals(maxChartPointList.get(i), point);
         }
 
     }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
 import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 import java.util.Objects;
@@ -27,12 +28,7 @@ import java.util.Objects;
 public class SampledActiveTrace implements SampledAgentStatDataPoint {
 
     public static final int UNCOLLECTED_COUNT = -1;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
-        @Override
-        public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
-            return new AgentStatPoint<>(xVal, UNCOLLECTED_COUNT);
-        }
-    };
+    public static final Point.UncollectedPointCreator<AgentStatPoint<Integer>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createIntPointCreator(UNCOLLECTED_COUNT);
 
     private final AgentStatPoint<Integer> fastCounts;
     private final AgentStatPoint<Integer> normalCounts;

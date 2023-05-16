@@ -20,6 +20,15 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class KafkaConfig {
 
+    // whether this plugin intercepts org.apache.kafka.common.header.Headers
+    public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
+
+    static final String ENABLE = "profiler.kafka.enable";
+    static final String STREAMS_ENABLE = "profiler.kafka-streams.enable";
+
+    // whether this plugin records kafka headers contents to Pinpoint
+    static final String HEADER_RECORD = "profiler.kafka.header.record";
+
     static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
 
     static final String CONSUMER_ENABLE = "profiler.kafka.consumer.enable";
@@ -27,19 +36,32 @@ public class KafkaConfig {
 
     static final String SPRING_CONSUMER_ENABLE = "profiler.springkafka.consumer.enable";
 
+    private final boolean enable;
+    private final boolean streamsEnable;
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
+    private final boolean headerEnable;
+    private final boolean headerRecorded;
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
-        /*
-         * kafka
-         */
+        this.enable = config.readBoolean(ENABLE, true);
+        this.streamsEnable = config.readBoolean(STREAMS_ENABLE, false);
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
+        this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
+        this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public boolean isStreamsEnable() {
+        return streamsEnable;
     }
 
     public boolean isProducerEnable() {
@@ -54,6 +76,14 @@ public class KafkaConfig {
         return springConsumerEnable;
     }
 
+    public boolean isHeaderEnable() {
+        return headerEnable;
+    }
+
+    public boolean isHeaderRecorded() {
+        return headerRecorded;
+    }
+
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
     }
@@ -61,9 +91,13 @@ public class KafkaConfig {
     @Override
     public String toString() {
         return "KafkaConfig{" +
-                "producerEnable=" + producerEnable +
+                "enable=" + enable +
+                ", streamsEnable=" + streamsEnable +
+                ", producerEnable=" + producerEnable +
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
+                ", headerEnable=" + headerEnable +
+                ", headerRecorded=" + headerRecorded +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 '}';
     }

@@ -20,11 +20,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+
+import java.util.Arrays;
 
 /**
  * @author jaehong.kim
  */
-public class GrpcMetadataMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
+public class GrpcMetadataMessageConverterProvider implements Provider<MessageConverter<MetaDataType, GeneratedMessageV3>> {
 
 
     @Inject
@@ -33,12 +36,10 @@ public class GrpcMetadataMessageConverterProvider implements Provider<MessageCon
     }
 
     @Override
-    public MessageConverter<GeneratedMessageV3> get() {
-        MessageConverter<GeneratedMessageV3> metadataMessageConverter = new GrpcMetadataMessageConverter();
-        MessageConverter<GeneratedMessageV3> agentMessageConverter = new GrpcAgentInfoMessageConverter();
+    public MessageConverter<MetaDataType, GeneratedMessageV3> get() {
+        MessageConverter<MetaDataType, GeneratedMessageV3> metadataMessageConverter = new GrpcMetadataMessageConverter();
+        MessageConverter<MetaDataType, GeneratedMessageV3> agentMessageConverter = new GrpcAgentInfoMessageConverter();
 
-        @SuppressWarnings("unchecked")
-        final MessageConverterGroup<GeneratedMessageV3> group = MessageConverterGroup.wrap(metadataMessageConverter, agentMessageConverter);
-        return group;
+        return MessageConverterGroup.wrap(Arrays.asList(metadataMessageConverter, agentMessageConverter));
     }
 }

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao;
 
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.util.List;
 
@@ -29,5 +29,7 @@ public interface AgentStatisticsDao {
     boolean insertAgentCount(AgentCountStatistics agentCountStatistics);
 
     List<AgentCountStatistics> selectAgentCount(Range range);
+
+    List<AgentCountStatistics> selectLatestAgentCount(Integer size);
 
 }

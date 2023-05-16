@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,24 +34,25 @@ import java.util.List;
  */
 public abstract class AbstractRouteHandler<T extends RouteEvent> implements RouteHandler<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ClusterPointLocator<ClusterPoint> targetClusterPointLocator;
+    private final ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator;
 
-    public AbstractRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator) {
+    public AbstractRouteHandler(ClusterPointLocator<ClusterPoint<?>> targetClusterPointLocator) {
         this.targetClusterPointLocator = targetClusterPointLocator;
     }
 
-    protected ClusterPoint findClusterPoint(TCommandTransfer deliveryCommand) {
+    protected ClusterPoint<?> findClusterPoint(TCommandTransfer deliveryCommand) {
         String applicationName = deliveryCommand.getApplicationName();
         String agentId = deliveryCommand.getAgentId();
         long startTimeStamp = deliveryCommand.getStartTime();
+        final ClusterKey sourceKey = new ClusterKey(applicationName, agentId, startTimeStamp);
 
-        List<ClusterPoint> result = new ArrayList<>();
+        List<ClusterPoint<?>> result = new ArrayList<>();
 
-        for (ClusterPoint targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
-            AgentInfo destAgentInfo = targetClusterPoint.getDestAgentInfo();
-            if (destAgentInfo.equals(applicationName, agentId, startTimeStamp)) {
+        for (ClusterPoint<?> targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
+            ClusterKey destAgentInfo = targetClusterPoint.getDestClusterKey();
+            if (destAgentInfo.equals(sourceKey)) {
                 result.add(targetClusterPoint);
             }
         }

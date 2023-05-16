@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -48,12 +49,8 @@ public class ScanTask implements Runnable {
     private volatile boolean isDone = false;
 
     public ScanTask(ScanTaskConfig scanTaskConfig, Scan... scans) {
-        if (scanTaskConfig == null) {
-            throw new NullPointerException("scanTaskConfig");
-        }
-        if (scans == null) {
-            throw new NullPointerException("scans");
-        }
+        Objects.requireNonNull(scanTaskConfig, "scanTaskConfig");
+        Objects.requireNonNull(scans, "scans");
         if (scans.length == 0) {
             throw new IllegalArgumentException("scans must not be empty");
         }

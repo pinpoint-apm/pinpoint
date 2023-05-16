@@ -23,8 +23,8 @@ package com.navercorp.pinpoint.web.filter.transaction;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.URLPatternFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +33,7 @@ import java.util.Objects;
  * Queue (virtual) -> WAS
  */
 public class QueueToWasFilter implements Filter<LinkContext> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Filter<SpanBo> spanResponseConditionFilter;
     private final URLPatternFilter acceptURLFilter;

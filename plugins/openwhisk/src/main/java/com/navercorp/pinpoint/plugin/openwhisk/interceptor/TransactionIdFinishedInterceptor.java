@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.openwhisk.accessor.PinpointTraceAccessor;
 
 /**
@@ -30,7 +31,8 @@ public class TransactionIdFinishedInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
-    public TransactionIdFinishedInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {}
+    public TransactionIdFinishedInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -39,8 +41,8 @@ public class TransactionIdFinishedInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[2]);
-        final Trace trace = ((PinpointTraceAccessor) (args[2]))._$PINPOINT$_getPinpointTrace();
+        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 2);
+        Trace trace = getTrace(args);
 
         if (asyncContext == null || trace == null) {
             return;
@@ -48,6 +50,14 @@ public class TransactionIdFinishedInterceptor implements AroundInterceptor {
         trace.traceBlockEnd();
         trace.close();
         asyncContext.close();
+    }
+
+    private Trace getTrace(Object[] args) {
+        PinpointTraceAccessor pinpointTraceAccessor = ArrayArgumentUtils.getArgument(args, 2, PinpointTraceAccessor.class);
+        if (pinpointTraceAccessor != null) {
+            return pinpointTraceAccessor._$PINPOINT$_getPinpointTrace();
+        }
+        return null;
     }
 
     @Override

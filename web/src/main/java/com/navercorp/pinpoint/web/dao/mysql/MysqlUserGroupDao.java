@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 @Repository
 public class MysqlUserGroupDao implements UserGroupDao {
     
-    private static final String NAMESPACE = UserGroupDao.class.getPackage().getName() + "." + UserGroupDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = UserGroupDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
@@ -55,6 +55,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     @Override
     public boolean isExistUserGroup(String userGroupId) {
         return sqlSessionTemplate.selectOne(NAMESPACE + "isExistUserGroup", userGroupId);
+    }
+
+    @Override
+    public boolean isExistUserGroupMember(UserGroupMember userGroupMember) {
+        return sqlSessionTemplate.selectOne(NAMESPACE + "isExistUserGroupMember", userGroupMember);
     }
 
     @Override

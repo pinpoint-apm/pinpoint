@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 
 /**
@@ -40,7 +41,7 @@ public class TAsyncMethodCallOnErrorInterceptor extends AsyncContextSpanEventSim
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if (args != null && args.length == 1) {
+        if (ArrayUtils.getLength(args) == 1) {
             recorder.recordAttribute(AnnotationKey.ARGS0, args[0]);
         }
         recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);

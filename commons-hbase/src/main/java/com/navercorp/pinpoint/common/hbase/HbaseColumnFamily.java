@@ -56,9 +56,18 @@ public class HbaseColumnFamily {
 
     public static final AgentStatStatistics AGENT_STAT_STATISTICS = new AgentStatStatistics(HbaseTable.AGENT_STAT_VER2, Bytes.toBytes("S"));
     public static class AgentStatStatistics extends HbaseColumnFamily {
-        public final int TIMESPAN_MS = 5 * 60 * 1000;
+        public static final int TIMESPAN_MS = 5 * 60 * 1000;
 
         private AgentStatStatistics(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final AgentUriStatStatistics AGENT_URI_STAT_STATISTICS = new AgentUriStatStatistics(HbaseTable.AGENT_URI_STAT, Bytes.toBytes("Uri"));
+    public static class AgentUriStatStatistics extends HbaseColumnFamily {
+        public static final int TIMESPAN_MS = 5 * 60 * 1000;
+
+        private AgentUriStatStatistics(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
         }
     }
@@ -89,6 +98,7 @@ public class HbaseColumnFamily {
     }
 
     public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_TRACE = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("I"));
+    public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_META = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("M"));
     public static class ApplicationTraceIndexTrace extends HbaseColumnFamily {
         public static final int ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 

@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.hbase.manager.logging.Markers;
 import com.navercorp.pinpoint.hbase.manager.task.HbaseSchemaManagerTask;
 import com.navercorp.pinpoint.hbase.schema.reader.HbaseSchemaParseException;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -36,10 +36,13 @@ import java.util.Arrays;
 @Component
 public class HbaseSchemaManagerRunner implements ApplicationRunner {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseSchemaManagerTaskFactory taskFactory;
+    private final HbaseSchemaManagerTaskFactory taskFactory;
+
+    public HbaseSchemaManagerRunner(HbaseSchemaManagerTaskFactory taskFactory) {
+        this.taskFactory = Objects.requireNonNull(taskFactory, "taskFactory");
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {

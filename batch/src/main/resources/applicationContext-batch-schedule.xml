@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="batchProperties" class="com.navercorp.pinpoint.batch.common.BatchProperties"/>
+
+    <task:scheduled-tasks scheduler="scheduler">
+        <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="0 0 2 * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="flinkCheckJob" cron="0 0/10 * * * *"/>
+        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchConfiguration['cleanupInactiveAgentsCron']}"/>
+    </task:scheduled-tasks>
+
+    <task:scheduler id="scheduler" pool-size="4"/>
+
+    <import resource="classpath:applicationContext-batch-common.xml"/>
+    <import resource="classpath:applicationContext-batch-datasource.xml"/>
+    <import resource="classpath:applicationContext-batch-dao-config.xml"/>
+    <import resource="classpath:applicationContext-web-hbase.xml"/>
+    <import resource="classpath:applicationContext-batch-web-component.xml"/>
+    <import resource="classpath:applicationContext-batch-sender.xml"/>
+
+    <import resource="classpath:job/applicationContext-alarmJob.xml"/>
+    <import resource="classpath:job/applicationContext-agentCountJob.xml"/>
+    <import resource="classpath:job/applicationContext-flinkCheckJob.xml"/>
+    <import resource="classpath:job/applicationContext-cleanupInactiveAgentsJob.xml"/>
+</beans>

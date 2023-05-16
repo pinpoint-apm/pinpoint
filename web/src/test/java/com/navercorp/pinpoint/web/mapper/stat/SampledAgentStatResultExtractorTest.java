@@ -18,23 +18,22 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
+import com.navercorp.pinpoint.web.util.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSampler;
-import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,31 +43,14 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SampledAgentStatResultExtractorTest {
 
     private static final long DEFAULT_TIME_INTERVAL = 5 * 1000L;
 
-    private static final TimeWindowSampler ONE_TO_ONE_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return DEFAULT_TIME_INTERVAL;
-        }
-    };
-
-    private static final TimeWindowSampler TWO_TO_ONE_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return DEFAULT_TIME_INTERVAL * 2;
-        }
-    };
-
-    private static final TimeWindowSampler TEN_TO_ONE_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return DEFAULT_TIME_INTERVAL * 10;
-        }
-    };
+    private static final TimeWindowSampler ONE_TO_ONE_SAMPLER = new FixedTimeWindowSampler(DEFAULT_TIME_INTERVAL);
+    private static final TimeWindowSampler TWO_TO_ONE_SAMPLER = new FixedTimeWindowSampler(DEFAULT_TIME_INTERVAL * 2);
+    private static final TimeWindowSampler TEN_TO_ONE_SAMPLER = new FixedTimeWindowSampler(DEFAULT_TIME_INTERVAL * 10);
 
     @Mock
     private ResultScanner resultScanner;
@@ -79,10 +61,9 @@ public class SampledAgentStatResultExtractorTest {
     @Mock
     private AgentStatMapperV2<TestAgentStatDataPoint> rowMapper;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this.getClass());
-        when(this.resultScanner.iterator()).thenReturn(Arrays.asList(this.result).iterator());
+    @BeforeEach
+    public void beforeEach() {
+        when(this.resultScanner.iterator()).thenReturn(List.of(this.result).iterator());
     }
 
     @Test
@@ -91,7 +72,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 10;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(new Range(initialTimestamp, finalTimestamp), ONE_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(initialTimestamp, finalTimestamp), ONE_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -104,7 +85,7 @@ public class SampledAgentStatResultExtractorTest {
         // Then
         for (TestSampledAgentStatDataPoint sampledDataPoint : sampledDataPoints) {
             List<TestAgentStatDataPoint> expectedSampledDataPoints = expectedDataPointSlotMap.get(sampledDataPoint.getBaseTimestamp());
-            Assert.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
+            Assertions.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
         }
     }
 
@@ -114,7 +95,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 20;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(new Range(initialTimestamp, finalTimestamp), TWO_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(initialTimestamp, finalTimestamp), TWO_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -127,7 +108,7 @@ public class SampledAgentStatResultExtractorTest {
         // Then
         for (TestSampledAgentStatDataPoint sampledDataPoint : sampledDataPoints) {
             List<TestAgentStatDataPoint> expectedSampledDataPoints = expectedDataPointSlotMap.get(sampledDataPoint.getBaseTimestamp());
-            Assert.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
+            Assertions.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
         }
     }
 
@@ -137,7 +118,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 100;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(new Range(initialTimestamp, finalTimestamp), TEN_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.between(initialTimestamp, finalTimestamp), TEN_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -150,7 +131,7 @@ public class SampledAgentStatResultExtractorTest {
         // Then
         for (TestSampledAgentStatDataPoint sampledDataPoint : sampledDataPoints) {
             List<TestAgentStatDataPoint> expectedSampledDataPoints = expectedDataPointSlotMap.get(sampledDataPoint.getBaseTimestamp());
-            Assert.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
+            Assertions.assertEquals(expectedSampledDataPoints, sampledDataPoint.getDataPointsToSample());
         }
     }
 

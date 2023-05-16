@@ -30,9 +30,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactor
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3EntityExtractor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3RequestWrapper;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3ResponseHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpMethodClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CookieExtractor;
 import org.apache.commons.httpclient.HttpConnection;
@@ -55,6 +59,8 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 import org.apache.commons.httpclient.URI;
 
+import java.util.Objects;
+
 /**
  * @author Minwoo Jung
  * @author jaehong.kim
@@ -72,27 +78,19 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final boolean io;
     private final CookieRecorder<HttpMethod> cookieRecorder;
     private final EntityRecorder<HttpMethod> entityRecorder;
+    private final ServerResponseHeaderRecorder<HttpMethod> responseHeaderRecorder;
 
-    public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor");
-        }
-        if (interceptorScope == null) {
-            throw new NullPointerException("interceptorScope");
-        }
-        this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
-        this.interceptorScope = interceptorScope;
+    public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope interceptorScope) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.interceptorScope = Objects.requireNonNull(interceptorScope, "interceptorScope");
 
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(traceContext.getProfilerConfig());
         final boolean param = config.isParam();
         final HttpDumpConfig httpDumpConfig = config.getHttpDumpConfig();
 
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
-        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(param, clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
 
         CookieExtractor<HttpMethod> cookieExtractor = HttpClient3CookieExtractor.INSTANCE;
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(httpDumpConfig, cookieExtractor);
@@ -100,8 +98,10 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         EntityExtractor<HttpMethod> entityExtractor = HttpClient3EntityExtractor.INSTANCE;
         this.entityRecorder = EntityRecorderFactory.newEntityRecorder(httpDumpConfig, entityExtractor);
 
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new HttpClient3ResponseHeaderAdaptor());
+
         ClientHeaderAdaptor<HttpMethod> clientHeaderAdaptor = new HttpMethodClientHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMethod>(clientHeaderAdaptor, traceContext);
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
 
         this.io = config.isIo();
     }
@@ -164,10 +164,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     private HttpConnection getHttpConnection(final Object[] args) {
-        if (args != null && args.length > 1 && args[1] instanceof HttpConnection) {
-            return (HttpConnection) args[1];
-        }
-        return null;
+        return ArrayArgumentUtils.getArgument(args, 1, HttpConnection.class);
     }
 
     @Override
@@ -192,6 +189,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
                 this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
                 this.cookieRecorder.record(recorder, httpMethod, throwable);
                 this.entityRecorder.record(recorder, httpMethod, throwable);
+                this.responseHeaderRecorder.recordHeader(recorder, httpMethod);
             }
 
             if (result != null) {

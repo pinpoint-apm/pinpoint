@@ -61,7 +61,7 @@ public class ThriftThreadDumpBoMapper implements ThriftBoMapper<ThreadDumpBo, TT
         threadDumpBo.setThreadState(this.threadStateMapper.map(threadState));
         threadDumpBo.setStackTraceList(threadDump.getStackTrace());
 
-        if (!CollectionUtils.isEmpty(threadDump.getLockedMonitors())) {
+        if (CollectionUtils.hasLength(threadDump.getLockedMonitors())) {
             final List<MonitorInfoBo> monitorInfoBoList = new ArrayList<>();
             for (TMonitorInfo monitorInfo : threadDump.getLockedMonitors()) {
                 final MonitorInfoBo monitorInfoBo = this.monitorInfoBoMapper.map(monitorInfo);

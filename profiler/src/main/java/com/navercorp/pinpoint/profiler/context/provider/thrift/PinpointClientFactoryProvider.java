@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.thrift.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
@@ -30,6 +29,7 @@ import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,10 +43,10 @@ public class PinpointClientFactoryProvider extends AbstractClientFactoryProvider
 
     @Inject
     public PinpointClientFactoryProvider(ThriftTransportConfig thriftTransportConfig, Provider<AgentInformation> agentInformation, CommandDispatcher commandDispatcher, Provider<ConnectionFactoryProvider> connectionFactoryProvider) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
-        this.commandDispatcher = Assert.requireNonNull(commandDispatcher, "commandDispatcher");
-        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
+        this.thriftTransportConfig = Objects.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
+        this.commandDispatcher = Objects.requireNonNull(commandDispatcher, "commandDispatcher");
+        this.connectionFactoryProvider = Objects.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
 
     }
 

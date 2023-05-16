@@ -61,7 +61,12 @@ public class InformixPreparedStatementCreateInterceptor extends SpanEventSimpleA
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
-        final DatabaseInfo databaseInfo = getDatabaseInfo(target);
+        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;  
+        
+        if(databaseInfo == null) {
+            databaseInfo = getDatabaseInfo(target);
+        }
+
         if (target instanceof DatabaseInfoAccessor) {
             ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
         }

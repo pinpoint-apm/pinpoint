@@ -15,6 +15,7 @@ target/
 *.iws
 /.idea/
 out/
+.run
 
 # vscode
 .vscode
@@ -29,3 +30,7 @@ jsdoc/
 
 # FE local build dir
 dist/
+
+# logs
+logs/
+manager-logs/

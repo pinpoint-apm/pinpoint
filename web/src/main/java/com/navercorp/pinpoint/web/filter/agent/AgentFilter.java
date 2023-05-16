@@ -8,4 +8,9 @@ public interface AgentFilter {
     boolean REJECT = false;
 
     boolean accept(String agentId);
+
+    static boolean filterAccept(String agentId) {
+        return ACCEPT;
+    }
+
 }

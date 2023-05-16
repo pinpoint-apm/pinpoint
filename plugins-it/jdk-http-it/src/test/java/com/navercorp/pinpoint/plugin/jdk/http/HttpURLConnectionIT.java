@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.plugin.jdk.http;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,6 +27,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,8 +45,9 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion({6, 7, 8})
+@JvmVersion(8)
 @Dependency({ WebServer.VERSION, PluginITConstants.VERSION})
+@JvmArgument("-Dprofiler.http.record.response.headers=Connection")
 public class HttpURLConnectionIT {
 
     private static WebServer webServer;
@@ -68,15 +69,17 @@ public class HttpURLConnectionIT {
         connection.getHeaderFields();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
+        verifier.printMethod();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("getInputStream");
         
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTraceCount(1);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId, annotation("http.url", httpUrl)));
+        verifier.verifyTraceCount(2);
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
+                annotation("http.url", httpUrl),
+                annotation("http.resp.header", anyAnnotationValue())));
     }
     
     @Test
@@ -88,57 +91,53 @@ public class HttpURLConnectionIT {
         connection.getInputStream();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
+        verifier.printMethod();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method connect = targetClass.getMethod("connect");
+        Method getInputStream = targetClass.getMethod("getInputStream");
 
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTraceCount(1);
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId, annotation("http.url", httpUrl)));
+        verifier.verifyTraceCount(2);
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, destinationId,
+                annotation("http.url", httpUrl)));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, destinationId,
+                annotation("http.url", httpUrl),
+                annotation("http.resp.header", anyAnnotationValue())));
     }
     
     @Test
     public void testConnecting() throws Exception {
-        Exception expected = null;
+
         URL url = new URL("http://no.such.url");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        
+
+        Exception expected1 = null;
         try {
             connection.connect();
         } catch (UnknownHostException e) {
-            expected = e;
+            expected1 = e;
         }
-        
+
+        Exception expected2 = null;
         try {
             connection.connect();
         } catch (UnknownHostException e) {
-            expected = e;
+            expected2 = e;
         }
-        
-        Field field = null;
-        try {
-            field = connection.getClass().getDeclaredField("connecting");
-        } catch (NoSuchFieldException ignored) {
-            
-        }
-        
-         
-        
+
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
-        
+        verifier.printMethod();
+
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("connect");
-        
-        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
-        
-        if (field == null) {
-            // JDK 6, 7
-            verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
-        }
-        
+
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected1, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, expected2, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
+
+        verifier.printMethod();
         verifier.verifyTraceCount(0);
     }
 }

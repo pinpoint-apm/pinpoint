@@ -1,0 +1,16 @@
+:host {
+    display: block;
+}
+
+.apdex-score-wrapper {
+    cursor: pointer;
+    position: relative;
+}
+
+.fa-question-circle {
+    position: absolute;
+    top: 1px;
+    right: 37px;
+    font-size: 0.6em;
+    color: var(--icon-default);
+}

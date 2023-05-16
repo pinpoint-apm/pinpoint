@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.rabbitmq.client.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author HyunGil Jeong
@@ -32,7 +33,7 @@ public class QueueingConsumerHandleInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return;
         }
         if (!(args[0] instanceof AsyncContextAccessor)) {

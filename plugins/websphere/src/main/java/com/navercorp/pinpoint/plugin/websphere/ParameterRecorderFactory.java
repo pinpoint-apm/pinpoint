@@ -29,10 +29,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 public class ParameterRecorderFactory {
     public static ParameterRecorder<IRequest> newParameterRecorderFactory(Filter<String> excludeProfileMethodFilter, boolean traceRequestParam) {
         if (!traceRequestParam) {
-            return new DisableParameterRecorder<IRequest>();
+            return new DisableParameterRecorder<>();
         }
         ParameterExtractor<IRequest> parameterExtractor = new IRequestParameterExtractor(64, 512);
         ParameterExtractor<IRequest> methodFilterExtractor = new MethodFilterExtractor(excludeProfileMethodFilter, parameterExtractor);
-        return new HttpParameterRecorder<IRequest>(methodFilterExtractor);
+        return new HttpParameterRecorder<>(methodFilterExtractor);
     }
 }

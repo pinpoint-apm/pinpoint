@@ -24,8 +24,9 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.thrift.TBase;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -35,9 +36,9 @@ import java.util.Objects;
  * @author koo.taejin
  */
 @Service
-public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
+public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler<TBase<?, ?>, TBase<?, ?>> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
 
@@ -49,8 +50,8 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<TBase<?, ?>> serverRequest) {
+        TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle simple data={}", data);
         }
@@ -63,21 +64,21 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
     }
 
     @Override
-    public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
-        final Object data = serverRequest.getData();
+    public void handleRequest(ServerRequest<TBase<?, ?>> serverRequest, ServerResponse<TBase<?, ?>> serverResponse) {
+        final TBase<?, ?> data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
             logger.debug("Handle request data={}", data);
         }
 
         if (data instanceof TAgentInfo) {
-            final Object result = handleAgentInfo((TAgentInfo) data);
+            final TBase<?, ?> result = handleAgentInfo((TAgentInfo) data);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid serverRequest:{}", serverRequest);
         }
     }
 
-    private Object handleAgentInfo(TAgentInfo agentInfo) {
+    private TResult handleAgentInfo(TAgentInfo agentInfo) {
         try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);

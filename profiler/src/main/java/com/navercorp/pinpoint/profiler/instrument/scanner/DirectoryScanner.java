@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,31 +28,28 @@ import java.io.InputStream;
  */
 public class DirectoryScanner implements Scanner {
 
-    private final String directory;
+    private final File directory;
 
     public DirectoryScanner(String directory) {
-        this.directory = Assert.requireNonNull(directory, "directory");
+        Objects.requireNonNull(directory, "directory");
+        this.directory = new File(directory);
     }
 
     @Override
     public boolean exist(String fileName) {
-        Assert.requireNonNull(fileName, "fileName");
+        Objects.requireNonNull(fileName, "fileName");
 
-        final String fullPath = getFullPath(fileName);
-        final File file = new File(fullPath);
+        final File file = new File(directory, fileName);
 
         return file.isFile();
     }
 
-    private String getFullPath(String fileName) {
-        return directory + fileName;
-    }
 
     @Override
     public InputStream openStream(String fileName) {
-        Assert.requireNonNull(fileName, "fileName");
+        Objects.requireNonNull(fileName, "fileName");
 
-        final String fullPath = getFullPath(fileName);
+        final File fullPath = new File(directory, fileName);
         try {
             return new FileInputStream(fullPath);
         } catch (FileNotFoundException e) {

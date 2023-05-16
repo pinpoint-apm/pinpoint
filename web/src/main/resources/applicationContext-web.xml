@@ -1,83 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright 2019 NAVER Corp.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
-    <context:annotation-config/>
-    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
-                                         com.navercorp.pinpoint.web.service,
-                                         com.navercorp.pinpoint.web.mapper,
-                                         com.navercorp.pinpoint.web.filter,
-                                         com.navercorp.pinpoint.web.view,
-                                         com.navercorp.pinpoint.web.applicationmap,
-                                         com.navercorp.pinpoint.common.server.bo,
-                                         com.navercorp.pinpoint.common.server.util" />
-
-    <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:hbase.properties</value>
-                <value>classpath:jdbc.properties</value>
-                <value>classpath:pinpoint-web.properties</value>
-                <value>classpath:batch.properties</value>
-                <!-- override configuration -->
-                <value>classpath:profiles/${pinpoint.profiles.active}/hbase-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/batch-env.properties</value>
-                <!-- external property for override -->
-                <value>file:#{ systemProperties['pinpoint.web.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
-            </list>
-        </property>
-
-        <property name="fileEncoding" value="UTF-8"/>
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        <property name="ignoreResourceNotFound" value="true"/>
-    </bean>
-    
-    <bean id="pinpointWebProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="location" value="classpath:pinpoint-web.properties"/>
-    </bean>
-
-    <import resource="classpath:applicationContext-web-profile.xml" />
-    <import resource="classpath:applicationContext-web-hbase.xml" />
-    <import resource="classpath:applicationContext-web-datasource.xml" />
-    <import resource="classpath:applicationContext-web-dao-config.xml" />
-    <import resource="classpath:applicationContext-web-cache.xml" />
-    <import resource="classpath:applicationContext-web-websocket.xml" />
-    <import resource="classpath:applicationContext-web-namespace.xml"/>
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"/>
 
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
+    <bean class="com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory"/>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
-
-    <bean id="webConfig" class="com.navercorp.pinpoint.web.config.WebConfig"/>
-    <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
-    <bean id="logConfiguration" class="com.navercorp.pinpoint.web.config.LogConfiguration"/>
-    <bean id="webSocketConfig" class="com.navercorp.pinpoint.web.config.WebSocketConfig"/>
 
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
@@ -87,15 +18,15 @@
     </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
-        <constructor-arg ref="webConfig" />
+        <constructor-arg ref="webClusterProperties"/>
     </bean>
 
     <bean id="clusterDataManager" class="com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager">
-        <constructor-arg ref="webConfig" />
+        <constructor-arg ref="webClusterProperties"/>
     </bean>
 
     <bean id="clusterManager" class="com.navercorp.pinpoint.web.cluster.ClusterManager">
-        <constructor-arg ref="webConfig" />
+        <constructor-arg ref="webClusterProperties"/>
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
@@ -109,31 +40,24 @@
 
     <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
 
-    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
-    </bean>
-
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
-        <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
-    </bean>
-
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
-        <constructor-arg ref="typeLoaderService"/>
-    </bean>
 
     <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
     </bean>
-    
+
+    <bean id="apiParserProvider" class="com.navercorp.pinpoint.common.server.trace.ApiParserProvider">
+    </bean>
+
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
     </bean>
-    
+
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
     </bean>
 
     <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <constructor-arg ref="metadataRowKeyDistributor"/>
     </bean>
-    
+
     <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
@@ -213,4 +137,9 @@
     <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
         <constructor-arg index="0" value="true"/>
     </bean>
+
+    <bean class="com.navercorp.pinpoint.web.interceptor.PerformanceLoggingInterceptor">
+        <constructor-arg value="1000"/>
+    </bean>
+
 </beans>

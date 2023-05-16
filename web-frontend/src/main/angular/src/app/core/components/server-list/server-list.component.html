@@ -1,0 +1,33 @@
+<ul class="servers-list depth-0">
+    <li *ngFor="let server of serverList; let outerIndex = index">
+        <div class="server-name" [attr.title]="server.groupName">{{server.groupName}}</div>
+        <ul class="depth-1">
+            <li *ngFor="let agent of server.instancesList; let innerIndex = index">
+                <div class="label-radio-wrapper" [style.max-width]="getLabelMaxWidth(btnWrapper)" #labelWrapper>
+                    <input
+                            type="radio"
+                            class="radio-input"
+                            id="step3-category-{{outerIndex}}-{{innerIndex}}"
+                            name="main-server-list-selected-agent" (click)="onSelectAgent(agent)"
+                            [checked]="isSelectedAgent(agent)"
+                    >
+                    <label
+                            for="step3-category-{{outerIndex}}-{{innerIndex}}"
+                            class="radio-label"
+                            [attr.title]="agent.agentName || agent.agentId"
+                            #label
+                    >{{getAgentLabel(agent)}}</label>
+                    <button type="button" class="copy-button" [style.left]="getLeftPosition(labelWrapper, label)"
+                            (click)="onClickCopy($event, getAgentLabel(agent))">
+                        <span class="far fa-copy" title="Copy to Clipboard"></span>
+                    </button>
+                </div>
+                <div class="btn-wrapper" #btnWrapper>
+                    <span class="icon-alert" *ngIf="hasError(agent)"><img [src]="getAlertImgPath()" alt=""></span>
+                    <button class="inspector-btn fas fa-chart-line" (click)="onOpenInspector(agent)"
+                            *ngIf="isWas"></button>
+                </div>
+            </li>
+        </ul>
+    </li>
+</ul>

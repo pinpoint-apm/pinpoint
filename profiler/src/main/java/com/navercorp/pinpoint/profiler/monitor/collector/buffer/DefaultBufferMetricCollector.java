@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.buffer;
 
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
@@ -30,7 +30,7 @@ public class DefaultBufferMetricCollector implements AgentStatMetricCollector<Bu
     private final BufferMetric bufferMetric;
 
     public DefaultBufferMetricCollector(BufferMetric bufferMetric) {
-        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric");
+        this.bufferMetric = Objects.requireNonNull(bufferMetric, "bufferMetric");
     }
 
     @Override

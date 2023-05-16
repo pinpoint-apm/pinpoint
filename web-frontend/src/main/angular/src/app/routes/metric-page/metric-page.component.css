@@ -1,0 +1,50 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.container {
+    display: flex;
+}
+
+.l-widget-group {
+    display: flex;
+    padding: 0 15px;
+    height: 50px;
+    width: 100%;
+    border-bottom: 1px solid var(--border-primary);
+    align-items: center;
+    background: var(--background-default);
+}
+
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    height: 100vh;
+    width: 100%;
+    overflow-y: hidden;
+}
+
+.l-sidemenu-wrap {
+    position: relative;
+    height: calc(100% - 50px);
+}
+
+.l-sidemenu-left {
+    width: 250px;
+    overflow: visible;
+    border-right: 1px solid var(--border-primary);
+    background: var(--background-default);
+    height: 100%;
+}
+
+.l-main-section {
+    background: var(--background-primary);
+    position: relative;
+    height: calc(100% - 50px);
+}
+
+.l-main-section.sideNavigationUI {
+    height: calc(100% - 50px);
+}

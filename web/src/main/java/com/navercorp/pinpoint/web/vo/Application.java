@@ -52,17 +52,6 @@ public final class Application {
         return serviceType.getCode();
     }
 
-    public boolean equals(String thatName, ServiceType thatServiceType) {
-        if (thatName == null) {
-            throw new NullPointerException("thatName");
-        }
-        if (thatServiceType == null) {
-            throw new NullPointerException("thatServiceType");
-        }
-        if (!name.equals(thatName)) return false;
-        return serviceType.equals(thatServiceType);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

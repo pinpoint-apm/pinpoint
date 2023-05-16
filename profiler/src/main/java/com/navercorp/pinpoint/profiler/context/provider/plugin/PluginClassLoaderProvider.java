@@ -39,15 +39,15 @@ public class PluginClassLoaderProvider implements Provider<ClassLoader> {
     public PluginClassLoaderProvider(@PluginJars List<PluginJar> pluginJars) {
         // TODO configuration support
         ClassLoader parentClassLoader = Object.class.getClassLoader();
-        List<URL> pluginUrls = new ArrayList<URL>(pluginJars.size());
+        List<URL> pluginUrls = new ArrayList<>(pluginJars.size());
         for (PluginJar pluginJar : pluginJars) {
-            pluginUrls.add(pluginJar.getUrl());
+            pluginUrls.add(pluginJar.getURL());
         }
-        this.pluginClassLoader = createPluginClassLoader(pluginUrls, parentClassLoader);
+        final URL[] urls = pluginUrls.toArray(new URL[0]);
+        this.pluginClassLoader = createPluginClassLoader(urls, parentClassLoader);
     }
 
-    private ClassLoader createPluginClassLoader(List<URL> pluginUrls, final ClassLoader parentClassLoader) {
-        final URL[] urls = pluginUrls.toArray(new URL[0]);
+    private ClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parentClassLoader) {
         SecurityManager securityManager = System.getSecurityManager();
         if (securityManager != null) {
             return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {

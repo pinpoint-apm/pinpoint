@@ -15,11 +15,12 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
@@ -32,15 +33,15 @@ public class DefaultSimpleClassMetadataTest {
         DefaultSimpleClassMetadata classMetadata = new DefaultSimpleClassMetadata(1, 1, "java/lang/String", "java/lang/Object", Arrays.asList("java/lang/Comparable", "java/lang/Serializable"), classBinary);
         assertEquals("java.lang.String", classMetadata.getClassName());
         assertEquals("java.lang.Object", classMetadata.getSuperClassName());
-        assertTrue(classMetadata.getInterfaceNames().contains("java.lang.Comparable"));
-        assertTrue(classMetadata.getInterfaceNames().contains("java.lang.Serializable"));
+        assertThat(classMetadata.getInterfaceNames()).contains("java.lang.Comparable");
+        assertThat(classMetadata.getInterfaceNames()).contains("java.lang.Serializable");
         assertEquals(1, classMetadata.getAccessFlag());
         assertEquals(1, classMetadata.getVersion());
         assertEquals(classBinary, classMetadata.getClassBinary());
     }
 
     @Test
-    public void interfaceNameNull() throws Exception {
+    public void interfaceNameNull() {
         final byte[] classBinary = new byte[1];
         DefaultSimpleClassMetadata classMetadata = new DefaultSimpleClassMetadata(1, 1, "java/lang/String", "java/lang/Object", null, classBinary);
         assertEquals(0, classMetadata.getInterfaceNames().size());

@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.BasedMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MatcherType;
@@ -24,15 +23,18 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperan
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadataReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,31 +42,44 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author jaehong.kim
  */
-public class MatchableTransformerRegistry implements BaseTransformerRegistry {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class MatchableTransformerRegistry implements TransformerRegistry {
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     // class name.
-    private final DefaultTransformerRegistry defaultTransformerRegistry = new DefaultTransformerRegistry();
+    private final DefaultTransformerRegistry defaultTransformerRegistry;
 
     // class matcher operand.
-    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<String, IndexValue>(64);
+    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<>(64);
     // package matcher operand.
     private final Map<String, Set<IndexValue>> packageNameBasedIndex;
 
     private final TransformerMatcherExecutionPlanner executionPlanner = new TransformerMatcherExecutionPlanner();
     private final TransformerMatcher transformerMatcher;
 
-    public MatchableTransformerRegistry(final ProfilerConfig profilerConfig) {
-        // sorted by package name length.
-        this.packageNameBasedIndex = new TreeMap<String, Set<IndexValue>>(new Comparator<String>() {
-            @Override
-            public int compare(String key1, String key2) {
-                return key1.length() - key2.length();
-            }
-        });
+    public MatchableTransformerRegistry(InstrumentMatcherCacheConfig instrumentMatcherCacheConfig, List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        Objects.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
+        Objects.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
 
-        this.transformerMatcher = new DefaultTransformerMatcher(profilerConfig.getInstrumentMatcherCacheConfig());
+        final List<MatchableClassFileTransformer> defaultTransfomerList = filterDefaultMatcher(matchableClassFileTransformerList);
+        this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
+
+        // sorted by package name length.
+        this.packageNameBasedIndex = new TreeMap<>();
+
+        final List<MatchableClassFileTransformer> baseTransformer = filterBaseMatcher(matchableClassFileTransformerList);
+        for (MatchableClassFileTransformer transformer : baseTransformer) {
+            try {
+                addTransformer(transformer.getMatcher(), transformer);
+            } catch (Exception ex) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Failed to add transformer {}", transformer, ex);
+                }
+            }
+        }
+
+        this.transformerMatcher = new DefaultTransformerMatcher(instrumentMatcherCacheConfig);
+
     }
 
     @Override
@@ -149,16 +164,35 @@ public class MatchableTransformerRegistry implements BaseTransformerRegistry {
         return null;
     }
 
-    @Override
-    public void addTransformer(final Matcher matcher, final ClassFileTransformer transformer) {
-        if (MatcherType.isBasedMatcher(matcher)) {
-            // class or package based.
-            MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
-            addIndex(matcherOperand, transformer);
-        } else {
-            // class name.
-            this.defaultTransformerRegistry.addTransformer(matcher, transformer);
+    private void addTransformer(final Matcher matcher, final ClassFileTransformer transformer) {
+        if (!MatcherType.isBasedMatcher(matcher)) {
+            throw new IllegalArgumentException("unsupported baseMatcher");
         }
+        // class or package based.
+        MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
+        addIndex(matcherOperand, transformer);
+    }
+
+    private List<MatchableClassFileTransformer> filterBaseMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        // class name
+        final List<MatchableClassFileTransformer> filter = new ArrayList<>();
+        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+            if (MatcherType.isBasedMatcher(transformer.getMatcher())) {
+                filter.add(transformer);
+            }
+        }
+        return filter;
+    }
+
+    private List<MatchableClassFileTransformer> filterDefaultMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+        // class name
+        final List<MatchableClassFileTransformer> filter = new ArrayList<>();
+        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+            if (!MatcherType.isBasedMatcher(transformer.getMatcher())) {
+                filter.add(transformer);
+            }
+        }
+        return filter;
     }
 
     private void addIndex(final MatcherOperand condition, final ClassFileTransformer transformer) {
@@ -195,7 +229,7 @@ public class MatchableTransformerRegistry implements BaseTransformerRegistry {
     private void addIndexData(final String key, final IndexValue indexValue, final Map<String, Set<IndexValue>> index) {
         Set<IndexValue> indexValueSet = index.get(key);
         if (indexValueSet == null) {
-            indexValueSet = new HashSet<IndexValue>();
+            indexValueSet = new HashSet<>();
             index.put(key, indexValueSet);
         }
         indexValueSet.add(indexValue);

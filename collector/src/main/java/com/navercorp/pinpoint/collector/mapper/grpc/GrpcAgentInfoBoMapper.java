@@ -41,6 +41,7 @@ public class GrpcAgentInfoBoMapper {
 
     public AgentInfoBo map(final PAgentInfo agentInfo, final Header header) {
         final String agentId = header.getAgentId();
+        final String agentName = header.getAgentName();
         final String applicationName = header.getApplicationName();
         final long startTime = header.getAgentStartTime();
 
@@ -60,6 +61,7 @@ public class GrpcAgentInfoBoMapper {
         builder.setIp(ip);
         builder.setPorts(ports);
         builder.setAgentId(agentId);
+        builder.setAgentName(agentName);
         builder.setApplicationName(applicationName);
         builder.setServiceTypeCode(serviceType);
         builder.setPid(pid);

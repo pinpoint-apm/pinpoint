@@ -17,23 +17,33 @@
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
-import com.google.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.server.bo.*;
-import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.thrift.dto.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
+import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
+import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,17 +51,14 @@ import java.util.List;
 @Component
 public class SpanFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private SpanEventFilter spanEventFilter = new EmptySpanEventFilter();
-
-    private AcceptedTimeService acceptedTimeService = new EmptyAcceptedTimeService();
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AnnotationFactory<TAnnotation> annotationFactory = new AnnotationFactory<>(new ThriftAnnotationHandler());
 
     // TODO
     private final boolean fastAsyncIdGen;
 
+    @Autowired
     public SpanFactory() {
         this(fastAsyncIdGen());
     }
@@ -65,25 +72,14 @@ public class SpanFactory {
         this.fastAsyncIdGen = fastAsyncIdGen;
     }
 
-    @Autowired(required = false)
-    public void setSpanEventFilter(SpanEventFilter spanEventFilter) {
-        this.spanEventFilter = spanEventFilter;
-    }
-
-    @Autowired(required = false)
-    public void setAcceptedTimeService(AcceptedTimeService acceptedTimeService) {
-        this.acceptedTimeService = acceptedTimeService;
-    }
-
-    public SpanBo buildSpanBo(TSpan tSpan) {
+    public SpanBo buildSpanBo(TSpan tSpan, long acceptedTime, SpanEventFilter spanEventFilter) {
 
         final SpanBo spanBo = newSpanBo(tSpan);
 
         List<TSpanEvent> spanEventList = tSpan.getSpanEventList();
-        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
+        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList, spanEventFilter);
         spanBo.addSpanEventBoList(spanEventBoList);
 
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
         spanBo.setCollectorAcceptTime(acceptedTime);
 
         return spanBo;
@@ -194,7 +190,7 @@ public class SpanFactory {
 //        }
     }
 
-    public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
+    public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk, long acceptedTime, SpanEventFilter spanEventFilter) {
         final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
         final LocalAsyncIdBo localAsyncIdBo = getLocalAsyncId(tSpanChunk);
         if (localAsyncIdBo != null) {
@@ -202,11 +198,8 @@ public class SpanFactory {
         }
 
         List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
-        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
+        List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList, spanEventFilter);
         spanChunkBo.addSpanEventBoList(spanEventBoList);
-
-
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
         spanChunkBo.setCollectorAcceptTime(acceptedTime);
 
         return spanChunkBo;
@@ -317,16 +310,11 @@ public class SpanFactory {
     }
 
     private TransactionId newTransactionId(byte[] transactionIdBytes, String spanAgentId) {
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
-        String transactionAgentId = transactionId.getAgentId();
-        if (transactionAgentId != null) {
-            return transactionId;
-        }
-        return new TransactionId(spanAgentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        return TransactionIdUtils.parseTransactionId(transactionIdBytes, spanAgentId);
     }
 
 
-    private List<SpanEventBo> buildSpanEventBoList(List<TSpanEvent> spanEventList) {
+    private List<SpanEventBo> buildSpanEventBoList(List<TSpanEvent> spanEventList, SpanEventFilter spanEventFilter) {
         if (CollectionUtils.isEmpty(spanEventList)) {
             return new ArrayList<>();
         }
@@ -359,9 +347,7 @@ public class SpanFactory {
 
     // for test
     public SpanEventBo buildSpanEventBo(TSpanEvent tSpanEvent) {
-        if (tSpanEvent == null) {
-            throw new NullPointerException("tSpanEvent");
-        }
+        Objects.requireNonNull(tSpanEvent, "tSpanEvent");
 
         final SpanEventBo spanEvent = new SpanEventBo();
         bind(spanEvent, tSpanEvent);
@@ -369,43 +355,10 @@ public class SpanFactory {
     }
 
     private AnnotationBo newAnnotationBo(TAnnotation tAnnotation) {
-        if (tAnnotation == null) {
-            throw new NullPointerException("annotation");
-        }
+        Objects.requireNonNull(tAnnotation, "tAnnotation");
+
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(tAnnotation);
         return annotationBo;
     }
 
-    public SpanWebInfoBo buildSpanWebInfoBo(TSpanWebInfo tSpanWebInfo) {
-        final SpanWebInfoBo spanWebInfoBo = newSpanWebInfoBo(tSpanWebInfo);
-        long acceptedTime = acceptedTimeService.getAcceptedTime();
-        spanWebInfoBo.setCollectorAcceptTime(acceptedTime);
-        return spanWebInfoBo;
-    }
-
-    private SpanWebInfoBo newSpanWebInfoBo(TSpanWebInfo tSpanWebInfo) {
-        final SpanWebInfoBo spanWebInfoBo = new SpanWebInfoBo();
-        spanWebInfoBo.setAgentId(tSpanWebInfo.getAgentId());
-        spanWebInfoBo.setApplicationId(tSpanWebInfo.getApplicationName());
-        spanWebInfoBo.setAgentStartTime(tSpanWebInfo.getAgentStartTime());
-
-        final TransactionId transactionId = newTransactionId(tSpanWebInfo.getTransactionId(), tSpanWebInfo.getAgentId());
-        spanWebInfoBo.setTransactionId(transactionId);
-
-        spanWebInfoBo.setSpanId(tSpanWebInfo.getSpanId());
-        spanWebInfoBo.setParentSpanId(tSpanWebInfo.getParentSpanId());
-        spanWebInfoBo.setRequestBody(tSpanWebInfo.getRequestBody());
-        spanWebInfoBo.setRequestUrl(tSpanWebInfo.getRequestUrl());
-        spanWebInfoBo.setRequestHeader(tSpanWebInfo.getRequestHeader());
-        spanWebInfoBo.setResponseBody(tSpanWebInfo.getResponseBody());
-        spanWebInfoBo.setResponseHeader(tSpanWebInfo.getResponseHeader());
-        spanWebInfoBo.setBusiCode(tSpanWebInfo.getStatus());
-        spanWebInfoBo.setHttpMsgStrategy(tSpanWebInfo.getWebBodyStrategy());
-        spanWebInfoBo.setRequestMethod(tSpanWebInfo.getRequestMethod());
-        spanWebInfoBo.setStatusCode(tSpanWebInfo.getStatusCode());
-        spanWebInfoBo.setElapsedTime(tSpanWebInfo.getElapsedTime());
-        spanWebInfoBo.setParentApplicationName(tSpanWebInfo.getParentApplicationName());
-
-        return spanWebInfoBo;
-    }
 }

@@ -19,12 +19,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByConstructor;
@@ -36,7 +37,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public class AutoBindingObjectFactory {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InstrumentContext pluginContext;
@@ -44,22 +45,16 @@ public class AutoBindingObjectFactory {
     private final List<ArgumentProvider> commonProviders;
 
     public AutoBindingObjectFactory(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext");
-        }
-        if (pluginContext == null) {
-            throw new NullPointerException("pluginContext");
-        }
-        this.pluginContext = pluginContext;
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
+        Objects.requireNonNull(traceContext, "traceContext");
+
+        this.pluginContext = Objects.requireNonNull(pluginContext, "pluginContext");
         this.classLoader = classLoader;
         this.commonProviders = newArgumentProvider(profilerConfig, traceContext, pluginContext, argumentProviders);
     }
 
     private List<ArgumentProvider> newArgumentProvider(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, ArgumentProvider[] argumentProviders) {
-        final List<ArgumentProvider> commonProviders = new ArrayList<ArgumentProvider>();
+        final List<ArgumentProvider> commonProviders = new ArrayList<>();
         for (ArgumentProvider argumentProvider : argumentProviders) {
             commonProviders.add(argumentProvider);
         }
@@ -131,7 +126,7 @@ public class AutoBindingObjectFactory {
     }
     
     private ArgumentsResolver getArgumentResolver(Object[] argument, ArgumentProvider[] providers) {
-        final List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
+        final List<ArgumentProvider> merged = new ArrayList<>(commonProviders);
         merged.addAll(Arrays.asList(providers));
         
         if (argument != null) {

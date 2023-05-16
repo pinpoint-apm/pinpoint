@@ -19,16 +19,15 @@ package com.navercorp.pinpoint.web.mapper.stat;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.AgentStatSamplingHandler;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.EagerSamplingHandler;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.AgentStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSource;
 import com.navercorp.pinpoint.web.vo.stat.SampledDataSourceList;
-
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -76,25 +75,21 @@ public class SampledDataSourceResultExtractor implements ResultsExtractor<List<S
                 if (dataPoint.size() == 0) {
                     continue;
                 }
+                DataSourceBo first = CollectionUtils.firstElement(dataPoint.getList());
+                if(first != null) {
+                    int id = first.getId();
 
-                DataSourceBo first = ListUtils.getFirst(dataPoint.getList(), null);
-                int id = first.getId();
+                    List<DataSourceBo> dataSourceBoList = dataSourceBoListMap.computeIfAbsent(id, k -> new ArrayList<>());
 
-                List<DataSourceBo> dataSourceBoList = dataSourceBoListMap.computeIfAbsent(id, k -> new ArrayList<>());
-
-                dataSourceBoList.addAll(dataPoint.getList());
+                    dataSourceBoList.addAll(dataPoint.getList());
+                }
             }
         }
         return dataSourceBoListMap;
     }
 
     private SampledDataSourceList getSampleData(List<DataSourceBo> dataSourceBoList) {
-        dataSourceBoList.sort(new Comparator<DataSourceBo>() {
-            @Override
-            public int compare(DataSourceBo o1, DataSourceBo o2) {
-                return Long.compare(o2.getTimestamp(), o1.getTimestamp());
-            }
-        });
+        dataSourceBoList.sort(Comparator.comparingLong(DataSourceBo::getTimestamp).reversed());
 
         AgentStatSamplingHandler<DataSourceBo, SampledDataSource> samplingHandler = new EagerSamplingHandler<>(timeWindow, sampler);
         for (DataSourceBo dataSourceBo : dataSourceBoList) {

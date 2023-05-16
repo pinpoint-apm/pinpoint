@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -23,9 +25,8 @@ public class DefaultMethodNameReplacer implements MethodNameReplacer {
     public static final String POSTFIX = "_$$pinpoint";
 
     public String replaceMethodName(String methodName) {
-        if (methodName == null) {
-            throw new NullPointerException("methodName");
-        }
+        Objects.requireNonNull(methodName, "methodName");
+
         return PREFIX + methodName + POSTFIX;
     }
 }

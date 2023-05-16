@@ -23,7 +23,7 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class DataSourceMetricSnapshot {
-    private List<DataSource> dataSourceList = new ArrayList<DataSource>();
+    private final List<DataSource> dataSourceList = new ArrayList<DataSource>();
 
     public List<DataSource> getDataSourceList() {
         return dataSourceList;

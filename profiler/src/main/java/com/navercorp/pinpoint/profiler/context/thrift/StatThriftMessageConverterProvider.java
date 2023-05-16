@@ -18,19 +18,20 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import org.apache.thrift.TBase;
 
 /**
  * @author jaehong.kim
  */
-public class StatThriftMessageConverterProvider implements Provider<MessageConverter<TBase<?, ?>>> {
+public class StatThriftMessageConverterProvider implements Provider<MessageConverter<MetricType, TBase<?, ?>>> {
 
     @Inject
     public StatThriftMessageConverterProvider() {
     }
 
     @Override
-    public MessageConverter<TBase<?, ?>> get() {
+    public MessageConverter<MetricType, TBase<?, ?>> get() {
         return new StatThriftMessageConverter();
     }
 }

@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -31,7 +31,7 @@ import java.net.UnknownHostException;
  */
 public class DnsSocketAddressProvider implements SocketAddressProvider{
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String host;
     private final int port;
@@ -39,7 +39,7 @@ public class DnsSocketAddressProvider implements SocketAddressProvider{
     private InetSocketAddress oldAddress;
 
     public DnsSocketAddressProvider(String host, int port) {
-        this.host = Assert.requireNonNull(host, "host");
+        this.host = Objects.requireNonNull(host, "host");
         this.port = checkPort(port);
     }
 

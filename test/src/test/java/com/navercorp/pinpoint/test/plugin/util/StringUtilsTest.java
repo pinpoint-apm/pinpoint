@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -29,6 +29,6 @@ public class StringUtilsTest {
     @Test
     public void join() {
         String join = StringUtils.join(Arrays.asList("1", "2"), ",");
-        Assert.assertEquals(join, "1,2");
+        Assertions.assertEquals(join, "1,2");
     }
 }

@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PDeadlock;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +26,21 @@ import org.springframework.stereotype.Component;
  * @author Taejin Koo
  */
 @Component
-public class GrpcDeadlockThreadCountBoMapper {
+public class GrpcDeadlockThreadCountBoMapper implements GrpcStatMapper {
 
     public DeadlockThreadCountBo map(final PDeadlock tDeadlock) {
         final DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo();
         deadlockThreadCountBo.setDeadlockedThreadCount(tDeadlock.getCount());
         return deadlockThreadCountBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
+        // deadlock
+        if (agentStat.hasDeadlock()) {
+            final PDeadlock deadlock = agentStat.getDeadlock();
+            final DeadlockThreadCountBo deadlockThreadCountBo = this.map(deadlock);
+            builder.addDeadlockThreadCount(deadlockThreadCountBo);
+        }
     }
 }

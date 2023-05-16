@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -31,15 +34,12 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-
-import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -48,19 +48,19 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class SpanService extends SpanGrpc.SpanImplBase {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final DispatchHandler dispatchHandler;
+    private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
 
-    public SpanService(DispatchHandler dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public SpanService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, ServerRequestFactory serverRequestFactory) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
 
     @Override
     public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseObserver) {
-        StreamObserver<PSpanMessage> observer = new StreamObserver<PSpanMessage>() {
+        StreamObserver<PSpanMessage> observer = new StreamObserver<>() {
             @Override
             public void onNext(PSpanMessage spanMessage) {
                 if (isDebug) {
@@ -82,16 +82,21 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
             @Override
             public void onError(Throwable throwable) {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+
                 final StatusError statusError = StatusErrors.throwable(throwable);
                 if (statusError.isSimpleError()) {
-                    logger.info("Failed to span stream, cause={}", statusError.getMessage());
+                    logger.info("Failed to span stream, {} cause={}", header, statusError.getMessage(), statusError.getThrowable());
                 } else {
-                    logger.warn("Failed to span stream, cause={}", statusError.getMessage(), statusError.getThrowable());
+                    logger.warn("Failed to span stream, {} cause={}", header, statusError.getMessage(), statusError.getThrowable());
                 }
             }
 
             @Override
             public void onCompleted() {
+                com.navercorp.pinpoint.grpc.Header header = ServerContext.getAgentInfo();
+                logger.info("onCompleted {}", header);
+
                 Empty empty = Empty.newBuilder().build();
                 responseObserver.onNext(empty);
                 responseObserver.onCompleted();
@@ -108,7 +113,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
     private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
         try {
-            ServerRequest<? extends GeneratedMessageV3> request = serverRequestFactory.newServerRequest(message);
+            ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);

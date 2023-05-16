@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class TestClassList {
 
-    private List<String> testClassList = new ArrayList<String>();
+    private List<String> testClassList = new ArrayList<>();
 
     public TestClassList() {
         add("com.navercorp.pinpoint.bootstrap.");
@@ -45,6 +45,7 @@ public class TestClassList {
         add("org.apache.thrift.TBase");
         add("junit.");
         add("org.hamcrest.");
+        add("org.assertj.");
         add("org.junit.");
     }
 

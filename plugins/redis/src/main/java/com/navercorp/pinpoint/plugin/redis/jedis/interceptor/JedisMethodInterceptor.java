@@ -36,8 +36,8 @@ import com.navercorp.pinpoint.plugin.redis.jedis.JedisConstants;
  */
 public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private InterceptorScope interceptorScope;
-    private boolean io;
+    private final InterceptorScope interceptorScope;
+    private final boolean io;
 
     public JedisMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope, boolean io) {
         super(traceContext, methodDescriptor);

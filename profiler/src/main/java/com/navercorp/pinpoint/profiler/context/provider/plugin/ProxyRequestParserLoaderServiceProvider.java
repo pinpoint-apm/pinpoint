@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.DefaultProxyRequestParserLoaderService;
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserLoaderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +31,11 @@ import java.util.ServiceLoader;
  * @author jaehong.kim
  */
 public class ProxyRequestParserLoaderServiceProvider implements Provider<ProxyRequestParserLoaderService> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ProfilerConfig profilerConfig;
 
     @Inject
-    public ProxyRequestParserLoaderServiceProvider() {
+    public ProxyRequestParserLoaderServiceProvider(ProfilerConfig profilerConfig) {
+        this.profilerConfig = profilerConfig;
     }
 
     @Override
@@ -47,6 +47,6 @@ public class ProxyRequestParserLoaderServiceProvider implements Provider<ProxyRe
             providerList.add(provider);
         }
 
-        return new DefaultProxyRequestParserLoaderService(providerList);
+        return new DefaultProxyRequestParserLoaderService(providerList, profilerConfig);
     }
 }

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class PluginsSetupResult {
 
-    private final List<PluginSetupResult> pluginSetupResults = new ArrayList<PluginSetupResult>();
+    private final List<PluginSetupResult> pluginSetupResults = new ArrayList<>();
     private ServiceType applicationType;
 
     public void addPluginSetupResult(PluginSetupResult pluginSetupResult) {

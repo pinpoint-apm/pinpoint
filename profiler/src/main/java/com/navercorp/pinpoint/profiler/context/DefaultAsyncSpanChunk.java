@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class DefaultAsyncSpanChunk extends DefaultSpanChunk implements AsyncSpan
 
     public DefaultAsyncSpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList, LocalAsyncId localAsyncId) {
         super(traceRoot, spanEventList);
-        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId");
+        this.localAsyncId = Objects.requireNonNull(localAsyncId, "localAsyncId");
     }
 
     @Override

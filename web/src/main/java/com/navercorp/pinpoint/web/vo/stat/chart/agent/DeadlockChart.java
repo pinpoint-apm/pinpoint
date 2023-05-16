@@ -17,66 +17,31 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
-public class DeadlockChart implements StatChart {
+public class DeadlockChart extends DefaultAgentChart<SampledDeadlock, Integer> {
 
-    private final DeadlockChartGroup deadlockChartGroup;
-
-    public DeadlockChart(TimeWindow timeWindow, List<SampledDeadlock> sampledDeadlocks) {
-        this.deadlockChartGroup = new DeadlockChartGroup(timeWindow, sampledDeadlocks);
+    public enum DeadlockChartType implements StatChartGroup.AgentChartType {
+        DEADLOCK_COUNT
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return deadlockChartGroup;
+    private static final ChartGroupBuilder<SampledDeadlock, AgentStatPoint<Integer>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledDeadlock, AgentStatPoint<Integer>> newChartBuilder() {
+        ChartGroupBuilder<SampledDeadlock, AgentStatPoint<Integer>> builder = new ChartGroupBuilder<>(SampledDeadlock.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(DeadlockChartType.DEADLOCK_COUNT, SampledDeadlock::getDeadlockedThreadCount);
+        return builder;
     }
 
-    public static class DeadlockChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> deadlockCharts;
-
-        public enum DeadlockChartType implements AgentChartType {
-            DEADLOCK_COUNT
-        }
-
-        public DeadlockChartGroup(TimeWindow timeWindow, List<SampledDeadlock> sampledDeadlockList) {
-            this.timeWindow = timeWindow;
-            this.deadlockCharts = newChart(sampledDeadlockList);
-        }
-
-        public Map<ChartType, Chart<? extends Point>> newChart(List<SampledDeadlock> deadlockList) {
-
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledDeadlock.UNCOLLECTED_POINT_CREATOR);
-            Chart<AgentStatPoint<Integer>> chart = chartBuilder.build(deadlockList, SampledDeadlock::getDeadlockedThreadCount);
-
-            return Collections.singletonMap(DeadlockChartType.DEADLOCK_COUNT, chart);
-        }
-
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return this.deadlockCharts;
-        }
+    public DeadlockChart(TimeWindow timeWindow, List<SampledDeadlock> statList) {
+        super(timeWindow, statList, BUILDER);
     }
 
 }

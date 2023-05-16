@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.AbstractClientFactoryProvider;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -32,16 +32,16 @@ public class ClientFactoryProviderTest {
 
         TestClientFactoryproviderTest testClientFactoryproviderTest = new TestClientFactoryproviderTest();
         int byteSize = testClientFactoryproviderTest.getByteSize("2g", defaultSize);
-        Assert.assertEquals(Integer.MAX_VALUE, byteSize);
+        Assertions.assertEquals(Integer.MAX_VALUE, byteSize);
 
         byteSize = testClientFactoryproviderTest.getByteSize("100m", defaultSize);
-        Assert.assertEquals(ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(100), byteSize);
+        Assertions.assertEquals(ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(100), byteSize);
 
         byteSize = testClientFactoryproviderTest.getByteSize("-100", defaultSize);
-        Assert.assertEquals(defaultSize, byteSize);
+        Assertions.assertEquals(defaultSize, byteSize);
 
         byteSize = testClientFactoryproviderTest.getByteSize("-100m", defaultSize);
-        Assert.assertEquals(defaultSize, byteSize);
+        Assertions.assertEquals(defaultSize, byteSize);
     }
 
     private static class TestClientFactoryproviderTest extends AbstractClientFactoryProvider {

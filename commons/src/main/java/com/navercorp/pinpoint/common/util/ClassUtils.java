@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.Objects;
+
 /**
  * @author hyungil.jeong
  */
@@ -41,15 +43,14 @@ public final class ClassUtils {
         try {
             classLoaderToUse.loadClass(name);
             return true;
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException ignored) {
             return false;
         }
     }
 
     public static String getPackageName(String fqcn, char packageSeparator, String defaultValue) {
-        if (fqcn == null) {
-            throw new NullPointerException("fully-qualified class name");
-        }
+        Objects.requireNonNull(fqcn, "fqcn");
+
         final int lastPackageSeparatorIndex = fqcn.lastIndexOf(packageSeparator);
         if (lastPackageSeparatorIndex == -1) {
             return defaultValue;

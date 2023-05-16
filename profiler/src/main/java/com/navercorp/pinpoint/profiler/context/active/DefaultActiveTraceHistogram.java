@@ -20,7 +20,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,11 +36,11 @@ public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
     private int verySlowCount;
 
     public DefaultActiveTraceHistogram(HistogramSchema histogramSchema) {
-        this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema");
+        this.histogramSchema = Objects.requireNonNull(histogramSchema, "histogramSchema");
     }
 
     public void increment(HistogramSlot slot) {
-        Assert.requireNonNull(slot, "slot");
+        Objects.requireNonNull(slot, "slot");
 
         final SlotType slotType = slot.getSlotType();
         switch (slotType) {

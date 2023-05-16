@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -34,7 +34,7 @@ import java.net.URLClassLoader;
  */
 public class URLClassLoaderHandler implements ClassInjector {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private static final Method ADD_URL;
@@ -51,7 +51,7 @@ public class URLClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public URLClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
+        this.pluginConfig = Objects.requireNonNull(pluginConfig, "pluginConfig");
     }
 
     @Override
@@ -93,7 +93,7 @@ public class URLClassLoaderHandler implements ClassInjector {
                 if (isDebug) {
                     logger.debug("add Jar:{}", pluginConfig.getPluginJarURLExternalForm());
                 }
-                ADD_URL.invoke(classLoader, pluginConfig.getPluginUrl());
+                ADD_URL.invoke(classLoader, pluginConfig.getPluginURL());
             }
         }
     }

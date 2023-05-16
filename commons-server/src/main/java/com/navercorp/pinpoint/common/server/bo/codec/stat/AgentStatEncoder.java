@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -31,7 +32,7 @@ public class AgentStatEncoder<T extends AgentStatDataPoint> {
     private final AgentStatCodec<T> codec;
 
     public AgentStatEncoder(AgentStatCodec<T> codec) {
-        this.codec = codec;
+        this.codec = Objects.requireNonNull(codec, "codec");
     }
 
     public ByteBuffer encodeQualifier(long timestampDelta) {

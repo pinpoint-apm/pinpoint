@@ -29,7 +29,7 @@ public interface TypedBufferHandler<T extends Number> {
     T readV(Buffer buffer);
     T readSV(Buffer buffer);
 
-    TypedBufferHandler<Short> SHORT_BUFFER_HANDLER = new TypedBufferHandler<Short>() {
+    TypedBufferHandler<Short> SHORT_BUFFER_HANDLER = new TypedBufferHandler<>() {
 
         @Override
         public void put(Buffer buffer, Short value) {
@@ -62,7 +62,7 @@ public interface TypedBufferHandler<T extends Number> {
         }
     };
 
-    TypedBufferHandler<Integer> INTEGER_BUFFER_HANDLER = new TypedBufferHandler<Integer>() {
+    TypedBufferHandler<Integer> INTEGER_BUFFER_HANDLER = new TypedBufferHandler<>() {
 
         @Override
         public void put(Buffer buffer, Integer value) {
@@ -95,7 +95,7 @@ public interface TypedBufferHandler<T extends Number> {
         }
     };
 
-    TypedBufferHandler<Long> LONG_BUFFER_HANDLER = new TypedBufferHandler<Long>() {
+    TypedBufferHandler<Long> LONG_BUFFER_HANDLER = new TypedBufferHandler<>() {
 
         @Override
         public void put(Buffer buffer, Long value) {

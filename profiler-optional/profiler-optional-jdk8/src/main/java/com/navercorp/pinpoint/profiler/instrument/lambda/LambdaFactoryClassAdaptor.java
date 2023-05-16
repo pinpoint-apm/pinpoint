@@ -20,19 +20,20 @@ import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.List;
+import java.util.Objects;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class LambdaFactoryClassAdaptor {
+    private static final String LAMBDA_FACTORY_CLASS_NAME = "java/lang/invoke/InnerClassLambdaMetafactory";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private static final String lambdaFactoryClassName = "java/lang/invoke/InnerClassLambdaMetafactory";
-    private static final String lambdaFactoryMethodName = "spinInnerClass";
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public LambdaFactoryClassAdaptor() {
     }
@@ -43,7 +44,11 @@ public class LambdaFactoryClassAdaptor {
     }
 
     private LambdaClass getLambdaClass() {
-        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
+        if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_16)) {
+            return new LambdaClassJava16();
+        } else if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_15)) {
+            return new LambdaClassJava15();
+        } else if (JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
             return new LambdaClassJava9();
         } else {
             return new LambdaClassJava8();
@@ -51,28 +56,20 @@ public class LambdaFactoryClassAdaptor {
     }
 
     public byte[] transform(byte[] bytes, LambdaClass lambdaClass) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
+        Objects.requireNonNull(bytes, "bytes");
 
         final ClassReader reader = new ClassReader(bytes);
         final ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
-
-        final String unsafeClass = lambdaClass.getUnsafeClass();
-        final String unsafeMethod = lambdaClass.getUnsafeMethod();
-        final String delegateClassName = lambdaClass.getDelegateClass();
-        final String delegateMethodName = lambdaClass.getDelegateMethod();
-
-        MethodInstReplacer methodInstReplacer = new MethodInstReplacer(writer, lambdaFactoryMethodName,
-                unsafeClass, unsafeMethod, delegateClassName, delegateMethodName);
+        final List<MethodInsn> methodInsnList = lambdaClass.getMethodInsnList();
+        final MethodInstReplacer methodInstReplacer = new MethodInstReplacer(writer, methodInsnList);
         reader.accept(methodInstReplacer, 0);
 
-        if (!lambdaFactoryClassName.equals(methodInstReplacer.getClassName())) {
+        if (!LAMBDA_FACTORY_CLASS_NAME.equals(methodInstReplacer.getClassName())) {
             throw new IllegalArgumentException("unexpected class " + methodInstReplacer.getClassName());
         }
 
         if (methodInstReplacer.getTransformCount() != 1) {
-            logger.warn("unexpected {}.{} invoke count {}", unsafeClass, unsafeMethod, methodInstReplacer.getTransformCount());
+            logger.warn("unexpected {} invoke count {}", methodInsnList, methodInstReplacer.getTransformCount());
             // dump bytecode
         }
         return writer.toByteArray();

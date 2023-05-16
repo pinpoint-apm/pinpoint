@@ -20,18 +20,16 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Roy Kim
@@ -39,17 +37,17 @@ import static org.junit.Assert.assertTrue;
 public class FileDescriptorCodecTest {
 
     @Test
-    public void encodeAndDecodeTest(){
+    public void encodeAndDecodeTest() {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
-        final FileDescriptorCodec fileDescriptorCodec = new FileDescriptorCodec(agentStatDataPointCodec);
+        final ApplicationStatCodec<JoinFileDescriptorBo> fileDescriptorCodec = new FileDescriptorCodec(agentStatDataPointCodec);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
-        final List<JoinStatBo> joinFileDescriptorBoList = createJoinFileDescriptorBoList(currentTime);
+        final List<JoinFileDescriptorBo> joinFileDescriptorBoList = createJoinFileDescriptorBoList(currentTime);
         encodedValueBuffer.putByte(fileDescriptorCodec.getVersion());
         fileDescriptorCodec.encodeValues(encodedValueBuffer, joinFileDescriptorBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -58,26 +56,21 @@ public class FileDescriptorCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), fileDescriptorCodec.getVersion());
-        List<JoinStatBo> decodedJoinFileDescriptorBoList = fileDescriptorCodec.decodeValues(valueBuffer, decodingContext);
+        List<JoinFileDescriptorBo> decodedJoinFileDescriptorBoList = fileDescriptorCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinFileDescriptorBoList.size(); i++) {
-            assertTrue(decodedJoinFileDescriptorBoList.get(i).equals(joinFileDescriptorBoList.get(i)));
+            assertEquals(decodedJoinFileDescriptorBoList.get(i), joinFileDescriptorBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinFileDescriptorBoList(long currentTime) {
+    private List<JoinFileDescriptorBo> createJoinFileDescriptorBoList(long currentTime) {
         final String id = "test_app";
-        final List<JoinStatBo> joinFileDescriptorBoList = new ArrayList();
-        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo(id, 80, 1000, "agent1_1", 30, "agent1_2", currentTime);
-        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo(id, 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000);
-        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo(id, 60, 800, "agent4_1", 15, "agent4_2",  currentTime + 15000);
-        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo(id, 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000);
-        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo(id, 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
-        return joinFileDescriptorBoList;
+        return List.of(
+                new JoinFileDescriptorBo(id, 80, 1000, "agent1_1", 30, "agent1_2", currentTime),
+                new JoinFileDescriptorBo(id, 70, 900, "agent2_1", 20, "agent2_2", currentTime + 5000),
+                new JoinFileDescriptorBo(id, 60, 800, "agent4_1", 15, "agent4_2", currentTime + 15000),
+                new JoinFileDescriptorBo(id, 50, 700, "agent3_1", 10, "agent3_2", currentTime + 10000),
+                new JoinFileDescriptorBo(id, 40, 600, "agent5_1", 5, "agent5_2", currentTime + 20000)
+        );
     }
 
 }

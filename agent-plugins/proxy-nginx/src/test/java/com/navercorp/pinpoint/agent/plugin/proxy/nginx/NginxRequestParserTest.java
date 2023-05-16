@@ -17,9 +17,10 @@
 package com.navercorp.pinpoint.agent.plugin.proxy.nginx;
 
 import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestHeader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author jaehong.kim
@@ -27,10 +28,10 @@ import static org.junit.Assert.*;
 public class NginxRequestParserTest {
 
     @Test
-    public void parseNginx() throws Exception {
+    public void parseNginx() {
         NginxRequestParser parser = new NginxRequestParser();
         String value = "t=1504248328.423 D=0.123";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(1504248328423L, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(123000L, proxyHttpHeader.getDurationTimeMicroseconds());
@@ -39,10 +40,10 @@ public class NginxRequestParserTest {
     }
 
     @Test
-    public void parseNginxMsec() throws Exception {
+    public void parseNginxMsec() {
         NginxRequestParser parser = new NginxRequestParser();
         String value = "t=1504248328.423";
-        ProxyRequestHeader proxyHttpHeader = parser.parse(value);
+        ProxyRequestHeader proxyHttpHeader = parser.parseHeader("UNKNOWN", value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(1504248328423L, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());

@@ -15,8 +15,7 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
-
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
@@ -24,7 +23,7 @@ import com.navercorp.pinpoint.common.util.Assert;
  */
 public class GetterAnalyzer {
     public GetterDetails analyze(Class<?> getterType) {
-        Assert.requireNonNull(getterType, "getterType");
+        Objects.requireNonNull(getterType, "getterType");
         
         if (!getterType.isInterface()) {
             throw new IllegalArgumentException("getterType " + getterType + "is not an interface");
@@ -38,7 +37,7 @@ public class GetterAnalyzer {
         
         Method getter = methods[0];
         
-        if (getter.getParameterTypes().length != 0) {
+        if (getter.getParameterCount() != 0) {
             throw new IllegalArgumentException("Getter interface method must be no-args and non-void: " + getterType.getName());
         }
         

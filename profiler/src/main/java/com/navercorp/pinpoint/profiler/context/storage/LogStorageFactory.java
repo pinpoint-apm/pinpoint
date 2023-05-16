@@ -20,9 +20,8 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
-import com.navercorp.pinpoint.profiler.context.WebInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author emeroad
@@ -38,7 +37,7 @@ public class LogStorageFactory implements StorageFactory {
     }
 
     public static class LogStorage implements Storage {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
         @Override
         public void store(SpanEvent spanEvent) {
             logger.debug("log spanEvent:{}", spanEvent);
@@ -56,11 +55,5 @@ public class LogStorageFactory implements StorageFactory {
         @Override
         public void close() {
         }
-
-        @Override
-        public void sendWebInfo(Span span) {
-
-        }
-
     }
 }

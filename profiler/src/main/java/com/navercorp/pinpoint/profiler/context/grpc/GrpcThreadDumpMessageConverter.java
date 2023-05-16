@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricS
 /**
  * @author jaehong.kim
  */
-public class GrpcThreadDumpMessageConverter implements MessageConverter<PThreadDump> {
+public class GrpcThreadDumpMessageConverter implements MessageConverter<Object, PThreadDump> {
     private final GrpcThreadStateMessageConverter threadStateMessageConverter = new GrpcThreadStateMessageConverter();
 
     @Override

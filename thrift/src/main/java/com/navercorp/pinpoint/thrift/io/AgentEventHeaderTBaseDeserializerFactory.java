@@ -18,32 +18,21 @@ package com.navercorp.pinpoint.thrift.io;
 
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
+
 
 /**
  * @author Taejin Koo
  */
 public class AgentEventHeaderTBaseDeserializerFactory implements DeserializerFactory<HeaderTBaseDeserializer> {
 
-    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
     private final TProtocolFactory protocolFactory;
     private final TypeLocator<TBase<?, ?>> locator = AgentEventTBaseLocator.getTypeLocator();
 
     public AgentEventHeaderTBaseDeserializerFactory() {
-        this(DEFAULT_PROTOCOL_FACTORY);
+        this.protocolFactory = ProtocolFactory.getFactory();
     }
 
-    public AgentEventHeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory) {
-        if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory");
-        }
-        this.protocolFactory = protocolFactory;
-    }
-
-    public TProtocolFactory getProtocolFactory() {
-        return protocolFactory;
-    }
 
     @Override
     public HeaderTBaseDeserializer createDeserializer() {

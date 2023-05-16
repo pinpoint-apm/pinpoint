@@ -1,0 +1,13 @@
+{
+  "fields": {
+    "field_1": 30,
+    "field_2": 4,
+    "field_N": 59,
+    "n_images": 660
+  },
+  "name": "docker",
+  "tags": {
+    "host": "raynor"
+  },
+  "timestamp": 1458229140
+}

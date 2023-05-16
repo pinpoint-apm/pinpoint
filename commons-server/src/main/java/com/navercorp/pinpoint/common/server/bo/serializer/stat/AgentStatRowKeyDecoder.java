@@ -21,22 +21,19 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import org.springframework.stereotype.Component;
-
-import static com.navercorp.pinpoint.common.hbase.HbaseTableConstatns.AGENT_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.hbase.HbaseTableConstants.AGENT_ID_MAX_LEN;
 import static com.navercorp.pinpoint.common.server.bo.stat.AgentStatType.TYPE_CODE_BYTE_LENGTH;
 
 /**
  * @author HyunGil Jeong
  */
-@Component
 public class AgentStatRowKeyDecoder implements RowKeyDecoder<AgentStatRowKeyComponent> {
 
     @Override
     public AgentStatRowKeyComponent decodeRowKey(byte[] rowkey) {
-        final String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowkey, 0, AGENT_NAME_MAX_LEN));
-        final AgentStatType agentStatType = AgentStatType.fromTypeCode(rowkey[AGENT_NAME_MAX_LEN]);
-        final long reversedBaseTimestamp = BytesUtils.bytesToLong(rowkey, AGENT_NAME_MAX_LEN + TYPE_CODE_BYTE_LENGTH);
+        final String agentId = BytesUtils.safeTrim(BytesUtils.toString(rowkey, 0, AGENT_ID_MAX_LEN));
+        final AgentStatType agentStatType = AgentStatType.fromTypeCode(rowkey[AGENT_ID_MAX_LEN]);
+        final long reversedBaseTimestamp = BytesUtils.bytesToLong(rowkey, AGENT_ID_MAX_LEN + TYPE_CODE_BYTE_LENGTH);
         final long baseTimestamp = TimeUtils.recoveryTimeMillis(reversedBaseTimestamp);
         return new AgentStatRowKeyComponent(agentId, agentStatType, baseTimestamp);
     }

@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class IRequestParameterExtractor implements ParameterExtractor<IRequest> {
 
-    private int eachLimit;
-    private int totalLimit;
+    private final int eachLimit;
+    private final int totalLimit;
 
     public IRequestParameterExtractor(int eachLimit, int totalLimit) {
         this.eachLimit = eachLimit;
@@ -62,13 +62,13 @@ public class IRequestParameterExtractor implements ParameterExtractor<IRequest> 
                     params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
                 }
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException ignored) {
         }
         return params.toString();
     }
 
     private Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
-        Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+        Map<String, String> query_pairs = new LinkedHashMap<>();
         if (query != null) {
             String[] pairs = query.split("&");
             for (String pair : pairs) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricDoubleDao">
+    <resultMap id="systemMetricPointResultMap" type="SystemMetricPoint">
+        <constructor>
+            <arg column="avgTime" javaType="_long"/>
+            <arg column="avgValue" javaType="Number" typeHandler="DoubleHandler"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectSampledSystemMetricData" resultMap="systemMetricPointResultMap" parameterType="systemMetricDataSearchKey">
+        SELECT
+        AVG(fieldValue) AS avgValue,
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+        FROM systemMetricDouble
+        WHERE tenantId = #{tenantId}
+        AND hostGroupName = #{hostGroupName}
+        AND metricName = #{metricName}
+        AND hostName = #{hostName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY avgTime
+        ORDER BY avgTime asc
+        LIMIT ${limit}
+    </select>
+</mapper>

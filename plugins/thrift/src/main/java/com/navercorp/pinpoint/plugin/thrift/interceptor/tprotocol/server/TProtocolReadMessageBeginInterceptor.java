@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import org.apache.thrift.protocol.TMessage;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
+import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContextAttachmentFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
+import org.apache.thrift.protocol.TMessage;
 
 /**
  * This interceptor retrieves the method name called by the client and stores it for other interceptors in the chain to use.
@@ -34,9 +34,8 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldA
  * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * <p>
  * Based on Thrift 0.8.0+
- * 
+ *
  * @author HyunGil Jeong
- * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor TProtocolReadMessageBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
@@ -66,16 +65,19 @@ public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor {
         if (!validate(target)) {
             return;
         }
-        final boolean shouldTrace = ((AsyncMarkerFlagFieldAccessor)target)._$PINPOINT$_getAsyncMarkerFlag();
+        final boolean shouldTrace = ((AsyncMarkerFlagFieldAccessor) target)._$PINPOINT$_getAsyncMarkerFlag();
         if (shouldTrace) {
             String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
             if (result instanceof TMessage) {
-                TMessage message = (TMessage)result;
+                TMessage message = (TMessage) result;
                 methodName = message.name;
             }
-            ThriftClientCallContext clientCallContext = new ThriftClientCallContext(methodName);
-            InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
-            currentTransaction.setAttachment(clientCallContext);
+            final InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+            final Object attachment = currentTransaction.getOrCreateAttachment(ThriftClientCallContextAttachmentFactory.INSTANCE);
+            if (attachment instanceof ThriftClientCallContext) {
+                final ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
+                clientCallContext.setMethodName(methodName);
+            }
         }
     }
 

@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author jaehong.kim

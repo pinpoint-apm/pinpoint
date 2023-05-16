@@ -20,16 +20,16 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
+import com.navercorp.pinpoint.profiler.logging.Log4j2Binder;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
 import com.navercorp.pinpoint.test.classloader.TestClassLoaderFactory;
 import org.junit.runners.model.TestClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 /**
  * @author hyungil.jeong
@@ -39,9 +39,9 @@ public class TestContext implements Closeable {
 
     private static final String BASE_TEST_CLASS_NAME = "com.navercorp.pinpoint.test.junit4.BasePinpointTest";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
+    private final PLoggerBinder loggerBinder = new Log4j2Binder(LogManager.getContext());
     private final TestClassLoader classLoader;
     private final DefaultApplicationContext mockApplicationContext;
 

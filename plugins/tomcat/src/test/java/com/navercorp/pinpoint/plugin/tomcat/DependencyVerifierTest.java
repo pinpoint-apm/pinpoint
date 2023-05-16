@@ -19,8 +19,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 import com.navercorp.pinpoint.plugin.jboss.JbossDetector;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo

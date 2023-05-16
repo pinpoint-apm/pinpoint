@@ -11,4 +11,7 @@ public final class CassandraITConstants {
     // https://hub.docker.com/_/cassandra
     public static final String CASSANDRA_2_X_IMAGE = CassandraContainer.IMAGE + ":2.2.16";
     public static final String CASSANDRA_3_X_IMAGE = CassandraContainer.IMAGE + ":3.11.6";
+
+    public static final String TEST_KEYSPACE = "mykeyspace";
+    public static final String TEST_TABLE = "mytable";
 }

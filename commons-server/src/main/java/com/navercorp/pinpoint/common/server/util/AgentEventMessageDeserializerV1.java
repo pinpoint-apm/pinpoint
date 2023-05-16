@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -36,9 +37,8 @@ import java.util.List;
 public class AgentEventMessageDeserializerV1 {
 
     public Object deserialize(AgentEventType agentEventType, byte[] eventBody) throws UnsupportedEncodingException {
-        if (agentEventType == null) {
-            throw new NullPointerException("agentEventType");
-        }
+        Objects.requireNonNull(agentEventType, "agentEventType");
+
         Class<?> eventMessageType = agentEventType.getMessageType();
         if (eventMessageType == Void.class) {
             return null;
@@ -62,10 +62,7 @@ public class AgentEventMessageDeserializerV1 {
             threadDumpBoList.add(readThreadDumpBo(buffer));
         }
 
-        final DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(deadlockedThreadCount);
-        deadlockBo.setThreadDumpBoList(threadDumpBoList);
-        return deadlockBo;
+        return new DeadlockBo(deadlockedThreadCount, threadDumpBoList);
     }
 
     private ThreadDumpBo readThreadDumpBo(final Buffer buffer) {
@@ -133,9 +130,6 @@ public class AgentEventMessageDeserializerV1 {
         final int stackDepth = buffer.readInt();
         final String stackFrame = buffer.readPrefixedString();
 
-        final MonitorInfoBo monitorInfoBo = new MonitorInfoBo();
-        monitorInfoBo.setStackDepth(stackDepth);
-        monitorInfoBo.setStackFrame(stackFrame);
-        return monitorInfoBo;
+        return new MonitorInfoBo(stackDepth, stackFrame);
     }
 }

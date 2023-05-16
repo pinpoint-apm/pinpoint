@@ -16,7 +16,13 @@
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
-import com.navercorp.pinpoint.pluginit.jdbc.*;
+import com.navercorp.pinpoint.pluginit.jdbc.DataBaseTestCase;
+import com.navercorp.pinpoint.pluginit.jdbc.DefaultJDBCApi;
+import com.navercorp.pinpoint.pluginit.jdbc.DriverProperties;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
+import com.navercorp.pinpoint.pluginit.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -24,15 +30,14 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.Assume;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.utility.DockerMachineClient;
 
 import java.util.Properties;
 
@@ -46,28 +51,43 @@ import java.util.Properties;
 @Dependency({"com.microsoft.sqlserver:mssql-jdbc:[6.1.0.jre8],[6.2.0.jre8],[6.4.0.jre8],[7.0.0.jre8],[7.2.0.jre8],[7.4.0.jre8]",
         "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.7.5",
         JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MSSQL})
-@JvmVersion({8})
+@JvmVersion(8)
 @PinpointConfig("pinpoint-mssql.config")
+@SharedTestLifeCycleClass(MsSqlServer.class)
 public class MSSqlIT extends DataBaseTestCase {
 
     private static final String MSSQL = "MSSQL_JDBC";
     private static final String MSSQL_EXECUTE_QUERY = "MSSQL_JDBC_QUERY";
 
-    private static final Logger logger = LoggerFactory.getLogger(MSSqlIT.class);
+    private static final Logger logger = LogManager.getLogger(MSSqlIT.class);
 
     private static DriverProperties driverProperties;
     private static JDBCDriverClass driverClass;
     private static JDBCApi jdbcApi;
 
     private static JdbcUrlParserV2 jdbcUrlParser;
-    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger);
+
+
+    public static String getJdbcUrl() {
+        return driverProperties.getUrl();
+    }
+
+    public static String getUsername() {
+        return driverProperties.getUser();
+    }
+
+    public static String getPassWord() {
+        return driverProperties.getPassword();
+    }
+
+
+    @SharedTestBeforeAllResult
+    public static void setBeforeAllResult(Properties beforeAllResult) {
+        driverProperties = DatabaseContainers.readDriverProperties(beforeAllResult);
+    }
 
     @BeforeClass
     public static void setup() {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
-        mssqlserver.start();
-
-        driverProperties = new DriverProperties(mssqlserver.getJdbcUrl(), mssqlserver.getUsername(), mssqlserver.getPassword(), new Properties());
         driverClass = new MSSqlJDBCDriverClass();
         jdbcApi = new DefaultJDBCApi(driverClass);
 

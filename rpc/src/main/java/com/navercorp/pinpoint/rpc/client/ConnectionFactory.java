@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -25,8 +25,8 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -45,15 +45,15 @@ public class ConnectionFactory {
     ConnectionFactory(Timer connectTimer, Closed closed, ChannelFactory channelFactory,
                              SocketOption socketOption, ClientOption clientOption, ClientHandlerFactory clientHandlerFactory, PipelineFactory pipelineFactory) {
 
-        this.connectTimer = Assert.requireNonNull(connectTimer, "connectTimer");
-        this.closed = Assert.requireNonNull(closed, "release");
+        this.connectTimer = Objects.requireNonNull(connectTimer, "connectTimer");
+        this.closed = Objects.requireNonNull(closed, "release");
 
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
+        this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
 
-        this.socketOption = Assert.requireNonNull(socketOption, "option");
-        this.clientOption = Assert.requireNonNull(clientOption, "connectTimer");
-        this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory");
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
+        this.socketOption = Objects.requireNonNull(socketOption, "option");
+        this.clientOption = Objects.requireNonNull(clientOption, "connectTimer");
+        this.clientHandlerFactory = Objects.requireNonNull(clientHandlerFactory, "clientHandlerFactory");
+        this.pipelineFactory = Objects.requireNonNull(pipelineFactory, "pipelineFactory");
     }
 
     public boolean isClosed() {
@@ -73,7 +73,7 @@ public class ConnectionFactory {
 
     private static class ConnectEvent implements TimerTask {
 
-        private final Logger logger = LoggerFactory.getLogger(getClass());
+        private final Logger logger = LogManager.getLogger(getClass());
 
         private final ConnectionFactory connectionFactory;
         private final SocketAddressProvider socketAddressProvider;
@@ -82,9 +82,9 @@ public class ConnectionFactory {
 
 
         private ConnectEvent(ConnectionFactory connectionFactory, SocketAddressProvider socketAddressProvider, PinpointClient pinpointClient) {
-            this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory");
-            this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
-            this.pinpointClient = Assert.requireNonNull(pinpointClient, "pinpointClient");
+            this.connectionFactory = Objects.requireNonNull(connectionFactory, "connectionFactory");
+            this.socketAddressProvider = Objects.requireNonNull(socketAddressProvider, "socketAddressProvider");
+            this.pinpointClient = Objects.requireNonNull(pinpointClient, "pinpointClient");
         }
 
         @Override

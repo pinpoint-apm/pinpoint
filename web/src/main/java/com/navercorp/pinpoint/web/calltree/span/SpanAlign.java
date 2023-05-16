@@ -24,7 +24,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import org.apache.commons.collections.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * @author emeroad
@@ -46,12 +47,12 @@ public class SpanAlign implements Align {
 
     public SpanAlign(SpanBo spanBo, boolean meta) {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
-        this.hasChild = hasChild0();
+        this.hasChild = hasChild0(spanBo);
         this.meta = meta;
     }
 
-    private boolean hasChild0() {
-        final List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
+    private boolean hasChild0(SpanBo spanBo) {
+        final List<SpanEventBo> spanEvents = spanBo.getSpanEventBoList();
         if (CollectionUtils.isNotEmpty(spanEvents)) {
             return true;
         }
@@ -175,6 +176,17 @@ public class SpanAlign implements Align {
     }
 
     @Override
+    public String getAgentName() {
+        final String def = " ";
+        if (isMeta()) {
+            return def;
+        }
+
+        final String agentName = spanBo.getAgentName();
+        return StringUtils.isEmpty(agentName) ? def : agentName;
+    }
+
+    @Override
     public String getApplicationId() {
         if (isMeta()) {
             return " ";
@@ -265,7 +277,7 @@ public class SpanAlign implements Align {
     @Override
     public String toString() {
         return "SpanAlign{" +
-                "spanBo=" + spanBo +
+                "spanBo=" + spanBo.getSpanId() +
                 ", hasChild=" + hasChild +
                 ", meta=" + meta +
                 ", id=" + id +
@@ -273,5 +285,57 @@ public class SpanAlign implements Align {
                 ", depth=" + depth +
                 ", executionMilliseconds=" + executionMilliseconds +
                 '}';
+    }
+
+    public static class Builder {
+        private final SpanBo spanBo;
+        private boolean meta;
+        private int id;
+        private long gap;
+        private int depth;
+        private long executionMilliseconds;
+
+        public Builder(SpanBo spanBo) {
+            this.spanBo = spanBo;
+        }
+
+        public Builder enableMeta() {
+            this.meta = true;
+            return this;
+        }
+
+        public Builder disableMeta() {
+            this.meta = false;
+            return this;
+        }
+
+        public Builder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setGap(long gap) {
+            this.gap = gap;
+            return this;
+        }
+
+        public Builder setDepth(int depth) {
+            this.depth = depth;
+            return this;
+        }
+
+        public Builder setExecutionMilliseconds(long executionMilliseconds) {
+            this.executionMilliseconds = executionMilliseconds;
+            return this;
+        }
+
+        public SpanAlign build() {
+            SpanAlign align = new SpanAlign(this.spanBo, meta);
+            align.setId(this.id);
+            align.setGap(this.gap);
+            align.setDepth(this.depth);
+            align.setExecutionMilliseconds(this.executionMilliseconds);
+            return align;
+        }
     }
 }

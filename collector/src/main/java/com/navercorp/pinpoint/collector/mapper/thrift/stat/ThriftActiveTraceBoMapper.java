@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class ThriftActiveTraceBoMapper implements ThriftBoMapper<ActiveTraceBo, TActiveTrace> {
+public class ThriftActiveTraceBoMapper implements ThriftStatMapper<ActiveTraceBo, TActiveTrace> {
 
     @Override
     public ActiveTraceBo map(TActiveTrace tActiveTrace) {
@@ -41,6 +42,15 @@ public class ThriftActiveTraceBoMapper implements ThriftBoMapper<ActiveTraceBo, 
         activeTraceBo.setHistogramSchemaType(tActiveTraceHistogram.getHistogramSchemaType());
         activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
         return activeTraceBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBuilder, TAgentStat tAgentStat) {
+        // activeTrace
+        if (tAgentStat.isSetActiveTrace() && tAgentStat.getActiveTrace().isSetHistogram()) {
+            ActiveTraceBo activeTraceBo = this.map(tAgentStat.getActiveTrace());
+            agentStatBuilder.addActiveTrace(activeTraceBo);
+        }
     }
 
     private ActiveTraceHistogram createActiveTraceCountMap(List<Integer> activeTraceCounts) {

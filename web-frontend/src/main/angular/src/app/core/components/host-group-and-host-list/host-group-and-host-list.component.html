@@ -1,0 +1,19 @@
+<ul class="l-host-list l-depth-0">
+    <li>
+        <div [attr.title]="selectedHostGroup" class="l-name-wrapper" (click)="toggleMenu()">
+            <span class="l-name">
+                <i class="fas fa-server"></i> {{selectedHostGroup}}
+            </span>
+            <i class="fas fa-angle-right" [@rightDown]="getCollapsedState()"></i>
+        </div>
+        <ul class="l-depth-1" [@collapseSpread]="getCollapsedState()">
+            <li *ngFor="let host of hostList" (click)="onSelectHost(host)" [attr.title]="host">
+                <div class="l-name-wrapper" [class.active]="selectedHost === host">
+                    <span class="l-name">
+                        <i class="fas fa-hdd"></i> {{host}}
+                    </span>
+                </div>
+            </li>
+        </ul>
+    </li>
+</ul>

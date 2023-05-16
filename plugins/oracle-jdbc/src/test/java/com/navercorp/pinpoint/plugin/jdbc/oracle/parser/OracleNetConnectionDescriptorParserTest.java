@@ -16,23 +16,17 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Description;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.KeyValue;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleConnectionStringException;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorParser;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
  */
 public class OracleNetConnectionDescriptorParserTest {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void simple() {
@@ -40,12 +34,12 @@ public class OracleNetConnectionDescriptorParserTest {
                                         + "(CONNECT_DATA=(SERVICE_NAME=service)))";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
 
         logger.info(keyValue.toString());
 
         Description des = new Description(keyValue);
-        Assert.assertEquals(des.getServiceName(), "service");
+        Assertions.assertEquals(des.getServiceName(), "service");
     }
 
     @Test
@@ -54,11 +48,11 @@ public class OracleNetConnectionDescriptorParserTest {
                                         + "(CONNECT_DATA=(SERVICE_NAME=)))";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
         logger.info(keyValue.toString());
 
         Description des = new Description(keyValue);
-        Assert.assertEquals(des.getServiceName(), null);
+        Assertions.assertEquals(des.getServiceName(), null);
 
     }
 
@@ -70,14 +64,14 @@ public class OracleNetConnectionDescriptorParserTest {
                 "(CONNECT_DATA=(SERVICE_NAME=service)))";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
         Description description = new Description(keyValue);
 
         Description value = new Description();
         value.setServiceName("service");
         value.addAddress("tcp", "1.2.3.4", "1521");
         value.addAddress("tcp", "1.2.3.5", "1522");
-        Assert.assertEquals(description, value);
+        Assertions.assertEquals(description, value);
 
     }
 
@@ -89,14 +83,14 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SERVICE_NAME = service ) ) )";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
         Description description = new Description(keyValue);
 
         Description value = new Description();
         value.setServiceName("service");
         value.addAddress("tcp", "1.2.3.4", "1521");
         value.addAddress("tcp", "1.2.3.5", "1522");
-        Assert.assertEquals(description, value);
+        Assertions.assertEquals(description, value);
 
     }
 
@@ -109,7 +103,7 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SERVICE_NAME = service ) ) )";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
         Description description = new Description(keyValue);
 
         Description value = new Description();
@@ -117,7 +111,7 @@ public class OracleNetConnectionDescriptorParserTest {
         value.addAddress("tcp", "1.2.3.4", "1521");
         value.addAddress("tcp", "1.2.3.5", "1522");
         value.addAddress("tcp", "1.2.3.6", "1523");
-        Assert.assertEquals(description, value);
+        Assertions.assertEquals(description, value);
 
     }
 
@@ -128,13 +122,46 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SID = sid ) ) )";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        KeyValue keyValue = parser.parse();
+        KeyValue<?> keyValue = parser.parse();
         Description description = new Description(keyValue);
 
         Description value = new Description();
         value.setSid("sid");
         value.addAddress("tcp", "1.2.3.4", "1521");
-        Assert.assertEquals(description, value);
+        Assertions.assertEquals(description, value);
+
+    }
+
+    @Test
+    public void parse_description_list() {
+        String url = "jdbc:oracle:thin:@(DESCRIPTION_LIST=" +
+                "(LOAD_BALANCE=off)(FAILOVER=on)" +
+                "(DESCRIPTION=" +
+                    "(LOAD_BALANCE=on)" +
+                    "(ADDRESS=(PROTOCOL=tcp)(HOST=1.2.3.4)(PORT=1521))" +
+                    "(ADDRESS=(PROTOCOL=tcp)(HOST=1.2.3.5)(PORT=1521))" +
+                    "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=service_test)))" +
+                 "(DESCRIPTION=" +
+                    "(LOAD_BALANCE=on)" +
+                    "(ADDRESS=(PROTOCOL=tcp)(HOST=2.3.4.5)(PORT=1521))" +
+                    "(ADDRESS=(PROTOCOL=tcp)(HOST=2.3.4.6)(PORT=1521))" +
+                    "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=service_test))))";
+
+        OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(url);
+        KeyValue<?> keyValue = parser.parse();
+
+        DescriptionList descriptionList = new DescriptionList(keyValue);
+        Description desc1 = new Description();
+        desc1.setServiceName("service_test");
+        desc1.addAddress("tcp", "1.2.3.4", "1521");
+        desc1.addAddress("tcp", "1.2.3.5", "1521");
+        Assertions.assertEquals(desc1, descriptionList.getDescriptionList().get(0));
+
+        Description desc2 = new Description();
+        desc2.setServiceName("service_test");
+        desc2.addAddress("tcp", "2.3.4.5", "1521");
+        desc2.addAddress("tcp", "2.3.4.6", "1521");
+        Assertions.assertEquals(desc2, descriptionList.getDescriptionList().get(1));
 
     }
 
@@ -146,14 +173,9 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SID = sid ) ) ";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        try {
-            KeyValue keyValue = parser.parse();
-            Assert.fail();
-        } catch (OracleConnectionStringException e) {
-            logger.info("Expected error", e);
-        }
-
-
+        Assertions.assertThrowsExactly(OracleConnectionStringException.class, () -> {
+            parser.parse();
+        });
     }
 
 
@@ -164,12 +186,9 @@ public class OracleNetConnectionDescriptorParserTest {
                 " ( CONNECT_DATA = ( SID = sid ) ) )";
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        try {
-            KeyValue keyValue = parser.parse();
-            Assert.fail();
-        } catch (OracleConnectionStringException e) {
-            logger.info("Expected error", e);
-        }
+        Assertions.assertThrowsExactly(OracleConnectionStringException.class, () -> {
+            parser.parse();
+        });
     }
 
     @Test
@@ -180,12 +199,9 @@ public class OracleNetConnectionDescriptorParserTest {
         // removed port
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
-        try {
-            KeyValue keyValue = parser.parse();
-            Assert.fail();
-        } catch (OracleConnectionStringException e) {
-            logger.info("Expected error", e);
-        }
+        Assertions.assertThrowsExactly(OracleConnectionStringException.class, () -> {
+            parser.parse();
+        });
     }
 
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 
 /**
@@ -27,7 +27,7 @@ public class TraceLogDelegateStorageFactory implements StorageFactory {
     private final StorageFactory delegate;
 
     public TraceLogDelegateStorageFactory(StorageFactory delegate) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
 

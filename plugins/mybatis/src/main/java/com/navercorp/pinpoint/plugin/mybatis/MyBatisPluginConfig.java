@@ -26,12 +26,19 @@ public class MyBatisPluginConfig {
 
     private final boolean myBatisEnabled;
 
+    private final boolean markError;
+
     public MyBatisPluginConfig(ProfilerConfig profilerConfig) {
         this.myBatisEnabled = profilerConfig.readBoolean("profiler.orm.mybatis", true);
+        this.markError = profilerConfig.readBoolean("profiler.orm.mybatis.markerror", false);
     }
 
     public boolean isMyBatisEnabled() {
         return myBatisEnabled;
+    }
+
+    public boolean isMarkError() {
+        return markError;
     }
 
     @Override

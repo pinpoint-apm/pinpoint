@@ -20,12 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -34,7 +33,9 @@ import java.util.Arrays;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultTransactionIdEncoderTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    public static final String DEFAULT_AGENT_ID = "defaultAgentId";
 
     private final String agentId = "agentId";
     private final long agentStartTime = 11;
@@ -47,64 +48,66 @@ public class DefaultTransactionIdEncoderTest {
     private final DefaultTransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
     @Test
-    public void testCompressedTransactionId() throws Exception {
+    public void testCompressedTransactionId() {
         TraceRoot traceRoot = getRootTraceId();
         TraceId traceId = traceRoot.getTraceId();
 
         ByteBuffer encodeTxId = transactionIdEncoder.encodeTransactionId(traceId);
 
-        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining()));
+        byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
+        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertNull(parsedTxId.getAgentId());
-        Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime);
-        Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
+        Assertions.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
+        Assertions.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime);
+        Assertions.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
 
     @Test
-    public void testNormalTransactionId() throws Exception {
+    public void testNormalTransactionId() {
         TraceRoot traceRoot = getExternalTraceId();
 
         TraceId traceId = traceRoot.getTraceId();
         ByteBuffer encodeTxId = transactionIdEncoder.encodeTransactionId(traceId);
 
 
-        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining()));
+        byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
+        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertEquals(parsedTxId.getAgentId(), agentId2);
-        Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
-        Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
+        Assertions.assertEquals(parsedTxId.getAgentId(), agentId2);
+        Assertions.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
+        Assertions.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
 
     @Test
-    public void testDuplicateAgentId() throws Exception {
+    public void testDuplicateAgentId() {
         TraceRoot traceRoot = getDuplicateAgentId();
 
         TraceId traceId = traceRoot.getTraceId();
         ByteBuffer encodeTxId = transactionIdEncoder.encodeTransactionId(traceId);
 
 
-        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining()));
+        byte[] transactionId = Arrays.copyOf(encodeTxId.array(), encodeTxId.remaining());
+        TransactionId parsedTxId = TransactionIdUtils.parseTransactionId(transactionId, DEFAULT_AGENT_ID);
         logger.debug("transactionId:{}", parsedTxId);
-        Assert.assertNull(parsedTxId.getAgentId());
-        Assert.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
-        Assert.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
+        Assertions.assertEquals(DEFAULT_AGENT_ID, parsedTxId.getAgentId());
+        Assertions.assertEquals(parsedTxId.getAgentStartTime(), agentStartTime2);
+        Assertions.assertEquals(parsedTxId.getTransactionSequence(), transactionId2);
     }
-
 
 
     private TraceRoot getRootTraceId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, transactionId);
     }
 
     private TraceRoot getExternalTraceId() {
         TraceId traceId = new DefaultTraceId(agentId2, agentStartTime2, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, transactionId);
     }
 
     private TraceRoot getDuplicateAgentId() {
         TraceId traceId = new DefaultTraceId(agentId, agentStartTime2, transactionId2);
-        return new DefaultTraceRoot(traceId, agentId, agentStartTime, transactionId);
+        return TraceRoot.remote(traceId, agentId, agentStartTime, transactionId);
     }
 
 

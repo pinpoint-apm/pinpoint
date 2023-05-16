@@ -29,10 +29,10 @@ import io.vertx.core.http.HttpServerRequest;
 public class ParameterRecorderFactory {
     public static ParameterRecorder<HttpServerRequest> newParameterRecorderFactory(Filter<String> excludeProfileMethodFilter, boolean traceRequestParam) {
         if (!traceRequestParam) {
-            return new DisableParameterRecorder<HttpServerRequest>();
+            return new DisableParameterRecorder<>();
         }
         ParameterExtractor<HttpServerRequest> parameterExtractor = new HttpServerParameterExtractor(64, 512);
         ParameterExtractor<HttpServerRequest> methodFilterExtractor = new MethodFilterExtractor(excludeProfileMethodFilter, parameterExtractor);
-        return new HttpParameterRecorder<HttpServerRequest>(methodFilterExtractor);
+        return new HttpParameterRecorder<>(methodFilterExtractor);
     }
 }

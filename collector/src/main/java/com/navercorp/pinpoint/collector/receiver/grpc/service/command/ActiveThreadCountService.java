@@ -26,8 +26,8 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
 
@@ -43,7 +43,7 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
 
     public static class ActiveThreadCountStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final PinpointGrpcServer pinpointGrpcServer;
         private final ServerCallStreamObserver<Empty> connectionObserver;

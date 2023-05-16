@@ -1,0 +1,30 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.select-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    height: 50px;
+}
+
+.count-select {
+    width: 120px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+::ng-deep .mat-select-value-text {
+    color: var(--text-primary-lighter) !important;
+}
+
+::ng-deep .mat-select-arrow {
+    border-top-color: var(--text-primary-lighter) !important;
+}
+
+::ng-deep .mat-form-field-underline {
+    background-color: var(--text-primary-lightest) !important;
+}

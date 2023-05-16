@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.strategy.impl;
 
 import com.navercorp.pinpoint.common.server.bo.codec.TypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategyTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,14 +32,14 @@ public class RepeatCountEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_shorts_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Short> expectedValues = createRandomShorts(numTestValues, true);
-        RepeatCountEncodingStrategy.Unsigned<Short> strategy = new RepeatCountEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
+        RepeatCountEncodingStrategy.Unsigned<Short> strategy = new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_shorts_should_be_encoded_and_decoded_correctly() {
         List<Short> expectedValues = Collections.emptyList();
-        RepeatCountEncodingStrategy.Unsigned<Short> strategy = new RepeatCountEncodingStrategy.Unsigned<Short>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
+        RepeatCountEncodingStrategy.Unsigned<Short> strategy = new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.SHORT_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
@@ -47,14 +47,14 @@ public class RepeatCountEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_ints_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Integer> expectedValues = createRandomIntegers(numTestValues, true);
-        RepeatCountEncodingStrategy.Unsigned<Integer> strategy = new RepeatCountEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
+        RepeatCountEncodingStrategy.Unsigned<Integer> strategy = new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_ints_should_be_encoded_and_decoded_correctly() {
         List<Integer> expectedValues = Collections.emptyList();
-        RepeatCountEncodingStrategy.Unsigned<Integer> strategy = new RepeatCountEncodingStrategy.Unsigned<Integer>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
+        RepeatCountEncodingStrategy.Unsigned<Integer> strategy = new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.INTEGER_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
@@ -62,14 +62,14 @@ public class RepeatCountEncodingStrategyTest extends EncodingStrategyTestBase {
     public void unsigned_longs_should_be_encoded_and_decoded_correctly() {
         int numTestValues = NUM_TEST_VALUES;
         List<Long> expectedValues = createRandomLongs(numTestValues, true);
-        RepeatCountEncodingStrategy.Unsigned<Long> strategy = new RepeatCountEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER);
+        RepeatCountEncodingStrategy.Unsigned<Long> strategy = new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 
     @Test
     public void empty_unsigned_longs_should_be_encoded_and_decoded_correctly() {
         List<Long> expectedValues = Collections.emptyList();
-        RepeatCountEncodingStrategy.Unsigned<Long> strategy = new RepeatCountEncodingStrategy.Unsigned<Long>(TypedBufferHandler.LONG_BUFFER_HANDLER);
+        RepeatCountEncodingStrategy.Unsigned<Long> strategy = new RepeatCountEncodingStrategy.Unsigned<>(TypedBufferHandler.LONG_BUFFER_HANDLER);
         testStrategy(expectedValues, strategy);
     }
 }

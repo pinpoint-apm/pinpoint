@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransactionBo> {
+public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransactionBo, AggreJoinTransactionBo> {
 
     @Override
     public AggreJoinTransactionBo sampleDataPoints(int index, long timestamp, List<JoinTransactionBo> joinTransactionBoList, JoinTransactionBo previousDataPoint) {
@@ -34,15 +35,11 @@ public class JoinTransactionSampler implements ApplicationStatSampler<JoinTransa
             return AggreJoinTransactionBo.createUncollectedObject(timestamp);
         }
 
-        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoLIst(joinTransactionBoList, timestamp);
+        JoinTransactionBo joinTransactionBo = JoinTransactionBo.joinTransactionBoList(joinTransactionBoList, timestamp);
         String id = joinTransactionBo.getId();
         long collectInterval = joinTransactionBo.getCollectInterval();
-        long totalCount = joinTransactionBo.getTotalCount();
-        long maxTotalCount = joinTransactionBo.getMaxTotalCount();
-        String maxTotalCountAgentId = joinTransactionBo.getMaxTotalCountAgentId();
-        long minTotalCount = joinTransactionBo.getMinTotalCount();
-        String minTotalCountAgentId = joinTransactionBo.getMinTotalCountAgentId();
-        AggreJoinTransactionBo aggreJoinTransactionBo = new AggreJoinTransactionBo(id, collectInterval, totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId, timestamp);
-        return aggreJoinTransactionBo;
+        final JoinLongFieldBo totalCountJoinValue = joinTransactionBo.getTotalCountJoinValue();
+
+        return new AggreJoinTransactionBo(id, collectInterval, totalCountJoinValue, timestamp);
     }
 }

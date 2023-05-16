@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.flink.mapper.thrift.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinAgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
-import com.navercorp.pinpoint.flink.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSource;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class JoinDataSourceListBoMapper implements ThriftBoMapper<JoinDataSourceListBo, TFAgentStat> {
+public class JoinDataSourceListBoMapper implements ThriftStatMapper<JoinDataSourceListBo, TFAgentStat> {
     @Override
     public JoinDataSourceListBo map(TFAgentStat tFAgentStat) {
         if (!tFAgentStat.isSetDataSourceList()) {
@@ -56,16 +57,24 @@ public class JoinDataSourceListBoMapper implements ThriftBoMapper<JoinDataSource
             JoinDataSourceBo joinDataSourceBo = new JoinDataSourceBo();
             joinDataSourceBo.setServiceTypeCode(tFDataSource.getServiceTypeCode());
             joinDataSourceBo.setUrl(tFDataSource.getUrl());
-            joinDataSourceBo.setAvgActiveConnectionSize(tFDataSource.getActiveConnectionSize());
-            joinDataSourceBo.setMinActiveConnectionSize(tFDataSource.getActiveConnectionSize());
-            joinDataSourceBo.setMinActiveConnectionAgentId(tFAgentStat.getAgentId());
-            joinDataSourceBo.setMaxActiveConnectionSize(tFDataSource.getActiveConnectionSize());
-            joinDataSourceBo.setMaxActiveConnectionAgentId(tFAgentStat.getAgentId());
+            final int activeConnectionSize = tFDataSource.getActiveConnectionSize();
+            joinDataSourceBo.setActiveConnectionSizeJoinValue(new JoinIntFieldBo(activeConnectionSize, activeConnectionSize, agentId, activeConnectionSize, agentId));
             joinDataSourceBoList.add(joinDataSourceBo);
         }
         joinDataSourceListBo.setJoinDataSourceBoList(joinDataSourceBoList);
 
         return joinDataSourceListBo;
 
+    }
+
+    @Override
+    public void build(TFAgentStat tFAgentStat, JoinAgentStatBo.Builder builder) {
+        JoinDataSourceListBo joinDataSourceListBo = this.map(tFAgentStat);
+
+        if (joinDataSourceListBo == JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO) {
+            return;
+        }
+
+        builder.addDataSourceListBo(joinDataSourceListBo);
     }
 }

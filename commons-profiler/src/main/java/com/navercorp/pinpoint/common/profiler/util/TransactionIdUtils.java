@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -40,9 +45,8 @@ public final class TransactionIdUtils {
     }
 
     public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         StringBuilder sb = new StringBuilder(64);
         sb.append(agentId);
         sb.append(TRANSACTION_ID_DELIMITER);
@@ -66,7 +70,7 @@ public final class TransactionIdUtils {
         // agentId may be null
         // version + prefixed size + string + long + long
         final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
-        final int agentIdLength = getLength(agentIdBytes);
+        final int agentIdLength = ArrayUtils.getLength(agentIdBytes, Buffer.NULL);
         final int zigZagAgentIdLength = BytesUtils.intToZigZag(agentIdLength);
         final int agentIdPrefixSize = BytesUtils.computeVar32Size(zigZagAgentIdLength);
         final int agentStartTimeSize = BytesUtils.computeVar64Size(agentStartTime);
@@ -87,41 +91,39 @@ public final class TransactionIdUtils {
         return buffer;
     }
 
-    private static int getLength(byte[] bytes) {
-        if (bytes == null) {
-            return -1;
-        }
-        return bytes.length;
-    }
+    public static TransactionId parseTransactionId(final byte[] transactionId, String defaultAgentId) {
+        Objects.requireNonNull(transactionId, "transactionId");
 
-    public static TransactionId parseTransactionId(final byte[] transactionId) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
         final Buffer buffer = new FixedBuffer(transactionId);
         final byte version = buffer.readByte();
         if (version != VERSION) {
             throw new IllegalArgumentException("invalid Version");
         }
 
-        final String agentId = buffer.readPrefixedString();
+        String agentId = buffer.readPrefixedString();
+        agentId = StringUtils.defaultString(agentId, defaultAgentId);
+        if (!IdValidateUtils.validateId(agentId)) {
+            throw new IllegalArgumentException("invalid transactionId:" + Arrays.toString(transactionId));
+        }
+
         final long agentStartTime = buffer.readVLong();
         final long transactionSequence = buffer.readVLong();
-        if (agentId == null) {
-            return new TransactionId(agentStartTime, transactionSequence);
-        } else {
-            return new TransactionId(agentId, agentStartTime,transactionSequence);
-        }
+
+        return new TransactionId(agentId, agentStartTime,transactionSequence);
     }
 
     public static TransactionId parseTransactionId(final String transactionId) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
 
         final int agentIdIndex = nextIndex(transactionId, 0);
         if (agentIdIndex == -1) {
             throw new IllegalArgumentException("agentIndex not found:" + transactionId);
+        }
+        if (agentIdIndex > PinpointConstants.AGENT_ID_MAX_LEN) {
+            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
+        }
+        if (!IdValidateUtils.checkId(transactionId, 0, agentIdIndex)) {
+            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
         }
         final String agentId = transactionId.substring(0, agentIdIndex);
 
@@ -134,7 +136,7 @@ public final class TransactionIdUtils {
         int transactionSequenceIndex = nextIndex(transactionId, agentStartTimeIndex + 1);
         if (transactionSequenceIndex == -1) {
             // next index may not exist since default value does not have a delimiter after transactionSequence.
-            // may need fixing when id spec changes 
+            // may need fixing when id spec changes
             transactionSequenceIndex = transactionId.length();
         }
         final long transactionSequence = parseLong(transactionId, agentStartTimeIndex + 1, transactionSequenceIndex);

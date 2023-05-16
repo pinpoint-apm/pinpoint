@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.instrument.mock;
 
-import com.navercorp.pinpoint.common.util.IOUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -30,16 +28,10 @@ public final class JavaSerializableUtils {
     }
 
     public static byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream bout = null;
-        ObjectOutputStream oout = null;
-        try {
-            bout = new ByteArrayOutputStream();
-            oout = new ObjectOutputStream(bout);
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
+             ObjectOutputStream oout = new ObjectOutputStream(bout)) {
             oout.writeObject(obj);
             return bout.toByteArray();
-        } finally {
-            IOUtils.closeQuietly(oout);
-            IOUtils.closeQuietly(bout);
         }
     }
 

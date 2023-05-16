@@ -16,15 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.memory;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author HyunGil Jeong
@@ -38,9 +31,9 @@ public class DefaultMemoryMetricTest {
         // When
         MemoryMetricSnapshot snapshot = memoryMetric.getSnapshot();
         // Then
-        Assert.assertTrue(snapshot.getHeapMax() >= -1);
-        Assert.assertTrue(snapshot.getHeapUsed() > 0);
-        Assert.assertTrue(snapshot.getNonHeapMax() >= -1);
-        Assert.assertTrue(snapshot.getNonHeapUsed() > 0);
+        Assertions.assertTrue(snapshot.getHeapMax() >= -1);
+        Assertions.assertTrue(snapshot.getHeapUsed() > 0);
+        Assertions.assertTrue(snapshot.getNonHeapMax() >= -1);
+        Assertions.assertTrue(snapshot.getNonHeapUsed() > 0);
     }
 }

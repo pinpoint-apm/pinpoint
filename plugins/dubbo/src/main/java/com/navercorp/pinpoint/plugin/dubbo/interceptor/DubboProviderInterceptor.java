@@ -73,8 +73,10 @@ public class DubboProviderInterceptor extends SpanRecursiveAroundInterceptor {
         final RpcInvocation invocation = (RpcInvocation) args[0];
         final RpcContext rpcContext = RpcContext.getContext();
 
+        final Invoker invoker = (Invoker) target;
+
         // Record rpc name, client address, server address.
-        recorder.recordRpcName(invocation.getInvoker().getInterface().getSimpleName() + ":" + invocation.getMethodName());
+        recorder.recordRpcName(invoker.getInterface().getSimpleName() + ":" + invocation.getMethodName());
         recorder.recordEndPoint(rpcContext.getLocalAddressString());
         if (rpcContext.getRemoteHost() != null) {
             recorder.recordRemoteAddress(rpcContext.getRemoteAddressString());
@@ -140,8 +142,10 @@ public class DubboProviderInterceptor extends SpanRecursiveAroundInterceptor {
         final RpcInvocation invocation = (RpcInvocation) args[0];
         recorder.recordServiceType(DubboConstants.DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE);
         recorder.recordApi(methodDescriptor);
+        final Invoker invoker = (Invoker) target;
+
         recorder.recordAttribute(DubboConstants.DUBBO_RPC_ANNOTATION_KEY,
-                invocation.getInvoker().getInterface().getSimpleName() + ":" + invocation.getMethodName());
+                invoker.getInterface().getSimpleName() + ":" + invocation.getMethodName());
     }
 
     @Override

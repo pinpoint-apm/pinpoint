@@ -28,7 +28,7 @@ public class TSpanMockBuilder {
     private static final String AGENT_ID = "agentId";
     private static final String APPLICATION_NAME = "applicationName";
     private static final byte[] TRANSACTION_ID = "transactionId".getBytes();
-    private static final short SERVICE_TYPE = Short.valueOf("1");
+    private static final short SERVICE_TYPE = 1;
 
     private String agentId = AGENT_ID;
     private String applicationName = APPLICATION_NAME;

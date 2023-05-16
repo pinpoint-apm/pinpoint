@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.DefaultDetailedGarbageC
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.UnknownDetailedGarbageCollectorMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class DetailedGarbageCollectorMetricProvider implements Provider<DetailedGarbageCollectorMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Inject
     public DetailedGarbageCollectorMetricProvider() {
@@ -48,8 +48,8 @@ public class DetailedGarbageCollectorMetricProvider implements Provider<Detailed
         DetailedGarbageCollectorMetric detailedGarbageCollectorMetric = null;
         Map<String, GarbageCollectorMXBean> garbageCollectorMap = createGarbageCollectorMap();
         for (GarbageCollectorType garbageCollectorType : GarbageCollectorType.values()) {
-            if (garbageCollectorMap.containsKey(garbageCollectorType.oldGenName())) {
-                GarbageCollectorMXBean garbageCollectorMXBean = garbageCollectorMap.get(garbageCollectorType.oldGenName());
+            if (garbageCollectorMap.containsKey(garbageCollectorType.newGenName())) {
+                GarbageCollectorMXBean garbageCollectorMXBean = garbageCollectorMap.get(garbageCollectorType.newGenName());
                 detailedGarbageCollectorMetric = new DefaultDetailedGarbageCollectorMetric(garbageCollectorType, garbageCollectorMXBean);
                 break;
             }
@@ -62,7 +62,7 @@ public class DetailedGarbageCollectorMetricProvider implements Provider<Detailed
     }
 
     private Map<String, GarbageCollectorMXBean> createGarbageCollectorMap() {
-        Map<String, GarbageCollectorMXBean> garbageCollectorMap = new HashMap<String, GarbageCollectorMXBean>();
+        Map<String, GarbageCollectorMXBean> garbageCollectorMap = new HashMap<>();
         List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
         for (GarbageCollectorMXBean garbageCollectorMXBean : garbageCollectorMXBeans) {
             garbageCollectorMap.put(garbageCollectorMXBean.getName(), garbageCollectorMXBean);

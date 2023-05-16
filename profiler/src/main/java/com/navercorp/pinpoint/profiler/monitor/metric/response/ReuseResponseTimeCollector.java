@@ -17,10 +17,9 @@
 package com.navercorp.pinpoint.profiler.monitor.metric.response;
 
 import com.google.inject.Inject;
-import com.navercorp.pinpoint.profiler.util.Counter;
-import com.navercorp.pinpoint.profiler.util.CounterFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author Taejin Koo
@@ -46,8 +45,7 @@ public class ReuseResponseTimeCollector implements ResponseTimeCollector {
         final long totalValue = reset.getTotalValue();
         final long maxValue = reset.getMaxValue();
         final long transactionCount = reset.getTransactionCount();
-        ResponseTimeValue result = new ResponseTimeValue0(totalValue, maxValue, transactionCount);
-        return result;
+        return new ResponseTimeValue0(totalValue, maxValue, transactionCount);
     }
 
     private ResponseTimeCollector reset() {
@@ -58,13 +56,13 @@ public class ReuseResponseTimeCollector implements ResponseTimeCollector {
     }
 
     private static class ResponseTimeCollector {
-        private final Counter totalValue;
-        private final Counter transactionCount;
+        private final LongAdder totalValue;
+        private final LongAdder transactionCount;
         private final AtomicLong maxValue = new AtomicLong(0);
 
         private ResponseTimeCollector() {
-            this.totalValue = CounterFactory.newCounter();
-            this.transactionCount = CounterFactory.newCounter();
+            this.totalValue = new LongAdder();
+            this.transactionCount = new LongAdder();
         }
 
         void add(long value) {
@@ -136,14 +134,12 @@ public class ReuseResponseTimeCollector implements ResponseTimeCollector {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("ResponseTimeValue0{");
-            sb.append("totalResponseTime=").append(totalResponseTime);
-            sb.append(", transactionCount=").append(transactionCount);
-            sb.append(", maxResponseTime=").append(maxResponseTime);
-            sb.append('}');
-            return sb.toString();
+            return "ResponseTimeValue0{" +
+                    "totalResponseTime=" + totalResponseTime +
+                    ", maxResponseTime=" + maxResponseTime +
+                    ", transactionCount=" + transactionCount +
+                    '}';
         }
-
     }
 
 }

@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
-import java.math.BigDecimal;
+import com.navercorp.pinpoint.common.profiler.clock.Clock;
+import com.navercorp.pinpoint.common.profiler.clock.TickClock;
+import org.apache.commons.math3.util.Precision;
 
 import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
 
@@ -27,6 +29,8 @@ public class AgentStatUtils {
 
     public static final int NUM_DECIMALS = 4;
     public static final long CONVERT_VALUE = (long) Math.pow(10, NUM_DECIMALS);
+
+    private static final TickClock CLOCK = new TickClock(Clock.systemUTC(), AGENT_STAT_STATISTICS.TIMESPAN_MS);
 
     public static long convertDoubleToLong(double value) {
         long convertedValue = (long) (value * CONVERT_VALUE);
@@ -45,10 +49,10 @@ public class AgentStatUtils {
         if (timeMs < 1) {
             return defaultRate;
         }
-        return new BigDecimal(count / (timeMs / 1000D)).setScale(numDecimals, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return Precision.round(count / (timeMs / 1000D), numDecimals);
     }
 
     public static long getBaseTimestamp(long timestamp) {
-        return timestamp - (timestamp % AGENT_STAT_STATISTICS.TIMESPAN_MS);
+        return CLOCK.tick(timestamp);
     }
 }

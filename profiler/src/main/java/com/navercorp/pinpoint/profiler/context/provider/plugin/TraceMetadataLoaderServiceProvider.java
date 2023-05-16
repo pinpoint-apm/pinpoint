@@ -18,16 +18,17 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.metadata.DefaultTraceMetadataLoaderService;
-import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataRegistrar;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyMatcherRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.ServiceTypeRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataRegistrar;
+import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.profiler.metadata.DefaultTraceMetadataLoaderService;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadataLoaderService> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ServiceTypeRegistry serviceTypeRegistry;
     private final AnnotationKeyRegistry annotationKeyRegistry;
@@ -43,7 +44,7 @@ public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadat
 
     @Inject
     public TraceMetadataLoaderServiceProvider(TraceMetadataLoader traceMetadataLoader) {
-        Assert.requireNonNull(traceMetadataLoader, "traceMetadataLoader");
+        Objects.requireNonNull(traceMetadataLoader, "traceMetadataLoader");
         this.serviceTypeRegistry = traceMetadataLoader.createServiceTypeRegistry();
         this.annotationKeyRegistry = traceMetadataLoader.createAnnotationKeyRegistry();
         this.annotationKeyMatcherRegistry = traceMetadataLoader.createAnnotationKeyMatcherRegistry();

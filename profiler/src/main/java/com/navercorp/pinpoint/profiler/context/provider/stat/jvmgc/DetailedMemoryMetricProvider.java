@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.memory.DefaultDetailedMemo
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryPoolType;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.UnknownDetailedMemoryMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class DetailedMemoryMetricProvider implements Provider<DetailedMemoryMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Inject
     public DetailedMemoryMetricProvider() {
@@ -61,7 +61,7 @@ public class DetailedMemoryMetricProvider implements Provider<DetailedMemoryMetr
     }
 
     private Map<String, MemoryPoolMXBean> createMemoryPoolMap() {
-        Map<String, MemoryPoolMXBean> memoryPoolMap = new HashMap<String, MemoryPoolMXBean>();
+        Map<String, MemoryPoolMXBean> memoryPoolMap = new HashMap<>();
         List<MemoryPoolMXBean> memoryPools = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean memoryPool : memoryPools) {
             memoryPoolMap.put(memoryPool.getName(), memoryPool);

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.sender;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface MessageSerializer<M> {
+public interface MessageSerializer<S, M> {
 
-    M serializer(Object message);
+    M serializer(S message);
 }

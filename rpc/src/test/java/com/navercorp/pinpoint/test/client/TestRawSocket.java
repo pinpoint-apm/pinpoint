@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.client;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.rpc.codec.TestCodec;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
@@ -25,7 +26,7 @@ import com.navercorp.pinpoint.rpc.packet.PongPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
-import com.navercorp.pinpoint.rpc.util.IOUtils;
+import com.navercorp.pinpoint.rpc.util.AwaitIOUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 
 import java.io.IOException;
@@ -49,34 +50,34 @@ public class TestRawSocket {
     }
 
 
-    public void sendPingPacket(Packet pingPacket) throws ProtocolException, IOException {
+    public void sendPingPacket(Packet pingPacket) throws IOException {
         byte[] payload = TestCodec.encodePacket(pingPacket);
-        IOUtils.write(socket.getOutputStream(), payload);
+        AwaitIOUtils.write(socket.getOutputStream(), payload);
     }
 
-    public PongPacket readPongPacket(long maxWaitTIme) throws ProtocolException, IOException {
-        byte[] payload = IOUtils.read(socket.getInputStream(), 50, maxWaitTIme);
+    public PongPacket readPongPacket(long maxWaitTIme) throws IOException {
+        byte[] payload = AwaitIOUtils.read(socket.getInputStream(), 50, maxWaitTIme);
         return (PongPacket) TestCodec.decodePacket(payload);
     }
 
-    public void sendRequestPacket() throws ProtocolException, IOException {
+    public void sendRequestPacket() throws IOException {
         byte[] packet = TestCodec.encodePacket(new RequestPacket(10, new byte[0]));
-        IOUtils.write(socket.getOutputStream(), packet);
+        AwaitIOUtils.write(socket.getOutputStream(), packet);
     }
 
-    public ResponsePacket readResponsePacket(long maxWaitTime) throws ProtocolException, IOException {
-        byte[] payload = IOUtils.read(socket.getInputStream(), 50, maxWaitTime);
+    public ResponsePacket readResponsePacket(long maxWaitTime) throws IOException {
+        byte[] payload = AwaitIOUtils.read(socket.getInputStream(), 50, maxWaitTime);
         return (ResponsePacket) TestCodec.decodePacket(payload);
     }
 
     public void sendHandshakePacket(Map<String, Object> properties) throws ProtocolException, IOException {
         byte[] payload = ControlMessageEncodingUtils.encode(properties);
         byte[] packet = TestCodec.encodePacket(new ControlHandshakePacket(1, payload));
-        IOUtils.write(socket.getOutputStream(), packet);
+        AwaitIOUtils.write(socket.getOutputStream(), packet);
     }
 
     public Map<Object, Object>  readHandshakeResponseData(long maxWaitTime) throws ProtocolException, IOException {
-        byte[] payload = IOUtils.read(socket.getInputStream(), 50, maxWaitTime);
+        byte[] payload = AwaitIOUtils.read(socket.getInputStream(), 50, maxWaitTime);
         ControlHandshakeResponsePacket responsePacket = (ControlHandshakeResponsePacket) TestCodec.decodePacket(payload);
         Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(responsePacket.getPayload());
         return result;

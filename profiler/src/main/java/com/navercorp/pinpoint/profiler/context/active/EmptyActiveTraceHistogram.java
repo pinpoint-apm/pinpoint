@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 
 /**
@@ -30,7 +31,7 @@ public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
 
 
     public EmptyActiveTraceHistogram(HistogramSchema histogramSchema) {
-        this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema");
+        this.histogramSchema = Objects.requireNonNull(histogramSchema, "histogramSchema");
     }
 
     @Override

@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.vo.User;
 @Repository
 public class MysqlUserDao implements UserDao {
 
-    private static final String NAMESPACE = UserDao.class.getPackage().getName() + "." + UserDao.class.getSimpleName() + ".";
+    private static final String NAMESPACE = UserDao.class.getName() + ".";
 
     private final SqlSessionTemplate sqlSessionTemplate;
 
@@ -83,6 +83,16 @@ public class MysqlUserDao implements UserDao {
     @Override
     public List<User> selectUserByUserName(String userName) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectUserByUserName", userName);
+    }
+    
+    @Override
+    public List<User> selectUserByUserGroupId(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserByUserGroupId", userGroupId);
+    }
+    
+    @Override
+    public List<User> searchUser(String condition) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "searchUser", condition);
     }
 
     @Override

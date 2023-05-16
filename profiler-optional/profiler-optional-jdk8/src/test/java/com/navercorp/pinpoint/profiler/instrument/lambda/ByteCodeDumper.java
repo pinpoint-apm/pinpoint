@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.profiler.instrument.lambda;
 
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDisassembler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public final class ByteCodeDumper {
-    private static final Logger logger = LoggerFactory.getLogger(ByteCodeDumper.class);
+    private static final Logger logger = LogManager.getLogger(ByteCodeDumper.class);
 
     private static final ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();
 

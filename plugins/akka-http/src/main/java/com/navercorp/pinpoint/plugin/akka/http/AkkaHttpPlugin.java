@@ -103,10 +103,14 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             final List<String> methodParameters = config.getTransformTargetParameters();
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
                 if (checkSuitableMethod(method, methodParameters)) {
-                    logger.info("addInterceptor={}", Arrays.asList(method.getParameterTypes()));
+                    if (logger.isInfoEnabled()) {
+                        logger.info("addInterceptor={}", Arrays.toString(method.getParameterTypes()));
+                    }
                     method.addInterceptor(DirectivesInterceptor.class);
                 } else {
-                    logger.info("params={}", Arrays.asList(method.getParameterTypes()));
+                    if (logger.isInfoEnabled()) {
+                        logger.info("params={}", Arrays.toString(method.getParameterTypes()));
+                    }
                 }
             }
             return target.toBytecode();

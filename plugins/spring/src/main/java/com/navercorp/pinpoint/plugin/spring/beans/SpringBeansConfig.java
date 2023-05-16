@@ -43,7 +43,7 @@ public class SpringBeansConfig {
     private static final String PATTERN_REGEX = SpringBeansConfig.SPRING_BEANS_PREFIX + "[0-9]+" + "(" + SpringBeansConfig.SPRING_BEANS_SCOPE_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_BASE_PACKAGES_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_NAME_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_CLASS_PATTERN_POSTFIX + "|" + SpringBeansConfig.SPRING_BEANS_ANNOTATION_POSTFIX + ")";
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final Map<Integer, SpringBeansTarget> targets = new HashMap<Integer, SpringBeansTarget>();
+    private final Map<Integer, SpringBeansTarget> targets = new HashMap<>();
 
     private final boolean markError;
 
@@ -67,7 +67,7 @@ public class SpringBeansConfig {
     }
 
     private Map<Integer, SpringBeansTarget> addBackwardCompatibilityTarget(ProfilerConfig config) {
-        final Map<Integer, SpringBeansTarget> result = new HashMap<Integer, SpringBeansTarget>();
+        final Map<Integer, SpringBeansTarget> result = new HashMap<>();
         final String namePatternRegexs = config.readString(SPRING_BEANS_NAME_PATTERN, null);
         // bean name.
         if (StringUtils.hasLength(namePatternRegexs)) {
@@ -96,7 +96,7 @@ public class SpringBeansConfig {
     }
 
     private Map<Integer, SpringBeansTarget> addTarget(ProfilerConfig config) {
-        final Map<Integer, SpringBeansTarget> result = new HashMap<Integer, SpringBeansTarget>();
+        final Map<Integer, SpringBeansTarget> result = new HashMap<>();
         final Map<String, String> patterns = config.readPattern(PATTERN_REGEX);
 
         for (Map.Entry<String, String> entry : patterns.entrySet()) {

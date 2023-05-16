@@ -70,6 +70,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>48</td><td>http.internal.display</td></tr>
  * <tr><td>49</td><td>http.io</td></tr>
  * <tr><td>50</td><td>arcus.command</td></tr>
+ * <tr><td>55</td><td>http.resp.header</td></tr>
+ *
  * <tr><td>60</td><td><i>RESERVED</i></td></tr>
  * <tr><td>61</td><td><i>RESERVED</i></td></tr>
  * <tr><td>62</td><td><i>RESERVED</i></td></tr>
@@ -82,6 +84,9 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
+ *
+ * <tr><td>100</td><td>message.queue.url</td></tr>
+ *
  * <tr><td>110</td><td></td>hystrix.command</tr>
  * <tr><td>111</td><td></td>hystrix.command.execution</tr>
  * <tr><td>112</td><td></td>hystrix.command.fallback.cause</tr>
@@ -107,6 +112,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>174</td><td>es.action</td></tr>
  * <tr><td>175</td><td>es.responseHandle</td></tr>
  * <tr><td>176</td><td>es.version</td></tr>
+ * <tr><td>177</td><td>es.dsl</td></tr>
+ * <tr><td>178</td><td>es.version</td></tr>
  * <tr><td>180</td><td>process.command</td></tr>
  * <tr><td>181</td><td>process.pid</td></tr>
  *
@@ -123,6 +130,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
  * <tr><td>310</td><td>REDIS.IO</td></tr>
  * <tr><td>320</td><td>hbase.client.params</td></tr>
+ * <tr><td>321</td><td>hbase.table.name</td></tr>
+ * <tr><td>330</td><td>memory.usage</td></tr>
  * <tr><td>923</td><td>marker.message</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
@@ -196,8 +205,10 @@ public interface AnnotationKey {
     AnnotationKey HTTP_PARAM_ENTITY = AnnotationKeyFactory.of(42, "http.entity", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_COOKIE = AnnotationKeyFactory.of(45, "http.cookie", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_STATUS_CODE = AnnotationKeyFactory.of(46, "http.status.code", VIEW_IN_RECORD_SET);
+    AnnotationKey HTTP_REQUEST_HEADER = AnnotationKeyFactory.of(47, "http.req.header", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_INTERNAL_DISPLAY = AnnotationKeyFactory.of(48, "http.internal.display");
     AnnotationKey HTTP_IO = AnnotationKeyFactory.of(49, "http.io", VIEW_IN_RECORD_SET);
+    AnnotationKey HTTP_RESPONSE_HEADER = AnnotationKeyFactory.of(55, "http.resp.header", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
 
     AnnotationKey MESSAGE_QUEUE_URI = AnnotationKeyFactory.of(100, "message.queue.url");
@@ -235,4 +246,5 @@ public interface AnnotationKey {
 
     AnnotationKey PROXY_HTTP_HEADER = AnnotationKeyFactory.of(300, "PROXY_HTTP_HEADER", VIEW_IN_RECORD_SET);
     AnnotationKey REDIS_IO = AnnotationKeyFactory.of(310, "redis.io");
+    AnnotationKey MEMORY_USAGE = AnnotationKeyFactory.of(330, "memory.usage", VIEW_IN_RECORD_SET);
 }

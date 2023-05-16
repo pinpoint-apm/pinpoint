@@ -1,8 +1,0 @@
-<ng-container *ngIf="viewComponent">
-    <pp-agent-event-view
-        [eventData]="eventData"
-        [timezone]="timezone$ | async"
-        [dateFormat]="dateFormat$ | async"
-        (outClose)="onClose()">
-    </pp-agent-event-view>
-</ng-container>

@@ -63,6 +63,10 @@ public class JoinDataSourceListBo implements JoinStatBo {
         this.timestamp = timestamp;
     }
 
+    public static void apply(JoinApplicationStatBo.Builder builder, List<JoinDataSourceListBo> joinDataSourceListBoList, Long timestamp) {
+        builder.addDataSourceList(joinDataSourceListBoList(joinDataSourceListBoList, timestamp));
+    }
+
     public static JoinDataSourceListBo joinDataSourceListBoList(List<JoinDataSourceListBo> joinDataSourceListBoList, Long timestamp) {
         if (joinDataSourceListBoList.isEmpty()) {
             return EMPTY_JOIN_DATA_SOURCE_LIST_BO;
@@ -78,24 +82,20 @@ public class JoinDataSourceListBo implements JoinStatBo {
     }
 
     private static List<JoinDataSourceBo> joinDatasourceBo(List<JoinDataSourceListBo> joinDataSourceListBoList) {
-        Map<DataSourceKey, List<JoinDataSourceBo>> dataSourceBoListMap = new HashMap<DataSourceKey, List<JoinDataSourceBo>>();
+        Map<DataSourceKey, List<JoinDataSourceBo>> dataSourceBoListMap = new HashMap<>();
 
         for (JoinDataSourceListBo joinDataSourceListBo : joinDataSourceListBoList) {
             List<JoinDataSourceBo> dataSourceBoList = joinDataSourceListBo.getJoinDataSourceBoList();
 
             for (JoinDataSourceBo joinDataSourceBo : dataSourceBoList) {
                 DataSourceKey dataSourceKey = new DataSourceKey(joinDataSourceBo.getUrl(), joinDataSourceBo.getServiceTypeCode());
-                List<JoinDataSourceBo> joinDataSourceBoList = dataSourceBoListMap.get(dataSourceKey);
-                if (joinDataSourceBoList == null) {
-                    joinDataSourceBoList = new ArrayList<JoinDataSourceBo>();
-                    dataSourceBoListMap.put(dataSourceKey, joinDataSourceBoList);
-                }
+                List<JoinDataSourceBo> joinDataSourceBoList = dataSourceBoListMap.computeIfAbsent(dataSourceKey, k -> new ArrayList<>());
 
                 joinDataSourceBoList.add(joinDataSourceBo);
             }
         }
 
-        List<JoinDataSourceBo> newJoinDatasourceBoList = new ArrayList<JoinDataSourceBo>();
+        List<JoinDataSourceBo> newJoinDatasourceBoList = new ArrayList<>();
 
         for (List<JoinDataSourceBo> joinDataSourceBoList : dataSourceBoListMap.values()) {
             JoinDataSourceBo newJoinDataSourceBo = JoinDataSourceBo.joinDataSourceBoList(joinDataSourceBoList);

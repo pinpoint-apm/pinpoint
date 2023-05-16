@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.monitor.metric.rpc;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -30,14 +31,13 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
     private final ConcurrentMap<ResponseKey, Histogram> map;
 
     public DefaultAcceptHistogram() {
-        this.map = new ConcurrentHashMap<ResponseKey, Histogram>();
+        this.map = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis, boolean error) {
-        if (parentApplicationName == null) {
-            throw new NullPointerException("parentApplicationName");
-        }
+        Objects.requireNonNull(parentApplicationName, "parentApplicationName");
+
         // Cannot compare by ServiceType value because it could be incompatible if new service type is added.  
         if (!ServiceTypeCategory.SERVER.contains(serviceTypeCode)) {
             return false;
@@ -71,11 +71,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
         private final String parentApplicationName;
 
         private ResponseKey(String parentApplicationName, short serviceType) {
-            if (parentApplicationName == null) {
-                throw new NullPointerException("parentApplicationName");
-            }
-
-            this.parentApplicationName = parentApplicationName;
+            this.parentApplicationName = Objects.requireNonNull(parentApplicationName, "parentApplicationName");
             this.serviceType = serviceType;
         }
 

@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.plugin.httpclient4;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
-import com.navercorp.pinpoint.common.util.Assert;
+import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.RequestLine;
+
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -31,7 +33,7 @@ public class HttpClient4RequestWrapper implements ClientRequestWrapper {
     private final int port;
 
     public HttpClient4RequestWrapper(final HttpRequest httpRequest, final String hostName, final int port) {
-        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest");
+        this.httpRequest = Objects.requireNonNull(httpRequest, "httpRequest");
         this.hostName = hostName;
         this.port = port;
     }
@@ -42,15 +44,26 @@ public class HttpClient4RequestWrapper implements ClientRequestWrapper {
         return getEndpoint(this.hostName, this.port);
     }
 
-    private static String getEndpoint(final String host, final int port) {
+    private String getEndpoint(final String host, final int port) {
         if (host == null) {
-            return "Unknown";
+            return "UNKNOWN";
         }
-        if (port < 0) {
-            return host;
+        String endPoint = host.trim();
+        if (endPoint.isEmpty()) {
+            final Header hostHeader = httpRequest.getFirstHeader("HOST");
+            if (hostHeader != null) {
+                endPoint = hostHeader.getValue();
+            }
+        }
+        if (endPoint == null) {
+            return "UNKNOWN";
+        }
+
+        if (port <= 0) {
+            return endPoint;
         }
         final StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
+        sb.append(endPoint);
         sb.append(':');
         sb.append(port);
         return sb.toString();
@@ -65,5 +78,4 @@ public class HttpClient4RequestWrapper implements ClientRequestWrapper {
         }
         return null;
     }
-
 }

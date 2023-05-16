@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.service.map;
 import com.google.common.collect.Sets;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  */
 public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationMapCreator applicationMapCreator;
 

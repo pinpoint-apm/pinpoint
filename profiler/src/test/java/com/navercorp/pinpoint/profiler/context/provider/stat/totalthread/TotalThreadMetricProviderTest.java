@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.totalthread;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TotalThreadMetricProviderTest {
     @Test
@@ -28,6 +28,6 @@ public class TotalThreadMetricProviderTest {
         Provider<TotalThreadMetric> provider = new TotalThreadMetricProvider();
         TotalThreadMetric totalThreadMetric = provider.get();
         TotalThreadMetricSnapshot snapshot = totalThreadMetric.getSnapshot();
-        Assert.assertNotEquals(snapshot.getTotalThreadCount(), 0);
+        Assertions.assertNotEquals(snapshot.getTotalThreadCount(), 0);
     }
 }

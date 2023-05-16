@@ -36,7 +36,7 @@ public class AgentEventMarkerSerializer extends JsonSerializer<AgentEventMarker>
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("totalCount", agentEventMarker.getTotalCount());
         jsonGenerator.writeFieldName("typeCounts");
-        jsonGenerator.writeStartArray(agentEventMarker.getTypeCounts().size());
+        jsonGenerator.writeStartArray();
         for (Map.Entry<AgentEventType, Integer> e : agentEventMarker.getTypeCounts().entrySet()) {
             writeAgentEventTypeCount(jsonGenerator, e);
         }

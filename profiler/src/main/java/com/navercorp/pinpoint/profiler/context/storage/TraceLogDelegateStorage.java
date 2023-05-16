@@ -16,25 +16,23 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.WebInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class TraceLogDelegateStorage implements Storage {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
+    private final Logger logger = LogManager.getLogger(TraceLogDelegateStorage.class);
 
     private final Storage delegate;
 
     public TraceLogDelegateStorage(Storage delegate) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override
@@ -64,10 +62,4 @@ public class TraceLogDelegateStorage implements Storage {
     public void close() {
         this.delegate.close();
     }
-
-    @Override
-    public void sendWebInfo(Span span) {
-
-    }
-
 }

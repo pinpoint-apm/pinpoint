@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 import com.navercorp.pinpoint.plugin.hystrix.descriptor.HystrixCircuitBreakerMethodDescriptor;
 import com.navercorp.pinpoint.plugin.hystrix.field.HystrixKeyNameAccessor;
@@ -46,7 +47,7 @@ public class HystrixCircuitBreakerConstructInterceptor extends SpanEventSimpleAr
         recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_CIRCUIT_BREAKER_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
-        if (args != null && args.length > 1) {
+        if (ArrayUtils.getLength(args) > 1) {
             if (args[0] instanceof HystrixKeyNameAccessor) {
                 String commandKey = ((HystrixKeyNameAccessor) args[0])._$PINPOINT$_getHystrixKeyName();
                 if (commandKey != null) {

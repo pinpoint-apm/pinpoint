@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint-plugins</artifactId>
-    <version>2.0.5-SNAPSHOT</version>
+    <version>2.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>pinpoint-mssql-jdbc-driver-plugin</artifactId>
@@ -14,9 +14,8 @@
   <packaging>jar</packaging>
 
   <properties>
-    <jdk.version>1.7</jdk.version>
-    <jdk.home>${env.JAVA_7_HOME}</jdk.home>
-    <sniffer.artifactid>java17</sniffer.artifactid>
+    <jdk.version>1.8</jdk.version>
+    <jdk.home>${env.JAVA_8_HOME}</jdk.home>
   </properties>
 
   <dependencies>
@@ -28,21 +27,20 @@
 
     <!-- Logging dependencies -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- Logging dependencies -->
 
     <dependency>
       <groupId>com.navercorp.pinpoint</groupId>

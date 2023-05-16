@@ -20,7 +20,9 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotType;
-import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
+
+import java.util.concurrent.atomic.LongAdder;
+
 
 /**
  * @author emeroad

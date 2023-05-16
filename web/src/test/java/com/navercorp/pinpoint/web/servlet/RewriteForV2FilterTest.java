@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.web.servlet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.servlet.FilterChain;
@@ -32,17 +33,19 @@ public class RewriteForV2FilterTest {
 
     public static final String ADMIN_REWRITE_TARGET = "/auth";
 
-    @Test(expected = NullPointerException.class)
-    public void rewriteTest() throws IOException, ServletException {
-        RewriteForV2Filter rewriteForV2Filter = new RewriteForV2Filter(true);
+    @Test
+    public void rewriteTest() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            RewriteForV2Filter rewriteForV2Filter = new RewriteForV2Filter(true);
 
-        HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(servletRequest.getRequestURI()).thenReturn(ADMIN_REWRITE_TARGET);
+            HttpServletRequest servletRequest = Mockito.mock(HttpServletRequest.class);
+            Mockito.when(servletRequest.getRequestURI()).thenReturn(ADMIN_REWRITE_TARGET);
 
-        ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
-        FilterChain filterChain = Mockito.mock(FilterChain.class);
+            ServletResponse servletResponse = Mockito.mock(ServletResponse.class);
+            FilterChain filterChain = Mockito.mock(FilterChain.class);
 
-        rewriteForV2Filter.doFilter(servletRequest, servletResponse, filterChain);
+            rewriteForV2Filter.doFilter(servletRequest, servletResponse, filterChain);
+        });
     }
 
     @Test
@@ -57,7 +60,7 @@ public class RewriteForV2FilterTest {
 
         rewriteForV2Filter.doFilter(servletRequest, servletResponse, filterChain);
 
-        Mockito.verify(filterChain, Mockito.times(1)).doFilter(Mockito.any(), Mockito.any());
+        Mockito.verify(filterChain).doFilter(Mockito.any(), Mockito.any());
     }
 
 }

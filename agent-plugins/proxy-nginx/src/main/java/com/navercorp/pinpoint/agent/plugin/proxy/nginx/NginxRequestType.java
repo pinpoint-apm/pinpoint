@@ -28,12 +28,24 @@ public class NginxRequestType implements ProxyRequestType {
     }
 
     @Override
+    @Deprecated
     public String getDisplayName() {
+        return getDisplayName("");
+    }
+
+    @Override
+    public String getDisplayName(String name) {
         return "PROXY(NGINX)";
     }
+
 
     @Override
     public int getCode() {
         return 2;
+    }
+
+    @Override
+    public boolean useApp() {
+        return false;
     }
 }

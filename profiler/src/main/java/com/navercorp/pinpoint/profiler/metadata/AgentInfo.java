@@ -17,22 +17,22 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 
 /**
  * @author jaehong.kim
  */
-public class AgentInfo {
+public class AgentInfo implements MetaDataType {
     private final AgentInformation agentInformation;
     private final ServerMetaData serverMetaData;
     private final JvmInformation jvmInformation;
 
     public AgentInfo(AgentInformation agentInformation, ServerMetaData serverMetaData, JvmInformation jvmInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
-        this.serverMetaData = Assert.requireNonNull(serverMetaData, "serverMetaData");
-        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation");
+        this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaData = Objects.requireNonNull(serverMetaData, "serverMetaData");
+        this.jvmInformation = Objects.requireNonNull(jvmInformation, "jvmInformation");
     }
 
     public AgentInformation getAgentInformation() {

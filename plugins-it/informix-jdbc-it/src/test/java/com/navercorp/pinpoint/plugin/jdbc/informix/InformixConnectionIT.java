@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.jdbc.informix;
 
 import com.navercorp.pinpoint.pluginit.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.utils.LogUtils;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
@@ -28,11 +29,11 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.utility.DockerMachineClient;
+import org.testcontainers.containers.output.OutputFrame;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -43,6 +44,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Taejin Koo
@@ -50,7 +52,7 @@ import java.util.List;
 @JunitAgentConfigPath("pinpoint-informix.config")
 public class InformixConnectionIT extends BasePinpointTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InformixConnectionIT.class);
+    private static final Logger LOGGER = LogManager.getLogger(InformixConnectionIT.class);
 
     private static GenericContainer<?> container = new GenericContainer<>("ibmcom/informix-developer-database:latest");
 
@@ -64,13 +66,19 @@ public class InformixConnectionIT extends BasePinpointTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        Assume.assumeTrue("Docker not enabled", DockerClientFactory.instance().isDockerAvailable());
+
 
         container.withPrivilegedMode(true);
         container.withExposedPorts(9088, 9089, 27017, 27018, 27883);
         container.withEnv("LICENSE", "accept");
         container.withEnv("DB_INIT", "1");
-        container.withLogConsumer(new Slf4jLogConsumer(LOGGER));
+        container.withLogConsumer(new Consumer<OutputFrame>() {
+            @Override
+            public void accept(OutputFrame outputFrame) {
+                LOGGER.info(LogUtils.removeLineBreak(outputFrame.getUtf8String()));
+            }
+        });
         container.start();
 
         driverClass = new InformixJDBCDriverClass();

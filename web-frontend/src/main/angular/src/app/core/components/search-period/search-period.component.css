@@ -1,0 +1,27 @@
+:host {
+    display: block;
+    position: relative;
+    width: 100%;
+}
+
+.fa-angle-down {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 15px;
+}
+
+.l-app-select {
+    width: 100%;
+    cursor: pointer;
+    padding: 6px 12px;
+    background-color: var(--background-default);
+    border: 1px solid;
+    border-color: var(--border-primary) !important;
+    border-radius: 0px;
+    font-size: 13px;
+    color: var(--text-primary-lightest);
+    appearance: none;
+    -webkit-appearance: none;
+    outline: 0;
+}

@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.hbase.namespace.NamespaceValidator;
 import org.apache.hadoop.hbase.TableName;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HbaseTableNameProviderTest {
 
     private static final String TABLE_QUALIFIER = "testTable";
@@ -39,22 +39,26 @@ public class HbaseTableNameProviderTest {
     @Mock
     private NamespaceValidator namespaceValidator;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void nullNamespaceShouldThrowException() {
-        // Given
-        final String nullNamespace = null;
-        // When
-        new HbaseTableNameProvider(nullNamespace, namespaceValidator);
-        Assert.fail("Expected IllegalArgumentException to be thrown");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            // Given
+            final String nullNamespace = null;
+            // When
+            new HbaseTableNameProvider(nullNamespace, namespaceValidator);
+            Assertions.fail("Expected IllegalArgumentException to be thrown");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void emptyNamespaceShouldThrowException() {
-        // Given
-        final String emptyNamespace = "";
-        // When
-        new HbaseTableNameProvider(emptyNamespace, namespaceValidator);
-        Assert.fail("Expected IllegalArgumentException to be thrown");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            // Given
+            final String emptyNamespace = "";
+            // When
+            new HbaseTableNameProvider(emptyNamespace, namespaceValidator);
+            Assertions.fail("Expected IllegalArgumentException to be thrown");
+        });
     }
 
     @Test
@@ -67,8 +71,8 @@ public class HbaseTableNameProviderTest {
         final TableName tableName = tableNameProvider.getTableName(TABLE_QUALIFIER);
         // Then
         verify(namespaceValidator, only()).validate(validNamespace);
-        Assert.assertEquals(validNamespace, tableName.getNamespaceAsString());
-        Assert.assertEquals(TABLE_QUALIFIER, tableName.getQualifierAsString());
+        Assertions.assertEquals(validNamespace, tableName.getNamespaceAsString());
+        Assertions.assertEquals(TABLE_QUALIFIER, tableName.getQualifierAsString());
     }
 
     @Test
@@ -79,7 +83,7 @@ public class HbaseTableNameProviderTest {
         // When
         try {
             new HbaseTableNameProvider(invalidNamespace, namespaceValidator);
-            Assert.fail("Expected IllegalArgumentException to be thrown");
+            Assertions.fail("Expected IllegalArgumentException to be thrown");
         } catch (IllegalArgumentException e) {
             verify(namespaceValidator, only()).validate(invalidNamespace);
         }

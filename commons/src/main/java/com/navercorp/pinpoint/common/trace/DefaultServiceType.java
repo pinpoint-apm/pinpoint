@@ -195,7 +195,7 @@ class DefaultServiceType implements ServiceType {
 
     @Override
     public int hashCode() {
-        return (int) code;
+        return code;
     }
 
     public static boolean isWas(final short code) {

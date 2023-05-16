@@ -20,11 +20,10 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 
@@ -55,6 +54,6 @@ public class BeanMethodInterceptorTest {
         final Exception throwable = new Exception();
         beanMethodInterceptor.after(thisObject, 10, null, null, throwable);
 
-        Mockito.verify(recorder, times(1)).recordException(true, throwable);
+        Mockito.verify(recorder).recordException(true, throwable);
     }
 }

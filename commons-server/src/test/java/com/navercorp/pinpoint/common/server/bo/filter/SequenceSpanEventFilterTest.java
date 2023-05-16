@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,38 +26,35 @@ import org.junit.Test;
 public class SequenceSpanEventFilterTest {
 
     @Test
-    public void testFilter_accept() throws Exception {
+    public void testFilter_accept() {
         SpanEventFilter filter = new SequenceSpanEventFilter(100);
 
         final SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setSequence((short)11);
+        spanEventBo.setSequence((short) 11);
 
-        Assert.assertEquals(filter.filter(spanEventBo), SpanEventFilter.ACCEPT);
+        Assertions.assertEquals(filter.filter(spanEventBo), SpanEventFilter.ACCEPT);
 
     }
 
 
     @Test
-    public void testFilter_reject() throws Exception {
+    public void testFilter_reject() {
         SpanEventFilter filter = new SequenceSpanEventFilter(10);
 
         final SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setSequence((short)11);
+        spanEventBo.setSequence((short) 11);
 
-        Assert.assertEquals(filter.filter(spanEventBo), SpanEventFilter.REJECT);
+        Assertions.assertEquals(filter.filter(spanEventBo), SpanEventFilter.REJECT);
 
     }
 
     @Test
-    public void testFilter_max() throws Exception {
+    public void testFilter_max() {
         new SequenceSpanEventFilter(Short.MAX_VALUE);
 
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             new SequenceSpanEventFilter(Short.MAX_VALUE + 1);
-            Assert.fail();
-        } catch (Exception e) {
-        }
-
+        });
     }
 
 }

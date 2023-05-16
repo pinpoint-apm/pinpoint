@@ -30,11 +30,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.log4j2.interceptor.LogEventFactoryInterceptor;
+import com.navercorp.pinpoint.plugin.log4j2.interceptor.PatternLayoutInterceptor;
 
 import java.security.ProtectionDomain;
 
 /**
  * @author https://github.com/licoco/pinpoint
+ * @author yjqg6666
  */
 public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
@@ -45,15 +47,14 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final Log4j2Config config = new Log4j2Config(context.getConfig());
-        if (logger.isInfoEnabled()) {
-            logger.info("Log4j2Plugin config:{}", config);
-        }
-
         if (!config.isLog4j2LoggingTransactionInfo()) {
-            logger.info("Log4j2 plugin is not executed because log4j2 transform enable config value is false.");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
 
+        if (logger.isInfoEnabled()) {
+            logger.info("Log4j2Plugin config:{}", config);
+        }
         //for case : use SyncAppdender, use AsyncAppender, use Mixing Synchronous and Asynchronous Loggers
         transformTemplate.transform("org.apache.logging.log4j.core.impl.DefaultLogEventFactory", DefaultLogEventFactoryTransform.class);
         transformTemplate.transform("org.apache.logging.log4j.core.impl.ReusableLogEventFactory", ReusableLogEventFactoryTransform.class);
@@ -61,13 +62,17 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
         //for case : Making All Loggers Asynchronous
         transformTemplate.transform("org.apache.logging.log4j.core.async.RingBufferLogEventTranslator", RingBufferLogEventTranslatorTransform.class);
 
+        if (config.isPatternReplaceEnable()) {
+            transformTemplate.transform("org.apache.logging.log4j.core.layout.PatternLayout$SerializerBuilder", LoggingPatternTransform.class);
+        }
+
     }
 
     public static class DefaultLogEventFactoryTransform extends LogEventFactoryTransform {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+            if (!validateThreadContextMethod(instrumentor, loader)) {
                 return null;
             }
 
@@ -91,7 +96,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+            if (!validateThreadContextMethod(instrumentor, loader)) {
                 return null;
             }
 
@@ -115,7 +120,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+            if (!validateThreadContextMethod(instrumentor, loader)) {
                 return null;
             }
 
@@ -137,7 +142,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
     public static abstract class LogEventFactoryTransform implements TransformCallback {
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-        protected boolean valicateThreadContextMethod(Instrumentor instrumentor, ClassLoader loader) {
+        protected boolean validateThreadContextMethod(Instrumentor instrumentor, ClassLoader loader) {
             InstrumentClass mdcClass = instrumentor.getInstrumentClass(loader, "org.apache.logging.log4j.ThreadContext", null);
 
             if (mdcClass == null) {
@@ -155,6 +160,20 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
             }
 
             return true;
+        }
+    }
+
+    public static class LoggingPatternTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod setPattern = target.getDeclaredMethod("setPattern", "java.lang.String");
+            if (setPattern == null) {
+                return null;
+            }
+            setPattern.addScopedInterceptor(PatternLayoutInterceptor.class, "ModifyPattern");
+            return target.toBytecode();
         }
     }
 

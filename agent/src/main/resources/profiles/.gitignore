@@ -1,4 +1,3 @@
 # for custom profile
-!local/
-!release/
-**/
+private/
+custom/

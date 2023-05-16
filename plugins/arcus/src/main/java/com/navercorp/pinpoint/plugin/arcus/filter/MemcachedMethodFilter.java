@@ -56,7 +56,7 @@ public class MemcachedMethodFilter implements MethodFilter {
                 "set",
                 "touch"
         };
-        Map<String, Object> rule = new HashMap<String, Object>();
+        Map<String, Object> rule = new HashMap<>();
         for (String api : apiList) {
             rule.put(api, FIND);
         }

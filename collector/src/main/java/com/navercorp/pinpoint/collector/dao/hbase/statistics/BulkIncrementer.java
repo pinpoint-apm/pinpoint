@@ -16,36 +16,24 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.google.common.util.concurrent.AtomicLongMap;
-import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
-public class BulkIncrementer {
+public interface BulkIncrementer {
 
-    private final RowKeyMerge rowKeyMerge;
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName);
 
-    private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
 
-    public BulkIncrementer(RowKeyMerge rowKeyMerge) {
-        this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
-    }
+    Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor);
 
-    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-        RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
-        counter.incrementAndGet(rowInfo);
-    }
+    int getSize();
 
-    public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        final Map<RowInfo, Long> snapshot = AtomicLongMapUtils.remove(counter);
-        return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
-    }
 }

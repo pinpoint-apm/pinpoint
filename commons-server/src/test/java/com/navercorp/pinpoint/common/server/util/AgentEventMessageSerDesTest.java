@@ -30,32 +30,26 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
-import java.util.Collections;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentEventMessageSerDesTest {
 
-    private final TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-    private final TypeLocator<TBase<?, ?>> commandTbaseRegistry = TCommandRegistry.build(Collections.singletonList(TCommandType.THREAD_DUMP_RESPONSE));
+    private final TypeLocator<TBase<?, ?>> commandTbaseRegistry = TCommandRegistry.build(List.of(TCommandType.THREAD_DUMP_RESPONSE));
+    private final SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(HeaderTBaseSerializerFactory.DEFAULT_STREAM_SIZE, this.commandTbaseRegistry);
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(this.commandTbaseRegistry);
 
-    private final SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true,
-            HeaderTBaseSerializerFactory.DEFAULT_STREAM_SIZE, true, this.protocolFactory, this.commandTbaseRegistry);
-    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(this.protocolFactory,
-            this.commandTbaseRegistry);
-
-    private final AgentEventMessageSerializer serializer = new AgentEventMessageSerializer(Collections.singletonList(serializerFactory));
+    private final AgentEventMessageSerializer serializer = new AgentEventMessageSerializer(List.of(serializerFactory));
     private final AgentEventMessageDeserializer deserializer = new AgentEventMessageDeserializer(deserializerFactory);
 
     @Test

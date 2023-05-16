@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -26,9 +28,8 @@ public class LinkStateResolver {
     public static final String BAD = "bad";
 
     public String resolve(Link link) {
-        if (link == null) {
-            throw new NullPointerException("link");
-        }
+        Objects.requireNonNull(link, "link");
+
         // since Histogram dup gets created, we simply accepts as a parameter
         // XXX need to fix this 
         final long error = getErrorRate(link.getHistogram());
@@ -48,9 +49,8 @@ public class LinkStateResolver {
     }
 
     private long getErrorRate(Histogram histogram) {
-        if (histogram == null) {
-            throw new NullPointerException("histogram");
-        }
+        Objects.requireNonNull(histogram, "histogram");
+
         final long totalCount = histogram.getTotalCount();
         if (totalCount == 0) {
             return 0;

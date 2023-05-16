@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class IgnoreAddressFilter implements AddressFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final InetAddress[] ignoreAddressList;
     private final List<CidrAddressFilter> cidrAddressFilterList;
@@ -40,7 +40,7 @@ public class IgnoreAddressFilter implements AddressFilter {
         Objects.requireNonNull(ignoreAddressList, "ignoreAddressList");
 
         List<String> ignoreRawAddressList = new ArrayList<>(ignoreAddressList.size());
-        List<CidrAddressFilter> cidrAddressFilterList = new ArrayList<CidrAddressFilter>(0);
+        List<CidrAddressFilter> cidrAddressFilterList = new ArrayList<>(0);
         for (String ignoreAddress : ignoreAddressList) {
             if (isCidrAddress(ignoreAddress)) {
                 CidrAddressFilter cidrAddressFilter = createCidrAddressFilter(ignoreAddress);

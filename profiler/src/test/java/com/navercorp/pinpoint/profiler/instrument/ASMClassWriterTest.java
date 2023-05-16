@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -26,9 +26,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,10 +38,11 @@ import static org.mockito.Mockito.when;
 public class ASMClassWriterTest {
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        when(pluginContext.injectClass(ArgumentMatchers.<ClassLoader>isNull(), anyString())).thenAnswer(new Answer<Class<?>>() {
+        when(pluginContext.injectClass(ArgumentMatchers.isNull(), anyString())).thenAnswer(new Answer<Class<?>>() {
 
             @Override
             public Class<?> answer(InvocationOnMock invocation) throws Throwable {
@@ -53,7 +53,7 @@ public class ASMClassWriterTest {
             }
 
         });
-        when(pluginContext.getResourceAsStream(ArgumentMatchers.<ClassLoader>isNull(), anyString())).thenAnswer(new Answer<InputStream>() {
+        when(pluginContext.getResourceAsStream(ArgumentMatchers.isNull(), anyString())).thenAnswer(new Answer<InputStream>() {
 
             @Override
             public InputStream answer(InvocationOnMock invocation) throws Throwable {
@@ -72,7 +72,7 @@ public class ASMClassWriterTest {
     @Test
     public void accept() throws Exception {
         final String className = "com.navercorp.pinpoint.profiler.instrument.mock.SampleClass";
-        ClassNode classNode = ASMClassNodeLoader.get(JavaAssistUtils.javaNameToJvmName(className));
+        ClassNode classNode = loader.get(JavaAssistUtils.javaNameToJvmName(className));
 
         ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
         TraceClassVisitor tcv = new TraceClassVisitor(cw, null);
@@ -80,7 +80,7 @@ public class ASMClassWriterTest {
     }
 
     @Test
-    public void getCommonSuperClass() throws Exception {
+    public void getCommonSuperClass() {
         ASMClassWriter cw = new ASMClassWriter(pluginContext, 0, null);
         // java/lang/object.
         assertEquals("java/lang/Object", cw.getCommonSuperClass("java/util/Iterator", "java/lang/Object"));
@@ -95,7 +95,7 @@ public class ASMClassWriterTest {
         assertEquals("com/navercorp/pinpoint/profiler/instrument/mock/ConstructorParentClass", cw.getCommonSuperClass("com/navercorp/pinpoint/profiler/instrument/mock/ConstructorParentClass", "com/navercorp/pinpoint/profiler/instrument/mock/ConstructorChildClass"));
         assertEquals("java/lang/Exception", cw.getCommonSuperClass("java/io/IOException", "java/lang/Exception"));
         assertEquals("java/lang/Throwable", cw.getCommonSuperClass("java/lang/Throwable", "java/lang/Exception"));
-        assertEquals("org/springframework/beans/PropertyValues", cw.getCommonSuperClass("org/springframework/beans/PropertyValues", "org/springframework/beans/MutablePropertyValues"));
+        assertEquals("java/lang/Appendable", cw.getCommonSuperClass("java/lang/Appendable", "java/lang/StringBuilder"));
         assertEquals("java/net/URLConnection", cw.getCommonSuperClass("java/net/HttpURLConnection", "java/net/URLConnection"));
 
         // others
@@ -106,7 +106,7 @@ public class ASMClassWriterTest {
     }
 
     @Test
-    public void getCommonSuperClassByClass() throws Exception {
+    public void getCommonSuperClassByClass() {
         // class, class
         // Object
         assertCommonSuperClass("java/lang/Object", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$A", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$B");
@@ -134,7 +134,7 @@ public class ASMClassWriterTest {
     }
 
     @Test
-    public void getCommonSuperClassByInterface() throws Exception {
+    public void getCommonSuperClassByInterface() {
         // interface, class
         // Object
         assertCommonSuperClass("java/lang/Object", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$I", "com/navercorp/pinpoint/profiler/instrument/ASMClassWriterTest$A");

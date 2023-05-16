@@ -26,25 +26,18 @@ public class TransactionIdComparator implements Comparator<TransactionId> {
     public static final TransactionIdComparator INSTANCE = new TransactionIdComparator();
 
     @Override
-    public int compare(TransactionId o1, TransactionId o2) {
-        int r1 = o1.getAgentId().compareTo(o2.getAgentId());
-        if (r1 == 0) {
-            if (o1.getAgentStartTime() > o2.getAgentStartTime()) {
-                return 1;
-            } else if (o1.getAgentStartTime() < o2.getAgentStartTime()) {
-                return -1;
-            } else {
-                if (o1.getTransactionSequence() > o2.getTransactionSequence()) {
-                    return 1;
-                } else if (o1.getTransactionSequence() < o2.getTransactionSequence()) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        } else {
-            return r1;
+    public int compare(TransactionId tid1, TransactionId tid2) {
+        int agentIdComp = tid1.getAgentId().compareTo(tid2.getAgentId());
+        if (agentIdComp != 0) {
+            return agentIdComp;
         }
+
+        int agentStartTimeComp = Long.compare(tid1.getAgentStartTime(), tid2.getAgentStartTime());
+        if (agentStartTimeComp != 0) {
+            return agentStartTimeComp;
+        }
+
+        return Long.compare(tid1.getTransactionSequence(), tid2.getTransactionSequence());
     }
 
 }

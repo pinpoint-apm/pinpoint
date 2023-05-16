@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.manage;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Taejin Koo
@@ -27,21 +27,21 @@ public class HandlerManagerTest {
     @Test
     public void onOffTest() {
         HandlerManager handlerManager = new HandlerManager();
-        Assert.assertTrue(handlerManager.isEnable());
+        Assertions.assertTrue(handlerManager.isEnable());
 
         handlerManager.disableAccess();
-        Assert.assertFalse(handlerManager.isEnable());
+        Assertions.assertFalse(handlerManager.isEnable());
 
         handlerManager.enableAccess();
-        Assert.assertTrue(handlerManager.isEnable());
+        Assertions.assertTrue(handlerManager.isEnable());
     }
 
     @Test
     public void getNameTest() {
         HandlerManager handlerManager = new HandlerManager();
         String name = handlerManager.getName();
-        
-        Assert.assertEquals("HandlerManager", name);
+
+        Assertions.assertEquals("HandlerManager", name);
     }
 
 }

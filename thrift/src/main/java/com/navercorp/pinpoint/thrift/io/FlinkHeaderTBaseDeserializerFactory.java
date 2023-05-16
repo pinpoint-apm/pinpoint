@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.thrift.io;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 
+import java.util.Objects;
+
 /**
  * @author minwoo.jung
  */
@@ -25,9 +27,7 @@ public class FlinkHeaderTBaseDeserializerFactory implements DeserializerFactory<
     private final HeaderTBaseDeserializerFactory headerTBaseDeserializerFactory;
 
     public FlinkHeaderTBaseDeserializerFactory(TypeLocator<TBase<?, ?>> flinkTBaseLocator) {
-        if (flinkTBaseLocator == null) {
-            throw new NullPointerException("flinkTBaseLocator");
-        }
+        Objects.requireNonNull(flinkTBaseLocator, "flinkTBaseLocator");
 
         this.headerTBaseDeserializerFactory = new HeaderTBaseDeserializerFactory(flinkTBaseLocator);
     }

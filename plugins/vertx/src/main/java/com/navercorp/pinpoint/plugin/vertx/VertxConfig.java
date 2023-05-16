@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.vertx;
 import com.navercorp.pinpoint.bootstrap.config.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -29,11 +30,11 @@ public class VertxConfig {
     private final boolean enableHttpClient;
     private final List<String> bootstrapMains;
     private final List<String> handlerBasePackageNames;
+    private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
 
     public VertxConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.vertx.enable", false);
@@ -41,6 +42,8 @@ public class VertxConfig {
         this.enableHttpClient = config.readBoolean("profiler.vertx.http.client.enable", true);
         this.bootstrapMains = config.readList("profiler.vertx.bootstrap.main");
         this.handlerBasePackageNames = config.readList("profiler.vertx.handler.base-packages");
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.vertx.enable", false);
+        this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.vertx.useuserinput", false);
     }
 
     public boolean isEnable() {
@@ -63,6 +66,14 @@ public class VertxConfig {
         return handlerBasePackageNames;
     }
 
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
+    }
+
+    public boolean isUriStatUseUserInput() {
+        return uriStatUseUserInput;
+    }
+
     @Override
     public String toString() {
         return "VertxConfig{" +
@@ -71,6 +82,8 @@ public class VertxConfig {
                 ", enableHttpClient=" + enableHttpClient +
                 ", bootstrapMains=" + bootstrapMains +
                 ", handlerBasePackageNames=" + handlerBasePackageNames +
+                ", uriStatEnable=" + uriStatEnable +
+                ", uriStatUseUserInput=" + uriStatUseUserInput +
                 '}';
     }
 }

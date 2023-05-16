@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -37,32 +37,32 @@ public class DefaultJdbcUrlParsingServiceTest {
     private final JdbcUrlParserV2 jdbcUrlParser = new MockJdbcUrlParser();
 
     @Test
-    public void cacheTest1() throws Exception {
+    public void cacheTest1() {
         JdbcUrlParsingService jdbcUrlParsingService = new DefaultJdbcUrlParsingService(Arrays.asList(jdbcUrlParser));
 
         DatabaseInfo databaseInfo = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
-        Assert.assertNull(databaseInfo);
+        Assertions.assertNull(databaseInfo);
 
         DatabaseInfo parsingResult = jdbcUrlParsingService.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
-        Assert.assertTrue(parsingResult.isParsingComplete());
+        Assertions.assertTrue(parsingResult.isParsingComplete());
 
         DatabaseInfo cache1 = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
         DatabaseInfo cache2 = jdbcUrlParsingService.getDatabaseInfo(MYSQL_JDBC_URL);
 
-        Assert.assertTrue(parsingResult == cache1 && parsingResult == cache2);
+        Assertions.assertTrue(parsingResult == cache1 && parsingResult == cache2);
     }
 
     @Test
-    public void cacheTest2() throws Exception {
+    public void cacheTest2() {
         JdbcUrlParsingService jdbcUrlParsingService = new DefaultJdbcUrlParsingService(Arrays.asList(jdbcUrlParser));
 
         DatabaseInfo parsingResult = jdbcUrlParsingService.parseJdbcUrl(ServiceType.TEST, MYSQL_JDBC_URL);
-        Assert.assertTrue(parsingResult.isParsingComplete());
+        Assertions.assertTrue(parsingResult.isParsingComplete());
 
         DatabaseInfo cache1 = jdbcUrlParsingService.getDatabaseInfo(ServiceType.TEST, MYSQL_JDBC_URL);
         DatabaseInfo cache2 = jdbcUrlParsingService.getDatabaseInfo(ServiceType.UNKNOWN_DB, MYSQL_JDBC_URL);
 
-        Assert.assertNotEquals(cache1, cache2);
+        Assertions.assertNotEquals(cache1, cache2);
     }
 
     private static class MockJdbcUrlParser implements JdbcUrlParserV2 {

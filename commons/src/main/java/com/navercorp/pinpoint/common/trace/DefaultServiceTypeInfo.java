@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.common.trace;
 
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -26,21 +28,12 @@ public class DefaultServiceTypeInfo implements ServiceTypeInfo {
     private final AnnotationKeyMatcher annotationKeyMatcher;
 
     public DefaultServiceTypeInfo(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
-        if (annotationKeyMatcher == null) {
-            throw new NullPointerException("annotationKeyMatcher");
-        }
-        this.serviceType = serviceType;
-        this.annotationKeyMatcher = annotationKeyMatcher;
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        this.annotationKeyMatcher = Objects.requireNonNull(annotationKeyMatcher, "annotationKeyMatcher");
     }
 
     public DefaultServiceTypeInfo(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
-        this.serviceType = serviceType;
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.annotationKeyMatcher = null;
     }
 

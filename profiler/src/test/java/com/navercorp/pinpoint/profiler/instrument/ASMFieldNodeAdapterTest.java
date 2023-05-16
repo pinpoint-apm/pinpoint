@@ -15,21 +15,23 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author jaehong.kim
  */
 public class ASMFieldNodeAdapterTest {
+    private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
+
     @Test
     public void getName() throws Exception {
-        ClassNode classNode = ASMClassNodeLoader.get("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
+        ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
         List<FieldNode> fieldNodes = classNode.fields;
         for (FieldNode fieldNode : fieldNodes) {
             ASMFieldNodeAdapter adapter = new ASMFieldNodeAdapter(fieldNode);

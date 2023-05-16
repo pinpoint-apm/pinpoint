@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -27,20 +29,26 @@ public class SpringWebFluxPluginConfig {
     private final boolean enable;
     private final boolean param;
     private final HttpDumpConfig httpDumpConfig;
+    private final boolean clientEnable;
+
+    private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
 
     public SpringWebFluxPluginConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         this.enable = config.readBoolean("profiler.spring.webflux.enable", true);
+
         // Client
+        this.clientEnable = config.readBoolean("profiler.spring.webflux.client.enable", false);
         this.param = config.readBoolean("profiler.spring.webflux.client.param", true);
         boolean cookie = config.readBoolean("profiler.spring.webflux.client.cookie", false);
         DumpType cookieDumpType = config.readDumpType("profiler.spring.webflux.client.cookie.dumptype", DumpType.EXCEPTION);
         int cookieSamplingRate = config.readInt("profiler.spring.webflux.client.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.spring.webflux.client.cookie.dumpsize", 1024);
         this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, false, cookieDumpType, 1, 1024);
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.spring.webflux.enable", false);
+        this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.spring.webflux.useuserinput", false);
     }
 
     public boolean isEnable() {
@@ -55,12 +63,26 @@ public class SpringWebFluxPluginConfig {
         return httpDumpConfig;
     }
 
+    public boolean isClientEnable() {
+        return clientEnable;
+    }
+
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
+    }
+
+    public boolean isUriStatUseUserInput() {
+        return uriStatUseUserInput;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpringWebFluxPluginConfig{");
         sb.append("enable=").append(enable);
         sb.append(", param=").append(param);
         sb.append(", httpDumpConfig=").append(httpDumpConfig);
+        sb.append(", uriStatEnable=").append(uriStatEnable);
+        sb.append(", uriStatUseUserInput=").append(uriStatUseUserInput);
         sb.append('}');
         return sb.toString();
     }

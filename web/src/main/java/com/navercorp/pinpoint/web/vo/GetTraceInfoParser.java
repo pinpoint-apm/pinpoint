@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +30,17 @@ import java.util.Map;
  */
 public class GetTraceInfoParser {
 
+    public static final String APPLICATION_NAME = "ApplicationName";
+
     public static final String PREFIX_TRANSACTION_ID = "I";
     public static final String PREFIX_TIME = "T";
     public static final String PREFIX_RESPONSE_TIME = "R";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public List<GetTraceInfo> parse(Map<String, String> requestParam) {
+        final String applicationName = requestParam.get(APPLICATION_NAME);
+
         List<GetTraceInfo> getTraceInfoList = new ArrayList<>();
         int index = 0;
         while (true) {
@@ -49,7 +53,7 @@ public class GetTraceInfoParser {
             }
 
             TransactionId traceId = TransactionIdUtils.parseTransactionId(transactionId);
-            SpanHint spanHint = new SpanHint(Long.parseLong(time), Integer.parseInt(responseTime));
+            SpanHint spanHint = new SpanHint(Long.parseLong(time), Integer.parseInt(responseTime), applicationName);
 
             final GetTraceInfo getTraceInfo = new GetTraceInfo(traceId, spanHint);
             getTraceInfoList.add(getTraceInfo);

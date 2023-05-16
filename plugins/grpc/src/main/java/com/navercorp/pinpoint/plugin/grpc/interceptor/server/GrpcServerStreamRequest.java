@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
 import io.grpc.Attributes;
+import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.internal.ServerStream;
 
@@ -30,7 +30,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -68,9 +68,9 @@ public class GrpcServerStreamRequest {
     }
 
     GrpcServerStreamRequest(ServerStream serverStream, String methodName, Metadata metadata) {
-        this.serverStream = Assert.requireNonNull(serverStream, "serverStream");
-        this.methodName = Assert.requireNonNull(methodName, "methodName");
-        this.metadata = Assert.requireNonNull(metadata, "metadata");
+        this.serverStream = Objects.requireNonNull(serverStream, "serverStream");
+        this.methodName = Objects.requireNonNull(methodName, "methodName");
+        this.metadata = Objects.requireNonNull(metadata, "metadata");
     }
 
     public ServerStream getServerStream() {
@@ -83,16 +83,17 @@ public class GrpcServerStreamRequest {
 
     public String getHeader(String name) {
         final Metadata.Key<String> key = Metadata.Key.of(name, Metadata.ASCII_STRING_MARSHALLER);
-        Iterable<String> headerValues = metadata.removeAll(key);
+        final Iterable<String> headerValues = metadata.removeAll(key);
+        if (headerValues == null) {
+            return null;
+        }
 
         String headerValue = null;
-        if (headerValues != null) {
-            Iterator<String> iterator = headerValues.iterator();
+        Iterator<String> iterator = headerValues.iterator();
+        if (iterator.hasNext()) {
+            headerValue = iterator.next();
             if (iterator.hasNext()) {
-                headerValue = iterator.next();
-                if (iterator.hasNext()) {
-                    headerValue = null;
-                }
+                headerValue = null;
             }
         }
 
@@ -100,34 +101,24 @@ public class GrpcServerStreamRequest {
     }
 
     String getRemoteAddress() {
-        Attributes attributes = serverStream.getAttributes();
+        final Attributes attributes = serverStream.getAttributes();
         if (attributes == null) {
             return null;
         }
 
         try {
-            // keys method is being considered for removal,
-            Set<Attributes.Key<?>> keys = attributes.keys();
-            if (keys == null) {
+            final SocketAddress remoteAddress = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+            if (remoteAddress == null) {
                 if (isDebug) {
-                    logger.debug("can't attributes keys");
+                    logger.debug("remote-addr is null");
                 }
                 return null;
             }
 
-            for (Attributes.Key<?> key : keys) {
-                if (key != null && key.toString().equals("remote-addr")) {
-                    Object remoteAddress = attributes.get(key);
-                    if (remoteAddress instanceof SocketAddress) {
-                        return getSocketAddressAsString((SocketAddress) remoteAddress);
-                    } else if (remoteAddress instanceof String) {
-                        return (String) remoteAddress;
-                    }
-                }
-            }
+            return getSocketAddressAsString(remoteAddress);
         } catch (Exception e) {
             if (isDebug) {
-                logger.debug("can't find keys method");
+                logger.debug("can't find remote-addr key");
             }
         }
 

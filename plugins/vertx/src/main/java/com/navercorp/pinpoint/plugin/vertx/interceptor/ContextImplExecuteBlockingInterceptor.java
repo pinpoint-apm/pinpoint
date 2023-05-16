@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
@@ -33,7 +34,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         if (!validate(args)) {
             return;
         }
@@ -47,7 +48,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
                 // blockingCodeHandler
                 handlers.blockingCodeHandler._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking blockingCodeHandler. asyncContext={}", asyncContext);
+                    logger.debug("Set asyncContext to ContextImpl.executeBlocking blockingCodeHandler. asyncContext={}", asyncContext);
                 }
             }
 
@@ -55,17 +56,14 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
                 // resultHandler.
                 handlers.resultHandler._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata for ContextImpl.executeBlocking resultHandler. asyncContext={}", asyncContext);
+                    logger.debug("Set asyncContext to ContextImpl.executeBlocking resultHandler. asyncContext={}", asyncContext);
                 }
             }
         }
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length < 2) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
+        if (ArrayUtils.getLength(args) < 2) {
             return false;
         }
         return true;
@@ -73,21 +71,26 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
 
     private AsyncContextAccessorHandlers getAsyncContextAccessorHandlers(final Object[] args) {
         final AsyncContextAccessorHandlers handlers = new AsyncContextAccessorHandlers();
-        if (args.length == 2) {
+        int length = ArrayUtils.getLength(args);
+        if (length == 2) {
             // Action<T> action, Handler<AsyncResult<T>> resultHandler
             if (args[1] instanceof AsyncContextAccessor) {
                 handlers.resultHandler = (AsyncContextAccessor) args[1];
                 return handlers;
             }
-        } else if (args.length == 3) {
+        } else if (length == 3) {
             // Handler<Future<T>> blockingCodeHandler, boolean ordered, Handler<AsyncResult<T>> resultHandler
             // Handler<Future<T>> blockingCodeHandler, TaskQueue queue, Handler<AsyncResult<T>> resultHandler
             if (args[0] instanceof AsyncContextAccessor) {
                 handlers.blockingCodeHandler = (AsyncContextAccessor) args[0];
             }
-
             if (args[2] instanceof AsyncContextAccessor) {
                 handlers.resultHandler = (AsyncContextAccessor) args[2];
+            }
+        } else if (length == 4) {
+            // ContextInternal context, Handler<Promise<T>> blockingCodeHandler, WorkerPool workerPool, TaskQueue queue
+            if (args[1] instanceof AsyncContextAccessor) {
+                handlers.blockingCodeHandler = (AsyncContextAccessor) args[1];
             }
         }
 
@@ -95,7 +98,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAround
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
         recorder.recordException(throwable);

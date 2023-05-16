@@ -44,10 +44,12 @@
             <includes>
                 <include>com.navercorp.pinpoint:pinpoint-annotations</include>
                 <include>com.navercorp.pinpoint:pinpoint-commons</include>
+                <include>com.navercorp.pinpoint:pinpoint-commons-config</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-core</include>
-                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java7</include>
-                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java8</include>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9</include>
+                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java9-internal</include>
+                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java15</include>
+                <include>com.navercorp.pinpoint:pinpoint-bootstrap-java16</include>
             </includes>
             <outputDirectory>boot</outputDirectory>
         </dependencySet>
@@ -55,15 +57,17 @@
             <excludes>
                 <exclude>com.navercorp.pinpoint:pinpoint-annotations</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-commons</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-commons-config</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
-                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java7</exclude>
-                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java8</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java9</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java9-internal</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java15</exclude>
+                <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-java16</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-tools</exclude>
-                <exclude>*:pom</exclude>
+<!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
@@ -84,7 +88,7 @@
             </includes>
             <excludes>
                 <!--<exclude>com.navercorp.pinpoint:pinpoint-common-servlet</exclude>-->
-                <exclude>*:pom</exclude>
+<!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>plugin</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>

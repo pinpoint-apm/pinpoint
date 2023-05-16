@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.test.junit4;
 
 import org.junit.runners.model.Statement;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -26,14 +28,8 @@ public class AfterCallbackStatement extends Statement {
     private final Statement after;
 
     public AfterCallbackStatement(Statement statement, Statement after) {
-        if (statement == null) {
-            throw new NullPointerException("statement");
-        }
-        if (after == null) {
-            throw new NullPointerException("AFTER");
-        }
-        this.statement = statement;
-        this.after = after;
+        this.statement = Objects.requireNonNull(statement, "statement");
+        this.after = Objects.requireNonNull(after, "after");
     }
 
 

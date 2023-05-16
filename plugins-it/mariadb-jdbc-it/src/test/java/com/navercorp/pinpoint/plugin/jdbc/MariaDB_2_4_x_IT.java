@@ -23,11 +23,15 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,13 +55,15 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 2.x+ requires Java 8
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.4.0,)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
-        JDBCTestConstants.VERSION})
+@PinpointLogLocationConfig(".")
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.4.0,2.max)",
+        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
+@SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
-    private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=DATABASE()";
+    private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=?";
 
 
     private static final JDBCDriverClass driverClass = newDriverClass(PreparedStatementType.Server);
@@ -84,7 +90,7 @@ public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbStatement#executeQuery(String)
         Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
@@ -97,12 +103,12 @@ public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
         final JDBCApi jdbcMethod = clientJdbcApi;
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
+//        verifier.printCache();
         verifier.verifyTraceCount(3);
 
         // Driver#connect(String, Properties)
         Method connect = jdbcMethod.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareStatement(String)
         Method prepareStatement = jdbcMethod.getConnection().getPrepareStatement();
@@ -118,12 +124,16 @@ public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
         super.executeCallableStatement();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
-        verifier.verifyTraceCount(6);
+//        verifier.printCache();
+        verifier.printMethod();
+        final int traceCount = verifier.getTraceCount();
+        if (!(traceCount == 6 || traceCount == 5)) {
+            Assert.fail("traceCount=" + traceCount);
+        }
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareCall(String)
         Method prepareCall = jdbcApi.getConnection().getPrepareCall();
@@ -138,12 +148,37 @@ public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
         Method executeQuery = jdbcApi.getPreparedStatement().getExecuteQuery();
         verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQuery, null, URL, DATABASE_NAME, sql(CALLABLE_STATEMENT_QUERY, null, CALLABLE_STATEMENT_INPUT_PARAM)));
 
-        // MariaDbConnection#prepareStatement(String)
-        Method prepareStatement = jdbcApi.getConnection().getPrepareStatement();
-        verifier.verifyTrace(event(DB_TYPE, prepareStatement, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null)));
+        // TODO Unnecessary metadata query are traced in getInt()
+        if (traceCount == 6) {
+            // getInt() -> metadata query
+            // mariadb 2.4.0 ~ 2.7.2
+            // MariaDbConnection#prepareStatement(String)
+            Method prepareStatement = jdbcApi.getConnection().getPrepareStatement();
+            verifier.verifyTrace(event(DB_TYPE, prepareStatement, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null)));
 
-        // ClientSidePreparedStatement#executeQuery
-        Method executeQueryClient = clientJdbcApi.getPreparedStatement().getExecuteQuery();
-        verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQueryClient, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, PROCEDURE_NAME)));
+            // ClientSidePreparedStatement#executeQuery
+            Method executeQueryClient = clientJdbcApi.getPreparedStatement().getExecuteQuery();
+            verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQueryClient, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, getPrepareCallBindVariable())));
+        } else if (traceCount == 5) {
+            // mariadb 2.7.3 ~
+            // MariaDbConnection.getInternalParameterMetaData()
+            // ClientSidePreparedStatement creation  is different.
+            Method executeQueryMethod = getMethod("org.mariadb.jdbc.ClientSidePreparedStatement", "executeQuery");
+            verifier.verifyTrace(event("UNKNOWN_DB_EXECUTE_QUERY", executeQueryMethod, null, "unknown", "unknown"));
+        }
+    }
+
+    private Method getMethod(String className, String methodName, Class<?>... parameterTypes) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        try {
+            Class<?> clazz = cl.loadClass(className);
+            return clazz.getMethod(methodName, parameterTypes);
+        } catch (Exception e) {
+            throw new RuntimeException("reflect error", e);
+        }
+    }
+
+    public String getPrepareCallBindVariable() {
+        return PROCEDURE_NAME + ", " + DATABASE_NAME;
     }
 }

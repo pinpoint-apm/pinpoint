@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 
+import java.util.Arrays;
+
 /**
  * @author HyunGil Jeong
  * @author jaehong.kim - Update version & Remove hashcode, equals
@@ -93,13 +95,13 @@ public class AgentEventBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentEventBo{");
-        sb.append("version=").append(this.version);
-        sb.append(", agentId='").append(this.agentId).append('\'');
-        sb.append(", startTimestamp=").append(this.startTimestamp);
-        sb.append(", eventTimestamp=").append(this.eventTimestamp);
-        sb.append(", eventType='").append(this.getEventType().getDesc()).append('\'');
-        return sb.toString();
+        return "AgentEventBo{" +
+                "version=" + version +
+                ", agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", eventTimestamp=" + eventTimestamp +
+                ", eventType=" + eventType +
+                ", eventBody=" + Arrays.toString(eventBody) +
+                '}';
     }
-
 }

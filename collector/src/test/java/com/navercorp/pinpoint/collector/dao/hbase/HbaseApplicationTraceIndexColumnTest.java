@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import org.junit.Assert;
-
-import org.junit.Test;
-
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * 
  * @author netspider
- * 
  */
 public class HbaseApplicationTraceIndexColumnTest {
 
@@ -54,10 +50,10 @@ public class HbaseApplicationTraceIndexColumnTest {
 
         final Buffer fetched = new OffsetFixedBuffer(source);
 
-        Assert.assertEquals(elapsed, fetched.readVInt());
-        Assert.assertEquals(agentId, fetched.readPrefixedString());
-        Assert.assertEquals(agentStartTime, fetched.readSVLong());
-        Assert.assertEquals(transactionSequence, fetched.readVLong());
+        Assertions.assertEquals(elapsed, fetched.readVInt());
+        Assertions.assertEquals(agentId, fetched.readPrefixedString());
+        Assertions.assertEquals(agentStartTime, fetched.readSVLong());
+        Assertions.assertEquals(transactionSequence, fetched.readVLong());
     }
 
     @Test

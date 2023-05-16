@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.jar.JarEntry;
 
@@ -31,7 +31,7 @@ public class ExtensionFilter implements JarEntryFilter {
     private final String extension;
 
     public ExtensionFilter(String extension) {
-        this.extension = Assert.requireNonNull(extension, "extension");
+        this.extension = Objects.requireNonNull(extension, "extension");
     }
 
     @Override

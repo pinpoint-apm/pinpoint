@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
+import com.navercorp.pinpoint.grpc.client.config.ClientOption;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
+import io.netty.handler.ssl.SslContext;
 
 
 /**
@@ -35,6 +37,8 @@ public interface ChannelFactoryBuilder {
     void addClientInterceptor(ClientInterceptor clientInterceptor);
 
     void setClientOption(ClientOption clientOption);
+
+    void setSslContext(SslContext sslContext);
 
     void setNameResolverProvider(NameResolverProvider nameResolverProvider);
 

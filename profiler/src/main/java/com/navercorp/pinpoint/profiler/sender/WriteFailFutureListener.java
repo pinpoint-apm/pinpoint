@@ -16,36 +16,30 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.FutureListener;
+import org.apache.logging.log4j.Logger;
 
-import org.slf4j.Logger;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 
 /**
  * @author emeroad
  */
-public class WriteFailFutureListener implements FutureListener {
+public class WriteFailFutureListener<T> implements BiConsumer<T, Throwable> {
 
     private final Logger logger;
     private final String message;
     private final String address;
-    private final boolean isWarn;
-
 
     public WriteFailFutureListener(Logger logger, String message, String address) {
-        this.logger = Assert.requireNonNull(logger, "logger");
+        this.logger = Objects.requireNonNull(logger, "logger");
         this.message = message;
         this.address = address;
-        this.isWarn = logger.isWarnEnabled();
     }
 
     @Override
-    public void onComplete(Future future) {
-        if (!future.isSuccess()) {
-            if (isWarn) {
-                logger.warn("{} {}", message, address);
-            }
+    public void accept(T t, Throwable throwable) {
+        if (throwable != null) {
+            logger.warn("{} {}", message, address);
         }
     }
 }

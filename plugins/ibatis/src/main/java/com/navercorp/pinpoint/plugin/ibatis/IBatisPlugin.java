@@ -16,17 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
-
-import java.security.ProtectionDomain;
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -36,8 +31,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor;
+
+import java.security.ProtectionDomain;
+import java.util.List;
+import java.util.Objects;
+
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author HyunGil Jeong
@@ -52,34 +52,34 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         IBatisPluginConfig iBatisPluginConfig = new IBatisPluginConfig(context.getConfig());
+        if (Boolean.FALSE == iBatisPluginConfig.isIBatisEnabled()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
         if (logger.isInfoEnabled()) {
             logger.info("IBatisPlugin config:{}", iBatisPluginConfig);
         }
-        if (iBatisPluginConfig.isIBatisEnabled()) {
-            addInterceptorsForSqlMapExecutors();
-            addInterceptorsForSqlMapClientTemplate();
-        }
+        addInterceptorsForSqlMapExecutors();
+        addInterceptorsForSqlMapClientTemplate();
     }
 
     // SqlMapClient / SqlMapSession
     private void addInterceptorsForSqlMapExecutors() {
         final ServiceType serviceType = IBatisConstants.IBATIS;
-        final String[] sqlMapExecutorImplClasses = { "com.ibatis.sqlmap.engine.impl.SqlMapClientImpl",
-                "com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl" };
+        final String[] sqlMapExecutorImplClasses = {"com.ibatis.sqlmap.engine.impl.SqlMapClientImpl",
+                "com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl"};
         addInterceptorsForClasses(serviceType, sqlMapExecutorImplClasses);
     }
 
     // SqlMapClientTemplate
     private void addInterceptorsForSqlMapClientTemplate() {
         final ServiceType serviceType = IBatisConstants.IBATIS_SPRING;
-        final String[] sqlMapClientTemplateClasses = { "org.springframework.orm.ibatis.SqlMapClientTemplate" };
+        final String[] sqlMapClientTemplateClasses = {"org.springframework.orm.ibatis.SqlMapClientTemplate"};
         addInterceptorsForClasses(serviceType, sqlMapClientTemplateClasses);
     }
 
     private void addInterceptorsForClasses(ServiceType serviceType, String... targetClassNames) {
 
-        final MethodFilter methodFilter = MethodFilters.name("insert", "delete", "update", "queryForList",
-                "queryForMap", "queryForObject", "queryForPaginatedList");
         for (String targetClassName : targetClassNames) {
             addInterceptorsForClass(targetClassName, serviceType);
         }
@@ -117,12 +117,12 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
         private final ServiceType serviceType;
 
         public ApiTransform(ServiceType serviceType) {
-            this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
+            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         }
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-                String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                    String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 

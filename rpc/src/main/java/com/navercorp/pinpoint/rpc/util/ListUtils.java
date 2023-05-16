@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.util;
 
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,12 +46,7 @@ public final class ListUtils {
                 return false;
             }
         }
-
-        for (V value : values) {
-            list.add(value);
-        }
-
-        return true;
+        return Collections.addAll(list, values);
     }
 
     public static <V> void addAllExceptNullValue(List<V> list, V[] values) {
@@ -63,63 +59,5 @@ public final class ListUtils {
         }
     }
 
-    public static <V> V getFirst(List<V> list) {
-        return getFirst(list, null);
-    }
-
-    public static <V> V getFirst(List<V> list, V defaultValue) {
-        if (list == null) {
-            return defaultValue;
-        }
-
-        int size = list.size();
-        if (size > 0) {
-            return list.get(0);
-        } else {
-            return defaultValue;
-        }
-    }
-
-    public static <V> boolean isFirst(List<V> list, V object) {
-        V first = getFirst(list);
-        if (first == null) {
-            return object == null;
-        }
-        return first.equals(object);
-    }
-
-    public static <V> V get(List<V> list, int index, V defaultValue) {
-        try {
-            return list.get(index);
-        } catch (Exception ignore) {
-        }
-
-        return defaultValue;
-    }
-
-    public static <V> V getLast(List<V> list) {
-        return getLast(list, null);
-    }
-
-    public static <V> V getLast(List<V> list, V defaultValue) {
-        if (list == null) {
-            return defaultValue;
-        }
-
-        int size = list.size();
-        if (size > 0) {
-            return list.get(size - 1);
-        } else {
-            return defaultValue;
-        }
-    }
-
-    public static <V> boolean isLast(List<V> list, V object) {
-        V last = getLast(list);
-        if (last == null) {
-            return object == null;
-        }
-        return last.equals(object);
-    }
 
 }

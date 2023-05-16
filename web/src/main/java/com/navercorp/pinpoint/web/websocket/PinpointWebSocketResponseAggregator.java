@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.concurrent.Executor;
@@ -42,7 +42,7 @@ public interface PinpointWebSocketResponseAggregator {
     // return when aggregator cleared.
     boolean removeWebSocketSessionAndGetIsCleared(WebSocketSession webSocketSession);
 
-    void addActiveWorker(AgentInfo agentInfo);
+    void addActiveWorker(ClusterKey clusterKey);
 
     String getApplicationName();
 

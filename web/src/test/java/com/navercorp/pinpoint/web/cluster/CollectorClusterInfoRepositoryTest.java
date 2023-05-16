@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -30,27 +33,26 @@ import java.util.List;
  */
 public class CollectorClusterInfoRepositoryTest {
 
-    private static final String PROFILER_SEPARATOR = CollectorClusterInfoRepository.PROFILER_SEPARATOR;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void test() throws Exception {
 
         CollectorClusterInfoRepository info = new CollectorClusterInfoRepository();
 
-        final String agent1 = "app:agent1:0";
-        final String agent2 = "app:agent2:1";
-        final String profilerInfo = agent1 + PROFILER_SEPARATOR + agent2;
+        final ClusterKey clusterKey1 = new ClusterKey("app", "agent1", 0);
+        final ClusterKey clusterKey2 = new ClusterKey("app", "agent2", 1);
+        final Set<ClusterKey> profilerInfos = Set.of(clusterKey1, clusterKey2);
 
-        byte[] profilerInfoBytes = profilerInfo.getBytes(StandardCharsets.UTF_8);
-        info.put("collectorA", profilerInfoBytes);
+        ClusterId clusterId = new ClusterId("/path", "/collectorA", "appName");
+        info.put(clusterId, profilerInfos);
 
-        List<String> collectorList = info.get("app", "agent1", 0);
+        List<ClusterId> collectorList = info.get(clusterKey1);
         logger.debug("{}", collectorList);
-        Assert.assertEquals("collectorA", collectorList.get(0));
+        Assertions.assertEquals(clusterId, collectorList.get(0));
 
-        info.remove("collectorA");
-        Assert.assertTrue("Not found", info.get("app", "agent1", 0).isEmpty());
+        info.remove(clusterId);
+        assertThat(info.get(clusterKey1)).isEmpty();
     }
 
 

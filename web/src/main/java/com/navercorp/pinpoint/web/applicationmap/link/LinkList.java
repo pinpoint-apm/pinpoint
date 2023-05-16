@@ -18,9 +18,13 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LinkKey;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -34,9 +38,7 @@ public class LinkList {
     }
 
     public void addLinkList(LinkList linkList) {
-        if (linkList == null) {
-            throw new NullPointerException("linkList");
-        }
+        Objects.requireNonNull(linkList, "linkList");
 
         for (Link link : linkList.getLinkList()) {
             addLink(link);
@@ -49,15 +51,13 @@ public class LinkList {
      * @return
      */
     public List<Link> findToLink(Application toApplication) {
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication");
-        }
+        Objects.requireNonNull(toApplication, "toApplication");
 
         List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
             // find all the callers of toApplication/destination
-            if (toNode.getApplication().equals(toApplication) && toNode.getServiceType().equals(toApplication.getServiceType())) {
+            if (toNode.getApplication().equals(toApplication)) {
                 findList.add(link);
             }
         }
@@ -70,15 +70,13 @@ public class LinkList {
      * @return
      */
     public List<Link> findFromLink(Application fromApplication) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication");
-        }
+        Objects.requireNonNull(fromApplication, "fromApplication");
 
         List<Link> findList = new ArrayList<>();
         for (Link link : linkMap.values()) {
             Node fromNode = link.getFrom();
 
-            if (fromNode.getApplication().equals(fromApplication) && fromNode.getServiceType().equals(fromApplication.getServiceType())) {
+            if (fromNode.getApplication().equals(fromApplication)) {
                 findList.add(link);
             }
         }
@@ -86,9 +84,7 @@ public class LinkList {
     }
 
     public boolean addLink(Link link) {
-        if (link == null) {
-            throw new NullPointerException("link");
-        }
+        Objects.requireNonNull(link, "link");
 
         final LinkKey linkId = link.getLinkKey();
         final Link find = this.linkMap.get(linkId);
@@ -103,9 +99,8 @@ public class LinkList {
     }
 
     public boolean containsNode(Link link) {
-        if (link == null) {
-            throw new NullPointerException("linkKey");
-        }
+        Objects.requireNonNull(link, "link");
+
         return linkMap.containsKey(link.getLinkKey());
     }
 

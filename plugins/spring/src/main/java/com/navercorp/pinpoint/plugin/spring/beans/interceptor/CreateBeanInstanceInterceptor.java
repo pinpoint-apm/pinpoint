@@ -59,17 +59,15 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
             }
             final String beanName = (String) beanNameObject;
 
-            try {
-                final Method getWrappedInstanceMethod = getGetWrappedInstanceMethod(result);
-                if (getWrappedInstanceMethod != null) {
-                    final Object bean = getWrappedInstanceMethod.invoke(result);
-                    processBean(beanName, bean);
-                }
-            } catch (Exception e) {
+
+            final Method getWrappedInstanceMethod = getGetWrappedInstanceMethod(result);
+            if (getWrappedInstanceMethod != null) {
+                final Object bean = getWrappedInstanceMethod.invoke(result);
+                processBean(beanName, bean);
+            } else {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Fail to get create bean instance", e);
+                    logger.warn("Fail to find getWrappedInstance method. beanName:{}", beanName);
                 }
-                return;
             }
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
@@ -78,7 +76,7 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
         }
     }
 
-    private Method getGetWrappedInstanceMethod(Object object) throws NoSuchMethodException {
+    private Method getGetWrappedInstanceMethod(Object object) {
         if (getWrappedInstanceMethod != null) {
             return getWrappedInstanceMethod;
         }
@@ -89,12 +87,20 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
             }
 
             final Class<?> aClass = object.getClass();
-            final Method findedMethod = aClass.getMethod("getWrappedInstance");
+            final Method findedMethod = getMethod(aClass, "getWrappedInstance");
             if (findedMethod != null) {
                 getWrappedInstanceMethod = findedMethod;
                 return getWrappedInstanceMethod;
             }
         }
         return null;
+    }
+
+    private Method getMethod(Class<?> aClass, String methodName) {
+        try {
+            return aClass.getMethod(methodName);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 }

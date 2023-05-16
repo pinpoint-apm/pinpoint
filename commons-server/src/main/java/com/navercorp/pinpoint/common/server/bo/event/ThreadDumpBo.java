@@ -160,23 +160,22 @@ public class ThreadDumpBo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ThreadDumpBo{");
-        sb.append("threadName='").append(threadName).append('\'');
-        sb.append(", threadId=").append(threadId);
-        sb.append(", blockedTime=").append(blockedTime);
-        sb.append(", blockedCount=").append(blockedCount);
-        sb.append(", waitedTime=").append(waitedTime);
-        sb.append(", waitedCount=").append(waitedCount);
-        sb.append(", lockName='").append(lockName).append('\'');
-        sb.append(", lockOwnerId=").append(lockOwnerId);
-        sb.append(", lockOwnerName='").append(lockOwnerName).append('\'');
-        sb.append(", inNative=").append(inNative);
-        sb.append(", suspended=").append(suspended);
-        sb.append(", threadState=").append(threadState);
-        sb.append(", stackTraceList=").append(stackTraceList);
-        sb.append(", lockedMonitorInfoList=").append(lockedMonitorInfoList);
-        sb.append(", lockedSynchronizerList=").append(lockedSynchronizerList);
-        sb.append('}');
-        return sb.toString();
+        return "ThreadDumpBo{" +
+                "threadName='" + threadName + '\'' +
+                ", threadId=" + threadId +
+                ", blockedTime=" + blockedTime +
+                ", blockedCount=" + blockedCount +
+                ", waitedTime=" + waitedTime +
+                ", waitedCount=" + waitedCount +
+                ", lockName='" + lockName + '\'' +
+                ", lockOwnerId=" + lockOwnerId +
+                ", lockOwnerName='" + lockOwnerName + '\'' +
+                ", inNative=" + inNative +
+                ", suspended=" + suspended +
+                ", threadState=" + threadState +
+                ", stackTraceList=" + stackTraceList +
+                ", lockedMonitorInfoList=" + lockedMonitorInfoList +
+                ", lockedSynchronizerList=" + lockedSynchronizerList +
+                '}';
     }
 }

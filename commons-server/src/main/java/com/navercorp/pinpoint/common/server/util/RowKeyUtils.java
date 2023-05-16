@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import static com.navercorp.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
-import static com.navercorp.pinpoint.common.util.BytesUtils.INT_BYTE_LENGTH;
+import java.util.Objects;
+
 import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 
@@ -31,10 +31,13 @@ public final class RowKeyUtils {
     private RowKeyUtils() {
     }
 
+    public static byte[] agentIdAndTimestamp(String agentId, long timestamp) {
+        return concatFixedByteAndLong(BytesUtils.toBytes(agentId), HbaseTableConstants.AGENT_ID_MAX_LEN, timestamp);
+    }
+
     public static byte[] concatFixedByteAndLong(byte[] fixedBytes, int maxFixedLength, long l) {
-        if (fixedBytes == null) {
-            throw new NullPointerException("fixedBytes must not null");
-        }
+        Objects.requireNonNull(fixedBytes, "fixedBytes");
+
         if (fixedBytes.length > maxFixedLength) {
             throw new IndexOutOfBoundsException("fixedBytes.length too big. length:" + fixedBytes.length);
         }
@@ -42,27 +45,6 @@ public final class RowKeyUtils {
         BytesUtils.writeBytes(rowKey, 0, fixedBytes);
         BytesUtils.writeLong(l, rowKey, maxFixedLength);
         return rowKey;
-    }
-
-
-    public static byte[] getMetaInfoRowKey(String agentId, long agentStartTime, int keyCode) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-
-        final byte[] agentBytes = BytesUtils.toBytes(agentId);
-        if (agentBytes.length > AGENT_NAME_MAX_LEN) {
-            throw new IndexOutOfBoundsException("agent.length too big. agent:" + agentId + " length:" + agentId.length());
-        }
-
-        final byte[] buffer = new byte[AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
-        BytesUtils.writeBytes(buffer, 0, agentBytes);
-
-        long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
-        BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_NAME_MAX_LEN);
-
-        BytesUtils.writeInt(keyCode, buffer, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);
-        return buffer;
     }
 
 

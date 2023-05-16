@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2018 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint</artifactId>
+        <version>2.6.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-agent-testweb</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+
+        <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
+
+        <spring-boot-build-skip>false</spring-boot-build-skip>
+
+        <pinpoint.agent.profile>local</pinpoint.agent.profile>
+        <pinpoint.agent.sampling-rate>1</pinpoint.agent.sampling-rate>
+        <pinpoint.agent.default.jvmargument>
+            -D${project.name}
+            -Dpinpoint.profiler.profiles.active=${pinpoint.agent.profile}
+            -Dpinpoint.applicationName=PluginTest
+            -Dpinpoint.agentId=PluginTestAgent
+            -Dprofiler.sampling.rate=${pinpoint.agent.sampling-rate}
+        </pinpoint.agent.default.jvmargument>
+        <pinpoint.agent.jvmargument>${pinpoint.agent.default.jvmargument}</pinpoint.agent.jvmargument>
+    </properties>
+
+    <modules>
+        <module>bom</module>
+        <module>agent-testweb-commons</module>
+        <module>agentsdk-async-testweb</module>
+        <module>thread-plugin-testweb</module>
+        <module>paho-mqtt-plugin-testweb</module>
+        <module>reactor-netty-plugin-testweb</module>
+        <module>rocketmq-plugin-testweb</module>
+        <module>dubbo-plugin-testweb</module>
+        <module>spring-cloud-gateway-plugin-testweb</module>
+        <module>spring-webflux-plugin-testweb</module>
+        <module>jdk-http-plugin-testweb</module>
+        <module>vertx-3-plugin-testweb</module>
+        <module>vertx-4-plugin-testweb</module>
+        <module>mongodb-plugin-testweb</module>
+        <module>mongodb-reactive-plugin-testweb</module>
+        <module>reactor-plugin-testweb</module>
+        <module>thrift-plugin-testweb</module>
+        <module>elasticsearch-plugin-testweb</module>
+        <module>elasticsearch-8-plugin-testweb</module>
+        <module>postgresql-plugin-testweb</module>
+        <module>undertow-plugin-testweb</module>
+        <module>redis-lettuce-plugin-testweb</module>
+        <module>jetty-plugin-testweb</module>
+        <module>spring-data-r2dbc-plugin-testweb</module>
+        <module>httpclient5-plugin-testweb</module>
+        <module>httpclient4-plugin-testweb</module>
+        <module>kafka-plugin-testweb</module>
+        <module>kafka-streams-testweb</module>
+        <module>cassandra3-plugin-testweb</module>
+        <module>cassandra4-plugin-testweb</module>
+        <module>agent-proxy-plugin-testweb</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-testweb-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-testweb-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <skip>${spring-boot-build-skip}</skip>
+                        <executable>true</executable>
+                        <attach>${spring-boot-maven-plugin.attatch}</attach>
+                        <classifier>exec</classifier>
+                        <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
+                        <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
+
+                        <commandlineArguments>
+                        </commandlineArguments>
+
+                        <fork>true</fork>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>jdk17</id>
+            <modules>
+                <module>spring-boot3-testweb</module>
+                <module>spring-boot3-webflux-plugin-testweb</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

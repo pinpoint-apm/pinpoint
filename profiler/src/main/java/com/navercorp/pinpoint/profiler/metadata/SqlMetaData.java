@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.metadata;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SqlMetaData {
+public class SqlMetaData implements MetaDataType {
 
 //    private java.lang.String agentId; // required
 //    private long agentStartTime; // required

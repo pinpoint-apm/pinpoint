@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.async.SpringAsyncConstants;
 
 /**
@@ -45,8 +46,8 @@ public class AsyncTaskExecutorSubmitInterceptor extends SpanEventSimpleAroundInt
         }
     }
 
-    private boolean validate(final Object[] args) {
-        if (args == null || args.length < 1) {
+    protected boolean validate(final Object[] args) {
+        if (ArrayUtils.isEmpty(args)) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}.", args);
             }

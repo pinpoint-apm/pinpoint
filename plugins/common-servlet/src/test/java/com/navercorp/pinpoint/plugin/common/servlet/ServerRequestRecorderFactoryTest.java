@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestWrapperAdaptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,7 +39,7 @@ public class ServerRequestRecorderFactoryTest {
     @Test
     public void record() throws Exception {
         RequestAdaptor<ServerRequestWrapper> requestAdaptor = new ServerRequestWrapperAdaptor();
-        final ServerRequestRecorder<ServerRequestWrapper> recorder = new ServerRequestRecorder<ServerRequestWrapper>(requestAdaptor);
+        final ServerRequestRecorder<ServerRequestWrapper> recorder = new ServerRequestRecorder<>(requestAdaptor);
 
         // SpanRecorder
         SpanRecorder spanRecorder = mock(SpanRecorder.class);

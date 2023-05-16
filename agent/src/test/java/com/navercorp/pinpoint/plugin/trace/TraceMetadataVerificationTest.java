@@ -19,16 +19,20 @@ package com.navercorp.pinpoint.plugin.trace;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.loader.plugins.PinpointPluginLoader;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ErrorCollector;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
 public class TraceMetadataVerificationTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PinpointPluginLoader<TraceMetadataProvider> traceMetadataProviderLoader = new TraceMetadataProviderLoader();
 
@@ -36,9 +40,10 @@ public class TraceMetadataVerificationTest {
     public ErrorCollector collector = new ErrorCollector();
 
     @Test
-    public void checkTraceMetadata() {
-        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        List<TraceMetadataProvider> traceMetadataProviders = traceMetadataProviderLoader.load(systemClassLoader);
+    public void checkTraceMetadata() throws IOException {
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+        List<TraceMetadataProvider> traceMetadataProviders = traceMetadataProviderLoader.load(classLoader);
         TraceMetadataVerifier verifier = new TraceMetadataVerifier();
         for (TraceMetadataProvider traceMetadataProvider : traceMetadataProviders) {
             traceMetadataProvider.setup(verifier.getTraceMetadataSetupContext());

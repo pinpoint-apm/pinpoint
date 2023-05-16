@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -50,18 +50,20 @@ public class ServerInfoAppenderTest {
 
     private final ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory(executor);
 
-    private ServerInstanceListDataSource serverInstanceListDataSource;
+    private ServerGroupListDataSource serverGroupListDataSource;
 
     private ServerInfoAppender serverInfoAppender;
 
-    @Before
+    private long timeoutMillis = 1000;
+
+    @BeforeEach
     public void setUp() {
-        serverInstanceListDataSource = mock(ServerInstanceListDataSource.class);
-        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
-        serverInfoAppender = serverInfoAppenderFactory.create(serverInstanceListFactory);
+        serverGroupListDataSource = mock(ServerGroupListDataSource.class);
+        ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(serverGroupListDataSource);
+        serverInfoAppender = serverInfoAppenderFactory.create(serverGroupListFactory);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         executor.shutdown();
         try {
@@ -77,54 +79,54 @@ public class ServerInfoAppenderTest {
     @Test
     public void nullNodeList() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = null;
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertNull(nodeList);
-        verifyZeroInteractions(serverInstanceListDataSource);
-        verifyZeroInteractions(linkDataDuplexMap);
+        Assertions.assertNull(nodeList);
+        verifyNoInteractions(serverGroupListDataSource);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
     public void emptyNodeList() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertTrue(nodeList.getNodeList().isEmpty());
-        verifyZeroInteractions(serverInstanceListDataSource);
-        verifyZeroInteractions(linkDataDuplexMap);
+        Assertions.assertTrue(nodeList.getNodeList().isEmpty());
+        verifyNoInteractions(serverGroupListDataSource);
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
     public void wasNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node wasNode = new Node(new Application("Was", ServiceType.TEST_STAND_ALONE));
         nodeList.addNode(wasNode);
 
-        ServerInstanceList serverInstanceList = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode, range.getTo())).thenReturn(serverInstanceList);
+        ServerGroupList serverGroupList = ServerGroupList.empty();
+        when(serverGroupListDataSource.createServerGroupList(wasNode, range.getToInstant())).thenReturn(serverGroupList);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertSame(serverInstanceList, wasNode.getServerInstanceList());
-        verifyZeroInteractions(linkDataDuplexMap);
+        Assertions.assertSame(serverGroupList, wasNode.getServerGroupList());
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
     public void wasNodes() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
@@ -133,22 +135,22 @@ public class ServerInfoAppenderTest {
         Node wasNode2 = new Node(new Application("Was2", ServiceType.TEST_STAND_ALONE));
         nodeList.addNode(wasNode2);
 
-        ServerInstanceList serverInstanceList1 = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode1, range.getTo())).thenReturn(serverInstanceList1);
-        ServerInstanceList serverInstanceList2 = new ServerInstanceList();
-        when(serverInstanceListDataSource.createServerInstanceList(wasNode2, range.getTo())).thenReturn(serverInstanceList2);
+        ServerGroupList serverGroupList1 = ServerGroupList.empty();
+        when(serverGroupListDataSource.createServerGroupList(wasNode1, range.getToInstant())).thenReturn(serverGroupList1);
+        ServerGroupList serverGroupList2 = ServerGroupList.empty();
+        when(serverGroupListDataSource.createServerGroupList(wasNode2, range.getToInstant())).thenReturn(serverGroupList2);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertSame(serverInstanceList1, wasNode1.getServerInstanceList());
-        Assert.assertSame(serverInstanceList2, wasNode2.getServerInstanceList());
-        verifyZeroInteractions(linkDataDuplexMap);
+        Assertions.assertSame(serverGroupList1, wasNode1.getServerGroupList());
+        Assertions.assertSame(serverGroupList2, wasNode2.getServerGroupList());
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
     public void terminalNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
@@ -165,15 +167,15 @@ public class ServerInfoAppenderTest {
                 System.currentTimeMillis(), terminalType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
         linkDataDuplexMap.addSourceLinkData(linkData);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(1, terminalNode.getServerInstanceList().getInstanceCount());
+        Assertions.assertEquals(1, terminalNode.getServerGroupList().getInstanceCount());
     }
 
     @Test
     public void terminalNode_multipleInstances() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
@@ -194,40 +196,40 @@ public class ServerInfoAppenderTest {
                 System.currentTimeMillis(), terminalType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
         linkDataDuplexMap.addSourceLinkData(linkData);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(2, terminalNode.getServerInstanceList().getInstanceCount());
+        Assertions.assertEquals(2, terminalNode.getServerGroupList().getInstanceCount());
     }
 
     @Test
     public void userNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node userNode = new Node(new Application("User", ServiceType.USER));
         nodeList.addNode(userNode);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(0, userNode.getServerInstanceList().getInstanceCount());
-        verifyZeroInteractions(linkDataDuplexMap);
+        Assertions.assertEquals(0, userNode.getServerGroupList().getInstanceCount());
+        verifyNoInteractions(linkDataDuplexMap);
     }
 
     @Test
     public void unknownNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.between(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node unknownNode = new Node(new Application("Unknown", ServiceType.UNKNOWN));
         nodeList.addNode(unknownNode);
         // When
-        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap);
+        serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
-        Assert.assertEquals(0, unknownNode.getServerInstanceList().getInstanceCount());
-        verifyZeroInteractions(linkDataDuplexMap);
+        Assertions.assertEquals(0, unknownNode.getServerGroupList().getInstanceCount());
+        verifyNoInteractions(linkDataDuplexMap);
     }
 }

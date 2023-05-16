@@ -1,0 +1,65 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    background-color: var(--background-default);
+
+    --chart-most-success: var(--emerald-green-100);
+    --chart-success: var(--emerald-green-300);
+    --chart-kinda-success: var(--emerald-green-400);
+    --chart-almost-normal: var(--emerald-green-500);
+    --chart-normal: var(--blue-300);
+    --chart-slow: var(--orange-500);
+    --chart-very-slow: var(--orange-800);
+    --chart-fail: var(--red-400);
+}
+
+.dark-mode :host {
+    --chart-most-success: var(--emerald-green-800);
+    --chart-success: var(--emerald-green-600);
+    --chart-kinda-success: var(--emerald-green-500);
+    --chart-almost-normal: var(--emerald-green-400);
+
+    --chart-very-slow: var(--orange-100);
+}
+
+.chart-area-wrapper {
+    width: 100%;
+    height: calc(100% - 44px);
+    position: relative;
+}
+
+.tab-menu-list {
+    border-bottom: 1px solid var(--border-primary);
+    height: 44px;
+}
+
+.tab-menu-list-item {
+    float: left;
+}
+
+.tab-menu-list-item a {
+    cursor: pointer;
+    display:inline-block;
+    font-size: 13px;
+    color: var(--text-primary-lightest);
+    padding: 14px 15px;
+    border: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    line-height: 1em;
+}
+
+.tab-menu-list-item:hover a {
+    border-color: var(--border-primary) var(--border-primary) var(--border-knockout);
+}
+
+.active a {
+    color: var(--text-knockout);
+    background: var(--primary);
+}
+
+.active a:hover {
+    border-color: transparent;
+}

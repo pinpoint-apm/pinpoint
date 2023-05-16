@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -25,8 +23,6 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-
-import java.util.Iterator;
 
 /**
  * @author Taejin Koo
@@ -36,12 +32,8 @@ public class ConsumerPollInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
 
-    public ConsumerPollInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+    public ConsumerPollInterceptor() {
     }
 
     @Override
@@ -62,14 +54,10 @@ public class ConsumerPollInterceptor implements AroundInterceptor {
         }
 
         String remoteAddress = ((RemoteAddressFieldAccessor) target)._$PINPOINT$_getRemoteAddress();
-        if (StringUtils.isEmpty(remoteAddress)) {
-            remoteAddress = KafkaConstants.UNKNOWN;
-        }
+        remoteAddress = StringUtils.defaultIfEmpty(remoteAddress, KafkaConstants.UNKNOWN);
 
         if (result instanceof ConsumerRecords) {
-            Iterator consumerRecordIterator = ((ConsumerRecords) result).iterator();
-            while (consumerRecordIterator.hasNext()) {
-                Object consumerRecord = consumerRecordIterator.next();
+            for (Object consumerRecord : (ConsumerRecords<?, ?>) result) {
                 if (consumerRecord instanceof RemoteAddressFieldAccessor) {
                     ((RemoteAddressFieldAccessor) consumerRecord)._$PINPOINT$_setRemoteAddress(remoteAddress);
                 }

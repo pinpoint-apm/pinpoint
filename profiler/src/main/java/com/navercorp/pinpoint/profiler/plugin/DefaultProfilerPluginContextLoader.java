@@ -19,12 +19,12 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjectorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,30 +33,34 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Jongho Moon
- *
  */
 public class DefaultProfilerPluginContextLoader implements ProfilerPluginContextLoader {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final ClassNameFilter profilerPackageFilter = new PinpointProfilerPackageSkipFilter();
 
     private final ProfilerConfig profilerConfig;
+    private final PluginLoadingConfig pluginLoadingConfig;
     private final ServiceType configuredApplicationType;
     private final ClassInjectorFactory classInjectorFactory;
     private final PluginSetup pluginSetup;
     private final List<PluginJar> pluginJars;
 
-    public DefaultProfilerPluginContextLoader(ProfilerConfig profilerConfig, ServiceType configuredApplicationType,
+    public DefaultProfilerPluginContextLoader(ProfilerConfig profilerConfig,
+                                              PluginLoadingConfig pluginLoadingConfig,
+                                              ServiceType configuredApplicationType,
                                               ClassInjectorFactory classInjectorFactory, PluginSetup pluginSetup,
                                               List<PluginJar> pluginJars) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
-        this.classInjectorFactory = Assert.requireNonNull(classInjectorFactory, "classInjectorFactory");
-        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup");
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.pluginLoadingConfig = Objects.requireNonNull(pluginLoadingConfig, "pluginLoadingConfig");
+        this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
+        this.classInjectorFactory = Objects.requireNonNull(classInjectorFactory, "classInjectorFactory");
+        this.pluginSetup = Objects.requireNonNull(pluginSetup, "pluginSetup");
+        this.pluginJars = Objects.requireNonNull(pluginJars, "pluginJars");
     }
 
     @Override
@@ -80,18 +84,21 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
 
     private List<PluginSetupResult> setupPlugin(ProfilerPluginGlobalContext globalContext, JarPlugin<ProfilerPlugin> plugin) {
         List<String> pluginPackageList = plugin.getPackageList();
+        List<String> pluginPackageRequirementList = plugin.getPackageRequirementList();
         final ClassNameFilter pluginFilterChain = createPluginFilterChain(pluginPackageList);
+        final ClassNameFilter pluginPackageRequirementFilter = createPluginRequirementFilterChain(pluginPackageRequirementList);
 
-        List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), profilerConfig.getDisabledPlugins());
+        List<ProfilerPlugin> filterProfilerPlugin = filterProfilerPlugin(plugin.getInstanceList(), pluginLoadingConfig.getDisabledPlugins());
 
-        List<PluginSetupResult> result = new ArrayList<PluginSetupResult>();
+        List<PluginSetupResult> result = new ArrayList<>();
         for (ProfilerPlugin profilerPlugin : filterProfilerPlugin) {
             if (logger.isInfoEnabled()) {
                 logger.info("{} Plugin {}:{}", profilerPlugin.getClass(), PluginJar.PINPOINT_PLUGIN_PACKAGE, pluginPackageList);
+                logger.info("{} Requirements {}:{}", profilerPlugin.getClass(), PluginJar.PINPOINT_PLUGIN_PACKAGE_CLASS_REQUIREMENTS, pluginPackageRequirementList);
                 logger.info("Loading plugin:{} pluginPackage:{}", profilerPlugin.getClass().getName(), profilerPlugin);
             }
 
-            PluginConfig pluginConfig = new PluginConfig(plugin, pluginFilterChain);
+            PluginConfig pluginConfig = new PluginConfig(plugin, pluginFilterChain, pluginPackageRequirementFilter);
             final ClassInjector classInjector = classInjectorFactory.newClassInjector(pluginConfig);
             final PluginSetupResult setupResult = pluginSetup.setupPlugin(globalContext, profilerPlugin, classInjector);
             result.add(setupResult);
@@ -102,7 +109,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
     // 1.9.0 - Disabled plugin configuration should now be groupId:artifactId
     @Deprecated
     private List<ProfilerPlugin> filterProfilerPlugin(List<ProfilerPlugin> originalProfilerPlugin, List<String> disabled) {
-        List<ProfilerPlugin> result = new ArrayList<ProfilerPlugin>();
+        List<ProfilerPlugin> result = new ArrayList<>();
         for (ProfilerPlugin profilerPlugin : originalProfilerPlugin) {
             if (disabled.contains(profilerPlugin.getClass().getName())) {
                 logger.info("Skip disabled plugin: {}", profilerPlugin.getClass().getName());
@@ -124,16 +131,20 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         return filterChain;
     }
 
+    private ClassNameFilter createPluginRequirementFilterChain(List<String> packageRequirementList) {
+        return new PluginPackageClassRequirementFilter(packageRequirementList);
+    }
+
     private static class JarPluginComponents {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final Map<String, JarPluginComponent> componentMap;
 
         private JarPluginComponents(List<PluginJar> pluginJars) {
-            this.componentMap = new LinkedHashMap<String, JarPluginComponent>(pluginJars.size());
+            this.componentMap = new LinkedHashMap<>(pluginJars.size());
             for (PluginJar pluginJar : pluginJars) {
-                String key = generateKey(pluginJar.getUrl());
+                String key = generateKey(pluginJar.getURL());
                 componentMap.put(key, new JarPluginComponent(pluginJar));
             }
         }
@@ -158,7 +169,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
         }
 
         public Collection<JarPlugin<ProfilerPlugin>> buildJarPlugins() {
-            List<JarPlugin<ProfilerPlugin>> jarPlugins = new ArrayList<JarPlugin<ProfilerPlugin>>(componentMap.size());
+            List<JarPlugin<ProfilerPlugin>> jarPlugins = new ArrayList<>(componentMap.size());
             for (JarPluginComponent component : componentMap.values()) {
                 jarPlugins.add(component.toJarPlugin());
             }
@@ -170,8 +181,8 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
             private final List<ProfilerPlugin> profilerPlugins;
 
             private JarPluginComponent(PluginJar pluginJar) {
-                this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar");
-                this.profilerPlugins = new ArrayList<ProfilerPlugin>();
+                this.pluginJar = Objects.requireNonNull(pluginJar, "pluginJar");
+                this.profilerPlugins = new ArrayList<>();
             }
 
             private void addProfilerPlugin(ProfilerPlugin profilerPlugin) {
@@ -181,7 +192,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
             }
 
             private JarPlugin<ProfilerPlugin> toJarPlugin() {
-                return new JarPlugin<ProfilerPlugin>(pluginJar, profilerPlugins, pluginJar.getPluginPackages());
+                return new JarPlugin<>(pluginJar, profilerPlugins, pluginJar.getPluginPackages(), pluginJar.getPluginPackageRequirements());
             }
         }
     }

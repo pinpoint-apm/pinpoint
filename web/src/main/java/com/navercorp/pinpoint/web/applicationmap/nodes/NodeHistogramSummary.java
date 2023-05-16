@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeHistogramSummarySerializer;
 
@@ -28,26 +29,35 @@ import java.util.Objects;
 @JsonSerialize(using = NodeHistogramSummarySerializer.class)
 public class NodeHistogramSummary {
 
-    private final ServerInstanceList serverInstanceList;
+    private final ServerGroupList serverGroupList;
     private final NodeHistogram nodeHistogram;
+    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
-    public NodeHistogramSummary(ServerInstanceList serverInstanceList, NodeHistogram nodeHistogram) {
-        this.serverInstanceList = Objects.requireNonNull(serverInstanceList, "serverInstanceList");
+    public NodeHistogramSummary(ServerGroupList serverGroupList, NodeHistogram nodeHistogram) {
+        this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
         this.nodeHistogram = Objects.requireNonNull(nodeHistogram, "nodeHistogram");
     }
 
-    public ServerInstanceList getServerInstanceList() {
-        return serverInstanceList;
+    public ServerGroupList getServerGroupList() {
+        return serverGroupList;
     }
 
     public NodeHistogram getNodeHistogram() {
         return nodeHistogram;
     }
 
+    public TimeHistogramFormat getTimeHistogramFormat() {
+        return timeHistogramFormat;
+    }
+
+    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
+        this.timeHistogramFormat = timeHistogramFormat;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("NodeHistogramSummary{");
-        sb.append("serverInstanceList=").append(serverInstanceList);
+        sb.append("serverGroupList=").append(serverGroupList);
         sb.append(", nodeHistogram=").append(nodeHistogram);
         sb.append('}');
         return sb.toString();

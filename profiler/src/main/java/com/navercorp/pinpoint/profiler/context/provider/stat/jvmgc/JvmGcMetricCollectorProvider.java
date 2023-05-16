@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.DetailedJvmGcMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.jvmgc.BasicJvmGcMetricCollector;
@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
+
+import java.util.Objects;
 
 
 /**
@@ -42,31 +44,18 @@ public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCol
 
     @Inject
     public JvmGcMetricCollectorProvider(
-            ProfilerConfig profilerConfig,
+            MonitorConfig monitorConfig,
             Provider<MemoryMetric> memoryMetricProivider,
             Provider<DetailedMemoryMetric> detailedMemoryMetricProvider,
             Provider<GarbageCollectorMetric> garbageCollectorMetricProvider,
             Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        if (memoryMetricProivider == null) {
-            throw new NullPointerException("memoryMetricProivider");
-        }
-        if (detailedMemoryMetricProvider == null) {
-            throw new NullPointerException("detailedMemoryMetricProvider");
-        }
-        if (garbageCollectorMetricProvider == null) {
-            throw new NullPointerException("garbageCollectorMetricProvider");
-        }
-        if (detailedGarbageCollectorMetricProvider == null) {
-            throw new NullPointerException("detailedGarbageCollectorMetricProvider");
-        }
-        this.collectDetailedMetrics = profilerConfig.isProfilerJvmStatCollectDetailedMetrics();
-        this.memoryMetricProivider = memoryMetricProivider;
-        this.detailedMemoryMetricProvider = detailedMemoryMetricProvider;
-        this.garbageCollectorMetricProvider = garbageCollectorMetricProvider;
-        this.detailedGarbageCollectorMetricProvider = detailedGarbageCollectorMetricProvider;
+        Objects.requireNonNull(monitorConfig, "profilerConfig");
+        this.collectDetailedMetrics = monitorConfig.isProfilerJvmStatCollectDetailedMetrics();
+
+        this.memoryMetricProivider = Objects.requireNonNull(memoryMetricProivider, "memoryMetricProivider");
+        this.detailedMemoryMetricProvider = Objects.requireNonNull(detailedMemoryMetricProvider, "detailedMemoryMetricProvider");
+        this.garbageCollectorMetricProvider = Objects.requireNonNull(garbageCollectorMetricProvider, "garbageCollectorMetricProvider");
+        this.detailedGarbageCollectorMetricProvider = Objects.requireNonNull(detailedGarbageCollectorMetricProvider, "detailedGarbageCollectorMetricProvider");
     }
 
     @Override

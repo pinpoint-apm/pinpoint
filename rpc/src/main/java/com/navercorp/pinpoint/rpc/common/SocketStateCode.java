@@ -16,11 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.common;
 
-import com.navercorp.pinpoint.common.util.ArrayUtils;
-
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -52,33 +49,25 @@ public enum SocketStateCode {
     ERROR_SYNC_STATE_SESSION((byte) 42);
 
     private final byte id;
-    private final Set<SocketStateCode> validBeforeStateSet;
+    private final SocketStateCode[] beforeStateSet;
 
     private static final Set<SocketStateCode> ALL_STATE_CODES = EnumSet.allOf(SocketStateCode.class);
 
-    SocketStateCode(byte id, SocketStateCode... validBeforeStates) {
+    SocketStateCode(byte id, SocketStateCode... beforeStateSet) {
         this.id = id;
-        this.validBeforeStateSet = asSet(validBeforeStates);
+        Objects.requireNonNull(beforeStateSet, "beforeStateSet");
+        this.beforeStateSet = beforeStateSet;
     }
 
-    private Set<SocketStateCode> asSet(SocketStateCode[] validBeforeStates) {
-        if (ArrayUtils.isEmpty(validBeforeStates)) {
-            return Collections.emptySet();
-        }
-
-        final Set<SocketStateCode> temp  = new HashSet<SocketStateCode>();
-        Collections.addAll(temp, validBeforeStates);
-        return temp;
-    }
-
-    public boolean canChangeState(SocketStateCode nextState) {
+     public boolean canChangeState(SocketStateCode nextState) {
         if (isError(this)) {
             return false;
         }
-        
-        Set<SocketStateCode> validBeforeStateSet = nextState.getValidBeforeStateSet();
-        if (validBeforeStateSet.contains(this)) {
-            return true;
+
+        for (SocketStateCode socketStateCode : nextState.beforeStateSet) {
+            if (socketStateCode == this) {
+                return true;
+            }
         }
 
         return isError(nextState);
@@ -184,8 +173,4 @@ public enum SocketStateCode {
         return id;
     }
     
-    private Set<SocketStateCode> getValidBeforeStateSet() {
-        return validBeforeStateSet;
-    }
-
 }

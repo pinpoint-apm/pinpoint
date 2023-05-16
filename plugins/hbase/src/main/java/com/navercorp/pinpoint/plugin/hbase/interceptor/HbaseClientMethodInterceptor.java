@@ -19,7 +19,11 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.hbase.HbasePluginConstants;
+import org.apache.hadoop.hbase.client.ClientScanner;
+import org.apache.hadoop.hbase.client.Result;
 
 import java.net.InetSocketAddress;
 
@@ -50,10 +54,20 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = getEndPoint(args);
-        recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
+        recorder.recordEndPoint(endPoint != null ? endPoint : HbasePluginConstants.UNKNOWN_TABLE);
         recorder.recordDestinationId(HbasePluginConstants.HBASE_DESTINATION_ID);
         recorder.recordApi(getMethodDescriptor());
+        if (target instanceof ClientScanner) {
+            recorder.recordAttribute(HbasePluginConstants.HBASE_SCAN_RPC_RESULT_NUM, getScanRpcResultNum(result));
+        }
         recorder.recordException(throwable);
+    }
+
+    private int getScanRpcResultNum(Object result) {
+        if (result instanceof Result[]) {
+            return ((Result[]) result).length;
+        }
+        return 0;
     }
 
     /**
@@ -66,11 +80,10 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
         // call(PayloadCarryingRpcController pcrc, MethodDescriptor md,
         //      Message param, Message returnType, User ticket, InetSocketAddress addr,
         //      MetricsConnection.CallStats callStats)
-        if (args != null && args.length == 7) {
-
-            if (args[5] instanceof InetSocketAddress) {
-
-                return SocketAddressUtils.getHostNameFirst((InetSocketAddress) args[5]);
+        if (ArrayUtils.getLength(args) == 7) {
+            InetSocketAddress socketAddress = ArrayArgumentUtils.getArgument(args, 5, InetSocketAddress.class);
+            if (socketAddress != null) {
+                return SocketAddressUtils.getHostNameFirst(socketAddress);
             }
         }
         return null;

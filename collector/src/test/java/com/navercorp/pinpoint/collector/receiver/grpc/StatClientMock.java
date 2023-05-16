@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -29,20 +30,20 @@ import io.grpc.Metadata;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.TimeUnit;
 
 public class StatClientMock {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ManagedChannel channel;
     private final StatGrpc.StatStub statStub;
 
     public StatClientMock(final String host, final int port) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
         final Metadata extraHeaders = headerFactory.newHeader();
         final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
         builder.intercept(headersInterceptor);

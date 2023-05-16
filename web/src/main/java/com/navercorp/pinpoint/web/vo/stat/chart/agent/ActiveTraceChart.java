@@ -17,88 +17,44 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
  */
-public class ActiveTraceChart implements StatChart {
+public class ActiveTraceChart extends DefaultAgentChart<SampledActiveTrace, Integer> {
 
-    private final ActiveTraceChartGroup activeTraceChartGroup;
+    public enum ActiveTraceChartType implements StatChartGroup.AgentChartType {
+        ACTIVE_TRACE_VERY_SLOW,
+        ACTIVE_TRACE_SLOW,
+        ACTIVE_TRACE_NORMAL,
+        ACTIVE_TRACE_FAST;
 
-    public ActiveTraceChart(TimeWindow timeWindow, List<SampledActiveTrace> sampledActiveTraces) {
-        this.activeTraceChartGroup = new ActiveTraceChartGroup(timeWindow, sampledActiveTraces);
-    }
-
-    @Override
-    public StatChartGroup getCharts() {
-        return activeTraceChartGroup;
-    }
-
-    public static class ActiveTraceChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> activeTraceCharts;
-
-        public enum ActiveTraceChartType implements AgentChartType {
-            ACTIVE_TRACE_VERY_SLOW,
-            ACTIVE_TRACE_SLOW,
-            ACTIVE_TRACE_NORMAL,
-            ACTIVE_TRACE_FAST;
-
-            private static final String[] SCHEMA = {"min", "max", "avg", "sum", "title"};
-
-            @Override
-            public String[] getSchema() {
-                return SCHEMA;
-            }
-        }
-
-        public ActiveTraceChartGroup(TimeWindow timeWindow, List<SampledActiveTrace> sampledActiveTraces) {
-            this.timeWindow = timeWindow;
-            this.activeTraceCharts = newChart(sampledActiveTraces);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledActiveTrace> sampledActiveTraces) {
-
-            Chart<AgentStatPoint<Integer>> fastChart = newChart(sampledActiveTraces, SampledActiveTrace::getFastCounts);
-            Chart<AgentStatPoint<Integer>> normalChart = newChart(sampledActiveTraces, SampledActiveTrace::getNormalCounts);
-            Chart<AgentStatPoint<Integer>> slowChart = newChart(sampledActiveTraces, SampledActiveTrace::getSlowCounts);
-            Chart<AgentStatPoint<Integer>> verySlowChart = newChart(sampledActiveTraces, SampledActiveTrace::getVerySlowCounts);
-
-
-            return ImmutableMap.of(ActiveTraceChartType.ACTIVE_TRACE_FAST, fastChart,
-                    ActiveTraceChartType.ACTIVE_TRACE_NORMAL, normalChart,
-                    ActiveTraceChartType.ACTIVE_TRACE_SLOW, slowChart,
-                    ActiveTraceChartType.ACTIVE_TRACE_VERY_SLOW, verySlowChart);
-        }
-
-        private Chart<AgentStatPoint<Integer>> newChart(List<SampledActiveTrace> activeTraceList, Function<SampledActiveTrace, AgentStatPoint<Integer>> filter) {
-
-            TimeSeriesChartBuilder<AgentStatPoint<Integer>> builder = new TimeSeriesChartBuilder<>(this.timeWindow, SampledActiveTrace.UNCOLLECTED_POINT_CREATOR);
-            return builder.build(activeTraceList, filter);
-        }
-
+        private static final String[] SCHEMA = {"min", "max", "avg", "sum", "title"};
 
         @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return activeTraceCharts;
+        public String[] getSchema() {
+            return SCHEMA;
         }
     }
+
+    private static final ChartGroupBuilder<SampledActiveTrace, AgentStatPoint<Integer>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledActiveTrace, AgentStatPoint<Integer>> newChartBuilder() {
+        ChartGroupBuilder<SampledActiveTrace, AgentStatPoint<Integer>> builder = new ChartGroupBuilder<>(SampledActiveTrace.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_FAST, SampledActiveTrace::getFastCounts);
+        builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_NORMAL, SampledActiveTrace::getNormalCounts);
+        builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_SLOW, SampledActiveTrace::getSlowCounts);
+        builder.addPointFunction(ActiveTraceChartType.ACTIVE_TRACE_VERY_SLOW, SampledActiveTrace::getVerySlowCounts);
+        return builder;
+    }
+
+    public ActiveTraceChart(TimeWindow timeWindow, List<SampledActiveTrace> statList) {
+        super(timeWindow, statList, BUILDER);
+    }
+
 }

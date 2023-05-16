@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author Taejin Koo
@@ -43,7 +43,7 @@ public class ThriftDeadlockThreadCountBoMapperTest extends ThriftBoMapperTestBas
 
     @Override
     protected void verify(TDeadlock original, DeadlockThreadCountBo mappedStatDataPoint) {
-        Assert.assertEquals("deadlockedThreadCount", original.getDeadlockedThreadCount(), mappedStatDataPoint.getDeadlockedThreadCount());
+        Assertions.assertEquals(original.getDeadlockedThreadCount(), mappedStatDataPoint.getDeadlockedThreadCount(), "deadlockedThreadCount");
     }
 
 }

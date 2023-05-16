@@ -13,7 +13,7 @@ public final class JdbcUtils {
         if (resultSet != null) {
             try {
                 resultSet.close();
-            } catch (SQLException ignore) {
+            } catch (SQLException ignored) {
                 // ignore
             }
         }
@@ -23,7 +23,7 @@ public final class JdbcUtils {
         if (statement != null) {
             try {
                 statement.close();
-            } catch (SQLException ignore) {
+            } catch (SQLException ignored) {
                 // ignore
             }
         }
@@ -33,7 +33,7 @@ public final class JdbcUtils {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException ignore) {
+            } catch (SQLException ignored) {
                 // ignore
             }
         }

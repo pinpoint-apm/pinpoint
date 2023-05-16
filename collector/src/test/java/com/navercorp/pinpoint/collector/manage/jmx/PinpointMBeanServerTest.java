@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.collector.manage.jmx;
 
-import java.lang.management.ManagementFactory;
+import com.navercorp.pinpoint.collector.manage.AbstractCollectorManager;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.collector.manage.AbstractCollectorManager;
+import java.lang.management.ManagementFactory;
 
 /**
  * @author Taejin Koo
@@ -35,27 +33,27 @@ public class PinpointMBeanServerTest {
     @Test
     public void registerTest1() {
         PinpointMBeanServer mBeanServer = new PinpointMBeanServer();
-        Assert.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
+        Assertions.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
 
         ATest aTest = new ATest();
         mBeanServer.registerMBean(aTest);
-        Assert.assertEquals(aTest, mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
+        Assertions.assertEquals(aTest, mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
 
         mBeanServer.unregisterMBean(aTest);
-        Assert.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
+        Assertions.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
     }
 
     @Test
     public void registerTest2() {
         PinpointMBeanServer mBeanServer = new PinpointMBeanServer();
-        Assert.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
+        Assertions.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
 
         ATest aTest = new ATest();
         mBeanServer.registerMBean(aTest);
-        Assert.assertEquals(aTest, mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
+        Assertions.assertEquals(aTest, mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
 
         mBeanServer.unregisterMBean("PinpointMBeanServerTest$ATest");
-        Assert.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
+        Assertions.assertNull(mBeanServer.getPinpointMBean("PinpointMBeanServerTest$ATest"));
     }
 
     @Test
@@ -73,7 +71,7 @@ public class PinpointMBeanServerTest {
         String packageName = this.getClass().getPackage().getName();
         ObjectInstance instance = server.getObjectInstance(objectName);
 
-        Assert.assertEquals(packageName + ".PinpointMBeanServerTest$ATest", instance.getClassName());
+        Assertions.assertEquals(packageName + ".PinpointMBeanServerTest$ATest", instance.getClassName());
 
         mBeanServer.unregisterMBean(aTest);
     }

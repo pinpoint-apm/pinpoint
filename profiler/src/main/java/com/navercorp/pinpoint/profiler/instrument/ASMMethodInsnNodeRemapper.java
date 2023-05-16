@@ -61,7 +61,7 @@ public class ASMMethodInsnNodeRemapper {
     }
 
     public static class Builder {
-        private List<Filter> filters = new ArrayList<Filter>();
+        private final List<Filter> filters = new ArrayList<>();
         private String owner;
         private String name;
         private String desc;

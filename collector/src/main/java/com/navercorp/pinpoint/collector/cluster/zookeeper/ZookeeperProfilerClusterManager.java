@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.util.CommonStateContext;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,22 +35,22 @@ import java.util.Set;
  */
 public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ZookeeperJobWorker worker;
+    private final ClusterJobWorker<ClusterKey> worker;
 
     private final CommonStateContext workerState = new CommonStateContext();
 
-    private final ClusterPointRepository profileCluster;
+    private final ClusterPointRepository<ClusterPoint<?>> profileCluster;
 
     private final Object lock = new Object();
 
     // keep it simple - register on RUN, remove on FINISHED, skip otherwise
     // should only be instantiated when cluster is enabled.
-    public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository profileCluster) {
+    public ZookeeperProfilerClusterManager(ZookeeperClient client, String connectedAgentZNodePath, ClusterPointRepository<ClusterPoint<?>> profileCluster) {
         this.profileCluster = Objects.requireNonNull(profileCluster, "profileCluster");
 
-        this.worker = new ZookeeperJobWorker(client, serverIdentifier);
+        this.worker = new ZookeeperJobWorker<>(client, connectedAgentZNodePath);
     }
 
     @Override
@@ -103,34 +103,40 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
     }
 
     @Override
-    public void register(ClusterPoint targetClusterPoint) {
+    public void register(ClusterPoint<?> targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
-                String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+                ClusterKey key = targetClusterPoint.getDestClusterKey();
 
                 boolean added = profileCluster.addAndIsKeyCreated(targetClusterPoint);
-                if (StringUtils.isNotEmpty(key) && added) {
+                if (key != null && added) {
                     worker.addPinpointServer(key);
+                    logger.info("registered {}", targetClusterPoint);
+                } else {
+                    logger.warn("register failed: {}", targetClusterPoint);
                 }
             }
         } else {
-            logger.info("register() failed. caused:unexpected state.");
+            logger.warn("register() failed. caused:unexpected state.");
         }
     }
 
     @Override
-    public void unregister(ClusterPoint targetClusterPoint) {
+    public void unregister(ClusterPoint<?> targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
-                String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+                ClusterKey key = targetClusterPoint.getDestClusterKey();
 
                 boolean removed = profileCluster.removeAndGetIsKeyRemoved(targetClusterPoint);
-                if (StringUtils.isNotEmpty(key) && removed) {
+                if (key != null && removed) {
                     worker.removePinpointServer(key);
+                    logger.info("unregistered {}", targetClusterPoint);
+                } else {
+                    logger.warn("unregister failed, element not found: {}", targetClusterPoint);
                 }
             }
         } else {
-            logger.info("unregister() failed. caused:unexpected state.");
+            logger.warn("unregister() failed. caused:unexpected state.");
         }
     }
 
@@ -139,8 +145,8 @@ public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
         worker.clear();
 
         synchronized (lock) {
-            Set<String> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
-            for (String availableAgentKey : availableAgentKeyList) {
+            Set<ClusterKey> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
+            for (ClusterKey availableAgentKey : availableAgentKeyList) {
                 worker.addPinpointServer(availableAgentKey);
             }
         }

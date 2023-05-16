@@ -25,14 +25,15 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
 
 
 /**
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultTraceContext implements TraceContext {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
@@ -59,19 +60,6 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JdbcContext jdbcContext;
 
-    /**
-     * 报文采集开关
-     */
-    private final boolean bodyObtainEnable;
-
-
-    /**
-     * 报文采集策略
-     *  0 代表全量采集；1 代表正常报文按照采样率，异常报文全量采集；2 代表报文采集按照采样率来走
-     */
-    private final byte bodyObtainStrategy;
-
-
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
@@ -82,20 +70,18 @@ public class DefaultTraceContext implements TraceContext {
                                final SqlMetaDataService sqlMetaDataService,
                                final JdbcContext jdbcContext
     ) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
-        this.serverMetaDataHolder = Assert.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaDataHolder = Objects.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder");
 
-        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
-        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory");
+        this.traceIdFactory = Objects.requireNonNull(traceIdFactory, "traceIdFactory");
+        this.traceFactory = Objects.requireNonNull(traceFactory, "traceFactory");
 
-        this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext");
+        this.jdbcContext = Objects.requireNonNull(jdbcContext, "jdbcContext");
 
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
-        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
-        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
-        this.bodyObtainEnable = profilerConfig.readBoolean("profiler.spring.web.body", false);
-        this.bodyObtainStrategy = (byte) profilerConfig.readInt("profiler.spring.web.body.strategy", 2);
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
+        this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
+        this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
     }
 
     /**
@@ -140,16 +126,25 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueTraceObject(trace);
     }
 
-
     @Override
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
+    }
+
+    @Override
+    public Trace newTraceObject(String urlPath) {
+        return traceFactory.newTraceObject(urlPath);
     }
 
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace newAsyncTraceObject() {
         return traceFactory.newAsyncTraceObject();
+    }
+
+    @Override
+    public Trace newAsyncTraceObject(String urlPath) {
+        return traceFactory.newAsyncTraceObject(urlPath);
     }
 
     @InterfaceAudience.LimitedPrivate("vert.x")
@@ -183,6 +178,9 @@ public class DefaultTraceContext implements TraceContext {
         // work around : unsampled trace must be closed.
         if (!trace.canSampled()) {
             if (!trace.isClosed()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("closeUnsampledTrace");
+                }
                 trace.close();
             }
         }
@@ -226,9 +224,7 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public TraceId createTraceId(final String transactionId, final long parentSpanId, final long spanId, final short flags) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
         // TODO Should handle exception when parsing failed.
         return traceIdFactory.continueTraceId(transactionId, parentSpanId, spanId, flags);
     }
@@ -254,13 +250,4 @@ public class DefaultTraceContext implements TraceContext {
         return jdbcContext;
     }
 
-    @Override
-    public boolean bodyObtainEnable() {
-        return bodyObtainEnable;
-    }
-
-    @Override
-    public byte bodyObtainStrategy() {
-        return bodyObtainStrategy;
-    }
 }

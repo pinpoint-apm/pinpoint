@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 /**
@@ -26,11 +27,17 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  */
 public interface RecorderFactory {
 
-    SpanRecorder newSpanRecorder(final Span span, final boolean isRoot, final boolean sampling);
+    SpanRecorder newSpanRecorder(final Span span);
 
-    SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling);
+    SpanRecorder newTraceRootSpanRecorder(TraceRoot traceRoot);
+
+    SpanRecorder newDisableSpanRecorder(LocalTraceRoot traceRoot);
 
     WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot);
 
     WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot, AsyncState asyncState);
+
+    DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot);
+
+    DisableSpanEventRecorder newDisableSpanEventRecorder(LocalTraceRoot traceRoot, AsyncState asyncState);
 }

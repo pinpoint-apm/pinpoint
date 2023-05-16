@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
@@ -33,7 +33,7 @@ import java.util.jar.JarFile;
  * @author jaehong.kim
  */
 public class ASMEngine implements InstrumentEngine {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final Instrumentation instrumentation;
@@ -41,15 +41,13 @@ public class ASMEngine implements InstrumentEngine {
 
 
     public ASMEngine(Instrumentation instrumentation, EngineComponent engineComponent) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
-        this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent");
+        this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
+        this.engineComponent = Objects.requireNonNull(engineComponent, "engineComponent");
     }
 
     @Override
     public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
 
         try {
             if (classFileBuffer == null) {
@@ -65,8 +63,7 @@ public class ASMEngine implements InstrumentEngine {
             final ClassNode classNode = new ClassNode();
             classReader.accept(classNode, 0);
 
-
-            return new ASMClass(engineComponent, instrumentContext, classLoader, protectionDomain, classNode);
+            return ASMClass.load(engineComponent, instrumentContext, classLoader, protectionDomain, classNode);
         } catch (Exception e) {
             throw new NotFoundInstrumentException(e);
         }
@@ -75,9 +72,8 @@ public class ASMEngine implements InstrumentEngine {
 
     @Override
     public void appendToBootstrapClassPath(JarFile jarFile) {
-        if (jarFile == null) {
-            throw new NullPointerException("jarFile");
-        }
+        Objects.requireNonNull(jarFile, "jarFile");
+
         if (isInfo) {
             logger.info("appendToBootstrapClassPath:{}", jarFile.getName());
         }

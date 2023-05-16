@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.event.GrpcAgentEventBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.event.GrpcAgentEventMapper;
@@ -29,10 +30,11 @@ import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,8 +45,8 @@ import java.util.Objects;
  * @author jaehong.kim - Add AgentEventMessageSerializerV1
  */
 @Service
-public class GrpcAgentEventHandler implements SimpleHandler {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcAgentEventMapper agentEventMapper;
 
@@ -65,12 +67,14 @@ public class GrpcAgentEventHandler implements SimpleHandler {
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PAgentStat) {
             handleAgentStat((PAgentStat) data);
         } else if (data instanceof PAgentStatBatch) {
             handleAgentStatBatch((PAgentStatBatch) data);
+        } else if (data instanceof PAgentUriStat) {
+            // do nothing
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
             throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();

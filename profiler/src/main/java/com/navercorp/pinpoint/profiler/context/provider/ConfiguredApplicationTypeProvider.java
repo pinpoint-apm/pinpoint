@@ -18,28 +18,29 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author HyunGil Jeong
  */
 public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String applicationTypeString;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Inject
-    public ConfiguredApplicationTypeProvider(ProfilerConfig profilerConfig, ServiceTypeRegistryService serviceTypeRegistryService) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.serviceTypeRegistryService = Assert.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
-        this.applicationTypeString = profilerConfig.getApplicationServerType();
+    public ConfiguredApplicationTypeProvider(InstrumentConfig instrumentConfig, ServiceTypeRegistryService serviceTypeRegistryService) {
+        Objects.requireNonNull(instrumentConfig, "instrumentConfig");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.applicationTypeString = instrumentConfig.getApplicationServerType();
     }
 
     @Override

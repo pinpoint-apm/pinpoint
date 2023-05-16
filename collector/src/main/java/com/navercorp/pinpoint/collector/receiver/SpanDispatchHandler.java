@@ -27,49 +27,38 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class SpanDispatchHandler implements DispatchHandler {
+public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
-    private final SimpleHandler spanDataHandler;
+    private final SimpleHandler<REQ> spanDataHandler;
 
-    private final SimpleHandler spanChunkHandler;
+    private final SimpleHandler<REQ> spanChunkHandler;
+    
 
-    private final SimpleHandler spanWebInfoHandler;
-
-
-    public SpanDispatchHandler(SimpleHandler spanDataHandler, SimpleHandler spanChunkHandler, SimpleHandler spanWebInfoHandler) {
+    public SpanDispatchHandler(SimpleHandler<REQ> spanDataHandler, SimpleHandler<REQ> spanChunkHandler) {
         this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
         this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
-        this.spanWebInfoHandler = Objects.requireNonNull(spanWebInfoHandler, "spanWebInfoHandler");
     }
 
-    public SpanDispatchHandler(SimpleHandler spanDataHandler, SimpleHandler spanChunkHandler) {
-        this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
-        this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
-        this.spanWebInfoHandler = null;
-    }
-
-    private SimpleHandler getSimpleHandler(Header header) {
+    private SimpleHandler<REQ> getSimpleHandler(Header header) {
         final short type = header.getType();
         switch (type) {
             case DefaultTBaseLocator.SPAN:
                 return spanDataHandler;
             case DefaultTBaseLocator.SPANCHUNK:
                 return spanChunkHandler;
-            case DefaultTBaseLocator.SPAN_WEB_INFO:
-                return spanWebInfoHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
     @Override
-    public void dispatchSendMessage(ServerRequest serverRequest) {
-        SimpleHandler simpleHandler = getSimpleHandler(serverRequest.getHeader());
+    public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getHeader());
         simpleHandler.handleSimple(serverRequest);
     }
 
 
     @Override
-    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+    public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
 
     }
 }

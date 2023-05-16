@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.thrift.transport.TTransport;
 
 /**
@@ -26,7 +27,8 @@ public class TFramedTransportConstructInterceptor extends WrappedTTransportConst
     @Override
     protected TTransport getWrappedTransport(Object[] args) {
         TTransport wrappedTransport = null;
-        if ((args.length == 1 || args.length == 2) && (args[0] instanceof TTransport)) {
+        int length = ArrayUtils.getLength(args);
+        if ((length == 1 || length == 2) && (args[0] instanceof TTransport)) {
             wrappedTransport = (TTransport)args[0];
         }
         return wrappedTransport;

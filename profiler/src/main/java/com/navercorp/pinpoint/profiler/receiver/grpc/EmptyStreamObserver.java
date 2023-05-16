@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.profiler.receiver.grpc;
 
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
  */
 public class EmptyStreamObserver implements StreamObserver<Empty> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void onNext(Empty value) {

@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.jboss;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
+import com.navercorp.pinpoint.bootstrap.config.ServerConfig;
 
 import java.util.List;
 
@@ -32,24 +30,11 @@ import java.util.List;
  */
 public class JbossConfig {
 
-    /**
-     * The jboss hide pinpoint header.
-     */
     private final boolean hidePinpointHeader;
-
-    /**
-     * The jboss exclude url filter.
-     */
     private final Filter<String> excludeUrlFilter;
-
-    /**
-     * The jboss trace ejb.
-     */
     private final boolean traceEjb;
     private final boolean enable;
-
     private final List<String> bootstrapMains;
-
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final boolean traceRequestParam;
@@ -63,26 +48,15 @@ public class JbossConfig {
     public JbossConfig(final ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.jboss.enable", true);
         this.traceEjb = config.readBoolean("profiler.jboss.traceEjb", false);
-
         this.bootstrapMains = config.readList("profiler.jboss.bootstrap.main");
-        this.hidePinpointHeader = config.readBoolean("profiler.jboss.hidepinpointheader", true);
-
-        this.traceRequestParam = config.readBoolean("profiler.jboss.tracerequestparam", true);
-        final String jbossExcludeURL = config.readString("profiler.jboss.excludeurl", "");
-        if (!jbossExcludeURL.isEmpty()) {
-            this.excludeUrlFilter = new ExcludePathFilter(jbossExcludeURL);
-        } else {
-            this.excludeUrlFilter = new SkipFilter<String>();
-        }
-        this.realIpHeader = config.readString("profiler.jboss.realipheader", null);
-        this.realIpEmptyValue = config.readString("profiler.jboss.realipemptyvalue", null);
-
-        final String jbossExcludeProfileMethod = config.readString("profiler.jboss.excludemethod", "");
-        if (!jbossExcludeProfileMethod.isEmpty()) {
-            this.excludeProfileMethodFilter = new ExcludeMethodFilter(jbossExcludeProfileMethod);
-        } else {
-            this.excludeProfileMethodFilter = new SkipFilter<String>();
-        }
+        // Server
+        final ServerConfig serverConfig = new ServerConfig(config);
+        this.hidePinpointHeader = serverConfig.isHidePinpointHeader("profiler.jboss.hidepinpointheader");
+        this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.jboss.tracerequestparam");
+        this.excludeUrlFilter = serverConfig.getExcludeUrlFilter("profiler.jboss.excludeurl");
+        this.realIpHeader = serverConfig.getRealIpHeader("profiler.jboss.realipheader");
+        this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.jboss.realipemptyvalue");
+        this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.jboss.excludemethod");
     }
 
     public boolean isEnable() {

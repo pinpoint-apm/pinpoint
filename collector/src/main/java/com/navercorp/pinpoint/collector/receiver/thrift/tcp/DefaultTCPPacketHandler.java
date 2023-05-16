@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -45,16 +45,16 @@ import java.util.Objects;
  */
 public class DefaultTCPPacketHandler implements TCPPacketHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final DispatchHandler dispatchHandler;
+    private final DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler;
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory;
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
 
-    public DefaultTCPPacketHandler(DispatchHandler dispatchHandler, SerializerFactory<HeaderTBaseSerializer> serializerFactory, DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
+    public DefaultTCPPacketHandler(DispatchHandler<TBase<?, ?>, TBase<?, ?>> dispatchHandler, SerializerFactory<HeaderTBaseSerializer> serializerFactory, DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory");
         this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory");
@@ -82,7 +82,7 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
     private ServerRequest<TBase<?, ?>> newServerRequest(Message<TBase<?, ?>> message, InetSocketAddress remoteSocketAddress) {
         final String remoteAddress = remoteSocketAddress.getAddress().getHostAddress();
         final int remotePort = remoteSocketAddress.getPort();
-        return new DefaultServerRequest<TBase<?, ?>>(message, remoteAddress, remotePort);
+        return new DefaultServerRequest<>(message, remoteAddress, remotePort);
     }
 
     public byte[] getPayload(BasicPacket packet) {

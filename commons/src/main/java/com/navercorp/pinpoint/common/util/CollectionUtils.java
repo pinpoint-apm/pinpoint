@@ -26,22 +26,22 @@ public final class CollectionUtils {
     private CollectionUtils() {
     }
 
-    public static <T> int nullSafeSize(final Collection<T> collection) {
+    public static int nullSafeSize(final Collection<?> collection) {
         return nullSafeSize(collection, 0);
     }
 
-    public static <T> int nullSafeSize(final Collection<T> collection, final int nullValue) {
+    public static int nullSafeSize(final Collection<?> collection, final int nullValue) {
         if (collection == null) {
             return nullValue;
         }
         return collection.size();
     }
 
-    public static <T> boolean isEmpty(final Collection<T> collection) {
+    public static boolean isEmpty(final Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
 
-    public static <T> boolean hasLength(final Collection<T> collection) {
+    public static boolean hasLength(final Collection<?> collection) {
         return collection != null && !collection.isEmpty();
     }
 

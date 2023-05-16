@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin.filter;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class PluginFilters implements PluginFilter {
     private final List<PluginFilter> pluginFilters = new ArrayList<PluginFilter>();
 
     public PluginFilters(PluginFilter... pluginFilters) {
-        Assert.requireNonNull(pluginFilters, "pluginFilters");
+        Objects.requireNonNull(pluginFilters, "pluginFilters");
         this.pluginFilters.addAll(Arrays.asList(pluginFilters));
     }
 

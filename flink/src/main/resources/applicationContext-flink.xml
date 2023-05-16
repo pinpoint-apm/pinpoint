@@ -7,10 +7,9 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:annotation-config/>
-
     <import resource="classpath:applicationContext-flink-profile.xml"/>
     <import resource="classpath:applicationContext-flink-extend.xml"/>
+    <import resource="classpath:applicationContext-flink-clean.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
     <import resource="classpath:applicationContext-cache.xml"/>
 
@@ -18,9 +17,11 @@
             base-package="com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
-    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
+    <bean class="com.navercorp.pinpoint.common.server.cluster.zookeeper.config.ClusterConfigurationFactory"/>
+    <bean id="flinkProperties" class="com.navercorp.pinpoint.flink.config.FlinkProperties"/>
+    <bean class="com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration"/>
 
-    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
+    <bean id="tcpReceiverProperties" class="com.navercorp.pinpoint.collector.thrift.config.AgentBaseDataReceiverProperties"/>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TBaseFlatMapper"/>
 
@@ -40,106 +41,30 @@
 
     <bean id="agentStatDataPointCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec"/>
     <bean id="joinCpuLoadCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadCodec"/>
-    <bean id="cpuLoadEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadEncoder"/>
-    <bean id="cpuLoadSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSerializer"/>
     <bean id="joinMemoryCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryCodec"/>
-    <bean id="memoryEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryEncoder"/>
-    <bean id="memorySerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer"/>
     <bean id="joinTransactionCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionCodec"/>
-    <bean id="transactionEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionEncoder"/>
-    <bean id="transactionSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionSerializer"/>
     <bean id="joinActiveTraceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceCodec"/>
-    <bean id="activeTraceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ActiveTraceEncoder"/>
-    <bean id="activeTraceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ActiveTraceSerializer"/>
     <bean id="joinResponseTimeCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeCodec"/>
-    <bean id="responseTimeEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeEncoder"/>
-    <bean id="responseTimeSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ResponseTimeSerializer"/>
     <bean id="joinDataSourceCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceCodec"/>
-    <bean id="dataSourceEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceEncoder"/>
-    <bean id="dataSourceSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DataSourceSerializer"/>
     <bean id="joinFileDescriptorCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorCodec"/>
-    <bean id="fileDescriptorEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorEncoder"/>
-    <bean id="fileDescriptorSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.FileDescriptorSerializer"/>
     <bean id="joinDirectBufferCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferCodec"/>
-    <bean id="directBufferEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferEncoder"/>
-    <bean id="directBufferSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DirectBufferSerializer"/>
     <bean id="joinTotalThreadCountCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountCodec"/>
-    <bean id="totalThreadCountEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountEncoder"/>
-    <bean id="totalThreadCountSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TotalThreadCountSerializer"/>
+    <bean id="joinLoadedClassCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.LoadedClassCodec"/>
+
+    <bean class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.ApplicationCoderConfiguration"/>
+    <bean class="com.navercorp.pinpoint.common.server.bo.serializer.stat.config.ApplicationStatSerializeConfiguration"/>
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
 
     <bean id="statisticsDao" class="com.navercorp.pinpoint.flink.dao.hbase.StatisticsDao"/>
 
-    <bean id="cpuLoadDao" class="com.navercorp.pinpoint.flink.dao.hbase.CpuLoadDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="cpuLoadSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="memoryDao" class="com.navercorp.pinpoint.flink.dao.hbase.MemoryDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="memorySerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="transactionDao" class="com.navercorp.pinpoint.flink.dao.hbase.TransactionDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="transactionSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="activeTraceDao" class="com.navercorp.pinpoint.flink.dao.hbase.ActiveTraceDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="activeTraceSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="responseTimeDao" class="com.navercorp.pinpoint.flink.dao.hbase.ResponseTimeDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="responseTimeSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="dataSourceDao" class="com.navercorp.pinpoint.flink.dao.hbase.DataSourceDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="dataSourceSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="fileDescriptorDao" class="com.navercorp.pinpoint.flink.dao.hbase.FileDescriptorDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="fileDescriptorSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="directBufferDao" class="com.navercorp.pinpoint.flink.dao.hbase.DirectBufferDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="directBufferSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
-
-    <bean id="totalThreadCountDao" class="com.navercorp.pinpoint.flink.dao.hbase.TotalThreadCountDao">
-        <constructor-arg index="0" ref="hbaseTemplate"/>
-        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
-        <constructor-arg index="2" ref="totalThreadCountSerializer"/>
-        <constructor-arg index="3" ref="tableNameProvider"/>
-    </bean>
 
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
     </bean>
 
     <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler"/>
-    <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+    <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean">
         <property name="dispatchHandler" ref="tcpDispatchHandler"/>
         <property name="handlerManager" ref="handlerManager"/>
     </bean>
@@ -152,7 +77,7 @@
     <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory">
         <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
-    <bean id="flinkHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseDeserializerFactory">
+    <bean id="flinkHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory">
         <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
     </bean>
     <bean id="flinkPacketHandlerFactory" class="com.navercorp.pinpoint.flink.receiver.FlinkPacketHandlerFactory">
@@ -161,30 +86,29 @@
     </bean>
 
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
-        <constructor-arg index="0" ref="flinkConfiguration"/>
-        <constructor-arg index="1" value="/pinpoint-cluster/flink"/>
+        <constructor-arg index="0" ref="flinkProperties"/>
     </bean>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 
     <bean id="addressFilter" class="com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter">
-        <constructor-arg value="#{flinkConfiguration.l4IpList}"/>
+        <constructor-arg index="0" value="#{flinkProperties.l4IpList}"/>
     </bean>
 
 
     <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
 
-    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean">
-        <property name="corePoolSize" value="#{tcpReceiverConfig.workerThreadSize}"/>
-        <property name="maxPoolSize" value="#{tcpReceiverConfig.workerThreadSize}"/>
-        <property name="queueCapacity" value="#{tcpReceiverConfig.workerQueueSize}"/>
+    <bean id="flinkWorker" class="com.navercorp.pinpoint.collector.receiver.ExecutorFactoryBean">
+        <property name="corePoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>
+        <property name="maxPoolSize" value="#{tcpReceiverProperties.workerThreadSize}"/>
+        <property name="queueCapacity" value="#{tcpReceiverProperties.workerQueueSize}"/>
         <property name="rejectedExecutionHandler" ref="discardPolicy"/>
         <property name="threadNamePrefix" value="Pinpoint-Flink-Worker-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
         <property name="preStartAllCoreThreads" value="true"/>
-        <property name="registry" value="#{tcpReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
+        <property name="registry" value="#{tcpReceiverProperties.workerMonitorEnable ? metricRegistry : null}"/>
         <property name="logRate" value="1"/>
     </bean>
 
@@ -197,8 +121,8 @@
         <property name="channelFilter" ref="channelFilter"/>
     </bean>
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean" lazy-init="true">
-        <property name="bindIp" value="#{tcpReceiverConfig.bindIp}"/>
-        <property name="bindPort" value="#{tcpReceiverConfig.bindPort}"/>
+        <property name="bindIp" value="#{tcpReceiverProperties.bindIp}"/>
+        <property name="bindPort" value="#{tcpReceiverProperties.bindPort}"/>
         <property name="acceptorProvider" ref="spanAcceptorProvider"/>
         <property name="dispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <property name="executor" ref="flinkWorker"/>

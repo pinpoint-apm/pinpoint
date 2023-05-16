@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 import java.util.Objects;
@@ -34,7 +34,7 @@ import java.util.Objects;
  */
 public class ClusterPointStateChangedEventHandler extends ServerStateChangeEventHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ProfilerClusterManager profilerClusterManager;
     private final ChannelPropertiesFactory channelPropertiesFactory;

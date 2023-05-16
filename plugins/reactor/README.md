@@ -1,5 +1,4 @@
 ## Project Reactor
-* Version: 1.0
 * Since: Pinpoint 2.0.0
 * See: https://github.com/reactor/reactor-core
 * See: [Project Reactor](https://projectreactor.io)

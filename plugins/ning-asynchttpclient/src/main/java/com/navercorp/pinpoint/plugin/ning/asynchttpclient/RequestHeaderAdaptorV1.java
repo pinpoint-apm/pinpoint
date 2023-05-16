@@ -36,7 +36,7 @@ public class RequestHeaderAdaptorV1 implements ClientHeaderAdaptor<Request> {
     @Override
     public void setHeader(Request request, String name, String value) {
         final FluentCaseInsensitiveStringsMap httpRequestHeaders = request.getHeaders();
-        final List<String> valueList = new ArrayList<String>();
+        final List<String> valueList = new ArrayList<>();
         valueList.add(value);
         httpRequestHeaders.put(name, valueList);
         if (isDebug) {

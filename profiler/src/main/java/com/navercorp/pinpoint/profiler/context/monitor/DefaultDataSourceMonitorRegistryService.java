@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.context.monitor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +29,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DefaultDataSourceMonitorRegistryService implements DataSourceMonitorRegistryService {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final int limitIdNumber;
 
-    private final CopyOnWriteArrayList<DataSourceMonitorWrapper> repository = new CopyOnWriteArrayList<DataSourceMonitorWrapper>();
+    private final CopyOnWriteArrayList<DataSourceMonitorWrapper> repository = new CopyOnWriteArrayList<>();
 
     private final DataSourceMonitorWrapperFactory wrapperFactory = new DataSourceMonitorWrapperFactory();
 
@@ -66,8 +66,8 @@ public class DefaultDataSourceMonitorRegistryService implements DataSourceMonito
 
     @Override
     public List<DataSourceMonitorWrapper> getPluginMonitorWrapperList() {
-        List<DataSourceMonitorWrapper> pluginMonitorList = new ArrayList<DataSourceMonitorWrapper>(repository.size());
-        List<DataSourceMonitorWrapper> disabledPluginMonitorList = new ArrayList<DataSourceMonitorWrapper>();
+        List<DataSourceMonitorWrapper> pluginMonitorList = new ArrayList<>(repository.size());
+        List<DataSourceMonitorWrapper> disabledPluginMonitorList = new ArrayList<>();
 
         for (DataSourceMonitorWrapper dataSourceMonitorWrapper : repository) {
             if (dataSourceMonitorWrapper.isDisabled()) {

@@ -16,22 +16,32 @@
 
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class InterceptorDefinitionFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final List<TypeHandler> detectHandlers;
 
     public InterceptorDefinitionFactory() {
@@ -39,9 +49,7 @@ public class InterceptorDefinitionFactory {
     }
 
     public InterceptorDefinition createInterceptorDefinition(Class<?> interceptorClazz) {
-        if (interceptorClazz == null) {
-            throw new NullPointerException("targetInterceptorClazz");
-        }
+        Objects.requireNonNull(interceptorClazz, "interceptorClazz");
 
         for (TypeHandler typeHandler : detectHandlers) {
             final InterceptorDefinition interceptorDefinition = typeHandler.resolveType(interceptorClazz);
@@ -79,12 +87,8 @@ public class InterceptorDefinitionFactory {
     }
 
     private TypeHandler createInterceptorTypeHandler(Class<? extends Interceptor> interceptorClazz, InterceptorType interceptorType) {
-        if (interceptorClazz == null) {
-            throw new NullPointerException("targetInterceptorClazz");
-        }
-        if (interceptorType == null) {
-            throw new NullPointerException("interceptorType");
-        }
+        Objects.requireNonNull(interceptorClazz, "interceptorClazz");
+        Objects.requireNonNull(interceptorType, "interceptorType");
 
         final Method[] declaredMethods = interceptorClazz.getDeclaredMethods();
         if (declaredMethods.length != 2) {
@@ -130,30 +134,12 @@ public class InterceptorDefinitionFactory {
         private final Class<?>[] afterParamList;
 
         public TypeHandler(Class<? extends Interceptor> interceptorClazz, InterceptorType interceptorType, String before, final Class<?>[] beforeParamList, final String after, final Class<?>[] afterParamList) {
-            if (interceptorClazz == null) {
-                throw new NullPointerException("targetInterceptorClazz");
-            }
-            if (interceptorType == null) {
-                throw new NullPointerException("interceptorType");
-            }
-            if (before == null) {
-                throw new NullPointerException("before");
-            }
-            if (beforeParamList == null) {
-                throw new NullPointerException("beforeParamList");
-            }
-            if (after == null) {
-                throw new NullPointerException("after");
-            }
-            if (afterParamList == null) {
-                throw new NullPointerException("afterParamList");
-            }
-            this.interceptorClazz = interceptorClazz;
-            this.interceptorType = interceptorType;
-            this.before = before;
-            this.beforeParamList = beforeParamList;
-            this.after = after;
-            this.afterParamList = afterParamList;
+            this.interceptorClazz = Objects.requireNonNull(interceptorClazz, "interceptorClazz");
+            this.interceptorType = Objects.requireNonNull(interceptorType, "interceptorType");
+            this.before = Objects.requireNonNull(before, "before");
+            this.beforeParamList = Objects.requireNonNull(beforeParamList, "beforeParamList");
+            this.after = Objects.requireNonNull(after, "after");
+            this.afterParamList = Objects.requireNonNull(afterParamList, "afterParamList");
         }
 
 
@@ -182,22 +168,21 @@ public class InterceptorDefinitionFactory {
             final boolean afterIgnoreMethod = afterMethod.isAnnotationPresent(IgnoreMethod.class);
 
 
-            if (beforeIgnoreMethod == true && afterIgnoreMethod == true) {
+            if (beforeIgnoreMethod && afterIgnoreMethod) {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.NON, null, null);
             }
-            if (beforeIgnoreMethod == true) {
+            if (beforeIgnoreMethod) {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AFTER, null, afterMethod);
             }
-            if (afterIgnoreMethod == true) {
+            if (afterIgnoreMethod) {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.BEFORE, beforeMethod, null);
             }
             return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AROUND, beforeMethod, afterMethod);
         }
 
         private Method searchMethod(Class<?> interceptorClazz, String searchMethodName, Class<?>[] searchMethodParameter) {
-            if (searchMethodName == null) {
-                throw new NullPointerException("methodList");
-            }
+            Objects.requireNonNull(searchMethodName, "searchMethodName");
+
 //          only DeclaredMethod search ?
 //            try {
 //                return targetInterceptorClazz.getDeclaredMethod(searchMethodName, searchMethodParameter);

@@ -16,45 +16,35 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
  */
 public class JoinFileDescriptorBoTest {
     @Test
-    public void joinFileDescriptorBoList() throws Exception {
-        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
-        JoinFileDescriptorBo joinFileDescriptorBo1 = new JoinFileDescriptorBo("agent1", 33, 70, "agent1", 30, "agent1", 1496988667231L);
-        JoinFileDescriptorBo joinFileDescriptorBo2 = new JoinFileDescriptorBo("agent2", 33, 40, "agent2", 10, "agent2", 1496988667231L);
-        JoinFileDescriptorBo joinFileDescriptorBo3 = new JoinFileDescriptorBo("agent3", 54, 60, "agent3", 7, "agent3", 1496988667231L);
-        JoinFileDescriptorBo joinFileDescriptorBo4 = new JoinFileDescriptorBo("agent4", 11, 80, "agent4", 8, "agent4", 1496988667231L);
-        JoinFileDescriptorBo joinFileDescriptorBo5 = new JoinFileDescriptorBo("agent5", 22, 70, "agent5", 12, "agent5", 1496988667231L);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo1);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo2);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo3);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo4);
-        joinFileDescriptorBoList.add(joinFileDescriptorBo5);
+    public void joinFileDescriptorBoList() {
+        List<JoinFileDescriptorBo> joinFileDescriptorBoList = List.of(
+                new JoinFileDescriptorBo("agent1", 33, 70, "agent1", 30, "agent1", 1496988667231L),
+                new JoinFileDescriptorBo("agent2", 33, 40, "agent2", 10, "agent2", 1496988667231L),
+                new JoinFileDescriptorBo("agent3", 54, 60, "agent3", 7, "agent3", 1496988667231L),
+                new JoinFileDescriptorBo("agent4", 11, 80, "agent4", 8, "agent4", 1496988667231L),
+                new JoinFileDescriptorBo("agent5", 22, 70, "agent5", 12, "agent5", 1496988667231L)
+        );
 
         JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, 1496988667231L);
         assertEquals(joinFileDescriptorBo.getId(), "agent1");
         assertEquals(joinFileDescriptorBo.getTimestamp(), 1496988667231L);
-        assertEquals(joinFileDescriptorBo.getAvgOpenFDCount(), 30, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCount(), 7, 0);
-        assertEquals(joinFileDescriptorBo.getMinOpenFDCountAgentId(), "agent3");
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCount(), 80, 0);
-        assertEquals(joinFileDescriptorBo.getMaxOpenFDCountAgentId(), "agent4");
+        assertEquals(new JoinLongFieldBo(30L, 7L, "agent3", 80L, "agent4"), joinFileDescriptorBo.getOpenFdCountJoinValue());
     }
 
     @Test
-    public void  joinFileDescriptorBo2List() {
-        List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<JoinFileDescriptorBo>();
-        JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(joinFileDescriptorBoList, 1496988667231L);
+    public void joinFileDescriptorBo2List() {
+        JoinFileDescriptorBo joinFileDescriptorBo = JoinFileDescriptorBo.joinFileDescriptorBoList(List.of(), 1496988667231L);
         assertEquals(joinFileDescriptorBo, JoinFileDescriptorBo.EMPTY_JOIN_FILE_DESCRIPTOR_BO);
     }
 }

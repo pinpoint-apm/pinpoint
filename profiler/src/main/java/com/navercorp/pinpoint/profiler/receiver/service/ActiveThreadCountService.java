@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
+
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -32,8 +33,8 @@ import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.Closeable;
 import java.util.List;
@@ -49,7 +50,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final StreamChannelStateChangeEventHandler stateChangeEventHandler = new ActiveThreadCountStreamChannelStateChangeEventHandler();
@@ -69,7 +70,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
     }
 
     public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository, long flushDelay) {
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
+        this.activeTraceRepository = Objects.requireNonNull(activeTraceRepository, "activeTraceRepository");
         this.flushDelay = flushDelay;
     }
 
@@ -80,9 +81,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
 
     @Override
     public TBase<?, ?> requestCommandService(TBase<?, ?> activeThreadCountObject) {
-        if (activeThreadCountObject == null) {
-            throw new NullPointerException("activeThreadCountObject");
-        }
+        Objects.requireNonNull(activeThreadCountObject, "activeThreadCountObject");
 
         return getActiveThreadCountResponse();
     }
@@ -145,6 +144,9 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
                                 logger.info("turn off ActiveThreadCountTimerTask.");
                             }
                         }
+                        break;
+                    default:
+                        logger.info("unexpected updatedStateCode={}", updatedStateCode);
                         break;
                 }
             }

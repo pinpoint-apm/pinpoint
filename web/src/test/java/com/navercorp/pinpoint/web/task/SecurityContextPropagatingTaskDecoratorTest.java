@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.task;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityContextPropagatingTaskDecoratorTest {
 
     private final SecurityContextPropagatingTaskDecorator decorator = new SecurityContextPropagatingTaskDecorator();
@@ -42,7 +42,7 @@ public class SecurityContextPropagatingTaskDecoratorTest {
     @Mock
     private SecurityContext securityContext;
 
-    @Before
+    @BeforeEach
     public void setup() {
         executor.setTaskDecorator(decorator);
     }
@@ -74,6 +74,6 @@ public class SecurityContextPropagatingTaskDecoratorTest {
         completeLatch.await(5, TimeUnit.SECONDS);
         // Then
         boolean testVerified = verifiedFlag.get();
-        Assert.assertTrue("SecurityContext has not been propagated", testVerified);
+        Assertions.assertTrue(testVerified, "SecurityContext has not been propagated");
     }
 }

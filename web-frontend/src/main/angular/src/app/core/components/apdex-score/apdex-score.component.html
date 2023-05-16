@@ -1,0 +1,7 @@
+<span class="title">Apdex</span>
+<ng-container *ngIf="isEmpty; else score">
+    <span class="empty-text">N/A</span>
+</ng-container>
+<ng-template #score>
+    <span class="score" [ngClass]="scoreStyleClass">{{fixedScore}}</span>
+</ng-template>

@@ -6,3 +6,17 @@ serviceTypes:
     - code: 1141
       name: 'REACTOR_NETTY_INTERNAL'
       desc: 'REACTOR_NETTY'
+    - code: 9154
+      name: 'REACTOR_NETTY_CLIENT'
+      desc: 'REACTOR_NETTY'
+      property:
+        recordStatistics: true
+      matcher:
+        type: 'exact'
+        code: 40 # http.url
+    - code: 9155
+      name: 'REACTOR_NETTY_CLIENT_INTERNAL'
+      desc: 'REACTOR_NETTY'
+      matcher:
+        type: 'exact'
+        code: 48 # http.internal.display

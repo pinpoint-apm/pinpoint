@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.setter.HeadersFieldSetter;
@@ -139,13 +140,14 @@ public class AMQCommandConstructInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object target, Object[] args) {
-        if (args == null) {
+        int argsLength = ArrayUtils.getLength(args);
+        if (argsLength == 0) {
             if (isDebug) {
                 logger.debug("Expected arguments, but found none.");
             }
             return false;
         }
-        if (args.length != 3) {
+        if (argsLength != 3) {
             if (isDebug) {
                 logger.debug("Expected 3 arguments, but found {}", args.length);
             }

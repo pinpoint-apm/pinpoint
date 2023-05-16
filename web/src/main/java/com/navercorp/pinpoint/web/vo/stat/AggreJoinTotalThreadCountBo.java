@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinLongFieldBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 
 public class AggreJoinTotalThreadCountBo extends JoinTotalThreadCountBo implements AggregationStatData{
@@ -25,6 +26,10 @@ public class AggreJoinTotalThreadCountBo extends JoinTotalThreadCountBo implemen
 
     public AggreJoinTotalThreadCountBo(String id, long timestamp, long avg, long min, String minAgentId, long max, String maxAgentId) {
         super(id, timestamp, avg, min, minAgentId, max, maxAgentId);
+    }
+
+    public AggreJoinTotalThreadCountBo(String id, long timestamp, JoinLongFieldBo totalThreadCountJoinValue) {
+        super(id, timestamp, totalThreadCountJoinValue);
     }
 
     public static AggreJoinTotalThreadCountBo createUncollectedObject(long timestamp) {

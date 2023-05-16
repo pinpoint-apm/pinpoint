@@ -17,23 +17,23 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
  */
 public class HistogramSerializerTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -49,14 +49,14 @@ public class HistogramSerializerTest {
         original.addCallCount(schema.getNormalErrorSlot().getSlotTime(), 5);
 
         String jacksonJson = objectMapper.writeValueAsString(original);
-        HashMap objectMapperHashMap = objectMapper.readValue(jacksonJson, HashMap.class);
+        Map<String, Object> objectMapperHashMap = objectMapper.readValue(jacksonJson, TypeRef.map());
 
         logger.debug(jacksonJson);
 
         String internalJson = internalJson(original);
-        HashMap hashMap = objectMapper.readValue(internalJson, HashMap.class);
+        Map<String, Object> hashMap = objectMapper.readValue(internalJson, TypeRef.map());
 
-        Assert.assertEquals(objectMapperHashMap, hashMap);
+        Assertions.assertEquals(objectMapperHashMap, hashMap);
     }
 
     /**

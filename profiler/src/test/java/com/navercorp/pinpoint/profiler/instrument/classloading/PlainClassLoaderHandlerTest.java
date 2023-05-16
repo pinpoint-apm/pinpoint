@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
+import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.jar.JarFile;
 
@@ -37,14 +37,9 @@ public class PlainClassLoaderHandlerTest {
         PluginConfig pluginConfig = newPluginConfig();
 
         ClassInjector plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
-        try {
+        Assertions.assertThrows(Exception.class, () -> {
             plainClassLoaderHandler.injectClass(this.getClass().getClassLoader(), "com.navercorp.pinpoint.bootstrap.Test");
-            Assert.fail();
-        } catch (NullPointerException e) {
-            Assert.fail();
-        } catch (Exception e) {
-
-        }
+        });
     }
 
 //    @Test
@@ -63,11 +58,11 @@ public class PlainClassLoaderHandlerTest {
 
         ClassNameFilter filter = new ClassNameFilter() {
             @Override
-            public boolean accept(String className) {
+            public boolean accept(String className, ClassLoader classLoader) {
                 return ClassNameFilter.ACCEPT;
             }
         };
-        PluginConfig pluginConfig = new PluginConfig(plugin, filter);
+        PluginConfig pluginConfig = new PluginConfig(plugin, filter, filter);
         return pluginConfig;
     }
 }

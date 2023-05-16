@@ -23,6 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -62,6 +63,8 @@ public interface AgentEventFilter {
 
         @Override
         public boolean accept(AgentEvent agentEvent) {
+            Objects.requireNonNull(agentEvent, "agentEvent");
+
             AgentEventType agentEventType = AgentEventType.getTypeByCode(agentEvent.getEventTypeCode());
             if (excludedEventTypes.contains(agentEventType)) {
                 return REJECT;

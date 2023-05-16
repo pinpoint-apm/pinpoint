@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.exception.PinpointException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +36,7 @@ public abstract class ThreadLocalFactoryTest {
 
     protected final TraceFactory unsampledTraceFactory = newTraceFactory(false);
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     public TraceFactory newTraceFactory(boolean sampled) {
 
@@ -50,13 +50,13 @@ public abstract class ThreadLocalFactoryTest {
         when(baseTraceFactory.newTraceObject()).thenReturn(trace);
         when(baseTraceFactory.disableSampling()).thenReturn(disable);
 
-        Binder<Trace> binder = new ThreadLocalBinder<Trace>();
+        Binder<Trace> binder = new ThreadLocalBinder<>();
 
         TraceFactory traceFactory = new DefaultTraceFactory(baseTraceFactory, binder);
         return traceFactory;
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         sampledTraceFactory.removeTraceObject();
         unsampledTraceFactory.removeTraceObject();
@@ -67,105 +67,106 @@ public abstract class ThreadLocalFactoryTest {
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace currentTraceObject = traceFactory.currentTraceObject();
-        Assert.assertNull(currentTraceObject);
+        Assertions.assertNull(currentTraceObject);
 
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
-        Assert.assertNull(rawTraceObject);
+        Assertions.assertNull(rawTraceObject);
 
         traceFactory.newTraceObject();
-        Assert.assertNotNull(traceFactory.currentRawTraceObject());
+        Assertions.assertNotNull(traceFactory.currentRawTraceObject());
     }
 
 
     @Test
-    public void testCurrentTraceObject() throws Exception {
+    public void testCurrentTraceObject() {
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace newTrace = traceFactory.newTraceObject();
         Trace currentTrace = traceFactory.currentTraceObject();
 
-        Assert.assertNotNull(currentTrace);
-        Assert.assertSame(newTrace, currentTrace);
+        Assertions.assertNotNull(currentTrace);
+        Assertions.assertSame(newTrace, currentTrace);
     }
 
     @Test
-    public void testCurrentTraceObject_unsampled() throws Exception {
+    public void testCurrentTraceObject_unsampled() {
         TraceFactory traceFactory = unsampledTraceFactory;
 
         Trace newTrace = traceFactory.newTraceObject();
         Trace currentTrace = traceFactory.currentTraceObject();
 
-        Assert.assertNull(currentTrace);
-        Assert.assertNotEquals(newTrace, currentTrace);
+        Assertions.assertNull(currentTrace);
+        Assertions.assertNotEquals(newTrace, currentTrace);
     }
 
 
     @Test
-    public void testCurrentRawTraceObject() throws Exception {
+    public void testCurrentRawTraceObject() {
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace trace = traceFactory.newTraceObject();
         Trace rawTrace = traceFactory.currentRawTraceObject();
 
-        Assert.assertNotNull(rawTrace);
-        Assert.assertSame(trace, rawTrace);
+        Assertions.assertNotNull(rawTrace);
+        Assertions.assertSame(trace, rawTrace);
     }
 
     @Test
-    public void testCurrentRawTraceObject_unsampled() throws Exception {
+    public void testCurrentRawTraceObject_unsampled() {
         TraceFactory traceFactory = unsampledTraceFactory;
 
         Trace trace = traceFactory.newTraceObject();
         Trace rawTrace = traceFactory.currentRawTraceObject();
 
-        Assert.assertNotNull(rawTrace);
-        Assert.assertSame(trace, rawTrace);
+        Assertions.assertNotNull(rawTrace);
+        Assertions.assertSame(trace, rawTrace);
     }
 
     @Test
-    public void testDisableSampling() throws Exception {
+    public void testDisableSampling() {
 
         TraceFactory traceFactory = sampledTraceFactory;
 
         Trace trace = traceFactory.disableSampling();
         Trace rawTrace = traceFactory.currentRawTraceObject();
 
-        Assert.assertNotNull(rawTrace);
-        Assert.assertSame(trace, rawTrace);
+        Assertions.assertNotNull(rawTrace);
+        Assertions.assertSame(trace, rawTrace);
     }
 
     @Test
-    public void testContinueTraceObject() throws Exception {
+    public void testContinueTraceObject() {
     }
 
     @Test
-    public void testNewTraceObject() throws Exception {
+    public void testNewTraceObject() {
         TraceFactory traceFactory = sampledTraceFactory;
 
         traceFactory.newTraceObject();
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
-        Assert.assertNotNull(rawTraceObject);
+        Assertions.assertNotNull(rawTraceObject);
 
     }
 
 
-    @Test(expected = PinpointException.class)
+    @Test
     public void duplicatedTraceStart() {
-        TraceFactory traceFactory = sampledTraceFactory;
+        Assertions.assertThrows(PinpointException.class, () -> {
+            TraceFactory traceFactory = sampledTraceFactory;
 
-        traceFactory.newTraceObject();
-        traceFactory.newTraceObject();
-
+            traceFactory.newTraceObject();
+            traceFactory.newTraceObject();
+        });
     }
 
     @Test
-    public void testDetachTraceObject() throws Exception {
+    public void testDetachTraceObject() {
         TraceFactory traceFactory = this.sampledTraceFactory;
 
         traceFactory.newTraceObject();
         traceFactory.removeTraceObject();
 
         Trace rawTraceObject = traceFactory.currentRawTraceObject();
-        Assert.assertNull(rawTraceObject);
+        Assertions.assertNull(rawTraceObject);
     }
 }

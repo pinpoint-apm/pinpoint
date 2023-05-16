@@ -32,11 +32,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientCookieExtractor;
 import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpClientRequestAdaptor;
+import com.navercorp.pinpoint.plugin.okhttp.v3.OkHttpResponseAdaptor;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -54,6 +58,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
 
     private final ClientRequestRecorder<Request> clientRequestRecorder;
     private final CookieRecorder<Request> cookieRecorder;
+    private final ServerResponseHeaderRecorder<Response> responseHeaderRecorder;
 
     public BridgeInterceptorInterceptMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -63,10 +68,11 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
         final OkHttpPluginConfig config = new OkHttpPluginConfig(traceContext.getProfilerConfig());
 
         ClientRequestAdaptor<Request> clientRequestAdaptor = new OkHttpClientRequestAdaptor();
-        this.clientRequestRecorder = new ClientRequestRecorder<Request>(config.isParam(), clientRequestAdaptor);
+        this.clientRequestRecorder = new ClientRequestRecorder<>(config.isParam(), clientRequestAdaptor);
 
         CookieExtractor<Request> cookieExtractor = new OkHttpClientCookieExtractor();
         this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(config.getHttpDumpConfig(), cookieExtractor);
+        this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new OkHttpResponseAdaptor());
     }
 
     @Override
@@ -141,6 +147,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
             if (result instanceof Response) {
                 Response response = (Response) result;
                 recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.code());
+                this.responseHeaderRecorder.recordHeader(recorder, response);
             }
         } finally {
             trace.traceBlockEnd();
@@ -148,7 +155,7 @@ public class BridgeInterceptorInterceptMethodInterceptor implements AroundInterc
     }
 
     private boolean validate(final Object[] args) {
-        if (args == null || args.length != 1) {
+        if (ArrayUtils.getLength(args) != 1) {
             if (isDebug) {
                 logger.debug("Invalid args object. args={}", args);
             }

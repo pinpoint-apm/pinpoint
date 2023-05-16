@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.filter.response;
 
 import com.navercorp.pinpoint.web.filter.responsetime.DefaultResponseTimeFilter;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
@@ -27,20 +27,20 @@ import org.junit.Test;
 public class DefaultResponseTimeFilterTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
 
         ResponseTimeFilter filter1 = new DefaultResponseTimeFilter(1000, 2000);
 
-        Assert.assertTrue(filter1.accept(1100));
+        Assertions.assertTrue(filter1.accept(1100));
 
         // between
-        Assert.assertTrue(filter1.accept(1000));
-        Assert.assertTrue(filter1.accept(2000));
+        Assertions.assertTrue(filter1.accept(1000));
+        Assertions.assertTrue(filter1.accept(2000));
 
         // lower
-        Assert.assertFalse(filter1.accept(500));
+        Assertions.assertFalse(filter1.accept(500));
         // upper
-        Assert.assertFalse(filter1.accept(2500));
+        Assertions.assertFalse(filter1.accept(2500));
 
     }
 }

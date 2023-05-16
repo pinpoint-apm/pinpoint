@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
@@ -28,10 +28,10 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
  * @author koo.taejin
  */
 public class EchoService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>>  {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
-    public TBase<?, ?> requestCommandService(TBase tbase) {
+    public TBase<?, ?> requestCommandService(TBase<?, ?> tbase) {
         logger.info("{} execute {}.", this, tbase);
 
         TCommandEcho param = (TCommandEcho) tbase;

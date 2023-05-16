@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.loader.service;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -31,7 +31,7 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
     private final ServiceTypeLocator serviceTypeLocator;
 
     public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService) {
-        Assert.requireNonNull(typeLoaderService, "typeLoaderService");
+        Objects.requireNonNull(typeLoaderService, "typeLoaderService");
         this.serviceTypeLocator = typeLoaderService.getServiceTypeLocator();
     }
 

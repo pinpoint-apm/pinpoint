@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,7 +33,7 @@ public class InterceptorRegistryModule extends AbstractModule {
     }
 
     private InterceptorRegistryModule(InterceptorRegistryBinder interceptorRegistryBinder) {
-        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
+        this.interceptorRegistryBinder = Objects.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
     }
 
     @Override

@@ -21,8 +21,11 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.DataType;
+import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,17 +33,14 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 public class TraceRootSpanRecorder implements SpanRecorder {
 
     private final TraceRoot traceRoot;
-    private final boolean sampling;
 
-    public TraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
-
-        this.sampling = sampling;
+    public TraceRootSpanRecorder(TraceRoot traceRoot) {
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
     }
 
     @Override
     public boolean canSampled() {
-        return sampling;
+        return true;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordError() {
-        traceRoot.getShared().maskErrorCode(1);
+        getShared().maskErrorCode(1);
     }
 
     @Override
@@ -115,6 +115,21 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     }
 
     @Override
+    public void recordAttribute(AnnotationKey key, Integer value) {
+
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, long value) {
+
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, Long value) {
+
+    }
+
+    @Override
     public void recordAttribute(AnnotationKey key, Object value) {
 
     }
@@ -125,8 +140,28 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     }
 
     @Override
+    public void recordAttribute(AnnotationKey key, boolean value) {
+
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, double value) {
+
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, byte[] value) {
+
+    }
+
+    @Override
+    public void recordAttribute(AnnotationKey key, DataType value) {
+
+    }
+
+    @Override
     public void recordRpcName(String rpc) {
-        traceRoot.getShared().setRpcName(rpc);
+        getShared().setRpcName(rpc);
     }
 
     @Override
@@ -136,7 +171,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordEndPoint(String endPoint) {
-        traceRoot.getShared().setEndPoint(endPoint);
+        getShared().setEndPoint(endPoint);
     }
 
     @Override
@@ -151,12 +186,27 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordLogging(LoggingInfo loggingInfo) {
-        traceRoot.getShared().setLoggingInfo(loggingInfo.getCode());
+        getShared().setLoggingInfo(loggingInfo.getCode());
     }
 
     @Override
     public void recordStatusCode(int statusCode) {
-        traceRoot.getShared().setStatusCode(statusCode);
+        getShared().setStatusCode(statusCode);
+    }
+
+    private Shared getShared() {
+        return traceRoot.getShared();
+    }
+
+    @Override
+    public boolean recordUriTemplate(String uriTemplate) {
+        return recordUriTemplate(uriTemplate, false);
+    }
+
+
+    @Override
+    public boolean recordUriTemplate(String uriTemplate, boolean force) {
+        return getShared().setUriTemplate(uriTemplate, force);
     }
 
     @Override

@@ -56,7 +56,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 // Hystrix 1.4.0 - 1.4.2 requires Java 7
-@JvmVersion(7)
+@JvmVersion(8)
 // rxjava, hystrix plugin enabled + custom trace method config
 @PinpointConfig("hystrix/pinpoint-hystrix.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-hystrix-plugin", "com.navercorp.pinpoint:pinpoint-rxjava-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})

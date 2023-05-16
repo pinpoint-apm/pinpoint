@@ -16,7 +16,7 @@ public final class HostResolver {
 
         InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
 
-        List<InetSocketAddress> resolvedAddressList = new ArrayList<InetSocketAddress>(resolvedAddresses.length);
+        List<InetSocketAddress> resolvedAddressList = new ArrayList<>(resolvedAddresses.length);
 
         for (InetAddress resolvedAddress : resolvedAddresses) {
             resolvedAddressList.add(new InetSocketAddress(resolvedAddress.getHostAddress(), address.getPort()));

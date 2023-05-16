@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -27,28 +26,31 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.StopWatch;
-import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.Annotation;
-import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
-import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
-import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import com.navercorp.pinpoint.test.util.AnnotationUtils;
+import com.navercorp.pinpoint.test.util.AssertionErrorBuilder;
+import com.navercorp.pinpoint.test.util.ThreadUtils;
+import com.navercorp.pinpoint.test.wrapper.ActualTrace;
+import com.navercorp.pinpoint.test.wrapper.ActualTraceFactory;
 
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -60,20 +62,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
-    private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
+    private final List<Short> ignoredServiceTypes = new ArrayList<>();
 
     private final DefaultApplicationContext applicationContext;
 
     private final ApplicationContextHandler handler;
 
     public PluginVerifierExternalAdaptor(DefaultApplicationContext applicationContext) {
-        this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext");
+        this.applicationContext = Objects.requireNonNull(applicationContext, "applicationContext");
         this.handler = new ApplicationContextHandler(applicationContext);
     }
 
@@ -89,16 +92,18 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         ServiceType actualType = applicationContext.getAgentInformation().getServerType();
 
         if (!expectedType.equals(actualType)) {
-            throw new AssertionError("ResolvedExpectedTrace server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("serverType", expectedType, actualType);
+            builder.throwAssertionError();
         }
     }
 
     @Override
-    public void verifyServerInfo(String expected) {
+    public void verifyServerInfo(String serverInfo) {
         String actualName = getServerMetaData().getServerInfo();
 
-        if (!actualName.equals(expected)) {
-            throw new AssertionError("ResolvedExpectedTrace server name [" + expected + "] but was [" + actualName + "]");
+        if (!actualName.equals(serverInfo)) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("serverInfo", serverInfo, actualName);
+            builder.throwAssertionError();
         }
     }
 
@@ -108,25 +113,29 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         String actualProtocol = connectorMap.get(port);
 
         if (actualProtocol == null || !actualProtocol.equals(protocol)) {
-            throw new AssertionError("ResolvedExpectedTrace protocol [" + protocol + "] at port [" + port + "] but was [" + actualProtocol + "]");
+            // port validation??
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("protocol", protocol + ":" + port, actualProtocol);
+            builder.throwAssertionError();
         }
     }
 
     @Override
-    public void verifyService(String name, List<String> libs) {
+    public void verifyService(String serverName, List<String> libs) {
         List<ServiceInfo> serviceInfos = getServerMetaData().getServiceInfos();
 
         for (ServiceInfo serviceInfo : serviceInfos) {
-            if (serviceInfo.getServiceName().equals(name)) {
+            if (serviceInfo.getServiceName().equals(serverName)) {
                 List<String> actualLibs = serviceInfo.getServiceLibs();
 
                 if (actualLibs.size() != libs.size()) {
-                    throw new AssertionError("ResolvedExpectedTrace service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
+                    AssertionErrorBuilder builder = new AssertionErrorBuilder("serviceName " + serverName, libs, actualLibs);
+                    builder.throwAssertionError();
                 }
 
                 for (String lib : libs) {
                     if (!actualLibs.contains(lib)) {
-                        throw new AssertionError("ResolvedExpectedTrace service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
+                        AssertionErrorBuilder builder = new AssertionErrorBuilder("serviceName " + serverName, libs, actualLibs);
+                        builder.throwAssertionError();
                     }
                 }
 
@@ -135,22 +144,23 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             }
         }
 
-        throw new AssertionError("ResolvedExpectedTrace service [" + name + "] with libraries [" + libs + "] but there is no such service");
+        AssertionErrorBuilder builder = new AssertionErrorBuilder("serviceName " + serverName, libs, "no such service");
+        builder.throwAssertionError();
     }
 
-    private boolean isIgnored(Object obj) {
-        final short serviceType = getServiceTypeCode(obj);
+    private boolean isIgnored(SpanType spanType) {
+        final short serviceType = getServiceTypeCode(spanType);
         return ignoredServiceTypes.contains(serviceType);
     }
 
-    private short getServiceTypeCode(Object obj) {
+    private short getServiceTypeCode(SpanType spanType) {
 
-        if (obj instanceof Span) {
-            final Span span = (Span) obj;
+        if (spanType instanceof Span) {
+            final Span span = (Span) spanType;
             return span.getServiceType();
         }
-        if (obj instanceof SpanChunk) {
-            final SpanChunk spanChunk = (SpanChunk) obj;
+        if (spanType instanceof SpanChunk) {
+            final SpanChunk spanChunk = (SpanChunk) spanType;
             List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
             if (spanEventList.size() != 1) {
                 throw new IllegalStateException("unexpected spanEventList.size() !=1");
@@ -163,17 +173,23 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     @Override
     public void verifyTraceCount(int expected) {
-        int actual = 0;
+        final int actual = getTraceCount();
 
-        for (Object obj : this.handler.getOrderedSpanRecorder()) {
+        if (expected != actual) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("count", expected, actual);
+            builder.throwAssertionError();
+        }
+    }
+
+    @Override
+    public int getTraceCount() {
+        int actual = 0;
+        for (SpanType obj : this.handler.getOrderedSpanRecorder()) {
             if (!isIgnored(obj)) {
                 actual++;
             }
         }
-
-        if (expected != actual) {
-            throw new AssertionError("ResolvedExpectedTrace count: " + expected + ", actual: " + actual);
-        }
+        return actual;
     }
 
     private ServiceType findServiceType(String name) {
@@ -212,11 +228,11 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, asyncId);
 
         int i = 0;
-        Iterator<?> iterator = this.handler.getOrderedSpanRecorder().iterator();
+        Iterator<SpanType> iterator = this.handler.getOrderedSpanRecorder().iterator();
 
         while (iterator.hasNext()) {
-            final Object next = iterator.next();
-            ActualTrace actual = wrap(next);
+            final SpanType next = iterator.next();
+            ActualTrace actual = ActualTraceFactory.wrap(next);
 
             try {
                 verifySpan(resolved, actual);
@@ -247,30 +263,34 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         for (ExpectedTrace expected : expectations) {
             ResolvedExpectedTrace resolved = resolveExpectedTrace(expected, null);
 
-            final Item item = popItem();
-            if (item == null) {
-                throw new AssertionError("Expected a " + resolved.toString() + " but there is no trace");
+            final Item<SpanType> actualItem = popItem();
+            if (actualItem == null) {
+                AssertionErrorBuilder builder = new AssertionErrorBuilder("actualItem is null", resolved, "null");
+                builder.throwAssertionError();
             }
-            final Object actual = item.getValue();
+            final SpanType actual = actualItem.getValue();
 
-            ActualTrace wrapped = wrap(actual);
+            ActualTrace wrapped = ActualTraceFactory.wrap(actual);
 
             verifySpan(resolved, wrapped);
             verifyAsyncTraces(expected, wrapped);
         }
     }
 
-    private void verifyAsyncTraces(ExpectedTrace expected, ActualTrace wrapped) throws AssertionError {
-        final ExpectedTrace[] asyncTraces = expected.getAsyncTraces();
+    private void verifyAsyncTraces(ExpectedTrace expected, ActualTrace actual) throws AssertionError {
+        final ExpectedTrace[] expectedAsyncTraces = expected.getAsyncTraces();
 
-        if (asyncTraces != null && asyncTraces.length > 0) {
-            Integer asyncId = wrapped.getNextAsyncId();
+        if (expectedAsyncTraces != null && expectedAsyncTraces.length > 0) {
+            Integer actualAsyncId = actual.getNextAsyncId();
 
-            if (asyncId == null) {
-                throw new AssertionError("Expected async traces triggered but nextAsyncId is not present: " + wrapped);
+            if (actualAsyncId == null) {
+                AssertionErrorBuilder builder = new AssertionErrorBuilder("async traces triggered but nextAsyncId is null",
+                        Arrays.toString(expectedAsyncTraces), actualAsyncId);
+                builder.setComparison(expected, actual);
+                builder.throwAssertionError();
             }
 
-            verifyDiscreteTraceBlock(asyncTraces, asyncId);
+            verifyDiscreteTraceBlock(expectedAsyncTraces, actualAsyncId);
         }
     }
 
@@ -309,316 +329,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         }
     }
 
-    private static void appendAnnotations(StringBuilder builder, List<Annotation> annotations) {
-        boolean first = true;
-
-        if (annotations != null) {
-            for (Annotation annotation : annotations) {
-                if (first) {
-                    first = false;
-                } else {
-                    builder.append(", ");
-                }
-
-                builder.append(toString(annotation));
-            }
-        }
-    }
-
-    private static String toString(Annotation a) {
-        return a.getAnnotationKey() + "=" + a.getValue();
-    }
-
-    private interface ActualTrace {
-        Short getServiceType();
-
-        Integer getApiId();
-
-        Integer getAsyncId();
-
-        Integer getNextAsyncId();
-
-        IntStringValue getExceptionInfo();
-
-        String getRpc();
-
-        String getEndPoint();
-
-        String getRemoteAddr();
-
-        String getDestinationId();
-
-        List<Annotation> getAnnotations();
-
-        Class<?> getType();
-    }
-
-    private static final class SpanFacade implements ActualTrace {
-        private final Span span;
-
-        public SpanFacade(Span span) {
-            this.span = span;
-        }
-
-        @Override
-        public Short getServiceType() {
-            final short serviceType = span.getServiceType();
-            if (serviceType == 0) {
-                return null;
-            }
-            return serviceType;
-        }
-
-        @Override
-        public Integer getApiId() {
-            final int apiId = span.getApiId();
-            if (apiId == 0) {
-                return null;
-            }
-            return apiId;
-        }
-
-        @Override
-        public Integer getAsyncId() {
-            return null;
-        }
-
-        @Override
-        public Integer getNextAsyncId() {
-            return null;
-        }
-
-        @Override
-        public IntStringValue getExceptionInfo() {
-            return span.getExceptionInfo();
-        }
-
-        @Override
-        public String getRpc() {
-            return span.getTraceRoot().getShared().getRpcName();
-        }
-
-        @Override
-        public String getEndPoint() {
-            return span.getTraceRoot().getShared().getEndPoint();
-        }
-
-        @Override
-        public String getRemoteAddr() {
-            return span.getRemoteAddr();
-        }
-
-        @Override
-        public String getDestinationId() {
-            return null;
-        }
-
-        @Override
-        public List<Annotation> getAnnotations() {
-            return span.getAnnotations();
-        }
-
-        @Override
-        public Class<?> getType() {
-            return Span.class;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("(serviceType: ");
-            builder.append(getServiceType());
-            builder.append(", apiId: ");
-            builder.append(getApiId());
-            builder.append(", exceptionInfo: ");
-            builder.append(getExceptionInfo());
-            builder.append(", rpc: ");
-            builder.append(getRpc());
-            builder.append(", endPoint: ");
-            builder.append(getEndPoint());
-            builder.append(", remoteAddr: ");
-            builder.append(getRemoteAddr());
-            builder.append(", [");
-            appendAnnotations(builder, getAnnotations());
-            builder.append("])");
-
-            return builder.toString();
-        }
-    }
-
-    private static final class SpanEventFacade implements ActualTrace {
-        private final SpanChunk spanChunk;
-        private final SpanEvent spanEvent;
-
-        public SpanEventFacade(SpanChunk spanChunk) {
-            this.spanChunk = spanChunk;
-            List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
-            if (spanEventList.size() != 1) {
-                throw new IllegalArgumentException("spanChunk list size == 0");
-            }
-            this.spanEvent = spanEventList.get(0);
-        }
-
-        @Override
-        public Short getServiceType() {
-            return spanEvent.getServiceType();
-        }
-
-        @Override
-        public Integer getApiId() {
-            return spanEvent.getApiId();
-        }
-
-        @Override
-        public Integer getAsyncId() {
-            if (!(spanChunk instanceof AsyncSpanChunk)) {
-                return null;
-            }
-            AsyncSpanChunk asyncSpanChunk = (AsyncSpanChunk) this.spanChunk;
-            LocalAsyncId localAsyncId = asyncSpanChunk.getLocalAsyncId();
-            return localAsyncId.getAsyncId();
-        }
-
-        @Override
-        public Integer getNextAsyncId() {
-            return spanEvent.getAsyncIdObject() != null ? spanEvent.getAsyncIdObject().getAsyncId() : null;
-        }
-
-        @Override
-        public IntStringValue getExceptionInfo() {
-            return spanEvent.getExceptionInfo();
-        }
-
-        @Override
-        public String getRpc() {
-            return null;
-        }
-
-        @Override
-        public String getEndPoint() {
-            return spanEvent.getEndPoint();
-        }
-
-        @Override
-        public String getRemoteAddr() {
-            return null;
-        }
-
-        @Override
-        public String getDestinationId() {
-            return spanEvent.getDestinationId();
-        }
-
-        @Override
-        public List<Annotation> getAnnotations() {
-            return spanEvent.getAnnotations();
-        }
-
-        @Override
-        public Class<?> getType() {
-            return SpanEvent.class;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("(serviceType: ");
-            builder.append(getServiceType());
-            builder.append(", apiId: ");
-            builder.append(getApiId());
-            builder.append(", exceptionInfo: ");
-            builder.append(getExceptionInfo());
-            builder.append(", rpc: ");
-            builder.append(getRpc());
-            builder.append(", endPoint: ");
-            builder.append(getEndPoint());
-            builder.append(", destinationId: ");
-            builder.append(getDestinationId());
-            builder.append(", [");
-            appendAnnotations(builder, getAnnotations());
-            builder.append("], asyncId: ");
-            builder.append(getAsyncId());
-            builder.append("nextAsyncId: ");
-            builder.append(getNextAsyncId());
-            builder.append(')');
-
-            return builder.toString();
-        }
-    }
-
-    private static final class ResolvedExpectedTrace {
-        private final Class<?> type;
-        private final ServiceType serviceType;
-        private final LocalAsyncId localAsyncId;
-        private final Integer apiId;
-        private final Exception exception;
-        private final ExpectedTraceField rpc;
-        private final ExpectedTraceField endPoint;
-        private final ExpectedTraceField remoteAddr;
-        private final ExpectedTraceField destinationId;
-        private final ExpectedAnnotation[] annotations;
-
-        public ResolvedExpectedTrace(Class<?> type, ServiceType serviceType, Integer apiId, Exception exception, ExpectedTraceField rpc, ExpectedTraceField endPoint, ExpectedTraceField remoteAddr, ExpectedTraceField destinationId, ExpectedAnnotation[] annotations, Integer asyncId) {
-            this.type = type;
-            this.serviceType = serviceType;
-            this.apiId = apiId;
-            this.exception = exception;
-            this.rpc = rpc;
-            this.endPoint = endPoint;
-            this.remoteAddr = remoteAddr;
-            this.destinationId = destinationId;
-            this.annotations = annotations;
-            this.localAsyncId = newLocalAsyncId(asyncId);
-        }
-
-        private LocalAsyncId newLocalAsyncId(Integer asyncId) {
-            if (asyncId == null) {
-                return null;
-            }
-            return new DefaultLocalAsyncId(asyncId, (short) 0);
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-
-            builder.append(type.getSimpleName());
-            builder.append("(serviceType: ");
-            builder.append(serviceType.getCode());
-            builder.append(", apiId: ");
-            builder.append(apiId);
-            builder.append(", exception: ");
-            builder.append(exception);
-            builder.append(", rpc: ");
-            builder.append(rpc);
-            builder.append(", endPoint: ");
-            builder.append(endPoint);
-            builder.append(", remoteAddr: ");
-            builder.append(remoteAddr);
-            builder.append(", destinationId: ");
-            builder.append(destinationId);
-            builder.append(", annotations: ");
-            builder.append(Arrays.deepToString(annotations));
-            builder.append(", localAsyncId: ");
-            builder.append(localAsyncId);
-            builder.append(")");
-
-            return builder.toString();
-        }
-    }
-
-    private ActualTrace wrap(Object obj) {
-        if (obj instanceof Span) {
-            final Span span = (Span) obj;
-            return new SpanFacade(span);
-        } else if (obj instanceof SpanChunk) {
-            final SpanChunk spanChunk = (SpanChunk) obj;
-            return new SpanEventFacade(spanChunk);
-        }
-
-        throw new IllegalArgumentException("Unexpected type: " + obj.getClass());
-    }
-
     private static boolean equals(Object expected, Object actual) {
         // if expected is null, no need to compare.
         return expected == null || (expected.equals(actual));
@@ -635,36 +345,60 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     private void verifySpan(final ResolvedExpectedTrace expected, ActualTrace actual) {
         if (!expected.type.equals(actual.getType())) {
-            throw new AssertionError("Expected an instance of " + expected.type.getSimpleName() + " but was " + actual.getType().getName() + ". expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + " InstanceType",
+                    expected.type.getSimpleName(), actual.getType().getName());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (!equals(expected.serviceType.getCode(), actual.getServiceType())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with serviceType[" + expected.serviceType.getCode() + "] but was [" + actual.getServiceType() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".serviceType",
+                    expected.serviceType.getCode(), actual.getServiceType());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
 
         if (!equals(expected.apiId, actual.getApiId())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with apiId[" + expected.apiId + "] but was [" + actual.getApiId() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".apiId",
+                    expected.apiId, actual.getApiId());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (!equals(expected.rpc, actual.getRpc())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with rpc[" + expected.rpc + "] but was [" + actual.getRpc() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".rpc",
+                    expected.rpc, actual.getRpc());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (!equals(expected.endPoint, actual.getEndPoint())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with endPoint[" + expected.endPoint + "] but was [" + actual.getEndPoint() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".endPoint",
+                    expected.endPoint, actual.getEndPoint());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (!equals(expected.remoteAddr, actual.getRemoteAddr())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with remoteAddr[" + expected.remoteAddr + "] but was [" + actual.getRemoteAddr() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".remoteAddr",
+                    expected.remoteAddr, actual.getRemoteAddr());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (!equals(expected.destinationId, actual.getDestinationId())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with destinationId[" + expected.destinationId + "] but was [" + actual.getDestinationId() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".destinationId",
+                    expected.destinationId, actual.getDestinationId());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (!equals(getAsyncId(expected), actual.getAsyncId())) {
-            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with asyncId[" + expected.localAsyncId + "] but was [" + actual.getAsyncId() + "]. expected: " + expected + ", was: " + actual);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".asyncId",
+                    expected.localAsyncId, actual.getAsyncId());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
         if (expected.exception != null) {
@@ -674,59 +408,70 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 String actualExceptionMessage = actualExceptionInfo.getStringValue();
                 verifyException(expected.exception, actualExceptionClassName, actualExceptionMessage);
             } else {
-                throw new AssertionError("Expected [" + expected.exception.getClass().getName() + "] but was none");
+                AssertionErrorBuilder builder = new AssertionErrorBuilder(expected.type.getSimpleName() + ".exception",
+                        expected.exception.getClass().getName(), null);
+                builder.throwAssertionError();
             }
         }
 
-        List<Annotation> actualAnnotations = actual.getAnnotations();
+        List<Annotation<?>> actualAnnotations = actual.getAnnotations();
 
-        int len = expected.annotations == null ? 0 : expected.annotations.length;
-        int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
+        final int expectedLen = ArrayUtils.getLength(expected.annotations);
+        final int actualLen = CollectionUtils.nullSafeSize(actualAnnotations);
 
-        if (actualLen != len) {
-            throw new AssertionError("Expected [" + len + "] annotations but was [" + actualLen + "], expected: " + expected + ", was: " + actual);
+        if (actualLen != expectedLen) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("Annotation.length", expectedLen, actualLen);
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
-        for (int i = 0; i < len; i++) {
-            ExpectedAnnotation expect = expected.annotations[i];
-            AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
-            Annotation actualAnnotation = actualAnnotations.get(i);
+        for (int i = 0; i < expectedLen; i++) {
+            annotationCompare(i, expected, actual, actualAnnotations.get(i));
+        }
+    }
 
-            if (expectedAnnotationKey.getCode() != actualAnnotation.getAnnotationKey()) {
-                throw new AssertionError("Code Different, Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actualAnnotation) + "], expected: " + expected + ", was: " + actual);
+    private void annotationCompare(int index, ResolvedExpectedTrace expected, ActualTrace actual, Annotation<?> actualAnnotation) {
+        final ExpectedAnnotation expect = expected.annotations[index];
+        final AnnotationKey expectedAnnotationKey = this.handler.getAnnotationKeyRegistryService().findAnnotationKeyByName(expect.getKeyName());
+
+        if (expectedAnnotationKey.getCode() != actualAnnotation.getKey()) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].key", index),
+                    AnnotationUtils.toString(expectedAnnotationKey, expect), AnnotationUtils.toString(actualAnnotation));
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
+        }
+
+        if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
+            verifySql(index, (ExpectedSql) expect, actualAnnotation);
+        } else if (expect.getValue() instanceof DataType) {
+            verifyDataType(index, ((DataType) expect.getValue()), actualAnnotation);
+        } else {
+            Object expectedValue = expect.getValue();
+
+            if (expectedValue == Expectations.anyAnnotationValue()) {
+                return;
             }
 
-            if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
-                verifySql((ExpectedSql) expect, actualAnnotation);
-            } else if (expect.getValue() instanceof StringStringValue){
-                verifyStringStringValue(((StringStringValue)expect.getValue()), actualAnnotation);
-            } else {
-                Object expectedValue = expect.getValue();
+            if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
+                expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
+            }
 
-                if (expectedValue == Expectations.anyAnnotationValue()) {
-                    continue;
-                }
-
-                if (AnnotationKeyUtils.isCachedArgsKey(expectedAnnotationKey.getCode())) {
-                    expectedValue = this.handler.getTcpDataSender().getStringId(expectedValue.toString());
-                }
-
-                if (!Objects.equal(expectedValue, actualAnnotation.getValue())) {
-
-                    throw new AssertionError("Value Different, Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actualAnnotation) + "], expected: " + expected + ", was: " + actual);
-                }
+            if (!Objects.equals(expectedValue, actualAnnotation.getValue())) {
+                AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", index),
+                        expectedAnnotationKey.getCode(), AnnotationUtils.toString(actualAnnotation));
+                builder.setComparison(expected, actual);
+                builder.throwAssertionError();
             }
         }
     }
 
-    private void verifyStringStringValue(StringStringValue value, Annotation actualAnnotation) {
-        StringStringValue annotationValue = (StringStringValue) actualAnnotation.getValue();
-        if (!Objects.equal(value.getStringValue1(), annotationValue.getStringValue1())) {
-            throw new AssertionError("Expected [" + value.getStringValue1() + "] but was [" + annotationValue.getStringValue1() + "]");
-        }
+    private void verifyDataType(int index, DataType expectedValue, Annotation<?> actualAnnotation) {
+        DataType annotationValue = (DataType) actualAnnotation.getValue();
 
-        if (!Objects.equal(value.getStringValue2(), annotationValue.getStringValue2())) {
-            throw new AssertionError("Expected [" + value.getStringValue2() + "] but was [" + annotationValue.getStringValue2() + "]");
+        if (!Objects.equals(expectedValue, annotationValue)) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].value", index),
+                    expectedValue, annotationValue);
+            builder.throwAssertionError();
         }
 
     }
@@ -741,29 +486,43 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     private void verifyException(Exception expectedException, String actualExceptionClassName, String actualExceptionMessage) {
         String expectedExceptionClassName = expectedException.getClass().getName();
         String expectedExceptionMessage = StringUtils.abbreviate(expectedException.getMessage(), 256);
-        if (!Objects.equal(actualExceptionClassName, expectedExceptionClassName)) {
-            throw new AssertionError("Expected [" + expectedExceptionClassName + "] but was [" + actualExceptionClassName + "]");
+        if (!Objects.equals(actualExceptionClassName, expectedExceptionClassName)) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("ExceptionClassName",
+                    expectedExceptionClassName, actualExceptionClassName);
+            builder.throwAssertionError();
         }
-        if (!Objects.equal(actualExceptionMessage, expectedExceptionMessage)) {
-            throw new AssertionError("Expected exception with message [" + expectedExceptionMessage + "] but was [" + actualExceptionMessage + "]");
+        if (!Objects.equals(actualExceptionMessage, expectedExceptionMessage)) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("Exception Message",
+                    expectedExceptionMessage, actualExceptionMessage);
+            builder.throwAssertionError();
         }
     }
 
-    private void verifySql(ExpectedSql expected, Annotation actual) {
+    private void verifySql(int index, ExpectedSql expected, Annotation<?> actual) {
         int id = this.handler.getTcpDataSender().getSqlId(expected.getQuery());
-        IntStringStringValue value = (IntStringStringValue) actual.getValue();
+        IntStringStringValue actualSql = (IntStringStringValue) actual.getValue();
 
-        if (value.getIntValue() != id) {
-            String actualQuery = this.handler.getTcpDataSender().getSql(value.getIntValue());
-            throw new AssertionError("Expected sql [" + id + ": " + expected.getQuery() + "] but was [" + value.getIntValue() + ": " + actualQuery + "], expected: " + expected + ", was: " + actual);
+        if (actualSql.getIntValue() != id) {
+            String actualQuery = this.handler.getTcpDataSender().getSql(actualSql.getIntValue());
+
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sqlId", index),
+                    id + ":" + expected.getQuery(), actualSql.getIntValue() + ": " + actualQuery);
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
-        if (!Objects.equal(value.getStringValue1(), expected.getOutput())) {
-            throw new AssertionError("Expected sql with output [" + expected.getOutput() + "] but was [" + value.getStringValue1() + "], expected: " + expected + ", was: " + actual);
+        if (!Objects.equals(actualSql.getStringValue1(), expected.getOutput())) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.output", index),
+                    expected.getOutput(), actualSql.getStringValue1());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
 
-        if (!Objects.equal(value.getStringValue2(), expected.getBindValuesAsString())) {
-            throw new AssertionError("Expected sql with bindValues [" + expected.getBindValuesAsString() + "] but was [" + value.getStringValue2() + "], expected: " + expected + ", was: " + actual);
+        if (!Objects.equals(actualSql.getStringValue2(), expected.getBindValuesAsString())) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder(String.format("Annotation[%s].sql.bindValues", index),
+                    expected.getBindValuesAsString(), actualSql.getStringValue2());
+            builder.setComparison(expected, actual);
+            builder.throwAssertionError();
         }
     }
 
@@ -805,17 +564,15 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     }
 
 
-
     private ServerMetaData getServerMetaData() {
         return this.handler.getServerMetaDataRegistryService().getServerMetaData();
     }
 
 
-
-    private Item popItem() {
+    private Item<SpanType> popItem() {
         while (true) {
             OrderedSpanRecorder recorder = this.handler.getOrderedSpanRecorder();
-            Item item = recorder.popItem();
+            Item<SpanType> item = recorder.popItem();
             if (item == null) {
                 return null;
             }
@@ -824,6 +581,21 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 return item;
             }
         }
+    }
+
+    @Override
+    public void printMethod() {
+        List<String> executedMethod = this.handler.getExecutedMethod();
+        System.out.println("Method(" + executedMethod.size() + ")");
+        for (String method : executedMethod) {
+            System.out.println(method);
+        }
+
+    }
+
+    @Override
+    public List<String> getExecutedMethod() {
+        return this.handler.getExecutedMethod();
     }
 
     @Override
@@ -868,7 +640,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     @Override
     public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo) {
-        final Item item = popItem();
+        final Item<SpanType> item = popItem();
         if (item == null) {
             throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "]"
                     + " but loggingTransactionInfo value invalid.");
@@ -878,15 +650,19 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         final byte loggingTransactionInfo = traceRoot.getShared().getLoggingInfo();
         if (loggingTransactionInfo != loggingInfo.getCode()) {
             LoggingInfo code = LoggingInfo.searchByCode(loggingTransactionInfo);
-            if (code != null) {
-                throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "]"
-                        + " but was [" + code.getName() + "]. expected: " + loggingInfo.getName() + ", was: " + code.getName());
-            } else {
-                throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "]"
-                        + " but loggingTransactionInfo value invalid.");
-            }
-
+            String codeName = getCodeName(code);
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("Span.isLoggingTransactionInfo value",
+                    loggingInfo.getName(), codeName);
+            builder.setComparison(loggingInfo.getName(), codeName);
+            builder.throwAssertionError();
         }
+    }
+
+    private String getCodeName(LoggingInfo code) {
+        if (code == null) {
+            return null;
+        }
+        return code.getName();
     }
 
     @Override
@@ -894,7 +670,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         if (expectedTrace == null) {
             return;
         }
-        Assert.requireNonNull(expectedTrace, "expectedTrace");
         if (waitUnitTime <= 0 || maxWaitTime <= 0) {
             throw new IllegalArgumentException("must be greater than 0");
         }
@@ -907,13 +682,10 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
                 if (hasTrace(expectedTrace)) {
                     return;
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
-            try {
-                Thread.sleep(waitUnitTime);
-            } catch (InterruptedException e) {
-            }
+            ThreadUtils.sleep(waitUnitTime);
 
             if (stopWatch.stop() > maxWaitTime) {
                 // do nothing (it is good to catch the cause.)
@@ -929,23 +701,19 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
         ResolvedExpectedTrace resolvedExpectedTrace = resolveExpectedTrace(expectedTrace, null);
 
-        Iterator<Object> iterator = this.handler.getOrderedSpanRecorder().iterator();
+        Iterator<SpanType> iterator = this.handler.getOrderedSpanRecorder().iterator();
         while (iterator.hasNext()) {
             try {
-                Object value = iterator.next();
+                SpanType value = iterator.next();
 
-                ActualTrace actualTrace = null;
-                if (value instanceof SpanChunk) {
-                    actualTrace = new SpanEventFacade((SpanChunk) value);
-                } else if (value instanceof Span) {
-                    actualTrace = new SpanFacade((Span) value);
-                } else {
+                ActualTrace actualTrace = ActualTraceFactory.wrapOrNull(value);
+                if (actualTrace == null) {
                     continue;
                 }
 
                 verifySpan(resolvedExpectedTrace, actualTrace);
                 return true;
-            } catch (Throwable e) {
+            } catch (Throwable ignored) {
             }
         }
 
@@ -965,13 +733,10 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             try {
                 verifyTraceCount(expectedTraceCount);
                 return;
-            } catch (Throwable e) {
+            } catch (Throwable ignored) {
             }
 
-            try {
-                Thread.sleep(waitUnitTime);
-            } catch (InterruptedException e) {
-            }
+            ThreadUtils.sleep(waitUnitTime);
 
             if (stopWatch.stop() > maxWaitTime) {
                 // do nothing (it is good to catch the cause.)

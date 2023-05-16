@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
@@ -93,9 +95,10 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
             SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
             // args[2] would be com.rabbitmq.client.Envelope, implementing AsyncContextAccessor via plugin
-            if (args[2] instanceof AsyncContextAccessor) {
+            AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 2, AsyncContextAccessor.class);
+            if (accessor != null) {
                 AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                ((AsyncContextAccessor) args[2])._$PINPOINT$_setAsyncContext(asyncContext);
+                accessor._$PINPOINT$_setAsyncContext(asyncContext);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -149,7 +152,7 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
             return null;
         }
 
-        Envelope envelope = (Envelope) args[2];
+        Envelope envelope = ArrayArgumentUtils.getArgument(args, 2, Envelope.class);
         String exchange = envelope.getExchange();
         if (RabbitMQClientPluginConfig.isExchangeExcluded(exchange, excludeExchangeFilter)) {
             if (isDebug) {
@@ -220,10 +223,8 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
         recorder.recordEndPoint(endPoint);
         recorder.recordRemoteAddress(remoteAddress);
 
-        String exchange = envelope.getExchange();
-        if (StringUtils.isEmpty(exchange)) {
-            exchange = RabbitMQClientConstants.UNKNOWN;
-        }
+        String exchange = StringUtils.defaultIfEmpty(envelope.getExchange(), RabbitMQClientConstants.UNKNOWN);
+
         recorder.recordRpcName("rabbitmq://exchange=" + exchange);
         recorder.recordAcceptorHost("exchange-" + exchange);
         if (isDebug) {
@@ -231,7 +232,7 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
         }
         recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, envelope.getRoutingKey());
 
-        if (!MapUtils.isEmpty(headers)) {
+        if (MapUtils.hasLength(headers)) {
             Object parentApplicationName = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_NAME);
             if (!recorder.isRoot() && parentApplicationName != null) {
                 Object parentApplicationType = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_TYPE);
@@ -241,7 +242,7 @@ public class RabbitMQConsumerDispatchInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object target, Object[] args) {
-        if (args == null || args.length < 4) {
+        if (ArrayUtils.getLength(args) < 4) {
             return false;
         }
         if (!(target instanceof ChannelGetter)) {

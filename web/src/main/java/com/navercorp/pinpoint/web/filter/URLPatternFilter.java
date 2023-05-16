@@ -13,4 +13,8 @@ public interface URLPatternFilter {
     boolean REJECT = false;
 
     boolean accept(List<SpanBo> spanBoLi);
+
+    static boolean filterAccept(List<SpanBo> spanBoList) {
+        return ACCEPT;
+    }
 }

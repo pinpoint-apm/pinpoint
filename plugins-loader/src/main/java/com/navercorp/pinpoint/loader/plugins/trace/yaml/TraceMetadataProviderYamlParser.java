@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class TraceMetadataProviderYamlParser implements TraceMetadataProviderParser {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public ParsedTraceMetadataProvider parse(URL url) {
@@ -100,7 +100,7 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
         if (CollectionUtils.isEmpty(parsedServiceTypes)) {
             return Collections.emptyList();
         }
-        List<ServiceTypeInfo> serviceTypeInfos = new ArrayList<ServiceTypeInfo>(parsedServiceTypes.size());
+        List<ServiceTypeInfo> serviceTypeInfos = new ArrayList<>(parsedServiceTypes.size());
         for (ParsedServiceType parsedServiceType : parsedServiceTypes) {
             serviceTypeInfos.add(parsedServiceType.toServiceTypeInfo());
         }
@@ -111,7 +111,7 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
         if (CollectionUtils.isEmpty(parsedAnnotationKeys)) {
             return Collections.emptyList();
         }
-        List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>(parsedAnnotationKeys.size());
+        List<AnnotationKey> annotationKeys = new ArrayList<>(parsedAnnotationKeys.size());
         for (ParsedAnnotationKey parsedAnnotationKey : parsedAnnotationKeys) {
             annotationKeys.add(parsedAnnotationKey.toAnnotationKey());
         }

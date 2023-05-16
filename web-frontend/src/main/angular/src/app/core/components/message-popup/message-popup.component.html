@@ -1,0 +1,18 @@
+<div class="l-title-group">
+    <dl>
+        <dt>{{data.title}}</dt>
+    </dl>
+    <button (click)="onClose()"></button>
+</div>
+<div class="l-contents-group">
+    <dl class="l-list">
+        <dt></dt>
+        <ng-container *ngIf="isPlainMessage; then plain; else html"></ng-container>
+        <ng-template #plain>
+            <dd>{{data.contents}}</dd>
+        </ng-template>
+        <ng-template #html>
+            <dd [innerHTML]="data.contents | safeHtml">
+        </ng-template>
+    </dl>
+</div>

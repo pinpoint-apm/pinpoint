@@ -47,8 +47,8 @@ public class HttpRequestInterceptor extends SpanEventSimpleAroundInterceptorForP
         recorder.recordException(throwable);
 
         if (result instanceof ClientHttpResponse) {
-            int rawStatusCode = ((ClientHttpResponse) result).getRawStatusCode();
-            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, rawStatusCode);
+            ClientHttpResponse clientHttpResponse = (ClientHttpResponse) result;
+            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, clientHttpResponse.getRawStatusCode());
         }
     }
 

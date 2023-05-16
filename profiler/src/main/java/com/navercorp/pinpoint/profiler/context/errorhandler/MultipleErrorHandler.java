@@ -1,14 +1,13 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.Arrays;
+import java.util.Objects;
 
 public class MultipleErrorHandler implements IgnoreErrorHandler {
     private final IgnoreErrorHandler[] handlers;
 
     public MultipleErrorHandler(IgnoreErrorHandler[] handlers) {
-        this.handlers = Assert.requireNonNull(handlers, "handlers");
+        this.handlers = Objects.requireNonNull(handlers, "handlers");
     }
 
     @Override

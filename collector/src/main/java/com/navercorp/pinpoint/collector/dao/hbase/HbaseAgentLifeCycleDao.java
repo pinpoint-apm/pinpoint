@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -41,17 +41,20 @@ import java.util.Objects;
 @Repository
 public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
 
     private final HbaseOperations2 hbaseTemplate;
 
-    private final TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
-
+    private final TableNameProvider tableNameProvider;
     private final ValueMapper<AgentLifeCycleBo> valueMapper;
 
-    public HbaseAgentLifeCycleDao(HbaseOperations2 hbaseTemplate, TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor, ValueMapper<AgentLifeCycleBo> valueMapper) {
+    public HbaseAgentLifeCycleDao(HbaseOperations2 hbaseTemplate,
+                                  TableNameProvider tableNameProvider,
+                                  ValueMapper<AgentLifeCycleBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");
     }
 
@@ -71,8 +74,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
         byte[] rowKey = createRowKey(agentId, startTimestamp, eventIdentifier);
 
-        TableName agentLifeCycleTableName = descriptor.getTableName();
-        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES,
+        TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES,
                 agentLifeCycleBo, this.valueMapper);
     }
 
@@ -81,9 +84,9 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         long reverseStartTimestamp = TimeUtils.reverseTimeMillis(startTimestamp);
         long reverseEventCounter = TimeUtils.reverseTimeMillis(eventIdentifier);
 
-        byte[] rowKey = new byte[HbaseTableConstatns.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH];
+        byte[] rowKey = new byte[HbaseTableConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH];
         BytesUtils.writeBytes(rowKey, 0, agentIdKey);
-        int offset = HbaseTableConstatns.AGENT_NAME_MAX_LEN;
+        int offset = HbaseTableConstants.AGENT_ID_MAX_LEN;
         BytesUtils.writeLong(reverseStartTimestamp, rowKey, offset);
         offset += BytesUtils.LONG_BYTE_LENGTH;
         BytesUtils.writeLong(reverseEventCounter, rowKey, offset);

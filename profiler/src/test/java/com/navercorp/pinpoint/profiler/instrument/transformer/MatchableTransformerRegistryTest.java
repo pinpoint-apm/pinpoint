@@ -16,17 +16,83 @@
 
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
-import org.junit.Test;
+import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
+import com.navercorp.pinpoint.profiler.plugin.Foo;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.profiler.sender.Bar;
+import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
+import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author jaehong.kim
  */
 public class MatchableTransformerRegistryTest {
+
+    @Test
+    public void findTransformer() {
+        List<MatchableClassFileTransformer> matchableClassFileTransformerList = new ArrayList<>();
+        MockMatchableClassFileTransformer mock1 = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.plugin"));
+        MockMatchableClassFileTransformer mock2 = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.sender"));
+
+
+        matchableClassFileTransformerList.add(mock1);
+        matchableClassFileTransformerList.add(mock2);
+
+        MatchableTransformerRegistry registry = new MatchableTransformerRegistry(new DefaultInstrumentMatcherCacheConfig(), matchableClassFileTransformerList);
+
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class<?> clazz = Foo.class;
+        byte[] classFileByteCodes = BytecodeUtils.getClassFile(classLoader, clazz.getName());
+
+        ClassFileTransformer classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/plugin/Foo", classFileByteCodes);
+
+
+        clazz = Bar.class;
+        classFileByteCodes = BytecodeUtils.getClassFile(classLoader, clazz.getName());
+        classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/sender/Bar", classFileByteCodes);
+        System.out.println(classFileTransformer.toString());
+    }
+
+    @Test
+    public void packageNameBasedIndex() {
+        // sorted
+        Map<String, String> packageNameBasedIndex = new TreeMap<>();
+
+        packageNameBasedIndex.put("a", "a");
+        packageNameBasedIndex.put("aa", "a");
+        packageNameBasedIndex.put("bbbb", "a");
+        packageNameBasedIndex.put("bb", "a");
+        packageNameBasedIndex.put("bbb", "a");
+        packageNameBasedIndex.put("c", "a");
+        packageNameBasedIndex.put("ccccc", "a");
+        packageNameBasedIndex.put("cccc", "a");
+        packageNameBasedIndex.put("dddddddddddd", "a");
+
+        String[] keys = packageNameBasedIndex.keySet().toArray(new String[9]);
+        assertEquals("a", keys[0]);
+        assertEquals("aa", keys[1]);
+        assertEquals("bb", keys[2]);
+        assertEquals("bbb", keys[3]);
+        assertEquals("bbbb", keys[4]);
+        assertEquals("c", keys[5]);
+        assertEquals("cccc", keys[6]);
+        assertEquals("ccccc", keys[7]);
+        assertEquals("dddddddddddd", keys[8]);
+    }
 
     @Test
     public void accumulatorTime() throws Exception {
@@ -36,8 +102,7 @@ public class MatchableTransformerRegistryTest {
         value.accumulatorTime(startTime);
     }
 
-
-    class IndexValue {
+    static class IndexValue {
         final MatcherOperand operand;
         final ClassFileTransformer transformer;
         final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
@@ -53,4 +118,25 @@ public class MatchableTransformerRegistryTest {
         }
     }
 
+    private static class MockMatchableClassFileTransformer implements MatchableClassFileTransformer {
+        public Matcher matcher;
+
+        public MockMatchableClassFileTransformer(Matcher matcher) {
+            this.matcher = matcher;
+        }
+
+        @Override
+        public Matcher getMatcher() {
+            return this.matcher;
+        }
+
+        @Override
+        public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+            return new byte[0];
+        }
+
+        public String toString() {
+            return matcher.toString();
+        }
+    }
 }

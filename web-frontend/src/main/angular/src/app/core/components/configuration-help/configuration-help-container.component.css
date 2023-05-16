@@ -1,0 +1,118 @@
+:host {
+    display: block;
+    --icon-faq: var(--blue-200);
+    --icon-github: var(--blue-100);
+    --icon-guide: var(--blue-200);
+}
+
+.l-card-link-list {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.l-card-link-list-item {
+    display: block;
+    flex: 1;
+    margin-right: 15px;
+    height: 120px;
+}
+
+.l-card-link-list-item:last-child {
+    margin-right: 0;
+}
+
+.l-card-link {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+}
+
+.l-faq-link {
+    background-color: var(--form-link);
+}
+
+.l-issue-link {
+    background-color: var(--primary);
+}
+
+.l-user-community-link {
+    background-color: var(--secondary);
+}
+
+.l-card-text {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-knockout);
+}
+
+.l-card-link .fas, .l-card-link .fab {
+    font-size: 42px;
+    margin-right: 7px;
+}
+
+.fa-comments {
+    color: var(--icon-faq);
+}
+
+.fa-github {
+    color: var(--icon-github);
+}
+
+.fa-users {
+    color: var(--secondary-lighter);
+}
+
+.l-guide-section {
+    background-color: var(--background-default);
+    border: 1px solid var(--border-primary);
+    border-radius: 1px;
+}
+
+.l-guide-title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.l-guide-contents-wrapper {
+    display: flex;
+    position: relative;
+}
+
+.l-guide-contents {
+    width: 50%;
+    padding: 20px 0 20px 30px;
+}
+
+.l-guide-contents:first-child {
+    border-right: 1px solid var(--border-primary);
+}
+
+.l-guide-language-text {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.l-guide-contents-list li {
+    padding: 5px 0;
+}
+
+.l-guide-contents-list a > .fas {
+    color: var(--icon-guide);
+    margin-right: 5px;
+}
+
+.l-guide-contents-list a:link {
+    color: var(--form-link);
+}
+
+.l-guide-contents-list a:visited {
+    color: var(--form-link-visited);
+}

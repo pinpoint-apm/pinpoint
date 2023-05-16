@@ -17,11 +17,13 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import org.junit.Test;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author minwoo.jung
@@ -32,26 +34,26 @@ public class MemoryAlarmDaoTest {
     public void insertDeleteTest() {
         final String applicationId = "applicationId";
         final String groupId = "userGroupId";
-        MemoryAlarmDao memoryAlarmDao = new MemoryAlarmDao();
-        Rule rule = new Rule(applicationId, "serviceType", "checkerName1", 0, groupId, true, true, "");
-        Rule rule2 = new Rule(applicationId, "serviceType", "checkerName2", 10, groupId, true, true, "");
+        MemoryAlarmDao memoryAlarmDao = new MemoryAlarmDao(mock(UserGroupDao.class));
+        Rule rule = new Rule(applicationId, "serviceType", "checkerName1", 0, groupId, true, true, true, "");
+        Rule rule2 = new Rule(applicationId, "serviceType", "checkerName2", 10, groupId, true, true, true, "");
         memoryAlarmDao.insertRule(rule);
         memoryAlarmDao.insertRule(rule2);
 
         List<Rule> resultRules1 = memoryAlarmDao.selectRuleByApplicationId(applicationId);
-        assertEquals(2, resultRules1.size());
+        assertThat(resultRules1).hasSize(2);
         resultRules1 = memoryAlarmDao.selectRuleByApplicationId("app");
-        assertEquals(0, resultRules1.size());
+        assertThat(resultRules1).isEmpty();
 
         List<Rule> resultRules2 = memoryAlarmDao.selectRuleByUserGroupId(groupId);
-        assertEquals(2, resultRules2.size());
+        assertThat(resultRules2).hasSize(2);
         resultRules2 = memoryAlarmDao.selectRuleByUserGroupId("id");
-        assertEquals(0, resultRules2.size());
+        assertThat(resultRules2).isEmpty();
 
         memoryAlarmDao.deleteRule(rule);
         memoryAlarmDao.deleteRule(rule2);
         List<Rule> resultRules = memoryAlarmDao.selectRuleByApplicationId(applicationId);
-        assertEquals(0, resultRules.size());
+        assertThat(resultRules).isEmpty();
     }
 
 }

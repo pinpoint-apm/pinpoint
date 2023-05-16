@@ -18,12 +18,15 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
+import com.navercorp.pinpoint.profiler.context.Binder;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,13 +35,18 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
 
     private final Provider<AsyncTraceContext> asyncTraceContextProvider;
     private final AsyncIdGenerator asyncIdGenerator;
+    private final Binder<Trace> binder;
     private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
 
     @Inject
-    public AsyncContextFactoryProvider(Provider<AsyncTraceContext> asyncTraceContextProvider, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContextProvider = Assert.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
-        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
+    public AsyncContextFactoryProvider(Provider<AsyncTraceContext> asyncTraceContextProvider,
+                                       AsyncIdGenerator asyncIdGenerator,
+                                       Binder<Trace> binder,
+                                       PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
+        this.asyncTraceContextProvider = Objects.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider");
+        this.asyncIdGenerator = Objects.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
+        this.binder = Objects.requireNonNull(binder, "binder");
+        this.predefinedMethodDescriptorRegistry = Objects.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
     }
 
 
@@ -46,6 +54,6 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
     @Override
     public AsyncContextFactory get() {
         final AsyncTraceContext asyncTraceContext = asyncTraceContextProvider.get();
-        return new DefaultAsyncContextFactory(asyncTraceContext, asyncIdGenerator, predefinedMethodDescriptorRegistry);
+        return new DefaultAsyncContextFactory(asyncTraceContext, binder, asyncIdGenerator, predefinedMethodDescriptorRegistry);
     }
 }

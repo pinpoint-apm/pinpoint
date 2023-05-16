@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:aop="http://www.springframework.org/schema/aop"
-    xmlns:tx="http://www.springframework.org/schema/tx"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.mysql" />
+    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.mysql"/>
 
     <!-- Transaction manager for a single JDBC DataSource -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -19,7 +16,6 @@
         <property name="dataSource" ref="metaDataDataSource"/>
     </bean>
 
-    <tx:annotation-driven/>
 
     <!-- SqlsessionFactory setup for MyBatis Database Layer -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -49,21 +45,6 @@
     -->
     <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="sqlSessionFactory"/>
-    </bean>
-
-    <!-- setting of executorType for batch -->
-    <bean id="batchSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="sqlSessionFactory"/>
-        <constructor-arg index="1" value="BATCH"/>
-    </bean>
-    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-        <property name="transactionManager" ref="transactionManager"/>
-    </bean>
-
-    <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory" factory-method="create">
-        <constructor-arg index="0" value="${web.installation.pinpointVersion:}"/>
-        <constructor-arg index="1" value="${web.installation.downloadUrl:}"/>
-        <constructor-arg index="2" ref="restTemplate"/>
     </bean>
 
 </beans>

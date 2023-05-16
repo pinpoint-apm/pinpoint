@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
+import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-
+import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountList;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -35,30 +35,33 @@ import java.util.Map;
  */
 public interface AgentService {
 
-    AgentInfo getAgentInfo(String applicationName, String agentId);
-    AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp);
-    AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
+    ClusterKey getClusterKey(String applicationName, String agentId);
+    ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp);
+    ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
 
-    List<AgentInfo> getRecentAgentInfoList(String applicationName);
-    List<AgentInfo> getRecentAgentInfoList(String applicationName, long timeDiff);
+    List<ClusterKeyAndStatus> getRecentAgentInfoList(String applicationName);
+    List<ClusterKeyAndStatus> getRecentAgentInfoList(String applicationName, long timeDiff);
 
-    boolean isConnected(AgentInfo agentInfo);
+    boolean isConnected(ClusterKey clusterKey);
 
-    PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException;
-    PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase, long timeout) throws TException;
-    PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload) throws TException;
-    PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException;
+    PinpointRouteResponse invoke(ClusterKey clusterKey, TBase<?, ?> tBase) throws TException;
+    PinpointRouteResponse invoke(ClusterKey clusterKey, TBase<?, ?> tBase, long timeout) throws TException;
+    PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload) throws TException;
+    PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload, long timeout) throws TException;
 
-    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase) throws TException;
-    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase, long timeout) throws TException;
-    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
-    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout) throws TException;
+    Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, TBase<?, ?> tBase) throws TException;
+    Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, TBase<?, ?> tBase, long timeout) throws TException;
+    Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, byte[] payload) throws TException;
+    Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, byte[] payload, long timeout) throws TException;
 
-    ClientStreamChannel openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
-    ClientStreamChannel openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
+    ClientStreamChannel openStream(ClusterKey clusterKey, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
+    ClientStreamChannel openStream(ClusterKey clusterKey, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException;
 
-    AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException;
-    AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
+    ClientStreamChannel openStreamAndAwait(ClusterKey clusterKey, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException;
+    ClientStreamChannel openStreamAndAwait(ClusterKey clusterKey, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException;
+
+    AgentActiveThreadCountList getActiveThreadCount(List<ClusterKey> agentInfoList) throws TException;
+    AgentActiveThreadCountList getActiveThreadCount(List<ClusterKey> agentInfoList, byte[] payload) throws TException;
 
     byte[] serializeRequest(TBase<?, ?> tBase) throws TException;
     byte[] serializeRequest(TBase<?, ?> tBase, byte[] defaultValue);

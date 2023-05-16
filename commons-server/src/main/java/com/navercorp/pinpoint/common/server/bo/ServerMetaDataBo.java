@@ -73,11 +73,11 @@ public class ServerMetaDataBo {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("ServerMetaDataBo{");
-        sb.append("serverInfo='").append(this.serverInfo).append('\'');
-        sb.append(", vmArgs=").append(this.vmArgs);
-        sb.append(", serviceInfos=").append(this.serviceInfos.toString());
-        return sb.toString();
+        return "ServerMetaDataBo{" +
+                "serverInfo='" + serverInfo + '\'' +
+                ", vmArgs=" + vmArgs +
+                ", serviceInfos=" + serviceInfos +
+                '}';
     }
 
     @Override
@@ -129,12 +129,12 @@ public class ServerMetaDataBo {
             final Buffer buffer = new FixedBuffer(value);
             this.serverInfo = buffer.read2PrefixedString();
             final int numVmArgs = buffer.readVInt();
-            this.vmArgs = new ArrayList<String>(numVmArgs);
+            this.vmArgs = new ArrayList<>(numVmArgs);
             for (int i = 0; i < numVmArgs; i++) {
                 this.vmArgs.add(buffer.read2PrefixedString());
             }
             final int numServiceInfos = buffer.readVInt();
-            this.serviceInfos = new ArrayList<ServiceInfoBo>(numServiceInfos);
+            this.serviceInfos = new ArrayList<>(numServiceInfos);
             for (int i = 0; i < numServiceInfos; i++) {
                 ServiceInfoBo serviceInfoBo = new ServiceInfoBo.Builder(buffer.readPrefixedBytes()).build();
                 this.serviceInfos.add(serviceInfoBo);

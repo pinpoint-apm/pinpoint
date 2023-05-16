@@ -29,7 +29,7 @@ public class DeadlockThreadRegistry implements DeadlockThreadLocator {
 
     private static final Object DUMMY_VALUE = new Object();
 
-    private final ConcurrentMap<Long, Object> deadlockedThreadIdMap = new ConcurrentHashMap<Long, Object>();
+    private final ConcurrentMap<Long, Object> deadlockedThreadIdMap = new ConcurrentHashMap<>();
 
     boolean addDeadlockedThread(long threadId) {
         Object oldValue = deadlockedThreadIdMap.putIfAbsent(threadId, DUMMY_VALUE);
@@ -43,7 +43,7 @@ public class DeadlockThreadRegistry implements DeadlockThreadLocator {
             return Collections.emptySet();
         }
 
-        return new HashSet<Long>(deadlockedThreadIdMap.keySet());
+        return new HashSet<>(deadlockedThreadIdMap.keySet());
     }
 
     @Override

@@ -16,8 +16,10 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinIntFieldBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
-import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActiveTraceBo> {
+public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActiveTraceBo, AggreJoinActiveTraceBo> {
 
     @Override
     public AggreJoinActiveTraceBo sampleDataPoints(int index, long timestamp, List<JoinActiveTraceBo> joinActiveTraceBoList, JoinActiveTraceBo previousDataPoint) {
@@ -38,13 +40,8 @@ public class JoinActiveTraceSampler implements ApplicationStatSampler<JoinActive
         String id = joinActiveTraceBo.getId();
         int histogramSchemaType = joinActiveTraceBo.getHistogramSchemaType();
         short version = joinActiveTraceBo.getVersion();
-        int totalCount = joinActiveTraceBo.getTotalCount();
-        int maxTotalCount = joinActiveTraceBo.getMaxTotalCount();
-        String maxTotalCountAgentId = joinActiveTraceBo.getMaxTotalCountAgentId();
-        int minTotalCount = joinActiveTraceBo.getMinTotalCount();
-        String minTotalCountAgentId = joinActiveTraceBo.getMinTotalCountAgentId();
-        AggreJoinActiveTraceBo aggreJoinActiveTraceBo = new AggreJoinActiveTraceBo(id, histogramSchemaType, version, totalCount, minTotalCount, minTotalCountAgentId, maxTotalCount, maxTotalCountAgentId, timestamp);
+        JoinIntFieldBo totalCountValue = joinActiveTraceBo.getTotalCountJoinValue();
 
-        return aggreJoinActiveTraceBo;
+        return new AggreJoinActiveTraceBo(id, histogramSchemaType, version, totalCountValue, timestamp);
     }
 }

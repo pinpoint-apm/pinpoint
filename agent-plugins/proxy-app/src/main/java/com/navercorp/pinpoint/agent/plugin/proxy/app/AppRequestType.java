@@ -28,12 +28,23 @@ public class AppRequestType implements ProxyRequestType {
     }
 
     @Override
+    @Deprecated
     public String getDisplayName() {
+        return getDisplayName("");
+    }
+
+    @Override
+    public String getDisplayName(String name) {
         return "PROXY(APP)";
     }
 
     @Override
     public int getCode() {
         return 1;
+    }
+
+    @Override
+    public boolean useApp() {
+        return true;
     }
 }

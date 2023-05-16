@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.weblogic.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicAsyncListener;
@@ -38,6 +39,11 @@ public class ServletRequestImplStartAsyncInterceptor extends SpanEventSimpleArou
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    }
+
+    @Override
+    protected Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
     }
 
     @Override

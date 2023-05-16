@@ -1,0 +1,23 @@
+<div class="select-wrapper">
+    <mat-form-field class="count-select">
+        <mat-select [(ngModel)]="selectedCount" (selectionChange)="onSelectionChange($event.value)">
+            <mat-option *ngFor="let count of countList" [value]="count">View {{count}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<pp-url-statistic-info
+    [data]="data$ | async"
+    [sortStatus]="sortStatus"
+    [emptyMessage]="emptyMessage$ | async"
+    (outSelectUrlInfo)="onSelectUrlInfo($event)"
+    (outClickSort)="onClickSort($event)"
+>
+</pp-url-statistic-info>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-loading [showLoading]="showLoading" [zIndex]="11"></pp-loading>
+<ng-container *ngIf="errorMessage">
+    <pp-server-error-message
+        [message]="errorMessage"
+        (outClose)="onCloseErrorMessage()">
+    </pp-server-error-message>
+</ng-container>

@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Taejin Koo
@@ -32,88 +36,91 @@ public class PinpointWebSocketMessageConverterTest {
     @Test
     public void requestMessageTest() throws Exception {
         String command = "command";
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("test", "test");
 
         String textMessage = messageConverter.getRequestTextMessage(command, parameters);
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
 
-        Assert.assertNotNull(webSocketMessage);
-        Assert.assertTrue(webSocketMessage instanceof RequestMessage);
+        assertNotNull(webSocketMessage);
+        assertThat(webSocketMessage).isInstanceOf(RequestMessage.class);
         RequestMessage requestMessage = (RequestMessage) webSocketMessage;
 
-        Assert.assertEquals(PinpointWebSocketMessageType.REQUEST, requestMessage.getType());
-        Assert.assertEquals(command, requestMessage.getCommand());
-        Assert.assertEquals(parameters, requestMessage.getParameters());
+        assertEquals(PinpointWebSocketMessageType.REQUEST, requestMessage.getType());
+        assertEquals(command, requestMessage.getCommand());
+        assertEquals(parameters, requestMessage.getParameters());
     }
 
     @Test
     public void responseMessageTest() throws Exception {
         String command = "command";
-        Map result = new HashMap();
+        Map<String, Object> result = new HashMap<>();
         result.put("test", "test");
 
         String textMessage = messageConverter.getResponseTextMessage(command, result);
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
 
-        Assert.assertNotNull(webSocketMessage);
-        Assert.assertTrue(webSocketMessage instanceof ResponseMessage);
+        assertNotNull(webSocketMessage);
+        assertThat(webSocketMessage).isInstanceOf(ResponseMessage.class);
         ResponseMessage responseMessage = (ResponseMessage) webSocketMessage;
 
-        Assert.assertEquals(PinpointWebSocketMessageType.RESPONSE, responseMessage.getType());
-        Assert.assertEquals(command, responseMessage.getCommand());
-        Assert.assertEquals(result, responseMessage.getResult());
+        assertEquals(PinpointWebSocketMessageType.RESPONSE, responseMessage.getType());
+        assertEquals(command, responseMessage.getCommand());
+        assertEquals(result, responseMessage.getResult());
     }
 
     @Test
     public void sendMessageTest() throws Exception {
         String command = "command";
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("test", "test");
 
         String textMessage = messageConverter.getSendTextMessage(command, parameters);
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
 
-        Assert.assertNotNull(webSocketMessage);
-        Assert.assertTrue(webSocketMessage instanceof SendMessage);
+        assertNotNull(webSocketMessage);
+        assertThat(webSocketMessage).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) webSocketMessage;
 
-        Assert.assertEquals(PinpointWebSocketMessageType.SEND, sendMessage.getType());
-        Assert.assertEquals(command, sendMessage.getCommand());
-        Assert.assertEquals(parameters, sendMessage.getParameters());
+        assertEquals(PinpointWebSocketMessageType.SEND, sendMessage.getType());
+        assertEquals(command, sendMessage.getCommand());
+        assertEquals(parameters, sendMessage.getParameters());
     }
 
     @Test
-    public void pingMessageTest() throws Exception {
+    public void pingMessageTest() {
         String textMessage = messageConverter.getPingTextMessage();
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
 
-        Assert.assertNotNull(webSocketMessage);
-        Assert.assertTrue(webSocketMessage instanceof PingMessage);
-        Assert.assertEquals(PinpointWebSocketMessageType.PING, webSocketMessage.getType());
+        assertNotNull(webSocketMessage);
+        assertThat(webSocketMessage).isInstanceOf(PingMessage.class);
+        assertEquals(PinpointWebSocketMessageType.PING, webSocketMessage.getType());
     }
 
 
     @Test
-    public void pongMessageTest() throws Exception {
+    public void pongMessageTest() {
         String textMessage = messageConverter.getPongTextMessage();
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
 
-        Assert.assertNotNull(webSocketMessage);
-        Assert.assertTrue(webSocketMessage instanceof PongMessage);
-        Assert.assertEquals(PinpointWebSocketMessageType.PONG, webSocketMessage.getType());
+        assertNotNull(webSocketMessage);
+        assertThat(webSocketMessage).isInstanceOf(PongMessage.class);
+        assertEquals(PinpointWebSocketMessageType.PONG, webSocketMessage.getType());
     }
 
     @Test
-    public void UnknownMessageTest() throws Exception {
+    public void UnknownMessageTest() {
         PinpointWebSocketMessage emptyString = messageConverter.getWebSocketMessage("");
-        Assert.assertSame(emptyString.getClass(), UnknownMessage.class);
+        Assertions.assertSame(emptyString.getClass(), UnknownMessage.class);
+        assertEquals(PinpointWebSocketMessageType.UNKNOWN, emptyString.getType());
 
         PinpointWebSocketMessage nullValue = messageConverter.getWebSocketMessage(null);
-        Assert.assertSame(nullValue.getClass(), UnknownMessage.class);
+        Assertions.assertSame(nullValue.getClass(), UnknownMessage.class);
+        assertEquals(PinpointWebSocketMessageType.UNKNOWN, nullValue.getType());
 
         PinpointWebSocketMessage emptyObject = messageConverter.getWebSocketMessage("{}");
-        Assert.assertSame(emptyObject.getClass(), UnknownMessage.class);
+        Assertions.assertSame(emptyObject.getClass(), UnknownMessage.class);
+        assertEquals(PinpointWebSocketMessageType.UNKNOWN, emptyObject.getType());
     }
 
 

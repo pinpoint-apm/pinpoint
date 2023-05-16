@@ -17,27 +17,29 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final CachingSqlNormalizer cachingSqlNormalizer;
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultSqlMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> sqlCache) {
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
+    public DefaultSqlMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> sqlCache) {
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
 
-        Assert.requireNonNull(sqlCache, "sqlCache");
+        Objects.requireNonNull(sqlCache, "sqlCache");
         this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCache);
     }
 

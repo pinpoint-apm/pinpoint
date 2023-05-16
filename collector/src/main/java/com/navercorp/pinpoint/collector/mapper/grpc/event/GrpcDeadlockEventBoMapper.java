@@ -20,8 +20,9 @@ import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.grpc.trace.PDeadlock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -30,8 +31,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcDeadlockEventBoMapper {
 
-    @Autowired
-    private GrpcDeadlockBoMapper deadlockBoMapper;
+    private final GrpcDeadlockBoMapper deadlockBoMapper;
+
+    public GrpcDeadlockEventBoMapper(GrpcDeadlockBoMapper deadlockBoMapper) {
+        this.deadlockBoMapper = Objects.requireNonNull(deadlockBoMapper, "deadlockBoMapper");
+    }
 
     public DeadlockEventBo map(String agentId, long startTimeStamp, long eventTimestamp, PDeadlock deadlock) {
         final DeadlockBo deadlockBo = this.deadlockBoMapper.map(deadlock);

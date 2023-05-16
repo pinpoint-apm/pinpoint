@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.rpc.buffer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -11,7 +12,7 @@ import java.nio.ByteOrder;
 public class ByteBufferFactoryTest {
 
     @Test
-    public void directByteBufferFactoryTest() throws Exception {
+    public void directByteBufferFactoryTest() {
         ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("direct");
         ByteBuffer buffer = byteBufferFactory.getBuffer(20);
 
@@ -20,7 +21,7 @@ public class ByteBufferFactoryTest {
     }
 
     @Test
-    public void heapByteBufferFactoryTest() throws Exception {
+    public void heapByteBufferFactoryTest() {
         ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("heap");
         ByteBuffer buffer = byteBufferFactory.getBuffer(20);
 
@@ -28,10 +29,11 @@ public class ByteBufferFactoryTest {
         assertBufferType(buffer, false);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void unknownByteBufferFactoryTest() throws Exception {
-        ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("unknown");
-
+    @Test
+    public void unknownByteBufferFactoryTest() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ByteBufferFactory byteBufferFactory = ByteBufferFactoryLocator.getFactory("unknown");
+        });
     }
 
     private void assertBufferOrder(ByteBuffer byteBuffer, ByteOrder order) {

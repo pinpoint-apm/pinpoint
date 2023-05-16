@@ -20,15 +20,18 @@ import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -41,19 +44,23 @@ import java.util.Objects;
 @Repository
 public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final HbaseColumnFamily.StringMetadataStr DESCRIPTOR = HbaseColumnFamily.STRING_METADATA_STR;
 
     private final HbaseOperations2 hbaseTemplate;
+    private final TableNameProvider tableNameProvider;
 
-    private final TableDescriptor<HbaseColumnFamily.StringMetadataStr> descriptor;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
+
     public HbaseStringMetaDataDao(HbaseOperations2 hbaseTemplate,
-                                  TableDescriptor<HbaseColumnFamily.StringMetadataStr> descriptor,
+                                  TableNameProvider tableNameProvider,
                                   @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
@@ -67,13 +74,13 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         // Assert agentId
         CollectorUtils.checkAgentId(stringMetaData.getAgentId());
 
-        final byte[] rowKey = getDistributedKey(stringMetaData.toRowKey());
+        final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(stringMetaData));
         final Put put = new Put(rowKey);
         final String stringValue = stringMetaData.getStringValue();
         final byte[] sqlBytes = Bytes.toBytes(stringValue);
-        put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STRING, sqlBytes);
+        put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STRING, sqlBytes);
 
-        final TableName stringMetaDataTableName = descriptor.getTableName();
+        final TableName stringMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(stringMetaDataTableName, put);
     }
 

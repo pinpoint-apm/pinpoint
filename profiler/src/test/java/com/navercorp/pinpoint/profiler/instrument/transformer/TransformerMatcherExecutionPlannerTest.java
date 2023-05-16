@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInte
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.SuperClassInternalNameMatcherOperand;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author jaehong.kim
@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 public class TransformerMatcherExecutionPlannerTest {
 
     @Test
-    public void findIndex() throws Exception {
+    public void findIndex() {
         TransformerMatcherExecutionPlanner executionPlanner = new TransformerMatcherExecutionPlanner();
 
         // and
@@ -44,7 +44,7 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.and(new PackageInternalNameMatcherOperand("java/lang"));
 
         List<MatcherOperand> result = executionPlanner.findIndex(operand);
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
 
         // or
         operand = new ClassInternalNameMatcherOperand("java/lang/String");
@@ -53,7 +53,7 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.or(new PackageInternalNameMatcherOperand("java/lang"));
 
         result = executionPlanner.findIndex(operand);
-        assertEquals(2, result.size());
+        assertThat(result).hasSize(2);
 
         // not
         operand = new InterfaceInternalNameMatcherOperand("java/lang/Comparable", false);
@@ -61,7 +61,7 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.and(new PackageInternalNameMatcherOperand("javax").not());
 
         result = executionPlanner.findIndex(operand);
-        assertEquals(0, result.size());
+        assertThat(result).isEmpty();
 
         // none
         operand = new InterfaceInternalNameMatcherOperand("java/lang/Comparable", false);
@@ -69,6 +69,6 @@ public class TransformerMatcherExecutionPlannerTest {
         operand = operand.and(new SuperClassInternalNameMatcherOperand("java/lang/Object", true));
 
         result = executionPlanner.findIndex(operand);
-        assertEquals(0, result.size());
+        assertThat(result).isEmpty();
     }
 }

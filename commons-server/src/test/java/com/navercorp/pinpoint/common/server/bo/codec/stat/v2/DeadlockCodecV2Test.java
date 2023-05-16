@@ -20,23 +20,23 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockThreadCountBo> {
 
     @Autowired
-    private DeadlockCodecV2 deadlockCodecV2;
+    private AgentStatCodecV2<DeadlockThreadCountBo> codec;
 
     @Override
     protected List<DeadlockThreadCountBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
@@ -45,15 +45,15 @@ public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockThreadCo
 
     @Override
     protected AgentStatCodec<DeadlockThreadCountBo> getCodec() {
-        return deadlockCodecV2;
+        return codec;
     }
 
     @Override
     protected void verify(DeadlockThreadCountBo expected, DeadlockThreadCountBo actual) {
-        Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
-        Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
-        Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Assert.assertEquals("deadlockedThreadCount", expected.getDeadlockedThreadCount(), actual.getDeadlockedThreadCount());
+        Assertions.assertEquals(expected.getAgentId(), actual.getAgentId(), "agentId");
+        Assertions.assertEquals(expected.getStartTimestamp(), actual.getStartTimestamp(), "startTimestamp");
+        Assertions.assertEquals(expected.getTimestamp(), actual.getTimestamp(), "timestamp");
+        Assertions.assertEquals(expected.getDeadlockedThreadCount(), actual.getDeadlockedThreadCount(), "deadlockedThreadCount");
     }
 
 }

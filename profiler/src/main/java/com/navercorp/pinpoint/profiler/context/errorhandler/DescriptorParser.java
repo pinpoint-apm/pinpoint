@@ -1,31 +1,31 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class DescriptorParser {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Map<String, String> property;
 
     public DescriptorParser(Map<String, String> property) {
-        this.property = Assert.requireNonNull(property, "property");
+        this.property = Objects.requireNonNull(property, "property");
     }
 
     public List<Descriptor> parse() {
 
         final Set<String> handlerIdSet = parseHandlerId();
 
-        List<Descriptor> descriptorList = new ArrayList<Descriptor>();
+        List<Descriptor> descriptorList = new ArrayList<>();
         for (String handlerId : handlerIdSet) {
             final List<String> classNameList = getClassName(handlerId);
             if (classNameList.isEmpty()) {
@@ -66,7 +66,7 @@ public class DescriptorParser {
 
 
     private Set<String> parseHandlerId() {
-        Set<String> handlerIdSet = new HashSet<String>();
+        Set<String> handlerIdSet = new HashSet<>();
 
         for (String key : property.keySet()) {
             String handlerId = OptionKey.parseHandlerId(key);

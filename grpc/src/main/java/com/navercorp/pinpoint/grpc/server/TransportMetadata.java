@@ -22,8 +22,11 @@ public interface TransportMetadata {
 
     InetSocketAddress getRemoteAddress();
 
+    InetSocketAddress getLocalAddress();
+
     Long getTransportId();
 
     long getConnectTime();
 
+    Long getLogId();
 }

@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,7 +34,7 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
     private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
 
     public EmptyActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
+        this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
     }
 
     @Override
@@ -52,17 +52,11 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
         return Collections.emptyList();
     }
 
+
     @Override
-    public ActiveTraceHandle register(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot");
+    public ActiveTraceHandle register(LocalTraceRoot traceRoot) {
         return new EmptyActiveTraceHandle(traceRoot.getTraceStartTime());
     }
-
-    @Override
-    public ActiveTraceHandle register(long localTransactionId, long startTime, long threadId) {
-        return new EmptyActiveTraceHandle(startTime);
-    }
-
 
     private void remove(long startTime, long purgeTime) {
         final long responseTime = purgeTime - startTime;
@@ -80,6 +74,6 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
         public void purge(long purgeTime) {
             remove(startTime, purgeTime);
         }
-    };
+    }
 
 }

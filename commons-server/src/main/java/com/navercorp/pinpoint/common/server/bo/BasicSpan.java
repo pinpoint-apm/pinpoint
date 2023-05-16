@@ -28,6 +28,9 @@ public interface BasicSpan {
     String getAgentId();
     void setAgentId(String agentId);
 
+    String getAgentName();
+    void setAgentName(String agentName);
+
     String getApplicationId();
     void  setApplicationId(String applicationId);
 

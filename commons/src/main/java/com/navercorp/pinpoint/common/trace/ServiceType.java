@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.common.trace;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 
 /**
  * 
@@ -32,6 +34,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5</td><td>TEST</td></tr>
  * <tr><td>7</td><td>COLLECTOR</td></tr>
  * <tr><td>100</td><td>ASYNC</td></tr>
+ * <tr><td>500</td><td>SDK</td></tr>
+ * <tr><td>510</td><td>SDK_ASYNC</td></tr>
  * </table>
  *
  * 
@@ -68,6 +72,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1140</td><td>REACTOR_NETTY</td></tr>
  * <tr><td>1141</td><td>REACTOR_NETTY_INTERNAL</td></tr>
  *
+ * <tr><td>1300</td><td>C_CPP</td></tr>
+ * <tr><td>1301</td><td>C_CPP_METHOD</td></tr>
+ *
+ * <tr><td>1310</td><td>AKKA_HTTP_SERVER</td></tr>
+ * <tr><td>1311</td><td>AKKA_HTTP_SERVER_INTERNAL</td></tr>
+ *
  * <tr><td>1400</td><td>NODE</td></tr>
  * <tr><td>1401</td><td>NODE_METHOD</td></tr>
  * <tr><td>1500</td><td>PHP</td></tr>
@@ -76,6 +86,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
  * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
  * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
+ * <tr><td>1700</td><td>PYTHON</td></tr>
+ * <tr><td>1701</td><td>PYTHON_METHOD</td></tr>
+ * <tr><td>1702</td><td>CELERY</td></tr>
+ * <tr><td>1703</td><td>CELERY-WORKER</td></tr>
+ * <tr><td>1800</td><td>GO</td></tr>
+ * <tr><td>1801</td><td>GO_FUNCTION</td></tr>
  *
  * </table>
  * 
@@ -88,14 +104,22 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2051</td><td>UNKNOWN_DB_EXECUTE_QUERY</td></tr>
  * <tr><td>2100</td><td>MYSQL</td></tr>
  * <tr><td>2101</td><td>MYSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2102</td><td>R2DBC_MYSQL</td></tr>
+ * <tr><td>2103</td><td>R2DBC_MYSQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2150</td><td>MARIADB</td></tr>
  * <tr><td>2151</td><td>MARIADB_EXECUTE_QUERY</td></tr>
+ * <tr><td>2152</td><td>R2DBC_MARIADB</td></tr>
+ * <tr><td>2153</td><td>R2DBC_MARIADB_EXECUTE_QUERY</td></tr>
  * <tr><td>2200</td><td>MSSQL</td></tr>
  * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2250</td><td>MSSQL_JDBC</td></tr>
- * <tr><td>2251</td><td>MSSQL_JDBC_QUERY</td></tr> *
+ * <tr><td>2251</td><td>MSSQL_JDBC_QUERY</td></tr>
+ * <tr><td>2252</td><td>R2DBC_MSSQL_JDBC</td></tr>
+ * <tr><td>2253</td><td>R2DBC_MSSQL_JDBC_QUERY</td></tr>
  * <tr><td>2300</td><td>ORACLE</td></tr>
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
+ * <tr><td>2302</td><td>R2DBC_ORACLE</td></tr>
+ * <tr><td>2303</td><td>R2DBC_ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
  * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
  * <tr><td>2410</td><td>NBASET</td></tr>
@@ -105,13 +129,21 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2451</td><td>INFORMIX_EXECUTE_QUERY</td></tr>
  * <tr><td>2500</td><td>POSTGRESQL</td></tr>
  * <tr><td>2501</td><td>POSTGRESQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2502</td><td>R2DBC_POSTGRESQL</td></tr>
+ * <tr><td>2503</td><td>R2DBC_POSTGRESQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2600</td><td>CASSANDRA</td></tr>
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
+ * <tr><td>2602</td><td>CASSANDRA4</td></tr>
+ * <tr><td>2603</td><td>CASSANDRA4_EXECUTE_QUERY</td></tr>
  * <tr><td>2650</td><td>MONGO</td></tr>
  * <tr><td>2651</td><td>MONGO_EXECUTE_QUERY</td></tr>
  * <tr><td>2652</td><td>MONGO_REACTIVE</td></tr>
  * <tr><td>2700</td><td>COUCHDB</td></tr>
  * <tr><td>2701</td><td>COUCHDB_EXECUTE_QUERY</td></tr>
+ * <tr><td>2750</td><td>H2</td></tr>
+ * <tr><td>2751</td><td>H2_EXECUTE_QUERY</td></tr>
+ * <tr><td>2752</td><td>R2DBC_H2</td></tr>
+ * <tr><td>2753</td><td>R2DBC_H2_EXECUTE_QUERY</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
@@ -133,6 +165,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
  * <tr><td>5053</td><td>SPRING_WEBFLUX</td></tr>
+ * <tr><td>5054</td><td>SPRING_TX</td></tr>
  * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
  * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
  * <tr><td>5500</td><td>IBATIS</td></tr>
@@ -150,12 +183,13 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6610</td><td>KOA</td></tr>
  * <tr><td>6620</td><td>HAPI</td></tr>
  * <tr><td>6630</td><td>RESTIFY</td></tr>
+ * <tr><td>6640</td><td>SPRING_DATA_R2DBC</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
  *
  * <h3>Library Sandbox (7500 ~ 7999)</h3>
  *
- * <h3>Cache & File Library (8000 ~ 8899) Fast Histogram</h3>
+ * <h3>Cache & File Library (8000 ~ 8299) Fast Histogram</h3>
  * <table>
  * <tr><td>8050</td><td>MEMCACHED</td></tr>
  * <tr><td>8051</td><td>MEMCACHED_FUTURE_GET</td></tr>
@@ -168,14 +202,26 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8202</td><td>IOREDIS</td></tr>
  * <tr><td>8203</td><td>REDIS_REDISSON</td></tr>
  * <tr><td>8204</td><td>REDIS_REDISSON_INTERNAL</td></tr>
+ * <tr><td>8205</td><td>REDIS_REDISSON_REACTIVE</td></tr>
+ * <tr><td>8206</td><td>REDIS_LETTUCE_INTERNAL</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>8280</td><td><i>ETCD</i></td></tr>
+ * </table>
+ *
+ * <h3>Message Broker Library (8300 ~ 8799)</h3>
+ * <table>
  * <tr><td>8300</td><td>RABBITMQ</td></tr>
  * <tr><td>8310</td><td><i>ACTIVEMQ_CLIENT</i></td></tr>
  * <tr><td>8311</td><td><i>ACTIVEMQ_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8660</td><td><i>KAFKA_CLIENT</i></td></tr>
  * <tr><td>8661</td><td><i>KAFKA_CLIENT_INTERNAL</i></td></tr>
+ * <tr><td>8662</td><td><i>KAFKA_STREAMS</i></td></tr>
+ * </table>
+ *
+ * <h3>HBase Library (8800 ~ 8899)</h3>
+ * <table>
  * <tr><td>8800</td><td>HBASE_CLIENT</td></tr>
  * <tr><td>8801</td><td><i>HBASE_CLIENT_ADMIN</i></td></tr>
  * <tr><td>8802</td><td><i>HBASE_CLIENT_TABLE</i></td></tr>
@@ -197,6 +243,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9058</td><td>OK_HTTP_CLIENT</td></tr>
  * <tr><td>9059</td><td>OK_HTTP_CLIENT_INTERNAL</td></tr>
  * <tr><td>9060</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>9062</td><td><i>HTTP_CLIENT_5</i></td></tr>
+ * <tr><td>9063</td><td><i>HTTP_CLIENT_5_INTERNAL</i></td></tr>
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
  * <tr><td><s>9080</s></td><td><s>APACHE_CXF_CLIENT</s></td></tr>
  * <tr><td>9081</td><td>APACHE_CXF_SERVICE_INVOKER</td></tr>
@@ -214,19 +262,28 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
  * <tr><td>9153</td><td>SPRING_WEBFLUX_CLIENT</td></tr>
+ * <tr><td>9154</td><td>REACTOR_NETTY_CLIENT</td></tr>
+ * <tr><td>9155</td><td>REACTOR_NETTY_CLIENT_INTERNAL</td></tr>
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
- * <tr><td>9201</td><td>ElasticsearchBBoss</td></tr>
- * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
+ * <tr><td>9201</td><td>ElasticsearchBBoss @Deprecated</td></tr>
+ * <tr><td>9202</td><td>ElasticsearchBBossExecutor @Deprecated </td></tr>
+ * <tr><td>9203</td><td>ELASTICSEARCH</td></tr>
+ * <tr><td>9204</td><td>ELASTICSEARCH_HIGHLEVEL_CLIENT</td></tr>
+ * <tr><td>9205</td><td>ELASTICSEARCH8</td></tr>
+ * <tr><td>9206</td><td>ELASTICSEARCH8_CLIENT</td></tr>
  * <tr><td>9301</td><td>ENVOY_INGRESS</td></tr>
  * <tr><td>9302</td><td>ENVOY_EGRESS</td></tr>
+ * <tr><td>9401</td><td>GO_HTTP_CLIENT</td></tr>
  * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
- *
+ * <tr><td>9700</td><td>PHP_REMOTE_METHOD</td></tr>
+ * <tr><td>9800</td><td>C_CPP_REMOTE_METHOD</td></tr>
+ * <tr><td>9900</td><td>PYTHON_REMOTE_METHOD</td></tr>
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
- *
+ * <tr><td>9998</td><td>AKKA_HTTP_SERVER_INTERNAL_LEGACY</td></tr>
  * 
  * <tr><td></td><td></td></tr>
  * 

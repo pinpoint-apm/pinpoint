@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DefaultDataSourceMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Taejin Koo
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DataSourceMetricProvider implements Provider<DataSourceMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService;
     private final JdbcUrlParsingService jdbcUrlParsingService;

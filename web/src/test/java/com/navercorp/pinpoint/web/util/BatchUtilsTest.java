@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author minwoo.jung
@@ -27,8 +28,8 @@ public class BatchUtilsTest {
 
     @Test
     public void test() {
-        assertEquals(BatchUtils.decisionBatchServer("127.0.0.1"), true);
-        assertEquals(BatchUtils.decisionBatchServer("127.127.127.127"), false);
+        assertTrue(BatchUtils.decisionBatchServer("127.0.0.1"));
+        assertFalse(BatchUtils.decisionBatchServer("127.127.127.127"));
     }
 
 }

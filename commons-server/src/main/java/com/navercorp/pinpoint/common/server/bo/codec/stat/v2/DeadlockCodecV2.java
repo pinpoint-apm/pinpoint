@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.StrategyAnaly
 import com.navercorp.pinpoint.common.server.bo.codec.stat.strategy.UnsignedIntegerEncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
@@ -37,10 +36,9 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Component("deadlockCodecV2")
+@Component
 public class DeadlockCodecV2 extends AgentStatCodecV2<DeadlockThreadCountBo> {
 
-    @Autowired
     public DeadlockCodecV2(AgentStatDataPointCodec codec) {
         super(new DeadlockCodecFactory(codec));
     }

@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataProv
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestMetadataSetupContext;
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 
@@ -36,6 +36,8 @@ import java.util.ServiceLoader;
 @Service
 public class ProxyRequestTypeRegistryServiceImpl implements ProxyRequestTypeRegistryService {
     private static final ProxyRequestType UNKNOWN = new ProxyRequestType() {
+        private static final String DEFAULT_DISPLAY_NAME = "PROXY(UNKNOWN)";
+
         @Override
         public String getHttpHeaderName() {
             return "";
@@ -43,16 +45,26 @@ public class ProxyRequestTypeRegistryServiceImpl implements ProxyRequestTypeRegi
 
         @Override
         public String getDisplayName() {
-            return "PROXY(UNKNOWN)";
+            return DEFAULT_DISPLAY_NAME;
+        }
+
+        @Override
+        public String getDisplayName(String name) {
+            return DEFAULT_DISPLAY_NAME;
         }
 
         @Override
         public int getCode() {
             return 0;
         }
+
+        @Override
+        public boolean useApp() {
+            return false;
+        }
     };
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final IntHashMap<ProxyRequestType> codeLookupTable = new IntHashMap<ProxyRequestType>();
 

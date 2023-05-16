@@ -35,7 +35,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
 
         // init
         int count = traversal(root, false);
-        this.nodes = new ArrayList<CallTreeNode>(count);
+        this.nodes = new ArrayList<>(count);
 
         // populate
         addNode(root);

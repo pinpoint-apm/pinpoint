@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.filter.deserializer.FilterHintListJsonDeserial
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Hint for filtering
@@ -46,9 +47,8 @@ public class FilterHint {
 
 
     public List<RpcHint> getRpcHintList(String targetApplicationName) {
-        if (targetApplicationName == null) {
-            throw new NullPointerException("targetApplicationName");
-        }
+        Objects.requireNonNull(targetApplicationName, "targetApplicationName");
+
         final List<RpcHint> findRpcHintList = new ArrayList<>();
         for (RpcHint rpcHint : rpcHintList) {
             // TODO miss serviceType

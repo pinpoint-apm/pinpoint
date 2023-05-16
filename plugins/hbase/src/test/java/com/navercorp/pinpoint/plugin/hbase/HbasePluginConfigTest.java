@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.plugin.hbase;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HbasePluginConfigTest {
 
@@ -38,6 +38,14 @@ public class HbasePluginConfigTest {
         ProfilerConfig profilerConfig = new DefaultProfilerConfig();
         HbasePluginConfig config = new HbasePluginConfig(profilerConfig);
         assertFalse(config.isParamsProfile());
+        System.out.println(config);
+    }
+
+    @Test
+    public void isTableNameProfile() {
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
+        HbasePluginConfig config = new HbasePluginConfig(profilerConfig);
+        assertTrue(config.isTableNameProfile());
         System.out.println(config);
     }
 }

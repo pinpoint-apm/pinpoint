@@ -21,27 +21,29 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.navercorp.pinpoint.profiler.util.RandomExUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Taejin Koo
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultDataSourceMetricTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Mock
     private JdbcUrlParsingService jdbcUrlParsingService;
@@ -69,20 +71,19 @@ public class DefaultDataSourceMetricTest {
         for (int i = 0; i < remainingCapacity; i++) {
             MockDataSourceMonitor mock = new MockDataSourceMonitor(i);
             boolean register = dataSourceMonitorRegistry.register(mock);
-            Assert.assertTrue(register);
+            Assertions.assertTrue(register);
             mockDataSourceMonitors[i] = mock;
         }
         return mockDataSourceMonitors;
     }
 
     private void assertIdIsUnique(List<DataSource> dataSourceList) {
-        Set<Integer> idSet = new HashSet<Integer>();
+        Set<Integer> idSet = new HashSet<>();
 
         for (DataSource dataSource : dataSourceList) {
             idSet.add(dataSource.getId());
         }
-
-        Assert.assertEquals(dataSourceList.size(), idSet.size());
+        assertThat(dataSourceList).hasSameSizeAs(idSet);
     }
 
     private void assertContainsAndEquals(DataSourceMonitor dataSourceMonitor, List<DataSource> dataSourceList) {
@@ -90,14 +91,14 @@ public class DefaultDataSourceMetricTest {
             String url = dataSourceMonitor.getUrl();
 
             if (url.equals(dataSource.getUrl())) {
-                Assert.assertEquals(dataSourceMonitor.getActiveConnectionSize(), dataSource.getActiveConnectionSize());
-                Assert.assertEquals(dataSourceMonitor.getMaxConnectionSize(), dataSource.getMaxConnectionSize());
-                Assert.assertEquals(dataSourceMonitor.getServiceType().getCode(), dataSource.getServiceTypeCode());
+                Assertions.assertEquals(dataSourceMonitor.getActiveConnectionSize(), dataSource.getActiveConnectionSize());
+                Assertions.assertEquals(dataSourceMonitor.getMaxConnectionSize(), dataSource.getMaxConnectionSize());
+                Assertions.assertEquals(dataSourceMonitor.getServiceType().getCode(), dataSource.getServiceTypeCode());
                 return;
             }
 
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     private static class MockDataSourceMonitor implements DataSourceMonitor {
@@ -115,9 +116,9 @@ public class DefaultDataSourceMetricTest {
 
         public MockDataSourceMonitor(int index) {
             this.id = index;
-            this.serviceType = SERVICE_TYPE_LIST[RandomUtils.nextInt(0, SERVICE_TYPE_LIST.length)];
-            this.maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
-            this.activeConnectionSize = RandomUtils.nextInt(0, maxConnectionSize + 1);
+            this.serviceType = SERVICE_TYPE_LIST[RandomExUtils.nextInt(0, SERVICE_TYPE_LIST.length)];
+            this.maxConnectionSize = RandomExUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
+            this.activeConnectionSize = RandomExUtils.nextInt(0, maxConnectionSize + 1);
         }
 
         @Override

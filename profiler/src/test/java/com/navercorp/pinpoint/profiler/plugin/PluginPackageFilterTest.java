@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -27,11 +27,11 @@ import java.util.Arrays;
 public class PluginPackageFilterTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
         PluginPackageFilter filter = new PluginPackageFilter(Arrays.asList("com.plugin"));
 
-        Assert.assertTrue(filter.accept("com.plugin.test.module"));
+        Assertions.assertTrue(filter.accept("com.plugin.test.module", null));
 
-        Assert.assertFalse(filter.accept("test"));
+        Assertions.assertFalse(filter.accept("test", null));
     }
 }

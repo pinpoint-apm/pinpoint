@@ -19,23 +19,23 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.logging.Log4j2LoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author emeroad
  */
-@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultTraceTest {
 
     private final String agentId = "agentId";
@@ -62,14 +62,14 @@ public class DefaultTraceTest {
 
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
 
-    @BeforeClass
+    @BeforeAll
     public static void before() throws Exception {
-        Slf4jLoggerBinderInitializer.beforeClass();
+        Log4j2LoggerBinderInitializer.beforeClass();
     }
 
-    @AfterClass
-    public static void after()  throws Exception {
-        Slf4jLoggerBinderInitializer.afterClass();
+    @AfterAll
+    public static void after() throws Exception {
+        Log4j2LoggerBinderInitializer.afterClass();
     }
 
 
@@ -92,7 +92,7 @@ public class DefaultTraceTest {
         recorder2.attachFrameObject("2");
         trace.traceBlockEnd();
         // access the previous SpanEvent
-        Assert.assertEquals(recorder1.getFrameObject(), "1");
+        Assertions.assertEquals(recorder1.getFrameObject(), "1");
         trace.traceBlockEnd();
         trace.close();
     }
@@ -116,11 +116,11 @@ public class DefaultTraceTest {
     @Test
     public void overflowUnlimit() {
         Trace trace = newTrace(-1);
-        for(int i = 0; i < 256; i++) {
+        for (int i = 0; i < 256; i++) {
             trace.traceBlockBegin();
         }
 
-        for(int i = 0; i < 256; i++) {
+        for (int i = 0; i < 256; i++) {
             trace.traceBlockEnd();
         }
     }
@@ -148,10 +148,7 @@ public class DefaultTraceTest {
     private Trace newTrace(final int maxCallStackDepth) {
         when(traceRoot.getShared()).thenReturn(shared);
 
-        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 0);
-        when(traceRoot.getTraceId()).thenReturn(traceId);
-
-        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth);
+        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth, -1, 1000);
         CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
         SpanFactory spanFactory = new DefaultSpanFactory();
@@ -159,10 +156,9 @@ public class DefaultTraceTest {
         Storage storage = mock(Storage.class);
 
         final Span span = spanFactory.newSpan(traceRoot);
-        final boolean root = span.getTraceRoot().getTraceId().isRoot();
-        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService, errorHandler);
+        final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler);
 
-        return new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
+        return new DefaultTrace(span, callStack, storage, spanRecorder, wrappedSpanEventRecorder, CloseListener.EMPTY);
     }
 }

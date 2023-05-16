@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,12 +25,12 @@ import org.junit.Test;
 public class PinpointProfilerPackageSkipFilterTest {
 
     @Test
-    public void testAccept() throws Exception {
+    public void testAccept() {
 
         PinpointProfilerPackageSkipFilter filter = new PinpointProfilerPackageSkipFilter();
-        Assert.assertFalse("skip", filter.accept("com.navercorp.pinpoint.bootstrap.test.class"));
+        Assertions.assertFalse(filter.accept("com.navercorp.pinpoint.bootstrap.test.class", null), "skip");
 
-        Assert.assertTrue("include", filter.accept("test"));
+        Assertions.assertTrue(filter.accept("test", null), "include");
 
     }
 }

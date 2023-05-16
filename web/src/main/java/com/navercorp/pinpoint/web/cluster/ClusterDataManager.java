@@ -1,9 +1,7 @@
 package com.navercorp.pinpoint.web.cluster;
 
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import org.apache.zookeeper.KeeperException;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -11,14 +9,12 @@ import java.util.List;
  */
 public interface ClusterDataManager {
 
-    void start() throws InterruptedException, IOException, KeeperException, Exception;
+    void start();
 
     void stop();
 
     boolean registerWebCluster(String zNodeName, byte[] contents);
 
-    List<String> getRegisteredAgentList(AgentInfo agentInfo);
-
-    List<String> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
+    List<ClusterId> getRegisteredAgentList(ClusterKey key);
 
 }

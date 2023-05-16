@@ -16,41 +16,41 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TBaseSerializer;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ThriftMessageSerializer implements MessageSerializer<byte[]> {
+public class ThriftMessageSerializer<T> implements MessageSerializer<T, byte[]> {
 
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     // Caution. not thread safe
     private final TBaseSerializer serializer;
-    private final MessageConverter<TBase<?, ?>> messageConverter;
+    private final MessageConverter<T, TBase<?, ?>> messageConverter;
 
-    public ThriftMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter) {
+    public ThriftMessageSerializer(MessageConverter<T, TBase<?, ?>> messageConverter) {
         this(messageConverter, HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer());
     }
 
-    public ThriftMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter, TBaseSerializer serializer) {
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
-        this.serializer = Assert.requireNonNull(serializer, "serializer");
+    public ThriftMessageSerializer(MessageConverter<T, TBase<?, ?>> messageConverter, TBaseSerializer serializer) {
+        this.messageConverter = Objects.requireNonNull(messageConverter, "messageConverter");
+        this.serializer = Objects.requireNonNull(serializer, "serializer");
 
     }
 
     // single thread only
     @Override
-    public byte[] serializer(Object message) {
+    public byte[] serializer(T message) {
         if (message instanceof TBase<?, ?>) {
             final TBase<?, ?> tBase = (TBase<?, ?>) message;
             return serialize(serializer, tBase);
@@ -63,7 +63,7 @@ public class ThriftMessageSerializer implements MessageSerializer<byte[]> {
         return null;
     }
 
-    private byte[] serialize(TBaseSerializer serializer, TBase tBase) {
+    private byte[] serialize(TBaseSerializer serializer, TBase<?, ?> tBase) {
         try {
             return serializer.serialize(tBase);
         } catch (TException e) {

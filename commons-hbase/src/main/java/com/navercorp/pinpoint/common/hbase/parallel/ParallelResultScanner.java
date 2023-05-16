@@ -44,15 +44,10 @@ public class ParallelResultScanner implements ResultScanner {
     private Result next = null;
 
     public ParallelResultScanner(TableName tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan, AbstractRowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
-        if (hbaseAccessor == null) {
-            throw new NullPointerException("hbaseAccessor");
-        }
-        if (executor == null) {
-            throw new NullPointerException("executor");
-        }
-        if (originalScan == null) {
-            throw new NullPointerException("originalScan");
-        }
+        Objects.requireNonNull(hbaseAccessor, "hbaseAccessor");
+        Objects.requireNonNull(executor, "executor");
+        Objects.requireNonNull(originalScan, "originalScan");
+
         this.keyDistributor = Objects.requireNonNull(keyDistributor, "keyDistributor");
 
         final ScanTaskConfig scanTaskConfig = new ScanTaskConfig(tableName, hbaseAccessor, keyDistributor, originalScan.getCaching());
@@ -85,7 +80,7 @@ public class ParallelResultScanner implements ResultScanner {
             int maxIndividualScans = (splitScans.length + (numParallelThreads - 1)) / numParallelThreads;
             List<List<Scan>> scanDistributions = new ArrayList<>(numParallelThreads);
             for (int i = 0; i < numParallelThreads; i++) {
-                scanDistributions.add(new ArrayList<Scan>(maxIndividualScans));
+                scanDistributions.add(new ArrayList<>(maxIndividualScans));
             }
             for (int i = 0; i < splitScans.length; i++) {
                 scanDistributions.get(i % numParallelThreads).add(splitScans[i]);

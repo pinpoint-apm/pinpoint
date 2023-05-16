@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.plugin.akka.http.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 public class AkkaHttpServerMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = MethodType.WEB_REQUEST;
 
     @Override
     public String getMethodName() {
@@ -50,7 +50,7 @@ public class AkkaHttpServerMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -74,10 +74,7 @@ public class AkkaHttpServerMethodDescriptor implements MethodDescriptor {
     }
 
     public int getType() {
-        return type;
+        return MethodType.WEB_REQUEST;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 }

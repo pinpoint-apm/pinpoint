@@ -24,11 +24,14 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.pluginit.utils.TestcontainersOption;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,13 +48,15 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8) // 2.x+ requires Java 8
+@PinpointLogLocationConfig(".")
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.0.1,2.4.min)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
-        JDBCTestConstants.VERSION})
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[2.0.1,2.4.min)",
+        JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+@SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
-    private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=DATABASE()";
+    private  static final String CALLABLE_QUERY_META_INFOS_QUERY = "select param_list, returns, db, type from mysql.proc where name=? and db=?";
 
     private static final JDBCDriverClass driverClass = newDriverClass(PreparedStatementType.Server);
     private static final JDBCApi jdbcApi = new DefaultJDBCApi(driverClass);
@@ -78,7 +83,7 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbStatement#executeQuery(String)
         Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
@@ -96,7 +101,7 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareStatement(String)
         Method prepareStatement = jdbcApi.getConnection().getPrepareStatement();
@@ -117,7 +122,7 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // Driver#connect(String, Properties)
         Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
+        verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(getJdbcUrl())));
 
         // MariaDbConnection#prepareCall(String)
         Method prepareCall = jdbcApi.getConnection().getPrepareCall();
@@ -138,6 +143,10 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
 
         // MariaDbPreparedStatementClient#executeQuery
         Method executeQueryClient = clientJdbcApi.getPreparedStatement().getExecuteQuery();
-        verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQueryClient, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, PROCEDURE_NAME)));
+        verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQueryClient, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, getPrepareCallBindVariable())));
+    }
+
+    public String getPrepareCallBindVariable() {
+        return PROCEDURE_NAME + ", " + DATABASE_NAME;
     }
 }

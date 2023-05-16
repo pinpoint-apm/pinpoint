@@ -25,6 +25,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,15 +51,28 @@ public class HttpRequestAdaptor implements RequestAdaptor<HttpRequest> {
 
     private String getRealIpHeader(AkkaHttpConfig config) {
         String realIpHeader = config.getRealIpHeader();
-        if (StringUtils.isEmpty(realIpHeader)) {
-            return DEFAULT_REMOTE_ADDRESS_HEADER;
-        }
-        return realIpHeader;
+        return StringUtils.defaultIfEmpty(realIpHeader, DEFAULT_REMOTE_ADDRESS_HEADER);
     }
 
     @Override
     public String getHeader(HttpRequest request, String name) {
         return getHeader(request, name, null);
+    }
+
+    @Override
+    public Collection<String> getHeaderNames(HttpRequest request) {
+        if (request == null) {
+            return Collections.emptyList();
+        }
+        final Iterable<HttpHeader> headers = request.getHeaders();
+        if (headers == null) {
+            return Collections.emptyList();
+        }
+        List<String> names = new ArrayList<>();
+        for (HttpHeader header : headers) {
+            names.add(header.name());
+        }
+        return names;
     }
 
     private String getHeader(HttpRequest request, String name, String defaultValue) {

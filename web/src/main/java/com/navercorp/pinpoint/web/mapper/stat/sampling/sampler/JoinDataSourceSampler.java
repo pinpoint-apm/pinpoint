@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Component
-public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSourceListBo> {
+public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSourceListBo, AggreJoinDataSourceListBo> {
 
     @Override
     public AggreJoinDataSourceListBo sampleDataPoints(int index, long timestamp, List<JoinDataSourceListBo> joinDataSourceListBoList, JoinDataSourceListBo previousJoinDataSourceListBo) {
@@ -42,15 +42,13 @@ public class JoinDataSourceSampler implements ApplicationStatSampler<JoinDataSou
         List<JoinDataSourceBo> joinDataSourceBoList = joinDataSourceListBo.getJoinDataSourceBoList();
         List<JoinDataSourceBo> aggreJoinDataSourceBoList = getJoinDataSourceBoList(timestamp, joinDataSourceBoList);
 
-        AggreJoinDataSourceListBo aggreJoinDataSourceListBo = new AggreJoinDataSourceListBo(id, aggreJoinDataSourceBoList, timestamp);
-        return aggreJoinDataSourceListBo;
+        return new AggreJoinDataSourceListBo(id, aggreJoinDataSourceBoList, timestamp);
     }
 
     public List<JoinDataSourceBo> getJoinDataSourceBoList(long timestamp, List<JoinDataSourceBo> joinDataSourceBoList) {
         List<JoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>(joinDataSourceBoList.size());
         for (JoinDataSourceBo ds : joinDataSourceBoList) {
-            AggreJoinDataSourceBo dataSourceBo = new AggreJoinDataSourceBo(ds.getServiceTypeCode(), ds.getUrl(), ds.getAvgActiveConnectionSize(),
-                    ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), timestamp);
+            AggreJoinDataSourceBo dataSourceBo = new AggreJoinDataSourceBo(ds.getServiceTypeCode(), ds.getUrl(), ds.getActiveConnectionSizeJoinValue(), timestamp);
             aggreJoinDataSourceBoList.add(dataSourceBo);
         }
         return aggreJoinDataSourceBoList;

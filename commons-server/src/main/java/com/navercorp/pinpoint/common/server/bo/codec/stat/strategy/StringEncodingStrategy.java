@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.codec.stat.strategy;
 
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.codec.StringTypedBufferHandler;
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
@@ -25,9 +24,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringRepeatC
 import com.navercorp.pinpoint.common.server.bo.codec.strategy.impl.StringValueEncodingStrategy;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -94,9 +92,9 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
 
         public static class Builder implements StrategyAnalyzerBuilder<String> {
 
-            private static final int MAX_BYTES_PER_CHAR_UTF8 = (int) Charsets.UTF_8.newEncoder().maxBytesPerChar();
+            private static final int MAX_BYTES_PER_CHAR_UTF8 = (int) StandardCharsets.UTF_8.newEncoder().maxBytesPerChar();
 
-            private final List<String> values = new ArrayList<String>();
+            private final List<String> values = new ArrayList<>();
 
             private String previousValue = null;
 
@@ -128,9 +126,9 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
                 if (repeatedValueCount != 0 && repeatedValueCount == values.size()) {
                     bestStrategy = ALWAYS_SAME_VALUE;
                 } else {
-                    int minimumNumBytesUsed = Collections.min(Arrays.asList(
+                    int minimumNumBytesUsed = Math.min(
                             this.byteSizeValue,
-                            this.byteSizeRepeatCount));
+                            this.byteSizeRepeatCount);
                     if (this.byteSizeValue == minimumNumBytesUsed) {
                         bestStrategy = NONE;
                     } else {
@@ -138,7 +136,7 @@ public enum StringEncodingStrategy implements EncodingStrategy<String> {
                     }
                 }
 
-                List<String> values = new ArrayList<String>(this.values);
+                List<String> values = new ArrayList<>(this.values);
                 this.values.clear();
 
                 return new Analyzer(bestStrategy, values);

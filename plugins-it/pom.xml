@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins-it</artifactId>
@@ -31,38 +31,34 @@
     <modules>
         <module>plugins-it-utils</module>
         <module>plugins-it-jdbc-test</module>
-
-
         <module>activemq-it</module>
         <module>cassandra-it</module>
+        <module>cassandra4-it</module>
         <module>cxf-it</module>
         <module>druid-it</module>
         <module>dubbo-it</module>
-        <module>elasticsearch-bbose-it</module>
         <module>elasticsearch-it</module>
+        <module>elasticsearch-7.16-it</module>
         <module>fastjson-it</module>
         <module>google-grpc-it</module>
         <module>google-httpclient-it</module>
-        <module>google-httpclient-jdk7-it</module>
         <module>gson-it</module>
         <module>hbase-it</module>
         <module>httpclient3-it</module>
         <module>httpclient4-it</module>
         <module>hikaricp-it</module>
-        <module>hikaricp-jdk7-it</module>
         <module>hystrix-it</module>
         <module>ibatis-it</module>
         <module>informix-jdbc-it</module>
         <module>jackson-it</module>
-        <module>jackson-jdk7-it</module>
         <module>jdk-http-it</module>
         <module>json-lib-it</module>
         <module>log4j2-it</module>
-        <module>log4j2-jdk8-it</module>
         <module>log4j-it</module>
         <module>logback-it</module>
         <module>mariadb-jdbc-it</module>
         <module>mongodb-it</module>
+        <module>mongodb4-it</module>
         <module>mssql-jdbc-it</module>
         <module>mybatis-it</module>
         <module>netty-it</module>
@@ -73,11 +69,21 @@
         <module>rxjava-it</module>
         <module>spring-it</module>
         <module>thread-it</module>
+        <module>postgresql-jdbc-it</module>
         <module>process-it</module>
+        <module>oracledb-it</module>
+        <module>paho-mqtt-it</module>
+        <module>kafka-it</module>
+        <module>kotlin-coroutines-it</module>
+        <module>lambda-it</module>
+        <module>jtds-it</module>
+        <module>mysql-jdbc-driver-plugin-it</module>
+        <module>spring-data-r2dbc-it</module>
+        <module>google-grpc-it2</module>
+        <module>redis-lettuce-it</module>
     </modules>
 
     <properties>
-        <testcontainers.version>1.12.5</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -111,6 +117,37 @@
             <artifactId>pinpoint-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-testcase</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Logging dependencies -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.logging.log4j</groupId>-->
+<!--            <artifactId>log4j-slf4j-impl</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -132,33 +169,7 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>${plugin.failsafe.version}</version>
-                    <configuration>
-                        <jvm>${test.jdk.home}/bin/java</jvm>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>integration-test</goal>
-                                <goal>verify</goal>
-                            </goals>
-                            <configuration>
-                                <excludes>
-                                    <exclude>**/*Base</exclude>
-                                </excludes>
-                                <includes>
-                                    <include>**/*IT.java</include>
-                                </includes>
-                                <!-- AbstractPinpointPluginTestSuite needs this to resolve
-                                path of required jars -->
-                                <useSystemClassLoader>false</useSystemClassLoader>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
+
             </plugins>
         </pluginManagement>
         

@@ -1,10 +1,7 @@
-## Pinpoint Kafka Client Plugin (beta)
-
-### Support Version 
-0.11 ~  
-1.x ~  
-2.x ~
-<br><br>
+## Apache Kafka
+* Since: Pinpoint 1.8.0
+* See: https://kafka.apache.org/
+* Range: org.apache.kafka/kafka-clients [0.11, 3.max]
 
 ### Kafka Configuration
 To enable Kafka Producer, set the following option in *pinpoint.config*:
@@ -26,6 +23,12 @@ profiler.kafka.consumer.enable=true
 # you must set target that handles ConsumerRecord or ConsumerRecords(Remote Trace feature is not enabled.) as a argument for remote trace
 # ex) profiler.kafka.consumer.entryPoint=clazzName.methodName
 profiler.kafka.consumer.entryPoint=
+```
+
+#### to collect kafka header information
+``` 
+# You should set profiler.kafka.header.record as false below if you don't want to collect kafka header values.
+profiler.kafka.header.record=true
 ```
 <br><br>
 

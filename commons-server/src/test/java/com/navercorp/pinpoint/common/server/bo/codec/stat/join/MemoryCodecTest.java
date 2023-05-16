@@ -20,17 +20,16 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDataPointCodec;
+import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatCodec;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo.jung
@@ -38,17 +37,17 @@ import static org.junit.Assert.*;
 public class MemoryCodecTest {
 
     @Test
-    public void encodeAndDecodeTest() throws Exception {
+    public void encodeAndDecodeTest() {
         final String id = "test_app";
         final long currentTime = new Date().getTime();
         final AgentStatDataPointCodec agentStatDataPointCodec = new AgentStatDataPointCodec();
-        final MemoryCodec memoryCodec = new MemoryCodec(agentStatDataPointCodec);
+        final ApplicationStatCodec<JoinMemoryBo> memoryCodec = new MemoryCodec(agentStatDataPointCodec);
         final Buffer encodedValueBuffer = new AutomaticBuffer();
-        final List<JoinStatBo> joinMemoryBoList = createJoinMemoryBoList(currentTime);
+        final List<JoinMemoryBo> joinMemoryBoList = createJoinMemoryBoList(currentTime);
         encodedValueBuffer.putByte(memoryCodec.getVersion());
         memoryCodec.encodeValues(encodedValueBuffer, joinMemoryBoList);
 
-        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());;
+        final Buffer valueBuffer = new FixedBuffer(encodedValueBuffer.getBuffer());
         final long baseTimestamp = AgentStatUtils.getBaseTimestamp(currentTime);
         final long timestampDelta = currentTime - baseTimestamp;
         final ApplicationStatDecodingContext decodingContext = new ApplicationStatDecodingContext();
@@ -57,27 +56,21 @@ public class MemoryCodecTest {
         decodingContext.setTimestampDelta(timestampDelta);
 
         assertEquals(valueBuffer.readByte(), memoryCodec.getVersion());
-        List<JoinStatBo> decodedJoinMemoryBoList = memoryCodec.decodeValues(valueBuffer, decodingContext);
+        List<JoinMemoryBo> decodedJoinMemoryBoList = memoryCodec.decodeValues(valueBuffer, decodingContext);
         for (int i = 0; i < decodedJoinMemoryBoList.size(); i++) {
-            assertTrue(decodedJoinMemoryBoList.get(i).equals(joinMemoryBoList.get(i)));
+            assertEquals(decodedJoinMemoryBoList.get(i), joinMemoryBoList.get(i));
         }
     }
 
-    private List<JoinStatBo> createJoinMemoryBoList(long currentTime) {
+    private List<JoinMemoryBo> createJoinMemoryBoList(long currentTime) {
         final String id = "test_app";
-        List<JoinStatBo> joinMemoryBoList = new ArrayList<JoinStatBo>();
-        JoinMemoryBo joinMemoryBo1 = new JoinMemoryBo(id, currentTime, 3000, 2000, 5000, "app_1_1", "app_1_2", 500, 50, 600, "app_1_3", "app_1_4");
-        JoinMemoryBo joinMemoryBo2 = new JoinMemoryBo(id, currentTime + 5000, 4000, 1000, 7000, "app_2_1", "app_2_2", 400, 150, 600, "app_2_3", "app_2_4");
-        JoinMemoryBo joinMemoryBo3 = new JoinMemoryBo(id, currentTime + 10000, 5000, 3000, 8000, "app_3_1", "app_3_2", 200, 100, 200, "app_3_3", "app_3_4");
-        JoinMemoryBo joinMemoryBo4 = new JoinMemoryBo(id, currentTime + 15000, 1000, 100, 3000, "app_4_1", "app_4_2", 100, 900, 1000, "app_4_3", "app_4_4");
-        JoinMemoryBo joinMemoryBo5 = new JoinMemoryBo(id, currentTime + 20000, 2000, 1000, 6000, "app_5_1", "app_5_2", 300, 100, 2900, "app_5_3", "app_5_4");
-        joinMemoryBoList.add(joinMemoryBo1);
-        joinMemoryBoList.add(joinMemoryBo3);
-        joinMemoryBoList.add(joinMemoryBo2);
-        joinMemoryBoList.add(joinMemoryBo5);
-        joinMemoryBoList.add(joinMemoryBo4);
-
-        return joinMemoryBoList;
+        return List.of(
+                new JoinMemoryBo(id, currentTime, 3000, 2000, 5000, "app_1_1", "app_1_2", 500, 50, 600, "app_1_3", "app_1_4"),
+                new JoinMemoryBo(id, currentTime + 5000, 4000, 1000, 7000, "app_2_1", "app_2_2", 400, 150, 600, "app_2_3", "app_2_4"),
+                new JoinMemoryBo(id, currentTime + 10000, 5000, 3000, 8000, "app_3_1", "app_3_2", 200, 100, 200, "app_3_3", "app_3_4"),
+                new JoinMemoryBo(id, currentTime + 15000, 1000, 100, 3000, "app_4_1", "app_4_2", 100, 900, 1000, "app_4_3", "app_4_4"),
+                new JoinMemoryBo(id, currentTime + 20000, 2000, 1000, 6000, "app_5_1", "app_5_2", 300, 100, 2900, "app_5_3", "app_5_4")
+        );
     }
 
 }

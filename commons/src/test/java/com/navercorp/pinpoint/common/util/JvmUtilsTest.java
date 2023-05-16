@@ -16,25 +16,25 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class JvmUtilsTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void getVersion() throws Exception {
+    public void getVersion() {
         JvmVersion version = JvmUtils.getVersion();
         logger.debug("version:{}", version);
     }
 
     @Test
-    public void getType() throws Exception {
+    public void getType() {
         JvmType type = JvmUtils.getType();
         logger.debug("type:{}", type);
     }

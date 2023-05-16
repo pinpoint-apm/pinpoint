@@ -27,9 +27,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-dubbo-plugin")
-@Dependency({"com.alibaba:dubbo:[2.5.x,]", "org.mockito:mockito-all:1.8.4"})
+@Dependency({"com.alibaba:dubbo:[2.5.x,]", "org.mockito:mockito-core:4.8.1"})
 public class DubboConsumerIT {
 
     @Mock
@@ -57,15 +58,22 @@ public class DubboConsumerIT {
 
     private AbstractInvoker abstractClusterInvoker;
 
+    private AutoCloseable openMocks;
+
     @Before
     public void setUp() {
         url = new URL("dubbo", "1.2.3.4", 5678);
-        MockitoAnnotations.initMocks(this);
+        openMocks = MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void afterEach() throws Exception {
+        openMocks.close();
     }
 
     @Test
     public void testConsumer() throws NoSuchMethodException {
-        abstractClusterInvoker = new MockInvoker<Demo>(Demo.class, url);
+        abstractClusterInvoker = new MockInvoker<>(Demo.class, url);
         when(rpcInvocation.getInvoker()).thenReturn(abstractClusterInvoker);
         try {
             abstractClusterInvoker.invoke(rpcInvocation);
@@ -86,7 +94,7 @@ public class DubboConsumerIT {
         when(abstractClusterInvoker.getInterface()).thenReturn(MonitorService.class);
         try {
             abstractClusterInvoker.invoke(rpcInvocation);
-        } catch (RpcException ignore) {
+        } catch (RpcException ignored) {
             // ignore
         }
 

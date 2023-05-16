@@ -35,7 +35,7 @@ public final class SupportedCommandUtils {
             return Collections.emptyList();
         }
 
-        final List<TCommandType> result = new ArrayList<>();
+        final List<TCommandType> result = new ArrayList<>(supportCommandList.size());
         for (Integer supportCommandCode : supportCommandList) {
             TCommandType commandType = TCommandType.getType(supportCommandCode.shortValue());
             if (commandType != null) {

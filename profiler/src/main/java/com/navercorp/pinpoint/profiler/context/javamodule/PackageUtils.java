@@ -19,15 +19,16 @@ package com.navercorp.pinpoint.profiler.context.javamodule;
 import com.navercorp.pinpoint.common.util.ClassUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 final class PackageUtils {
 
     static String getPackageNameFromInternalName(String className) {
-        if (className == null) {
-            throw new NullPointerException("className");
-        }
+        Objects.requireNonNull(className, "className");
+
         final String jvmPackageName = ClassUtils.getPackageName(className, '/', null);
         if (jvmPackageName == null) {
             return null;

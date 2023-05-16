@@ -48,11 +48,11 @@ public class RedissonPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final RedissonPluginConfig config = new RedissonPluginConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("Disable RedissonPlugin");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
         if (logger.isInfoEnabled()) {
-            logger.info("Enable RedissonPlugin. version range=[3.10.0, 3.10.4], config={}", config);
+            logger.info("{} config:{}", this.getClass().getSimpleName(), config);
         }
 
         this.transformTemplate.transform("org.redisson.Redisson", RedissionMethodTransform.class);

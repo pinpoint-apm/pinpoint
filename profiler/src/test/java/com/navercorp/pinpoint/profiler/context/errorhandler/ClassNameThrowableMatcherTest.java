@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,12 +27,12 @@ public class ClassNameThrowableMatcherTest {
     @Test
     public void match() {
         ThrowableMatcher matcher = new ClassNameThrowableMatcher(new String[]{RuntimeException.class.getName()});
-        Assert.assertTrue(matcher.match(RuntimeException.class));
+        Assertions.assertTrue(matcher.match(RuntimeException.class));
     }
 
     @Test
     public void match_fail() {
         ThrowableMatcher matcher = new ClassNameThrowableMatcher(new String[]{RuntimeException.class.getName()});
-        Assert.assertFalse(matcher.match(Exception.class));
+        Assertions.assertFalse(matcher.match(Exception.class));
     }
 }

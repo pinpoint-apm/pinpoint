@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -31,8 +32,8 @@ import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -45,13 +46,13 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  * @author Woonduk Kang(emeroad)
  */
 public class MetadataService extends MetadataGrpc.MetadataImplBase {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
+    private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
     private final Executor executor;
 
-    public MetadataService(DispatchHandler dispatchHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
+    public MetadataService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         Objects.requireNonNull(executor, "executor");
         Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
@@ -97,7 +98,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
-    void doExecutor(final Message message, final StreamObserver<PResult> responseObserver) {
+    void doExecutor(final Message<? extends GeneratedMessageV3> message, final StreamObserver<? extends GeneratedMessageV3> responseObserver) {
         try {
             executor.execute(new Runnable() {
                 @Override

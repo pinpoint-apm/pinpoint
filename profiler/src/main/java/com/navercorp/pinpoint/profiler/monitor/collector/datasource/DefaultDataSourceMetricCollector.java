@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.datasource;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
@@ -33,7 +33,7 @@ public class DefaultDataSourceMetricCollector implements AgentStatMetricCollecto
     private final DataSourceMetric dataSourceMetric;
 
     public DefaultDataSourceMetricCollector(DataSourceMetric dataSourceMetric) {
-        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric");
+        this.dataSourceMetric = Objects.requireNonNull(dataSourceMetric, "dataSourceMetric");
     }
 
     @Override

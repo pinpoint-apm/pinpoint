@@ -16,43 +16,20 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author emeroad
  */
 public class HistogramSchemaTest {
-    @Test
-    public void testAddHistogramSlot() throws Exception {
-
-    }
 
     @Test
-    public void testGetHistogramSlotList() throws Exception {
-
-    }
-
-    @Test
-    public void testCreateNode() throws Exception {
-
-    }
-
-    @Test
-    public void testFindHistogramSlot() throws Exception {
+    public void testFindHistogramSlot() {
         HistogramSchema histogramSchema = ServiceType.STAND_ALONE.getHistogramSchema();
-        Assert.assertEquals(histogramSchema.findHistogramSlot(999, false).getSlotTime(), 1000);
-        Assert.assertEquals(histogramSchema.findHistogramSlot(1000, false).getSlotTime(), 1000);
-        Assert.assertEquals(histogramSchema.findHistogramSlot(1111, false).getSlotTime(), 3000);
+        Assertions.assertEquals(histogramSchema.findHistogramSlot(999, false).getSlotTime(), 1000);
+        Assertions.assertEquals(histogramSchema.findHistogramSlot(1000, false).getSlotTime(), 1000);
+        Assertions.assertEquals(histogramSchema.findHistogramSlot(1111, false).getSlotTime(), 3000);
     }
 
-
-
-    @Test
-    public void testGetHistogramSlotIndex() throws Exception {
-
-    }
 }

@@ -1,0 +1,17 @@
+name: Homepage
+
+on: 
+  release:
+    types: [published]
+
+jobs:
+  repository-dispatch-event:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Repository Dispatch    
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: pinpoint-apm/pinpoint-apm.github.io
+          event-type: release-pinpoint
+          client-payload: '{"username": "${{ github.actor }}", "release": ${{ toJSON(github.event.release) }}}'

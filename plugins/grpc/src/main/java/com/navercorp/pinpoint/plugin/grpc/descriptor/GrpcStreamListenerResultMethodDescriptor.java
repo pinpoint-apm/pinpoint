@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.grpc.descriptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
+import com.navercorp.pinpoint.common.util.LineNumber;
 
 /**
  * @author Taejin Koo
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.common.trace.MethodType;
 public class GrpcStreamListenerResultMethodDescriptor implements MethodDescriptor {
 
     private int apiId = 0;
-    private int type = MethodType.DEFAULT;
 
     @Override
     public String getMethodName() {
@@ -54,7 +54,7 @@ public class GrpcStreamListenerResultMethodDescriptor implements MethodDescripto
 
     @Override
     public int getLineNumber() {
-        return -1;
+        return LineNumber.NO_LINE_NUMBER;
     }
 
     @Override
@@ -78,11 +78,8 @@ public class GrpcStreamListenerResultMethodDescriptor implements MethodDescripto
     }
 
     public int getType() {
-        return type;
+        return MethodType.DEFAULT;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 
 }

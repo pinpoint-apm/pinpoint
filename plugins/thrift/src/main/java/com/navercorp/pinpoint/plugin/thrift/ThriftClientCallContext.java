@@ -24,15 +24,20 @@ public class ThriftClientCallContext {
     
     public static final ThriftHeader NONE = null;
     
-    private final String methodName;
+    private String methodName;
 
     private boolean isEntryPoint;
     
     private ThriftHeader traceHeaderToBeRead;
     
     private ThriftRequestProperty traceHeader;
+
+    private String processName;
     
-    public ThriftClientCallContext(String methodName) {
+    public ThriftClientCallContext() {
+    }
+
+    public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
 
@@ -62,6 +67,14 @@ public class ThriftClientCallContext {
 
     public void setTraceHeader(ThriftRequestProperty traceHeader) {
         this.traceHeader = traceHeader;
+    }
+
+    public String getProcessName() {
+        return processName;
+    }
+
+    public void setProcessName(String processName) {
+        this.processName = processName;
     }
 
     @Override

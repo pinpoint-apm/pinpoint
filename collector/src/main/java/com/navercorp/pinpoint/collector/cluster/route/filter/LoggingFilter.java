@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.route.filter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.navercorp.pinpoint.collector.cluster.route.RouteEvent;
 
@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.collector.cluster.route.RouteEvent;
  */
 public class LoggingFilter<T extends RouteEvent> implements RouteFilter<T> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     @Override

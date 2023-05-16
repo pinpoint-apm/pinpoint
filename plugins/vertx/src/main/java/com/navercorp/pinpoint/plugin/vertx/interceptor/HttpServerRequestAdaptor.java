@@ -18,8 +18,12 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SocketAddress;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,6 +38,12 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
         return request.getHeader(name);
     }
 
+    @Override
+    public Collection<String> getHeaderNames(HttpServerRequest request) {
+        final MultiMap headers = request.headers();
+        return headers == null ? Collections.emptyList() : headers.names();
+    }
+
 
     @Override
     public String getRpcName(HttpServerRequest request) {
@@ -46,8 +56,14 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
             final int port = request.localAddress().port();
             if (port <= 0) {
                 return request.host();
-            } else {
-                return request.host() + ":" + port;
+            }
+            final String host = request.host();
+            if (host != null) {
+                if (host.contains(":")) {
+                    return host;
+                } else {
+                    return host + ":" + port;
+                }
             }
         }
         return null;
@@ -59,11 +75,11 @@ public class HttpServerRequestAdaptor implements RequestAdaptor<HttpServerReques
         if (socketAddress != null) {
             return socketAddress.toString();
         }
-        return "unknown";
+        return "UNKNOWN";
     }
 
     @Override
     public String getAcceptorHost(HttpServerRequest request) {
-        return NetworkUtils.getHostFromURL(request.uri().toString());
+        return NetworkUtils.getHostFromURL(request.uri());
     }
 }

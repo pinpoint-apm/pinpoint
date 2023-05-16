@@ -18,11 +18,13 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Span represent RPC
@@ -30,7 +32,7 @@ import java.util.List;
  * @author netspider
  * @author emeroad
  */
-public class Span extends DefaultFrameAttachment {
+public class Span extends DefaultFrameAttachment implements SpanType {
     private boolean timeRecording = true;
 
     private final TraceRoot traceRoot;
@@ -41,7 +43,7 @@ public class Span extends DefaultFrameAttachment {
     private int apiId; // optional
     private short serviceType; // required
 
-    private List<Annotation> annotations; // optional
+    private List<Annotation<?>> annotations; // optional
     private List<SpanEvent> spanEventList; // optional
 
     private String remoteAddr; // optional
@@ -69,10 +71,7 @@ public class Span extends DefaultFrameAttachment {
 
 
     public Span(final TraceRoot traceRoot) {
-        if (traceRoot == null) {
-            throw new NullPointerException("traceRoot");
-        }
-        this.traceRoot = traceRoot;
+        this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
     }
 
     public TraceRoot getTraceRoot() {
@@ -108,7 +107,7 @@ public class Span extends DefaultFrameAttachment {
         this.remoteAddr = remoteAddr;
     }
 
-    public List<Annotation> getAnnotations() {
+    public List<Annotation<?>> getAnnotations() {
         return annotations;
     }
 
@@ -179,9 +178,9 @@ public class Span extends DefaultFrameAttachment {
         this.setElapsedTime(after);
     }
 
-    public void addAnnotation(Annotation annotation) {
+    public void addAnnotation(Annotation<?> annotation) {
         if (this.annotations == null) {
-            this.annotations = new ArrayList<Annotation>();
+            this.annotations = new ArrayList<>();
         }
         this.annotations.add(annotation);
     }
@@ -204,7 +203,7 @@ public class Span extends DefaultFrameAttachment {
         // snapshot last image
         final Shared shared = traceRoot.getShared();
         if (shared.getStatusCode() != 0) {
-            Annotation annotation = new Annotation(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode());
+            Annotation<Integer> annotation = Annotations.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), shared.getStatusCode());
             this.addAnnotation(annotation);
         }
     }

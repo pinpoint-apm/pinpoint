@@ -13,3 +13,9 @@ serviceTypes:
           recordStatistics: true
       matcher:
           type: 'args'
+    - code: 1702
+      name: 'CELERY'
+      desc: 'task-queue'
+    - code: 1703
+      name: 'CELERY-WORKER'
+      desc: 'task-queue'

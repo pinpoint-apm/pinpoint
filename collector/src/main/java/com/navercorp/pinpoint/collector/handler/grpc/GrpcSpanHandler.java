@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -29,9 +30,8 @@ import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,24 +42,23 @@ import java.util.Objects;
  * @author netspider
  */
 @Service
-public class GrpcSpanHandler implements SimpleHandler {
+public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceService traceService;
 
     private final GrpcSpanFactory spanFactory;
 
-    @Autowired
     public GrpcSpanHandler(TraceService traceService, GrpcSpanFactory spanFactory) {
         this.traceService = Objects.requireNonNull(traceService, "traceService");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
-        final Object data = serverRequest.getData();
+    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+        final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSpan) {
             handleSpan((PSpan) data);
         } else {

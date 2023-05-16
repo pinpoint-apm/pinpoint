@@ -26,7 +26,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  * @author minwoo.jung
  */
-public interface StatChartGroup {
+public interface StatChartGroup<P extends Point> {
 
     interface ChartType {
 
@@ -55,5 +55,5 @@ public interface StatChartGroup {
 
     TimeWindow getTimeWindow();
 
-    Map<ChartType, Chart<? extends Point>> getCharts();
+    Map<ChartType, Chart<P>> getCharts();
 }

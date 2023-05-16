@@ -17,33 +17,47 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
+import com.navercorp.pinpoint.profiler.context.id.DefaultShared;
 import com.navercorp.pinpoint.profiler.context.id.ListenableAsyncState;
-import org.junit.Test;
+import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
+import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ListenableAsyncStateTest {
     @Test
-    public void close() throws Exception {
+    public void close() {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
+        TraceRoot traceRoot = newTraceRoot();
 
-        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(traceRoot, mock, ActiveTraceHandle.EMPTY_HANDLE, DisabledUriStatStorage.INSTANCE);
         listenableAsyncState.setup();
         listenableAsyncState.await();
         listenableAsyncState.finish();
 
-        verify(mock, times(1)).finish();
+        verify(mock).finish();
+    }
+
+    private static TraceRoot newTraceRoot() {
+        TraceRoot traceRoot = mock(TraceRoot.class);
+        when(traceRoot.getShared()).thenReturn(new DefaultShared());
+        return traceRoot;
     }
 
 
     @Test
-    public void close_setup() throws Exception {
+    public void close_setup() {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
+        TraceRoot traceRoot = newTraceRoot();
 
-        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(traceRoot, mock, ActiveTraceHandle.EMPTY_HANDLE, DisabledUriStatStorage.INSTANCE);
         listenableAsyncState.setup();
         listenableAsyncState.finish();
 
@@ -52,10 +66,11 @@ public class ListenableAsyncStateTest {
 
 
     @Test
-    public void close_await() throws Exception {
+    public void close_await() {
         SpanAsyncStateListener mock = mock(SpanAsyncStateListener.class);
+        TraceRoot traceRoot = newTraceRoot();
 
-        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(mock, ActiveTraceHandle.EMPTY_HANDLE);
+        ListenableAsyncState listenableAsyncState = new ListenableAsyncState(traceRoot, mock, ActiveTraceHandle.EMPTY_HANDLE, DisabledUriStatStorage.INSTANCE);
         listenableAsyncState.await();
         listenableAsyncState.finish();
 

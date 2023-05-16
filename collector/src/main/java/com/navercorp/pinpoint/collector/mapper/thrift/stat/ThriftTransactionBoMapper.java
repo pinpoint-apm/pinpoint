@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TTransaction;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component;
  * @author HyunGil Jeong
  */
 @Component
-public class ThriftTransactionBoMapper implements ThriftBoMapper<TransactionBo, TTransaction> {
+public class ThriftTransactionBoMapper implements ThriftStatMapper<TransactionBo, TTransaction> {
 
     @Override
     public TransactionBo map(TTransaction tTransaction) {
@@ -37,5 +38,15 @@ public class ThriftTransactionBoMapper implements ThriftBoMapper<TransactionBo, 
         transaction.setSkippedNewSkipCount(tTransaction.getSkippedNewCount());
         transaction.setSkippedContinuationCount(tTransaction.getSkippedContinuationCount());
         return transaction;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // transaction
+        if (tAgentStat.isSetTransaction()) {
+            TransactionBo transactionBo = this.map(tAgentStat.getTransaction());
+            transactionBo.setCollectInterval(tAgentStat.getCollectInterval());
+            agentStatBo.addTransaction(transactionBo);
+        }
     }
 }

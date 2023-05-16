@@ -24,17 +24,17 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SimpleDualHandler implements SimpleHandler {
-    private final SimpleHandler one;
-    private final SimpleHandler two;
+public class SimpleDualHandler<T> implements SimpleHandler<T> {
+    private final SimpleHandler<T> one;
+    private final SimpleHandler<T> two;
 
-    public SimpleDualHandler(SimpleHandler one, SimpleHandler two) {
+    public SimpleDualHandler(SimpleHandler<T> one, SimpleHandler<T> two) {
         this.one = Objects.requireNonNull(one, "one");
         this.two = Objects.requireNonNull(two, "two");
     }
 
     @Override
-    public void handleSimple(ServerRequest serverRequest) {
+    public void handleSimple(ServerRequest<T> serverRequest) {
         one.handleSimple(serverRequest);
         two.handleSimple(serverRequest);
     }

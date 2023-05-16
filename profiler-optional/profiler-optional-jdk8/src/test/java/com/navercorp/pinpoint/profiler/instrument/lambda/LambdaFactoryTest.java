@@ -23,8 +23,10 @@ import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClassUtils;
 import com.navercorp.pinpoint.profiler.instrument.lambda.mock.DefineAnonymousClassDelegator;
 import com.navercorp.pinpoint.profiler.instrument.lambda.mock.UnsafeClassMock;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -32,13 +34,13 @@ import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.ClassNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,7 +50,7 @@ public class LambdaFactoryTest {
     private static final String lambdaMetaFactory = "java.lang.invoke.InnerClassLambdaMetafactory";
     private static final String lambdaMetaFactoryResourceName = JavaAssistUtils.javaClassNameToJvmResourceName(lambdaMetaFactory);
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     private final ASMBytecodeDisassembler disassembler = new ASMBytecodeDisassembler();
@@ -60,7 +62,6 @@ public class LambdaFactoryTest {
         logger.debug("dump-------");
         ByteCodeDumper.dumpByteCode(bytes);
     }
-
 
 
     @Test
@@ -77,10 +78,9 @@ public class LambdaFactoryTest {
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         String delegateClassName = "com/navercorp/pinpoint/profiler/instrument/lambda/mock/DefineAnonymousClassDelegator";
         String delegateMethod = "delegate";
-        MethodInstReplacer replacer = new MethodInstReplacer(writer, "test",
-                "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeMock", "defineAnonymousClass",
-                delegateClassName, delegateMethod
-        );
+
+        List<MethodInsn> methodInsnList = Arrays.asList(new MethodInsn("test", "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeMock", "defineAnonymousClass", delegateClassName, delegateMethod, null));
+        MethodInstReplacer replacer = new MethodInstReplacer(writer, methodInsnList);
 
         renameClass(reader, replacer);
 
@@ -98,14 +98,14 @@ public class LambdaFactoryTest {
         Method test = o.getClass().getMethod("test");
         Object invoke = test.invoke(o);
 
-        Assert.assertEquals(DefineAnonymousClassDelegator.count, 1);
+        Assertions.assertEquals(DefineAnonymousClassDelegator.count, 1);
 
 
     }
 
     private void renameClass(ClassReader reader, ClassVisitor classVisitor) {
         String className = "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeClassMock";
-        Remapper remapper = new SimpleRemapper(className,className + "2");
+        Remapper remapper = new SimpleRemapper(className, className + "2");
         ClassRemapper classRemapper = new ClassRemapper(classVisitor, remapper);
         reader.accept(classRemapper, 0);
     }

@@ -1,0 +1,46 @@
+:host {
+    display: block;
+    background-color: var(--background-layer);
+}
+
+.l-list {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.l-list-title {
+    padding: 12px;
+    font-weight: 600;
+}
+
+.l-icon {
+    margin-right: 4px;
+}
+
+.l-checkbox-input {
+    cursor: pointer;
+}
+
+.l-item-label {
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+.l-list-item {
+    padding: 10px 20px;
+}
+
+.l-list-item:hover {
+    background-color: var(--background-hover-secondary);
+}
+
+.l-refresh-btn {
+    font-weight: 600;
+    padding: 12px;
+    width: 100%;
+    font-size: 13px;
+    text-align: left;
+}
+
+.l-refresh-btn:hover {
+    background-color: var(--background-hover-default);
+}

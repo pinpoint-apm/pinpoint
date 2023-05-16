@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.test.junit4;
 
 import org.junit.runners.model.Statement;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -26,14 +28,8 @@ public class ContextClassLoaderStatement extends Statement {
     private final ClassLoader classLoader;
 
     public ContextClassLoaderStatement(Statement delegate, ClassLoader classLoader) {
-        if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
-        }
-        if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
-        }
-        this.delegate = delegate;
-        this.classLoader = classLoader;
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.classLoader = Objects.requireNonNull(classLoader, "classLoader");
     }
 
     @Override
@@ -49,12 +45,9 @@ public class ContextClassLoaderStatement extends Statement {
     }
 
     public static Statement wrap(Statement statement, ClassLoader classLoader) {
-        if (statement == null) {
-            throw new NullPointerException("statement must not be null");
-        }
-        if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
-        }
+        Objects.requireNonNull(statement, "statement");
+        Objects.requireNonNull(classLoader, "classLoader");
+
         return new ContextClassLoaderStatement(statement, classLoader);
 
     }

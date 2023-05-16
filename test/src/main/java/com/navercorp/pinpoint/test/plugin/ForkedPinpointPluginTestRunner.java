@@ -19,9 +19,6 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-
 /**
  * @author Jongho Moon
  *
@@ -56,7 +53,7 @@ public class ForkedPinpointPluginTestRunner extends BlockJUnit4ClassRunner {
             
             @Override
             public void evaluate() throws Throwable {
-                PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+                ReflectPluginTestVerifier verifier = ReflectPluginTestVerifier.getInstance();
                 
                 verifier.initialize(manageTraceObject);
                 try {

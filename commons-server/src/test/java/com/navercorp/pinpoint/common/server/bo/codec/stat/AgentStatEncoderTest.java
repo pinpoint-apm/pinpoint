@@ -23,12 +23,11 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -44,9 +43,9 @@ public class AgentStatEncoderTest {
 
     private AgentStatCodec<TestAgentStat> codec = new TestAgentStatCodec();
 
-    private AgentStatEncoder<TestAgentStat> encoder = new AgentStatEncoder<TestAgentStat>(codec);
+    private AgentStatEncoder<TestAgentStat> encoder = new AgentStatEncoder<>(codec);
 
-    private AgentStatDecoder<TestAgentStat> decoder = new AgentStatDecoder<TestAgentStat>(Arrays.asList(codec));
+    private AgentStatDecoder<TestAgentStat> decoder = new AgentStatDecoder<>(List.of(codec));
 
     @Test
     public void stats_should_be_encoded_and_decoded_into_same_value() {
@@ -69,7 +68,7 @@ public class AgentStatEncoderTest {
     }
 
     private List<TestAgentStat> createTestAgentStats(long initialTimestamp, int numStats) {
-        List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(numStats);
+        List<TestAgentStat> agentStats = new ArrayList<>(numStats);
         for (int i = 0; i < numStats; i++) {
             long timestamp = initialTimestamp + (COLLECT_INTERVAL * i);
             TestAgentStat agentStat = new TestAgentStat();
@@ -83,7 +82,7 @@ public class AgentStatEncoderTest {
     }
 
     protected void verify(List<TestAgentStat> expectedAgentStats, List<TestAgentStat> actualAgentStats) {
-        Assert.assertEquals(expectedAgentStats, actualAgentStats);
+        Assertions.assertEquals(expectedAgentStats, actualAgentStats);
     }
 
     private List<TestAgentStat> decode(Buffer encodedQualifierBuffer, Buffer encodedValueBuffer, AgentStatDecodingContext decodingContext) {
@@ -112,7 +111,7 @@ public class AgentStatEncoderTest {
         @Override
         public List<TestAgentStat> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
             int size = valueBuffer.readInt();
-            List<TestAgentStat> agentStats = new ArrayList<TestAgentStat>(size);
+            List<TestAgentStat> agentStats = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
                 TestAgentStat agentStat = new TestAgentStat();
                 agentStat.setAgentId(decodingContext.getAgentId());

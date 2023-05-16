@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.EntityExtractor;
 import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
-import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -30,6 +30,7 @@ import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,7 +49,7 @@ public class HttpClient4EntityExtractor implements EntityExtractor<HttpRequest> 
             try {
                 final HttpEntity entity = entityRequest.getEntity();
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
-                    return entityUtilsToString(entity, Charsets.UTF_8_NAME, 1024);
+                    return entityUtilsToString(entity, StandardCharsets.UTF_8.name(), 1024);
                 }
             } catch (Exception e) {
                 logger.debug("Failed to get entity. httpRequest={}", httpRequest, e);
@@ -117,7 +118,7 @@ public class HttpClient4EntityExtractor implements EntityExtractor<HttpRequest> 
         String charset = null;
         if (entity.getContentType() != null) {
             HeaderElement values[] = entity.getContentType().getElements();
-            if (values.length > 0) {
+            if (ArrayUtils.hasLength(values)) {
                 NameValuePair param = values[0].getParameterByName("charset");
                 if (param != null) {
                     charset = param.getValue();

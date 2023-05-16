@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.plugin.undertowservlet;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -26,9 +28,7 @@ public class UndertowServletConfig {
     private final boolean enable;
 
     public UndertowServletConfig(ProfilerConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
+        Objects.requireNonNull(config, "config");
 
         // share undertow plugin
         this.enable = config.readBoolean("profiler.undertow.enable", true);

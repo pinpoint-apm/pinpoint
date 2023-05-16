@@ -28,32 +28,30 @@ public class Coordinates {
         this.y = y;
     }
 
-    @Override
-    public int hashCode() {
-        long result = x;
-        result = 31 * result + y;
-        return (int)(result^(result>>>32));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Coordinates that = (Coordinates) o;
-        return x == that.getX() && y == that.getY();
-    }
-
     public long getX() {
         return x;
     }
 
     public long getY() {
         return y;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Coordinates that = (Coordinates) o;
+
+        if (x != that.x) return false;
+        return y == that.y;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (x ^ (x >>> 32));
+        result = 31 * result + (int) (y ^ (y >>> 32));
+        return result;
     }
 
     @Override

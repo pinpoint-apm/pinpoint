@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.util.LineNumber;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
 
@@ -27,110 +26,112 @@ import java.util.Objects;
  * @author emeroad
  * @author jaehong.kim
  */
-public class ApiMetaDataBo {
-    private String agentId;
-    private long startTime;
+public class ApiMetaDataBo implements MetaDataRowKey {
+    private final String agentId;
+    private final long startTime;
+    private final int apiId;
 
-    private int apiId;
+    private final String apiInfo;
+    private final int lineNumber;
+    private final MethodTypeEnum methodTypeEnum;
+    private String location;
 
-    private String apiInfo;
-    private int lineNumber = -1;
-    private MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
-
-    public ApiMetaDataBo() {
-    }
-
-    public ApiMetaDataBo(String agentId, long startTime, int apiId) {
+    public ApiMetaDataBo(String agentId, long startTime, int apiId, int lineNumber,
+                         MethodTypeEnum methodTypeEnum, String apiInfo) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.startTime = startTime;
         this.apiId = apiId;
+        this.lineNumber = lineNumber;
+        this.apiInfo = apiInfo;
+        this.methodTypeEnum = Objects.requireNonNull(methodTypeEnum, "methodTypeEnum");
+        this.location = null;
     }
 
+    @Override
     public String getAgentId() {
         return agentId;
     }
 
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public int getApiId() {
-        return apiId;
-    }
-
-    public void setApiId(int apiId) {
-        this.apiId = apiId;
-    }
-
-
-    public long getStartTime() {
+    @Override
+    public long getAgentStartTime() {
         return startTime;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    @Override
+    public int getId() {
+        return apiId;
     }
 
     public String getApiInfo() {
         return apiInfo;
     }
 
-    public void setApiInfo(String apiInfo) {
-        this.apiInfo = apiInfo;
-    }
-
     public int getLineNumber() {
         return lineNumber;
     }
 
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
-    
     public MethodTypeEnum getMethodTypeEnum() {
         return methodTypeEnum;
     }
 
-    public void setMethodTypeEnum(MethodTypeEnum methodTypeEnum) {
-        this.methodTypeEnum = Objects.requireNonNull(methodTypeEnum, "methodTypeEnum");
+    public String getLocation() {
+        return location;
     }
-    
+
     public String getDescription() {
-        if (lineNumber != -1) {
+        if (LineNumber.isLineNumber(lineNumber)) {
             return apiInfo + ":" + lineNumber;
         }
         
         return apiInfo;
     }
 
-    public void readRowKey(byte[] bytes) {
-        this.agentId = BytesUtils.safeTrim(BytesUtils.toString(bytes, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
-        this.startTime = TimeUtils.recoveryTimeMillis(readTime(bytes));
-        this.apiId = readKeyCode(bytes);
-    }
-
-    private static long readTime(byte[] rowKey) {
-        return BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
-    }
-
-    private static int readKeyCode(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
-    }
-
-    public byte[] toRowKey() {
-        return RowKeyUtils.getMetaInfoRowKey(this.agentId, this.startTime, this.apiId);
-    }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ApiMetaDataBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTime=").append(startTime);
-        sb.append(", apiId=").append(apiId);
-        sb.append(", apiInfo='").append(apiInfo).append('\'');
-        sb.append(", lineNumber=").append(lineNumber);
-        sb.append(", methodTypeEnum=").append(methodTypeEnum);
-        sb.append('}');
-        return sb.toString();
+        return "ApiMetaDataBo{" +
+                "agentId='" + agentId + '\'' +
+                ", startTime=" + startTime +
+                ", apiId=" + apiId +
+                ", apiInfo='" + apiInfo + '\'' +
+                ", lineNumber=" + lineNumber +
+                ", methodTypeEnum=" + methodTypeEnum +
+                ", location='" + location + '\'' +
+                '}';
+    }
+
+    public static class Builder {
+        private final String agentId;
+        private final long startTime;
+        private final int apiId;
+        private final int lineNumber;
+        private final MethodTypeEnum methodTypeEnum;
+        private final String apiInfo;
+        private String location;
+
+        public Builder(String agentId, long startTime, int apiId, int lineNumber,
+                       MethodTypeEnum methodTypeEnum, String apiInfo) {
+            this.agentId = agentId;
+            this.startTime = startTime;
+            this.apiId = apiId;
+            this.lineNumber = lineNumber;
+            this.methodTypeEnum = methodTypeEnum;
+            this.apiInfo = apiInfo;
+            this.location = null;
+        }
+
+        public Builder setLocation(String location) {
+            if (StringUtils.isEmpty(location)) {
+                return this;
+            }
+            this.location = location;
+            return this;
+        }
+
+        public ApiMetaDataBo build() {
+            ApiMetaDataBo result = new ApiMetaDataBo(this.agentId, this.startTime, this.apiId, this.lineNumber, this.methodTypeEnum, this.apiInfo);
+            result.location = this.location;
+            return result;
+        }
     }
 }

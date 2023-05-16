@@ -18,14 +18,15 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
+import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import javax.inject.Provider;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,16 +34,16 @@ import javax.inject.Provider;
 public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> {
 
     private final ProfilerConfig profilerConfig;
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
-                                         @MetadataDataSender EnhancedDataSender<Object> enhancedDataSender,
+                                         @MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender,
                                       SimpleCacheFactory simpleCacheFactory) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.simpleCacheFactory = Assert.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
+        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
     @Override

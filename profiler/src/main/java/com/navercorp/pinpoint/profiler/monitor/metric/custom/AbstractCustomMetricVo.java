@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.custom;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricWrapper;
 
 /**
@@ -33,7 +33,7 @@ public abstract class AbstractCustomMetricVo implements CustomMetricVo {
 
     protected AbstractCustomMetricVo(int id, String metricName) {
         this.id = id;
-        this.metricName = Assert.requireNonNull(metricName, "metricName");
+        this.metricName = Objects.requireNonNull(metricName, "metricName");
     }
 
     @Override

@@ -1,0 +1,93 @@
+:host {
+    display: block;
+    width: 100%;
+    padding: 5px 0;
+    background-color: var(--background-layer);
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+.l-list-item {
+    display: block;
+    width: 100%;
+}
+
+.l-separator {
+    border-top: 1px solid var(--border-primary);
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.l-depth-0 .l-link {
+    display: inline-block;
+    width: 100%;
+    padding: 10px 12px 10px 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.l-link:hover {
+    cursor: pointer;
+    background-color: var(--background-hover-default);
+    color: var(--primary) !important;
+}
+
+.l-link-with-arrow {
+    display: flex !important;
+    align-items: center;
+}
+
+.l-link-text {
+    flex: 1;
+}
+
+.l-depth-1 .l-link {
+    margin-left: 15px;
+    font-size: 90%;
+    color: var(--text-secondary);
+    max-width: calc(100% - 15px);
+}
+
+.l-theme-title {
+    display: inline-block;
+    padding: 5px 12px 5px 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.l-theme-conf-wrapper {
+    display: inline-block;
+    margin: 8px;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+}
+
+.l-theme-button-wrapper {
+    display: inline-block;
+}
+
+.l-theme-button {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 7px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+}
+
+.l-theme-button:hover {
+    background-color: var(--background-hover-primary);
+}
+
+.l-theme-button.active {
+    color: var(--text-knockout);
+    background-color: var(--primary);
+    font-weight: bold;
+}
+
+.l-experimental-menu-link {
+    font-style: italic;
+}
+
+.l-experimental-menu-link i {
+    font-size: 13px;
+}

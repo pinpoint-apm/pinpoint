@@ -16,91 +16,44 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author HyunGil Jeong
  */
-public class TransactionChart implements StatChart {
+public class TransactionChart extends DefaultAgentChart<SampledTransaction, Double> {
 
-    private final TransactionChartGroup transactionChartGroup;
-
-    public TransactionChart(TimeWindow timeWindow, List<SampledTransaction> sampledTransactions) {
-        this.transactionChartGroup = new TransactionChartGroup(timeWindow, sampledTransactions);
+    public enum TransactionChartType implements StatChartGroup.AgentChartType {
+        TPS_SAMPLED_NEW,
+        TPS_SAMPLED_CONTINUATION,
+        TPS_UNSAMPLED_NEW,
+        TPS_UNSAMPLED_CONTINUATION,
+        TPS_SKIPPED_NEW,
+        TPS_SKIPPED_CONTINUATION,
+        TPS_TOTAL
     }
 
-    @Override
-    public StatChartGroup getCharts() {
-        return transactionChartGroup;
+    private static final ChartGroupBuilder<SampledTransaction, AgentStatPoint<Double>> BUILDER = newChartBuilder();
+
+    static ChartGroupBuilder<SampledTransaction, AgentStatPoint<Double>> newChartBuilder() {
+        ChartGroupBuilder<SampledTransaction, AgentStatPoint<Double>> builder = new ChartGroupBuilder<>(SampledTransaction.UNCOLLECTED_POINT_CREATOR);
+        builder.addPointFunction(TransactionChartType.TPS_SAMPLED_NEW, SampledTransaction::getSampledNew);
+        builder.addPointFunction(TransactionChartType.TPS_SAMPLED_CONTINUATION, SampledTransaction::getSampledContinuation);
+        builder.addPointFunction(TransactionChartType.TPS_UNSAMPLED_NEW, SampledTransaction::getUnsampledNew);
+        builder.addPointFunction(TransactionChartType.TPS_UNSAMPLED_CONTINUATION, SampledTransaction::getUnsampledContinuation);
+        builder.addPointFunction(TransactionChartType.TPS_SKIPPED_NEW, SampledTransaction::getSkippedNew);
+        builder.addPointFunction(TransactionChartType.TPS_SKIPPED_CONTINUATION, SampledTransaction::getSkippedContinuation);
+        builder.addPointFunction(TransactionChartType.TPS_TOTAL, SampledTransaction::getTotal);
+
+        return builder;
     }
 
-    public static class TransactionChartGroup implements StatChartGroup {
-
-        private final TimeWindow timeWindow;
-
-        private final Map<ChartType, Chart<? extends Point>> transactionCharts;
-
-        public enum TransactionChartType implements AgentChartType {
-            TPS_SAMPLED_NEW,
-            TPS_SAMPLED_CONTINUATION,
-            TPS_UNSAMPLED_NEW,
-            TPS_UNSAMPLED_CONTINUATION,
-            TPS_SKIPPED_NEW,
-            TPS_SKIPPED_CONTINUATION,
-            TPS_TOTAL
-        }
-
-        private TransactionChartGroup(TimeWindow timeWindow, List<SampledTransaction> sampledTransactions) {
-            this.timeWindow = timeWindow;
-            this.transactionCharts = newChart(sampledTransactions);
-        }
-
-        private Map<ChartType, Chart<? extends Point>> newChart(List<SampledTransaction> sampledTransactions) {
-            Chart<AgentStatPoint<Double>> sampledNewTps = newChart(sampledTransactions, SampledTransaction::getSampledNew);
-            Chart<AgentStatPoint<Double>> sampledContinuationTps = newChart(sampledTransactions, SampledTransaction::getSampledContinuation);
-            Chart<AgentStatPoint<Double>> unsampledNewTps = newChart(sampledTransactions, SampledTransaction::getUnsampledNew);
-            Chart<AgentStatPoint<Double>> unsampledContinuationTps = newChart(sampledTransactions, SampledTransaction::getUnsampledContinuation);
-            Chart<AgentStatPoint<Double>> skippedNewTps = newChart(sampledTransactions, SampledTransaction::getSkippedNew);
-            Chart<AgentStatPoint<Double>> skippedContinuationTps = newChart(sampledTransactions, SampledTransaction::getSkippedContinuation);
-            Chart<AgentStatPoint<Double>> totalTps = newChart(sampledTransactions, SampledTransaction::getTotal);
-
-            ImmutableMap.Builder<ChartType, Chart<? extends Point>> builder = ImmutableMap.builder();
-            builder.put(TransactionChartType.TPS_SAMPLED_NEW, sampledNewTps);
-            builder.put(TransactionChartType.TPS_SAMPLED_CONTINUATION, sampledContinuationTps);
-            builder.put(TransactionChartType.TPS_UNSAMPLED_NEW, unsampledNewTps);
-            builder.put(TransactionChartType.TPS_UNSAMPLED_CONTINUATION, unsampledContinuationTps);
-            builder.put(TransactionChartType.TPS_SKIPPED_NEW, skippedNewTps);
-            builder.put(TransactionChartType.TPS_SKIPPED_CONTINUATION, skippedContinuationTps);
-            builder.put(TransactionChartType.TPS_TOTAL, totalTps);
-
-            return builder.build();
-        }
-
-        private Chart<AgentStatPoint<Double>> newChart(List<SampledTransaction> transactionList, Function<SampledTransaction, AgentStatPoint<Double>> filter) {
-            TimeSeriesChartBuilder<AgentStatPoint<Double>> builder = new TimeSeriesChartBuilder<>(timeWindow, SampledTransaction.UNCOLLECTED_POINT_CREATOR);
-            return builder.build(transactionList, filter);
-        }
-
-
-        @Override
-        public TimeWindow getTimeWindow() {
-            return timeWindow;
-        }
-
-        @Override
-        public Map<ChartType, Chart<? extends Point>> getCharts() {
-            return transactionCharts;
-        }
+    public TransactionChart(TimeWindow timeWindow, List<SampledTransaction> statList) {
+        super(timeWindow, statList, BUILDER);
     }
 }

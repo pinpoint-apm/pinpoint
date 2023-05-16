@@ -1,0 +1,44 @@
+{
+  "tableName": "uriStat",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "timeColumnName": "timestamp",
+    "timeType": "MILLISECONDS",
+    "schemaName": "uriStat",
+    "replicasPerPartition": "3",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "7"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["applicationName"],
+    "bloomFilterColumns": ["tenantId", "serviceName", "applicationName", "agentId"],
+    "noDictionaryColumns": ["tot0", "tot1", "tot2", "tot3", "tot4", "tot5", "tot6", "tot7", "fail0", "fail1", "fail2", "fail3", "fail4", "fail5", "fail6", "fail7"],
+    "loadMode": "MMAP",
+    "nullHandlingEnabled": true,
+    "streamConfigs": {
+      "streamType": "kafka",
+      "stream.kafka.consumer.type": "lowlevel",
+      "stream.kafka.topic.name": "url-stat",
+      "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+      "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+      "stream.kafka.broker.list": "localhost:19092",
+      "realtime.segment.flush.threshold.rows": "0",
+      "realtime.segment.flush.threshold.time": "24h",
+      "realtime.segment.flush.threshold.segment.size": "64M",
+      "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
+    }
+  },
+  "task": {
+    "taskTypeConfigsMap": {
+      "RealtimeToOfflineSegmentsTask": {
+        "bucketTimePeriod": "4h",
+        "bufferTimePeriod": "12h",
+        "schedule": "0 0 * * * ?",
+        "maxNumRecordsPerSegment": "1000000"
+      }
+    }
+  },
+  "metadata": {
+  }
+}

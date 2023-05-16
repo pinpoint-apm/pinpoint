@@ -1,0 +1,19 @@
+serviceTypes:
+    - code: 9205
+      name: 'ELASTICSEARCH8'
+      desc: 'ELASTICSEARCH'
+    - code: 9206
+      name: 'ELASTICSEARCH8_CLIENT'
+      desc: 'ELASTICSEARCH'
+      property:
+          alias: true
+
+annotationKeys:
+  - code: 177
+    name: es8.dsl
+    property:
+      viewInRecordSet: true
+  - code: 178
+    name: es8.version
+    property:
+      viewInRecordSet: true

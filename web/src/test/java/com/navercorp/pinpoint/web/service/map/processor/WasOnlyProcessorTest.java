@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.web.service.map.processor;
 
+import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.service.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author HyunGil Jeong
  */
 public class WasOnlyProcessorTest {
 
-    private final Range testRange = new Range(System.currentTimeMillis(), System.currentTimeMillis());
+    private final Range testRange = Range.between(System.currentTimeMillis(), System.currentTimeMillis());
 
     @Test
     public void shouldFilterLinksToTerminalNodes() {
@@ -49,7 +49,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
     }
 
     @Test
@@ -66,7 +66,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertTrue(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();
     }
 
     @Test
@@ -100,6 +100,6 @@ public class WasOnlyProcessorTest {
         LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(linkDataMap, testRange);
 
         // Then
-        Assert.assertFalse(filteredLinkDataMap.getLinkDataList().isEmpty());
+        assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();
     }
 }

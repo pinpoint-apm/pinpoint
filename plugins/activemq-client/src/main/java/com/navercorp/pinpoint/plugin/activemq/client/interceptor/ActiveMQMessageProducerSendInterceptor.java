@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientHeader;
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.ActiveMQSessionGetter;
@@ -158,7 +159,7 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
         if (!validateTransport(((ActiveMQSessionGetter) target)._$PINPOINT$_getActiveMQSession())) {
             return false;
         }
-        if (args == null || args.length < 2) {
+        if (ArrayUtils.getLength(args) < 2) {
             return false;
         }
         if (!(args[0] instanceof ActiveMQDestination)) {

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,7 +27,7 @@ public class InstanceTransformCallbackProvider implements TransformCallbackProvi
     private final TransformCallback transformCallback;
 
     public InstanceTransformCallbackProvider(TransformCallback transformCallback) {
-        this.transformCallback = Assert.requireNonNull(transformCallback, "transformCallback");
+        this.transformCallback = Objects.requireNonNull(transformCallback, "transformCallback");
     }
 
     @Override

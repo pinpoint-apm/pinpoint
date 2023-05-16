@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 import java.util.concurrent.Executor;
 
@@ -28,8 +28,8 @@ public class ReconnectAdaptor implements Reconnector {
     private final ReconnectJob reconnectJob;
 
     public ReconnectAdaptor(Executor executor, ReconnectJob reconnectJob) {
-        this.executor = Assert.requireNonNull(executor, "executor");
-        this.reconnectJob = Assert.requireNonNull(reconnectJob, "reconnectJob");
+        this.executor = Objects.requireNonNull(executor, "executor");
+        this.reconnectJob = Objects.requireNonNull(reconnectJob, "reconnectJob");
     }
 
 

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 import java.io.InputStream;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -34,11 +35,7 @@ public class GuardInstrumentContext implements InstrumentContext {
     private boolean closed = false;
 
     public GuardInstrumentContext(InstrumentContext instrumentContext) {
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext");
-        }
-
-        this.instrumentContext = instrumentContext;
+        this.instrumentContext = Objects.requireNonNull(instrumentContext, "instrumentContext");
     }
 
 

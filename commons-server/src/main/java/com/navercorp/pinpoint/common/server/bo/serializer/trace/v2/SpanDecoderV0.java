@@ -27,14 +27,12 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
 import com.navercorp.pinpoint.io.SpanVersion;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +40,9 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Component
 public class SpanDecoderV0 implements SpanDecoder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final SequenceSpanEventFilter SEQUENCE_SPAN_EVENT_FILTER = new SequenceSpanEventFilter(SequenceSpanEventFilter.MAX_SEQUENCE);
 
@@ -120,7 +117,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         span.setVersion(version);
 
-        final SpanBitFiled bitFiled = new SpanBitFiled(buffer.readByte());
+        final SpanBitField bitFiled = new SpanBitField(buffer.readByte());
 
         final short serviceType = buffer.readShort();
         span.setServiceType(serviceType);
@@ -354,7 +351,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private List<AnnotationBo> readAnnotationList(Buffer buffer, SpanDecodingContext decodingContext) {
         int annotationListSize = buffer.readVInt();
-        List<AnnotationBo> annotationBoList = new ArrayList<AnnotationBo>(annotationListSize);
+        List<AnnotationBo> annotationBoList = new ArrayList<>(annotationListSize);
 
 //        AnnotationBo prev = decodingContext.getPrevFirstAnnotationBo();
         AnnotationBo prev = null;

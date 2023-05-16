@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.profiler.context.grpc.CommandThriftToGrpcMessageConverter;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
@@ -33,11 +32,12 @@ import org.apache.thrift.TBase;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Taejin Koo
  */
-public class GrpcAgentConnection implements ClusterPoint<TBase> {
+public class GrpcAgentConnection implements ClusterPoint<TBase<?, ?>> {
 
     private final CommandThriftToGrpcMessageConverter messageConverter = new CommandThriftToGrpcMessageConverter();
 
@@ -53,17 +53,17 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
     }
 
     @Override
-    public Future<ResponseMessage> request(TBase request) {
+    public CompletableFuture<ResponseMessage> request(TBase<?, ?> request) {
         GeneratedMessageV3 message = messageConverter.toMessage(request);
         if (message == null) {
-            DefaultFuture<ResponseMessage> failedFuture = new DefaultFuture<ResponseMessage>();
-            failedFuture.setFailure(new PinpointSocketException(TRouteResult.NOT_SUPPORTED_REQUEST.name()));
+            CompletableFuture<ResponseMessage> failedFuture = new CompletableFuture<>();
+            failedFuture.completeExceptionally(new PinpointSocketException(TRouteResult.NOT_SUPPORTED_REQUEST.name()));
             return failedFuture;
         }
         return pinpointGrpcServer.request(message);
     }
 
-    public ClientStreamChannel openStream(TBase request, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
+    public ClientStreamChannel openStream(TBase<?, ?> request, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         GeneratedMessageV3 message = messageConverter.toMessage(request);
         if (message == null) {
             throw new StreamException(StreamCode.TYPE_UNSUPPORT);
@@ -72,12 +72,12 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
     }
 
     @Override
-    public AgentInfo getDestAgentInfo() {
-        return pinpointGrpcServer.getAgentInfo();
+    public ClusterKey getDestClusterKey() {
+        return pinpointGrpcServer.getClusterKey();
     }
 
     @Override
-    public boolean isSupportCommand(TBase command) {
+    public boolean isSupportCommand(TBase<?, ?> command) {
         for (TCommandType supportCommand : supportCommandList) {
             if (supportCommand.getClazz() == command.getClass()) {
                 return true;
@@ -92,7 +92,7 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
 
     @Override
     public int hashCode() {
-        return pinpointGrpcServer.getAgentInfo().hashCode();
+        return pinpointGrpcServer.getClusterKey().hashCode();
     }
 
     @Override
@@ -110,6 +110,11 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
         }
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("GrpcAgentConnection {clusterKey: %s}", pinpointGrpcServer.getClusterKey());
     }
 
 }

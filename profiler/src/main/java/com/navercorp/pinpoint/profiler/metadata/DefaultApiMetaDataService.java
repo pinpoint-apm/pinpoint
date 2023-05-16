@@ -17,7 +17,10 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.cache.Result;
+import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**
@@ -27,11 +30,11 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String> apiCache;
 
-    private final EnhancedDataSender<Object> enhancedDataSender;
+    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
 
-    public DefaultApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> apiCache) {
-        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
-        this.apiCache = Assert.requireNonNull(apiCache, "apiCache");
+    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String> apiCache) {
+        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.apiCache = Objects.requireNonNull(apiCache, "apiCache");
     }
 
     @Override
@@ -42,9 +45,10 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
         methodDescriptor.setApiId(result.getId());
 
         if (result.isNewValue()) {
-            final ApiMetaData apiMetadata = new ApiMetaData(result.getId(), methodDescriptor.getApiDescriptor());
-            apiMetadata.setLine(methodDescriptor.getLineNumber());
-            apiMetadata.setType(methodDescriptor.getType());
+            final ApiMetaData apiMetadata = new ApiMetaData(result.getId(),
+                    methodDescriptor.getApiDescriptor(),
+                    methodDescriptor.getLineNumber(),
+                    methodDescriptor.getType());
 
             this.enhancedDataSender.request(apiMetadata);
         }

@@ -27,7 +27,6 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -106,8 +105,8 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
     }
 
     public static class ClientForNonblockingServer extends SyncEchoTestClient {
-        public ClientForNonblockingServer(TestEnvironment environment) throws TTransportException {
-            super(environment, new TFramedTransport(new TSocket(environment.getServerIp(), environment.getPort())));
+        public ClientForNonblockingServer(TestEnvironment environment) throws Exception {
+            super(environment, TTransportInstanceCreator.create(SyncEchoTestClient014.class.getClassLoader(), "org.apache.thrift.transport.TFramedTransport", new TSocket(environment.getServerIp(), environment.getPort())));
         }
     }
 }

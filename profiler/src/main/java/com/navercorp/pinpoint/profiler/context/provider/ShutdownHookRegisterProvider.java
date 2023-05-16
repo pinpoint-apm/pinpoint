@@ -17,15 +17,16 @@
 package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.JvmType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.ShutdownHookRegister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -48,10 +49,8 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
     //   - 6 not exist
     //   - 7 ~ void registerShutdownHook(int var1, boolean , Runnable );
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    // Java6
-    private static final String JDK6_SHUTDOWN_HOOK_REGISTER = "com.navercorp.pinpoint.profiler.shutdown.Java6ShutdownHookRegister";
     // Java7,8
     private static final String JDK7_SHUTDOWN_HOOK_REGISTER = "com.navercorp.pinpoint.profiler.shutdown.Java7ShutdownHookRegister";
     // Java9,10,11
@@ -61,11 +60,10 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
 
     private final String vendorName;
 
-    public ShutdownHookRegisterProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig");
-        }
-        vendorName = profilerConfig.getProfilerJvmVendorName();
+    public ShutdownHookRegisterProvider(ContextConfig contextConfig) {
+        Objects.requireNonNull(contextConfig, "contextConfig");
+        
+        vendorName = contextConfig.getProfilerJvmVendorName();
     }
 
     @Override
@@ -88,13 +86,6 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
         if (jvmVersion.onOrAfter(JvmVersion.JAVA_7)) {
             return JDK7_SHUTDOWN_HOOK_REGISTER;
         }
-
-        if (jvmVersion.onOrAfter(JvmVersion.JAVA_6)) {
-            if (jvmType == JvmType.ORACLE) {
-                return JDK6_SHUTDOWN_HOOK_REGISTER;
-            }
-        }
-
         return null;
     }
 
@@ -122,7 +113,7 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
 
     private static class RuntimeShutdownHookRegister implements ShutdownHookRegister {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
         @Override
         public void register(Thread thread) {

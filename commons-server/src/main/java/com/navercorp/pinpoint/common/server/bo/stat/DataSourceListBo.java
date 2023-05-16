@@ -114,13 +114,11 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DataSourceListBo{");
-        sb.append("dataSourceBoList=").append(dataSourceBoList);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append('}');
-        return sb.toString();
+        return "DataSourceListBo{" +
+                "dataSourceBoList=" + dataSourceBoList +
+                ", agentId='" + agentId + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", timestamp=" + timestamp +
+                '}';
     }
-
 }

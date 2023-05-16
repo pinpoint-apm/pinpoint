@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.collector.handler;
 /**
  * @author jaehong.kim
  */
-public interface SimpleAndRequestResponseHandler extends SimpleHandler, RequestResponseHandler {
+public interface SimpleAndRequestResponseHandler<REQ, RES> extends SimpleHandler<REQ>, RequestResponseHandler<REQ, RES> {
 }

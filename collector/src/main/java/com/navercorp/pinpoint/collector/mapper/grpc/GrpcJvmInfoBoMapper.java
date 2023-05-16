@@ -39,9 +39,6 @@ public class GrpcJvmInfoBoMapper {
         final short version = (short) jvmInfo.getVersion();
         final String jvmVersion = jvmInfo.getVmVersion();
         final String gcTypeName = this.jvmGcTypeMapper.map(jvmInfo.getGcType()).name();
-        final JvmInfoBo jvmInfoBo = new JvmInfoBo(version);
-        jvmInfoBo.setJvmVersion(jvmVersion);
-        jvmInfoBo.setGcTypeName(gcTypeName);
-        return jvmInfoBo;
+        return new JvmInfoBo(version, jvmVersion, gcTypeName);
     }
 }

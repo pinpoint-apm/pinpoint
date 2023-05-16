@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.profiler.context.scope;
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -25,7 +25,7 @@ public class DefaultTraceScope implements TraceScope {
     private int depth = 0;
 
     public DefaultTraceScope(String name) {
-        this.name = Assert.requireNonNull(name, "name");
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     @Override

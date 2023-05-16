@@ -25,9 +25,8 @@ public abstract class Option {
         return new WithValue(value);
     }
     
-    @SuppressWarnings("unchecked")
     public static Option empty() {
-        return (Option)EMPTY;
+        return EMPTY;
     }
     
     private static final class WithValue extends Option {

@@ -41,20 +41,21 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanBinder {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final AnnotationFactory<PAnnotation> annotationFactory = new AnnotationFactory<>(new GrpcAnnotationHandler());
 
@@ -307,9 +308,7 @@ public class GrpcSpanBinder {
 
     // for test
     public SpanEventBo buildSpanEventBo(PSpanEvent pSpanEvent, SpanEventBo prevSpanEvent) {
-        if (pSpanEvent == null) {
-            throw new NullPointerException("pSpanEvent");
-        }
+        Objects.requireNonNull(pSpanEvent, "pSpanEvent");
 
         final SpanEventBo spanEvent = new SpanEventBo();
         bind(spanEvent, pSpanEvent, prevSpanEvent);
@@ -317,9 +316,8 @@ public class GrpcSpanBinder {
     }
 
     private AnnotationBo newAnnotationBo(PAnnotation pAnnotation) {
-        if (pAnnotation == null) {
-            throw new NullPointerException("annotation");
-        }
+        Objects.requireNonNull(pAnnotation, "pAnnotation");
+
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(pAnnotation);
         return annotationBo;
     }

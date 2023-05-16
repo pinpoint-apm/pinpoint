@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.view.AgentEventMarkerSerializer;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -37,11 +38,7 @@ public class AgentEventMarker {
     public void addAgentEvent(AgentEvent agentEvent) {
         AgentEventType agentEventType = AgentEventType.getTypeByCode(agentEvent.getEventTypeCode());
         if (agentEventType != null) {
-            MutableInt typeCount = typeCounts.get(agentEventType);
-            if (typeCount == null) {
-                typeCount = new MutableInt();
-                typeCounts.put(agentEventType, typeCount);
-            }
+            MutableInt typeCount = typeCounts.computeIfAbsent(agentEventType, k -> new MutableInt());
             typeCount.increment();
             totalCount++;
         }
@@ -50,7 +47,7 @@ public class AgentEventMarker {
     public Map<AgentEventType, Integer> getTypeCounts() {
         Map<AgentEventType, Integer> typeCounts = new EnumMap<>(AgentEventType.class);
         for (Map.Entry<AgentEventType, MutableInt> e : this.typeCounts.entrySet()) {
-            typeCounts.put(e.getKey(), e.getValue().get());
+            typeCounts.put(e.getKey(), e.getValue().intValue());
         }
         return typeCounts;
     }
@@ -85,49 +82,4 @@ public class AgentEventMarker {
         return sb.toString();
     }
 
-    private static class MutableInt {
-
-        private int value;
-
-        private MutableInt() {
-            this(0);
-        }
-
-        private MutableInt(int initialValue) {
-            value = initialValue;
-        }
-
-        private void increment() {
-            value++;
-        }
-
-        private void decrement() {
-            value--;
-        }
-
-        private int get() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            MutableInt that = (MutableInt) o;
-            return value == that.value;
-        }
-
-        @Override
-        public int hashCode() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("MutableInt{");
-            sb.append("value=").append(value);
-            sb.append('}');
-            return sb.toString();
-        }
-    }
 }

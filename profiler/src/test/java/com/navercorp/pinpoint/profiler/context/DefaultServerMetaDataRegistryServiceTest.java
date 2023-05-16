@@ -16,10 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import static org.junit.Assert.*;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -28,11 +32,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author hyungil.jeong
@@ -42,16 +44,16 @@ public class DefaultServerMetaDataRegistryServiceTest {
     private static final int THREAD_COUNT = 500;
 
     private static final String SERVER_INFO = "testContainerInfo";
-    private static final List<String> VM_ARGS = Arrays.asList("testVmArgs");
+    private static final List<String> VM_ARGS = Collections.singletonList("testVmArgs");
 
     private ExecutorService executorService;
-    
-    @Before
+
+    @BeforeEach
     public void setUp() {
         this.executorService = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         this.executorService.shutdown();
     }
@@ -62,7 +64,7 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final CountDownLatch initLatch = new CountDownLatch(THREAD_COUNT);
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
-        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<Exception>();
+        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<>();
 
         final String protocolPrefix = "protocol-";
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
@@ -91,7 +93,8 @@ public class DefaultServerMetaDataRegistryServiceTest {
         startLatch.countDown();
         endLatch.await();
         // Then
-        assertTrue("Failed with errors : " + exceptions, exceptions.isEmpty());
+        assertThat(exceptions)
+                .as("Failed with errors : " + exceptions).isEmpty();
         ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
         assertEquals(SERVER_INFO, serverMetaData.getServerInfo());
         assertEquals(VM_ARGS, serverMetaData.getVmArgs());
@@ -110,14 +113,14 @@ public class DefaultServerMetaDataRegistryServiceTest {
         final CountDownLatch initLatch = new CountDownLatch(THREAD_COUNT);
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
-        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<Exception>();
-        
+        final Queue<Exception> exceptions = new ConcurrentLinkedQueue<>();
+
         final String serviceName = "/test";
         final ServerMetaDataRegistryService serverMetaDataRegistryService = new DefaultServerMetaDataRegistryService(VM_ARGS);
         serverMetaDataRegistryService.setServerName(SERVER_INFO);
         // When
         for (int i = 0; i < THREAD_COUNT; i++) {
-            final List<String> serviceLibs = new ArrayList<String>();
+            final List<String> serviceLibs = new ArrayList<>();
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -138,7 +141,8 @@ public class DefaultServerMetaDataRegistryServiceTest {
         startLatch.countDown();
         endLatch.await();
         // Then
-        assertTrue("Failed with exceptions : " + exceptions, exceptions.isEmpty());
+        assertThat(exceptions)
+                .as("Failed with exceptions : " + exceptions).isEmpty();
         ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
         assertEquals(SERVER_INFO, serverMetaData.getServerInfo());
         assertEquals(VM_ARGS, serverMetaData.getVmArgs());

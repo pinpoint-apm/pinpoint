@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
@@ -121,6 +122,7 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
         }
         if (!trace.canSampled()) {
             traceContext.removeTraceObject();
+            return;
         }
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
@@ -216,10 +218,7 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
         recorder.recordEndPoint(endPoint);
         recorder.recordRemoteAddress(remoteAddress);
 
-        String convertedExchange = exchange;
-        if (StringUtils.isEmpty(convertedExchange)) {
-            convertedExchange = RabbitMQClientConstants.UNKNOWN;
-        }
+        String convertedExchange = StringUtils.defaultIfEmpty(exchange, RabbitMQClientConstants.UNKNOWN);
         recorder.recordRpcName("rabbitmq://exchange=" + convertedExchange);
         recorder.recordAcceptorHost("exchange-" + convertedExchange);
         if (isDebug) {
@@ -227,7 +226,7 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
         }
         recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, routingKey);
 
-        if (!MapUtils.isEmpty(headers)) {
+        if (MapUtils.hasLength(headers)) {
             Object parentApplicationName = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_NAME);
             if (!recorder.isRoot() && parentApplicationName != null) {
                 Object parentApplicationType = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_TYPE);
@@ -237,7 +236,7 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
     }
 
     private boolean validate(Object target, Object[] args) {
-        if (args == null || args.length < 1) {
+        if (ArrayUtils.isEmpty(args)) {
             return false;
         }
         if (!(target instanceof AMQChannel)) {

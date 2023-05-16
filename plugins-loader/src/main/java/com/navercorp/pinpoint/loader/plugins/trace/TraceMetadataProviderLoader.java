@@ -19,13 +19,11 @@ package com.navercorp.pinpoint.loader.plugins.trace;
 import com.navercorp.pinpoint.common.trace.LoadedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.loader.plugins.PinpointPluginLoader;
 import com.navercorp.pinpoint.loader.plugins.trace.yaml.TraceMetadataProviderYamlParser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,6 +33,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -46,7 +45,7 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
 
     private static final String TYPE_PROVIDER_DEF_ENTRY = "META-INF/pinpoint/type-provider.yml";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String typeProviderDefEntry;
     private final Collection<URL> customTypeProviderUrls;
@@ -68,21 +67,21 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
 
     public TraceMetadataProviderLoader(Collection<URL> customTypeProviderUrls, Filter<URL> pluginTypeProviderUrlFilter) {
         this.typeProviderDefEntry = TYPE_PROVIDER_DEF_ENTRY;
-        this.customTypeProviderUrls = Assert.requireNonNull(customTypeProviderUrls, "customTypeProviderUrls");
-        this.pluginTypeProviderUrlFilter = Assert.requireNonNull(pluginTypeProviderUrlFilter, "pluginTypeProviderUrlFilter");
+        this.customTypeProviderUrls = Objects.requireNonNull(customTypeProviderUrls, "customTypeProviderUrls");
+        this.pluginTypeProviderUrlFilter = Objects.requireNonNull(pluginTypeProviderUrlFilter, "pluginTypeProviderUrlFilter");
     }
 
     @Override
     public List<TraceMetadataProvider> load(ClassLoader classLoader) {
-        List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<TraceMetadataProvider>();
+        List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<>();
         traceMetadataProviders.addAll(fromMetaFiles(classLoader));
         traceMetadataProviders.addAll(fromServiceLoader(classLoader));
         return traceMetadataProviders;
     }
 
     private List<TraceMetadataProvider> fromMetaFiles(ClassLoader classLoader) {
-        Set<String> loadedProviderIds = new HashSet<String>();
-        List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<TraceMetadataProvider>();
+        Set<String> loadedProviderIds = new HashSet<>();
+        List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<>();
         for (URL typeProviderUrl : getTypeProviderUrls(classLoader)) {
             ParsedTraceMetadataProvider parsedTraceMetadataProvider = traceMetadataProviderParser.parse(typeProviderUrl);
             String loadedProviderId = parsedTraceMetadataProvider.getId();
@@ -97,7 +96,7 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
     }
 
     private List<URL> getTypeProviderUrls(ClassLoader classLoader) {
-        List<URL> typeProviderUrls = new ArrayList<URL>(customTypeProviderUrls);
+        List<URL> typeProviderUrls = new ArrayList<>(customTypeProviderUrls);
 
         for (URL customTypeProviderUrl : customTypeProviderUrls) {
             if (pluginTypeProviderUrlFilter.filter(customTypeProviderUrl)) {
@@ -123,7 +122,7 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
     }
 
     private List<TraceMetadataProvider> fromServiceLoader(ClassLoader classLoader) {
-        List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<TraceMetadataProvider>();
+        List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<>();
         ServiceLoader<TraceMetadataProvider> serviceLoader = ServiceLoader.load(TraceMetadataProvider.class, classLoader);
         for (TraceMetadataProvider traceMetadataProvider : serviceLoader) {
             traceMetadataProviders.add(new LoadedTraceMetadataProvider(traceMetadataProvider));

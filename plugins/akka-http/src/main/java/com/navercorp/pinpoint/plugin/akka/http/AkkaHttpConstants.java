@@ -26,6 +26,11 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 public class AkkaHttpConstants {
 
     public static final ServiceType AKKA_HTTP_SERVER = ServiceTypeFactory.of(1310, "AKKA_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(9998, "1311", "AKKA_HTTP_SERVER_INTERNAL");
+    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(1311, "AKKA_HTTP_SERVER_INTERNAL");
+
+    /**
+     * backward compatibility for old agent
+     */
+    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL_LEGACY = ServiceTypeFactory.of(9998, "AKKA_HTTP_SERVER_INTERNAL_LEGACY");
 
 }

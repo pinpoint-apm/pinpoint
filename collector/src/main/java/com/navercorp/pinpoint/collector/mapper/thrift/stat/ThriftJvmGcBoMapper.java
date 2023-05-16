@@ -16,20 +16,25 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Component
-public class ThriftJvmGcBoMapper implements ThriftBoMapper<JvmGcBo, TJvmGc> {
+public class ThriftJvmGcBoMapper implements ThriftStatMapper<JvmGcBo, TJvmGc> {
 
-    @Autowired
-    private ThriftJvmGcTypeMapper jvmGcTypeMapper;
+    private final ThriftJvmGcTypeMapper jvmGcTypeMapper;
+
+    public ThriftJvmGcBoMapper(ThriftJvmGcTypeMapper jvmGcTypeMapper) {
+        this.jvmGcTypeMapper = Objects.requireNonNull(jvmGcTypeMapper, "jvmGcTypeMapper");
+    }
 
     @Override
     public JvmGcBo map(TJvmGc jvmGc) {
@@ -42,5 +47,14 @@ public class ThriftJvmGcBoMapper implements ThriftBoMapper<JvmGcBo, TJvmGc> {
         jvmGcBo.setGcOldCount(jvmGc.getJvmGcOldCount());
         jvmGcBo.setGcOldTime(jvmGc.getJvmGcOldTime());
         return jvmGcBo;
+    }
+
+    @Override
+    public void map(AgentStatBo.Builder.StatBuilder agentStatBo, TAgentStat tAgentStat) {
+        // jvmGc
+        if (tAgentStat.isSetGc()) {
+            JvmGcBo jvmGcBo = this.map(tAgentStat.getGc());
+            agentStatBo.addJvmGc(jvmGcBo);
+        }
     }
 }

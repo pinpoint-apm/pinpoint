@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -31,18 +31,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Woonduk Kang(emeroad)
  */
 public class ReconnectExecutor {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private volatile boolean shutdown;
     private final ScheduledExecutorService scheduledExecutorService;
     private final AtomicLong rejectedCounter = new AtomicLong();
 
     public ReconnectExecutor(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
+        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
     }
 
     private void execute0(Runnable command) {
-        Assert.requireNonNull(command, "command");
+        Objects.requireNonNull(command, "command");
 
         if (shutdown) {
             logger.debug("already shutdown");
@@ -66,9 +66,9 @@ public class ReconnectExecutor {
     }
 
     public Reconnector newReconnector(Runnable reconnectJob) {
-        Assert.requireNonNull(reconnectJob, "reconnectJob");
+        Objects.requireNonNull(reconnectJob, "reconnectJob");
         if (logger.isInfoEnabled()) {
-            logger.info("newReconnector(reconnectJob = [{}])", reconnectJob);
+            logger.info("newReconnector({})", reconnectJob);
         }
 
         final Executor dispatch = new Executor() {

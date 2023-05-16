@@ -16,39 +16,43 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
+import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.handler.DirectExecutor;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
+import com.navercorp.pinpoint.collector.service.StatisticsService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AgentLifeCycleAsyncTaskServiceTest {
 
     // FIX guava 19.0.0 update error. MoreExecutors.sameThreadExecutor(); change final class
@@ -59,8 +63,17 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     @Mock
     private AgentLifeCycleService agentLifeCycleService;
 
+    @Mock
+    private ServiceTypeRegistryService serviceTypeRegistryService;
+
+    @Mock
+    private StatisticsService statisticsService;
+
+    @Mock
+    private CollectorProperties collectorProperties;
+
     @InjectMocks
-    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService = new AgentLifeCycleAsyncTaskService();
+    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
     private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";
@@ -181,7 +194,7 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
         long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(TEST_SOCKET_ID, expectedEventCounter);
         this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, eventIdentifier);
-        verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
+        verify(this.agentLifeCycleService).insert(argCaptor.capture());
 
         // then
         AgentLifeCycleBo actualAgentLifeCycleBo = argCaptor.getValue();

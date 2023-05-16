@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.io.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 import com.navercorp.pinpoint.io.header.Header;
@@ -34,11 +34,11 @@ import java.util.Map;
  */
 public class TypeLocatorBuilder<T> {
 
-    private final Map<Integer, BodyFactory<T>> bodyFactoryMap = new HashMap<Integer, BodyFactory<T>>();
-    private final Map<Class<?>, Header> bodyClassToHeaderMap = new LinkedHashMap<Class<?>, Header>();
+    private final Map<Integer, BodyFactory<T>> bodyFactoryMap = new HashMap<>();
+    private final Map<Class<?>, Header> bodyClassToHeaderMap = new LinkedHashMap<>();
 
-    //    private final IntHashMap<Class<?>> classMap = new IntHashMap<Class<?>>();
-    private final Map<Integer, Header> headerMap = new HashMap<Integer, Header>();
+    //    private final IntHashMap<Class<?>> classMap = new IntHashMap<>();
+    private final Map<Integer, Header> headerMap = new HashMap<>();
     private final HeaderFactory headerFactory;
 
     public TypeLocatorBuilder() {
@@ -46,13 +46,11 @@ public class TypeLocatorBuilder<T> {
     }
 
     public TypeLocatorBuilder(HeaderFactory headerFactory) {
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
     }
 
     public void addBodyFactory(short type, BodyFactory<T> bodyFactory) {
-        if (bodyFactory == null) {
-            throw new NullPointerException("bodyFactory");
-        }
+        Objects.requireNonNull(bodyFactory, "bodyFactory");
 
         final BodyFactory<T> old = bodyFactoryMap.put((int) type, bodyFactory);
         if (old != null) {
@@ -77,16 +75,15 @@ public class TypeLocatorBuilder<T> {
 
     public TypeLocator<T> build() {
         final IntHashMap<BodyFactory<T>> copyBodyFactoryMap = IntHashMapUtils.copy(bodyFactoryMap);
-        final Map<Class<?>, Header> copyBodyClassToHeaderMap = new IdentityHashMap<Class<?>, Header>(this.bodyClassToHeaderMap);
+        final Map<Class<?>, Header> copyBodyClassToHeaderMap = new IdentityHashMap<>(this.bodyClassToHeaderMap);
         final IntHashMap<Header> copyHeaderMap = IntHashMapUtils.copy(headerMap);
         final List<DefaultTypeLocator.Entry<Class<?>, Header>> bodyClassToHeaderList = toList(this.bodyClassToHeaderMap);
 
-        TypeLocator typeLocator = new DefaultTypeLocator<T>(copyBodyFactoryMap, copyBodyClassToHeaderMap, copyHeaderMap, bodyClassToHeaderList);
-        return typeLocator;
+        return new DefaultTypeLocator<T>(copyBodyFactoryMap, copyBodyClassToHeaderMap, copyHeaderMap, bodyClassToHeaderList);
     }
 
     private List<DefaultTypeLocator.Entry<Class<?>, Header>> toList(Map<Class<?>, Header> bodyClassToHeaderMap) {
-        List<DefaultTypeLocator.Entry<Class<?>, Header>> bodyClassToHeaderList = new ArrayList<DefaultTypeLocator.Entry<Class<?>, Header>>(bodyClassToHeaderMap.size());
+        List<DefaultTypeLocator.Entry<Class<?>, Header>> bodyClassToHeaderList = new ArrayList<>(bodyClassToHeaderMap.size());
         for (Map.Entry<Class<?>, Header> mapEntry : bodyClassToHeaderMap.entrySet()) {
             DefaultTypeLocator.Entry<Class<?>, Header> entry = new DefaultTypeLocator.Entry<Class<?>, Header>(mapEntry.getKey(), mapEntry.getValue());
             bodyClassToHeaderList.add(entry);
