@@ -16,13 +16,16 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
@@ -171,5 +174,49 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordStatusCode(int statusCode) {
         span.getTraceRoot().getShared().setStatusCode(statusCode);
+    }
+    @Override
+    public void recordWebInfoRequestUrl(String requestUrl) {
+        this.span.getWebInfo().setRequestUrl(requestUrl);
+    }
+
+    @Override
+    public void recordWebInfoRequestBody(Object requestBody) {
+        this.span.getWebInfo().setRequestBody(requestBody);
+    }
+
+    @Override
+    public void recordWebInfoRequestHeader(Object requestHeader) {
+        this.span.getWebInfo().setRequestHeader(requestHeader);
+    }
+
+    @Override
+    public void recordWebInfoResponseBody(Object responseBody) {
+        this.span.getWebInfo().setResponseBody(responseBody);
+    }
+
+    @Override
+    public void recordWebInfoResponseHeader(Object responseHeader) {
+        this.span.getWebInfo().setResponseHeader(responseHeader);
+    }
+
+    @Override
+    public void recordWebInfoRequestMethod(String requestMethod) {
+        this.span.getWebInfo().setRequestMethod(requestMethod);
+    }
+
+    @Override
+    public void recordWebInfoStatusCode(int statusCode) {
+        this.span.getWebInfo().setStatusCode(statusCode);
+    }
+
+    @Override
+    public boolean requestBodyTraced() {
+        return null != this.span.getWebInfo().getRequestBody();
+    }
+
+    @Override
+    public void recordWebInfoStrategy(byte strategy) {
+        this.span.getWebInfo().setWebBodyStrategy(strategy);
     }
 }

@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 
 /**
@@ -38,10 +40,17 @@ public class DisableTrace implements Trace {
     private final ActiveTraceHandle handle;
     private boolean closed = false;
 
-    public DisableTrace(long id, long startTime,  ActiveTraceHandle handle) {
+    private final SpanRecorder spanRecorder;
+    private final Span span;
+    private final Storage storage;
+
+    public DisableTrace(long id, long startTime, ActiveTraceHandle handle, Span span, SpanRecorder spanRecorder, Storage storage) {
         this.id = id;
         this.startTime = startTime;
         this.handle = Assert.requireNonNull(handle, "handle");
+        this.span = Assert.requireNonNull(span, "span");
+        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
+        this.storage = Assert.requireNonNull(storage, "storage");
     }
 
     @Override
@@ -77,7 +86,9 @@ public class DisableTrace implements Trace {
 
     @Override
     public TraceId getTraceId() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+        return this.span.getTraceRoot().getTraceId();
+
+//        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
@@ -112,9 +123,17 @@ public class DisableTrace implements Trace {
         if (closed) {
             return;
         }
-        closed = true;
         final long purgeTime = System.currentTimeMillis();
-        handle.purge(purgeTime);
+        try {
+            span.getWebInfo().setDisabled(true);
+            span.setElapsedTime((int) (purgeTime - this.startTime));
+            storage.sendWebInfo(span);
+        } catch (Throwable t) {
+            // 增强的方法发生异常
+        } finally {
+            closed = true;
+            handle.purge(purgeTime);
+        }
     }
 
 
@@ -125,7 +144,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public SpanRecorder getSpanRecorder() {
-        return null;
+        return spanRecorder;
     }
 
     @Override

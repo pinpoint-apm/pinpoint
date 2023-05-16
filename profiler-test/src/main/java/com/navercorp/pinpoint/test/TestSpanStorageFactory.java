@@ -41,7 +41,7 @@ public class TestSpanStorageFactory implements StorageFactory {
 
     @Override
     public Storage createStorage(SpanChunkFactory spanChunkFactory) {
-        return new BufferedStorage(spanChunkFactory, this.dataSender, 1);
+        return new BufferedStorage(spanChunkFactory, this.dataSender, 1, false, "STAUTS", "0000");
     }
 
 }
