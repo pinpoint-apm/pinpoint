@@ -9,6 +9,7 @@
 
     <import resource="classpath:applicationContext-flink-profile.xml"/>
     <import resource="classpath:applicationContext-flink-extend.xml"/>
+    <import resource="classpath:applicationContext-flink-clean.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
     <import resource="classpath:applicationContext-cache.xml"/>
 
