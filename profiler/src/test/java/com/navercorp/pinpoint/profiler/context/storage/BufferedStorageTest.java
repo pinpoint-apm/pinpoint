@@ -130,6 +130,6 @@ public class BufferedStorageTest {
 
     private BufferedStorage newBufferedStorage(int bufferSize) {
         SpanChunkFactory spanChunkFactory = new DefaultSpanChunkFactory(internalTraceId);
-        return new BufferedStorage(spanChunkFactory, countingDataSender, bufferSize);
+        return new BufferedStorage(spanChunkFactory, countingDataSender, bufferSize, true, "status", "0000");
     }
 }

@@ -110,7 +110,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 recorderWebInfo(trace, request, response, statusCode);
 
             } else if (traceContext.bodyObtainEnable() && traceContext.bodyObtainStrategy() <  PinpointConstants.STRATEGY_2) {
-                // ´Ë´¦´ú±í±»²ÉÑùÂÊ¹ıÂËµôµÄtrace£¬Í¬Ê±²ÉÑù²ßÂÔĞèÒª²É¼¯´Ë²¿·Öµ÷ÓÃ±¨ÎÄ
+                // æ­¤å¤„ä»£è¡¨è¢«é‡‡æ ·ç‡è¿‡æ»¤æ‰çš„traceï¼ŒåŒæ—¶é‡‡æ ·ç­–ç•¥éœ€è¦é‡‡é›†æ­¤éƒ¨åˆ†è°ƒç”¨æŠ¥æ–‡
                 Trace rawTraceObject = traceContext.currentRawTraceObject();
                 if (null != rawTraceObject) {
                     recorderWebInfo(rawTraceObject, request, response, statusCode);
@@ -127,7 +127,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     }
 
     /**
-     * ²É¼¯±¨ÎÄĞÅÏ¢
+     * é‡‡é›†æŠ¥æ–‡ä¿¡æ¯
      *
      * @param trace
      * @param request
@@ -138,7 +138,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
         try {
             SpanRecorder spanRecorder = trace.getSpanRecorder();
             if (null != spanRecorder) {
-                // ²É¼¯ÇëÇó/ÏìÓ¦Í·==========================
+                // é‡‡é›†è¯·æ±‚/å“åº”å¤´==========================
                 if (traceContext.bodyObtainEnable()) {
                     headerObtain(request, response, spanRecorder, statusCode);
                 }
@@ -146,7 +146,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             }
         } catch (Throwable t) {
             if (isInfo) {
-                logger.info("²É¼¯±¨ÎÄ±¨´í£¬Òì³£ĞÅÏ¢£º", t);
+                logger.info("é‡‡é›†æŠ¥æ–‡æŠ¥é”™ï¼Œå¼‚å¸¸ä¿¡æ¯ï¼š", t);
             }
         }
     }
@@ -160,25 +160,25 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
     }
 
     /**
-     * ²É¼¯ÇëÇóÍ·¡¢ÏìÓ¦Í·¡¢ÇëÇóurl
+     * é‡‡é›†è¯·æ±‚å¤´ã€å“åº”å¤´ã€è¯·æ±‚url
      *
-     * @param request      ÇëÇó
-     * @param response     ÏìÓ¦
-     * @param spanRecorder ²É¼¯Æ÷
+     * @param request      è¯·æ±‚
+     * @param response     å“åº”
+     * @param spanRecorder é‡‡é›†å™¨
      * @param statusCode
      */
     private void headerObtain(HttpServletRequest request, HttpServletResponse response, SpanRecorder spanRecorder, int statusCode) {
 
-        // ¸³Öµ²ÉÑù²ßÂÔ
+        // èµ‹å€¼é‡‡æ ·ç­–ç•¥
         spanRecorder.recordWebInfoStrategy(traceContext.bodyObtainStrategy());
 
-        // ²É¼¯ÇëÇó·½Ê½
+        // é‡‡é›†è¯·æ±‚æ–¹å¼
         spanRecorder.recordWebInfoRequestMethod(request.getMethod());
 
-        // ²É¼¯ÏìÓ¦Âë
+        // é‡‡é›†å“åº”ç 
         spanRecorder.recordWebInfoStatusCode(statusCode);
 
-        // ²É¼¯ÇëÇóurl
+        // é‡‡é›†è¯·æ±‚url
         spanRecorder.recordWebInfoRequestUrl(request.getRequestURL().toString());
 
         Enumeration<String> requestHeaderNames = request.getHeaderNames();
@@ -189,7 +189,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
             String value = request.getHeader(name);
             requestHeaders.put(name, value);
         }
-        // ²É¼¯ÇëÇóÍ·
+        // é‡‡é›†è¯·æ±‚å¤´
         if (!requestHeaders.isEmpty()) {
             spanRecorder.recordWebInfoRequestHeader(requestHeaders);
 
@@ -200,7 +200,7 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 String value = response.getHeader(responseHeaderName);
                 responseHeaders.put(responseHeaderName, value);
             }
-            // ²É¼¯ÏìÓ¦Í·
+            // é‡‡é›†å“åº”å¤´
             spanRecorder.recordWebInfoResponseHeader(responseHeaders);
         }
     }

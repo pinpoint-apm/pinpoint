@@ -138,25 +138,6 @@ public class BufferedStorage implements Storage {
         }
     }
 
-    
-
-    /**
-     * 开了降采样配置但不触发降采样，spanEvent按照原逻辑20为一组发送
-     *
-     * @param span
-     */
-    private void dealSpanEvent(Span span) {
-        List<SpanEvent> spanEventList = span.getSpanEventList();
-        if (overflow(spanEventList)) {
-            List<List<SpanEvent>> partition = Lists.partition(spanEventList, bufferSize);
-            int index = partition.size() - 1;
-            for (int i = 0; i < index; i++) {
-                sendSpanChunk(partition.get(i));
-            }
-            span.setSpanEventList(partition.get(index));
-        }
-    }
-
 
     @Override
     public void flush() {
