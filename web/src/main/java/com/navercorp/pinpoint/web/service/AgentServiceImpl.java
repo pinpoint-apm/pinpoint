@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
-import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
@@ -40,20 +38,14 @@ import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
-import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountFactory;
-import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -71,8 +63,6 @@ public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
 
-    private long timeDiffMs;
-
     private final AgentInfoService agentInfoService;
 
     private final ClusterManager clusterManager;
@@ -88,11 +78,6 @@ public class AgentServiceImpl implements AgentService {
         this.clusterManager = Objects.requireNonNull(clusterManager, "clusterManager");
         this.commandSerializerFactory = Objects.requireNonNull(commandSerializerFactory, "commandSerializerFactory");
         this.commandDeserializerFactory = Objects.requireNonNull(commandDeserializerFactory, "commandDeserializerFactory");
-    }
-
-    @Value("${web.activethread.activeAgent.duration.days:7}")
-    private void setTimeDiffMs(int durationDays) {
-        this.timeDiffMs = TimeUnit.MILLISECONDS.convert(durationDays, TimeUnit.DAYS);
     }
 
     @Override
@@ -151,11 +136,6 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public List<ClusterKeyAndStatus> getRecentAgentInfoList(String applicationName) {
-        return this.getRecentAgentInfoList(applicationName, this.timeDiffMs);
-    }
-
-    @Override
     public List<ClusterKeyAndStatus> getRecentAgentInfoList(String applicationName, long timeDiff) {
 
         long currentTime = System.currentTimeMillis();
@@ -179,78 +159,21 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public PinpointRouteResponse invoke(ClusterKey clusterKey, TBase<?, ?> tBase, long timeout) throws TException {
-        byte[] payload = serializeRequest(tBase);
-        return invoke(clusterKey, payload, timeout);
-    }
-
-    @Override
     public PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload) throws TException {
         return invoke(clusterKey, payload, DEFAULT_FUTURE_TIMEOUT);
     }
 
     @Override
     public PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload, long timeout) throws TException {
-        TCommandTransfer transferObject = createCommandTransferObject(clusterKey, payload);
-        List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
-
-        CompletableFuture<ResponseMessage> future = null;
-        if (CollectionUtils.nullSafeSize(socketList) == 1) {
-            PinpointSocket socket = socketList.get(0);
-            future = socket.request(serializeRequest(transferObject));
+        final List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
+        if (CollectionUtils.nullSafeSize(socketList) != 1) {
+            return getResponse(null, timeout);
         }
+        final PinpointSocket socket = socketList.get(0);
 
+        final TCommandTransfer transferObject = createCommandTransferObject(clusterKey, payload);
+        final CompletableFuture<ResponseMessage> future = socket.request(serializeRequest(transferObject));
         return getResponse(future, timeout);
-    }
-
-    @Override
-    public Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, TBase<?, ?> tBase)
-            throws TException {
-        byte[] payload = serializeRequest(tBase);
-        return invoke(agentInfoList, payload);
-    }
-
-    @Override
-    public Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, TBase<?, ?> tBase, long timeout)
-            throws TException {
-        byte[] payload = serializeRequest(tBase);
-        return invoke(agentInfoList, payload, timeout);
-    }
-
-    @Override
-    public Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, byte[] payload)
-            throws TException {
-        return invoke(agentInfoList, payload, DEFAULT_FUTURE_TIMEOUT);
-    }
-
-    @Override
-    public Map<ClusterKey, PinpointRouteResponse> invoke(List<ClusterKey> agentInfoList, byte[] payload, long timeout)
-            throws TException {
-        Map<ClusterKey, CompletableFuture<ResponseMessage>> futureMap = new HashMap<>();
-        for (ClusterKey clusterKey : agentInfoList) {
-            TCommandTransfer transferObject = createCommandTransferObject(clusterKey, payload);
-            List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
-
-            if (CollectionUtils.nullSafeSize(socketList) == 1) {
-                PinpointSocket socket = socketList.get(0);
-                CompletableFuture<ResponseMessage> future = socket.request(serializeRequest(transferObject));
-                futureMap.put(clusterKey, future);
-            } else {
-                futureMap.put(clusterKey, null);
-            }
-        }
-
-        long startTime = System.currentTimeMillis();
-
-        Map<ClusterKey, PinpointRouteResponse> result = new HashMap<>();
-        for (Map.Entry<ClusterKey, CompletableFuture<ResponseMessage>> futureEntry : futureMap.entrySet()) {
-            ClusterKey clusterKey = futureEntry.getKey();
-            CompletableFuture<ResponseMessage> future = futureEntry.getValue();
-            PinpointRouteResponse response = getResponse(future, getTimeoutMillis(startTime, timeout));
-            result.put(clusterKey, response);
-        }
-
-        return result;
     }
 
     @Override
@@ -275,66 +198,9 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
-    @Override
-    public ClientStreamChannel openStreamAndAwait(ClusterKey clusterKey, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException {
-        byte[] payload = serializeRequest(tBase);
-        return openStreamAndAwait(clusterKey, payload, streamChannelEventHandler, timeout);
-    }
-
-    @Override
-    public ClientStreamChannel openStreamAndAwait(ClusterKey clusterKey, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler, long timeout) throws TException, StreamException {
-        assertClusterEnabled();
-
-        TCommandTransfer transferObject = createCommandTransferObject(clusterKey, payload);
-        List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
-        if (CollectionUtils.nullSafeSize(socketList) == 1) {
-            PinpointSocket socket = socketList.get(0);
-            return socket.openStreamAndAwait(serializeRequest(transferObject), streamChannelEventHandler, timeout);
-        } else if (CollectionUtils.isEmpty(socketList)) {
-            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
-        } else {
-            throw new StreamException(StreamCode.CONNECTION_DUPLICATED);
-        }
-    }
-
     private void assertClusterEnabled() throws StreamException {
         if (!clusterManager.isEnabled()) {
             throw new StreamException(StreamCode.CONNECTION_UNSUPPORT);
-        }
-    }
-
-    @Override
-    public AgentActiveThreadCountList getActiveThreadCount(List<ClusterKey> agentInfoList) throws TException {
-        byte[] activeThread = serializeRequest(new TCmdActiveThreadCount());
-        return getActiveThreadCount(agentInfoList, activeThread);
-    }
-
-    @Override
-    public AgentActiveThreadCountList getActiveThreadCount(List<ClusterKey> agentInfoList, byte[] payload) throws TException {
-        AgentActiveThreadCountList activeThreadCountList = new AgentActiveThreadCountList(agentInfoList.size());
-
-        Map<ClusterKey, PinpointRouteResponse> responseList = invoke(agentInfoList, payload);
-        for (Map.Entry<ClusterKey, PinpointRouteResponse> entry : responseList.entrySet()) {
-            ClusterKey clusterKey = entry.getKey();
-            PinpointRouteResponse response = entry.getValue();
-
-            AgentActiveThreadCount activeThreadCount = createActiveThreadCount(clusterKey.getAgentId(), response);
-            activeThreadCountList.add(activeThreadCount);
-        }
-
-        return activeThreadCountList;
-    }
-
-    private AgentActiveThreadCount createActiveThreadCount(String agentId, PinpointRouteResponse response) {
-        TRouteResult routeResult = response.getRouteResult();
-        if (routeResult == TRouteResult.OK) {
-            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
-            factory.setAgentId(agentId);
-            return factory.create(response.getResponse(TCmdActiveThreadCountRes.class, null));
-        } else {
-            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
-            factory.setAgentId(agentId);
-            return factory.createFail(routeResult.name());
         }
     }
 
@@ -364,28 +230,9 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
-    private long getTimeoutMillis(long startTime, long timeout) {
-        return Math.max(startTime + timeout - System.currentTimeMillis(), 100L);
-    }
-
-
     @Override
     public byte[] serializeRequest(TBase<?, ?> tBase) throws TException {
         return SerializationUtils.serialize(tBase, commandSerializerFactory);
-    }
-
-    @Override
-    public byte[] serializeRequest(TBase<?, ?> tBase, byte[] defaultValue) {
-        return SerializationUtils.serialize(tBase, commandSerializerFactory, defaultValue);
-    }
-
-    @Override
-    public TBase<?, ?> deserializeResponse(byte[] objectData) throws TException {
-        Message<TBase<?, ?>> message = SerializationUtils.deserialize(objectData, commandDeserializerFactory);
-        if (message == null) {
-            return null;
-        }
-        return message.getData();
     }
 
     @Override

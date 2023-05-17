@@ -24,8 +24,13 @@ import com.navercorp.pinpoint.web.AuthorizationConfig;
 import com.navercorp.pinpoint.web.PinpointWebModule;
 import com.navercorp.pinpoint.web.WebApp;
 import com.navercorp.pinpoint.web.WebStarter;
+import com.navercorp.pinpoint.web.realtime.RealtimeWebConfig;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -39,7 +44,11 @@ import org.springframework.context.annotation.Import;
         DataSourceAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
         TransactionAutoConfiguration.class,
-        SecurityAutoConfiguration.class
+        SecurityAutoConfiguration.class,
+        SpringDataWebAutoConfiguration.class,
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class,
+        RedisReactiveAutoConfiguration.class
 })
 @Import({PinpointWebModule.class})
 public class MetricAndWebApp {
@@ -47,7 +56,14 @@ public class MetricAndWebApp {
 
     public static void main(String[] args) {
         try {
-            WebStarter starter = new WebStarter(MetricAndWebApp.class, PinpointBasicLoginConfig.class, AuthorizationConfig.class, MetricWebApp.class, UriStatWebConfig.class);
+            WebStarter starter = new WebStarter(
+                    MetricAndWebApp.class,
+                    PinpointBasicLoginConfig.class,
+                    AuthorizationConfig.class,
+                    MetricWebApp.class,
+                    UriStatWebConfig.class,
+                    RealtimeWebConfig.class
+            );
             starter.addProfiles("uri", "metric");
             starter.start(args);
         } catch (Exception exception) {

@@ -20,7 +20,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Taejin Koo
@@ -30,7 +32,21 @@ public class PinpointWebSocketHandlerManager {
     private final List<PinpointWebSocketHandler> webSocketHandlerRepository;
 
     public PinpointWebSocketHandlerManager(List<PinpointWebSocketHandler> pinpointWebSocketHandlers) {
-        this.webSocketHandlerRepository = new ArrayList<>(pinpointWebSocketHandlers);
+        this.webSocketHandlerRepository = normalize(pinpointWebSocketHandlers);
+    }
+
+    private List<PinpointWebSocketHandler> normalize(List<PinpointWebSocketHandler> handlers) {
+        Map<String, PinpointWebSocketHandler> handlerMap = new HashMap<>(handlers.size());
+        for (final PinpointWebSocketHandler handler: handlers) {
+            final String requestMapping = handler.getRequestMapping();
+            final int priority = handler.getPriority();
+
+            final PinpointWebSocketHandler prev = handlerMap.get(requestMapping);
+            if (prev == null || prev.getPriority() < priority) {
+                handlerMap.put(requestMapping, handler);
+            }
+        }
+        return new ArrayList<>(handlerMap.values());
     }
 
     @PostConstruct

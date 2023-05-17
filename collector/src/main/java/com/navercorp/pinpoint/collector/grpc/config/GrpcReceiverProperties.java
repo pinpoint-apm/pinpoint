@@ -45,8 +45,7 @@ public class GrpcReceiverProperties {
 
     private final ServerOption serverOption;
 
-
-    GrpcReceiverProperties(boolean enable,
+    protected GrpcReceiverProperties(boolean enable,
                            BindAddress bindAddress,
                            ExecutorProperties serverExecutor,
                            ExecutorProperties serverCallExecutor,
@@ -98,14 +97,12 @@ public class GrpcReceiverProperties {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GrpcAgentDataReceiverProperties{");
-        sb.append("enable=").append(enable);
-        sb.append(", bindAddress='").append(bindAddress).append('\'');
-        sb.append(", serverExecutor=").append(serverExecutor);
-        sb.append(", serverCallExecutor=").append(serverCallExecutor);
-        sb.append(", workerExecutor=").append(workerExecutor);
-        sb.append(", serverOption=").append(serverOption);
-        sb.append('}');
-        return sb.toString();
+        return "GrpcAgentDataReceiverProperties{" + "enable=" + enable +
+                ", bindAddress='" + bindAddress + '\'' +
+                ", serverExecutor=" + serverExecutor +
+                ", serverCallExecutor=" + serverCallExecutor +
+                ", workerExecutor=" + workerExecutor +
+                ", serverOption=" + serverOption +
+                '}';
     }
 }
