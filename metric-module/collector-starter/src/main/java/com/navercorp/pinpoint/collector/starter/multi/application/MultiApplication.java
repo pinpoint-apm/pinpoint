@@ -10,11 +10,16 @@ import com.navercorp.pinpoint.metric.collector.CollectorType;
 import com.navercorp.pinpoint.metric.collector.CollectorTypeParser;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.metric.collector.TypeSet;
+import com.navercorp.pinpoint.realtime.collector.RealtimeCollectorConfig;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
@@ -26,7 +31,11 @@ import java.util.Arrays;
 @EnableAutoConfiguration(exclude = {
         DataSourceAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
-        TransactionAutoConfiguration.class
+        TransactionAutoConfiguration.class,
+        SpringDataWebAutoConfiguration.class,
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class,
+        RedisReactiveAutoConfiguration.class
 })
 public class MultiApplication {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(MultiApplication.class);
@@ -49,7 +58,11 @@ public class MultiApplication {
 
         if (types.hasType(CollectorType.BASIC)) {
             logger.info(String.format("Start %s collector", CollectorType.BASIC));
-            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400, BasicCollectorApp.class, UriStatCollectorConfig.class);
+            SpringApplicationBuilder collectorAppBuilder = createAppBuilder(builder, 15400,
+                    BasicCollectorApp.class,
+                    UriStatCollectorConfig.class,
+                    RealtimeCollectorConfig.class
+            );
             collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
             collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
             collectorAppBuilder.build().run(args);

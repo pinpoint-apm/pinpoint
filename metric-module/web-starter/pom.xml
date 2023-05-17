@@ -44,6 +44,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-uristat-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-realtime-web</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

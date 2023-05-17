@@ -29,4 +29,6 @@ public interface PinpointWebSocketHandler extends WebSocketHandler {
 
     String getRequestMapping();
 
+    int getPriority();
+
 }

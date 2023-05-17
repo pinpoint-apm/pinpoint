@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
-import com.navercorp.pinpoint.web.websocket.message.PongMessage;
 import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -84,7 +84,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private Timer reactiveTimer;
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     ServerMapDataFilter serverMapDataFilter;
 
     @Autowired(required = false)
@@ -154,6 +154,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         return requestMapping;
     }
 
+    @Override
+    public int getPriority() {
+        return 0;
+    }
+
     private WebSocketSessionContext getSessionContext(WebSocketSession webSocketSession) {
         final WebSocketSessionContext sessionContext = WebSocketSessionContext.getSessionContext(webSocketSession);
         if (sessionContext == null) {
@@ -163,7 +168,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession newSession) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession newSession) throws Exception {
         logger.info("ConnectionEstablished. session:{}", newSession);
 
         synchronized (lock) {
@@ -179,7 +184,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession closeSession, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(@NonNull WebSocketSession closeSession, @NonNull CloseStatus status) throws Exception {
         logger.info("ConnectionClose. session:{}, caused:{}", closeSession, status);
 
         final WebSocketSessionContext sessionContext = getSessionContext(closeSession);
@@ -196,7 +201,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws Exception {
+    protected void handleTextMessage(@NonNull WebSocketSession webSocketSession, TextMessage message) throws Exception {
         logger.info("handleTextMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
 
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(message.getPayload());
@@ -206,7 +211,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 handleRequestMessage0(webSocketSession, (RequestMessage) webSocketMessage);
                 break;
             case PONG:
-                handlePongMessage0(webSocketSession, (PongMessage) webSocketMessage);
+                handlePongMessage0(webSocketSession);
                 break;
             default:
                 logger.warn("Unexpected WebSocketMessageType received. messageType:{}.", webSocketMessageType);
@@ -233,18 +238,22 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private void handleActiveThreadCount(WebSocketSession webSocketSession, RequestMessage requestMessage) {
         final String applicationName = MapUtils.getString(requestMessage.getParameters(), APPLICATION_NAME_KEY);
         if (applicationName != null) {
-            final WebSocketSessionContext sessionContext = getSessionContext(webSocketSession);
-            synchronized (lock) {
-                if (StringUtils.equals(applicationName, sessionContext.getApplicationName())) {
-                    return;
-                }
+            handleActiveThreadCount(webSocketSession, applicationName);
+        }
+    }
 
-                unbindingResponseAggregator(webSocketSession, sessionContext);
-                if (webSocketSession.isOpen()) {
-                    bindingResponseAggregator(webSocketSession, sessionContext, applicationName);
-                } else {
-                    logger.warn("WebSocketSession is not opened. skip binding.");
-                }
+    protected void handleActiveThreadCount(WebSocketSession webSocketSession, String applicationName) {
+        final WebSocketSessionContext sessionContext = getSessionContext(webSocketSession);
+        synchronized (lock) {
+            if (StringUtils.equals(applicationName, sessionContext.getApplicationName())) {
+                return;
+            }
+
+            unbindingResponseAggregator(webSocketSession, sessionContext);
+            if (webSocketSession.isOpen()) {
+                bindingResponseAggregator(webSocketSession, sessionContext, applicationName);
+            } else {
+                logger.warn("WebSocketSession is not opened. skip binding.");
             }
         }
     }
@@ -257,13 +266,13 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         }
     }
 
-    private void handlePongMessage0(WebSocketSession webSocketSession, PongMessage pongMessage) {
+    private void handlePongMessage0(WebSocketSession webSocketSession) {
         final WebSocketSessionContext sessionContext = getSessionContext(webSocketSession);
         sessionContext.changeHealthCheckSuccess();
     }
 
     @Override
-    protected void handlePongMessage(WebSocketSession webSocketSession, org.springframework.web.socket.PongMessage message) throws Exception {
+    protected void handlePongMessage(@NonNull WebSocketSession webSocketSession, org.springframework.web.socket.PongMessage message) throws Exception {
         logger.info("handlePongMessage. session:{}, remote:{}, message:{}.", webSocketSession, webSocketSession.getRemoteAddress(), message.getPayload());
 
         super.handlePongMessage(webSocketSession, message);
