@@ -60,12 +60,8 @@ public class PubSubFluxClientImpl<D, S> extends PubSubClient<D, S> implements Pu
 
     static class LongTermSubConsumer<S> implements SubConsumer<SupplyMessage<S>> {
 
-        private static final Comparator<SupplyMessage<?>> supplyComparator = new Comparator<>() {
-            @Override
-            public int compare(SupplyMessage<?> o1, SupplyMessage<?> o2) {
-                return o1.getSequence() - o2.getSequence();
-            }
-        };
+        private static final Comparator<SupplyMessage<?>> supplyComparator =
+                Comparator.comparing(el -> el.getSequence());
 
         final Sinks.Many<S> sink;
         final Identifier demandId;
@@ -94,8 +90,6 @@ public class PubSubFluxClientImpl<D, S> extends PubSubClient<D, S> implements Pu
                 if (supply.getSequence() == nextSequence) {
                     consume0(supply);
                     nextSequence += 1;
-                } else {
-                    supplies.add(supply);
                     while (supplies.peek() != null && supplies.peek().getSequence() == nextSequence) {
                         final SupplyMessage<S> pended = supplies.poll();
                         if (pended != null) {
@@ -103,6 +97,8 @@ public class PubSubFluxClientImpl<D, S> extends PubSubClient<D, S> implements Pu
                             nextSequence += 1;
                         }
                     }
+                } else {
+                    supplies.add(supply);
                 }
             }
             return true;
