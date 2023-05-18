@@ -122,7 +122,7 @@ class ProfilePropertyLoader implements PropertyLoader {
     private void saveLogConfigLocation(String activeProfile, Properties properties) {
         String log4jLocation = properties.getProperty(Profiles.LOG_CONFIG_LOCATION_KEY);
         if (StringUtils.isEmpty(log4jLocation)) {
-            LogConfigResolver logConfigResolver = new ProfileLogConfigResolver(profilesPath, activeProfile);
+            LogConfigResolver logConfigResolver = new SimpleLogConfigResolver(agentRootPath);
             log4jLocation = logConfigResolver.getLogPath().toString();
 
             properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);

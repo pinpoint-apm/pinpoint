@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.bootstrap.config;
 
 import java.nio.file.Path;
@@ -22,17 +21,16 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ProfileLogConfigResolver implements LogConfigResolver {
-    private final Path profilesPath;
-    private final String activeProfile;
+public class SimpleLogConfigResolver implements LogConfigResolver{
 
-    public ProfileLogConfigResolver(Path profilesPath, String activeProfile) {
-        this.profilesPath = Objects.requireNonNull(profilesPath, "profilesPath");
-        this.activeProfile = Objects.requireNonNull(activeProfile, "activeProfile");
+    private final Path agentDirPath;
+
+    public SimpleLogConfigResolver(Path agentDirPath) {
+        this.agentDirPath = Objects.requireNonNull(agentDirPath, "agentDirPath");
     }
 
     @Override
     public Path getLogPath() {
-        return this.profilesPath.resolve(activeProfile);
+        return this.agentDirPath;
     }
 }
