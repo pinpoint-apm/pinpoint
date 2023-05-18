@@ -23,7 +23,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String FACTORY_PROPERTY_NAME = "log4j2.loggerContextFactory";
     public static final String NOLOOKUPS = "log4j2.formatMsgNoLookups";
 
-    private static final String[] LOOKUP = {"log4j2-test.xml", "log4j2.xml", "log4j2.properties", "../../log4j2.xml"};
+    private static final String[] LOOKUP = {"log4j2-test.xml", "log4j2-agent.xml", "log4j2.properties"};
 
     private LoggerContext loggerContext;
     private final Path profilePath;
@@ -132,7 +132,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
             this.binder.shutdown();
             if (loggerContext instanceof LifeCycle) {
                 logger.info("{} loggerContext stop", this.getClass().getSimpleName());
-                ((LifeCycle)loggerContext).stop();
+                ((LifeCycle) loggerContext).stop();
             }
         }
 
