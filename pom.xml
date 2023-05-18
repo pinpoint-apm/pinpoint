@@ -222,7 +222,7 @@
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
         <plugin.resources.version>3.2.0</plugin.resources.version>
-        <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
+        <plugin.surefire.version>3.1.0</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
         <plugin.assembly.version>3.3.0</plugin.assembly.version>
@@ -1613,7 +1613,8 @@
                     <argLine>@{argLine}</argLine>
                     <encoding>${encoding}</encoding>
                     <jvm>${test.jdk.home}/bin/java</jvm>
-                    <forkMode>once</forkMode>
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
                 </configuration>
             </plugin>
             <plugin>
