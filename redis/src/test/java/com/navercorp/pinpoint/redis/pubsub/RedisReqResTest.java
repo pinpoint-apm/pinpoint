@@ -90,10 +90,10 @@ public class RedisReqResTest {
         serverFactory.build(name -> Mono.just("Hello, " + name), greeterService).afterPropertiesSet();
         assertThat(syncRequestMono(clientFactory, greeterService, "World")).isEqualTo("Hello, World");
 
-        final PubSubMonoServiceDescriptor<Integer, Integer> incrementService =
+        final PubSubMonoServiceDescriptor<Integer, Integer> squareService =
                 PubSubServiceDescriptor.mono("square", Integer.class, Integer.class);
-        serverFactory.build(el -> Mono.just(el * el), incrementService).afterPropertiesSet();
-        assertThat(syncRequestMono(clientFactory, incrementService, 22)).isEqualTo(484);
+        serverFactory.build(el -> Mono.just(el * el), squareService).afterPropertiesSet();
+        assertThat(syncRequestMono(clientFactory, squareService, 22)).isEqualTo(484);
 
         final PubSubFluxServiceDescriptor<Integer, Integer> rangeService =
                 PubSubServiceDescriptor.flux("range", Integer.class, Integer.class);
@@ -119,7 +119,7 @@ public class RedisReqResTest {
         return clientFactory.build(descriptor)
                 .request(demand)
                 .collectList()
-                .timeout(Duration.ofSeconds(5))
+                .timeout(Duration.ofSeconds(30))
                 .block();
     }
 

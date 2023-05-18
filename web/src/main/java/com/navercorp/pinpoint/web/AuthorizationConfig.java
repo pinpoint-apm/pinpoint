@@ -35,14 +35,11 @@ import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.install.controller.AgentDownloadController;
 import com.navercorp.pinpoint.web.install.service.AgentDownLoadService;
 import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
-import com.navercorp.pinpoint.web.service.ActiveThreadDumpServiceImpl;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.AlarmService;
-import com.navercorp.pinpoint.web.service.EchoService;
-import com.navercorp.pinpoint.web.service.EchoServiceImpl;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.HeatMapService;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
@@ -52,7 +49,6 @@ import com.navercorp.pinpoint.web.service.appmetric.ApplicationDataSourceService
 import com.navercorp.pinpoint.web.service.appmetric.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
 import com.navercorp.pinpoint.web.service.stat.AgentStatService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -85,18 +81,6 @@ public class AuthorizationConfig {
 
         List<AgentStatService<AgentStatDataPoint>> service = (List<AgentStatService<AgentStatDataPoint>>) (List<?>) agentStatServiceList;
         return new AgentStatController<>(service, agentStatChartServiceList);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(ActiveThreadDumpService.class)
-    public ActiveThreadDumpService activeThreadDumpService(AgentService agentService) {
-        return new ActiveThreadDumpServiceImpl(agentService);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(EchoService.class)
-    public EchoService echoService(AgentService agentService) {
-        return new EchoServiceImpl(agentService);
     }
 
     @Bean
