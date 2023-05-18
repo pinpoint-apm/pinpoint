@@ -36,6 +36,7 @@ import org.springframework.core.env.StandardEnvironment;
         WebServerConfig.class,
         WebMvcConfig.class,
         WebSocketConfig.class,
+        WebServiceConfig.class,
         WebMysqlDataSourceConfiguration.class,
         ClusterConfigurationFactory.class,
         CacheConfiguration.class,
@@ -48,7 +49,6 @@ import org.springframework.core.env.StandardEnvironment;
         QueryServiceConfiguration.class
 })
 @ComponentScan(basePackages = {
-        "com.navercorp.pinpoint.web.service",
         "com.navercorp.pinpoint.web.mapper",
         "com.navercorp.pinpoint.web.filter",
         "com.navercorp.pinpoint.web.view",
