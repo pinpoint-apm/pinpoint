@@ -220,7 +220,7 @@
         <testcontainers.version>1.17.6</testcontainers.version>
 
         <!-- maven-plugin -->
-        <plugin.compiler.version>3.8.1</plugin.compiler.version>
+        <plugin.compiler.version>3.11.0</plugin.compiler.version>
         <plugin.resources.version>3.2.0</plugin.resources.version>
         <plugin.surefire.version>3.1.0</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
@@ -1591,7 +1591,6 @@
                     <target>${jdk.version}</target>
                     <fork>true</fork>
                     <debug>true</debug>
-                    <optimize>true</optimize>
                     <encoding>${encoding}</encoding>
                     <showDeprecation>true</showDeprecation>
                     <compilerVersion>${jdk.version}</compilerVersion>
