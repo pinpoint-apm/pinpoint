@@ -21,11 +21,16 @@ import com.navercorp.pinpoint.pubsub.endpoint.PubSubMonoServiceDescriptor;
 import com.navercorp.pinpoint.pubsub.endpoint.PubSubServerFactory;
 import com.navercorp.pinpoint.pubsub.endpoint.PubSubServiceDescriptor;
 import com.navercorp.pinpoint.redis.stream.RedisStreamConfig;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,53 +43,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author youngjin.kim2
  */
-@DisplayName("req/res based on redis")
-public class RedisReqResTest {
+@DisplayName("req/res based on redis stream")
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {RedisStreamConfig.class})
+@Testcontainers
+public class RedisStreamReqResTest {
 
-    @DisplayName("req/res based on redis pubsub")
-    @Test
-    public void testRedisPubSub() {
-        testConfigClass(RedisPubSubConfig.class);
+    @Container
+    @SuppressWarnings("resource")
+    private static final GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.0"))
+            .withExposedPorts(6379)
+            .withReuse(true);
+
+    @Autowired
+    private PubSubServerFactory serverFactory;
+
+    @Autowired
+    private PubSubClientFactory clientFactory;
+
+    @BeforeAll
+    public static void beforeAll() {
+        System.setProperty("spring.data.redis.host", redisContainer.getHost());
+        System.setProperty("spring.redis.host", redisContainer.getHost());
+        System.setProperty("spring.data.redis.port", redisContainer.getMappedPort(6379).toString());
+        System.setProperty("spring.redis.port", redisContainer.getMappedPort(6379).toString());
     }
 
     @DisplayName("req/res based on redis stream")
     @Test
     public void testRedisStreamPubSub() {
-        testConfigClass(RedisStreamConfig.class);
+        testPubSubServerClient(this.serverFactory, this.clientFactory);
     }
 
-    private void testConfigClass(Class<?> configClass) {
-        runWithRedisContainer(() -> {
-            final ApplicationContext context = new AnnotationConfigApplicationContext(configClass);
-            testServerClientFactory(
-                    context.getBean(PubSubServerFactory.class),
-                    context.getBean(PubSubClientFactory.class)
-            );
-        });
-    }
-
-    @SuppressWarnings("resource")
-    private void runWithRedisContainer(Runnable r) {
-        try (final GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.0"))
-                             .withExposedPorts(6379)
-                             .withReuse(true)
-        ) {
-            redisContainer.start();
-            System.setProperty("spring.data.redis.host", redisContainer.getHost());
-            System.setProperty("spring.redis.host", redisContainer.getHost());
-            System.setProperty("spring.data.redis.port", redisContainer.getMappedPort(6379).toString());
-            System.setProperty("spring.redis.port", redisContainer.getMappedPort(6379).toString());
-
-            r.run();
-
-            redisContainer.stop();
-        }
-    }
-
-    private void testServerClientFactory(
-            PubSubServerFactory serverFactory,
-            PubSubClientFactory clientFactory
-    ) {
+    static void testPubSubServerClient(PubSubServerFactory serverFactory, PubSubClientFactory clientFactory) {
         final PubSubMonoServiceDescriptor<String, String> greeterService =
                 PubSubServiceDescriptor.mono("greeter", String.class, String.class);
         serverFactory.build(name -> Mono.just("Hello, " + name), greeterService).afterPropertiesSet();
@@ -99,9 +90,10 @@ public class RedisReqResTest {
                 PubSubServiceDescriptor.flux("range", Integer.class, Integer.class);
         serverFactory.build(el -> Flux.range(0, el), rangeService).afterPropertiesSet();
         assertThat(syncRequestFlux(clientFactory, rangeService, 5)).isEqualTo(List.of(0, 1, 2, 3, 4));
+        assertThat(syncRequestFlux(clientFactory, rangeService, 3)).isEqualTo(List.of(0, 1, 2));
     }
 
-    private <D, S> S syncRequestMono(
+    static <D, S> S syncRequestMono(
             PubSubClientFactory clientFactory,
             PubSubMonoServiceDescriptor<D, S> descriptor,
             D demand
@@ -111,7 +103,7 @@ public class RedisReqResTest {
                 .block();
     }
 
-    private <D, S> List<S> syncRequestFlux(
+    static <D, S> List<S> syncRequestFlux(
             PubSubClientFactory clientFactory,
             PubSubFluxServiceDescriptor<D, S> descriptor,
             D demand
