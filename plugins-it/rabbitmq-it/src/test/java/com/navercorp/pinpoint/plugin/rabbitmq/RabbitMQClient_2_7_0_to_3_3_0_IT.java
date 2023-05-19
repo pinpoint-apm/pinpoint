@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
         TestcontainersOption.TEST_CONTAINER, TestcontainersOption.RABBITMQ})
 @JvmArgument("-DtestLoggerEnable=false")
 @SharedTestLifeCycleClass(TestBrokerServer.class)
-public class RabbitMQClient_2_7_0_to_3_3_0_IT extends com.navercorp.pinpoint.plugin.rabbitmq.RabbitMQClientITBase {
+public class RabbitMQClient_2_7_0_to_3_3_0_IT extends RabbitMQClientITBase {
 
     @Test
     public void testPush() throws Exception {

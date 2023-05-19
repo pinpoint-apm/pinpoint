@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdk7.rabbitmq.util;
+package com.navercorp.pinpoint.plugin.rabbitmq.util;
 
 import java.io.OutputStream;
 
