@@ -17,13 +17,13 @@ package com.navercorp.pinpoint.redis.pubsub;
 
 import com.navercorp.pinpoint.pubsub.endpoint.PubSubClientFactory;
 import com.navercorp.pinpoint.pubsub.endpoint.PubSubServerFactory;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -35,14 +35,14 @@ import static com.navercorp.pinpoint.redis.pubsub.RedisStreamReqResTest.testPubS
  * @author youngjin.kim2
  */
 @DisplayName("req/res based on redis pubsub")
-@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {RedisPubSubConfig.class})
+@SpringBootTest
 @Testcontainers
 public class RedisPubSubReqResTest {
 
     @Container
     @SuppressWarnings("resource")
-    private static final GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7.0"))
+    private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>(DockerImageName.parse("redis:7.0"))
             .withExposedPorts(6379)
             .withReuse(true);
 
@@ -52,12 +52,12 @@ public class RedisPubSubReqResTest {
     @Autowired
     private PubSubClientFactory clientFactory;
 
-    @BeforeAll
-    public static void beforeAll() {
-        System.setProperty("spring.data.redis.host", redisContainer.getHost());
-        System.setProperty("spring.redis.host", redisContainer.getHost());
-        System.setProperty("spring.data.redis.port", redisContainer.getMappedPort(6379).toString());
-        System.setProperty("spring.redis.port", redisContainer.getMappedPort(6379).toString());
+    @DynamicPropertySource
+    static void redisProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
+        registry.add("spring.redis.port", REDIS_CONTAINER::getFirstMappedPort);
     }
 
     @DisplayName("req/res based on redis pubsub")
