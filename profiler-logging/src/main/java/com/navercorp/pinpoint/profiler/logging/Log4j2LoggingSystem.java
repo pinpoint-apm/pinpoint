@@ -23,7 +23,10 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String FACTORY_PROPERTY_NAME = "log4j2.loggerContextFactory";
     public static final String NOLOOKUPS = "log4j2.formatMsgNoLookups";
 
-    private static final String[] LOOKUP = {"log4j2-test.xml", "log4j2-agent.xml", "log4j2.properties"};
+    private static final String[] LOOKUP = {
+            "log4j2-test.properties", "log4j2-test.xml",
+            "log4j2-agent.properties", "log4j2-agent.xml",
+    };
 
     private LoggerContext loggerContext;
     private final Path profilePath;
