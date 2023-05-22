@@ -36,7 +36,6 @@
 
         <spring-boot-build-skip>true</spring-boot-build-skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
@@ -65,22 +64,7 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
-                    <fork>true</fork>
-                    <debug>true</debug>
-                    <optimize>true</optimize>
-                    <encoding>${encoding}</encoding>
-                    <showDeprecation>true</showDeprecation>
-                    <compilerVersion>${jdk.version}</compilerVersion>
-                    <executable>${jdk.home}/bin/javac</executable>
-                </configuration>
-            </plugin>
-
-            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven-shade-plugin.version}</version>
                 <executions>
