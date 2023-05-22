@@ -35,9 +35,9 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import com.navercorp.pinpoint.web.cluster.ClusterKeyAndStatus;
 import com.navercorp.pinpoint.web.cluster.ClusterKeyUtils;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
-import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
+import com.navercorp.pinpoint.web.cluster.RouteResponseParser;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.thrift.TBase;
@@ -71,6 +71,8 @@ public class AgentServiceImpl implements AgentService {
 
     private final DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
+    private final RouteResponseParser routeResponseParser;
+
     public AgentServiceImpl(AgentInfoService agentInfoService, ClusterManager clusterManager,
                             @Qualifier("commandHeaderTBaseSerializerFactory") SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory,
                             @Qualifier("commandHeaderTBaseDeserializerFactory") DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory) {
@@ -78,6 +80,7 @@ public class AgentServiceImpl implements AgentService {
         this.clusterManager = Objects.requireNonNull(clusterManager, "clusterManager");
         this.commandSerializerFactory = Objects.requireNonNull(commandSerializerFactory, "commandSerializerFactory");
         this.commandDeserializerFactory = Objects.requireNonNull(commandDeserializerFactory, "commandDeserializerFactory");
+        this.routeResponseParser = new RouteResponseParser(commandDeserializerFactory);
     }
 
     @Override
@@ -167,7 +170,7 @@ public class AgentServiceImpl implements AgentService {
     public PinpointRouteResponse invoke(ClusterKey clusterKey, byte[] payload, long timeout) throws TException {
         final List<PinpointSocket> socketList = clusterManager.getSocket(clusterKey);
         if (CollectionUtils.nullSafeSize(socketList) != 1) {
-            return getResponse(null, timeout);
+            return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
         }
         final PinpointSocket socket = socketList.get(0);
 
@@ -217,13 +220,14 @@ public class AgentServiceImpl implements AgentService {
     }
 
     private PinpointRouteResponse getResponse(CompletableFuture<ResponseMessage> future, long timeout) {
-        if (future == null) {
-            return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
-        }
+        Objects.requireNonNull(future, "future");
         try {
             ResponseMessage responseMessage = future.get(timeout, TimeUnit.MILLISECONDS);
-            return new DefaultPinpointRouteResponse(responseMessage.getMessage());
-        } catch (ExecutionException | InterruptedException e) {
+            return routeResponseParser.parse(responseMessage.getMessage());
+        } catch (ExecutionException e) {
+            return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN, null);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return new FailedPinpointRouteResponse(TRouteResult.UNKNOWN, null);
         } catch (TimeoutException e) {
             return new FailedPinpointRouteResponse(TRouteResult.TIMEOUT, null);
