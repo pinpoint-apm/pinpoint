@@ -45,14 +45,16 @@ public class PinpointRouteResponseTest {
     SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(10000, commandTbaseRegistry);
     DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(commandTbaseRegistry);
 
+    RouteResponseParser parser = new RouteResponseParser(deserializerFactory);
+
     @Test
     public void routeResponseTest1() throws Exception {
         HeaderTBaseSerializer serializer = serializerFactory.createSerializer();
 
         byte[] contents = serializer.serialize(createCommandEcho("echo"));
 
-        DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(contents);
-        response.parse(deserializerFactory);
+        PinpointRouteResponse response = parser.parse(contents);
+
 
         assertEquals(TRouteResult.UNKNOWN, response.getRouteResult());
         assertThat(response.getResponse()).isInstanceOf(TCommandEcho.class);
@@ -65,8 +67,7 @@ public class PinpointRouteResponseTest {
         byte[] contents = serializer.serialize(createCommandEcho("echo"));
         byte[] responsePayload = serializer.serialize(wrapResponse(TRouteResult.OK, contents));
 
-        DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
-        response.parse(deserializerFactory);
+        PinpointRouteResponse response = parser.parse(responsePayload);
 
         assertEquals(TRouteResult.OK, response.getRouteResult());
         assertThat(response.getResponse()).isInstanceOf(TCommandEcho.class);
@@ -80,8 +81,7 @@ public class PinpointRouteResponseTest {
         String message = "hello";
         byte[] responsePayload = serializer.serialize(wrapResponse(TRouteResult.OK, new byte[1], message));
 
-        DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
-        response.parse(deserializerFactory);
+        PinpointRouteResponse response = parser.parse(responsePayload);
 
         assertEquals(TRouteResult.OK, response.getRouteResult());
         Assertions.assertNull(response.getResponse());

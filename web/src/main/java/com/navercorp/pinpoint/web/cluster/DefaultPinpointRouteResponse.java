@@ -16,71 +16,37 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.thrift.TBase;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 
-    private final byte[] payload;
+    private final TRouteResult routeResult;
+    private final TBase<?, ?> response;
+    private final String message;
 
-    private TRouteResult routeResult;
-    private TBase<?, ?> response;
-    private String message;
-
-    private boolean isParsed;
-
-    public DefaultPinpointRouteResponse(byte[] payload) {
-        this.payload = payload;
+    public DefaultPinpointRouteResponse(TRouteResult routeResult, TBase<?, ?> response, String message) {
+        this.routeResult = Objects.requireNonNull(routeResult, "routeResult");
+        this.response = response;
+        this.message = message;
     }
 
-    public void parse(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory) {
-        if (!isParsed) {
-            if (ArrayUtils.isEmpty(payload)) {
-                routeResult = TRouteResult.EMPTY_RESPONSE;
-                return;
-            }
-
-            TBase<?, ?> object = deserialize(commandDeserializerFactory, payload, null);
-
-            if (object == null) {
-                routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
-            } else if (object instanceof  TCommandTransferResponse) {
-                TCommandTransferResponse commandResponse = (TCommandTransferResponse) object;
-                TRouteResult routeResult = commandResponse.getRouteResult();
-                if (routeResult == null) {
-                    this.routeResult = TRouteResult.UNKNOWN;
-                } else {
-                    this.routeResult = routeResult;
-                }
-
-                response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
-                message = commandResponse.getMessage();
-            } else {
-                routeResult = TRouteResult.UNKNOWN;
-                response = object;
-            }
-            isParsed = true;
-        }
+    public DefaultPinpointRouteResponse(TRouteResult routeResult) {
+        this(routeResult, null, null);
     }
 
     @Override
     public TRouteResult getRouteResult() {
-        assertParsed();
         return routeResult;
     }
 
     @Override
     public TBase<?, ?> getResponse() {
-        assertParsed();
         return response;
     }
 
@@ -111,19 +77,8 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
         return defaultValue;
     }
 
-    private void assertParsed() {
-        if (!isParsed) {
-            throw new IllegalStateException("not yet parsed.");
-        }
-    }
 
-    private TBase<?, ?> deserialize(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory, byte[] objectData, Message<TBase<?, ?>> defaultValue) {
-        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
-        if (message == null) {
-            return null;
-        }
-        return message.getData();
-    }
+
 
 
 }
