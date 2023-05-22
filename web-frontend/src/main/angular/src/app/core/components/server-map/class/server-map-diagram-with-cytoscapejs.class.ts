@@ -216,20 +216,48 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
 
     setMapData(serverMapData: ServerMapData, baseApplicationKey: string, shouldRefresh: boolean): void {
         this.shouldRefresh = shouldRefresh;
+        
         if (!shouldRefresh) {
             const prevNodeList = this.serverMapData.getNodeList();
+            const prevNodeKeyList = prevNodeList.map(({key}: INodeInfo) => key);
             const currNodeList = serverMapData.getNodeList();
-            const {
-                addedNodeList,
-                updatedNodeList
-            } = currNodeList.reduce((acc: { [key: string]: INodeInfo[] }, curr: INodeInfo) => {
-                const shouldUpdated = prevNodeList.some(({key}: INodeInfo) => key === curr.key);
+            const currNodeKeyList = currNodeList.map(({key}: INodeInfo) => key);
 
-                shouldUpdated ? acc.updatedNodeList.push(curr) : acc.addedNodeList.push(curr);
-                return acc;
-            }, {addedNodeList: [], updatedNodeList: []});
+            const addedNodeList: INodeInfo[] = [];
+            const updatedNodeList: INodeInfo[] = [];
+            const removedNodeList: INodeInfo[] = [];
 
-            const removedNodeList = prevNodeList.filter((node: INodeInfo) => !currNodeList.some(({key}: INodeInfo) => node.key === key));
+            const nodeList = [...prevNodeList, ...currNodeList.filter(({key}: INodeInfo) => !prevNodeKeyList.includes(key))];
+            
+            nodeList.forEach((node: INodeInfo) => { // node is prevNode
+                const {key, histogram, instanceCount, isMerged} = node;
+                const isRemoved = prevNodeKeyList.includes(key) && !currNodeKeyList.includes(key);
+                const isAdded = !prevNodeKeyList.includes(key) && currNodeKeyList.includes(key);
+
+                if (isRemoved) {
+                    removedNodeList.push(node);
+                } else if (isAdded) {
+                    addedNodeList.push(node);
+                } else {
+                    if (isMerged) {
+                        return;
+                    }
+
+                    const currNode = currNodeList.find(({key: currKey}: INodeInfo) => currKey === key);
+                    const isSameInstanceCount = instanceCount === currNode.instanceCount;
+                    const isSameHistogram = Object.entries(histogram).every(([k1, v1]: [string, number], i: number) => {
+                        const [k2, v2] = Object.entries(currNode.histogram)[i];
+
+                        return k1 === k2 && v1 === v2;
+                    });
+
+                    if (isSameInstanceCount && isSameHistogram) {
+                        return;
+                    }
+
+                    updatedNodeList.push(currNode);
+                }
+            });
 
             const prevEdgeList = this.serverMapData.getLinkList();
             const currEdgeList = serverMapData.getLinkList();
@@ -251,7 +279,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                 updateNodes$.pipe(
                     tap((nodes: { [key: string]: any }[]) => {
                         nodes.forEach(({data: {id, imgArr}}: { [key: string]: any }) => {
-                            this.cy.getElementById(id).data({imgArr, alive: true});
+                            this.cy.getElementById(id).data({imgArr, alive: true}); 
                         });
 
                         updatedEdgeList.forEach(({key, totalCount, hasAlert}: { [key: string]: any }) => {
@@ -276,6 +304,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         if (!isRemovedNode) {
                             return;
                         }
+                        console.log('removed!');
 
                         if (this.isMergedElement(ele)) {
                             this.cy.remove(ele);
@@ -312,13 +341,16 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     return {nodes, edges};
                 }),
                 tap((elements: { [key: string]: any }) => {
+                    if (elements.nodes.length !== 0) {
+                        console.log('node 추가!');
+                    }
                     this.addedNodes = this.cy.add(elements).nodes().toArray();
                 }),
                 filter(() => !isEmpty(this.addedNodes))
             ).subscribe((elements: { [key: string]: any }) => {
-                this.cy.nodes().lock();
-                this.initLayout();
-                this.adjustStyle(elements);
+                // this.cy.nodes().lock();
+                // this.initLayout(); // ! 얘도 문제다?
+                // this.adjustStyle(elements);
             });
         } else {
             // * Update Entirely
@@ -380,7 +412,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
         return topCountNodes[0].applicationName;
     }
 
-    private getNodesObs(nodeList: INodeInfo[]): Observable<{ [key: string]: any }[]> {
+    private getNodesObs(nodeList: INodeInfo[]): Observable<{[key: string]: any}[]> {
         return fromOperator(nodeList).pipe(
             mergeMap((node: { [key: string]: any }) => {
                 const {key, applicationName, serviceType, isAuthorized, hasAlert, isMerged, topCountNodes} = node;
@@ -419,7 +451,6 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     })(),
                     serviceTypeImgLoadEvent$.pipe(map((v: Event) => [v.target]))
                 );
-
                 return innerObs$.pipe(
                     map(([serviceTypeImgElem, _]: HTMLImageElement[]) => {
                         // [serviceTypeImgElem, alertImg]
