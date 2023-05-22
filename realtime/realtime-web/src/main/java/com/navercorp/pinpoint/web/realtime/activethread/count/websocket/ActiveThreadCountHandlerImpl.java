@@ -117,8 +117,8 @@ class ActiveThreadCountHandlerImpl extends ActiveThreadCountHandler implements P
         final List<ClusterKey> agentKeys =
                 this.agentLookupService.getRecentAgents(applicationName, TimeUnit.HOURS.toMillis(1));
         final TickHandler handler = new TickHandler(session, applicationName, agentKeys, getFetchers(agentKeys));
-
-        return ignoreArgument(decorateHandler(ctx.getTaskDecorator(), handler));
+        final Runnable decoratedHandler = decorateHandler(ctx.getTaskDecorator(), handler);
+        return t -> decoratedHandler.run();
     }
 
     private List<Fetcher<ATCSupply>> getFetchers(List<ClusterKey> agentKeys) {
@@ -155,10 +155,6 @@ class ActiveThreadCountHandlerImpl extends ActiveThreadCountHandler implements P
             return target;
         }
         return decorator.decorate(target);
-    }
-
-    private static <T> Consumer<T> ignoreArgument(Runnable r) {
-        return t -> r.run();
     }
 
     private class TickHandler extends TimerTask {
