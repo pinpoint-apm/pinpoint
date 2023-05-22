@@ -20,8 +20,6 @@ import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.resource.ClientResources;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -60,7 +58,7 @@ public class RedisBasicConfig {
     @Value("${spring.data.redis.port:6379}")
     int port;
 
-    @Value("${spring.data.redis.cluster.nodes:@null}")
+    @Value("${spring.data.redis.cluster.nodes}")
     List<String> clusterNodes;
     @Value("${spring.data.redis.lettuce.client.io-thread-pool-size:8}")
     int lettuceIOThreadPoolSize;
@@ -86,22 +84,17 @@ public class RedisBasicConfig {
     }
 
     @Bean
-    @ConditionalOnProperty("spring.redis.cluster.nodes")
-    RedisConfiguration redisClusterConfiguration() {
-        Assert.notNull(clusterNodes, "clusterNodes are required for redis-cluster mode");
+    RedisConfiguration redisConfiguration() {
+        if (clusterNodes == null || clusterNodes.isEmpty()) {
+            Assert.hasText(host, "host is required for redis-standalone mode");
+
+            final RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
+            config.setUsername(username);
+            config.setPassword(password);
+            return config;
+        }
 
         final RedisClusterConfiguration config = new RedisClusterConfiguration(clusterNodes);
-        config.setUsername(username);
-        config.setPassword(password);
-        return config;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(RedisConfiguration.class)
-    RedisConfiguration redisStandaloneConfiguration() {
-        Assert.hasText(host, "host is required for redis-standalone mode");
-
-        final RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
         config.setUsername(username);
         config.setPassword(password);
         return config;
