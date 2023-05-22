@@ -42,6 +42,9 @@ public class ActiveThreadCountWebDaoConfig {
     @Value("${pinpoint.web.realtime.atc.supply.expireInMs:3000}")
     long supplyExpireInMs;
 
+    @Value("${pinpoint.web.realtime.atc.supply.prepareInMs:10000}")
+    long prepareInMs;
+
     @Bean
     PubSubFluxClient<ATCDemand, ATCSupply> atcEndpoint(PubSubClientFactory clientFactory) {
         return clientFactory.build(RealtimePubSubServiceDescriptors.ATC);
@@ -62,7 +65,9 @@ public class ActiveThreadCountWebDaoConfig {
             Cache<ClusterKey, Fetcher<ATCSupply>> fetcherCache
     ) {
         final long recordMaxAgeNanos = TimeUnit.MILLISECONDS.toNanos(supplyExpireInMs);
-        final ActiveThreadCountFetcherFactory fetcherFactory = new ActiveThreadCountFetcherFactory(endpoint, recordMaxAgeNanos);
+        final long prepareInNanos = TimeUnit.MILLISECONDS.toNanos(prepareInMs);
+        final ActiveThreadCountFetcherFactory fetcherFactory
+                = new ActiveThreadCountFetcherFactory(endpoint, recordMaxAgeNanos, prepareInNanos);
         return new CachedFetcherFactory<>(fetcherFactory, fetcherCache);
     }
 

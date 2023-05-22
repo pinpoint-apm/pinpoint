@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import reactor.core.publisher.Flux;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * @author youngjin.kim2
@@ -30,19 +30,32 @@ class ActiveThreadCountFetcherFactory implements FetcherFactory<ClusterKey, ATCS
 
     private final PubSubFluxClient<ATCDemand, ATCSupply> endpoint;
     private final long recordMaxAgeNanos;
+    private final long prepareTimeoutNanos;
 
-    ActiveThreadCountFetcherFactory(PubSubFluxClient<ATCDemand, ATCSupply> endpoint, long recordMaxAgeNanos) {
+    ActiveThreadCountFetcherFactory(
+            PubSubFluxClient<ATCDemand, ATCSupply> endpoint,
+            long recordMaxAgeNanos,
+            long prepareTimeoutNanos
+    ) {
         this.endpoint = endpoint;
         this.recordMaxAgeNanos = recordMaxAgeNanos;
+        this.prepareTimeoutNanos = prepareTimeoutNanos;
     }
 
     @Override
     public Fetcher<ATCSupply> getFetcher(ClusterKey key) {
-        return new OptimisticFetcher<>(this.makeValueSupplier(key), this.recordMaxAgeNanos);
+        return new OptimisticFetcher<>(this.makeValueSupplier(key), this.recordMaxAgeNanos, this.prepareTimeoutNanos);
     }
 
-    private Supplier<Flux<ATCSupply>> makeValueSupplier(ClusterKey key) {
-        return () -> this.endpoint.request(makeDemand(key));
+    private Function<Integer, Flux<ATCSupply>> makeValueSupplier(ClusterKey key) {
+        return i -> {
+            final Flux<ATCSupply> response = this.endpoint.request(makeDemand(key));
+            if (i == 0) {
+                return response;
+            } else {
+                return response.filter(el -> !el.getValues().isEmpty());
+            }
+        };
     }
 
     private ATCDemand makeDemand(ClusterKey key) {

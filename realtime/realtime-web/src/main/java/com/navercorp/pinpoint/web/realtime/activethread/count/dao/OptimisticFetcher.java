@@ -23,9 +23,10 @@ import reactor.core.publisher.Flux;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * @author youngjin.kim2
@@ -34,27 +35,34 @@ public class OptimisticFetcher<T> implements Fetcher<T> {
 
     private static final Logger logger = LogManager.getLogger(OptimisticFetcher.class);
 
-    private final Supplier<Flux<T>> valueSupplier;
+    private final Function<Integer, Flux<T>> valueSupplier;
     private final long recordMaxAgeNanos;
+    private final long prepareTimeoutNanos;
 
     private final AtomicReference<Record<T>> recordRef = new AtomicReference<>();
     private final Throttle prepareThrottle = new MinTermThrottle(TimeUnit.SECONDS.toNanos(3));
+    private final AtomicInteger numPrepared = new AtomicInteger(0);
     private final AtomicLong latestPrepareTime = new AtomicLong(0);
 
-    public OptimisticFetcher(Supplier<Flux<T>> valueSupplier, long recordMaxAgeNanos) {
+    public OptimisticFetcher(
+            Function<Integer, Flux<T>> valueSupplier,
+            long recordMaxAgeNanos,
+            long prepareTimeoutNanos
+    ) {
         this.valueSupplier = Objects.requireNonNull(valueSupplier, "valueSupplier");
         this.recordMaxAgeNanos = recordMaxAgeNanos;
+        this.prepareTimeoutNanos = prepareTimeoutNanos;
     }
 
     @Override
     public T fetch() {
         final Record<T> latestRecord = this.recordRef.get();
-        if (latestRecord == null || latestRecord.isOld(System.nanoTime() - this.recordMaxAgeNanos)) {
+        if (latestRecord == null || latestRecord.olderThan(System.nanoTime() - this.recordMaxAgeNanos)) {
             prepareForNext();
             return null;
         }
 
-        if (this.latestPrepareTime.get() < System.nanoTime() - TimeUnit.SECONDS.toNanos(12)) {
+        if (this.latestPrepareTime.get() < System.nanoTime() - this.prepareTimeoutNanos) {
             prepareForNext();
         }
 
@@ -64,11 +72,12 @@ public class OptimisticFetcher<T> implements Fetcher<T> {
     private void prepareForNext() {
         if (this.prepareThrottle.hit()) {
             logger.debug("Fetcher Started");
-            this.valueSupplier.get()
+            final long prepareTime = System.nanoTime();
+            this.valueSupplier.apply(this.numPrepared.getAndIncrement())
                     .doOnNext(item -> logger.trace("Fetcher Received: {}", item))
                     .doOnComplete(() -> logger.debug("Fetcher Completed"))
                     .subscribe(this::put);
-            this.latestPrepareTime.set(System.nanoTime());
+            this.latestPrepareTime.set(prepareTime);
         }
     }
 
@@ -76,7 +85,8 @@ public class OptimisticFetcher<T> implements Fetcher<T> {
         if (supply == null) {
             return;
         }
-        this.recordRef.set(new Record<>(supply));
+        final Record<T> nextRecord = new Record<>(supply);
+        this.recordRef.set(nextRecord);
     }
 
     private static final class Record<T> {
@@ -93,7 +103,7 @@ public class OptimisticFetcher<T> implements Fetcher<T> {
             return this.value;
         }
 
-        boolean isOld(long thresholdNanos) {
+        boolean olderThan(long thresholdNanos) {
             return this.createdAt < thresholdNanos;
         }
 
