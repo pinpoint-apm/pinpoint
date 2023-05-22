@@ -221,7 +221,7 @@
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.11.0</plugin.compiler.version>
-        <plugin.resources.version>3.2.0</plugin.resources.version>
+        <plugin.resources.version>3.3.1</plugin.resources.version>
         <plugin.surefire.version>3.1.0</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
