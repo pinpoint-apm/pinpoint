@@ -42,7 +42,6 @@ export interface AxisOption {
   padding?: number;
   strokeColor?: string;
   tick?: TickOption;
-  width?: number;
 }
 
 export interface TickOption {

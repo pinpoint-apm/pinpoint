@@ -12,7 +12,7 @@ export const getTickTexts = ({ min, max, tick }: AxisOption) => {
   const gap = (max - min) / (tickCount - 1);
   return [...Array(tickCount)].map((_, i) => {
     const value = min + gap * i;
-    const result = tick?.format?.(value) || value;
+    const result = tick?.format?.(value) ?? value;
 
     return `${result}`;
   });

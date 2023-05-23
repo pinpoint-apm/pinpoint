@@ -1,4 +1,4 @@
-> latest version: v1.4.1
+> latest version: v1.5.0
 
 # @pinpoint-fe/scatter-chart
 - [documentation](https://pinpoint-apm.github.io/pinpoint-fe-docs/scatterchart/introduction)

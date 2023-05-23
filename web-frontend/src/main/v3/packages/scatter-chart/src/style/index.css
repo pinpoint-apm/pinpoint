@@ -1,8 +1,6 @@
 .__scatter_chart__legend_container {
   display: flex;
   justify-content: space-around;
-  /* -webkit-transform: translateZ(0);
-  transform: translateZ(0); */
 }
 .__scatter_chart__legend {
   display: flex;
