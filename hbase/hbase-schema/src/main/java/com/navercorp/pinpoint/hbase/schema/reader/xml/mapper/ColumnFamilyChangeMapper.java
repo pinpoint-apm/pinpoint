@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.hbase.schema.reader.xml.mapper;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.hbase.schema.definition.xml.Table;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ColumnFamilyChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.ColumnFamilyConfiguration;
 import com.navercorp.pinpoint.hbase.schema.reader.core.CreateColumnFamilyChange;
-import org.springframework.util.StringUtils;
 
 /**
  * @author HyunGil Jeong
