@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.hbase.schema.reader.xml.mapper;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.hbase.schema.definition.xml.ChangeSet;
 import com.navercorp.pinpoint.hbase.schema.definition.xml.Table;
 import com.navercorp.pinpoint.hbase.schema.reader.InvalidHbaseSchemaException;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.hbase.schema.reader.core.ModifyTableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableChange;
 import com.navercorp.pinpoint.hbase.schema.reader.core.TableConfiguration;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
